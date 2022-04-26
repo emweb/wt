@@ -48,9 +48,9 @@ public:
   /*! \class StrengthValidatorResult
    *  \brief Result returned when validating password strength.
    *
-   * This class contains information on the validity and the strength of 
+   * This class contains information on the validity and the strength of
    * the password together with possible messages.
-   * When the password is considered not strong enough, a message should 
+   * When the password is considered not strong enough, a message should
    * be provided which helps the user pick a stronger password.
    *
    * \sa AbstractStrengthValidator::evaluateStrength()
@@ -59,10 +59,10 @@ public:
   public:
     /*! \brief Constructor.
      */
-    StrengthValidatorResult(bool valid, 
-			    const WString &message,
-			    int strength);
-    
+    StrengthValidatorResult(bool valid,
+                            const WString &message,
+                            int strength);
+
     /*! \brief Returns whether the password is considered strong enough.
      */
     bool isValid() { return valid_; }
@@ -74,7 +74,7 @@ public:
     /*! \brief Returns the password strength in a scale of 0 to 5.
      */
     int strength() { return strength_; }
-    
+
   private:
     bool valid_;
     WString message_;
@@ -85,12 +85,12 @@ public:
    *  \brief Validator for password strength.
    *
    * This class defines a specialized validator interface for evaluating
-   * password strength. The implementation allows to evaluate strength 
-   * in addition to the normal validator functionality of validating a 
+   * password strength. The implementation allows to evaluate strength
+   * in addition to the normal validator functionality of validating a
    * password.
    *
    * The evaluateStrength() computes the strength and returns
-   * an instance of StrenghtValidatorResult which contains information on the 
+   * an instance of StrenghtValidatorResult which contains information on the
    * validity and the strength of the password together with possible messages.
    *
    * \sa strengthValidator()
@@ -104,18 +104,18 @@ public:
 
     /*! \brief Evaluates the strength of a password.
      *
-     * The result is an instance of StrengthValidatorResult which 
-     * contains information on the validity and the strength of the password 
+     * The result is an instance of StrengthValidatorResult which
+     * contains information on the validity and the strength of the password
      * together with possible messages.
      *
      * The validator may take into account the user's login name and
      * email address, to exclude passwords that are too similar to
      * these.
      */
-    virtual StrengthValidatorResult 
+    virtual StrengthValidatorResult
       evaluateStrength(const WT_USTRING& password,
-		       const WT_USTRING& loginName,
-		       const std::string& email) const = 0;
+                       const WT_USTRING& loginName,
+                       const std::string& email) const = 0;
 
     /*! \brief Validates a password.
      *
@@ -123,8 +123,8 @@ public:
      * result of password validation.
      */
     virtual Result validate(const WT_USTRING& password,
-			    const WT_USTRING& loginName,
-			    const std::string& email) const;
+                            const WT_USTRING& loginName,
+                            const std::string& email) const;
 
     /*! \brief Validates a password.
      *
@@ -169,11 +169,11 @@ public:
    * \sa setVerifier(), setAttemptThrottlingEnabled()
    */
   virtual PasswordResult verifyPassword(const User& user,
-					const WT_USTRING& password) const = 0;
+                                        const WT_USTRING& password) const = 0;
 
   /*! \brief Sets a new password for the given user.
    *
-   * This stores a new password for the user in the database. 
+   * This stores a new password for the user in the database.
    */
   virtual void updatePassword(const User& user, const WT_USTRING& password)
     const = 0;

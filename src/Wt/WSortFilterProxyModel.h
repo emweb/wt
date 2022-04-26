@@ -69,7 +69,7 @@ namespace Wt {
  * \code
  * // model is the source model
  *  WAbstractItemModel model = ...
- * 
+ *
  * // we setup a proxy to filter the source model
  * WSortFilterProxyModel proxy = new WSortFilterProxyModel(this);
  * proxy.setSourceModel(model);
@@ -77,7 +77,7 @@ namespace Wt {
  * proxy.setFilterKeyColumn(0);
  * proxy.setFilterRole(ItemDataRole.User);
  * proxy.setFilterRegExp(".*");
- *		 
+ *
  * // configure a view to use the proxy model instead of the source model
  * WTreeView view = new WTreeView(this);
  * view.setModel(proxy);
@@ -233,14 +233,14 @@ public:
 
   virtual WModelIndex parent(const WModelIndex& index) const override;
   virtual WModelIndex index(int row, int column,
-			    const WModelIndex& parent = WModelIndex())
+                            const WModelIndex& parent = WModelIndex())
     const override;
 
   virtual bool setHeaderData(int section, Orientation orientation,
-			     const cpp17::any& value,
+                             const cpp17::any& value,
                              ItemDataRole role = ItemDataRole::Edit) override;
   virtual cpp17::any headerData(int section,
-			     Orientation orientation = Orientation::Horizontal,
+                             Orientation orientation = Orientation::Horizontal,
                          ItemDataRole role = ItemDataRole::Display) const override;
   virtual WFlags<HeaderFlag> headerFlags
     (int section, Orientation orientation = Orientation::Horizontal)
@@ -262,14 +262,14 @@ public:
    * row(s) of data.
    */
   virtual bool insertRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex()) override;
+                          const WModelIndex& parent = WModelIndex()) override;
 
   /*! \brief Removes a number rows.
    *
    * The rows are removed from the source model.
    */
   virtual bool removeRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex()) override;
+                          const WModelIndex& parent = WModelIndex()) override;
 
   virtual void sort(int column, SortOrder order = SortOrder::Ascending)
     override;
@@ -356,23 +356,23 @@ private:
   mutable Item* mappedRootItem_;
 
   void sourceColumnsAboutToBeInserted(const WModelIndex& parent,
-				      int start, int end);
+                                      int start, int end);
   void sourceColumnsInserted(const WModelIndex& parent, int start, int end);
 
   void sourceColumnsAboutToBeRemoved(const WModelIndex& parent,
-				     int start, int end);
+                                     int start, int end);
   void sourceColumnsRemoved(const WModelIndex& parent, int start, int end);
 
   void sourceRowsAboutToBeInserted(const WModelIndex& parent,
-				   int start, int end);
+                                   int start, int end);
   void sourceRowsInserted(const WModelIndex& parent, int start, int end);
 
   void sourceRowsAboutToBeRemoved(const WModelIndex& parent,
-				  int start, int end);
+                                  int start, int end);
   void sourceRowsRemoved(const WModelIndex& parent, int start, int end);
 
   void sourceDataChanged(const WModelIndex& topLeft,
-			 const WModelIndex& bottomRight);
+                         const WModelIndex& bottomRight);
 
   void sourceHeaderDataChanged(Orientation orientation, int start, int end);
 

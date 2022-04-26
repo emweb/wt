@@ -27,7 +27,7 @@ LOGGER("FlexLayout");
 FlexLayoutImpl::FlexLayoutImpl(WLayout *layout, Impl::Grid& grid)
   : StdLayoutImpl(layout),
     grid_(grid)
-{ 
+{
   const char *THIS_JS = "js/FlexLayoutImpl.js";
 
   WApplication *app = WApplication::instance();
@@ -83,7 +83,7 @@ void FlexLayoutImpl::updateDom(DomElement& parent)
 
   for (unsigned i = 0; i < removedItems_.size(); ++i)
     div->callJavaScript(WT_CLASS ".remove('" + removedItems_[i] + "');",
-			true);
+                        true);
 
   removedItems_.clear();
 
@@ -95,7 +95,7 @@ void FlexLayoutImpl::updateDom(DomElement& parent)
 }
 
 FlexLayoutImpl::~FlexLayoutImpl()
-{ 
+{
   WApplication *app = WApplication::instance();
 
   if (parentLayoutImpl() == nullptr) {
@@ -208,8 +208,8 @@ Impl::Grid::Item& FlexLayoutImpl::item(Orientation orientation, int i)
 }
 
 DomElement *FlexLayoutImpl::createDomElement(DomElement *parent,
-					     bool fitWidth, bool fitHeight,
-					     WApplication *app)
+                                             bool fitWidth, bool fitHeight,
+                                             WApplication *app)
 {
   addedItems_.clear();
   removedItems_.clear();
@@ -267,7 +267,7 @@ DomElement *FlexLayoutImpl::createDomElement(DomElement *parent,
   if (margin[0] != 0 || margin[1] != 0 || margin[2] != 0 || margin[3] != 0) {
     WStringStream paddingProperty;
     paddingProperty << margin[0] << "px " << margin[1] << "px "
-		    << margin[2] << "px " << margin[3] << "px";
+                    << margin[2] << "px " << margin[3] << "px";
     result->setProperty(Property::StylePadding, paddingProperty.str());
   }
 
@@ -323,7 +323,7 @@ int FlexLayoutImpl::getTotalStretch(Orientation orientation)
     Impl::Grid::Section& s = section(orientation, i);
     Impl::Grid::Item& it = item(orientation, i);
     if (!it.item_.get()->widget() ||
-	!it.item_.get()->widget()->isHidden())
+        !it.item_.get()->widget()->isHidden())
       totalStretch += std::max(0, s.stretch_);
   }
 
@@ -345,7 +345,7 @@ LayoutDirection FlexLayoutImpl::getDirection() const
 {
   WBoxLayout *boxLayout = dynamic_cast<WBoxLayout *>(layout());
   if (boxLayout)
-    return boxLayout->direction();  
+    return boxLayout->direction();
   else
     return LayoutDirection::LeftToRight;
 }
@@ -364,9 +364,9 @@ Orientation FlexLayoutImpl::getOrientation() const
 }
 
 DomElement *FlexLayoutImpl::createElement(Orientation orientation,
-					  unsigned index,
-					  int totalStretch,
-					  WApplication *app)
+                                          unsigned index,
+                                          int totalStretch,
+                                          WApplication *app)
 {
   Impl::Grid::Item& it = item(orientation, index);
   Impl::Grid::Section& s = section(orientation, index);
@@ -412,33 +412,33 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
 
       switch (hAlign) {
       case AlignmentFlag::Left:
-	el->setProperty(Property::StyleJustifyContent, "flex-start");
-	break;
+        el->setProperty(Property::StyleJustifyContent, "flex-start");
+        break;
       case AlignmentFlag::Center:
-	el->setProperty(Property::StyleJustifyContent, "center");
-	break;
+        el->setProperty(Property::StyleJustifyContent, "center");
+        break;
       case AlignmentFlag::Right:
-	el->setProperty(Property::StyleJustifyContent, "flex-end");
+        el->setProperty(Property::StyleJustifyContent, "flex-end");
       default:
-	break;
+        break;
       }
     }
 
     if (vAlign != static_cast<AlignmentFlag>(0))
       switch (vAlign) {
       case AlignmentFlag::Top:
-	el->setProperty(Property::StyleAlignSelf, "flex-start");
-	break;
+        el->setProperty(Property::StyleAlignSelf, "flex-start");
+        break;
       case AlignmentFlag::Middle:
-	el->setProperty(Property::StyleAlignSelf, "center");
-	break;
+        el->setProperty(Property::StyleAlignSelf, "center");
+        break;
       case AlignmentFlag::Bottom:
-	el->setProperty(Property::StyleAlignSelf, "flex-end");
-	break;
+        el->setProperty(Property::StyleAlignSelf, "flex-end");
+        break;
       case AlignmentFlag::Baseline:
-	el->setProperty(Property::StyleAlignSelf, "baseline");
+        el->setProperty(Property::StyleAlignSelf, "baseline");
       default:
-	break;
+        break;
       }
   } else {
     if (vAlign != static_cast<AlignmentFlag>(0)) {
@@ -453,34 +453,34 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
 
       switch (vAlign) {
       case AlignmentFlag::Top:
-	el->setProperty(Property::StyleJustifyContent, "flex-start");
-	break;
+        el->setProperty(Property::StyleJustifyContent, "flex-start");
+        break;
       case AlignmentFlag::Middle:
-	el->setProperty(Property::StyleJustifyContent, "center");
-	break;
+        el->setProperty(Property::StyleJustifyContent, "center");
+        break;
       case AlignmentFlag::Bottom:
-	el->setProperty(Property::StyleJustifyContent, "flex-end");
+        el->setProperty(Property::StyleJustifyContent, "flex-end");
       default:
-	break;
+        break;
       }
     }
 
-    if (hAlign != static_cast<AlignmentFlag>(0)) 
+    if (hAlign != static_cast<AlignmentFlag>(0))
       switch (hAlign) {
       case AlignmentFlag::Left:
-	el->setProperty(Property::StyleAlignSelf, "flex-start");
-	break;
+        el->setProperty(Property::StyleAlignSelf, "flex-start");
+        break;
       case AlignmentFlag::Center:
-	el->setProperty(Property::StyleAlignSelf, "center");
-	break;
+        el->setProperty(Property::StyleAlignSelf, "center");
+        break;
       case AlignmentFlag::Right:
-	el->setProperty(Property::StyleAlignSelf, "flex-end");
-	break;
+        el->setProperty(Property::StyleAlignSelf, "flex-end");
+        break;
       default:
-	break;
+        break;
       }
   }
-      
+
   {
     WStringStream flexProperty;
     int stretch = std::max(0, s.stretch_);
@@ -517,7 +517,7 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
   if (m[0] != 0 || m[1] != 0 || m[2] != 0 || m[3] != 0) {
     WStringStream marginProperty;
     marginProperty << m[0] << "px " << m[1] << "px "
-		   << m[2] << "px " << m[3] << "px";
+                   << m[2] << "px " << m[3] << "px";
     el->setProperty(Property::StyleMargin, marginProperty.str());
   }
 

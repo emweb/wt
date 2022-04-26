@@ -94,7 +94,7 @@ WWebWidget::LayoutImpl::LayoutImpl()
     baseZIndex_(DEFAULT_BASE_Z_INDEX),
     zIndex_(0),
     verticalAlignment_(AlignmentFlag::Baseline)
-{ 
+{
   for (unsigned i = 0; i < 4; ++i) {
 #ifdef WT_TARGET_JAVA
     offsets_[i] = WLength::Auto;
@@ -143,7 +143,7 @@ WStatelessSlot *WWebWidget::getStateless(Method method)
 
   if (method == static_cast<WObject::Method>(focusMethod))
     return implementStateless(focusMethod,
-			      &WWebWidget::undoSetFocus);
+                              &WWebWidget::undoSetFocus);
   else
     return WWidget::getStateless(method);
 }
@@ -195,7 +195,7 @@ const std::string WWebWidget::id() const
   if (id_)
     return *id_;
   else
-    return WWidget::id();  
+    return WWidget::id();
 }
 
 void WWebWidget::repaint(WFlags<RepaintFlag> flags)
@@ -338,7 +338,7 @@ void WWebWidget::widgetRemoved(WWidget *child, bool renderRemove)
       !child->webWidget()->isRendered() &&
       !child->webWidget()->isStubbed())
     --transientImpl_->addedChildren_;
-    
+
   /*
    * When the child is about to be deleted, all of its descendants
    * properly removes itself from the renderer "dirty" list. If not,
@@ -522,12 +522,12 @@ WFlags<Side> WWebWidget::clearSides() const
 }
 
 void WWebWidget::setVerticalAlignment(AlignmentFlag alignment,
-				      const WLength& length)
+                                      const WLength& length)
 {
   if (AlignHorizontalMask.test(alignment))
-    LOG_ERROR("setVerticalAlignment(): alignment " 
-	      << static_cast<int>(alignment)
-	      << " is not vertical");
+    LOG_ERROR("setVerticalAlignment(): alignment "
+              << static_cast<int>(alignment)
+              << " is not vertical");
 
   if (!layoutImpl_)
     layoutImpl_.reset(new LayoutImpl());
@@ -542,7 +542,7 @@ void WWebWidget::setVerticalAlignment(AlignmentFlag alignment,
 
 AlignmentFlag WWebWidget::verticalAlignment() const
 {
-  return layoutImpl_ 
+  return layoutImpl_
     ? layoutImpl_->verticalAlignment_ : AlignmentFlag::Baseline;
 }
 
@@ -677,8 +677,8 @@ WWidget *WWebWidget::selfWidget()
   do {
     p = p_parent;
     p_parent = p->parent();
-  } while (p_parent != nullptr && 
-	   dynamic_cast<WCompositeWidget *>(p_parent) != nullptr);
+  } while (p_parent != nullptr &&
+           dynamic_cast<WCompositeWidget *>(p_parent) != nullptr);
 
   return p;
 }
@@ -754,11 +754,11 @@ void WWebWidget::addStyleClass(const WT_USTRING& styleClass, bool force)
   std::string currentClass = lookImpl_->styleClass_.toUTF8();
   Utils::SplitSet classes;
   Utils::split(classes, currentClass, " ", true);
-  
+
   if (classes.find(styleClass.toUTF8()) == classes.end()) {
     lookImpl_->styleClass_
       = WT_USTRING::fromUTF8(Utils::addWord(lookImpl_->styleClass_.toUTF8(),
-					    styleClass.toUTF8()));
+                                            styleClass.toUTF8()));
 
     if (!force) {
       flags_.set(BIT_STYLECLASS_CHANGED);
@@ -787,7 +787,7 @@ void WWebWidget::removeStyleClass(const WT_USTRING& styleClass, bool force)
     // make sure we keep the original order ?
     lookImpl_->styleClass_
       = WT_USTRING::fromUTF8(Utils::eraseWord(lookImpl_->styleClass_.toUTF8(),
-					      styleClass.toUTF8()));
+                                              styleClass.toUTF8()));
     if (!force) {
       flags_.set(BIT_STYLECLASS_CHANGED);
       repaint(RepaintFlag::SizeAffected);
@@ -853,7 +853,7 @@ WT_USTRING WWebWidget::styleClass() const
 }
 
 void WWebWidget::setAttributeValue(const std::string& name,
-				   const WT_USTRING& value)
+                                   const WT_USTRING& value)
 {
   if (!otherImpl_)
     otherImpl_.reset(new OtherImpl(this));
@@ -863,7 +863,7 @@ void WWebWidget::setAttributeValue(const std::string& name,
 
   std::map<std::string, WT_USTRING>::const_iterator i
     = otherImpl_->attributes_->find(name);
-  
+
   if (i != otherImpl_->attributes_->end() && i->second == value)
     return;
 
@@ -891,17 +891,17 @@ WT_USTRING WWebWidget::attributeValue(const std::string& name) const
 }
 
 void WWebWidget::setJavaScriptMember(const std::string& name,
-				     const std::string& value)
+                                     const std::string& value)
 {
   if (!otherImpl_)
     otherImpl_.reset(new OtherImpl(this));
 
   if (!otherImpl_->jsMembers_)
     otherImpl_->jsMembers_.reset(new std::vector<OtherImpl::Member>);
-  
+
   std::vector<OtherImpl::Member>& members = *otherImpl_->jsMembers_;
   int index = indexOfJavaScriptMember(name);
-  
+
   if (index != -1 && (members[index].value == value))
     return;
 
@@ -935,7 +935,7 @@ std::string WWebWidget::javaScriptMember(const std::string& name) const
     return std::string();
 }
 
-int WWebWidget::indexOfJavaScriptMember(const std::string& name) const 
+int WWebWidget::indexOfJavaScriptMember(const std::string& name) const
 {
   if (otherImpl_ && otherImpl_->jsMembers_)
   for (unsigned i = 0; i < otherImpl_->jsMembers_->size(); i++)
@@ -946,16 +946,16 @@ int WWebWidget::indexOfJavaScriptMember(const std::string& name) const
 }
 
 void WWebWidget::callJavaScriptMember(const std::string& name,
-				      const std::string& args)
+                                      const std::string& args)
 {
-  addJavaScriptStatement(JavaScriptStatementType::CallMethod, 
-			 name + "(" + args + ");");
+  addJavaScriptStatement(JavaScriptStatementType::CallMethod,
+                         name + "(" + args + ");");
 
   repaint();
 }
 
 void WWebWidget::addJavaScriptStatement(JavaScriptStatementType type,
-					const std::string& data)
+                                        const std::string& data)
 {
   if (!otherImpl_)
     otherImpl_.reset(new OtherImpl(this));
@@ -973,7 +973,7 @@ void WWebWidget::addJavaScriptStatement(JavaScriptStatementType type,
   if (type == JavaScriptStatementType::SetMember) {
     for (unsigned i = 0; i < v.size(); ++i) {
       if (v[i].type == JavaScriptStatementType::SetMember && v[i].data == data)
-	return;
+        return;
     }
   }
 
@@ -1103,11 +1103,11 @@ void WWebWidget::parentResized(WWidget *parent, WFlags<Orientation> directions)
   if (flags_.test(BIT_CONTAINS_LAYOUT)) {
     iterateChildren
       ([=](WWidget *c) {
-	if (!c->isHidden())
-	  c->webWidget()->parentResized(parent, directions);
+        if (!c->isHidden())
+          c->webWidget()->parentResized(parent, directions);
       });
   }
-}    
+}
 
 void WWebWidget::containsLayout()
 {
@@ -1133,7 +1133,7 @@ bool WWebWidget::isVisible() const
       return parent()->isVisible();
     else
       return this == WApplication::instance()->domRoot() ||
-	     this == WApplication::instance()->domRoot2();
+             this == WApplication::instance()->domRoot2();
 }
 
 void WWebWidget::setDisabled(bool disabled)
@@ -1164,7 +1164,7 @@ void WWebWidget::propagateSetEnabled(bool enabled)
   iterateChildren
     ([=](WWidget *c) {
       if (!c->isDisabled())
-	c->webWidget()->propagateSetEnabled(enabled);
+        c->webWidget()->propagateSetEnabled(enabled);
       });
 }
 
@@ -1234,7 +1234,7 @@ void WWebWidget::setHideWithOffsets(bool how)
       resetLearnedSlot(&WWidget::hide);
 
       if (parent())
-	parent()->setHideWithOffsets(true);
+        parent()->setHideWithOffsets(true);
     }
   }
 }
@@ -1244,13 +1244,13 @@ void WWebWidget::setImplementLayoutSizeAware(bool aware)
   if (!aware) {
     if (otherImpl_) {
       if (otherImpl_->resized_) {
-	otherImpl_->resized_.reset();
+        otherImpl_->resized_.reset();
 
-	std::string v = javaScriptMember(WT_RESIZE_JS);
-	if (v.length() == 1)
-	  setJavaScriptMember(WT_RESIZE_JS, std::string());
-	else
-	  addJavaScriptStatement(JavaScriptStatementType::SetMember, WT_RESIZE_JS);
+        std::string v = javaScriptMember(WT_RESIZE_JS);
+        if (v.length() == 1)
+          setJavaScriptMember(WT_RESIZE_JS, std::string());
+        else
+          addJavaScriptStatement(JavaScriptStatementType::SetMember, WT_RESIZE_JS);
       }
     }
   }
@@ -1283,7 +1283,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
    * determine display
    */
 
-  if (flags_.test(BIT_GEOMETRY_CHANGED) || 
+  if (flags_.test(BIT_GEOMETRY_CHANGED) ||
       flags_.test(BIT_FLEX_BOX_CHANGED) ||
       (!flags_.test(BIT_HIDE_WITH_VISIBILITY) &&
         flags_.test(BIT_HIDDEN_CHANGED)) ||
@@ -1300,36 +1300,36 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
       const bool defaultInline = element.type() == DomElementType::OTHER ? DomElement::isDefaultInline(domElementType()) : element.isDefaultInline();
       if (defaultInline != flags_.test(BIT_INLINE)) {
-	if (flags_.test(BIT_INLINE)) {
-	  if (element.type() == DomElementType::TABLE)
-	    display = InlineTable;
-	  if (element.type() == DomElementType::LI)
-	    display = Inline;
-	  else if (element.type() != DomElementType::TD) {
-	    if (!app) app = WApplication::instance();
-	    if (app->environment().agentIsIElt(9)) {
-	      display = Inline;
-	      element.setProperty(Property::StyleZoom, "1");
-	    } else
-	      display = InlineBlock;
-	  }
-	} else {
-	  display = Block;
-	}
+        if (flags_.test(BIT_INLINE)) {
+          if (element.type() == DomElementType::TABLE)
+            display = InlineTable;
+          if (element.type() == DomElementType::LI)
+            display = Inline;
+          else if (element.type() != DomElementType::TD) {
+            if (!app) app = WApplication::instance();
+            if (app->environment().agentIsIElt(9)) {
+              display = Inline;
+              element.setProperty(Property::StyleZoom, "1");
+            } else
+              display = InlineBlock;
+          }
+        } else {
+          display = Block;
+        }
       } else if (!all && flags_.test(BIT_HIDDEN_CHANGED)) {
-	if (defaultInline == flags_.test(BIT_INLINE))
-	  display = Empty;
-	else
-	  display = flags_.test(BIT_INLINE) ? Inline : Block;
+        if (defaultInline == flags_.test(BIT_INLINE))
+          display = Empty;
+        else
+          display = flags_.test(BIT_INLINE) ? Inline : Block;
       }
 
       if (flags_.test(BIT_FLEX_BOX))
-	display = flags_.test(BIT_INLINE) ? InlineFlex : Flex;
+        display = flags_.test(BIT_INLINE) ? InlineFlex : Flex;
       else if (flags_.test(BIT_FLEX_BOX_CHANGED) && !display)
         display = Empty;
 
       if (display)
-	element.setProperty(Property::StyleDisplay, display);
+        element.setProperty(Property::StyleDisplay, display);
     } else
       element.setProperty(Property::StyleDisplay, "none");
   }
@@ -1340,36 +1340,36 @@ void WWebWidget::updateDom(DomElement& element, bool all)
        * set z-index
        */
       if (layoutImpl_->zIndex_ > 0) {
-	element.setProperty(Property::StyleZIndex,
-			    std::to_string(layoutImpl_->zIndex_));
-	element.addPropertyWord(Property::Class, "Wt-popup");
-	if (!all &&
-	    !flags_.test(BIT_STYLECLASS_CHANGED) &&
-	    lookImpl_ && !lookImpl_->styleClass_.empty())
-	  element.addPropertyWord(Property::Class,
-				  lookImpl_->styleClass_.toUTF8());
+        element.setProperty(Property::StyleZIndex,
+                            std::to_string(layoutImpl_->zIndex_));
+        element.addPropertyWord(Property::Class, "Wt-popup");
+        if (!all &&
+            !flags_.test(BIT_STYLECLASS_CHANGED) &&
+            lookImpl_ && !lookImpl_->styleClass_.empty())
+          element.addPropertyWord(Property::Class,
+                                  lookImpl_->styleClass_.toUTF8());
 
-	if (!app) app = WApplication::instance();
-	if (all && app->environment().agent() == UserAgent::IE6
-	    && element.type() == DomElementType::DIV) {
-	  DomElement *i = DomElement::createNew(DomElementType::IFRAME);
-	  i->setId("sh" + id());
-	  i->setProperty(Property::Class, "Wt-shim");
-	  i->setProperty(Property::Src, "javascript:false;");
-	  i->setAttribute("title", "Popup Shim");
-	  i->setAttribute("tabindex", "-1");
-	  i->setAttribute("frameborder", "0");
+        if (!app) app = WApplication::instance();
+        if (all && app->environment().agent() == UserAgent::IE6
+            && element.type() == DomElementType::DIV) {
+          DomElement *i = DomElement::createNew(DomElementType::IFRAME);
+          i->setId("sh" + id());
+          i->setProperty(Property::Class, "Wt-shim");
+          i->setProperty(Property::Src, "javascript:false;");
+          i->setAttribute("title", "Popup Shim");
+          i->setAttribute("tabindex", "-1");
+          i->setAttribute("frameborder", "0");
 
-	  app->addAutoJavaScript
-	    ("{var w = " + jsRef() + ";"
-	     "if (w && !" WT_CLASS ".isHidden(w)) {"
-	     "var i = " WT_CLASS ".getElement('" + i->id() + "');"
-	     "i.style.width=w.clientWidth + 'px';"
-	     "i.style.height=w.clientHeight + 'px';"
-	     "}}");
+          app->addAutoJavaScript
+            ("{var w = " + jsRef() + ";"
+             "if (w && !" WT_CLASS ".isHidden(w)) {"
+             "var i = " WT_CLASS ".getElement('" + i->id() + "');"
+             "i.style.width=w.clientWidth + 'px';"
+             "i.style.height=w.clientHeight + 'px';"
+             "}}");
 
-	  element.addChild(i);
-	}
+          element.addChild(i);
+        }
       }
     }
 
@@ -1382,76 +1382,76 @@ void WWebWidget::updateDom(DomElement& element, bool all)
        * set position
        */
       if (!(flags_.test(BIT_HIDE_WITH_VISIBILITY) && flags_.test(BIT_HIDDEN)))
-	switch (layoutImpl_->positionScheme_) {
-	case PositionScheme::Static:
-	  break;
-	case PositionScheme::Relative:
-	  element.setProperty(Property::StylePosition, "relative"); break;
-	case PositionScheme::Absolute:
-	  element.setProperty(Property::StylePosition, "absolute"); break;
-	case PositionScheme::Fixed:
-	  element.setProperty(Property::StylePosition, "fixed"); break;
-	}
+        switch (layoutImpl_->positionScheme_) {
+        case PositionScheme::Static:
+          break;
+        case PositionScheme::Relative:
+          element.setProperty(Property::StylePosition, "relative"); break;
+        case PositionScheme::Absolute:
+          element.setProperty(Property::StylePosition, "absolute"); break;
+        case PositionScheme::Fixed:
+          element.setProperty(Property::StylePosition, "fixed"); break;
+        }
 
       /*
        * set clear: FIXME: multiple values
        */
       if (layoutImpl_->clearSides_ == Side::Left) {
-	element.setProperty(Property::StyleClear, "left");
+        element.setProperty(Property::StyleClear, "left");
       } else if (layoutImpl_->clearSides_ == Side::Right) {
-	element.setProperty(Property::StyleClear, "right");
+        element.setProperty(Property::StyleClear, "right");
       } else if (layoutImpl_->clearSides_ == (Side::Left | Side::Right)) {
-	element.setProperty(Property::StyleClear, "both");
+        element.setProperty(Property::StyleClear, "both");
       }
 
       if (layoutImpl_->minimumWidth_.value() != 0) {
-	std::string text
-	  = layoutImpl_->minimumWidth_.isAuto() ? "0px"
-	  : layoutImpl_->minimumWidth_.cssText();
-	element.setProperty(Property::StyleMinWidth, text);
+        std::string text
+          = layoutImpl_->minimumWidth_.isAuto() ? "0px"
+          : layoutImpl_->minimumWidth_.cssText();
+        element.setProperty(Property::StyleMinWidth, text);
       }
       if (layoutImpl_->minimumHeight_.value() != 0) {
-	std::string text
-	  = layoutImpl_->minimumHeight_.isAuto() ? "0px"
-	  : layoutImpl_->minimumHeight_.cssText();
-	element.setProperty(Property::StyleMinHeight, text);
+        std::string text
+          = layoutImpl_->minimumHeight_.isAuto() ? "0px"
+          : layoutImpl_->minimumHeight_.cssText();
+        element.setProperty(Property::StyleMinHeight, text);
       }
       if (!layoutImpl_->maximumWidth_.isAuto())
-	element.setProperty(Property::StyleMaxWidth,
-			    layoutImpl_->maximumWidth_.cssText());
+        element.setProperty(Property::StyleMaxWidth,
+                            layoutImpl_->maximumWidth_.cssText());
       if (!layoutImpl_->maximumHeight_.isAuto())
-	element.setProperty(Property::StyleMaxHeight,
-			    layoutImpl_->maximumHeight_.cssText());
+        element.setProperty(Property::StyleMaxHeight,
+                            layoutImpl_->maximumHeight_.cssText());
 
       /*
        * set offsets
        */
       if (layoutImpl_->positionScheme_ != PositionScheme::Static) {
-	static const Property properties[] = { Property::StyleTop,
-					       Property::StyleRight,
-					       Property::StyleBottom,
-					       Property::StyleLeft };
+        static const Property properties[] = { Property::StyleTop,
+                                               Property::StyleRight,
+                                               Property::StyleBottom,
+                                               Property::StyleLeft };
 
-	if (!layoutImpl_->offsets_[0].isAuto()
-	    || !layoutImpl_->offsets_[1].isAuto()
-	    || !layoutImpl_->offsets_[2].isAuto()
-	    || !layoutImpl_->offsets_[3].isAuto()) {
-	  for (unsigned i = 0; i < 4; ++i) {
-	    Property property = properties[i];
+        if (!layoutImpl_->offsets_[0].isAuto()
+            || !layoutImpl_->offsets_[1].isAuto()
+            || !layoutImpl_->offsets_[2].isAuto()
+            || !layoutImpl_->offsets_[3].isAuto()) {
+          for (unsigned i = 0; i < 4; ++i) {
+            Property property = properties[i];
 
-	    if (!app) app = WApplication::instance();
+            if (!app) app = WApplication::instance();
 
-	    if (app->layoutDirection() == LayoutDirection::RightToLeft) {
-	      if (i == 1) property = properties[3];
-	      else if (i == 3) property = properties[1];
-	    }
+            if (app->layoutDirection() == LayoutDirection::RightToLeft) {
+              if (i == 1) property = properties[3];
+              else if (i == 3) property = properties[1];
+            }
 
-	    if ((app->environment().ajax()
-		 && !app->environment().agentIsIElt(9))
-		|| !layoutImpl_->offsets_[i].isAuto())
-	      element.setProperty(property, layoutImpl_->offsets_[i].cssText());
-	  }
-	}
+            if ((app->environment().ajax()
+                 && !app->environment().agentIsIElt(9))
+                || !layoutImpl_->offsets_[i].isAuto())
+              element.setProperty(property, layoutImpl_->offsets_[i].cssText());
+          }
+        }
       }
 
       /*
@@ -1459,28 +1459,28 @@ void WWebWidget::updateDom(DomElement& element, bool all)
        */
       switch (layoutImpl_->verticalAlignment_) {
       case AlignmentFlag::Baseline:
-	break;
+        break;
       case AlignmentFlag::Sub:
-	element.setProperty(Property::StyleVerticalAlign, "sub"); break;
+        element.setProperty(Property::StyleVerticalAlign, "sub"); break;
       case AlignmentFlag::Super:
-	element.setProperty(Property::StyleVerticalAlign, "super"); break;
+        element.setProperty(Property::StyleVerticalAlign, "super"); break;
       case AlignmentFlag::Top:
-	element.setProperty(Property::StyleVerticalAlign, "top"); break;
+        element.setProperty(Property::StyleVerticalAlign, "top"); break;
       case AlignmentFlag::TextTop:
-	element.setProperty(Property::StyleVerticalAlign, "text-top"); break;
+        element.setProperty(Property::StyleVerticalAlign, "text-top"); break;
       case AlignmentFlag::Middle:
-	element.setProperty(Property::StyleVerticalAlign, "middle"); break;
+        element.setProperty(Property::StyleVerticalAlign, "middle"); break;
       case AlignmentFlag::Bottom:
-	element.setProperty(Property::StyleVerticalAlign, "bottom"); break;
+        element.setProperty(Property::StyleVerticalAlign, "bottom"); break;
       case AlignmentFlag::TextBottom:
-	element.setProperty(Property::StyleVerticalAlign, "text-bottom"); break;
+        element.setProperty(Property::StyleVerticalAlign, "text-bottom"); break;
       default:
-	break;
+        break;
       }
 
       if (!layoutImpl_->lineHeight_.isAuto()) // == none
-	element.setProperty(Property::StyleLineHeight,
-			    layoutImpl_->lineHeight_.cssText());
+        element.setProperty(Property::StyleLineHeight,
+                            layoutImpl_->lineHeight_.cssText());
 
     }
 
@@ -1505,27 +1505,27 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
   if (flags_.test(BIT_FLOAT_SIDE_CHANGED) || all) {
     if (layoutImpl_) {
-      if (layoutImpl_->floatSide_ == static_cast<Side>(0)) { 
-	if (flags_.test(BIT_FLOAT_SIDE_CHANGED))
-	  element.setProperty(Property::StyleFloat, "none");
+      if (layoutImpl_->floatSide_ == static_cast<Side>(0)) {
+        if (flags_.test(BIT_FLOAT_SIDE_CHANGED))
+          element.setProperty(Property::StyleFloat, "none");
       }
       else {
         /*
         * set float
         */
-	if (!app) app = WApplication::instance();
+        if (!app) app = WApplication::instance();
 
-	bool ltr = app->layoutDirection() == LayoutDirection::LeftToRight;
+        bool ltr = app->layoutDirection() == LayoutDirection::LeftToRight;
         switch (layoutImpl_->floatSide_) {
         case Side::Left:
-	  element.setProperty(Property::StyleFloat, ltr ? "left" : "right");
-	  break;
+          element.setProperty(Property::StyleFloat, ltr ? "left" : "right");
+          break;
         case Side::Right:
-	  element.setProperty(Property::StyleFloat, ltr ? "right" : "left");
-	  break;
+          element.setProperty(Property::StyleFloat, ltr ? "right" : "left");
+          break;
         default:
-	  /* illegal values */
-	  ;
+          /* illegal values */
+          ;
         }
       }
     }
@@ -1537,17 +1537,17 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     bool changed = flags_.test(BIT_MARGINS_CHANGED);
     if (changed || all) {
       if (changed || (layoutImpl_->margin_[0].value() != 0))
-	element.setProperty(Property::StyleMarginTop,
-			    layoutImpl_->margin_[0].cssText());
+        element.setProperty(Property::StyleMarginTop,
+                            layoutImpl_->margin_[0].cssText());
       if (changed || (layoutImpl_->margin_[1].value() != 0))
-	element.setProperty(Property::StyleMarginRight,
-			    layoutImpl_->margin_[1].cssText());
+        element.setProperty(Property::StyleMarginRight,
+                            layoutImpl_->margin_[1].cssText());
       if (changed || (layoutImpl_->margin_[2].value() != 0))
-	element.setProperty(Property::StyleMarginBottom,
-			    layoutImpl_->margin_[2].cssText());
+        element.setProperty(Property::StyleMarginBottom,
+                            layoutImpl_->margin_[2].cssText());
       if (changed || (layoutImpl_->margin_[3].value() != 0))
-	element.setProperty(Property::StyleMarginLeft,
-			    layoutImpl_->margin_[3].cssText());
+        element.setProperty(Property::StyleMarginLeft,
+                            layoutImpl_->margin_[3].cssText());
 
       flags_.reset(BIT_MARGINS_CHANGED);
     }
@@ -1568,11 +1568,11 @@ void WWebWidget::updateDom(DomElement& element, bool all)
           if (lookImpl_->toolTipTextFormat_ == TextFormat::Plain) {
             tooltipText = escapeText(*lookImpl_->toolTip_);
           } else if (lookImpl_->toolTipTextFormat_ == TextFormat::XHTML) {
-	    bool res = removeScript(tooltipText);
-	    if (!res) {
-	      tooltipText = escapeText(*lookImpl_->toolTip_);
-	    }
-	  }
+            bool res = removeScript(tooltipText);
+            if (!res) {
+              tooltipText = escapeText(*lookImpl_->toolTip_);
+            }
+          }
 
           std::string deferred = flags_.test(BIT_TOOLTIP_DEFERRED) ?
                 "true" : "false";
@@ -1606,7 +1606,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
     if (all || flags_.test(BIT_STYLECLASS_CHANGED))
       if (!all || !lookImpl_->styleClass_.empty())
-	element.addPropertyWord(Property::Class, lookImpl_->styleClass_.toUTF8());
+        element.addPropertyWord(Property::Class, lookImpl_->styleClass_.toUTF8());
 
     flags_.reset(BIT_STYLECLASS_CHANGED);
   }
@@ -1614,28 +1614,28 @@ void WWebWidget::updateDom(DomElement& element, bool all)
   if (!all && transientImpl_) {
     for (unsigned i = 0; i < transientImpl_->addedStyleClasses_.size(); ++i)
       element.callJavaScript("$('#" + id() + "').addClass('"
-			     + transientImpl_->addedStyleClasses_[i].toUTF8()
-			     +"');");
+                             + transientImpl_->addedStyleClasses_[i].toUTF8()
+                             +"');");
 
     for (unsigned i = 0; i < transientImpl_->removedStyleClasses_.size(); ++i)
       element.callJavaScript("$('#" + id() + "').removeClass('"
-			     + transientImpl_->removedStyleClasses_[i].toUTF8()
-			     +"');");
+                             + transientImpl_->removedStyleClasses_[i].toUTF8()
+                             +"');");
 
     if (!transientImpl_->childRemoveChanges_.empty()) {
       if ((int)children().size() != transientImpl_->addedChildren_
-	  || transientImpl_->specialChildRemove_) {
-	for (unsigned i = 0; i < transientImpl_->childRemoveChanges_.size();
-	     ++i) {
-	  const std::string& js = transientImpl_->childRemoveChanges_[i];
-	  if (js[0] == '_')
-	    element.callJavaScript(WT_CLASS ".remove('" + js.substr(1) + "');",
-				   true);
-	  else
-	    element.callJavaScript(js, true);
-	}
+          || transientImpl_->specialChildRemove_) {
+        for (unsigned i = 0; i < transientImpl_->childRemoveChanges_.size();
+             ++i) {
+          const std::string& js = transientImpl_->childRemoveChanges_[i];
+          if (js[0] == '_')
+            element.callJavaScript(WT_CLASS ".remove('" + js.substr(1) + "');",
+                                   true);
+          else
+            element.callJavaScript(js, true);
+        }
       } else
-	element.removeAllChildren();
+        element.removeAllChildren();
 
       transientImpl_->addedChildren_ = 0;
       transientImpl_->childRemoveChanges_.clear();
@@ -1652,7 +1652,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       element.addPropertyWord(Property::Class, "selectable");
       element.setAttribute("unselectable", "off");
       element.setAttribute("onselectstart",
-			   "event.cancelBubble=true; return true;");
+                           "event.cancelBubble=true; return true;");
     }
 
     flags_.reset(BIT_SELECTABLE_CHANGED);
@@ -1661,68 +1661,68 @@ void WWebWidget::updateDom(DomElement& element, bool all)
   if (otherImpl_) {
     if (otherImpl_->attributes_) {
       if (all) {
-	for (std::map<std::string, WT_USTRING>::const_iterator i
-	       = otherImpl_->attributes_->begin();
-	     i != otherImpl_->attributes_->end(); ++i)
-	  if (i->first == "style")
-	    element.setProperty(Property::Style, i->second.toUTF8());
-	  else
-	    element.setAttribute(i->first, i->second.toUTF8());
+        for (std::map<std::string, WT_USTRING>::const_iterator i
+               = otherImpl_->attributes_->begin();
+             i != otherImpl_->attributes_->end(); ++i)
+          if (i->first == "style")
+            element.setProperty(Property::Style, i->second.toUTF8());
+          else
+            element.setAttribute(i->first, i->second.toUTF8());
       } else if (transientImpl_) {
-	for (unsigned i = 0; i < transientImpl_->attributesSet_.size(); ++i) {
-	  std::string attr = transientImpl_->attributesSet_[i];
-	  if (attr == "style")
-	    element.setProperty(Property::Style,
-				(*otherImpl_->attributes_)[attr].toUTF8());
-	  else
-	    element.setAttribute(attr,
-				 (*otherImpl_->attributes_)[attr].toUTF8());
-	}
+        for (unsigned i = 0; i < transientImpl_->attributesSet_.size(); ++i) {
+          std::string attr = transientImpl_->attributesSet_[i];
+          if (attr == "style")
+            element.setProperty(Property::Style,
+                                (*otherImpl_->attributes_)[attr].toUTF8());
+          else
+            element.setAttribute(attr,
+                                 (*otherImpl_->attributes_)[attr].toUTF8());
+        }
       }
     }
 
     if (all && otherImpl_->jsMembers_) {
       for (unsigned i = 0; i < otherImpl_->jsMembers_->size(); i++) {
-	OtherImpl::Member member = (*otherImpl_->jsMembers_)[i];
+        OtherImpl::Member member = (*otherImpl_->jsMembers_)[i];
 
-	bool notHere = false;
-	if (otherImpl_->jsStatements_) {
-	  for (unsigned j = 0; j < otherImpl_->jsStatements_->size(); ++j) {
-	    const OtherImpl::JavaScriptStatement& jss 
-	      = (*otherImpl_->jsStatements_)[j];
+        bool notHere = false;
+        if (otherImpl_->jsStatements_) {
+          for (unsigned j = 0; j < otherImpl_->jsStatements_->size(); ++j) {
+            const OtherImpl::JavaScriptStatement& jss
+              = (*otherImpl_->jsStatements_)[j];
 
-	    if (jss.type == JavaScriptStatementType::SetMember && 
-		jss.data == member.name) {
-	      notHere = true;
-	      break;
-	    } 
-	  }
-	}
+            if (jss.type == JavaScriptStatementType::SetMember &&
+                jss.data == member.name) {
+              notHere = true;
+              break;
+            }
+          }
+        }
 
-	if (notHere)
-	  continue;
+        if (notHere)
+          continue;
 
-	declareJavaScriptMember(element, member.name, member.value);
+        declareJavaScriptMember(element, member.name, member.value);
       }
     }
 
     if (otherImpl_->jsStatements_) {
       for (unsigned i = 0; i < otherImpl_->jsStatements_->size(); ++i) {
-	const OtherImpl::JavaScriptStatement& jss 
-	  = (*otherImpl_->jsStatements_)[i];
+        const OtherImpl::JavaScriptStatement& jss
+          = (*otherImpl_->jsStatements_)[i];
 
-	switch (jss.type) {
-	case JavaScriptStatementType::SetMember:
-	  declareJavaScriptMember(element, jss.data,
-				  javaScriptMember(jss.data));
-	  break;
-	case JavaScriptStatementType::CallMethod:
-	  element.callMethod(jss.data);
-	  break;
-	case JavaScriptStatementType::Statement:
-	  element.callJavaScript(jss.data);
-	  break;
-	}
+        switch (jss.type) {
+        case JavaScriptStatementType::SetMember:
+          declareJavaScriptMember(element, jss.data,
+                                  javaScriptMember(jss.data));
+          break;
+        case JavaScriptStatementType::CallMethod:
+          element.callMethod(jss.data);
+          break;
+        case JavaScriptStatementType::Statement:
+          element.callJavaScript(jss.data);
+          break;
+        }
       }
 
       otherImpl_->jsStatements_.reset();
@@ -1731,48 +1731,48 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
   if (flags_.test(BIT_HIDE_WITH_VISIBILITY)) {
     if (flags_.test(BIT_HIDDEN_CHANGED)
-	|| (all && flags_.test(BIT_HIDDEN))) {
+        || (all && flags_.test(BIT_HIDDEN))) {
       if (flags_.test(BIT_HIDDEN)) {
-	element.callJavaScript("$('#" + id() + "').addClass('Wt-hidden');");
-	element.setProperty(Property::StyleVisibility, "hidden");
-	if (flags_.test(BIT_HIDE_WITH_OFFSETS)) {
-	  element.setProperty(Property::StylePosition, "absolute");
-	  element.setProperty(Property::StyleTop, "-10000px");
-	  element.setProperty(Property::StyleLeft, "-10000px");
-	}
+        element.callJavaScript("$('#" + id() + "').addClass('Wt-hidden');");
+        element.setProperty(Property::StyleVisibility, "hidden");
+        if (flags_.test(BIT_HIDE_WITH_OFFSETS)) {
+          element.setProperty(Property::StylePosition, "absolute");
+          element.setProperty(Property::StyleTop, "-10000px");
+          element.setProperty(Property::StyleLeft, "-10000px");
+        }
       } else {
-	if (flags_.test(BIT_HIDE_WITH_OFFSETS)) {
-	  if (layoutImpl_) {
-	    switch (layoutImpl_->positionScheme_) {
-	    case PositionScheme::Static:
-	      element.setProperty(Property::StylePosition, "static"); break;
-	    case PositionScheme::Relative:
-	      element.setProperty(Property::StylePosition, "relative"); break;
-	    case PositionScheme::Absolute:
-	      element.setProperty(Property::StylePosition, "absolute"); break;
-	    case PositionScheme::Fixed:
-	      element.setProperty(Property::StylePosition, "fixed"); break;
-	    }
+        if (flags_.test(BIT_HIDE_WITH_OFFSETS)) {
+          if (layoutImpl_) {
+            switch (layoutImpl_->positionScheme_) {
+            case PositionScheme::Static:
+              element.setProperty(Property::StylePosition, "static"); break;
+            case PositionScheme::Relative:
+              element.setProperty(Property::StylePosition, "relative"); break;
+            case PositionScheme::Absolute:
+              element.setProperty(Property::StylePosition, "absolute"); break;
+            case PositionScheme::Fixed:
+              element.setProperty(Property::StylePosition, "fixed"); break;
+            }
 
-	    if (!layoutImpl_->offsets_[0].isAuto())
-	      element.setProperty(Property::StyleTop,
-				  layoutImpl_->offsets_[0].cssText());
-	    else
-	      element.setProperty(Property::StyleTop, "");
+            if (!layoutImpl_->offsets_[0].isAuto())
+              element.setProperty(Property::StyleTop,
+                                  layoutImpl_->offsets_[0].cssText());
+            else
+              element.setProperty(Property::StyleTop, "");
 
-	    if (!layoutImpl_->offsets_[3].isAuto())
-	      element.setProperty(Property::StyleLeft,
-				  layoutImpl_->offsets_[3].cssText());
-	    else
-	      element.setProperty(Property::StyleTop, "");
-	  } else {
-	    element.setProperty(Property::StylePosition, "static");
-	    element.setProperty(Property::StyleTop, "");
-	    element.setProperty(Property::StyleLeft, "");
-	  }
-	}
-	element.callJavaScript("$('#" + id() + "').removeClass('Wt-hidden');");
-	element.setProperty(Property::StyleVisibility, "visible");
+            if (!layoutImpl_->offsets_[3].isAuto())
+              element.setProperty(Property::StyleLeft,
+                                  layoutImpl_->offsets_[3].cssText());
+            else
+              element.setProperty(Property::StyleTop, "");
+          } else {
+            element.setProperty(Property::StylePosition, "static");
+            element.setProperty(Property::StyleTop, "");
+            element.setProperty(Property::StyleLeft, "");
+          }
+        }
+        element.callJavaScript("$('#" + id() + "').removeClass('Wt-hidden');");
+        element.setProperty(Property::StyleVisibility, "visible");
       }
     }
   }
@@ -1788,51 +1788,51 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       LOAD_JAVASCRIPT(app, THIS_JS, "animateVisible", wtjs2);
 
       if (!flags_.test(BIT_HIDE_WITH_VISIBILITY)) {
-	/*
-	 * Not using visibility: delay changing the display property
-	 */
-	WStringStream ss;
-	ss << WT_CLASS << ".animateDisplay("
-	   << app->javaScriptClass()
-	   << ",'" << id()
-	   << "'," << transientImpl_->animation_.effects().value()
-	   << "," << (int)transientImpl_->animation_.timingFunction()
-	   << "," << transientImpl_->animation_.duration()
-	   << ",'" << element.getProperty(Property::StyleDisplay)
-	   << "');";
-	element.callJavaScript(ss.str());
+        /*
+         * Not using visibility: delay changing the display property
+         */
+        WStringStream ss;
+        ss << WT_CLASS << ".animateDisplay("
+           << app->javaScriptClass()
+           << ",'" << id()
+           << "'," << transientImpl_->animation_.effects().value()
+           << "," << (int)transientImpl_->animation_.timingFunction()
+           << "," << transientImpl_->animation_.duration()
+           << ",'" << element.getProperty(Property::StyleDisplay)
+           << "');";
+        element.callJavaScript(ss.str());
 
-	if (all)
-	  element.setProperty(Property::StyleDisplay, "none");
-	else
-	  element.removeProperty(Property::StyleDisplay);
+        if (all)
+          element.setProperty(Property::StyleDisplay, "none");
+        else
+          element.removeProperty(Property::StyleDisplay);
       } else {
-	/*
-	 * Using visibility: remember how to show/hide the widget
-	 */
-	WStringStream ss;
-	ss << WT_CLASS << ".animateVisible('" << id()
-	   << "'," << transientImpl_->animation_.effects().value()
-	   << "," << (int)transientImpl_->animation_.timingFunction()
-	   << "," << transientImpl_->animation_.duration()
-	   << ",'" << element.getProperty(Property::StyleVisibility)
-	   << "','" << element.getProperty(Property::StylePosition)
-	   << "','" << element.getProperty(Property::StyleTop)
-	   << "','" << element.getProperty(Property::StyleLeft)
-	   << "');";
-	element.callJavaScript(ss.str());
+        /*
+         * Using visibility: remember how to show/hide the widget
+         */
+        WStringStream ss;
+        ss << WT_CLASS << ".animateVisible('" << id()
+           << "'," << transientImpl_->animation_.effects().value()
+           << "," << (int)transientImpl_->animation_.timingFunction()
+           << "," << transientImpl_->animation_.duration()
+           << ",'" << element.getProperty(Property::StyleVisibility)
+           << "','" << element.getProperty(Property::StylePosition)
+           << "','" << element.getProperty(Property::StyleTop)
+           << "','" << element.getProperty(Property::StyleLeft)
+           << "');";
+        element.callJavaScript(ss.str());
 
-	if (all) {
-	  element.setProperty(Property::StyleVisibility, "hidden");
-	  element.setProperty(Property::StylePosition, "absolute");
-	  element.setProperty(Property::StyleTop, "-10000px");
-	  element.setProperty(Property::StyleLeft, "-10000px");
-	} else {
-	  element.removeProperty(Property::StyleVisibility);
-	  element.removeProperty(Property::StylePosition);
-	  element.removeProperty(Property::StyleTop);
-	  element.removeProperty(Property::StyleLeft);
-	}
+        if (all) {
+          element.setProperty(Property::StyleVisibility, "hidden");
+          element.setProperty(Property::StylePosition, "absolute");
+          element.setProperty(Property::StyleTop, "-10000px");
+          element.setProperty(Property::StyleLeft, "-10000px");
+        } else {
+          element.removeProperty(Property::StyleVisibility);
+          element.removeProperty(Property::StylePosition);
+          element.removeProperty(Property::StyleTop);
+          element.removeProperty(Property::StyleLeft);
+        }
       }
     }
   }
@@ -1844,16 +1844,16 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     const WEnvironment& env = app->environment();
 
     element.callJavaScript("setTimeout(function() {"
-			   """var o = " + jsRef() + ";"
-			   """if (o) {"
-			   ""   "if (!$(o).hasClass('" +
-			         app->theme()->disabledClass() + "')) {"
-			   ""      "try { "
-			   ""          "o.focus();"
-			   ""      "} catch (e) {}"
-			   ""   "}"
-			   """}"
-			   "}, " + (env.agentIsIElt(9) ? "500" : "10") + ");");
+                           """var o = " + jsRef() + ";"
+                           """if (o) {"
+                           ""   "if (!$(o).hasClass('" +
+                                 app->theme()->disabledClass() + "')) {"
+                           ""      "try { "
+                           ""          "o.focus();"
+                           ""      "} catch (e) {}"
+                           ""   "}"
+                           """}"
+                           "}, " + (env.agentIsIElt(9) ? "500" : "10") + ");");
 
     flags_.reset(BIT_GOT_FOCUS);
   }
@@ -1861,7 +1861,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
   if (flags_.test(BIT_TABINDEX_CHANGED) || all) {
     if (otherImpl_ && otherImpl_->tabIndex_ != std::numeric_limits<int>::min())
       element.setProperty(Property::TabIndex,
-			  std::to_string(otherImpl_->tabIndex_));
+                          std::to_string(otherImpl_->tabIndex_));
     else if (!all)
       element.removeAttribute("tabindex");
 
@@ -1877,7 +1877,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       LOAD_JAVASCRIPT(app, SCROLL_JS, "ScrollVisibility", wtjs3);
       WStringStream ss;
       ss << "if (!" WT_CLASS ".scrollVisibility) {"
-	    WT_CLASS ".scrollVisibility = new ";
+            WT_CLASS ".scrollVisibility = new ";
       ss << WT_CLASS ".ScrollVisibility(" << app->javaScriptClass() + "); }";
       element.callJavaScript(ss.str());
     }
@@ -1893,7 +1893,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       flags_.set(BIT_SCROLL_VISIBILITY_LOADED);
     } else if (flags_.test(BIT_SCROLL_VISIBILITY_LOADED)) {
       element.callJavaScript(WT_CLASS ".scrollVisibility.remove("
-			     + jsStringLiteral(id()) + ");");
+                             + jsStringLiteral(id()) + ");");
       flags_.reset(BIT_SCROLL_VISIBILITY_LOADED);
     }
     flags_.reset(BIT_SCROLL_VISIBILITY_CHANGED);
@@ -1907,36 +1907,36 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     }
     flags_.reset(BIT_OBJECT_NAME_CHANGED);
   }
-  
+
   renderOk();
 
   transientImpl_.reset();
 }
 
 void WWebWidget::declareJavaScriptMember(DomElement& element,
-					 const std::string& name,
-					 const std::string& value)
+                                         const std::string& name,
+                                         const std::string& value)
 {
   if (name[0] != ' ') {
     if (name == WT_RESIZE_JS && otherImpl_->resized_) {
       WStringStream combined;
       if (value.length() > 1) {
-	combined << name << "=function(s,w,h) {"
-		 << WApplication::instance()->javaScriptClass()
-		 << "._p_.propagateSize(s,w,h);"
-		 << "(" << value << ")(s,w,h);"
-		 << "}";
+        combined << name << "=function(s,w,h) {"
+                 << WApplication::instance()->javaScriptClass()
+                 << "._p_.propagateSize(s,w,h);"
+                 << "(" << value << ")(s,w,h);"
+                 << "}";
       } else
-	combined << name << "="
-		 << WApplication::instance()->javaScriptClass()
-		 << "._p_.propagateSize";
+        combined << name << "="
+                 << WApplication::instance()->javaScriptClass()
+                 << "._p_.propagateSize";
 
       element.callMethod(combined.str());
     } else {
       if (value.length() > 0)
-	element.callMethod(name + "=" + value);
+        element.callMethod(name + "=" + value);
       else
-	element.callMethod(name + "=null");
+        element.callMethod(name + "=null");
     }
   } else
     element.callJavaScript(value);
@@ -1980,7 +1980,7 @@ void WWebWidget::setTabIndex(int index)
 {
   if (!otherImpl_)
     otherImpl_.reset(new OtherImpl(this));
-    
+
   otherImpl_->tabIndex_ = index;
 
   flags_.set(BIT_TABINDEX_CHANGED);
@@ -2066,7 +2066,7 @@ void WWebWidget::getFormObjects(FormObjectsMap& formObjects)
 }
 
 void WWebWidget::getDomChanges(std::vector<DomElement *>& result,
-			       WApplication *app)
+                               WApplication *app)
 {
   DomElement *e = DomElement::getForUpdate(this, domElementType());
   updateDom(*e, false);
@@ -2074,7 +2074,7 @@ void WWebWidget::getDomChanges(std::vector<DomElement *>& result,
 }
 
 void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
-				WApplication *app)
+                                WApplication *app)
 {
   if (flags_.test(BIT_STUBBED)) {
     /*
@@ -2091,16 +2091,16 @@ void WWebWidget::getSDomChanges(std::vector<DomElement *>& result,
       scheduleRerender(true);
     } else {
       if (!app->session()->renderer().visibleOnly()) {
-	flags_.reset(BIT_STUBBED);
+        flags_.reset(BIT_STUBBED);
 
-	DomElement *stub = DomElement::getForUpdate(this, DomElementType::SPAN);
-	WWidget *self = selfWidget();
-	setRendered(true);
-	self->render(RenderFlag::Full);
-	DomElement *realElement = createDomElement(app);
-	app->theme()->apply(self, *realElement, MainElement);
-	stub->unstubWith(realElement, !flags_.test(BIT_HIDE_WITH_OFFSETS));
-	result.push_back(stub);
+        DomElement *stub = DomElement::getForUpdate(this, DomElementType::SPAN);
+        WWidget *self = selfWidget();
+        setRendered(true);
+        self->render(RenderFlag::Full);
+        DomElement *realElement = createDomElement(app);
+        app->theme()->apply(self, *realElement, MainElement);
+        stub->unstubWith(realElement, !flags_.test(BIT_HIDE_WITH_OFFSETS));
+        result.push_back(stub);
       }
     }
   } else {
@@ -2145,7 +2145,7 @@ void WWebWidget::propagateRenderOk(bool deep)
   if (deep)
     iterateChildren
       ([](WWidget *c) {
-	c->webWidget()->propagateRenderOk();
+        c->webWidget()->propagateRenderOk();
       });
 
   transientImpl_.reset();
@@ -2162,7 +2162,7 @@ void WWebWidget::setRendered(bool rendered)
 
     iterateChildren
       ([](WWidget *c) {
-	c->webWidget()->setRendered(false);
+        c->webWidget()->setRendered(false);
       });
   }
 }
@@ -2213,8 +2213,8 @@ WWidget *WWebWidget::find(const std::string& name)
     result[0] = nullptr;
     iterateChildren
       ([&](WWidget *c) {
-	if (!result[0])
-	  result[0] = c->find(name);
+        if (!result[0])
+          result[0] = c->find(name);
       });
 
     return result[0];
@@ -2230,8 +2230,8 @@ WWidget *WWebWidget::findById(const std::string& id)
     result[0] = nullptr;
     iterateChildren
       ([&](WWidget *c) {
-	if (!result[0])
-	  result[0] = c->findById(id);
+        if (!result[0])
+          result[0] = c->findById(id);
       });
     if (result[0])
       return result[0];
@@ -2279,7 +2279,7 @@ DomElement *WWebWidget::createStubElement(WApplication *app)
    * learning is not confused.
    */
   propagateRenderOk();
- 
+
   flags_.set(BIT_STUBBED);
 
   DomElement *stub = DomElement::createNew(DomElementType::SPAN);
@@ -2345,16 +2345,16 @@ void WWebWidget::enableAjax()
    */
   if (!isStubbed()) {
     for (EventSignalList::iterator i = eventSignals().begin();
-	 i != eventSignals().end(); ++i) {
+         i != eventSignals().end(); ++i) {
       EventSignalBase& s = **i;
       if (s.name() == WInteractWidget::M_CLICK_SIGNAL)
-	repaint(RepaintFlag::ToAjax);
+        repaint(RepaintFlag::ToAjax);
 
       s.ownerRepaint();
     }
   }
 
-  if (flags_.test(BIT_TOOLTIP_DEFERRED) || 
+  if (flags_.test(BIT_TOOLTIP_DEFERRED) ||
       (lookImpl_ && lookImpl_->toolTipTextFormat_ != TextFormat::Plain)) {
     flags_.set(BIT_TOOLTIP_CHANGED);
     repaint();
@@ -2453,7 +2453,7 @@ std::string& WWebWidget::unescapeText(std::string &text)
 }
 
 std::string WWebWidget::jsStringLiteral(const std::string& value,
-					char delimiter)
+                                        char delimiter)
 {
   WStringStream result;
   DomElement::jsStringLiteral(result, value, delimiter);
@@ -2461,7 +2461,7 @@ std::string WWebWidget::jsStringLiteral(const std::string& value,
 }
 
 std::string WWebWidget::jsStringLiteral(const WString& value,
-					char delimiter)
+                                        char delimiter)
 {
   return value.jsStringLiteral(delimiter);
 }
@@ -2510,7 +2510,7 @@ WWebWidget::DropMimeType::DropMimeType()
 { }
 
 bool WWebWidget::setAcceptDropsImpl(const std::string& mimeType, bool accept,
-				    const WT_USTRING& hoverStyleClass)
+                                    const WT_USTRING& hoverStyleClass)
 {
   bool result  = false; // whether the signal needs to be connected.
   bool changed = false;
@@ -2527,7 +2527,7 @@ bool WWebWidget::setAcceptDropsImpl(const std::string& mimeType, bool accept,
     if (accept) {
       result = otherImpl_->acceptedDropMimeTypes_->empty();
       (*otherImpl_->acceptedDropMimeTypes_)[mimeType]
-	= DropMimeType(hoverStyleClass);
+        = DropMimeType(hoverStyleClass);
       changed = true;
     }
   } else {
@@ -2545,13 +2545,13 @@ bool WWebWidget::setAcceptDropsImpl(const std::string& mimeType, bool accept,
     std::string mimeTypes = "";
 
     for (OtherImpl::MimeTypesMap::const_iterator j
-	   = otherImpl_->acceptedDropMimeTypes_->begin();
-	 j != otherImpl_->acceptedDropMimeTypes_->end(); ++j) {
+           = otherImpl_->acceptedDropMimeTypes_->begin();
+         j != otherImpl_->acceptedDropMimeTypes_->end(); ++j) {
       mimeTypes
-	+= "{" + j->first + ":" + j->second.hoverStyleClass.toUTF8() + "}";
+        += "{" + j->first + ":" + j->second.hoverStyleClass.toUTF8() + "}";
     }
     setAttributeValue("amts", mimeTypes);
-  } 
+  }
 
   if (result && !otherImpl_->dropSignal_)
     otherImpl_->dropSignal_
@@ -2565,7 +2565,7 @@ bool WWebWidget::setAcceptDropsImpl(const std::string& mimeType, bool accept,
 }
 
 EventSignal<WKeyEvent> *WWebWidget::keyEventSignal(const char *name,
-						   bool create)
+                                                   bool create)
 {
   EventSignalBase *b = getEventSignal(name);
   if (b)
@@ -2600,7 +2600,7 @@ EventSignal<> *WWebWidget::voidEventSignal(const char *name, bool create)
 }
 
 EventSignal<WMouseEvent> *WWebWidget::mouseEventSignal(const char *name,
-						       bool create)
+                                                       bool create)
 {
   EventSignalBase *b = getEventSignal(name);
   if (b)
@@ -2620,7 +2620,7 @@ EventSignal<WMouseEvent> *WWebWidget::mouseEventSignal(const char *name,
 }
 
 EventSignal<WTouchEvent> *WWebWidget::touchEventSignal(const char *name,
-						       bool create)
+                                                       bool create)
 {
   EventSignalBase *b = getEventSignal(name);
   if (b)
@@ -2640,7 +2640,7 @@ EventSignal<WTouchEvent> *WWebWidget::touchEventSignal(const char *name,
 }
 
 EventSignal<WGestureEvent> *WWebWidget::gestureEventSignal(const char *name,
-							   bool create)
+                                                           bool create)
 {
   EventSignalBase *b = getEventSignal(name);
   if (b)
@@ -2654,7 +2654,7 @@ EventSignal<WGestureEvent> *WWebWidget::gestureEventSignal(const char *name,
 #else
     EventSignal<WGestureEvent> *result
       = new EventSignal<WGestureEvent>(name, this,
-				       WGestureEvent::templateEvent);
+                                       WGestureEvent::templateEvent);
 #endif // WT_TARGET_JAVA
     addEventSignal(*result);
     return result;
@@ -2662,7 +2662,7 @@ EventSignal<WGestureEvent> *WWebWidget::gestureEventSignal(const char *name,
 }
 
 EventSignal<WScrollEvent> *WWebWidget::scrollEventSignal(const char *name,
-							 bool create)
+                                                         bool create)
 {
   EventSignalBase *b = getEventSignal(name);
   if (b)
@@ -2683,9 +2683,9 @@ EventSignal<WScrollEvent> *WWebWidget::scrollEventSignal(const char *name,
 }
 
 void WWebWidget::updateSignalConnection(DomElement& element,
-					EventSignalBase &signal,
-					const char *name,
-					bool all)
+                                        EventSignalBase &signal,
+                                        const char *name,
+                                        bool all)
 {
   if (name[0] != 'M' && signal.needsUpdate(all)) {
     element.setEventSignal(name, signal);

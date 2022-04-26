@@ -60,10 +60,10 @@ namespace Wt {
       { }
 
       virtual void handleRequest(const Http::Request &request,
-				 Http::Response &response) override
+                                 Http::Response &response) override
       {
-	response.addHeader("Cache-Control", "max-age=60");
-	WMemoryResource::handleRequest(request, response);
+        response.addHeader("Cache-Control", "max-age=60");
+        WMemoryResource::handleRequest(request, response);
       }
     };
   }
@@ -178,7 +178,7 @@ WServerGLWidgetImpl::WServerGLWidgetImpl(bool antialiasingEnabled):
     };
 
   ctx_ = glXCreateContextAttribsARB( display_, bestFbc_, nullptr,
-				    True, context_attribs );
+                                    True, context_attribs );
 
   // Sync to ensure any errors generated are processed.
   XSync( display_, False );
@@ -267,14 +267,14 @@ WServerGLWidgetImpl::WServerGLWidgetImpl(bool antialiasingEnabled):
   err = CGLChoosePixelFormat(attributes, &pix, &num);
   if (err != kCGLNoError) {
     throw WException("WServerGLWidget cannot select proper pixel format: "
-		     + std::to_string(err));
+                     + std::to_string(err));
   }
 
   err = CGLCreateContext(pix, NULL, &context_);
   CGLDestroyPixelFormat(pix);
   if (err != kCGLNoError) {
     throw WException("WServerGLWidget cannot create context"
-		     + std::to_string(err));
+                     + std::to_string(err));
   }
 
   makeCurrent();
@@ -289,7 +289,7 @@ WServerGLWidgetImpl::WServerGLWidgetImpl(bool antialiasingEnabled):
     CGLSetCurrentContext(NULL);
     CGLDestroyContext(context_);
     throw WException("WServerGLWidget cannot create offscreen framebuffers "
-		     + std::to_string(err));
+                     + std::to_string(err));
   }
 }
 
@@ -304,7 +304,7 @@ void WServerGLWidgetImpl::makeCurrent()
   CGLError err = CGLSetCurrentContext(context_);
   if (err != kCGLNoError) {
     throw WException("WServerGLWidget cannot make context active"
-		     + std::to_string(err));
+                     + std::to_string(err));
   }
 }
 
@@ -413,17 +413,17 @@ WServerGLWidgetImpl::WServerGLWidgetImpl(bool antialiasingEnabled)
       ReleaseDC(wnd_, hdc_);
       DestroyWindow(wnd_);
       wnd_ = CreateWindowEx(0,
-	"WndClass",
-	"",
-	style,
-	CW_USEDEFAULT, CW_USEDEFAULT, 100, 100,
-	0, 0, 0, 0);
+        "WndClass",
+        "",
+        style,
+        CW_USEDEFAULT, CW_USEDEFAULT, 100, 100,
+        0, 0, 0, 0);
       // comment out line below to show server side render window
       //ShowWindow(wnd_, SW_SHOW);
       hdc_ = GetDC(wnd_);
       BOOL bResult = SetPixelFormat (hdc_, pixelFormat, &pfd);
       if (!bResult)
-	throw WException("WServerGLWidget: Failed to set multisample pixel format.\n" );
+        throw WException("WServerGLWidget: Failed to set multisample pixel format.\n" );
       wglCreateContext(hdc_);
       wglMakeCurrent(hdc_, tempContext);
     }
@@ -516,19 +516,19 @@ void WServerGLWidgetImpl::resize(int width, int height)
   glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer_);
   glRenderbufferStorageMultisample(GL_RENDERBUFFER, 2, GL_RGBA8, width, height);
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-			    GL_RENDERBUFFER, renderbuffer_);
+                            GL_RENDERBUFFER, renderbuffer_);
 
   glBindRenderbuffer(GL_RENDERBUFFER, depthbuffer_);
   glRenderbufferStorageMultisample(GL_RENDERBUFFER, 2, GL_DEPTH_COMPONENT, width, height);
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-			    GL_RENDERBUFFER, depthbuffer_);
+                            GL_RENDERBUFFER, depthbuffer_);
   status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 
   glBindFramebuffer(GL_FRAMEBUFFER, framebufferRead_);
   glBindRenderbuffer(GL_RENDERBUFFER, renderbufferRead_);
   glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height);
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-			    GL_RENDERBUFFER, renderbufferRead_);
+                            GL_RENDERBUFFER, renderbufferRead_);
 
   glBindRenderbuffer(GL_RENDERBUFFER, 0);
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
@@ -593,8 +593,8 @@ void WServerGLWidget::attachShader(WGLWidget::Program program, WGLWidget::Shader
 }
 
 void WServerGLWidget::bindAttribLocation(WGLWidget::Program program,
-					 unsigned index,
-					 const std::string &name)
+                                         unsigned index,
+                                         const std::string &name)
 {
   glBindAttribLocation(program.getId(), index, name.c_str());
   SERVERGLDEBUG;
@@ -653,63 +653,63 @@ void WServerGLWidget::blendEquation(WGLWidget::GLenum mode)
 }
 
 void WServerGLWidget::blendEquationSeparate(WGLWidget::GLenum modeRGB,
-					    WGLWidget::GLenum modeAlpha)
+                                            WGLWidget::GLenum modeAlpha)
 {
   glBlendEquationSeparate(serverGLenum(modeRGB), serverGLenum(modeAlpha));
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::blendFunc(WGLWidget::GLenum sfactor,
-				WGLWidget::GLenum dfactor)
+                                WGLWidget::GLenum dfactor)
 {
   glBlendFunc(serverGLenum(sfactor), serverGLenum(dfactor));
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::blendFuncSeparate(WGLWidget::GLenum srcRGB,
-					WGLWidget::GLenum dstRGB,
-					WGLWidget::GLenum srcAlpha,
-					WGLWidget::GLenum dstAlpha)
+                                        WGLWidget::GLenum dstRGB,
+                                        WGLWidget::GLenum srcAlpha,
+                                        WGLWidget::GLenum dstAlpha)
 {
   glBlendFuncSeparate(serverGLenum(srcRGB), serverGLenum(dstRGB),
-		      serverGLenum(srcAlpha), serverGLenum(dstAlpha));
+                      serverGLenum(srcAlpha), serverGLenum(dstAlpha));
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::bufferData(WGLWidget::GLenum target,
-				 WGLWidget::ArrayBuffer res,
-				 unsigned bufferResourceOffset,
-				 unsigned bufferResourceSize,
-				 WGLWidget::GLenum usage)
+                                 WGLWidget::ArrayBuffer res,
+                                 unsigned bufferResourceOffset,
+                                 unsigned bufferResourceSize,
+                                 WGLWidget::GLenum usage)
 {
   throw WException("WServerGLWidget: this operation is not supported in server-side rendering");
 }
 
 void WServerGLWidget::bufferData(WGLWidget::GLenum target,
-				 WGLWidget::ArrayBuffer res,
-				 WGLWidget::GLenum usage)
+                                 WGLWidget::ArrayBuffer res,
+                                 WGLWidget::GLenum usage)
 {
   throw WException("WServerGLWidget: this operation is not supported in server-side rendering");
 }
 
 void WServerGLWidget::bufferSubData(Wt::WGLWidget::GLenum target,
-				    unsigned offset,
-				    WGLWidget::ArrayBuffer res)
+                                    unsigned offset,
+                                    WGLWidget::ArrayBuffer res)
 {
   throw WException("WServerGLWidget: this operation is not supported in server-side rendering");
 }
 
 void WServerGLWidget::bufferSubData(Wt::WGLWidget::GLenum target,
-				    unsigned offset,
-				    WGLWidget::ArrayBuffer res,
-				    unsigned bufferResourceOffset,
-				    unsigned bufferResourceSize)
+                                    unsigned offset,
+                                    WGLWidget::ArrayBuffer res,
+                                    unsigned bufferResourceOffset,
+                                    unsigned bufferResourceSize)
 {
   throw WException("WServerGLWidget: this operation is not supported in server-side rendering");
 }
 
 void WServerGLWidget::bufferData(WGLWidget::GLenum target, int size,
-				 WGLWidget::GLenum usage)
+                                 WGLWidget::GLenum usage)
 {
   glBufferData(serverGLenum(target), (GLsizeiptr)size, 0, serverGLenum(usage));
   SERVERGLDEBUG;
@@ -718,13 +718,13 @@ void WServerGLWidget::bufferData(WGLWidget::GLenum target, int size,
 void WServerGLWidget::bufferDatafv(WGLWidget::GLenum target, const FloatBuffer &buffer, WGLWidget::GLenum usage, bool binary)
 {
   glBufferData(serverGLenum(target), buffer.size()*4, &buffer[0],
-	       serverGLenum(usage));
+               serverGLenum(usage));
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::bufferDataiv(WGLWidget::GLenum target,
-				   IntBuffer &buffer, WGLWidget::GLenum usage,
-				   WGLWidget::GLenum type)
+                                   IntBuffer &buffer, WGLWidget::GLenum usage,
+                                   WGLWidget::GLenum type)
 {
   std::vector<short> shortbuffer;
   for (unsigned i = 0; i < buffer.size(); i++) {
@@ -732,20 +732,20 @@ void WServerGLWidget::bufferDataiv(WGLWidget::GLenum target,
   }
 
   glBufferData(serverGLenum(target), shortbuffer.size()*2, &shortbuffer[0],
-	       serverGLenum(usage));
+               serverGLenum(usage));
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::bufferSubDatafv(WGLWidget::GLenum target, unsigned offset,
-				      const FloatBuffer &buffer, bool binary)
+                                      const FloatBuffer &buffer, bool binary)
 {
   glBufferSubData(serverGLenum(target), (GLintptr)offset, buffer.size()*4,
-		  &buffer[0]);
+                  &buffer[0]);
 }
 
 void WServerGLWidget::bufferSubDataiv(WGLWidget::GLenum target,
-				      unsigned offset, IntBuffer &buffer,
-				      WGLWidget::GLenum type)
+                                      unsigned offset, IntBuffer &buffer,
+                                      WGLWidget::GLenum type)
 {
   std::vector<short> shortbuffer;
   for (unsigned i = 0; i < buffer.size(); i++) {
@@ -753,7 +753,7 @@ void WServerGLWidget::bufferSubDataiv(WGLWidget::GLenum target,
   }
 
   glBufferSubData(serverGLenum(target), offset, buffer.size()*2,
-		  &shortbuffer[0]);
+                  &shortbuffer[0]);
   SERVERGLDEBUG;
 }
 
@@ -811,23 +811,23 @@ void WServerGLWidget::compileShader(WGLWidget::Shader shader)
 }
 
 void WServerGLWidget::copyTexImage2D(WGLWidget::GLenum target, int level,
-				     WGLWidget::GLenum internalFormat,
-				     int x, int y,
-				     unsigned width, unsigned height,
-				     int border)
+                                     WGLWidget::GLenum internalFormat,
+                                     int x, int y,
+                                     unsigned width, unsigned height,
+                                     int border)
 {
   glCopyTexImage2D(serverGLenum(target), level, serverGLenum(internalFormat),
-		   x, y, width, height, border);
+                   x, y, width, height, border);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::copyTexSubImage2D(WGLWidget::GLenum target, int level,
-					int xoffset, int yoffset,
-					int x, int y,
-					unsigned width, unsigned height)
+                                        int xoffset, int yoffset,
+                                        int x, int y,
+                                        unsigned width, unsigned height)
 {
   glCopyTexSubImage2D(serverGLenum(target), level, xoffset, yoffset, x, y,
-		      width, height);
+                      width, height);
   SERVERGLDEBUG;
 }
 
@@ -991,7 +991,7 @@ void WServerGLWidget::drawArrays(WGLWidget::GLenum mode, int first, unsigned cou
 }
 
 void WServerGLWidget::drawElements(WGLWidget::GLenum mode, unsigned count,
-				   WGLWidget::GLenum type, unsigned offset)
+                                   WGLWidget::GLenum type, unsigned offset)
 {
   glDrawElements(serverGLenum(mode), count, serverGLenum(type), nullptr);
   SERVERGLDEBUG;
@@ -1021,24 +1021,24 @@ void WServerGLWidget::flush()
 }
 
 void WServerGLWidget::framebufferRenderbuffer(WGLWidget::GLenum target,
-					      WGLWidget::GLenum attachment,
-					      WGLWidget::GLenum renderbuffertarget,
-					      WGLWidget::Renderbuffer renderbuffer)
+                                              WGLWidget::GLenum attachment,
+                                              WGLWidget::GLenum renderbuffertarget,
+                                              WGLWidget::Renderbuffer renderbuffer)
 {
   glFramebufferRenderbuffer(serverGLenum(target), serverGLenum(attachment),
-			    serverGLenum(renderbuffertarget),
-			    renderbuffer.getId());
+                            serverGLenum(renderbuffertarget),
+                            renderbuffer.getId());
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::framebufferTexture2D(WGLWidget::GLenum target,
-					   WGLWidget::GLenum attachment,
-					   WGLWidget::GLenum textarget,
-					   WGLWidget::Texture texture,
-					   int level)
+                                           WGLWidget::GLenum attachment,
+                                           WGLWidget::GLenum textarget,
+                                           WGLWidget::Texture texture,
+                                           int level)
 {
   glFramebufferTexture2D(serverGLenum(target), serverGLenum(attachment),
-			 serverGLenum(textarget), texture.getId(), level);
+                         serverGLenum(textarget), texture.getId(), level);
   SERVERGLDEBUG;
 }
 
@@ -1107,7 +1107,7 @@ void WServerGLWidget::renderbufferStorage(WGLWidget::GLenum target, WGLWidget::G
   unsigned width, unsigned height)
 {
   glRenderbufferStorage(serverGLenum(target), serverGLenum(internalformat),
-			width, height);
+                        width, height);
   SERVERGLDEBUG;
 }
 
@@ -1124,7 +1124,7 @@ void WServerGLWidget::scissor(int x, int y, unsigned width, unsigned height)
 }
 
 void WServerGLWidget::shaderSource(WGLWidget::Shader shader,
-				   const std::string &src)
+                                   const std::string &src)
 {
   const char* csrc = src.c_str();
   const GLchar** string = &csrc;
@@ -1137,15 +1137,15 @@ void WServerGLWidget::shaderSource(WGLWidget::Shader shader,
 }
 
 void WServerGLWidget::stencilFunc(WGLWidget::GLenum func, int ref,
-				  unsigned mask)
+                                  unsigned mask)
 {
   glStencilFunc(serverGLenum(func), ref, mask);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::stencilFuncSeparate(WGLWidget::GLenum face,
-					  WGLWidget::GLenum func, int ref,
-					  unsigned mask)
+                                          WGLWidget::GLenum func, int ref,
+                                          unsigned mask)
 {
   glStencilFuncSeparate(serverGLenum(face), serverGLenum(func), ref, mask);
   SERVERGLDEBUG;
@@ -1164,61 +1164,61 @@ void WServerGLWidget::stencilMaskSeparate(WGLWidget::GLenum face, unsigned mask)
 }
 
 void WServerGLWidget::stencilOp(WGLWidget::GLenum fail, WGLWidget::GLenum zfail,
-				WGLWidget::GLenum zpass)
+                                WGLWidget::GLenum zpass)
 {
   glStencilOp(serverGLenum(fail), serverGLenum(zfail), serverGLenum(zpass));
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::stencilOpSeparate(WGLWidget::GLenum face,
-					WGLWidget::GLenum fail,
-					WGLWidget::GLenum zfail,
-					WGLWidget::GLenum zpass)
+                                        WGLWidget::GLenum fail,
+                                        WGLWidget::GLenum zfail,
+                                        WGLWidget::GLenum zpass)
 {
   glStencilOpSeparate(serverGLenum(face),
-		      serverGLenum(fail),
-		      serverGLenum(zfail),
-		      serverGLenum(zpass));
+                      serverGLenum(fail),
+                      serverGLenum(zfail),
+                      serverGLenum(zpass));
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::texImage2D(WGLWidget::GLenum target,
-				 int level, WGLWidget::GLenum internalformat,
-				 unsigned width, unsigned height, int border,
-				 WGLWidget::GLenum format)
+                                 int level, WGLWidget::GLenum internalformat,
+                                 unsigned width, unsigned height, int border,
+                                 WGLWidget::GLenum format)
 {
   glTexImage2D(serverGLenum(target), level, serverGLenum(internalformat),
-	       width, height, border, serverGLenum(format), GL_UNSIGNED_BYTE,
-	       nullptr);
+               width, height, border, serverGLenum(format), GL_UNSIGNED_BYTE,
+               nullptr);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::texImage2D(WGLWidget::GLenum target, int level,
-				 WGLWidget::GLenum internalformat,
-				 WGLWidget::GLenum format,
-				 WGLWidget::GLenum type,
-				 WImage *image)
+                                 WGLWidget::GLenum internalformat,
+                                 WGLWidget::GLenum format,
+                                 WGLWidget::GLenum type,
+                                 WImage *image)
 {
   throw WException("WServerGLWidget: this operation is not supported in server-side rendering");
 }
 
 void WServerGLWidget::texImage2D(WGLWidget::GLenum target, int level,
-				 WGLWidget::GLenum internalformat,
-				 WGLWidget::GLenum format,
-				 WGLWidget::GLenum type,
-				 WVideo *video)
+                                 WGLWidget::GLenum internalformat,
+                                 WGLWidget::GLenum format,
+                                 WGLWidget::GLenum type,
+                                 WVideo *video)
 {
   throw WException("WServerGLWidget: this operation is not supported in server-side rendering");
 }
 
 void WServerGLWidget::texImage2D(WGLWidget::GLenum target, int level,
-				 WGLWidget::GLenum internalformat,
-				 WGLWidget::GLenum format,
-				 WGLWidget::GLenum type,
-				 std::string imgFilename)
+                                 WGLWidget::GLenum internalformat,
+                                 WGLWidget::GLenum format,
+                                 WGLWidget::GLenum type,
+                                 std::string imgFilename)
 {
   WPainter::Image image(WApplication::instance()->docRoot().append("/")
-			.append(imgFilename), imgFilename);
+                        .append(imgFilename), imgFilename);
   WRasterImage raster("png", image.width(), image.height());
   WPainter decoder(&raster);
   decoder.drawImage(WPointF(), image);
@@ -1240,15 +1240,15 @@ void WServerGLWidget::texImage2D(WGLWidget::GLenum target, int level,
   }
 
   glTexImage2D(serverGLenum(target), level, GL_RGBA, width, height, 0, GL_RGBA,
-	       GL_UNSIGNED_BYTE, &imgdata[0]);
+               GL_UNSIGNED_BYTE, &imgdata[0]);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::texImage2D(WGLWidget::GLenum target, int level,
-				 WGLWidget::GLenum internalformat,
-				 WGLWidget::GLenum format,
-				 WGLWidget::GLenum type,
-				 WPaintDevice *paintdevice)
+                                 WGLWidget::GLenum internalformat,
+                                 WGLWidget::GLenum format,
+                                 WGLWidget::GLenum type,
+                                 WPaintDevice *paintdevice)
 {
   WRasterImage *rpd = dynamic_cast<WRasterImage*>(paintdevice);
   if (!rpd)
@@ -1271,22 +1271,22 @@ void WServerGLWidget::texImage2D(WGLWidget::GLenum target, int level,
   }
 
   glTexImage2D(serverGLenum(target), level, GL_RGBA, width, height, 0, GL_RGBA,
-	       GL_UNSIGNED_BYTE, &imgdata[0]);
+               GL_UNSIGNED_BYTE, &imgdata[0]);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::texImage2D(WGLWidget::GLenum target, int level,
-				 WGLWidget::GLenum internalformat,
-				 WGLWidget::GLenum format,
-				 WGLWidget::GLenum type,
-				 WGLWidget::Texture texture)
+                                 WGLWidget::GLenum internalformat,
+                                 WGLWidget::GLenum format,
+                                 WGLWidget::GLenum type,
+                                 WGLWidget::Texture texture)
 {
   texImage2D(target, level, internalformat, format, type, texture.url());
 }
 
 void WServerGLWidget::texParameteri(WGLWidget::GLenum target,
-				    WGLWidget::GLenum pname,
-				    WGLWidget::GLenum param)
+                                    WGLWidget::GLenum pname,
+                                    WGLWidget::GLenum param)
 {
   glTexParameteri(serverGLenum(target), serverGLenum(pname), serverGLenum(param));
   SERVERGLDEBUG;
@@ -1299,141 +1299,141 @@ void WServerGLWidget::uniform1f(const WGLWidget::UniformLocation &location, doub
 }
 
 void WServerGLWidget::uniform1fv(const WGLWidget::UniformLocation &location,
-				 const WT_ARRAY float *value)
+                                 const WT_ARRAY float *value)
 {
   glUniform1fv(location.getId(), 1, value);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniform1fv(const WGLWidget::UniformLocation &location,
-				 const WGLWidget::JavaScriptVector &v)
+                                 const WGLWidget::JavaScriptVector &v)
 {
   glUniform1fv(location.getId(), 1, &v.value()[0]);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniform1i(const WGLWidget::UniformLocation &location,
-				int x)
+                                int x)
 {
   glUniform1i(location.getId(), x);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniform1iv(const WGLWidget::UniformLocation &location,
-				 const WT_ARRAY int *value)
+                                 const WT_ARRAY int *value)
 {
   glUniform1iv(location.getId(), 1, value);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniform2f(const WGLWidget::UniformLocation &location,
-				double x, double y)
+                                double x, double y)
 {
   glUniform2f(location.getId(), (GLfloat)x, (GLfloat)y);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniform2fv(const WGLWidget::UniformLocation &location,
-			   const WT_ARRAY float *value)
+                           const WT_ARRAY float *value)
 {
   glUniform2fv(location.getId(), 1, value);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniform2fv(const WGLWidget::UniformLocation &location,
-				 const WGLWidget::JavaScriptVector &v)
+                                 const WGLWidget::JavaScriptVector &v)
 {
   glUniform2fv(location.getId(), 1, &v.value()[0]);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniform2i(const WGLWidget::UniformLocation &location,
-				int x, int y)
+                                int x, int y)
 {
   glUniform2i(location.getId(), x, y);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniform2iv(const WGLWidget::UniformLocation &location,
-				 const WT_ARRAY int *value)
+                                 const WT_ARRAY int *value)
 {
   glUniform2iv(location.getId(), 1, value);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniform3f(const WGLWidget::UniformLocation &location,
-				double x, double y, double z)
+                                double x, double y, double z)
 {
   glUniform3f(location.getId(), (GLfloat)x, (GLfloat)y, (GLfloat)z);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniform3fv(const WGLWidget::UniformLocation &location,
-				 const WT_ARRAY float *value)
+                                 const WT_ARRAY float *value)
 {
   glUniform3fv(location.getId(), 1, value);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniform3fv(const WGLWidget::UniformLocation &location,
-				 const WGLWidget::JavaScriptVector &v)
+                                 const WGLWidget::JavaScriptVector &v)
 {
   glUniform3fv(location.getId(), 1, &v.value()[0]);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniform3i(const WGLWidget::UniformLocation &location,
-				int x, int y, int z)
+                                int x, int y, int z)
 {
   glUniform3i(location.getId(), x, y, z);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniform3iv(const WGLWidget::UniformLocation &location,
-				 const WT_ARRAY int *value)
+                                 const WT_ARRAY int *value)
 {
   glUniform3iv(location.getId(), 1, value);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniform4f(const WGLWidget::UniformLocation &location,
-				double x, double y, double z, double w)
+                                double x, double y, double z, double w)
 {
   glUniform4f(location.getId(), (GLfloat)x, (GLfloat)y, (GLfloat)z, (GLfloat)w);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniform4fv(const WGLWidget::UniformLocation &location,
-				 const WT_ARRAY float *value)
+                                 const WT_ARRAY float *value)
 {
   glUniform4fv(location.getId(), 1, value);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniform4fv(const WGLWidget::UniformLocation &location,
-				 const WGLWidget::JavaScriptVector &v)
+                                 const WGLWidget::JavaScriptVector &v)
 {
   glUniform4fv(location.getId(), 1, &v.value()[0]);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniform4i(const WGLWidget::UniformLocation &location,
-				int x, int y, int z, int w)
+                                int x, int y, int z, int w)
 {
   glUniform4i(location.getId(), x, y, z, w);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniform4iv(const WGLWidget::UniformLocation &location,
-				 const WT_ARRAY int *value)
+                                 const WT_ARRAY int *value)
 {
   glUniform4iv(location.getId(), 1, value);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::uniformMatrix2fv(const WGLWidget::UniformLocation &location,
-				       bool transpose,
-				       const WT_ARRAY double *value)
+                                       bool transpose,
+                                       const WT_ARRAY double *value)
 {
   float mat[4];
   for (int i=0; i<4; i++){
@@ -1445,7 +1445,7 @@ void WServerGLWidget::uniformMatrix2fv(const WGLWidget::UniformLocation &locatio
 }
 
 void WServerGLWidget::uniformMatrix2(const WGLWidget::UniformLocation &location,
-				     const WGenericMatrix<double, 2, 2> &m)
+                                     const WGenericMatrix<double, 2, 2> &m)
 {
   float mat[4];
   for (int i=0; i<2; i++){
@@ -1459,8 +1459,8 @@ void WServerGLWidget::uniformMatrix2(const WGLWidget::UniformLocation &location,
 }
 
 void WServerGLWidget::uniformMatrix3fv(const WGLWidget::UniformLocation &location,
-				       bool transpose,
-				       const WT_ARRAY double *value)
+                                       bool transpose,
+                                       const WT_ARRAY double *value)
 {
   float mat[9];
   for (int i=0; i<9; i++){
@@ -1472,7 +1472,7 @@ void WServerGLWidget::uniformMatrix3fv(const WGLWidget::UniformLocation &locatio
 }
 
 void WServerGLWidget::uniformMatrix3(const WGLWidget::UniformLocation &location,
-				     const WGenericMatrix<double, 3, 3> &m)
+                                     const WGenericMatrix<double, 3, 3> &m)
 {
   float mat[9];
   for (int i=0; i<3; i++){
@@ -1486,8 +1486,8 @@ void WServerGLWidget::uniformMatrix3(const WGLWidget::UniformLocation &location,
 }
 
 void WServerGLWidget::uniformMatrix4fv(const WGLWidget::UniformLocation &location,
-				       bool transpose,
-				       const WT_ARRAY double *value)
+                                       bool transpose,
+                                       const WT_ARRAY double *value)
 {
   float mat[16];
   for (int i=0; i<16; i++){
@@ -1499,7 +1499,7 @@ void WServerGLWidget::uniformMatrix4fv(const WGLWidget::UniformLocation &locatio
 }
 
 void WServerGLWidget::uniformMatrix4(const WGLWidget::UniformLocation &location,
-				     const WGenericMatrix<double, 4, 4> &m)
+                                     const WGenericMatrix<double, 4, 4> &m)
 {
   float data[16];
   for (int i=0; i<4; i++) {
@@ -1513,7 +1513,7 @@ void WServerGLWidget::uniformMatrix4(const WGLWidget::UniformLocation &location,
 }
 
 void WServerGLWidget::uniformMatrix4(const WGLWidget::UniformLocation &location,
-				     const WGLWidget::JavaScriptMatrix4x4 &jsm)
+                                     const WGLWidget::JavaScriptMatrix4x4 &jsm)
 {
   WMatrix4x4 mat = jsm.value();
 
@@ -1541,40 +1541,40 @@ void WServerGLWidget::validateProgram(WGLWidget::Program program)
 }
 
 void WServerGLWidget::vertexAttrib1f(WGLWidget::AttribLocation location,
-				     double x)
+                                     double x)
 {
   glVertexAttrib1f(location.getId(), (GLfloat) x);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::vertexAttrib2f(WGLWidget::AttribLocation location,
-				     double x, double y)
+                                     double x, double y)
 {
   glVertexAttrib2f(location.getId(), (GLfloat)x, (GLfloat)y);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::vertexAttrib3f(WGLWidget::AttribLocation location,
-				     double x, double y, double z)
+                                     double x, double y, double z)
 {
   glVertexAttrib3f(location.getId(), (GLfloat)x, (GLfloat)y, (GLfloat)z);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::vertexAttrib4f(WGLWidget::AttribLocation location,
-				     double x, double y, double z, double w)
+                                     double x, double y, double z, double w)
 {
   glVertexAttrib4f(location.getId(), (GLfloat)x, (GLfloat)y, (GLfloat)z, (GLfloat)w);
   SERVERGLDEBUG;
 }
 
 void WServerGLWidget::vertexAttribPointer(WGLWidget::AttribLocation location,
-					  int size, WGLWidget::GLenum type,
-					  bool normalized, unsigned stride,
-					  unsigned offset)
+                                          int size, WGLWidget::GLenum type,
+                                          bool normalized, unsigned stride,
+                                          unsigned offset)
 {
   glVertexAttribPointer(location.getId(), size, serverGLenum(type),
-			normalized, stride, nullptr);
+                        normalized, stride, nullptr);
   SERVERGLDEBUG;
 }
 
@@ -1607,7 +1607,7 @@ void WServerGLWidget::initJavaScriptMatrix4(WGLWidget::JavaScriptMatrix4x4 &mat)
 }
 
 void WServerGLWidget::setJavaScriptMatrix4(WGLWidget::JavaScriptMatrix4x4 &jsm,
-					   const WGenericMatrix<double, 4, 4> &m)
+                                           const WGenericMatrix<double, 4, 4> &m)
 {
   // transpose it for javascript
   WMatrix4x4 transposed;
@@ -1653,7 +1653,7 @@ void WServerGLWidget::initJavaScriptVector(WGLWidget::JavaScriptVector &vec)
 }
 
 void WServerGLWidget::setJavaScriptVector(WGLWidget::JavaScriptVector &jsv,
-					  const std::vector<float> &v)
+                                          const std::vector<float> &v)
 {
   if (jsv.length() != v.size())
     throw WException("Trying to set a JavaScriptVector with incompatible length!");
@@ -1774,7 +1774,7 @@ void WServerGLWidget::render(const std::string& jsRef, WFlags<RenderFlag> flags)
   impl_->initReadBuffer();
 #endif
   glReadPixels(0, 0, renderWidth_, renderHeight_, GL_RGBA,
-	       GL_UNSIGNED_BYTE, &pixelData[0]);
+               GL_UNSIGNED_BYTE, &pixelData[0]);
   SERVERGLDEBUG;
 #ifdef FRAMEBUFFER_RENDERING
   impl_->setDrawBuffer();
@@ -1788,9 +1788,9 @@ void WServerGLWidget::render(const std::string& jsRef, WFlags<RenderFlag> flags)
   for (int i=0; i < renderHeight_; i++) {
     for (int j=0; j < renderWidth_; j++) {
       pixel.setRgb((int)pixelData[idx+0],
-		   (int)pixelData[idx+1],
-		   (int)pixelData[idx+2],
-		   (int)pixelData[idx+3]);
+                   (int)pixelData[idx+1],
+                   (int)pixelData[idx+2],
+                   (int)pixelData[idx+3]);
       idx += 4;
       raster_->setPixel(j, renderHeight_-1-i, pixel);
     }

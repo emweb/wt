@@ -15,7 +15,7 @@ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGE.
- * 
+ *
  * Modified by koen@emweb.be for inclusion in Wt
  */
 
@@ -23,22 +23,22 @@ SUCH DAMAGE.
 #define PASSWDQC_H__
 
 typedef struct {
-	int min[5], max;
-	int passphrase_words;
-	int match_length;
-	int similar_deny;
-	int random_bits;
+  int min[5], max;
+  int passphrase_words;
+  int match_length;
+  int similar_deny;
+  int random_bits;
 } passwdqc_params_qc_t;
 
 typedef struct {
-        const char *pw_name;
-        const char *pw_email;
+  const char *pw_name;
+  const char *pw_email;
 } passwdqc_user_t;
 
 extern int passwdqc_check(const passwdqc_params_qc_t *params,
-			  const char *newpass, const char *oldpass,
-			  const passwdqc_user_t *pw);
+                          const char *newpass, const char *oldpass,
+                          const passwdqc_user_t *pw);
 
-#define PASSWDQC_VERSION		"1.2.2"
+#define PASSWDQC_VERSION "1.2.2"
 
 #endif /* PASSWDQC_H__ */

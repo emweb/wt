@@ -54,7 +54,7 @@ public:
    * The toolbar automatically becomes non-compact.
    */
   void addWidget(std::unique_ptr<WWidget> widget,
-		 AlignmentFlag alignmentFlag = AlignmentFlag::Left);
+                 AlignmentFlag alignmentFlag = AlignmentFlag::Left);
 
   using WWidget::removeWidget;
   virtual std::unique_ptr<WWidget> removeWidget(WWidget *widget) override;

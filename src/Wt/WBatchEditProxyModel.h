@@ -123,7 +123,7 @@ public:
 
   virtual WModelIndex parent(const WModelIndex& index) const override;
   virtual WModelIndex index(int row, int column,
-			    const WModelIndex& parent = WModelIndex())
+                            const WModelIndex& parent = WModelIndex())
     const override;
 
   using WAbstractItemModel::setData;
@@ -145,25 +145,25 @@ public:
   virtual WFlags<ItemFlag> flags(const WModelIndex& index) const override;
 
   virtual cpp17::any headerData(int section,
-			     Orientation orientation = Orientation::Horizontal,
+                             Orientation orientation = Orientation::Horizontal,
                              ItemDataRole role = ItemDataRole::Display) const override;
 
   virtual bool insertRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex()) override;
+                          const WModelIndex& parent = WModelIndex()) override;
 
   virtual bool removeRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex()) override;
+                          const WModelIndex& parent = WModelIndex()) override;
 
   virtual bool insertColumns(int column, int count,
-			     const WModelIndex& parent = WModelIndex())
+                             const WModelIndex& parent = WModelIndex())
     override;
 
   virtual bool removeColumns(int column, int count,
-			     const WModelIndex& parent = WModelIndex())
+                             const WModelIndex& parent = WModelIndex())
     override;
 
-  virtual void sort(int column, 
-		    SortOrder order = SortOrder::Ascending) override;
+  virtual void sort(int column,
+                    SortOrder order = SortOrder::Ascending) override;
 
 private:
   struct Cell {
@@ -206,23 +206,23 @@ private:
   mutable ItemMap mappedIndexes_;
 
   void sourceColumnsAboutToBeInserted(const WModelIndex& parent,
-				      int start, int end);
+                                      int start, int end);
   void sourceColumnsInserted(const WModelIndex& parent, int start, int end);
 
   void sourceColumnsAboutToBeRemoved(const WModelIndex& parent,
-				     int start, int end);
+                                     int start, int end);
   void sourceColumnsRemoved(const WModelIndex& parent, int start, int end);
 
   void sourceRowsAboutToBeInserted(const WModelIndex& parent,
-				   int start, int end);
+                                   int start, int end);
   void sourceRowsInserted(const WModelIndex& parent, int start, int end);
 
   void sourceRowsAboutToBeRemoved(const WModelIndex& parent,
-				  int start, int end);
+                                  int start, int end);
   void sourceRowsRemoved(const WModelIndex& parent, int start, int end);
 
   void sourceDataChanged(const WModelIndex& topLeft,
-			 const WModelIndex& bottomRight);
+                         const WModelIndex& bottomRight);
 
   void sourceHeaderDataChanged(Orientation orientation, int start, int end);
 
@@ -232,9 +232,9 @@ private:
   void sourceModelReset();
 
   Item *itemFromSourceIndex(const WModelIndex& sourceIndex,
-			    bool autoCreate = true) const;
+                            bool autoCreate = true) const;
   Item *itemFromInsertedRow(Item *parentItem, const WModelIndex& index,
-			    bool autoCreate = true) const;
+                            bool autoCreate = true) const;
   Item *parentItemFromIndex(const WModelIndex& index) const;
   Item *itemFromIndex(const WModelIndex& index, bool autoCreate = true) const;
   bool isRemoved(const WModelIndex& sourceIndex) const;
@@ -243,19 +243,19 @@ private:
   int adjustedProxyColumn(Item *item, int sourceColumn) const;
   int adjustedSourceColumn(Item *item, int proxyColumn) const;
   int adjustedProxyIndex(int sourceIndex,
-			 const std::vector<int>& ins,
-			 const std::vector<int>& rem) const;
+                         const std::vector<int>& ins,
+                         const std::vector<int>& rem) const;
   int adjustedSourceIndex(int proxyIndex,
-			  const std::vector<int>& ins,
-			  const std::vector<int>& rem) const;
+                          const std::vector<int>& ins,
+                          const std::vector<int>& rem) const;
 
   void insertIndexes(Item *item,
-		     std::vector<int>& ins, std::vector<Item *> *rowItems,
-		     int index, int count);
+                     std::vector<int>& ins, std::vector<Item *> *rowItems,
+                     int index, int count);
   void removeIndexes(Item *item,
-		     std::vector<int>& ins, std::vector<int>& rem,
-		     std::vector<Item *>* rowItems,
-		     int index, int count);
+                     std::vector<int>& ins, std::vector<int>& rem,
+                     std::vector<Item *>* rowItems,
+                     int index, int count);
 
   void deleteItemsUnder(Item *item, int row);
   void shift(std::vector<int>& v, int row, int count);

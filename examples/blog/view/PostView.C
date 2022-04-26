@@ -20,7 +20,7 @@
 namespace dbo = Wt::Dbo;
 
 PostView::PostView(BlogSession& session, const std::string& basePath,
-		   dbo::ptr<Post> post, RenderType type)
+                   dbo::ptr<Post> post, RenderType type)
   : session_(session),
     basePath_(basePath),
     post_(post)
@@ -42,7 +42,7 @@ void PostView::renderTemplate(std::ostream& result)
 
 void PostView::resolveString(const std::string& varName,
                              const std::vector<Wt::WString>& args,
-			     std::ostream& result)
+                             std::ostream& result)
 {
   if (varName == "title")
     format(result, post_->title);
@@ -55,7 +55,7 @@ void PostView::resolveString(const std::string& varName,
       format(result, post_->bodyHtml, Wt::TextFormat::XHTML);
   } else if (varName == "brief+body") {
     format(result, "<div>" + post_->briefHtml + "</div>"
-	   "<div id=\"" + basePath_ + post_->permaLink() + "/more\">"
+           "<div id=\"" + basePath_ + post_->permaLink() + "/more\">"
            "<div>" + post_->bodyHtml + "</div></div>", Wt::TextFormat::UnsafeXHTML);
   } else
     WTemplate::resolveString(varName, args, result);
@@ -130,11 +130,11 @@ void PostView::render(RenderType type)
       if (post_->state != Post::Published) {
         publishButton
             = std::make_unique<Wt::WPushButton>(tr("publish"));
-	publishButton->clicked().connect(this, &PostView::publish);
+        publishButton->clicked().connect(this, &PostView::publish);
       } else {
         publishButton
             = std::make_unique<Wt::WPushButton>(tr("retract"));
-	publishButton->clicked().connect(this, &PostView::retract);
+        publishButton->clicked().connect(this, &PostView::retract);
       }
       bindWidget("publish", std::move(publishButton));
 
@@ -153,8 +153,8 @@ void PostView::render(RenderType type)
   }
 
   auto postAnchor = std::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath,
-			basePath_ + "author/" + post_->author->name.toUTF8()),
-		  post_->author->name);
+                        basePath_ + "author/" + post_->author->name.toUTF8()),
+                  post_->author->name);
   bindWidget("author", std::move(postAnchor));
 }
 

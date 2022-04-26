@@ -52,7 +52,7 @@ public:
    * that table cells below this one are overspanned.
    */
   void setRowSpan(int rowSpan);
-  
+
   /*! \brief Returns the row span.
    *
    * \sa setRowSpan(int rowSpan)

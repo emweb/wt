@@ -37,7 +37,7 @@ namespace Wt {
  *
  * <h3>CSS</h3>
  *
- * The widget corresponds to an HTML <tt>&lt;textarea&gt;</tt> tag can be 
+ * The widget corresponds to an HTML <tt>&lt;textarea&gt;</tt> tag can be
  * styled using inline or external CSS as appropriate.
  * The emptyText style can be configured via .Wt-edit-emptyText.
  *

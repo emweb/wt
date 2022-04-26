@@ -41,7 +41,7 @@ class GitViewApplication : public WApplication
 public:
   /*! \brief Constructor.
    */
-  GitViewApplication(const WEnvironment& env) 
+  GitViewApplication(const WEnvironment& env)
     : WApplication(env)
   {
     useStyleSheet("gitview.css");
@@ -142,9 +142,9 @@ private:
     try {
       gitModel_->setRepositoryPath(repositoryEdit_->text().toUTF8());
       try {
-	gitModel_->loadRevision(revisionEdit_->text().toUTF8());
+        gitModel_->loadRevision(revisionEdit_->text().toUTF8());
       } catch (const Git::Exception& e) {
-	revisionError_->setText(e.what());
+        revisionError_->setText(e.what());
       }
     } catch (const Git::Exception& e) {
       repositoryError_->setText(e.what());

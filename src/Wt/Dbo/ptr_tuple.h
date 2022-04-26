@@ -21,20 +21,20 @@ namespace Impl {
     typedef typename std::tuple_element<I, std::tuple<Ts...>>::type EIType;
 
     static void getFields(Session& session,
-			  std::vector<std::string> *aliases,
-			  std::vector<FieldInfo>& result)
+                          std::vector<std::string> *aliases,
+                          std::vector<FieldInfo>& result)
     {
       helper<I-1, Ts...>::getFields(session, aliases, result);
       query_result_traits<EIType>::getFields(session, aliases, result);
     }
 
     static void load(Session& session, SqlStatement& statement,
-		     int& column, TupleType& result)
+                     int& column, TupleType& result)
     {
       helper<I-1, Ts...>::load(session, statement, column, result);
 
       std::get<I>(result)
-	= query_result_traits<EIType>::load(session, statement, column);
+        = query_result_traits<EIType>::load(session, statement, column);
     }
 
     static void getValues(const TupleType& result, std::vector<cpp17::any>& values)
@@ -47,11 +47,11 @@ namespace Impl {
     static void setValue(TupleType& result, int& index, const cpp17::any& value)
     {
       if (index >= 0) {
-	helper<I-1, Ts...>::setValue(result, index, value);
+        helper<I-1, Ts...>::setValue(result, index, value);
 
-	if (index >= 0)
-	  query_result_traits<EIType>::setValue(std::get<I>(result),
-						index, value);
+        if (index >= 0)
+          query_result_traits<EIType>::setValue(std::get<I>(result),
+                                                index, value);
       }
     }
 
@@ -81,12 +81,12 @@ namespace Impl {
   {
     typedef typename std::tuple<Ts...> TupleType;
     static void getFields(Session& session,
-			  std::vector<std::string> *aliases,
-			  std::vector<FieldInfo>& result)
+                          std::vector<std::string> *aliases,
+                          std::vector<FieldInfo>& result)
     { }
 
     static void load(Session& session, SqlStatement& statement,
-		     int& column, TupleType& result)
+                     int& column, TupleType& result)
     { }
 
     static void getValues(const TupleType& result, std::vector<cpp17::any>& values)
@@ -113,11 +113,11 @@ struct query_result_traits<std::tuple<T...>>
   typedef Impl::helper<sizeof...(T) - 1, T...> helper;
 
   static void getFields(Session& session,
-			std::vector<std::string> *aliases,
-			std::vector<FieldInfo>& result);
+                        std::vector<std::string> *aliases,
+                        std::vector<FieldInfo>& result);
 
   static std::tuple<T...> load(Session& session, SqlStatement& statement,
-			 int& column);
+                         int& column);
 
   static void getValues(const std::tuple<T...>& t, std::vector<cpp17::any>& values);
 
@@ -134,7 +134,7 @@ struct query_result_traits<std::tuple<T...>>
 template <typename... T>
 void query_result_traits<std::tuple<T...>>
 ::getFields(Session& session, std::vector<std::string> *aliases,
-	    std::vector<FieldInfo>& result)
+            std::vector<FieldInfo>& result)
 {
   helper::getFields(session, aliases, result);
 }
@@ -157,8 +157,8 @@ void query_result_traits<std::tuple<T...>>
 
 template <typename... T>
 void query_result_traits<std::tuple<T...>>::setValue(std::tuple<T...>& t,
-						     int& index,
-						     const cpp17::any& value)
+                                                     int& index,
+                                                     const cpp17::any& value)
 {
   helper::setValue(t, index, value);
 }
@@ -173,7 +173,7 @@ std::tuple<T...> query_result_traits<std::tuple<T...>>::create()
 
 template <typename... T>
 void query_result_traits<std::tuple<T...>>::add(Session& session,
-						std::tuple<T...>& t)
+                                                std::tuple<T...>& t)
 {
   helper::add(session, t);
 }

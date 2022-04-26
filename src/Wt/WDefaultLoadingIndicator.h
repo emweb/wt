@@ -22,7 +22,7 @@ namespace Wt {
  *
  * <h3>CSS</h3>
  *
- * This widget does not provide styling, 
+ * This widget does not provide styling,
  * and can be styled using inline or external CSS as appropriate.
  *
  * <h3>i18n</h3>

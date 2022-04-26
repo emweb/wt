@@ -72,7 +72,7 @@ public:
    * \sa keyWentDown()
    */
   EventSignal<WKeyEvent>& keyPressed();
-    
+
   /*! \brief Event signal emitted when a keyboard key is released.
    *
    * This is the counter-part of the keyWentDown() event. Every
@@ -193,7 +193,7 @@ public:
    * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WMouseEvent>& mouseWentOut();
-    
+
   /*! \brief Event signal emitted when the mouse entered this widget.
    *
    * The signal is emitted as soon as the mouse enters the widget, or
@@ -247,7 +247,7 @@ public:
    * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WTouchEvent>& touchStarted();
-  
+
   /*! \brief Event signal emitted when a finger is removed from the screen.
    *
    * The event details contains information such as the \link
@@ -270,11 +270,11 @@ public:
    * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WTouchEvent>& touchMoved();
-  
+
   /*! \brief Event signal emitted when a gesture is started.
    *
    * The event details contains information about the \link
-   * WGestureEvent::scale() scale\endlink and the \link 
+   * WGestureEvent::scale() scale\endlink and the \link
    * WGestureEvent::rotation() rotation\endlink.
    *
    * \note When JavaScript is disabled, the signal will never fire.
@@ -284,7 +284,7 @@ public:
   /*! \brief Event signal emitted when a gesture is changed.
    *
    * The event details contains information about the \link
-   * WGestureEvent::scale() scale\endlink and the \link 
+   * WGestureEvent::scale() scale\endlink and the \link
    * WGestureEvent::rotation() rotation\endlink.
    *
    * \note When JavaScript is disabled, the signal will never fire.
@@ -294,7 +294,7 @@ public:
   /*! \brief Event signal emitted when a gesture is ended.
    *
    * The event details contains information about the \link
-   * WGestureEvent::scale() scale\endlink and the \link 
+   * WGestureEvent::scale() scale\endlink and the \link
    * WGestureEvent::rotation() rotation\endlink.
    *
    * \note When JavaScript is disabled, the signal will never fire.
@@ -322,9 +322,9 @@ public:
    * \sa WWidget::dropEvent(), WWidget::acceptDrops(), WDropEvent
    */
   void setDraggable(const std::string& mimeType,
-		    WWidget *dragWidget = nullptr,
-		    bool isDragWidgetOnly = false,
-		    WObject *sourceWidget = nullptr);
+                    WWidget *dragWidget = nullptr,
+                    bool isDragWidgetOnly = false,
+                    WObject *sourceWidget = nullptr);
 
   /*! \brief Disable drag & drop for this widget.
    *

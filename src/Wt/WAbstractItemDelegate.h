@@ -138,7 +138,7 @@ public:
    * \sa editState()
    */
   virtual void setEditState(WWidget *widget, const WModelIndex& index,
-			    const cpp17::any& value) const;
+                            const cpp17::any& value) const;
 
   /*! \brief Returns whether the edited value is valid.
    *
@@ -147,7 +147,7 @@ public:
    * \sa WValidator::validate()
    */
   virtual ValidationState validate(const WModelIndex& index,
-				   const cpp17::any& editState) const;
+                                   const cpp17::any& editState) const;
 
   /*! \brief Saves the edited data to the model.
    *
@@ -158,8 +158,8 @@ public:
    * nothing.
    */
   virtual void setModelData(const cpp17::any& editState,
-			    WAbstractItemModel *model,
-			    const WModelIndex& index) const;
+                            WAbstractItemModel *model,
+                            const WModelIndex& index) const;
 
   /*! \brief %Signal which indicates that an editor needs to be closed.
    *

@@ -30,8 +30,8 @@ public:
   virtual WLayoutItem *layoutItem() const override;
 
   virtual DomElement *createDomElement(DomElement *parent,
-				       bool fitWidth, bool fitHeight,
-				       WApplication *app) override;
+                                       bool fitWidth, bool fitHeight,
+                                       WApplication *app) override;
 
 private:
   WWidgetItem *item_;

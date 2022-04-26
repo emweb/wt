@@ -145,15 +145,15 @@ WValidator::Result WTimeValidator::validate(const WT_USTRING &input) const
             WTime t = WTime::fromString(input, formats_[i]);
             if(t.isValid()){
                 if(!bottom_.isNull() && t < bottom_)
-		  return Result(ValidationState::Invalid, 
-				invalidTooEarlyText());
+                  return Result(ValidationState::Invalid,
+                                invalidTooEarlyText());
                 if(!top_.isNull() && t > top_)
-		  return Result(ValidationState::Invalid, 
-				invalidTooLateText());
+                  return Result(ValidationState::Invalid,
+                                invalidTooLateText());
                 return Result(ValidationState::Valid);
             }
         } catch (std::exception &e){
-	  LOG_WARN("validate(): " << e.what());
+          LOG_WARN("validate(): " << e.what());
         }
     }
     return Result(ValidationState::Invalid, invalidNotATimeText());

@@ -115,15 +115,15 @@ function(WT, element) {
       if (element.wtResize)
         element.wtResize(element, w, h, false);
     };
-    
+
     reset();
     var dirty = false;
     var lastWidth, lastHeight;
 
     var dirtyChecking = function() {
         if (dirty) {
-	  element.resizeSensor.trigger();
-	  dirty = false;
+          element.resizeSensor.trigger();
+          dirty = false;
         }
 
         requestAnimationFrame(dirtyChecking);
@@ -133,8 +133,8 @@ function(WT, element) {
     var cachedWidth, cachedHeight; //useful to not query offsetWidth twice
 
     var onScroll = function() {
-        if ((cachedWidth = element.offsetWidth) != lastWidth || 
-	    (cachedHeight = element.offsetHeight) != lastHeight) {
+        if ((cachedWidth = element.offsetWidth) != lastWidth ||
+            (cachedHeight = element.offsetHeight) != lastHeight) {
             dirty = true;
 
             lastWidth = cachedWidth;

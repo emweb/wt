@@ -47,10 +47,10 @@ class WT_API Message
 public:
   /*! \class Header
    *  \brief An SMTP message header.
-   * 
+   *
    * An SMTP message header is a name/value pair, as defined by RFC 822.
    */
-  class WT_API Header 
+  class WT_API Header
   {
   public:
     /*! \brief Default constructor.
@@ -217,7 +217,7 @@ public:
    * written using write().
    */
   void addAttachment(const std::string& mimeType, const std::string& fileName,
-		     std::istream *data);
+                     std::istream *data);
 
   /*! \brief Writes the message to the stream.
    *
@@ -242,11 +242,11 @@ private:
 
   static std::string generateBoundary();
   static void encodeAttachment(const Attachment& attachment,
-			       std::ostream& out);
+                               std::ostream& out);
 
   static void encodeChar(WStringStream& s, unsigned char c);
   static void encodeWord(const WString& text, std::ostream& out,
-			 bool quoteIfNeeded);
+                         bool quoteIfNeeded);
   static void encodeQuotedPrintable(const WString& text, std::ostream& out);
 
   friend class Mailbox;

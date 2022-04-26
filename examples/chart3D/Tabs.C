@@ -232,67 +232,67 @@ ChartSettings::ChartSettings(Wt::Chart::WCartesian3DChart *chart)
 
   const auto changeIntersectionLinesColor = [=]() {
         switch (intersectionLineColor_->currentIndex()) {
-	case 0:
+        case 0:
           chart->setIntersectionLinesColor(Wt::WColor(255,0,0)); break;
-	case 1:
+        case 1:
           chart->setIntersectionLinesColor(Wt::WColor(0,255,0)); break;
-	case 2:
+        case 2:
           chart->setIntersectionLinesColor(Wt::WColor(0,0,255)); break;
-	case 3:
+        case 3:
           chart->setIntersectionLinesColor(Wt::WColor(0,0,0)); break;
-	case 4:
+        case 4:
           chart->setIntersectionLinesColor(Wt::WColor(0,255,255)); break;
-	case 5:
+        case 5:
           chart->setIntersectionLinesColor(Wt::WColor(255,0,255)); break;
-	case 6:
+        case 6:
           chart->setIntersectionLinesColor(Wt::WColor(255,255,0)); break;
-	}
+        }
       };
 
   enableIntersectionLines_->checked().connect([=]() {
-	chart->setIntersectionLinesEnabled(true);
-	changeIntersectionLinesColor();
+        chart->setIntersectionLinesEnabled(true);
+        changeIntersectionLinesColor();
       });
   enableIntersectionLines_->unChecked().connect([=]() {
-	chart->setIntersectionLinesEnabled(false);
+        chart->setIntersectionLinesEnabled(false);
       });
 
   intersectionLineColor_->changed().connect(changeIntersectionLinesColor);
 
   enableLegend_->checked().connect([=]() {
-	chart->setLegendEnabled(true);
+        chart->setLegendEnabled(true);
       });
   enableLegend_->unChecked().connect([=]() {
-	chart->setLegendEnabled(false);
+        chart->setLegendEnabled(false);
       });
 
   legendSide_->changed().connect([=]() {
         switch (legendSide_->currentIndex()) {
-	case 0:
+        case 0:
           chart->setLegendLocation(Wt::Side::Left, chart->legendAlignment()); break;
-	case 1:
+        case 1:
           chart->setLegendLocation(Wt::Side::Right, chart->legendAlignment()); break;
-	case 2:
+        case 2:
           chart->setLegendLocation(Wt::Side::Top, chart->legendAlignment()); break;
-	case 3:
+        case 3:
           chart->setLegendLocation(Wt::Side::Bottom, chart->legendAlignment()); break;
-	}
+        }
       });
   legendAlignment_->changed().connect([=]() {
         switch (legendAlignment_->currentIndex()) {
-	case 0:
+        case 0:
           chart->setLegendLocation(chart->legendSide(), Wt::AlignmentFlag::Left); break;
-	case 1:
+        case 1:
           chart->setLegendLocation(chart->legendSide(), Wt::AlignmentFlag::Center); break;
-	case 2:
+        case 2:
           chart->setLegendLocation(chart->legendSide(), Wt::AlignmentFlag::Right); break;
-	case 3:
+        case 3:
           chart->setLegendLocation(chart->legendSide(), Wt::AlignmentFlag::Top); break;
-	case 4:
+        case 4:
           chart->setLegendLocation(chart->legendSide(), Wt::AlignmentFlag::Middle); break;
-	case 5:
+        case 5:
           chart->setLegendLocation(chart->legendSide(), Wt::AlignmentFlag::Bottom); break;
-	}
+        }
       });
 
   title_->changed().connect([=] () {
@@ -342,53 +342,53 @@ DataSelection::DataSelection(Wt::Chart::WCartesian3DChart *chart)
 
   // define functionality
   notShown->sactivated().connect([=] (Wt::WString selection) {
-	//WString selection;
-  	shown->clearSelection();
+        //WString selection;
+          shown->clearSelection();
         for (auto& item : dataCollection_) {
           if (item.first == selection)
             selectionChange_.emit(item.second);
-  	}
+          }
       });
   shown->sactivated().connect([=] (Wt::WString selection) {
-	notShown->clearSelection();
-	for (auto& item : dataCollection_) {
-	  if (item.first == selection)
-	    selectionChange_.emit(item.second);
-  	}
+        notShown->clearSelection();
+        for (auto& item : dataCollection_) {
+          if (item.first == selection)
+            selectionChange_.emit(item.second);
+          }
       });
   addSelected->clicked().connect([=] () {
-	int index = notShown->currentIndex();
-	if (index == -1)
-	  return;
-  
+        int index = notShown->currentIndex();
+        if (index == -1)
+          return;
+
         const Wt::WString currentText = notShown->currentText();
-	for (auto& item : dataCollection_) {
-	  if (item.first == currentText){
+        for (auto& item : dataCollection_) {
+          if (item.first == currentText){
               std::unique_ptr<Wt::Chart::WAbstractDataSeries3D> series(item.second);
-	      chart->addDataSeries(std::move(series));
-	      selectionChange_.emit(item.second);
-	  }
-	}
-	shown->addItem(currentText);
-	shown->setCurrentIndex(shown->count()-1);
-	notShown->removeItem(index);
-	notShown->clearSelection();
-	
+              chart->addDataSeries(std::move(series));
+              selectionChange_.emit(item.second);
+          }
+        }
+        shown->addItem(currentText);
+        shown->setCurrentIndex(shown->count()-1);
+        notShown->removeItem(index);
+        notShown->clearSelection();
+
       });
   removeSelected->clicked().connect([=] () {
-	int index = shown->currentIndex();
-	if (index == -1)
-	  return;
-  
+        int index = shown->currentIndex();
+        if (index == -1)
+          return;
+
         const Wt::WString currentText = shown->currentText();
-	for (auto& item : dataCollection_) {
-	  if (item.first == currentText)
-	    chart->removeDataSeries(item.second).release();
-	}
-	notShown->addItem(currentText);
-	notShown->setCurrentIndex(shown->count()-1);
-	shown->removeItem(index);
-	shown->clearSelection();
+        for (auto& item : dataCollection_) {
+          if (item.first == currentText)
+            chart->removeDataSeries(item.second).release();
+        }
+        notShown->addItem(currentText);
+        notShown->setCurrentIndex(shown->count()-1);
+        shown->removeItem(index);
+        shown->clearSelection();
       });
 }
 
@@ -397,7 +397,7 @@ void DataSelection::addDataToCollection(Wt::WString name,
 {
   DataSelectionItem item(name, data);
   dataCollection_.push_back(item);
-  notShown->addItem(name);  
+  notShown->addItem(name);
 }
 
 
@@ -425,16 +425,16 @@ DataConfig::DataConfig(Wt::Chart::WCartesian3DChart* chart)
         if (dynamic_cast<Wt::Chart::WAbstractGridData*>(data)) {
           Wt::Chart::WAbstractGridData *gridData = dynamic_cast<Wt::Chart::WAbstractGridData*>(data);
           if (gridData->type() == Wt::Chart::Series3DType::Bar) {
-	    catgriddatasettings_->bindDataSet(gridData);
-	    sw->setCurrentIndex(2);
-	  } else {
-	    numgriddatasettings_->bindDataSet(gridData);
-	    sw->setCurrentIndex(1);
-	  }
+            catgriddatasettings_->bindDataSet(gridData);
+            sw->setCurrentIndex(2);
+          } else {
+            numgriddatasettings_->bindDataSet(gridData);
+            sw->setCurrentIndex(1);
+          }
         } else if (dynamic_cast<Wt::Chart::WScatterData*>(data)) {
           scatterdatasettings_->bindDataSet(dynamic_cast<Wt::Chart::WScatterData*>(data));
-	  sw->setCurrentIndex(3);
-	}
+          sw->setCurrentIndex(3);
+        }
       });
 }
 

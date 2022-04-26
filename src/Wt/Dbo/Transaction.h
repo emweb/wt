@@ -21,7 +21,7 @@ class ptr_base;
 
 /*! \class Transaction Wt/Dbo/Transaction.h Wt/Dbo/Transaction.h
  *  \brief A database transaction.
- * 
+ *
  * This class implements a RAII transaction. Most dbo manipulations
  * require that a transaction is active, and database changes will not
  * be committed to the database until the active transaction is

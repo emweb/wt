@@ -84,7 +84,7 @@ public:
    * re-identified, and thus the registration process may be aborted.
    */
   RegistrationModel(const AuthService& baseAuth, AbstractUserDatabase& users,
-		    Login& login);
+                    Login& login);
 
   /*! \brief Resets the model.
    *
@@ -99,7 +99,7 @@ public:
 
   /*! \brief Configures a minimum length for a login name.
    *
-   * The default value is 4. 
+   * The default value is 4.
    */
   void setMinLoginNameLength(int chars) { minLoginNameLength_ = chars; }
 
@@ -219,8 +219,8 @@ public:
   virtual bool isFederatedLoginVisible() const;
 
   static void validatePasswordsMatchJS(WLineEdit *password,
-				       WLineEdit *password2,
-				       WText *info2);
+                                       WLineEdit *password2,
+                                       WText *info2);
 
 private:
   Login& login_;

@@ -16,7 +16,7 @@ Wt::WText *out = container->addNew<Wt::WText>("");
 
 sb1->activated().connect([=] {
     out->setText(Wt::WString("You selected {1}.")
-		 .arg(sb1->currentText()));
+                 .arg(sb1->currentText()));
 });
 
 SAMPLE_END(return std::move(container))

@@ -24,7 +24,7 @@ double inPlaneBools[faces][planes];
 
 namespace {
   void put(v3 &vertex,
-	   double x, double y, double z) {
+           double x, double y, double z) {
     vertex.x = x;
     vertex.y = y;
     vertex.z = z;
@@ -39,27 +39,27 @@ void writeAll() {
   for (int i=0; i<planes; i++) {
     for (int j=0; j<ptsPerPlane; j++) {
       myfile << backVertexPosV[i][j].x << ", " << backVertexPosV[i][j].y
-	     << ", " << backVertexPosV[i][j].z << ", ";
+             << ", " << backVertexPosV[i][j].z << ", ";
     }
   }
   for (int i=0; i<planes; i++) {
     for (int j=0; j<ptsPerPlane; j++) {
       myfile << leftVertexPosV[i][j].x << ", " << leftVertexPosV[i][j].y
-	     << ", " << leftVertexPosV[i][j].z << ", ";
+             << ", " << leftVertexPosV[i][j].z << ", ";
     }
   }
   for (int i=0; i<planes; i++) {
     for (int j=0; j<ptsPerPlane; j++) {
       myfile << frontVertexPosV[i][j].x << ", " << frontVertexPosV[i][j].y
-	     << ", " << frontVertexPosV[i][j].z << ", ";
+             << ", " << frontVertexPosV[i][j].z << ", ";
     }
   }
   for (int i=0; i<planes; i++) {
     for (int j=0; j<ptsPerPlane; j++) {
       if (i == planes-1 && j == ptsPerPlane-1)
-	break;
+        break;
       myfile << rightVertexPosV[i][j].x << ", " << rightVertexPosV[i][j].y
-	     << ", " << rightVertexPosV[i][j].z << ", ";
+             << ", " << rightVertexPosV[i][j].z << ", ";
     }
   }
   myfile << rightVertexPosV[planes-1][ptsPerPlane-1].x << ", " << rightVertexPosV[planes-1][ptsPerPlane-1].y << ", " << rightVertexPosV[planes-1][ptsPerPlane-1].z << "};\n";
@@ -70,10 +70,10 @@ void writeAll() {
   for (int i=0; i<faces; i++) {
     for (int j=0; j<planes; j++) {
       for (int k=0; k<ptsPerPlane; k++) {
-	if (i == faces-1 && j == planes -1 && k == ptsPerPlane -1)
-	  break;
-	myfile << inPlaneNormals[i][j].x << ", " << inPlaneNormals[i][j].y 
-	       << ", " << inPlaneNormals[i][j].z << ", ";
+        if (i == faces-1 && j == planes -1 && k == ptsPerPlane -1)
+          break;
+        myfile << inPlaneNormals[i][j].x << ", " << inPlaneNormals[i][j].y
+               << ", " << inPlaneNormals[i][j].z << ", ";
       }
     }
   }
@@ -85,10 +85,10 @@ void writeAll() {
   for (int i=0; i<faces; i++) {
     for (int j=0; j<planes; j++) {
       for (int k=0; k<ptsPerPlane; k++) {
-	if (i == faces-1 && j == planes -1 && k == ptsPerPlane -1)
-	  break;
-	myfile << outOfPlaneNormals[i][j].x << ", " <<outOfPlaneNormals[i][j].y 
-	       << ", " << outOfPlaneNormals[i][j].z << ", ";
+        if (i == faces-1 && j == planes -1 && k == ptsPerPlane -1)
+          break;
+        myfile << outOfPlaneNormals[i][j].x << ", " <<outOfPlaneNormals[i][j].y
+               << ", " << outOfPlaneNormals[i][j].z << ", ";
       }
     }
   }
@@ -100,9 +100,9 @@ void writeAll() {
   for (int i=0; i<faces; i++) {
     for (int j=0; j<planes; j++) {
       for (int k=0; k<ptsPerPlane; k++) {
-	if (i == faces-1 && j == planes -1 && k == ptsPerPlane -1)
-	  break;
-	myfile << inPlaneBools[i][j] << ", ";
+        if (i == faces-1 && j == planes -1 && k == ptsPerPlane -1)
+          break;
+        myfile << inPlaneBools[i][j] << ", ";
       }
     }
   }
@@ -114,7 +114,7 @@ void writeAll() {
     idx = 4*i;
     for (int j=0; j<2; j++){
       if (i == planes*faces-1 && j == 1)
-	break;
+        break;
       myfile << idx << ", ";
       myfile << idx+1+j << ", ";
       myfile << idx+2+j << ", ";
@@ -135,9 +135,9 @@ int main() {
   CompositeTexture axesTexture;
   for (int i=0; i < 2; i++) {
     axesTexture.defineSubTexture(CompositeTexture::vec2(0.0 + i/2.0, 1.0),
-				 CompositeTexture::vec2(0.0 + i/2.0, 0.0),
-				 CompositeTexture::vec2(0.5 + i/2.0, 0.0),
-				 CompositeTexture::vec2(0.5 + i/2.0, 1.0));
+                                 CompositeTexture::vec2(0.0 + i/2.0, 0.0),
+                                 CompositeTexture::vec2(0.5 + i/2.0, 0.0),
+                                 CompositeTexture::vec2(0.5 + i/2.0, 1.0));
   }
 
   // Vertices of the BACK PLANE
@@ -148,7 +148,7 @@ int main() {
   put(backVertexPosV[0][2], 0.0, -extension, 0.0);
   put(backVertexPosV[0][3], 0.0, 1.0 + extension, 0.0);
   axesTexture.addCoords(0);
-  
+
   put(backVertexPosV[1][0], 0.0, 1.0 + extension, -size);
   put(backVertexPosV[1][1], 0.0, -extension, -size);
   put(backVertexPosV[1][2], 0.0, -extension, 0.0);
@@ -219,7 +219,7 @@ int main() {
   for (int i=0; i<planes; i++) {
     for (int j=0; j<ptsPerPlane; j++) {
       rightVertexPosV[i][j] = yCounterTurnAndTranslate(backVertexPosV[i][j],
-						       1,0,0);
+                                                       1,0,0);
     }
   }
   axesTexture.addCoords(0);axesTexture.addCoords(0);

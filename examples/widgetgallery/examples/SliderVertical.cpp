@@ -20,7 +20,7 @@ out->setMargin(10, Wt::Side::Left);
 
 verticalSlider->valueChanged().connect([=] {
     out->setText("Currenly, my efficiency increased " +
-		 verticalSlider->valueText() + "%!");
+                 verticalSlider->valueText() + "%!");
 });
 
 SAMPLE_END(return std::move(container))

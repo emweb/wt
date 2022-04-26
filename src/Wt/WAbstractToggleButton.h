@@ -113,7 +113,7 @@ public:
 
   /*! \brief Returns the current value.
    *
-   * Returns "yes" when checked, "maybe" when partially checked, and 
+   * Returns "yes" when checked, "maybe" when partially checked, and
    * "no" when unchecked.
    */
   virtual WT_USTRING valueText() const override;
@@ -150,7 +150,7 @@ public:
   EventSignal<>& unChecked();
 
   virtual void refresh() override;
-  
+
   /*! \brief Configures word wrapping.
    *
    * When \p wordWrap is \c true, the widget may break lines, creating a

@@ -79,16 +79,16 @@ struct any_traits {
  * want to specialize Wt::any_traits<Type> for a custom handling of
  * their conversions.
  *
- * \sa asNumber(), any_traits 
+ * \sa asNumber(), any_traits
  *
  * \ingroup modelview
  */
 #ifdef DOXYGEN_ONLY
 extern WString asString(const cpp17::any& v,
-			const WT_USTRING& formatString = WT_USTRING());
+                        const WT_USTRING& formatString = WT_USTRING());
 #else
 extern WT_API WString asString(const cpp17::any& v,
-			       const WT_USTRING& formatString = WT_USTRING());
+                               const WT_USTRING& formatString = WT_USTRING());
 #endif
 
 /*! \brief Interprets a cpp17::any as a number value.
@@ -110,7 +110,7 @@ extern WT_API WString asString(const cpp17::any& v,
  * want to specialize Wt::any_traits<Type> for a custom handling of
  * their conversions.
  *
- * \sa asString(), any_traits 
+ * \sa asString(), any_traits
  *
  * \ingroup modelview
  */
@@ -126,8 +126,8 @@ extern WT_API double asNumber(const cpp17::any& v);
  */
 extern WT_API cpp17::any
 convertAnyToAny(const cpp17::any& v,
-		const std::type_info& type,
-		const WT_USTRING& formatString = WT_USTRING());
+                const std::type_info& type,
+                const WT_USTRING& formatString = WT_USTRING());
 
 /*! \brief Registers MVC-support for a type passed in a cpp17::any.
  *
@@ -185,26 +185,26 @@ namespace Impl {
 
     virtual int compare(const cpp17::any& v1, const cpp17::any& v2) override {
       return any_traits<T>::compare(cpp17::any_cast<T>(v1),
-					  cpp17::any_cast<T>(v2));
+                                          cpp17::any_cast<T>(v2));
     }
   };
 
   extern WT_API AbstractTypeHandler *getRegisteredType
     (const std::type_info &type, bool takeLock);
   extern WT_API void registerType(const std::type_info &type,
-				  AbstractTypeHandler *handler);
+                                  AbstractTypeHandler *handler);
 
   extern WT_API void lockTypeRegistry();
   extern WT_API void unlockTypeRegistry();
 
   extern WT_API bool matchValue(const cpp17::any& value, const cpp17::any& query,
-				WFlags<MatchFlag> flags);
+                                WFlags<MatchFlag> flags);
   extern WT_API int compare(const cpp17::any& d1, const cpp17::any& d2);
 
   extern WT_API cpp17::any updateFromJS(const cpp17::any& v, std::string s);
 
-  extern WT_API std::string asJSLiteral(const cpp17::any& v, 
-					TextFormat textFormatbool);
+  extern WT_API std::string asJSLiteral(const cpp17::any& v,
+                                        TextFormat textFormatbool);
 }
 
 template <typename Type> void registerType()
@@ -223,7 +223,7 @@ template <typename Type> void registerType()
 
 template <typename Type>
 WString any_traits<Type>::asString(const Type& value,
-					 const WString& format)
+                                         const WString& format)
 {
   std::stringstream ss;
   ss << value;

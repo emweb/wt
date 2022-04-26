@@ -19,9 +19,9 @@
 namespace dbo = Wt::Dbo;
 
 BlogRSSFeed::BlogRSSFeed(dbo::SqlConnectionPool& connectionPool,
-			 const std::string& title,
-			 const std::string& url,
-			 const std::string& description)
+                         const std::string& title,
+                         const std::string& url,
+                         const std::string& description)
   : connectionPool_(connectionPool),
     title_(title),
     url_(url),
@@ -59,7 +59,7 @@ void BlogRSSFeed::handleRequest(const Wt::Http::Request &request,
     "    <title>" << Wt::Utils::htmlEncode(title_) << "</title>\n"
     "    <link>" << Wt::Utils::htmlEncode(url) << "</link>\n"
     "    <description>" << Wt::Utils::htmlEncode(description_)
-		 << "</description>\n";
+                 << "</description>\n";
 
   dbo::Transaction t(session);
 
@@ -77,16 +77,16 @@ void BlogRSSFeed::handleRequest(const Wt::Http::Request &request,
       "    <item>\n"
       "      <title>" << Wt::Utils::htmlEncode(post->title.toUTF8()) << "</title>\n"
       "      <pubDate>" << post->date.toString("ddd, d MMM yyyy hh:mm:ss UTC")
-		   << "</pubDate>\n"
+                   << "</pubDate>\n"
       "      <guid isPermaLink=\"true\">" << Wt::Utils::htmlEncode(permaLink)
-		   << "</guid>\n";
+                   << "</guid>\n";
 
     std::string description = post->briefHtml.toUTF8();
     if (!post->bodySrc.empty())
       description +=
-	"<p><a href=\"" + permaLink + "\">Read the rest...</a></p>";
+        "<p><a href=\"" + permaLink + "\">Read the rest...</a></p>";
 
-    response.out() << 
+    response.out() <<
       "      <description><![CDATA[" << description << "]]></description>\n"
       "    </item>\n";
   }

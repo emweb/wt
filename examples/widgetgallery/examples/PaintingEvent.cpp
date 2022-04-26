@@ -10,12 +10,12 @@ public:
     MyPaintedWidget()
         : WPaintedWidget(), end_(100)
     {
-	resize(200, 60);   // Provide a default size.
+        resize(200, 60);   // Provide a default size.
     }
 
     void setEnd(int end) {
-	end_ = end;
-	update();          // Trigger a repaint.
+        end_ = end;
+        update();          // Trigger a repaint.
     }
 
 protected:

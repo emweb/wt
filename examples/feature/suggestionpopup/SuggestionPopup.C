@@ -122,7 +122,7 @@ private:
       std::string value = drug;
       std::size_t sc = value.find(';');
       if (sc != std::string::npos)
-	value = value.substr(0, sc);
+        value = value.substr(0, sc);
       model->setData(row, 0, value, ItemDataRole::User);
     }
 
@@ -175,7 +175,7 @@ private:
 
       WPushButton *show = parent->addWidget(std::make_unique<WPushButton>("show"));
       show->clicked().connect(std::bind(&WSuggestionPopup::showAt,
-					  popup, edit));
+                                          popup, edit));
     */
   }
 
@@ -220,12 +220,12 @@ private:
        * then limit the number of matches and end with a '...'
        */
       if (input.value().length() < 3 && i > 10) {
-	fourCharModel_->addString("...");
-	fourCharModel_->setData(row, 0, std::string(""), ItemDataRole::User);
-	fourCharModel_->setData(row, 0, std::string("Wt-more-data"),
-				ItemDataRole::StyleClass);
+        fourCharModel_->addString("...");
+        fourCharModel_->setData(row, 0, std::string(""), ItemDataRole::User);
+        fourCharModel_->setData(row, 0, std::string("Wt-more-data"),
+                                ItemDataRole::StyleClass);
 
-	break;
+        break;
       }
 
       std::u32string v = input;
@@ -233,7 +233,7 @@ private:
         v += U"a";
 
       v += (U"a"[0] + i);
-      
+
       fourCharModel_->addString(v);
     }
   }
@@ -257,68 +257,68 @@ private:
     std::string matcherJS = INLINE_JAVASCRIPT
       (
        function (edit) {
-	 var value = edit.value;
+         var value = edit.value;
 
-	 return function(suggestion) {
-	   if (!suggestion)
-	     return value;
-	   
-	   var i, il,
-	     names = suggestion.split(';'),
-	     val = value.toUpperCase(),
-	     matchedAliases = [],
-	     matched = null;
+         return function(suggestion) {
+           if (!suggestion)
+             return value;
 
-	   if (val.length) {
-	     for (i = 0, il = names.length; i < il; ++i) {
-	       var name = names[i];
-	       if (name.length >= val.length
-		   && name.toUpperCase().substr(0, val.length) == val) {
-		 // This name matches
-		 name = '<b>' + name.substr(0, val.length) + '</b>'
-		   + name.substr(val.length);
+           var i, il,
+             names = suggestion.split(';'),
+             val = value.toUpperCase(),
+             matchedAliases = [],
+             matched = null;
 
-		 if (i == 0) // it's the product name
-		   matched = name;
-		 else // it's an alias
-		   matchedAliases.push(name);
-	       }
-	     }
-	   }
+           if (val.length) {
+             for (i = 0, il = names.length; i < il; ++i) {
+               var name = names[i];
+               if (name.length >= val.length
+                   && name.toUpperCase().substr(0, val.length) == val) {
+                 // This name matches
+                 name = '<b>' + name.substr(0, val.length) + '</b>'
+                   + name.substr(val.length);
 
-	   // Let '...' always match
-	   if (names[0] == '...')
-	     matched = names[0];
+                 if (i == 0) // it's the product name
+                   matched = name;
+                 else // it's an alias
+                   matchedAliases.push(name);
+               }
+             }
+           }
 
-	   if (matched || matchedAliases.length) {
-	     if (!matched)
-	       matched = names[0];
+           // Let '...' always match
+           if (names[0] == '...')
+             matched = names[0];
 
-	     if (matchedAliases.length)
-	       matched += " (" + matchedAliases.join(", ") + ")";
+           if (matched || matchedAliases.length) {
+             if (!matched)
+               matched = names[0];
 
-	     return { match : true,
-		      suggestion : matched };
-	   } else {
-	     return { match : false,
-		      suggestion : names[0] };
-	   }
-	 }
+             if (matchedAliases.length)
+               matched += " (" + matchedAliases.join(", ") + ")";
+
+             return { match : true,
+                      suggestion : matched };
+           } else {
+             return { match : false,
+                      suggestion : names[0] };
+           }
+         }
        }
        );
 
     std::string replacerJS = INLINE_JAVASCRIPT
       (
        function (edit, suggestionText, suggestionValue) {
-	 edit.value = suggestionValue;
+         edit.value = suggestionValue;
 
-	 if (edit.selectionStart)
-	   edit.selectionStart = edit.selectionEnd = suggestionValue.length;
+         if (edit.selectionStart)
+           edit.selectionStart = edit.selectionEnd = suggestionValue.length;
        }
        );
 
     return parent->addChild(
-	std::make_unique<WSuggestionPopup>(matcherJS, replacerJS));
+        std::make_unique<WSuggestionPopup>(matcherJS, replacerJS));
   }
 };
 

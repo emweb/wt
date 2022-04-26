@@ -21,7 +21,7 @@ namespace Wt {
 /*! \brief Utility function that reads a model from a CSV file.
  */
 extern void readFromCsv(std::istream& f, Wt::WAbstractItemModel *model,
-			int numRows = -1, bool firstLineIsHeaders = true);
+                        int numRows = -1, bool firstLineIsHeaders = true);
 
 /*@}*/
 

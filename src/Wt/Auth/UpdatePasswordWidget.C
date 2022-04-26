@@ -19,15 +19,15 @@ namespace Wt {
 
 UpdatePasswordWidget
 ::UpdatePasswordWidget(const User& user,
-		       std::unique_ptr<RegistrationModel> registrationModel,
-		       const std::shared_ptr<AuthModel>& authModel)
+                       std::unique_ptr<RegistrationModel> registrationModel,
+                       const std::shared_ptr<AuthModel>& authModel)
   : WTemplateFormView(tr("Wt.Auth.template.update-password")),
     user_(user),
     registrationModel_(std::move(registrationModel)),
     authModel_(authModel)
 {
   registrationModel_->setValue(RegistrationModel::LoginNameField,
-			       user.identity(Identity::LoginName));
+                               user.identity(Identity::LoginName));
   registrationModel_->setReadOnly(RegistrationModel::LoginNameField, true);
 
   if (user.password().empty())
@@ -52,13 +52,13 @@ UpdatePasswordWidget
   WPushButton *okButton =
     bindWidget("ok-button",
                std::make_unique<WPushButton>(tr("Wt.WMessageBox.Ok")));
-  WPushButton *cancelButton = 
+  WPushButton *cancelButton =
     bindWidget("cancel-button",
                std::make_unique<WPushButton>(tr("Wt.WMessageBox.Cancel")));
 
   if (authModel_) {
     authModel_->setValue(AuthModel::LoginNameField,
-			 user.identity(Identity::LoginName));
+                         user.identity(Identity::LoginName));
 
     updateViewField(authModel_.get(), AuthModel::PasswordField);
 
@@ -78,7 +78,7 @@ UpdatePasswordWidget
     (RegistrationModel::RepeatPasswordField + std::string("-info"));
 
   registrationModel_->validatePasswordsMatchJS(password,
-					       password2, password2Info);
+                                               password2, password2Info);
 
   if (!authModel_)
     password->setFocus(true);
@@ -117,19 +117,19 @@ std::unique_ptr<WWidget> UpdatePasswordWidget
 void UpdatePasswordWidget::checkPassword()
 {
   updateModelField(registrationModel_.get(),
-		   RegistrationModel::ChoosePasswordField);
+                   RegistrationModel::ChoosePasswordField);
   registrationModel_->validateField(RegistrationModel::ChoosePasswordField);
   updateViewField(registrationModel_.get(),
-		  RegistrationModel::ChoosePasswordField);
+                  RegistrationModel::ChoosePasswordField);
 }
 
 void UpdatePasswordWidget::checkPassword2()
 {
   updateModelField(registrationModel_.get(),
-		   RegistrationModel::RepeatPasswordField);
+                   RegistrationModel::RepeatPasswordField);
   registrationModel_->validateField(RegistrationModel::RepeatPasswordField);
   updateViewField(registrationModel_.get(),
-		  RegistrationModel::RepeatPasswordField);
+                  RegistrationModel::RepeatPasswordField);
 }
 
 bool UpdatePasswordWidget::validate()
@@ -151,7 +151,7 @@ bool UpdatePasswordWidget::validate()
 
   registrationModel_->validateField(RegistrationModel::EmailField);
 
-  if (!registrationModel_->valid()) 
+  if (!registrationModel_->valid())
     valid = false;
 
   return valid;

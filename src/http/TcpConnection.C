@@ -3,7 +3,7 @@
  *
  * All rights reserved.
  */
-// 
+//
 // connection.cpp
 // ~~~~~~~~~~~~~~
 //
@@ -60,48 +60,48 @@ void TcpConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
 
   if (state_ & Reading) {
     LOG_DEBUG(native() << ": state_ = "
-	      << (state_ & Reading ? "reading " : "")
-	      << (state_ & Writing ? "writing " : ""));
+              << (state_ & Reading ? "reading " : "")
+              << (state_ & Writing ? "writing " : ""));
     stop();
     return;
   }
 
   setReadTimeout(timeout);
 
-  std::shared_ptr<TcpConnection> sft 
+  std::shared_ptr<TcpConnection> sft
     = std::static_pointer_cast<TcpConnection>(shared_from_this());
   socket_.async_read_some(asio::buffer(buffer),
-			  strand_.wrap
-			  (std::bind(&TcpConnection::handleReadRequest,
-				     sft,
-				     std::placeholders::_1,
-				     std::placeholders::_2)));
+                          strand_.wrap
+                          (std::bind(&TcpConnection::handleReadRequest,
+                                     sft,
+                                     std::placeholders::_1,
+                                     std::placeholders::_2)));
 }
 
 void TcpConnection::startAsyncReadBody(ReplyPtr reply,
-				       Buffer& buffer, int timeout)
+                                       Buffer& buffer, int timeout)
 {
   LOG_DEBUG(native() << ": startAsyncReadBody");
 
   if (state_ & Reading) {
     LOG_DEBUG(native() << ": state_ = "
-	      << (state_ & Reading ? "reading " : "")
-	      << (state_ & Writing ? "writing " : ""));
+              << (state_ & Reading ? "reading " : "")
+              << (state_ & Writing ? "writing " : ""));
     stop();
     return;
   }
 
   setReadTimeout(timeout);
 
-  std::shared_ptr<TcpConnection> sft 
+  std::shared_ptr<TcpConnection> sft
     = std::static_pointer_cast<TcpConnection>(shared_from_this());
   socket_.async_read_some(asio::buffer(buffer),
-			  strand_.wrap
-			  (std::bind(&TcpConnection::handleReadBody0,
-				     sft,
-				     reply,
-				     std::placeholders::_1,
-				     std::placeholders::_2)));
+                          strand_.wrap
+                          (std::bind(&TcpConnection::handleReadBody0,
+                                     sft,
+                                     reply,
+                                     std::placeholders::_1,
+                                     std::placeholders::_2)));
 }
 
 void TcpConnection::startAsyncWriteResponse
@@ -113,23 +113,23 @@ void TcpConnection::startAsyncWriteResponse
 
   if (state_ & Writing) {
     LOG_DEBUG(native() << ": state_ = "
-	      << (state_ & Reading ? "reading " : "")
-	      << (state_ & Writing ? "writing " : ""));
+              << (state_ & Reading ? "reading " : "")
+              << (state_ & Writing ? "writing " : ""));
     stop();
     return;
   }
 
   setWriteTimeout(timeout);
 
-  std::shared_ptr<TcpConnection> sft 
+  std::shared_ptr<TcpConnection> sft
     = std::static_pointer_cast<TcpConnection>(shared_from_this());
   asio::async_write(socket_, buffers,
-		    strand_.wrap
-		    (std::bind(&TcpConnection::handleWriteResponse0,
-			       sft,
-			       reply,
-			       std::placeholders::_1,
-			       std::placeholders::_2)));
+                    strand_.wrap
+                    (std::bind(&TcpConnection::handleWriteResponse0,
+                               sft,
+                               reply,
+                               std::placeholders::_1,
+                               std::placeholders::_2)));
 }
 
 } // namespace server

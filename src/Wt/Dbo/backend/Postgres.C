@@ -140,7 +140,7 @@ LOGGER("Dbo.backend.Postgres");
 
 // do not reconnect in a transaction unless we exceed the lifetime by 120s.
 const std::chrono::seconds TRANSACTION_LIFETIME_MARGIN = std::chrono::seconds(120);
-    
+
 class PostgresException : public Exception
 {
 public:
@@ -169,7 +169,7 @@ public:
     paramValues_ = nullptr;
     paramTypes_ = paramLengths_ = paramFormats_ = nullptr;
     columnCount_ = 0;
- 
+
     snprintf(name_, 64, "SQL%p%08X", (void*)this, rand());
 
     LOG_DEBUG(this << " for: " << sql_);
@@ -268,7 +268,7 @@ public:
   }
 
   virtual void bind(int column, const std::chrono::system_clock::time_point& value,
-		    SqlDateTimeType type) override
+                    SqlDateTimeType type) override
   {
     std::stringstream ss;
     ss.imbue(std::locale::classic());
@@ -309,7 +309,7 @@ public:
     p.value.resize(value.size());
     if (value.size() > 0)
       std::memcpy(const_cast<char *>(p.value.data()), &(*value.begin()),
-	     value.size());
+             value.size());
     p.isbinary = true;
     p.isnull = false;
 
@@ -330,7 +330,7 @@ public:
   virtual void execute() override
   {
     conn_.checkConnection(TRANSACTION_LIFETIME_MARGIN);
-    
+
     if (conn_.showQueries())
       LOG_INFO(sql_);
 
@@ -338,39 +338,39 @@ public:
       paramValues_ = new char *[params_.size()];
 
       for (unsigned i = 0; i < params_.size(); ++i) {
-	if (params_[i].isbinary) {
-	  paramTypes_ = new int[params_.size() * 3];
-	  paramLengths_ = paramTypes_ + params_.size();
-	  paramFormats_ = paramLengths_ + params_.size();
-	  for (unsigned j = 0; j < params_.size(); ++j) {
-	    paramTypes_[j] = params_[j].isbinary ? BYTEAOID : 0;
-	    paramFormats_[j] = params_[j].isbinary ? 1 : 0;
-	    paramLengths_[j] = 0;
-	  }
+        if (params_[i].isbinary) {
+          paramTypes_ = new int[params_.size() * 3];
+          paramLengths_ = paramTypes_ + params_.size();
+          paramFormats_ = paramLengths_ + params_.size();
+          for (unsigned j = 0; j < params_.size(); ++j) {
+            paramTypes_[j] = params_[j].isbinary ? BYTEAOID : 0;
+            paramFormats_[j] = params_[j].isbinary ? 1 : 0;
+            paramLengths_[j] = 0;
+          }
 
-	  break;
-	}
+          break;
+        }
       }
 
       result_ = PQprepare(conn_.connection(), name_, sql_.c_str(),
-			  paramTypes_ ? params_.size() : 0, (Oid *)paramTypes_);
+                          paramTypes_ ? params_.size() : 0, (Oid *)paramTypes_);
       handleErr(PQresultStatus(result_), result_);
       columnCount_ = PQnfields(result_);
     }
 
     for (unsigned i = 0; i < params_.size(); ++i) {
       if (params_[i].isnull)
-	paramValues_[i] = nullptr;
+        paramValues_[i] = nullptr;
       else
-	if (params_[i].isbinary) {
-	  paramValues_[i] = const_cast<char *>(params_[i].value.data());
-	  paramLengths_[i] = params_[i].value.length();
-	} else
-	  paramValues_[i] = const_cast<char *>(params_[i].value.c_str());
+        if (params_[i].isbinary) {
+          paramValues_[i] = const_cast<char *>(params_[i].value.data());
+          paramLengths_[i] = params_[i].value.length();
+        } else
+          paramValues_[i] = const_cast<char *>(params_[i].value.c_str());
     }
 
     int err = PQsendQueryPrepared(conn_.connection(), name_, params_.size(),
-				  paramValues_, paramLengths_, paramFormats_, 0);
+                                  paramValues_, paramLengths_, paramFormats_, 0);
     if (err != 1)
       throw PostgresException(PQerrorMessage(conn_.connection()));
 
@@ -381,27 +381,27 @@ public:
       struct timeval timeout = toTimeval(conn_.timeout());
 
       for (;;) {
-	int result = select(FD_SETSIZE, &rfds, 0, 0, &timeout);
+        int result = select(FD_SETSIZE, &rfds, 0, 0, &timeout);
 
-	if (result == 0) {
-	  std::cerr << "Postgres: timeout while executing query" << std::endl;
-	  conn_.disconnect();
-	  throw PostgresException("Database timeout");
-	} else if (result == -1) {
-	  if (errno != EINTR) {
-	    perror("select");
-	    throw PostgresException("Error waiting for result");
-	  } else {
-	    // EINTR, try again
-	  }
-	} else {
-	  err = PQconsumeInput(conn_.connection());
-	  if (err != 1)
-	    throw PostgresException(PQerrorMessage(conn_.connection()));
+        if (result == 0) {
+          std::cerr << "Postgres: timeout while executing query" << std::endl;
+          conn_.disconnect();
+          throw PostgresException("Database timeout");
+        } else if (result == -1) {
+          if (errno != EINTR) {
+            perror("select");
+            throw PostgresException("Error waiting for result");
+          } else {
+            // EINTR, try again
+          }
+        } else {
+          err = PQconsumeInput(conn_.connection());
+          if (err != 1)
+            throw PostgresException(PQerrorMessage(conn_.connection()));
 
-	  if (PQisBusy(conn_.connection()) != 1)
-	    break;
-	}
+          if (PQisBusy(conn_.connection()) != 1)
+            break;
+        }
       }
     }
 
@@ -414,9 +414,9 @@ public:
     if (PQresultStatus(result_) == PGRES_COMMAND_OK) {
       std::string s = PQcmdTuples(result_);
       if (!s.empty())
-	affectedRows_ = std::stoi(s);
+        affectedRows_ = std::stoi(s);
       else
-	affectedRows_ = 0;
+        affectedRows_ = 0;
     } else if (PQresultStatus(result_) == PGRES_TUPLES_OK)
       affectedRows_ = PQntuples(result_);
 
@@ -427,20 +427,20 @@ public:
       const std::string returning = " returning ";
       std::size_t j = sql_.rfind(returning);
       if (j != std::string::npos
-	  && sql_.find(' ', j + returning.length()) == std::string::npos)
-	isInsertReturningId = true;
+          && sql_.find(' ', j + returning.length()) == std::string::npos)
+        isInsertReturningId = true;
     }
 
     if (isInsertReturningId) {
       state_ = NoFirstRow;
       if (PQntuples(result_) == 1 && PQnfields(result_) == 1) {
-	lastId_ = std::stoll(PQgetvalue(result_, 0, 0));
+        lastId_ = std::stoll(PQgetvalue(result_, 0, 0));
       }
     } else {
       if (PQntuples(result_) == 0) {
-	state_ = NoFirstRow;
+        state_ = NoFirstRow;
       } else {
-	state_ = FirstRow;
+        state_ = FirstRow;
       }
     }
 
@@ -461,7 +461,7 @@ public:
   {
     return affectedRows_;
   }
-  
+
   virtual bool nextRow() override
   {
     switch (state_) {
@@ -473,16 +473,16 @@ public:
       return true;
     case NextRow:
       if (row_ + 1 < PQntuples(result_)) {
-	row_++;
-	return true;
+        row_++;
+        return true;
       } else {
-	state_ = Done;
-	return false;
+        state_ = Done;
+        return false;
       }
       break;
     case Done:
       throw PostgresException("Postgres: nextRow(): statement already "
-			      "finished");
+                              "finished");
     }
 
     return false;
@@ -525,9 +525,9 @@ public:
      * booleans are mapped to int values
      */
     if (*v == 'f')
-	*value = 0;
+        *value = 0;
     else if (*v == 't')
-	*value = 1;
+        *value = 1;
     else
       *value = std::stoi(v);
 
@@ -547,7 +547,7 @@ public:
 
     return true;
   }
-  
+
   virtual bool getResult(int column, float *value) override
   {
     if (PQgetisnull(result_, row_, column))
@@ -573,8 +573,8 @@ public:
   }
 
   virtual bool getResult(int column,
-			 std::chrono::system_clock::time_point *value,
-			 SqlDateTimeType type) override
+                         std::chrono::system_clock::time_point *value,
+                         SqlDateTimeType type) override
   {
     if (PQgetisnull(result_, row_, column))
       return false;
@@ -627,7 +627,7 @@ public:
   }
 
   virtual bool getResult(int column, std::vector<unsigned char> *value,
-			 int size) override
+                         int size) override
   {
     if (PQgetisnull(result_, row_, column))
       return false;
@@ -668,7 +668,7 @@ private:
   int paramCount_;
   char **paramValues_;
   int *paramTypes_, *paramLengths_, *paramFormats_;
- 
+
   long long lastId_;
   int row_, affectedRows_, columnCount_;
 
@@ -678,9 +678,9 @@ private:
       std::string code;
 
       if (result) {
-	char *v = PQresultErrorField(result, PG_DIAG_SQLSTATE);
-	if (v)
-	  code = v;
+        char *v = PQresultErrorField(result, PG_DIAG_SQLSTATE);
+        if (v)
+          code = v;
       }
 
       throw PostgresException(PQerrorMessage(conn_.connection()), code);
@@ -708,37 +708,37 @@ private:
     for (unsigned i = 0; i < sql_.length(); ++i) {
       switch (state) {
       case Statement:
-	if (sql_[i] == '\'')
-	  state = SQuote;
-	else if (sql_[i] == '"')
-	  state = DQuote;
-	else if (sql_[i] == '?') {
+        if (sql_[i] == '\'')
+          state = SQuote;
+        else if (sql_[i] == '"')
+          state = DQuote;
+        else if (sql_[i] == '?') {
           if (i + 1 != sql_.length() &&
               sql_[i + 1] == '?') {
             // escape question mark with double question mark
             result << '?';
             ++i;
           } else {
-	    result << '$' << placeholder++;
+            result << '$' << placeholder++;
           }
-	  continue;
-	}
-	break;
+          continue;
+        }
+        break;
       case SQuote:
-	if (sql_[i] == '\'') {
-	  if (i + 1 == sql_.length())
-	    state = Statement;
-	  else if (sql_[i + 1] == '\'') {
-	    result << sql_[i];
-	    ++i; // skip to next
-	  } else
-	    state = Statement;
-	}
-	break;
+        if (sql_[i] == '\'') {
+          if (i + 1 == sql_.length())
+            state = Statement;
+          else if (sql_[i + 1] == '\'') {
+            result << sql_[i];
+            ++i; // skip to next
+          } else
+            state = Statement;
+        }
+        break;
       case DQuote:
-	if (sql_[i] == '"')
-	  state = Statement;
-	break;
+        if (sql_[i] == '"')
+          state = Statement;
+        break;
       }
       result << sql_[i];
     }
@@ -775,7 +775,7 @@ Postgres::Postgres(const Postgres& other)
 
 void Postgres::setMaximumLifetime(std::chrono::seconds seconds)
 {
-  maximumLifetime_ = seconds;    
+  maximumLifetime_ = seconds;
 }
 
 Postgres::~Postgres()
@@ -803,7 +803,7 @@ void Postgres::disconnect()
     ps->rebuild();
   }
 }
-    
+
 void Postgres::setTimeout(std::chrono::microseconds timeout)
 {
   timeout_ = timeout;
@@ -836,7 +836,7 @@ bool Postgres::connect(const std::string& db)
 bool Postgres::reconnect()
 {
   LOG_INFO(this << " reconnecting...");
-  
+
   if (conn_) {
     if (PQstatus(conn_) == CONNECTION_OK) {
       PQfinish(conn_);
@@ -853,7 +853,7 @@ bool Postgres::reconnect()
     if (result) {
       const std::vector<std::string>& statefulSql = getStatefulSql();
       for (unsigned i = 0; i < statefulSql.size(); ++i)
-	executeSql(statefulSql[i]);
+        executeSql(statefulSql[i]);
     }
 
     return result;
@@ -888,16 +888,16 @@ void Postgres::checkConnection(std::chrono::seconds margin)
     if (t - connectTime_ > maximumLifetime_ + margin) {
       LOG_INFO("maximum connection lifetime passed, trying to reconnect...");
       if (!reconnect()) {
-	throw PostgresException("Could not reconnect to server...");
+        throw PostgresException("Could not reconnect to server...");
       }
     }
   }
 }
-    
+
 void Postgres::exec(const std::string& sql, bool showQuery)
 {
   checkConnection(std::chrono::seconds(0));
-  
+
   if (PQstatus(conn_) != CONNECTION_OK)  {
     LOG_WARN("connection lost to server, trying to reconnect...");
     if (!reconnect()) {
@@ -907,7 +907,7 @@ void Postgres::exec(const std::string& sql, bool showQuery)
 
   if (showQuery && showQueries())
     LOG_INFO(sql);
-  
+
   int err;
 
   err = PQsendQuery(conn_, sql.c_str());
@@ -925,22 +925,22 @@ void Postgres::exec(const std::string& sql, bool showQuery)
 
       if (result == 0) {
         LOG_ERROR("timeout while executing query");
-	disconnect();
-	throw PostgresException("Database timeout");
+        disconnect();
+        throw PostgresException("Database timeout");
       } else if (result == -1) {
-	if (errno != EINTR) {
-	  perror("select");
-	  throw PostgresException("Error waiting for result");
-	} else {
-	  // EINTR, try again
-	}
+        if (errno != EINTR) {
+          perror("select");
+          throw PostgresException("Error waiting for result");
+        } else {
+          // EINTR, try again
+        }
       } else {
-	err = PQconsumeInput(conn_);
-	if (err != 1)
-	  throw PostgresException(PQerrorMessage(conn_));
+        err = PQconsumeInput(conn_);
+        if (err != 1)
+          throw PostgresException(PQerrorMessage(conn_));
 
-	if (PQisBusy(conn_) != 1)
-	  break;
+        if (PQisBusy(conn_) != 1)
+          break;
       }
     }
   }
@@ -968,22 +968,22 @@ std::string Postgres::autoincrementType() const
 {
   return "bigserial";
 }
-  
+
 std::string Postgres::autoincrementSql() const
 {
   return std::string();
 }
 
-std::vector<std::string> 
+std::vector<std::string>
 Postgres::autoincrementCreateSequenceSql(const std::string &table,
-					 const std::string &id) const
+                                         const std::string &id) const
 {
   return std::vector<std::string>();
 }
 
-std::vector<std::string> 
+std::vector<std::string>
 Postgres::autoincrementDropSequenceSql(const std::string &table,
-				       const std::string &id) const
+                                       const std::string &id) const
 {
   return std::vector<std::string>();
 }
@@ -992,7 +992,7 @@ std::string Postgres::autoincrementInsertSuffix(const std::string& id) const
 {
   return " returning \"" + id + "\"";
 }
-  
+
 const char *Postgres::dateTimeType(SqlDateTimeType type) const
 {
   switch (type) {

@@ -42,7 +42,7 @@ WPopupWidget::~WPopupWidget()
 }
 
 void WPopupWidget::setAnchorWidget(WWidget *anchorWidget,
-				   Orientation orientation)
+                                   Orientation orientation)
 {
   anchorWidget_ = anchorWidget;
   orientation_ = orientation;
@@ -83,10 +83,10 @@ void WPopupWidget::setHidden(bool hidden, const WAnimation& animation)
   if (!WWebWidget::canOptimizeUpdates() || isRendered()) {
     if (hidden)
       doJavaScript("var o = " + jsRef() + ";"
-		   "if (o && o.wtPopup) o.wtPopup.hidden();");
+                   "if (o && o.wtPopup) o.wtPopup.hidden();");
     else
       doJavaScript("var o = " + jsRef() + ";"
-		   "if (o && o.wtPopup) o.wtPopup.shown();");
+                   "if (o && o.wtPopup) o.wtPopup.shown();");
   }
 }
 
@@ -99,9 +99,9 @@ void WPopupWidget::defineJS()
   WStringStream jsObj;
 
   jsObj << "new " WT_CLASS ".WPopupWidget("
-	<< app->javaScriptClass() << ',' << jsRef() << ','
-	<< transient_ << ',' << autoHideDelay_ << ','
-	<< !isHidden() << ");";
+        << app->javaScriptClass() << ',' << jsRef() << ','
+        << transient_ << ',' << autoHideDelay_ << ','
+        << !isHidden() << ");";
 
   setJavaScriptMember(" WPopupWidget", jsObj.str());
 }

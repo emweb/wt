@@ -111,16 +111,16 @@ public:
     SharedProcess
   };
 
-  enum SessionTracking { 
+  enum SessionTracking {
     CookiesURL, // Use cookies if available, or fallback to URL-based,
-		// does not support multiple sessions in same browser when
-		// using cookies
+                // does not support multiple sessions in same browser when
+                // using cookies
     URL, // Use URL-based session tracking, support multiple sessions in the same
-	 // browser
+         // browser
     Combined // Use a combination of multi-session cookie + URL-based session tracking
-	     // Will error if cookies are not available (no fallback)
-	     // This should be the most secure option, and supports multiple sessions
-	     // in the same browser.
+             // Will error if cookies are not available (no fallback)
+             // This should be the most secure option, and supports multiple sessions
+             // in the same browser.
   };
 
   enum ErrorReporting {
@@ -138,9 +138,9 @@ public:
   typedef std::vector<std::string> AgentList;
 
   Configuration(const std::string& applicationPath,
-		const std::string& appRoot,
-		const std::string& configurationFile,
-		WServer *server);
+                const std::string& appRoot,
+                const std::string& configurationFile,
+                WServer *server);
 
   void rereadConfiguration();
 
@@ -159,7 +159,7 @@ public:
 #ifndef WT_TARGET_JAVA
   void addEntryPoint(const EntryPoint& entryPoint);
   bool tryAddResource(const EntryPoint& entryPoint); // Returns bool indicating success:
-						     // false if entry point existed already
+                                                     // false if entry point existed already
   void removeEntryPoint(const std::string& path);
   void setDefaultEntryPoint(const std::string& path);
   // Returns matching entry point and match length
@@ -168,7 +168,7 @@ public:
                                   bool matchAfterSlash) const;
   static bool matchesPath(const std::string &path,
                           const std::string &prefix,
-		          bool matchAfterSlash);
+                          bool matchAfterSlash);
   void setNumThreads(int threads);
 #endif // WT_TARGET_JAVA
 
@@ -317,7 +317,7 @@ private:
   int             sessionTimeout_;
   int             idleTimeout_;
   int             bootstrapTimeout_;
-  int		  indicatorTimeout_;
+  int             indicatorTimeout_;
   int             doubleClickTimeout_;
   int             serverPushTimeout_;
   std::string     valgrindPath_;
@@ -334,7 +334,7 @@ private:
 
   std::string     redirectMsg_;
   bool            serializedEvents_;
-  bool		  webSockets_;
+  bool            webSockets_;
   bool            inlineCss_;
   AgentList       ajaxAgentList_, botList_;
   bool            ajaxAgentWhiteList_;

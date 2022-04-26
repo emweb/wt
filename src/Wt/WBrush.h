@@ -34,7 +34,7 @@ namespace Wt {
  * \endcode
  *
  * \warning A %WBrush that is JavaScript exposed should be modified only through its \link WJavaScriptHandle handle\endlink.
- *	    Any attempt at modifying it will cause an exception to be thrown.
+ *          Any attempt at modifying it will cause an exception to be thrown.
  *
  * \sa WPainter::setBrush(), WPen, WPaintedWidget::createJSBrush()
  *

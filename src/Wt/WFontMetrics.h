@@ -28,7 +28,7 @@ public:
   /*! \brief Creates a font metrics information object.
    */
   WFontMetrics(const WFont& font, double leading, double ascent,
-	       double descent);
+               double descent);
 
   /*! \brief Returns the font for which these font metrics were computed.
    */
@@ -65,7 +65,7 @@ public:
    * character over the baseline (although many fonts violate this for
    * some glyphs).
    */
-  double ascent() const { return ascent_; } 
+  double ascent() const { return ascent_; }
 
   /*! \brief Returns the font descent length.
    *

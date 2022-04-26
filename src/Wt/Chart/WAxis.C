@@ -69,7 +69,7 @@ namespace {
   }
 
   Wt::WPointF interpolate(const Wt::WPointF& p1, const Wt::WPointF& p2,
-			  double u) {
+                          double u) {
     double x = p1.x();
     if (p2.x() - p1.x() > 0)
       x += u;
@@ -380,10 +380,10 @@ WString WAxis::labelFormat() const
   case AxisScale::DateTime:
     if (defaultLabelFormat_) {
       if (!segments_.empty()) {
-	const Segment& s = segments_[0];
-	return defaultDateTimeFormat(s);
+        const Segment& s = segments_[0];
+        return defaultDateTimeFormat(s);
       } else {
-	return labelFormat_;
+        return labelFormat_;
       }
     } else
       return labelFormat_;
@@ -399,7 +399,7 @@ void WAxis::setLabelAngle(double angle)
   else
     set(labelAngle_, angle);
 }
-  
+
 void WAxis::setTitleOrientation(const Orientation& orientation)
 {
   set(titleOrientation_, orientation);
@@ -445,7 +445,7 @@ void WAxis::setLabelFont(const WFont& labelFont)
   set(labelFont_, labelFont);
 }
 
-double WAxis::calcTitleSize(WPaintDevice *d, Orientation orientation) const 
+double WAxis::calcTitleSize(WPaintDevice *d, Orientation orientation) const
 {
   WMeasurePaintDevice device(d);
 
@@ -454,8 +454,8 @@ double WAxis::calcTitleSize(WPaintDevice *d, Orientation orientation) const
   // Set Painter props
   painter.setFont(titleFont_);
   painter.drawText( 0, 0, 100, 100, AlignmentFlag::Center, title());
-  
-  return orientation == Orientation::Vertical ? 
+
+  return orientation == Orientation::Vertical ?
     device.boundingRect().height() : device.boundingRect().width();
 }
 
@@ -475,13 +475,13 @@ double WAxis::calcMaxTickLabelSize(WPaintDevice *d, Orientation orientation)
   for(int i = 0; i< segmentCount(); ++i) {
     AxisConfig cfg;
     cfg.zoomLevel = 1;
-    if (location() == AxisValue::Minimum || 
-	location() == AxisValue::Both) {
+    if (location() == AxisValue::Minimum ||
+        location() == AxisValue::Both) {
       cfg.side = AxisValue::Minimum;
       getLabelTicks(ticks, i, cfg);
     }
-    if (location() == AxisValue::Maximum || 
-	location() == AxisValue::Both) {
+    if (location() == AxisValue::Maximum ||
+        location() == AxisValue::Both) {
       cfg.side = AxisValue::Maximum;
       getLabelTicks(ticks, i, cfg);
     }
@@ -496,7 +496,7 @@ double WAxis::calcMaxTickLabelSize(WPaintDevice *d, Orientation orientation)
     painter.drawText(0, 0, 100, 100, AlignmentFlag::Right, ticks[i].label);
   }
 
-  return orientation == Orientation::Vertical ? 
+  return orientation == Orientation::Vertical ?
     device.boundingRect().height() : device.boundingRect().width();
 }
 
@@ -524,20 +524,20 @@ bool WAxis::prepareRender(Orientation orientation, double length) const
   } else {
     if (inverted()) {
       clipMin = segments_.back().renderMaximum == 0 ?
-	  0 : padding();
+          0 : padding();
       clipMax = segments_.front().renderMinimum == 0 ?
-	  0 : padding();
+          0 : padding();
     } else {
       clipMin = segments_.front().renderMinimum == 0 ?
-	  0 : padding();
+          0 : padding();
       clipMax = segments_.back().renderMaximum == 0 ?
-	  0 : padding();
+          0 : padding();
     }
   }
 
   double totalRenderLength = length;
   double totalRenderStart = clipMin;
-  
+
   const double SEGMENT_MARGIN = 40;
 
   // 6 pixels additional margin to avoid clipping lines that render
@@ -556,7 +556,7 @@ bool WAxis::prepareRender(Orientation orientation, double length) const
    */
   unsigned numIterations = 2;
   for (unsigned it = 0; it < numIterations; ++it) {
-    double rs = totalRenderStart; 
+    double rs = totalRenderStart;
     double TRR = totalRenderRange;
     totalRenderRange = 0;
 
@@ -564,303 +564,303 @@ bool WAxis::prepareRender(Orientation orientation, double length) const
       const Segment& s = segments_[i];
 
       bool roundMinimumLimit = i == 0 && roundLimits_.test(AxisValue::Minimum);
-      bool roundMaximumLimit = i == segments_.size() - 1 && 
-	roundLimits_.test(AxisValue::Maximum);
+      bool roundMaximumLimit = i == segments_.size() - 1 &&
+        roundLimits_.test(AxisValue::Maximum);
 
       double diff = s.renderMaximum - s.renderMinimum;
       s.renderStart = rs;
       s.renderLength = diff / TRR * totalRenderLength;
 
       if (i == 0 && it != 2) {
-	double oldRenderInterval = renderInterval_;
-	renderInterval_ = labelInterval_;
-	if (renderInterval_ == 0) {
-	  if (scale_ == AxisScale::Discrete) {
-	    double numLabels = calcAutoNumLabels(orientation, s) / 1.5;
-	    int rc = chart_->numberOfCategories(axis_);
-	    renderInterval_ = std::max(1.0, std::floor(rc / numLabels));
-	  } else if (scale_ == AxisScale::Log) {
-	    renderInterval_ = 1; // does not apply
-	  } else {
-	    double numLabels = calcAutoNumLabels(orientation, s);
+        double oldRenderInterval = renderInterval_;
+        renderInterval_ = labelInterval_;
+        if (renderInterval_ == 0) {
+          if (scale_ == AxisScale::Discrete) {
+            double numLabels = calcAutoNumLabels(orientation, s) / 1.5;
+            int rc = chart_->numberOfCategories(axis_);
+            renderInterval_ = std::max(1.0, std::floor(rc / numLabels));
+          } else if (scale_ == AxisScale::Log) {
+            renderInterval_ = 1; // does not apply
+          } else {
+            double numLabels = calcAutoNumLabels(orientation, s);
 
-	    renderInterval_ = round125(diff / numLabels);
+            renderInterval_ = round125(diff / numLabels);
 
-	    if (it == 1 && renderInterval_ != oldRenderInterval) {
-	      // If render interval changes in the second iteration,
-	      // iterate once more
-	      numIterations = 3;
-	    }
-	  }
-	}
+            if (it == 1 && renderInterval_ != oldRenderInterval) {
+              // If render interval changes in the second iteration,
+              // iterate once more
+              numIterations = 3;
+            }
+          }
+        }
       }
 
       if (renderInterval_ == 0) {
-	renderInterval_ = 1;
-	return false;
+        renderInterval_ = 1;
+        return false;
       }
 
       if (scale_ == AxisScale::Linear) {
-	if (it < numIterations - 1) {
-	  if (roundMinimumLimit) {
-	    s.renderMinimum
-	      = roundDown125(s.renderMinimum, renderInterval_);
+        if (it < numIterations - 1) {
+          if (roundMinimumLimit) {
+            s.renderMinimum
+              = roundDown125(s.renderMinimum, renderInterval_);
 
-	    if (s.renderMinimum <= labelBasePoint_ &&
-		s.renderMaximum >= labelBasePoint_) {
-	      double interv = labelBasePoint_ - s.renderMinimum;
-	      interv = renderInterval_ * 2
-		* std::ceil(interv / (renderInterval_ * 2));
-	      s.renderMinimum = labelBasePoint_ - interv;
-	    }
-	  }
-	  
-	  if (roundMaximumLimit)
-	    s.renderMaximum
-	      = roundUp125(s.renderMaximum, renderInterval_);
-	}
-      } else if (scale_ == AxisScale::Date || 
-		 scale_ == AxisScale::DateTime) {
-	double daysInterval = 0.0;
+            if (s.renderMinimum <= labelBasePoint_ &&
+                s.renderMaximum >= labelBasePoint_) {
+              double interv = labelBasePoint_ - s.renderMinimum;
+              interv = renderInterval_ * 2
+                * std::ceil(interv / (renderInterval_ * 2));
+              s.renderMinimum = labelBasePoint_ - interv;
+            }
+          }
 
-	WDateTime min, max;
-	int interval;
+          if (roundMaximumLimit)
+            s.renderMaximum
+              = roundUp125(s.renderMaximum, renderInterval_);
+        }
+      } else if (scale_ == AxisScale::Date ||
+                 scale_ == AxisScale::DateTime) {
+        double daysInterval = 0.0;
 
-	if (scale_ == AxisScale::Date) {
-	  daysInterval = renderInterval_;
-	  min = WDateTime(WDate::fromJulianDay
-			  (static_cast<int>(s.renderMinimum)));
-	  max = WDateTime(WDate::fromJulianDay
-			  (static_cast<int>(s.renderMaximum)));
-	} else if (scale_ == AxisScale::DateTime) {
-	  daysInterval = renderInterval_ / (60.0 * 60.0 * 24);
-	  min = WDateTime::fromTime_t((std::time_t)s.renderMinimum);
-	  max = WDateTime::fromTime_t((std::time_t)s.renderMaximum);
-	}
+        WDateTime min, max;
+        int interval;
 
-	LOG_DEBUG("Range: " << min.toString() << ", " << max.toString());
+        if (scale_ == AxisScale::Date) {
+          daysInterval = renderInterval_;
+          min = WDateTime(WDate::fromJulianDay
+                          (static_cast<int>(s.renderMinimum)));
+          max = WDateTime(WDate::fromJulianDay
+                          (static_cast<int>(s.renderMaximum)));
+        } else if (scale_ == AxisScale::DateTime) {
+          daysInterval = renderInterval_ / (60.0 * 60.0 * 24);
+          min = WDateTime::fromTime_t((std::time_t)s.renderMinimum);
+          max = WDateTime::fromTime_t((std::time_t)s.renderMaximum);
+        }
 
-	if (daysInterval > 200) {
-	  s.dateTimeRenderUnit = DateTimeUnit::Years;
-	  interval = std::max(1, 
-			      static_cast<int>(round125(daysInterval / 365)));
+        LOG_DEBUG("Range: " << min.toString() << ", " << max.toString());
 
-	  if (roundMinimumLimit)
-	    if (min.date().day() != 1 && min.date().month() != 1)
-	      min = WDateTime(WDate(min.date().year(), 1, 1));
+        if (daysInterval > 200) {
+          s.dateTimeRenderUnit = DateTimeUnit::Years;
+          interval = std::max(1,
+                              static_cast<int>(round125(daysInterval / 365)));
 
-	  if (roundMaximumLimit)
-	    if (max.date().day() != 1 && max.date().month() != 1)
-	      max = WDateTime(WDate(max.date().year() + 1, 1, 1));
-	} else if (daysInterval > 20) {
-	  s.dateTimeRenderUnit = DateTimeUnit::Months;
+          if (roundMinimumLimit)
+            if (min.date().day() != 1 && min.date().month() != 1)
+              min = WDateTime(WDate(min.date().year(), 1, 1));
 
-	  double d = daysInterval / 30;
-	  if (d < 1.3)
-	    interval = 1;
-	  else if (d < 2.3)
-	    interval = 2;
-	  else if (d < 3.3)
-	    interval = 3;
-	  else if (d < 4.3)
-	    interval = 4;
-	  else
-	    interval = 6;
-	
-	  /* push min and max to a round month (at interval boundary) */
-	  if (roundMinimumLimit) {
-	    if ((min.date().month() - 1) % interval != 0) {
-	      int m = roundDown(min.date().month() - 1, interval) + 1;
-	      min = WDateTime(WDate(min.date().year(), m, 1));
-	    } else if (min.date().day() != 1)
-	      min = WDateTime(WDate(min.date().year(), min.date().month(), 1));
-	  }
+          if (roundMaximumLimit)
+            if (max.date().day() != 1 && max.date().month() != 1)
+              max = WDateTime(WDate(max.date().year() + 1, 1, 1));
+        } else if (daysInterval > 20) {
+          s.dateTimeRenderUnit = DateTimeUnit::Months;
 
-	  if (roundMaximumLimit) {
-	    if (max.date().day() != 1)
-	      max = WDateTime
-		(WDate(max.date().year(), max.date().month(), 1).addMonths(1));
+          double d = daysInterval / 30;
+          if (d < 1.3)
+            interval = 1;
+          else if (d < 2.3)
+            interval = 2;
+          else if (d < 3.3)
+            interval = 3;
+          else if (d < 4.3)
+            interval = 4;
+          else
+            interval = 6;
 
-	    if ((max.date().month() - 1) % interval != 0) {
-	      int m = roundDown(max.date().month() - 1, interval) + 1;
-	      max = WDateTime(WDate(max.date().year(), m, 1)
-			      .addMonths(interval));
-	    }
-	  }
-	} else if (daysInterval > 0.6) {
-	  s.dateTimeRenderUnit = DateTimeUnit::Days;
+          /* push min and max to a round month (at interval boundary) */
+          if (roundMinimumLimit) {
+            if ((min.date().month() - 1) % interval != 0) {
+              int m = roundDown(min.date().month() - 1, interval) + 1;
+              min = WDateTime(WDate(min.date().year(), m, 1));
+            } else if (min.date().day() != 1)
+              min = WDateTime(WDate(min.date().year(), min.date().month(), 1));
+          }
 
-	  if (daysInterval < 1.3) {
-	    interval = 1;
+          if (roundMaximumLimit) {
+            if (max.date().day() != 1)
+              max = WDateTime
+                (WDate(max.date().year(), max.date().month(), 1).addMonths(1));
 
-	    /* push min and max to midnight */
-	    if (roundMinimumLimit)
-	      min.setTime(WTime(0, 0));
+            if ((max.date().month() - 1) % interval != 0) {
+              int m = roundDown(max.date().month() - 1, interval) + 1;
+              max = WDateTime(WDate(max.date().year(), m, 1)
+                              .addMonths(interval));
+            }
+          }
+        } else if (daysInterval > 0.6) {
+          s.dateTimeRenderUnit = DateTimeUnit::Days;
 
-	    if (roundMaximumLimit) {
-	      if (max.time() != WTime(0, 0))
-		max = WDateTime(max.date().addDays(1));
-	    }
-	  } else {
-	    interval = 7 * std::max(1,
-				    static_cast<int>((daysInterval + 5) / 7));
-	   
-	    /* push min to midnight start of the week */
-	    if (roundMinimumLimit) {
-	      int dw = min.date().dayOfWeek();
-	      min = WDateTime(min.date().addDays(-(dw - 1)));
-	    }
+          if (daysInterval < 1.3) {
+            interval = 1;
 
-	    /*
-	      push max to midgnight start of the week, at interval days
-	      from min
-	     */
-	    if (roundMaximumLimit) {
-	      int days = min.date().daysTo(max.date());
-	      if (max.time() != WTime(0, 0))
-		++days;
+            /* push min and max to midnight */
+            if (roundMinimumLimit)
+              min.setTime(WTime(0, 0));
 
-	      days = roundUp(days, interval);
-	      
-	      max = WDateTime(min.addDays(days));
-	    }	    
-	  }
+            if (roundMaximumLimit) {
+              if (max.time() != WTime(0, 0))
+                max = WDateTime(max.date().addDays(1));
+            }
+          } else {
+            interval = 7 * std::max(1,
+                                    static_cast<int>((daysInterval + 5) / 7));
 
-	} else {
-	  double minutes = daysInterval * 24 * 60;
+            /* push min to midnight start of the week */
+            if (roundMinimumLimit) {
+              int dw = min.date().dayOfWeek();
+              min = WDateTime(min.date().addDays(-(dw - 1)));
+            }
 
-	  if (minutes > 40) {
-	    s.dateTimeRenderUnit = DateTimeUnit::Hours;
+            /*
+              push max to midgnight start of the week, at interval days
+              from min
+             */
+            if (roundMaximumLimit) {
+              int days = min.date().daysTo(max.date());
+              if (max.time() != WTime(0, 0))
+                ++days;
 
-	    double d = minutes / 60;
-	    if (d < 1.3)
-	      interval = 1;
-	    else if (d < 2.3)
-	      interval = 2;
-	    else if (d < 3.3)
-	      interval = 3;
-	    else if (d < 4.3)
-	      interval = 4;
-	    else if (d < 6.3)
-	      interval = 6;
-	    else
-	      interval = 12;
+              days = roundUp(days, interval);
 
-	    /* push min and max to a round hour (at interval boundary) */
-	    if (roundMinimumLimit) {
-	      if (min.time().hour() % interval != 0) {
-		int h = roundDown(min.time().hour(), interval);
-		min.setTime(WTime(h, 0));
-	      } else if (min.time().minute() != 0)
-		min.setTime(WTime(min.time().hour(), 0));
-	    }
+              max = WDateTime(min.addDays(days));
+            }
+          }
 
-	    if (roundMaximumLimit) {
-	      if (max.time().minute() != 0) {
-		max.setTime(WTime(max.time().hour(), 0));
-		max = max.addSecs(60 * 60);
-	      }
+        } else {
+          double minutes = daysInterval * 24 * 60;
 
-	      if (max.time().hour() % interval != 0) {
-		int h = roundDown(max.time().hour(), interval);
-		max.setTime(WTime(h, 0));
-		max = max.addSecs(interval * 60 * 60);
-	      }
-	    }
-	  } else if (minutes > 0.8) {
-	    s.dateTimeRenderUnit = DateTimeUnit::Minutes;
+          if (minutes > 40) {
+            s.dateTimeRenderUnit = DateTimeUnit::Hours;
 
-	    if (minutes < 1.3)
-	      interval = 1;
-	    else if (minutes < 2.3)
-	      interval = 2;
-	    else if (minutes < 5.3)
-	      interval = 5;
-	    else if (minutes < 10.3)
-	      interval = 10;
-	    else if (minutes < 15.3)
-	      interval = 15;
-	    else if (minutes < 20.3)
-	      interval = 20;
-	    else
-	      interval = 30;
+            double d = minutes / 60;
+            if (d < 1.3)
+              interval = 1;
+            else if (d < 2.3)
+              interval = 2;
+            else if (d < 3.3)
+              interval = 3;
+            else if (d < 4.3)
+              interval = 4;
+            else if (d < 6.3)
+              interval = 6;
+            else
+              interval = 12;
 
-	    if (roundMinimumLimit) {
-	      /* push min and max to a round minute (at interval boundary) */
-	      if (min.time().minute() % interval != 0) {
-		int m = roundDown(min.time().minute(), interval);
-		min.setTime(WTime(min.time().hour(), m));
-	      } else if (min.time().second() != 0)
-		min.setTime(WTime(min.time().hour(), min.time().minute()));
-	    }
+            /* push min and max to a round hour (at interval boundary) */
+            if (roundMinimumLimit) {
+              if (min.time().hour() % interval != 0) {
+                int h = roundDown(min.time().hour(), interval);
+                min.setTime(WTime(h, 0));
+              } else if (min.time().minute() != 0)
+                min.setTime(WTime(min.time().hour(), 0));
+            }
 
-	    if (roundMaximumLimit) {
-	      if (max.time().second() != 0) {
-		max.setTime(WTime(max.time().hour(), max.time().minute()));
-		max = max.addSecs(60);
-	      }
+            if (roundMaximumLimit) {
+              if (max.time().minute() != 0) {
+                max.setTime(WTime(max.time().hour(), 0));
+                max = max.addSecs(60 * 60);
+              }
 
-	      if (max.time().minute() % interval != 0) {
-		int m = roundDown(max.time().minute(), interval);
-		max.setTime(WTime(max.time().hour(), m));
-		max = max.addSecs(interval * 60);
-	      }
-	    }
-	  } else {
-	    s.dateTimeRenderUnit = DateTimeUnit::Seconds;
+              if (max.time().hour() % interval != 0) {
+                int h = roundDown(max.time().hour(), interval);
+                max.setTime(WTime(h, 0));
+                max = max.addSecs(interval * 60 * 60);
+              }
+            }
+          } else if (minutes > 0.8) {
+            s.dateTimeRenderUnit = DateTimeUnit::Minutes;
 
-	    double seconds = minutes * 60;
+            if (minutes < 1.3)
+              interval = 1;
+            else if (minutes < 2.3)
+              interval = 2;
+            else if (minutes < 5.3)
+              interval = 5;
+            else if (minutes < 10.3)
+              interval = 10;
+            else if (minutes < 15.3)
+              interval = 15;
+            else if (minutes < 20.3)
+              interval = 20;
+            else
+              interval = 30;
 
-	    if (seconds < 1.3)
-	      interval = 1;
-	    else if (seconds < 2.3)
-	      interval = 2;
-	    else if (seconds < 5.3)
-	      interval = 5;
-	    else if (seconds < 10.3)
-	      interval = 10;
-	    else if (seconds < 15.3)
-	      interval = 15;
-	    else if (seconds < 20.3)
-	      interval = 20;
-	    else
-	      interval = 30;
+            if (roundMinimumLimit) {
+              /* push min and max to a round minute (at interval boundary) */
+              if (min.time().minute() % interval != 0) {
+                int m = roundDown(min.time().minute(), interval);
+                min.setTime(WTime(min.time().hour(), m));
+              } else if (min.time().second() != 0)
+                min.setTime(WTime(min.time().hour(), min.time().minute()));
+            }
 
-	    /* push min and max to a round second (at interval boundary) */
-	    if (roundMinimumLimit) {
-	      if (min.time().second() % interval != 0) {
-		int sec = roundDown(min.time().second(), interval);
-		min.setTime(WTime(min.time().hour(), min.time().minute(), sec));
-	      } else if (min.time().msec() != 0)
-		min.setTime(WTime(min.time().hour(), min.time().minute(),
-				  min.time().second()));
-	    }
+            if (roundMaximumLimit) {
+              if (max.time().second() != 0) {
+                max.setTime(WTime(max.time().hour(), max.time().minute()));
+                max = max.addSecs(60);
+              }
 
-	    if (roundMaximumLimit) {
-	      if (max.time().msec() != 0) {
-		max.setTime(WTime(max.time().hour(), max.time().minute(),
-				  max.time().second()));
-		max = max.addSecs(1);
-	      }
+              if (max.time().minute() % interval != 0) {
+                int m = roundDown(max.time().minute(), interval);
+                max.setTime(WTime(max.time().hour(), m));
+                max = max.addSecs(interval * 60);
+              }
+            }
+          } else {
+            s.dateTimeRenderUnit = DateTimeUnit::Seconds;
 
-	      if (max.time().second() % interval != 0) {
-		int sec = roundDown(max.time().second(), interval);
-		max.setTime(WTime(max.time().hour(), max.time().minute(), sec));
-		max = max.addSecs(interval);
-	      }
-	    }
-	  }
-	}
+            double seconds = minutes * 60;
 
-	s.dateTimeRenderInterval = interval;
+            if (seconds < 1.3)
+              interval = 1;
+            else if (seconds < 2.3)
+              interval = 2;
+            else if (seconds < 5.3)
+              interval = 5;
+            else if (seconds < 10.3)
+              interval = 10;
+            else if (seconds < 15.3)
+              interval = 15;
+            else if (seconds < 20.3)
+              interval = 20;
+            else
+              interval = 30;
 
-	if (scale_ == AxisScale::Date) {
-	  s.renderMinimum = min.date().toJulianDay();
-	  s.renderMaximum = max.date().toJulianDay();
-	} else if (scale_ == AxisScale::DateTime) {
-	  s.renderMinimum = min.toTime_t();
-	  s.renderMaximum = max.toTime_t();
-	}
+            /* push min and max to a round second (at interval boundary) */
+            if (roundMinimumLimit) {
+              if (min.time().second() % interval != 0) {
+                int sec = roundDown(min.time().second(), interval);
+                min.setTime(WTime(min.time().hour(), min.time().minute(), sec));
+              } else if (min.time().msec() != 0)
+                min.setTime(WTime(min.time().hour(), min.time().minute(),
+                                  min.time().second()));
+            }
+
+            if (roundMaximumLimit) {
+              if (max.time().msec() != 0) {
+                max.setTime(WTime(max.time().hour(), max.time().minute(),
+                                  max.time().second()));
+                max = max.addSecs(1);
+              }
+
+              if (max.time().second() % interval != 0) {
+                int sec = roundDown(max.time().second(), interval);
+                max.setTime(WTime(max.time().hour(), max.time().minute(), sec));
+                max = max.addSecs(interval);
+              }
+            }
+          }
+        }
+
+        s.dateTimeRenderInterval = interval;
+
+        if (scale_ == AxisScale::Date) {
+          s.renderMinimum = min.date().toJulianDay();
+          s.renderMaximum = max.date().toJulianDay();
+        } else if (scale_ == AxisScale::DateTime) {
+          s.renderMinimum = min.toTime_t();
+          s.renderMaximum = max.toTime_t();
+        }
       }
 
       totalRenderRange += s.renderMaximum - s.renderMinimum;
@@ -897,32 +897,32 @@ void WAxis::computeRange(const Segment& segment) const
       maximum = rr.maximum;
 
       if (minimum == std::numeric_limits<double>::max()) {
-	if (scale_ == AxisScale::Log)
-	  minimum = 1;
-	else if (scale_ == AxisScale::Date)
-	  minimum = WDate::currentDate().toJulianDay() - 10;
-	else
-	  minimum = 0;
+        if (scale_ == AxisScale::Log)
+          minimum = 1;
+        else if (scale_ == AxisScale::Date)
+          minimum = WDate::currentDate().toJulianDay() - 10;
+        else
+          minimum = 0;
       }
 
       if (maximum == -std::numeric_limits<double>::max()) {
-	if (scale_ == AxisScale::Log)
-	  maximum = 10;
-	else if (scale_ == AxisScale::Date)
-	  maximum = WDate::currentDate().toJulianDay();
-	else
-	  maximum = 100;
+        if (scale_ == AxisScale::Log)
+          maximum = 10;
+        else if (scale_ == AxisScale::Date)
+          maximum = WDate::currentDate().toJulianDay();
+        else
+          maximum = 100;
       }
 
       if (findMinimum)
-	segment.renderMinimum
-	  = std::min(minimum, findMaximum ? maximum : segment.maximum);
+        segment.renderMinimum
+          = std::min(minimum, findMaximum ? maximum : segment.maximum);
 
       if (findMaximum)
-	segment.renderMaximum
-	  = std::max(maximum, findMinimum ? minimum : segment.minimum);
+        segment.renderMaximum
+          = std::max(maximum, findMinimum ? minimum : segment.minimum);
     }
-    
+
     double diff = segment.renderMaximum - segment.renderMinimum;
 
     if (scale_ == AxisScale::Log) {
@@ -935,18 +935,18 @@ void WAxis::computeRange(const Segment& segment) const
       double maxLog10 = std::log10(segment.renderMaximum);
 
       if (findMinimum && findMaximum) {
-	segment.renderMinimum = std::pow(10, std::floor(minLog10));
-	segment.renderMaximum = std::pow(10, std::ceil(maxLog10));
-	if (segment.renderMinimum == segment.renderMaximum)
-	  segment.renderMaximum = std::pow(10, std::ceil(maxLog10) + 1);
+        segment.renderMinimum = std::pow(10, std::floor(minLog10));
+        segment.renderMaximum = std::pow(10, std::ceil(maxLog10));
+        if (segment.renderMinimum == segment.renderMaximum)
+          segment.renderMaximum = std::pow(10, std::ceil(maxLog10) + 1);
       } else if (findMinimum) {
-	segment.renderMinimum = std::pow(10, std::floor(minLog10));
-	if (segment.renderMinimum == segment.renderMaximum)
-	  segment.renderMinimum = std::pow(10, std::floor(minLog10) - 1);
+        segment.renderMinimum = std::pow(10, std::floor(minLog10));
+        if (segment.renderMinimum == segment.renderMaximum)
+          segment.renderMinimum = std::pow(10, std::floor(minLog10) - 1);
       } else if (findMaximum) {
-	segment.renderMaximum = std::pow(10, std::ceil(maxLog10));
-	if (segment.renderMinimum == segment.renderMaximum)
-	  segment.renderMaximum = std::pow(10, std::ceil(maxLog10) + 1);
+        segment.renderMaximum = std::pow(10, std::ceil(maxLog10));
+        if (segment.renderMinimum == segment.renderMaximum)
+          segment.renderMaximum = std::pow(10, std::ceil(maxLog10) + 1);
       }
     } else {
       double resolution = resolution_;
@@ -955,19 +955,19 @@ void WAxis::computeRange(const Segment& segment) const
        * Old behaviour, we ignore a resolution set.
        */
       if (resolution == 0) {
-	if (scale_ == AxisScale::Linear)
-	  resolution = std::max(1E-3,
-				std::fabs(1E-3 * segment.renderMinimum));
-	else if (scale_ == AxisScale::Date)
-	  resolution = 1;
-	else if (scale_ == AxisScale::DateTime)
-	  resolution = 120;
+        if (scale_ == AxisScale::Linear)
+          resolution = std::max(1E-3,
+                                std::fabs(1E-3 * segment.renderMinimum));
+        else if (scale_ == AxisScale::Date)
+          resolution = 1;
+        else if (scale_ == AxisScale::DateTime)
+          resolution = 120;
       }
 
       if (std::fabs(diff) < resolution) {
-	double average = (segment.renderMaximum + segment.renderMinimum) / 2.0;
+        double average = (segment.renderMaximum + segment.renderMinimum) / 2.0;
 
-	double d = resolution;
+        double d = resolution;
 
         if (findMinimum && findMaximum) {
           segment.renderMaximum = average + d / 2.0;
@@ -978,7 +978,7 @@ void WAxis::computeRange(const Segment& segment) const
           segment.renderMaximum = segment.renderMinimum + d;
         }
 
-	diff = segment.renderMaximum - segment.renderMinimum;
+        diff = segment.renderMaximum - segment.renderMinimum;
       }
 
       /*
@@ -986,12 +986,12 @@ void WAxis::computeRange(const Segment& segment) const
        * log
        */
       if (findMinimum && segment.renderMinimum >= 0
-	  && (segment.renderMinimum - 0.50 * diff <= 0))
-	segment.renderMinimum = 0;
+          && (segment.renderMinimum - 0.50 * diff <= 0))
+        segment.renderMinimum = 0;
 
       if (findMaximum && segment.renderMaximum <= 0
-	  && (segment.renderMaximum + 0.50 * diff >= 0))
-	segment.renderMaximum = 0;
+          && (segment.renderMaximum + 0.50 * diff >= 0))
+        segment.renderMaximum = 0;
     }
   }
 
@@ -1018,7 +1018,7 @@ double WAxis::getValue(const cpp17::any& v) const
     if (v.type() == typeid(WDate)) {
       WDate d = cpp17::any_cast<WDate>(v);
       return static_cast<double>(d.toJulianDay());
-    } 
+    }
 
 #ifndef WT_TARGET_JAVA
     else if (v.type() == typeid(WDateTime)) {
@@ -1068,7 +1068,7 @@ double WAxis::mapToDevice(double value) const
 
   for (std::size_t i = 0; i < segments_.size(); ++i) {
     if (value <= segments_[i].renderMaximum ||
-	i == segments_.size() - 1) {
+        i == segments_.size() - 1) {
       return mapToDevice(value, i);
     }
   }
@@ -1109,7 +1109,7 @@ bool WAxis::isOnAxis(double d) const
 {
   for (std::size_t i = 0; i < segments_.size(); ++i) {
     if (d >= segments_[i].renderMinimum &&
-	d <= segments_[i].renderMaximum) {
+        d <= segments_[i].renderMaximum) {
       return true;
     }
   }
@@ -1129,16 +1129,16 @@ double WAxis::mapFromDevice(double d) const
     bool isLastSegment = (i == segments_.size() - 1);
 
     if (isLastSegment || (!inverted() && d < mapToDevice(s.renderMaximum, i)) ||
-	(inverted() && d < - (mapToDevice(s.renderMaximum, i) - lastSegment.renderStart - lastSegment.renderLength - firstSegment.renderStart))) {
+        (inverted() && d < - (mapToDevice(s.renderMaximum, i) - lastSegment.renderStart - lastSegment.renderLength - firstSegment.renderStart))) {
       d = d - s.renderStart;
 
       if (scale_ != AxisScale::Log) {
-	return s.renderMinimum + d * (s.renderMaximum - s.renderMinimum)
-	  / s.renderLength;
+        return s.renderMinimum + d * (s.renderMaximum - s.renderMinimum)
+          / s.renderLength;
       } else {
-	return std::exp(std::log(s.renderMinimum)
-			+ d * (std::log(s.renderMaximum)
-			       - std::log(s.renderMinimum)) / s.renderLength);
+        return std::exp(std::log(s.renderMinimum)
+                        + d * (std::log(s.renderMaximum)
+                               - std::log(s.renderMinimum)) / s.renderLength);
       }
     }
   }
@@ -1173,7 +1173,7 @@ WString WAxis::label(double u) const
 #ifdef WT_TARGET_JAVA
       buf =
 #endif // WT_TARGET_JAVA
-	std::sprintf(buf, format.c_str(), u);
+        std::sprintf(buf, format.c_str(), u);
 
       text = WString::fromUTF8(buf);
     }
@@ -1406,23 +1406,23 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
 
   switch (scale_) {
   case AxisScale::Discrete: {
-    int renderInterval = std::max(1, 
+    int renderInterval = std::max(1,
                                   static_cast<int>(renderInterval_ / zoomFactor));
     if (renderInterval == 1) {
       ticks.push_back(TickLabel(s.renderMinimum, TickLength::Long));
       for (int i = (int)(s.renderMinimum + 0.5); i < s.renderMaximum; ++i) {
-	ticks.push_back(TickLabel(i + 0.5, TickLength::Long));
-	ticks.push_back(TickLabel(i, TickLength::Zero,
-				  label(static_cast<double>(i))));
+        ticks.push_back(TickLabel(i + 0.5, TickLength::Long));
+        ticks.push_back(TickLabel(i, TickLength::Zero,
+                                  label(static_cast<double>(i))));
       }
     } else {
       /*
        * We could do a special effort for date X series here...
        */
       for (int i = (int)(s.renderMinimum); i < s.renderMaximum;
-	   i += renderInterval) {
-	ticks.push_back(TickLabel(i, TickLength::Long,
-				  label(static_cast<double>(i))));
+           i += renderInterval) {
+        ticks.push_back(TickLabel(i, TickLength::Long,
+                                  label(static_cast<double>(i))));
       }
     }
     break;
@@ -1433,14 +1433,14 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
     double minimum = roundUp125(s.renderMinimum, interval);
     bool firstTickIsLong = true;
     if (labelBasePoint_ >= minimum &&
-	labelBasePoint_ <= s.renderMaximum) {
+        labelBasePoint_ <= s.renderMaximum) {
       // Make sure the base point label is included as a long tick
       int n = (int)((minimum - labelBasePoint_) / (- 2.0 * interval));
       minimum = labelBasePoint_ - n * 2.0 * interval;
       if (minimum - interval >= s.renderMinimum) {
-	// We can still put a short tick before the first long tick
-	minimum -= interval;
-	firstTickIsLong = false;
+        // We can still put a short tick before the first long tick
+        minimum -= interval;
+        firstTickIsLong = false;
       }
     }
     long long i = 0;
@@ -1460,26 +1460,26 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
         break;
       }
       if (v - s.renderMaximum > EPSILON * interval)
-	break;
+        break;
 
       WString t;
 
       if (i % 2 == (firstTickIsLong ? 0 : 1)) {
-	if (hasLabelTransformOnSide(config.side)) {
+        if (hasLabelTransformOnSide(config.side)) {
 #ifndef WT_TARGET_JAVA
-	  t = label(labelTransform(config.side)(v));
+          t = label(labelTransform(config.side)(v));
 #else
-	  t = label(labelTransform(config.side).apply(v));
+          t = label(labelTransform(config.side).apply(v));
 #endif
-	} else {
-	  t = label(v);
-	}
+        } else {
+          t = label(v);
+        }
       }
- 
+
       ticks.push_back
-	(TickLabel(v, 
-		   i % 2 == (firstTickIsLong ? 0 : 1) ? TickLength::Long 
-		   : TickLength::Short, t));
+        (TickLabel(v,
+                   i % 2 == (firstTickIsLong ? 0 : 1) ? TickLength::Long
+                   : TickLength::Short, t));
     }
 
     break;
@@ -1490,25 +1490,25 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
     int i = 0;
     for (;; ++i) {
       if (v - s.renderMaximum > EPSILON * s.renderMaximum)
-	break;
+        break;
 
       if (i == 9) {
-	v = p = 10 * p;
-	i = 0;
+        v = p = 10 * p;
+        i = 0;
       }
 
       if (i == 0) {
-	WString text = label(v);
-	if (hasLabelTransformOnSide(config.side)) {
+        WString text = label(v);
+        if (hasLabelTransformOnSide(config.side)) {
 #ifndef WT_TARGET_JAVA
-	  text = label(labelTransform(config.side)(v));
+          text = label(labelTransform(config.side)(v));
 #else
-	  text = label(labelTransform(config.side).apply(v));
+          text = label(labelTransform(config.side).apply(v));
 #endif
-	}
-	ticks.push_back(TickLabel(v, TickLength::Long, text));
+        }
+        ticks.push_back(TickLabel(v, TickLength::Long, text));
       } else {
-	ticks.push_back(TickLabel(v, TickLength::Short));
+        ticks.push_back(TickLabel(v, TickLength::Short));
       }
 
       v += p;
@@ -1525,9 +1525,9 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
     if (scale_ == AxisScale::Date) {
       dt.setDate(WDate::fromJulianDay(static_cast<int>(s.renderMinimum)));
       if (!dt.isValid()) {
-	std::string exception = "Invalid julian day: "
-	  + std::to_string(s.renderMinimum);
-	throw WException(exception);
+        std::string exception = "Invalid julian day: "
+          + std::to_string(s.renderMinimum);
+        throw WException(exception);
       }
     } else
       dt = WDateTime::fromTime_t((std::time_t)s.renderMinimum);
@@ -1541,99 +1541,99 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
       // FIXME: this duplicates code in prepareRender
       double daysInterval = 0.0;
       if (scale_ == AxisScale::Date) {
-	daysInterval = renderInterval_;
+        daysInterval = renderInterval_;
       } else {
-	daysInterval = renderInterval_ / (60.0 * 60.0 * 24);
+        daysInterval = renderInterval_ / (60.0 * 60.0 * 24);
       }
       daysInterval /= zoomFactor;
       if (daysInterval > 200) {
-	unit = DateTimeUnit::Years;
-	interval = std::max(1,
-	    static_cast<int>(round125(daysInterval / 365)));
+        unit = DateTimeUnit::Years;
+        interval = std::max(1,
+            static_cast<int>(round125(daysInterval / 365)));
       } else if (daysInterval > 20) {
-	unit = DateTimeUnit::Months;
-	double d = daysInterval / 30;
-	if (d < 1.3)
-	  interval = 1;
-	else if (d < 2.3)
-	  interval = 2;
-	else if (d < 3.3)
-	  interval = 3;
-	else if (d < 4.3)
-	  interval = 4;
-	else
-	  interval = 6;
+        unit = DateTimeUnit::Months;
+        double d = daysInterval / 30;
+        if (d < 1.3)
+          interval = 1;
+        else if (d < 2.3)
+          interval = 2;
+        else if (d < 3.3)
+          interval = 3;
+        else if (d < 4.3)
+          interval = 4;
+        else
+          interval = 6;
       } else if (daysInterval > 0.6) {
-	unit = DateTimeUnit::Days;
+        unit = DateTimeUnit::Days;
 
-	if (daysInterval < 1.3) {
-	  interval = 1;
-	} else {
-	  interval = 7 * std::max(1,
-				  static_cast<int>((daysInterval + 5) / 7));
-	}
+        if (daysInterval < 1.3) {
+          interval = 1;
+        } else {
+          interval = 7 * std::max(1,
+                                  static_cast<int>((daysInterval + 5) / 7));
+        }
       } else {
-	double minutes = daysInterval * 24 * 60;
+        double minutes = daysInterval * 24 * 60;
 
-	if (minutes > 40) {
-	  unit = DateTimeUnit::Hours;
+        if (minutes > 40) {
+          unit = DateTimeUnit::Hours;
 
-	  double d = minutes / 60;
-	  if (d < 1.3)
-	    interval = 1;
-	  else if (d < 2.3)
-	    interval = 2;
-	  else if (d < 3.3)
-	    interval = 3;
-	  else if (d < 4.3)
-	    interval = 4;
-	  else if (d < 6.3)
-	    interval = 6;
-	  else
-	    interval = 12;
-	} else if (minutes > 0.8) {
-	  unit = DateTimeUnit::Minutes;
+          double d = minutes / 60;
+          if (d < 1.3)
+            interval = 1;
+          else if (d < 2.3)
+            interval = 2;
+          else if (d < 3.3)
+            interval = 3;
+          else if (d < 4.3)
+            interval = 4;
+          else if (d < 6.3)
+            interval = 6;
+          else
+            interval = 12;
+        } else if (minutes > 0.8) {
+          unit = DateTimeUnit::Minutes;
 
-	  if (minutes < 1.3)
-	    interval = 1;
-	  else if (minutes < 2.3)
-	    interval = 2;
-	  else if (minutes < 5.3)
-	    interval = 5;
-	  else if (minutes < 10.3)
-	    interval = 10;
-	  else if (minutes < 15.3)
-	    interval = 15;
-	  else if (minutes < 20.3)
-	    interval = 20;
-	  else
-	    interval = 30;
-	} else {
-	  unit = DateTimeUnit::Seconds;
+          if (minutes < 1.3)
+            interval = 1;
+          else if (minutes < 2.3)
+            interval = 2;
+          else if (minutes < 5.3)
+            interval = 5;
+          else if (minutes < 10.3)
+            interval = 10;
+          else if (minutes < 15.3)
+            interval = 15;
+          else if (minutes < 20.3)
+            interval = 20;
+          else
+            interval = 30;
+        } else {
+          unit = DateTimeUnit::Seconds;
 
-	  double seconds = minutes * 60;
+          double seconds = minutes * 60;
 
-	  if (seconds < 1.3)
-	    interval = 1;
-	  else if (seconds < 2.3)
-	    interval = 2;
-	  else if (seconds < 5.3)
-	    interval = 5;
-	  else if (seconds < 10.3)
-	    interval = 10;
-	  else if (seconds < 15.3)
-	    interval = 15;
-	  else if (seconds < 20.3)
-	    interval = 20;
-	  else
-	    interval = 30;
-	}
+          if (seconds < 1.3)
+            interval = 1;
+          else if (seconds < 2.3)
+            interval = 2;
+          else if (seconds < 5.3)
+            interval = 5;
+          else if (seconds < 10.3)
+            interval = 10;
+          else if (seconds < 15.3)
+            interval = 15;
+          else if (seconds < 20.3)
+            interval = 20;
+          else
+            interval = 30;
+        }
       }
     }
 
     bool atTick = (interval > 1) ||
-      (static_cast<unsigned int>(unit) <= 
-       static_cast<unsigned int>(DateTimeUnit::Days)) || 
+      (static_cast<unsigned int>(unit) <=
+       static_cast<unsigned int>(DateTimeUnit::Days)) ||
       !(roundLimits_ & AxisValue::Minimum);
 
     if (config.zoomLevel > 1 &&
@@ -1665,22 +1665,22 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
       long long dl = getDateNumber(dt);
 
       if (dl > s.renderMaximum)
-	break;
+        break;
 
       WDateTime next;
       switch (unit) {
       case DateTimeUnit::Years:
-	next = dt.addYears(interval); break;
+        next = dt.addYears(interval); break;
       case DateTimeUnit::Months:
-	next = dt.addMonths(interval); break;
+        next = dt.addMonths(interval); break;
       case DateTimeUnit::Days:
-	next = dt.addDays(interval); break;
+        next = dt.addDays(interval); break;
       case DateTimeUnit::Hours:
-	next = dt.addSecs(interval * 60 * 60); break;
+        next = dt.addSecs(interval * 60 * 60); break;
       case DateTimeUnit::Minutes:
-	next = dt.addSecs(interval * 60); break;
+        next = dt.addSecs(interval * 60); break;
       case DateTimeUnit::Seconds:
-	next = dt.addSecs(interval); break;
+        next = dt.addSecs(interval); break;
       }
 
       if (config.zoomLevel > 1 &&
@@ -1692,34 +1692,34 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
 
       WString text;
       {
-	WDateTime transformedDt = dt;
-	if (hasLabelTransformOnSide(config.side)) {
+        WDateTime transformedDt = dt;
+        if (hasLabelTransformOnSide(config.side)) {
 #ifndef WT_TARGET_JAVA
-	  transformedDt = WDateTime::fromTime_t
-	    (static_cast<std::time_t>(labelTransform(config.side)
-				      (static_cast<double>(dt.toTime_t()))));
+          transformedDt = WDateTime::fromTime_t
+            (static_cast<std::time_t>(labelTransform(config.side)
+                                      (static_cast<double>(dt.toTime_t()))));
 #else
-	  transformedDt = WDateTime::fromTime_t
-	    (static_cast<std::time_t>(labelTransform(config.side)
-				      .apply(static_cast<double>(dt.toTime_t()))));
+          transformedDt = WDateTime::fromTime_t
+            (static_cast<std::time_t>(labelTransform(config.side)
+                                      .apply(static_cast<double>(dt.toTime_t()))));
 #endif
-	}
-	text = transformedDt.toString(format);
+        }
+        text = transformedDt.toString(format);
       }
 
       if (dl >= s.renderMinimum)
-	ticks.push_back(TickLabel(static_cast<double>(dl),
-				  TickLength::Long,
-				  atTick ? text : WString()));
+        ticks.push_back(TickLabel(static_cast<double>(dl),
+                                  TickLength::Long,
+                                  atTick ? text : WString()));
 
       if (!atTick) {
-	double tl = (getDateNumber(next) + dl)/2;
+        double tl = (getDateNumber(next) + dl)/2;
 
-	if (tl >= s.renderMinimum && tl <= s.renderMaximum) {
-	  ticks.push_back(TickLabel(static_cast<double>(tl), 
-				    TickLength::Zero,
-				    text));
-	}
+        if (tl >= s.renderMinimum && tl <= s.renderMaximum) {
+          ticks.push_back(TickLabel(static_cast<double>(tl),
+                                    TickLength::Zero,
+                                    text));
+        }
       }
       dt = next;
 
@@ -1734,7 +1734,7 @@ void WAxis::getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig
   }
 }
 
-WString WAxis::autoDateFormat(const WDateTime& dt, DateTimeUnit unit, bool atTick) const 
+WString WAxis::autoDateFormat(const WDateTime& dt, DateTimeUnit unit, bool atTick) const
 {
   if (atTick) {
     switch (unit) {
@@ -1742,23 +1742,23 @@ WString WAxis::autoDateFormat(const WDateTime& dt, DateTimeUnit unit, bool atTic
     case DateTimeUnit::Years:
     case DateTimeUnit::Days:
       if (dt.time().second() != 0)
-	return WString::fromUTF8("dd/MM/yy hh:mm:ss");
+        return WString::fromUTF8("dd/MM/yy hh:mm:ss");
       else if (dt.time().hour() != 0)
-	return WString::fromUTF8("dd/MM/yy hh:mm");
+        return WString::fromUTF8("dd/MM/yy hh:mm");
       else
-	return WString::fromUTF8("dd/MM/yy");
+        return WString::fromUTF8("dd/MM/yy");
     case DateTimeUnit::Hours:
       if (dt.time().second() != 0)
-	return WString::fromUTF8("dd/MM hh:mm:ss");
+        return WString::fromUTF8("dd/MM hh:mm:ss");
       else if (dt.time().minute() != 0)
-	return WString::fromUTF8("dd/MM hh:mm");
+        return WString::fromUTF8("dd/MM hh:mm");
       else
-	return WString::fromUTF8("h'h' dd/MM");
+        return WString::fromUTF8("h'h' dd/MM");
     case DateTimeUnit::Minutes:
       if (dt.time().second() != 0)
-	return WString::fromUTF8("hh:mm:ss");
+        return WString::fromUTF8("hh:mm:ss");
       else
-	return WString::fromUTF8("hh:mm");
+        return WString::fromUTF8("hh:mm");
     case DateTimeUnit::Seconds:
       return WString::fromUTF8("hh:mm:ss");
     }
@@ -1794,7 +1794,7 @@ WString WAxis::defaultDateTimeFormat(const Segment& s) const
     dt.setDate(WDate::fromJulianDay(static_cast<int>(s.renderMinimum)));
     if (!dt.isValid()) {
       std::string exception = "Invalid julian day: "
-	+ std::to_string(s.renderMinimum);
+        + std::to_string(s.renderMinimum);
       throw WException(exception);
     }
   } else
@@ -1804,8 +1804,8 @@ WString WAxis::defaultDateTimeFormat(const Segment& s) const
   DateTimeUnit unit = s.dateTimeRenderUnit;
 
   bool atTick = (interval > 1) ||
-    (static_cast<unsigned int>(unit) <= 
-     static_cast<unsigned int>(DateTimeUnit::Days)) || 
+    (static_cast<unsigned int>(unit) <=
+     static_cast<unsigned int>(DateTimeUnit::Days)) ||
     !(roundLimits_ & AxisValue::Minimum);
 
   return autoDateFormat(dt, unit, atTick);
@@ -1828,9 +1828,9 @@ double WAxis::calcAutoNumLabels(Orientation orientation, const Segment& s) const
   if (orientation == Orientation::Horizontal) {
     if (std::fabs(labelAngle_) <= 15) {
       return s.renderLength
-	/ std::max((double)AUTO_H_LABEL_PIXELS,
-		   WLength(defaultDateTimeFormat(s).value().size(),
-			   LengthUnit::FontEm).toPixels());
+        / std::max((double)AUTO_H_LABEL_PIXELS,
+                   WLength(defaultDateTimeFormat(s).value().size(),
+                           LengthUnit::FontEm).toPixels());
     } else if (std::fabs(labelAngle_) <= 40) {
       return s.renderLength / (2 * AUTO_V_LABEL_PIXELS);
     } else {
@@ -1841,15 +1841,15 @@ double WAxis::calcAutoNumLabels(Orientation orientation, const Segment& s) const
 }
 
 void WAxis::render(WPainter& painter,
-		   WFlags<AxisProperty> properties,
-		   const WPointF& axisStart,
-		   const WPointF& axisEnd,
-		   double tickStart, double tickEnd, double labelPos,
-		   WFlags<AlignmentFlag> labelFlags,
-		   const WTransform& transform,
-		   AxisValue side,
-		   std::vector<WPen> pens,
-		   std::vector<WPen> textPens) const
+                   WFlags<AxisProperty> properties,
+                   const WPointF& axisStart,
+                   const WPointF& axisEnd,
+                   double tickStart, double tickEnd, double labelPos,
+                   WFlags<AlignmentFlag> labelFlags,
+                   const WTransform& transform,
+                   AxisValue side,
+                   std::vector<WPen> pens,
+                   std::vector<WPen> textPens) const
 {
   WFont oldFont1 = painter.font();
   painter.setFont(labelFont_);
@@ -1875,36 +1875,36 @@ void WAxis::render(WPainter& painter,
       painter.setPen(pen());
 #endif
 
-      WPointF begin = interpolate(axisStart, axisEnd, 
-				  mapToDevice(s.renderMinimum, segment));
-      WPointF end = interpolate(axisStart, axisEnd, 
-				mapToDevice(s.renderMaximum, segment));
+      WPointF begin = interpolate(axisStart, axisEnd,
+                                  mapToDevice(s.renderMinimum, segment));
+      WPointF end = interpolate(axisStart, axisEnd,
+                                mapToDevice(s.renderMaximum, segment));
 
       {
-	WPainterPath path;
-	path.moveTo(begin);
-	path.lineTo(end);
-	painter.drawPath(transform.map(path).crisp());
+        WPainterPath path;
+        path.moveTo(begin);
+        path.lineTo(end);
+        painter.drawPath(transform.map(path).crisp());
       }
 
       bool rotate = vertical;
 
       if (segment != 0) {
-  	painter.save();
-  	painter.translate(begin);
-  	if (rotate)
-  	  painter.rotate(90);
-  	painter.drawPath(TildeStartMarker((int)segmentMargin_));
-  	painter.restore();
+          painter.save();
+          painter.translate(begin);
+          if (rotate)
+            painter.rotate(90);
+          painter.drawPath(TildeStartMarker((int)segmentMargin_));
+          painter.restore();
       }
 
       if (segment != segmentCount() - 1) {
-  	painter.save();
-  	painter.translate(end);
-  	if (rotate)
-  	  painter.rotate(90);
-  	painter.drawPath(TildeEndMarker((int)segmentMargin_));
-  	painter.restore();	
+          painter.save();
+          painter.translate(end);
+          if (rotate)
+            painter.rotate(90);
+          painter.drawPath(TildeEndMarker((int)segmentMargin_));
+          painter.restore();
       }
     }
 
@@ -1925,50 +1925,50 @@ void WAxis::render(WPainter& painter,
       std::vector<WString> labels;
       WPainterPath path;
       for (unsigned i = 0; i < ticks.size(); ++i) {
-	double u = mapToDevice(ticks[i].u, segment);
-	WPointF p = interpolate(axisStart, axisEnd, u);
+        double u = mapToDevice(ticks[i].u, segment);
+        WPointF p = interpolate(axisStart, axisEnd, u);
 
-	if (properties.test(AxisProperty::Line) &&
-	    ticks[i].tickLength != TickLength::Zero) {
-	  if (ticks[i].tickLength == TickLength::Short) {
-	    shortTicksPath.moveTo(p);
-	  } else { // Long
-	    longTicksPath.moveTo(p);
-	  }
-	}
+        if (properties.test(AxisProperty::Line) &&
+            ticks[i].tickLength != TickLength::Zero) {
+          if (ticks[i].tickLength == TickLength::Short) {
+            shortTicksPath.moveTo(p);
+          } else { // Long
+            longTicksPath.moveTo(p);
+          }
+        }
 
-	if (properties.test(AxisProperty::Labels) && !ticks[i].label.empty()) {
-	  path.moveTo(p);
-	  labels.push_back(ticks[i].label);
-	}
+        if (properties.test(AxisProperty::Labels) && !ticks[i].label.empty()) {
+          path.moveTo(p);
+          labels.push_back(ticks[i].label);
+        }
       }
       WTransform t = vertical ? WTransform(1,0,0,1, labelPos, 0) : WTransform(1,0,0,1,0, labelPos);
       renderLabels(painter, labels, path, labelFlags, labelAngle(), 3,
-		   t * transform, textPens[level-1]);
+                   t * transform, textPens[level-1]);
 
       WPen oldPen = painter.pen();
       painter.setPen(pens[level-1]);
       if (shortTicksPath.segments().size() != 0) {
-	WPainterPath stencil;
-	if (vertical) {
-	  stencil.moveTo(tickStart / 2, 0);
-	  stencil.lineTo(tickEnd / 2, 0);
-	} else {
-	  stencil.moveTo(0, tickStart / 2);
-	  stencil.lineTo(0, tickEnd / 2);
-	}
-	painter.drawStencilAlongPath(stencil, transform.map(shortTicksPath).crisp(), false);
+        WPainterPath stencil;
+        if (vertical) {
+          stencil.moveTo(tickStart / 2, 0);
+          stencil.lineTo(tickEnd / 2, 0);
+        } else {
+          stencil.moveTo(0, tickStart / 2);
+          stencil.lineTo(0, tickEnd / 2);
+        }
+        painter.drawStencilAlongPath(stencil, transform.map(shortTicksPath).crisp(), false);
       }
       if (longTicksPath.segments().size() != 0) {
-	WPainterPath stencil;
-	if (vertical) {
-	  stencil.moveTo(tickStart, 0);
-	  stencil.lineTo(tickEnd, 0);
-	} else {
-	  stencil.moveTo(0, tickStart);
-	  stencil.lineTo(0, tickEnd);
-	}
-	painter.drawStencilAlongPath(stencil, transform.map(longTicksPath).crisp(), false);
+        WPainterPath stencil;
+        if (vertical) {
+          stencil.moveTo(tickStart, 0);
+          stencil.lineTo(tickEnd, 0);
+        } else {
+          stencil.moveTo(0, tickStart);
+          stencil.lineTo(0, tickEnd);
+        }
+        painter.drawStencilAlongPath(stencil, transform.map(longTicksPath).crisp(), false);
       }
       painter.setPen(oldPen);
     }
@@ -1978,12 +1978,12 @@ void WAxis::render(WPainter& painter,
 }
 
 void WAxis::renderLabels(WPainter &painter,
-			const std::vector<WString> &labels,
-			const WPainterPath &path,
-			WFlags<AlignmentFlag> flags,
-			double angle, int margin,
-			const WTransform &transform,
-			const WPen &pen) const
+                        const std::vector<WString> &labels,
+                        const WPainterPath &path,
+                        WFlags<AlignmentFlag> flags,
+                        double angle, int margin,
+                        const WTransform &transform,
+                        const WPen &pen) const
 {
   if (path.segments().size() == 0)
     return;
@@ -2035,18 +2035,18 @@ void WAxis::renderLabels(WPainter &painter,
   }
 
   bool clipping = painter.hasClipping();
-  if (!partialLabelClipping_ && clipping && 
-      tickDirection() == TickDirection::Outwards && 
+  if (!partialLabelClipping_ && clipping &&
+      tickDirection() == TickDirection::Outwards &&
       location() != AxisValue::Zero) {
     painter.setClipping(false);
   }
 
   painter.drawTextOnPath(WRectF(left, top, width, height),
-			 WFlags<AlignmentFlag>(horizontalAlign) | verticalAlign,
-			 labels, transform,
-			 path,
-			 angle, lineHeight,
-			 clipping && !partialLabelClipping_);
+                         WFlags<AlignmentFlag>(horizontalAlign) | verticalAlign,
+                         labels, transform,
+                         path,
+                         angle, lineHeight,
+                         clipping && !partialLabelClipping_);
 
   painter.setClipping(clipping);
 
@@ -2063,9 +2063,9 @@ std::vector<double> WAxis::gridLinePositions(AxisConfig config) const
 
     for (unsigned i = 0; i < ticks.size(); ++i)
       if (ticks[i].tickLength == TickLength::Long)
-	pos.push_back(mapToDevice(ticks[i].u, segment));
+        pos.push_back(mapToDevice(ticks[i].u, segment));
   }
-  
+
   return pos;
 }
 

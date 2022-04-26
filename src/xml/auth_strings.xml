@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <messages xmlns:if="Wt.WTemplate.conditions"
-	  nplurals="2"
-	  plural="n == 1 ? 0 : 1">
+          nplurals="2"
+          plural="n == 1 ? 0 : 1">
 
   <!-- BaseAuth, PasswordAuth and OAuth models -->
 
@@ -48,7 +48,7 @@
     <p>Sorry, could not login using your Google account.</p>
     <small>
       <p>Google's identification server generated an unexpected
-	response.</p>
+        response.</p>
     </small>
   </message>
 
@@ -56,10 +56,10 @@
     <p>Sorry, could not login using your Facebook account.</p>
     <small>
       <p>Facebook's identification server generated an unexpected
-	response.</p>
+        response.</p>
     </small>
   </message>
-  
+
   <!-- LoginWidget -->
 
   <message id="Wt.Auth.login-form-title">Login</message>
@@ -158,7 +158,7 @@ Thank you for joining!
 
 To complete your registration, please finally confirm your account by
 clicking on the following link or copying the URL into your browser.
- 
+
 Please click here to confirm your registration or copy and paste the
 following URL into your browser: (Note: be sure to copy the entire
 URL, including any part of it which goes onto a second line.)
@@ -182,12 +182,12 @@ The Wt team.
     <p>To complete your registration, please finally confirm your
     account by clicking on the following link or copying the URL into
     your browser.</p>
- 
+
     <p>Please <a href="{3}">click here to confirm</a> your
     registration or copy and paste the following URL into your
     browser: <i>(Note: be sure to copy the entire URL, including any
     part of it which goes onto a second line.)</i></p>
-    
+
     <b>{3}</b>
 
     <p>
@@ -216,12 +216,12 @@ password escapes his mind.
 If you requested this, then choose a new password by clicking on the
 following link or copying the URL into your browser. If you didn't
 request this, you can safely ignore and discard this email.
- 
+
 Please copy and paste the following URL into your browser: (Note: be
 sure to copy the entire URL, including any part of it which goes onto
 a second line.)
- 
-{3} 
+
+{3}
 
 This text is resolved from the "Wt.Auth.lostpasswordmail.subject",
 "Wt.Auth.lostpasswordmail.body", and "Wt.Auth.lostpasswordmail.htmlbody"
@@ -243,12 +243,12 @@ The Wt team.
     on the following link or copying the URL into your browser. If you
     didn't request this, you can safely ignore and discard this
     email.</p>
- 
+
     <p>Please <a href="{3}">click here to choose a new password</a> or
     copy and paste the following URL into your browser: <i>(Note: be
     sure to copy the entire URL, including any part of it which goes
     onto a second line.)</i></p>
-    
+
     <b>{3}</b>
 
     <p>

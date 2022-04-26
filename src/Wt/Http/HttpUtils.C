@@ -10,14 +10,14 @@ namespace Wt {
   namespace Http {
     namespace Utils {
 
-void parseFormUrlEncoded(const Http::Message& response, 
-			 Http::ParameterMap &params)
+void parseFormUrlEncoded(const Http::Message& response,
+                         Http::ParameterMap &params)
 {
   Http::Request::parseFormUrlEncoded(response.body(), params);
 }
 
-const std::string *getParamValue(Http::ParameterMap &params, 
-				 const std::string &name)
+const std::string *getParamValue(Http::ParameterMap &params,
+                                 const std::string &name)
 {
   return Http::get(params, name);
 }

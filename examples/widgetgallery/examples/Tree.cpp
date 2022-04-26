@@ -10,7 +10,7 @@ tree->setSelectionMode(Wt::SelectionMode::Extended);
 
 auto folderIcon
     = std::make_unique<Wt::WIconPair>("icons/yellow-folder-closed.png",
-			"icons/yellow-folder-open.png", false);
+                        "icons/yellow-folder-open.png", false);
 
 auto node =
     std::make_unique<Wt::WTreeNode>("Furniture",std::move(folderIcon));

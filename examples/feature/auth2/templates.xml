@@ -35,10 +35,10 @@
           ${email}
         ${</if:email>}
 
-	<label for="${id:favourite-pet}">Favourite pet:
-	  ${favourite-pet-info class="Wt-info"}
-	</label>
-	${favourite-pet}
+        <label for="${id:favourite-pet}">Favourite pet:
+          ${favourite-pet-info class="Wt-info"}
+        </label>
+        ${favourite-pet}
       </div>
 
       ${<if:oauth>}

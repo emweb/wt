@@ -8,7 +8,7 @@
         ${tr:Wt.Auth.{1}}
       </label>
       <div class="controls">
-	${{1}} <span class="help-inline">${{1}-info}</span>
+        ${{1}} <span class="help-inline">${{1}-info}</span>
       </div>
     </div>
     ${</if:{1}>}
@@ -23,9 +23,9 @@
         ${{2}}
       </label>
       <div class="controls">
-	${{1}} <span class="help-inline">
-	  ${{1}-info}
-	</span>
+        ${{1}} <span class="help-inline">
+          ${{1}-info}
+        </span>
       </div>
     </div>
     ${</if:{1}>}
@@ -40,9 +40,9 @@
         ${{2}}
       </label>
       <div class="controls">
-	${{1}} <span class="help-inline">
-	  ${{1}-info} ${{3} class="btn-link"}
-	</span>
+        ${{1}} <span class="help-inline">
+          ${{1}-info} ${{3} class="btn-link"}
+        </span>
       </div>
     </div>
     ${</if:{1}>}
@@ -55,26 +55,26 @@
       <p>${tr:Wt.Auth.login-form-info}</p>
 
       <div class="form-horizontal">
-	${<if:passwords>}
-	  ${block:Wt.Auth.field2 user-name user-name-label}
-	  ${block:Wt.Auth.field password}
-	  ${block:Wt.Auth.field remember-me}
-	${</if:passwords>}
+        ${<if:passwords>}
+          ${block:Wt.Auth.field2 user-name user-name-label}
+          ${block:Wt.Auth.field password}
+          ${block:Wt.Auth.field remember-me}
+        ${</if:passwords>}
 
-	${<if:oauth>}
-	  <div class="control-group">
-	    <div class="controls">
-	      <p>Or login using:</p>
-	      ${icons}
-	    </div>
-	  </div>
-	${</if:oauth>}
+        ${<if:oauth>}
+          <div class="control-group">
+            <div class="controls">
+              <p>Or login using:</p>
+              ${icons}
+            </div>
+          </div>
+        ${</if:oauth>}
 
-	<div class="form-actions">
-	  <p>${login class="btn-primary"}</p>
-	  <p>${lost-password class="btn-link"} ${sep}
-	  ${register class="btn-link"}</p>
-	</div>
+        <div class="form-actions">
+          <p>${login class="btn-primary"}</p>
+          <p>${lost-password class="btn-link"} ${sep}
+          ${register class="btn-link"}</p>
+        </div>
       </div>
     </div>
   </message>
@@ -82,30 +82,30 @@
   <message id="Wt.Auth.template.registration">
     <div class="Wt-auth-registration">
       <p class="lead">
-	${password-description}
+        ${password-description}
       </p>
 
       <div class="form-horizontal">
-	${block:Wt.Auth.field3 user-name user-name-label confirm-is-you}
-	${block:Wt.Auth.field choose-password}
-	${block:Wt.Auth.field repeat-password}
-	${block:Wt.Auth.field email}
+        ${block:Wt.Auth.field3 user-name user-name-label confirm-is-you}
+        ${block:Wt.Auth.field choose-password}
+        ${block:Wt.Auth.field repeat-password}
+        ${block:Wt.Auth.field email}
 
-	${<if:oauth>}
-	  <p class="lead">
-	    ${oauth-description}
-	  </p>
-	  <div class="control-group">
-	    <label class="control-label">${tr:Wt.Auth.oauth}</label>
-	    <div class="controls">
-	      ${icons}
-	    </div>
-	  </div>
-	${</if:oauth>}
+        ${<if:oauth>}
+          <p class="lead">
+            ${oauth-description}
+          </p>
+          <div class="control-group">
+            <label class="control-label">${tr:Wt.Auth.oauth}</label>
+            <div class="controls">
+              ${icons}
+            </div>
+          </div>
+        ${</if:oauth>}
 
-	<div class="modal-footer"> <!-- assuming here we're in a dialog -->
-	  ${ok-button class="btn-primary"} ${cancel-button}
-	</div>
+        <div class="modal-footer"> <!-- assuming here we're in a dialog -->
+          ${ok-button class="btn-primary"} ${cancel-button}
+        </div>
       </div>
     </div>
   </message>
@@ -113,14 +113,14 @@
   <message id="Wt.Auth.template.update-password">
     <div class="Wt-auth-update-password">
       <div class="form-horizontal">
-	${block:Wt.Auth.field2 user-name user-name-label}
-	${block:Wt.Auth.field password}
-	${block:Wt.Auth.field choose-password}
-	${block:Wt.Auth.field repeat-password}
+        ${block:Wt.Auth.field2 user-name user-name-label}
+        ${block:Wt.Auth.field password}
+        ${block:Wt.Auth.field choose-password}
+        ${block:Wt.Auth.field repeat-password}
 
-	<div class="modal-footer"> 
-	  ${ok-button class="btn-primary"} ${cancel-button}
-	</div>
+        <div class="modal-footer">
+          ${ok-button class="btn-primary"} ${cancel-button}
+        </div>
       </div>
     </div>
   </message>
@@ -128,21 +128,21 @@
   <message id="Wt.Auth.template.lost-password">
     <div class="Wt-form Wt-auth-lost-password">
       <div class="form-horizontal">
-	<div class="control-group">
-	  <label for="${id:email}" class="control-label">
-	    ${tr:Wt.Auth.email}
-	  </label>
-	  <div class="controls">
-	    ${email}
-	    <span class="help-inline">
-	      <span>${tr:Wt.Auth.email-info}</span>
-	    </span>
-	  </div>
-	</div>
+        <div class="control-group">
+          <label for="${id:email}" class="control-label">
+            ${tr:Wt.Auth.email}
+          </label>
+          <div class="controls">
+            ${email}
+            <span class="help-inline">
+              <span>${tr:Wt.Auth.email-info}</span>
+            </span>
+          </div>
+        </div>
 
-	<div class="modal-footer"> <!-- assuming here we're in a dialog -->
-	  ${send-button class="btn-primary"} ${cancel-button}
-	</div>
+        <div class="modal-footer"> <!-- assuming here we're in a dialog -->
+          ${send-button class="btn-primary"} ${cancel-button}
+        </div>
       </div>
     </div>
   </message>
@@ -150,12 +150,12 @@
   <message id="Wt.Auth.template.password-prompt">
     <div class="Wt-form Wt-auth-password-prompt">
       <div class="form-horizontal">
-	${block:Wt.Auth.field2 user-name user-name-label}
-	${block:Wt.Auth.field password}
+        ${block:Wt.Auth.field2 user-name user-name-label}
+        ${block:Wt.Auth.field password}
       </div>
 
       <div class="Wt-buttons">
-	${ok-button} ${cancel-button}
+        ${ok-button} ${cancel-button}
       </div>
     </div>
   </message>

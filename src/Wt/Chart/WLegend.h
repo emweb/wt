@@ -23,7 +23,7 @@ public:
   void setLegendEnabled(bool enabled);
   bool isLegendEnabled() const { return legendEnabled_; }
   void setLegendLocation(LegendLocation location, Side side, AlignmentFlag alignment);
-  void 	setLegendStyle(const WFont &font, const WPen &border, const WBrush &background);
+  void setLegendStyle(const WFont &font, const WPen &border, const WBrush &background);
   LegendLocation legendLocation() const { return legendLocation_; }
   Side legendSide() const { return legendSide_; }
   AlignmentFlag legendAlignment() const { return legendAlignment_; }

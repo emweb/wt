@@ -51,21 +51,21 @@ const EscapeOStream::Entry EscapeOStream::jsStringLiteralDQuoteEntries_[] = {
   { '"', "\\\"" },
 };
 
-const std::vector<EscapeOStream::Entry> EscapeOStream::standardSets_[] = { 
+const std::vector<EscapeOStream::Entry> EscapeOStream::standardSets_[] = {
   std::vector<EscapeOStream::Entry>(),
   std::vector<EscapeOStream::Entry>(htmlAttributeEntries_,
-				    htmlAttributeEntries_ + 3),
+                                    htmlAttributeEntries_ + 3),
   std::vector<EscapeOStream::Entry>(jsStringLiteralSQuoteEntries_,
-				    jsStringLiteralSQuoteEntries_ + 5),
+                                    jsStringLiteralSQuoteEntries_ + 5),
   std::vector<EscapeOStream::Entry>(jsStringLiteralDQuoteEntries_,
-				    jsStringLiteralDQuoteEntries_ + 5),
+                                    jsStringLiteralDQuoteEntries_ + 5),
   std::vector<EscapeOStream::Entry>(plainTextEntries_,
-				    plainTextEntries_ + 3),
+                                    plainTextEntries_ + 3),
   std::vector<EscapeOStream::Entry>(plainTextNewLinesEntries_,
-				    plainTextNewLinesEntries_ + 4)
+                                    plainTextNewLinesEntries_ + 4)
 };
 
-const std::string EscapeOStream::standardSetsSpecial_[] = { 
+const std::string EscapeOStream::standardSetsSpecial_[] = {
   std::string(),
   std::string("&\"<"),
   std::string("\\\n\r\t'"),
@@ -113,16 +113,16 @@ void EscapeOStream::mixRules()
       special_ = standardSetsSpecial_[ruleSets_[0]];
     } else
       for (int i = ruleSetsSize - 1; i >= 0; --i) {
-	const std::vector<Entry>& toMix = standardSets_[ruleSets_[i]];
+        const std::vector<Entry>& toMix = standardSets_[ruleSets_[i]];
 
-	for (unsigned j = 0; j < mixed_.size(); ++j)
-	  for (unsigned k = 0; k < toMix.size(); ++k)
-	    Utils::replace(mixed_[j].s, toMix[k].c, toMix[k].s);
+        for (unsigned j = 0; j < mixed_.size(); ++j)
+          for (unsigned k = 0; k < toMix.size(); ++k)
+            Utils::replace(mixed_[j].s, toMix[k].c, toMix[k].s);
 
-	mixed_.insert(mixed_.end(), toMix.begin(), toMix.end());
+        mixed_.insert(mixed_.end(), toMix.begin(), toMix.end());
 
-	for (unsigned j = 0; j < toMix.size(); ++j)
-	  special_.push_back(toMix[j].c);
+        for (unsigned j = 0; j < toMix.size(); ++j)
+          special_.push_back(toMix[j].c);
       }
 
     if (!special_.empty())
@@ -210,16 +210,16 @@ void EscapeOStream::put(const char *s, const EscapeOStream& rules)
     const char *f = std::strpbrk(s, rules.c_special_);
     if (f != 0) {
       stream_.append(s, static_cast<int>(f - s));
-      
+
       unsigned i = 0;
       for (; i < rules.mixed_.size(); ++i)
-	if (rules.mixed_[i].c == *f) {
-	  stream_ << rules.mixed_[i].s;
-	  break;
-	}
+        if (rules.mixed_[i].c == *f) {
+          stream_ << rules.mixed_[i].s;
+          break;
+        }
 
       if (i == rules.mixed_.size())
-	stream_ << *f;
+        stream_ << *f;
 
       s = f + 1;
     } else {

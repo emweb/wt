@@ -30,11 +30,11 @@ sb2->activated().connect([=] {
 
     std::set<int> newSelection = sb2->selectedIndexes();
     for (std::set<int>::iterator it = newSelection.begin();
-	 it != newSelection.end(); ++it) {
-	if (!selected.empty())
-	    selected += ", ";
+         it != newSelection.end(); ++it) {
+        if (!selected.empty())
+            selected += ", ";
 
-	selected += sb2->itemText(*it);
+        selected += sb2->itemText(*it);
     }
 
     out->setText(Wt::WString("You choose {1}.").arg(selected));

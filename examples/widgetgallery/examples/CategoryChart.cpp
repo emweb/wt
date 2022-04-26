@@ -51,7 +51,7 @@ table->setWidth(4*120 + 80 + 5*7 + 2);
 
 if (WApplication::instance()->environment().ajax()) {
     table->setEditTriggers(EditTrigger::SingleClicked);
-    table->setEditOptions(table->editOptions() | 
+    table->setEditOptions(table->editOptions() |
                           EditOption::SaveWhenClosed);
 } else {
     table->setEditTriggers(EditTrigger::None);

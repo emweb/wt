@@ -118,13 +118,13 @@ enum class TemplateWidgetIdMode {
  * variable placeholder.
  *
  * Functions are resolved by resolveFunction(), and the default implementation
- * considers functions bound with addFunction(). 
+ * considers functions bound with addFunction().
  * There are currently three functions that are generally useful:
- * - \link Functions::tr\endlink : resolves a localized strings, this is 
- *   convenient to create a language neutral template, which contains 
+ * - \link Functions::tr\endlink : resolves a localized strings, this is
+ *   convenient to create a language neutral template, which contains
  *   translated strings
- * - \link Functions::id\endlink : resolves the id of a bound widget, this 
- *   is convenient to bind &lt;label&gt; elements to a form widget using its 
+ * - \link Functions::id\endlink : resolves the id of a bound widget, this
+ *   is convenient to bind &lt;label&gt; elements to a form widget using its
  *   for attribute.
  * - \link Functions::block\endlink : recursively renders another string as
  *   macro block optional arguments substituted before processing template
@@ -178,20 +178,20 @@ enum class TemplateWidgetIdMode {
  *
  * <h3>CSS</h3>
  *
- * This widget does not provide styling, 
+ * This widget does not provide styling,
  * and can be styled using inline or external CSS as appropriate.
  */
 class WT_API WTemplate : public WInteractWidget
 {
 private:
-  bool _tr(const std::vector<WString>& args, 
-	   std::ostream& result);
+  bool _tr(const std::vector<WString>& args,
+           std::ostream& result);
   bool _block(const std::vector<WString>& args,
               std::ostream& result);
   bool _while(const std::vector<WString>& args,
-	      std::ostream& result);
-  bool _id(const std::vector<WString>& args, 
-	   std::ostream& result);
+              std::ostream& result);
+  bool _id(const std::vector<WString>& args,
+           std::ostream& result);
 
 public:
   /*! \brief Typedef for enum Wt::TemplateWidgetIdMode */
@@ -204,7 +204,7 @@ public:
    * \sa Functions::tr, Functions::id, Functions::block, Functions::while_f
    */
   typedef std::function<bool(WTemplate *t, const std::vector<WString>& args,
-			     std::ostream& result)> Function;
+                             std::ostream& result)> Function;
 
 #else
   /*! \brief A function interface type
@@ -215,7 +215,7 @@ public:
   class Function {
   public:
     virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
-			  std::ostream& result) const = 0;
+                          std::ostream& result) const = 0;
 
   };
 
@@ -223,7 +223,7 @@ private:
   class TrFunction : public Function {
   public:
     virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
-			  std::ostream& result) const;
+                          std::ostream& result) const;
   };
 
   class BlockFunction : public Function {
@@ -235,13 +235,13 @@ private:
   class WhileFunction : public Function {
   public:
     virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
-			  std::ostream& result) const;
+                          std::ostream& result) const;
   };
 
   class IdFunction : public Function {
   public:
     virtual bool evaluate(WTemplate *t, const std::vector<WString>& args,
-			  std::ostream& result) const;
+                          std::ostream& result) const;
   };
 public:
 #endif
@@ -267,7 +267,7 @@ public:
      */
 #ifndef WT_TARGET_JAVA
     static bool tr(WTemplate *t, const std::vector<WString>& args,
-		   std::ostream& result);
+                   std::ostream& result);
 #else
     static Function& tr = TrFunction();
 #endif
@@ -307,7 +307,7 @@ public:
      */
 #ifndef WT_TARGET_JAVA
     static bool block(WTemplate *t, const std::vector<WString>& args,
-		      std::ostream& result);
+                      std::ostream& result);
 #else
     static Function& block = BlockFunction();
 #endif
@@ -322,7 +322,7 @@ public:
      */
 #ifndef WT_TARGET_JAVA
     static bool while_f(WTemplate *t, const std::vector<WString>& args,
-		      std::ostream& result);
+                      std::ostream& result);
 #else
     static Function& while_f = WhileFunction();
 #endif
@@ -352,7 +352,7 @@ public:
      */
 #ifndef WT_TARGET_JAVA
     static bool id(WTemplate *t, const std::vector<WString>& args,
-		   std::ostream& result);
+                   std::ostream& result);
 #else
     static Function& id = IdFunction();
 #endif // WT_TARGET_JAVA
@@ -391,8 +391,8 @@ public:
    *
    * \sa clear()
    */
-  void setTemplateText(const WString& text, 
-		       TextFormat textFormat = TextFormat::XHTML);
+  void setTemplateText(const WString& text,
+                       TextFormat textFormat = TextFormat::XHTML);
 
   /*! \brief Sets how the varName should be reflected on bound widgets.
    *
@@ -460,7 +460,7 @@ public:
   WWidget*
 #endif // WT_TARGET_JAVA
   bindWidget(const std::string& varName,
-			  std::unique_ptr<WWidget> widget);
+                          std::unique_ptr<WWidget> widget);
 
   /*! \brief Binds a widget to a variable, returning a raw pointer.
    *
@@ -501,7 +501,7 @@ public:
    */
   template <typename Widget, typename ...Args>
     Widget *bindNew(const std::string& varName,
-	            Args&& ...args)
+                    Args&& ...args)
   {
     std::unique_ptr<Widget> w{new Widget(std::forward<Args>(args)...)};
     Widget *result = w.get();
@@ -626,15 +626,15 @@ public:
    * \sa renderTemplate()
    */
   virtual void resolveString(const std::string& varName,
-			     const std::vector<WString>& args,
-			     std::ostream& result);
+                             const std::vector<WString>& args,
+                             std::ostream& result);
 
   /*! \brief Handles a variable that could not be resolved.
    *
    * This method is called from resolveString() for variables that could
    * not be resolved.
    *
-   * The default implementation implementation writes 
+   * The default implementation implementation writes
    * "??" + varName + "??"  to the result stream.
    *
    * The result stream expects a UTF-8 encoded string value.
@@ -705,8 +705,8 @@ public:
    * \sa addFunction()
    */
   virtual bool resolveFunction(const std::string& name,
-			       const std::vector<WString>& args,
-			       std::ostream& result);
+                               const std::vector<WString>& args,
+                               std::ostream& result);
 
   /*! \brief Returns a widget for a variable name.
    *
@@ -815,7 +815,7 @@ protected:
    * specializing resolveString() to avoid security risks.
    */
   void format(std::ostream& result, const std::string& s,
-	      TextFormat textFormat = TextFormat::Plain);
+              TextFormat textFormat = TextFormat::Plain);
 
   /*! \brief Utility method to safely format an XHTML string.
    *
@@ -824,7 +824,7 @@ protected:
    * specializing resolveString() to avoid security risks.
    */
   void format(std::ostream& result, const WString& s,
-	      TextFormat textFormat = TextFormat::Plain);
+              TextFormat textFormat = TextFormat::Plain);
 
   virtual void enableAjax() override;
 
@@ -862,8 +862,8 @@ private:
 
   std::string encode(const std::string& text) const;
   static std::size_t parseArgs(const std::string& text,
-			       std::size_t pos,
-			       std::vector<WString>& result);
+                               std::size_t pos,
+                               std::vector<WString>& result);
   void unrenderWidget(WWidget *w, DomElement &el);
 
   EscapeOStream* plainTextNewLineEscStream_;

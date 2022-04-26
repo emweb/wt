@@ -16,12 +16,12 @@ namespace Wt {
 /*! \class WEquidistantGridData
  *  \brief Class representing grid-based data for on a 3D chart.
  *
- * General information can be found at WAbstractDataSeries3D. The model for 
- * this dataseries does not contain an x- and y-axis. Instead the class 
- * derives the x- and y-values from the minimum and delta provided in the 
- * constructor. The size of the model determines the size of the grid. The 
- * model itself is structured as a table, where every value represents the 
- * z-value of a data-point. The corresponding x- and y-values are calculated 
+ * General information can be found at WAbstractDataSeries3D. The model for
+ * this dataseries does not contain an x- and y-axis. Instead the class
+ * derives the x- and y-values from the minimum and delta provided in the
+ * constructor. The size of the model determines the size of the grid. The
+ * model itself is structured as a table, where every value represents the
+ * z-value of a data-point. The corresponding x- and y-values are calculated
  * by adding delta times the row/column-index to the axis-minimum.
  *
  * \ingroup charts
@@ -39,7 +39,7 @@ public:
   virtual double minimum(Axis axis) const override;
 
   virtual double maximum(Axis axis) const override;
-  
+
   /*! \brief Sets the minimum and delta for the X-axis.
    */
   void setXAbscis(double XMinimum, double deltaX);
@@ -56,8 +56,8 @@ public:
    *
    * \sa setXAbscis()
    */
-  double deltaX() const {return deltaX_; } 
-  
+  double deltaX() const {return deltaX_; }
+
   /*! \brief Sets the minimum and delta for the Y-axis.
    */
   void setYAbscis(double YMinimum, double deltaY);
@@ -74,26 +74,26 @@ public:
    *
    * \sa setYAbscis()
    */
-  double deltaY() const {return deltaY_; } 
+  double deltaY() const {return deltaY_; }
 
   // below = internal API
   virtual int nbXPoints() const override;
   virtual int nbYPoints() const override;
   virtual WString axisLabel(int u, Axis axis) const override;
   virtual cpp17::any data(int i, int j) const override;
-  
+
 protected:
   virtual int countSimpleData() const override;
   virtual void pointDataFromModel(FloatBuffer& simplePtsArray,
-				  FloatBuffer& simplePtsSize,
-				  FloatBuffer& coloredPtsArray,
-				  FloatBuffer& coloredPtsSize,
-				  FloatBuffer& coloredPtsColor) const override;
+                                  FloatBuffer& simplePtsSize,
+                                  FloatBuffer& coloredPtsArray,
+                                  FloatBuffer& coloredPtsSize,
+                                  FloatBuffer& coloredPtsColor) const override;
   virtual void surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) const override;
   virtual void barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) const override;
   virtual void barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays,
-				std::vector<FloatBuffer>& coloredPtsArrays,
-				std::vector<FloatBuffer>& coloredPtsColors) const override;
+                                std::vector<FloatBuffer>& coloredPtsArrays,
+                                std::vector<FloatBuffer>& coloredPtsColors) const override;
 
 private:
   void findRange() const;
@@ -103,7 +103,7 @@ private:
   double YMinimum_;
   double deltaY_;
 };
-    
+
   }
 }
 

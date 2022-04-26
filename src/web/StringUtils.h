@@ -24,8 +24,8 @@ typedef std::set<SplitEntry> SplitSet;
 
 // Splits a string in a set of strings, on every given token
 extern void split(SplitSet& tokens,
-		  const std::string &in, const char *sep,
-		  bool compress_adjacent_tokens);
+                  const std::string &in, const char *sep,
+                  bool compress_adjacent_tokens);
 
 extern std::string splitEntryToString(SplitEntry se);
 

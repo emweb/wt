@@ -14,11 +14,11 @@
 
 namespace Wt {
   namespace Chart {
-    
+
 class WAbstractChartImplementation {
 public:
   virtual ~WAbstractChartImplementation() {}
-  
+
   struct RenderRange {
     double minimum;
     double maximum;
@@ -27,17 +27,17 @@ public:
   virtual ChartType chartType() const = 0;
   virtual Orientation orientation() const = 0;
   virtual int axisPadding() const = 0;
-  
+
   virtual int numberOfCategories(Axis axis = Axis::X) const = 0;
   virtual WString categoryLabel(int u, Axis axis) const = 0;
-  
+
   virtual RenderRange computeRenderRange(Axis axis, int xAxis, int yAxis, AxisScale scale) const = 0;
 
   virtual bool onDemandLoadingEnabled() const = 0;
-  
+
   virtual void update() = 0;
 };
-    
+
   }
 }
 

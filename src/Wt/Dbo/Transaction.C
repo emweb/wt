@@ -22,7 +22,7 @@ LOGGER("Dbo.Transaction");
 Transaction::Transaction(Session& session)
   : committed_(false),
     session_(session)
-{ 
+{
   if (!session_.transaction_)
     session_.transaction_ = new Impl(session_);
 
@@ -50,27 +50,27 @@ Transaction::~Transaction() noexcept(false)
     if (impl_->needsRollback_ || uncaughtException) {
       bool canThrow = !uncaughtException;
       try {
-	rollback();
+        rollback();
       } catch (...) {
-	release();
-	if (canThrow)
-	  throw;
+        release();
+        if (canThrow)
+          throw;
       }
     } else {
       try {
-	commit();
+        commit();
       } catch (...) {
-	try {
-	  if (impl_->transactionCount_ == 1)
-	    rollback();
+        try {
+          if (impl_->transactionCount_ == 1)
+            rollback();
         } catch (std::exception &e) {
           LOG_ERROR("Unexpected exception during Transaction::rollback(): " << e.what());
-	} catch (...) {
-	  LOG_ERROR("Unexpected exception during Transaction::rollback()");
-	}
+        } catch (...) {
+          LOG_ERROR("Unexpected exception during Transaction::rollback()");
+        }
 
-	release();
-	throw;
+        release();
+        throw;
       }
     }
   }
@@ -83,7 +83,7 @@ void Transaction::release()
   --impl_->transactionCount_;
 
   if (impl_->transactionCount_ == 0)
-    delete impl_;  
+    delete impl_;
 }
 
 bool Transaction::isActive() const

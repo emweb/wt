@@ -92,7 +92,7 @@ public:
   WObject(const WObject&) = delete;
   WObject &operator =(const WObject&) = delete;
 
-  virtual ~WObject();  
+  virtual ~WObject();
 
 #ifndef WT_TARGET_JAVA
   /*! \brief Add a child WObject whose lifetime is determined by this WObject
@@ -193,7 +193,7 @@ public:
    * Clears the stateless implementation for all slots declared to be
    * implemented with a stateless implementation.
    *
-   * \sa resetLearnedSlot(), implementStateless() 
+   * \sa resetLearnedSlot(), implementStateless()
    */
   void resetLearnedSlots();
 
@@ -211,7 +211,7 @@ public:
    */
   template <class T>
     void resetLearnedSlot(void (T::*method)());
-   
+
   /*! \brief Declares a slot to be stateless and learn client-side behaviour
    *         on first invocation.
    *
@@ -233,7 +233,7 @@ public:
    * resetLearnedSlot() or resetLearnedSlots() to flush the existing cached
    * visual effect, forcing the library to relearn it.
    *
-   * It is crucial that this function be applied first to a slot that is 
+   * It is crucial that this function be applied first to a slot that is
    * intended to be stateless before any %EventSignal connects to that slot.
    * Otherwise, the connecting %EventSignal cannot find the stateless
    * slot implementation for the intended slot, and the statement will have
@@ -259,14 +259,14 @@ public:
    *
    * To learn the visual effect, the library will simulate the event and
    * record the visual effect. To restore the application state, it will
-   * call the undoMethod which must restore the effect of method. 
+   * call the undoMethod which must restore the effect of method.
    *
    * \sa \link implementStateless() implementStateless(void (T::*method)())\endlink
    */
 #ifndef WT_TARGET_JAVA
   template <class T>
     WStatelessSlot *implementStateless(void (T::*method)(),
-				       void (T::*undoMethod)());
+                                       void (T::*undoMethod)());
 #else // WT_TARGET_JAVA
   template <class T1, class T2>
     WStatelessSlot *implementStateless(T1 method, T2 undoMethod);
@@ -299,7 +299,7 @@ public:
    */
   template <class T>
     WStatelessSlot *implementJavaScript(void (T::*method)(),
-					const std::string& jsCode);
+                                        const std::string& jsCode);
 
   static void seedId(unsigned id);
 
@@ -310,7 +310,7 @@ protected:
 
   struct FormData {
     FormData(const Http::ParameterValues& aValues,
-	     const std::vector<Http::UploadedFile>& aFiles)
+             const std::vector<Http::UploadedFile>& aFiles)
       : values(aValues), files(aFiles) { }
 
     const Http::ParameterValues& values;
@@ -373,17 +373,17 @@ WStatelessSlot *WObject::implementStateless(void (T::*method)())
 
 template <class T>
 WStatelessSlot *WObject::implementStateless(void (T::*method)(),
-					    void (T::*undoMethod)())
+                                            void (T::*undoMethod)())
 {
   assert(dynamic_cast<T *>(this));
   return implementPrelearn(static_cast<Method>(method),
-			   static_cast<Method>(undoMethod));
+                           static_cast<Method>(undoMethod));
 }
 #endif // WT_TARGET_JAVA
 
 template <class T>
 WStatelessSlot *WObject::implementJavaScript(void (T::*method)(),
-					     const std::string& jsCode)
+                                             const std::string& jsCode)
 {
   assert(dynamic_cast<T *>(this));
   return implementPrelearned(static_cast<Method>(method), jsCode);

@@ -23,7 +23,7 @@ namespace Wt {
 LOGGER("WTemplate");
 
 bool WTemplate::_tr(const std::vector<WString>& args,
-		    std::ostream& result)
+                    std::ostream& result)
 {
   if (args.size() >= 1) {
     WString s = WString::tr(args[0].toUTF8());
@@ -53,7 +53,7 @@ bool WTemplate::_block(const std::vector<WString>& args,
 }
 
 bool WTemplate::_while(const std::vector<WString>& args,
-			      std::ostream& result)
+                              std::ostream& result)
 {
   if (args.size() < 2)
     return false;
@@ -69,7 +69,7 @@ bool WTemplate::_while(const std::vector<WString>& args,
 }
 
 bool WTemplate::_id(const std::vector<WString>& args,
-		    std::ostream& result)
+                    std::ostream& result)
 {
   if (args.size() == 1) {
     WWidget *w = this->resolveWidget(args[0].toUTF8());
@@ -86,7 +86,7 @@ bool WTemplate::_id(const std::vector<WString>& args,
 
 #ifndef WT_TARGET_JAVA
 bool WTemplate::Functions::tr(WTemplate *t, const std::vector<WString>& args,
-			      std::ostream& result)
+                              std::ostream& result)
 {
   return t->_tr(args, result);
 }
@@ -98,28 +98,28 @@ bool WTemplate::Functions::block(WTemplate *t, const std::vector<WString>& args,
 }
 
 bool WTemplate::Functions::while_f(WTemplate *t, const std::vector<WString>& args,
-			      std::ostream& result)
+                              std::ostream& result)
 {
   return t->_while(args, result);
 }
 
 bool WTemplate::Functions::id(WTemplate *t, const std::vector<WString>& args,
-			      std::ostream& result)
+                              std::ostream& result)
 {
   return t->_id(args, result);
 }
 
 #else
 
-bool WTemplate::TrFunction::evaluate(WTemplate *t, 
-				     const std::vector<WString>& args,
-				     std::ostream& result) const
+bool WTemplate::TrFunction::evaluate(WTemplate *t,
+                                     const std::vector<WString>& args,
+                                     std::ostream& result) const
 {
   try {
     return t->_tr(args, result);
   } catch (std::io_exception ioe) {
     return false;
-  } 
+  }
 }
 
 bool WTemplate::BlockFunction::evaluate(WTemplate *t,
@@ -134,8 +134,8 @@ bool WTemplate::BlockFunction::evaluate(WTemplate *t,
 }
 
 bool WTemplate::WhileFunction::evaluate(WTemplate *t,
-				    const std::vector<WString>& args,
-				    std::ostream& result) const
+                                    const std::vector<WString>& args,
+                                    std::ostream& result) const
 {
   try {
     return t->_while(args, result);
@@ -144,9 +144,9 @@ bool WTemplate::WhileFunction::evaluate(WTemplate *t,
   }
 }
 
-bool WTemplate::IdFunction::evaluate(WTemplate *t, 
-				     const std::vector<WString>& args,
-				     std::ostream& result) const
+bool WTemplate::IdFunction::evaluate(WTemplate *t,
+                                     const std::vector<WString>& args,
+                                     std::ostream& result) const
 {
   try {
   return t->_id(args, result);
@@ -207,7 +207,7 @@ void WTemplate::clear()
   conditions_.clear();
 
   changed_ = true;
-  repaint(RepaintFlag::SizeAffected);  
+  repaint(RepaintFlag::SizeAffected);
 }
 
 #ifndef WT_TARGET_JAVA
@@ -303,7 +303,7 @@ WTemplate::bindWidget(const std::string& varName,
   manageWidget(widgets_[varName], std::move(widget));
 
   changed_ = true;
-  repaint(RepaintFlag::SizeAffected);  
+  repaint(RepaintFlag::SizeAffected);
 
 #ifdef WT_TARGET_JAVA
   return widgetPtrCopy;
@@ -341,7 +341,7 @@ void WTemplate::bindEmpty(const std::string& varName)
 }
 
 void WTemplate::bindString(const std::string& varName, const WString& value,
-			   TextFormat textFormat)
+                           TextFormat textFormat)
 {
   WWidget *w = resolveWidget(varName);
   if (w)
@@ -361,7 +361,7 @@ void WTemplate::bindString(const std::string& varName, const WString& value,
     strings_[varName] = v;
 
     changed_ = true;
-    repaint(RepaintFlag::SizeAffected);  
+    repaint(RepaintFlag::SizeAffected);
   }
 }
 
@@ -371,8 +371,8 @@ void WTemplate::bindInt(const std::string& varName, int value)
 }
 
 bool WTemplate::resolveFunction(const std::string& name,
-				const std::vector<WString>& args,
-				std::ostream& result)
+                                const std::vector<WString>& args,
+                                std::ostream& result)
 {
   FunctionMap::const_iterator i = functions_.find(name);
 
@@ -393,8 +393,8 @@ bool WTemplate::resolveFunction(const std::string& name,
 }
 
 void WTemplate::resolveString(const std::string& varName,
-			      const std::vector<WString>& args,
-			      std::ostream& result)
+                              const std::vector<WString>& args,
+                              std::ostream& result)
 {
   /*
    * FIXME: have an extra result parameter which indicates whether the
@@ -411,11 +411,11 @@ void WTemplate::resolveString(const std::string& varName,
       w->setParentWidget(this);
 
       if (previouslyRendered_
-	  && previouslyRendered_->find(w) != previouslyRendered_->end()) {
-	result << "<span id=\"" << w->id() << "\"> </span>";
+          && previouslyRendered_->find(w) != previouslyRendered_->end()) {
+        result << "<span id=\"" << w->id() << "\"> </span>";
       } else {
-	applyArguments(w, args);
-	w->htmlText(result);
+        applyArguments(w, args);
+        w->htmlText(result);
       }
 
       if (newlyRendered_)
@@ -492,14 +492,14 @@ void WTemplate::updateDom(DomElement& element, bool all)
     std::vector<WWidget *> newlyRendered;
 
     for (WidgetMap::const_iterator i = widgets_.begin(); i != widgets_.end();
-	 ++i) {
+         ++i) {
       WWidget *w = i->second.get();
       if (w && w->isRendered()) {
         if (w->webWidget()->domCanBeSaved()) {
           previouslyRendered.insert(w);
         } else {
-	  unrenderWidget(w, element);
-	}
+          unrenderWidget(w, element);
+        }
       }
     }
 
@@ -517,9 +517,9 @@ void WTemplate::updateDom(DomElement& element, bool all)
     for (unsigned i = 0; i < newlyRendered.size(); ++i) {
       WWidget *w = newlyRendered[i];
       if (previouslyRendered.find(w) != previouslyRendered.end()) {
-	if (saveWidgets)
-	  element.saveChild(w->id());
-	previouslyRendered.erase(w);
+        if (saveWidgets)
+          element.saveChild(w->id());
+        previouslyRendered.erase(w);
       }
     }
 
@@ -535,11 +535,11 @@ void WTemplate::updateDom(DomElement& element, bool all)
       // as a side-effect of rendering some of the widgets; thus we check
       // that the widget is still a child
       for (WidgetMap::const_iterator j = widgets_.begin();
-	   j != widgets_.end(); ++j) {
-	if (j->second.get() == w) {
-	  unrenderWidget(w, element);
-	  break;
-	}
+           j != widgets_.end(); ++j) {
+        if (j->second.get() == w) {
+          unrenderWidget(w, element);
+          break;
+        }
       }
     }
 
@@ -614,13 +614,13 @@ bool WTemplate::renderTemplateText(std::ostream& result, const WString& template
 
     if (pos + 1 < text.length()) {
       if (text[pos + 1] == '$') { // $$ -> $
-	if (!suppressing)
-	  result << '$';
+        if (!suppressing)
+          result << '$';
 
-	lastPos += 2;
+        lastPos += 2;
       } else if (text[pos + 1] == '{') {
-	std::size_t startName = pos + 2;
-	std::size_t endName = text.find_first_of(" \r\n\t}", startName);
+        std::size_t startName = pos + 2;
+        std::size_t endName = text.find_first_of(" \r\n\t}", startName);
 
         args.clear();
         std::size_t endVar = parseArgs(text, endName, args);
@@ -635,57 +635,57 @@ bool WTemplate::renderTemplateText(std::ostream& result, const WString& template
         }
 
         std::string name = text.substr(startName, endName - startName);
-	std::size_t nl = name.length();
+        std::size_t nl = name.length();
 
-	if (nl > 2 && name[0] == '<' && name[nl - 1] == '>') {
-	  if (name[1] != '/') {
-	    std::string cond = name.substr(1, nl - 2);
-	    conditions.push_back(cond);
-	    if (suppressing || !conditionValue(cond))
-	      ++suppressing;
-	  } else {
-	    std::string cond = name.substr(2, nl - 3);
-	    if (conditions.empty() || conditions.back() != cond) {
+        if (nl > 2 && name[0] == '<' && name[nl - 1] == '>') {
+          if (name[1] != '/') {
+            std::string cond = name.substr(1, nl - 2);
+            conditions.push_back(cond);
+            if (suppressing || !conditionValue(cond))
+              ++suppressing;
+          } else {
+            std::string cond = name.substr(2, nl - 3);
+            if (conditions.empty() || conditions.back() != cond) {
               std::stringstream errorStream;
               errorStream << "mismatching condition block end: " << cond;
               errorText_ = errorStream.str();
               LOG_ERROR(errorText_);
               return false;
-	    }
-	    conditions.pop_back();
+            }
+            conditions.pop_back();
 
-	    if (suppressing)
-	      --suppressing;
-	  }
-	} else {
-	  if (!suppressing) {
-	    std::size_t colonPos = name.find(':');
+            if (suppressing)
+              --suppressing;
+          }
+        } else {
+          if (!suppressing) {
+            std::size_t colonPos = name.find(':');
 
-	    bool handled = false;
-	    if (colonPos != std::string::npos) {
-	      std::string fname = name.substr(0, colonPos);
-	      std::string arg0 = name.substr(colonPos + 1);
-	      args.insert(args.begin(), WString::fromUTF8(arg0));
-	      if (resolveFunction(fname, args, result))
-		handled = true;
-	      else
-		args.erase(args.begin());
-	    }
+            bool handled = false;
+            if (colonPos != std::string::npos) {
+              std::string fname = name.substr(0, colonPos);
+              std::string arg0 = name.substr(colonPos + 1);
+              args.insert(args.begin(), WString::fromUTF8(arg0));
+              if (resolveFunction(fname, args, result))
+                handled = true;
+              else
+                args.erase(args.begin());
+            }
 
-	    if (!handled)
-	      resolveString(name, args, result);
-	  }
-	}
+            if (!handled)
+              resolveString(name, args, result);
+          }
+        }
 
-	lastPos = endVar + 1;
+        lastPos = endVar + 1;
       } else {
-	if (!suppressing)
-	  result << '$'; // $. -> $.
-	lastPos += 1;
+        if (!suppressing)
+          result << '$'; // $. -> $.
+        lastPos += 1;
       }
     } else {
       if (!suppressing)
-	result << '$'; // $ at end of template -> $
+        result << '$'; // $ at end of template -> $
       lastPos += 1;
     }
 
@@ -697,8 +697,8 @@ bool WTemplate::renderTemplateText(std::ostream& result, const WString& template
 }
 
 std::size_t WTemplate::parseArgs(const std::string& text,
-				 std::size_t pos,
-				 std::vector<WString>& result)
+                                 std::size_t pos,
+                                 std::vector<WString>& result)
 {
   std::size_t Error = std::string::npos;
 
@@ -714,46 +714,46 @@ std::size_t WTemplate::parseArgs(const std::string& text,
     switch (state) {
     case Next:
       if (!std::isspace(c)) {
-	if (c == '}')
-	  return pos;
-	else if (std::isalpha(c) || c == '_') {
-	  state = Name;
-	  v.clear();
-	  v << c;
-	} else if (c == '\'') {
-	  state = SValue;
-	  v.clear();
-	} else if (c == '"') {
-	  state = DValue;
-	  v.clear();
-	} else
-	  return Error;
+        if (c == '}')
+          return pos;
+        else if (std::isalpha(c) || c == '_') {
+          state = Name;
+          v.clear();
+          v << c;
+        } else if (c == '\'') {
+          state = SValue;
+          v.clear();
+        } else if (c == '"') {
+          state = DValue;
+          v.clear();
+        } else
+          return Error;
       }
       break;
 
     case Name:
       if (c == '=') {
-	state = Value;
-	v << '=';
+        state = Value;
+        v << '=';
       } else if (std::isspace(c)) {
-	result.push_back(WString::fromUTF8(v.str()));
-	state = Next;
+        result.push_back(WString::fromUTF8(v.str()));
+        state = Next;
       } else if (c == '}') {
-	result.push_back(WString::fromUTF8(v.str()));
-	return pos;
+        result.push_back(WString::fromUTF8(v.str()));
+        return pos;
       } else if (std::isalnum(c) || c == '_' || c == '-' || c == '.')
-	v << c;
+        v << c;
       else
-	return Error;
+        return Error;
       break;
 
     case Value:
       if (c == '\'')
-	state = SValue;
+        state = SValue;
       else if (c == '"')
-	state = DValue;
+        state = DValue;
       else
-	return Error;
+        return Error;
       break;
 
     case SValue:
@@ -762,13 +762,13 @@ std::size_t WTemplate::parseArgs(const std::string& text,
 
       std::size_t end = text.find(quote, pos);
       if (end == std::string::npos)
-	return Error;
+        return Error;
       if (text[end - 1] == '\\')
-	v << text.substr(pos, end - pos - 1) << quote;
+        v << text.substr(pos, end - pos - 1) << quote;
       else {
-	v << text.substr(pos, end - pos);
-	result.push_back(WString::fromUTF8(v.str()));
-	state = Next;
+        v << text.substr(pos, end - pos);
+        result.push_back(WString::fromUTF8(v.str()));
+        state = Next;
       }
 
       pos = end;
@@ -779,13 +779,13 @@ std::size_t WTemplate::parseArgs(const std::string& text,
 }
 
 void WTemplate::format(std::ostream& result, const std::string& s,
-		       TextFormat textFormat)
+                       TextFormat textFormat)
 {
   format(result, WString::fromUTF8(s), textFormat);
 }
 
 void WTemplate::format(std::ostream& result, const WString& s,
-		       TextFormat textFormat)
+                       TextFormat textFormat)
 {
   if (textFormat == TextFormat::XHTML) {
     WString v = s;

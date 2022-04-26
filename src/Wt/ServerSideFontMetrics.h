@@ -23,7 +23,7 @@ public:
   WFontMetrics fontMetrics(const WFont& font);
 
   WTextItem measureText(const WFont& font,
-			const WString& text, double maxWidth, bool wordWrap);
+                        const WString& text, double maxWidth, bool wordWrap);
 
   static bool available();
 

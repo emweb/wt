@@ -230,7 +230,7 @@ WString WDateTime::timeTo(const WDateTime& other, std::chrono::seconds minValue)
     int minutes = secs / 60;
     if (abs(minutes) < 60 * minValue.count())
       if (WApplication::instance()) {
-	return trn("Wt.WDateTime.minutes", minutes > 1 ? minutes : 1).arg(minutes);
+        return trn("Wt.WDateTime.minutes", minutes > 1 ? minutes : 1).arg(minutes);
       } else {
         return std::to_string(minutes) + " minute" + multiple(minutes, "s");
       }
@@ -238,46 +238,46 @@ WString WDateTime::timeTo(const WDateTime& other, std::chrono::seconds minValue)
       int hours = minutes / 60;
       if (abs(hours) < 24 * minValue.count())
         if (WApplication::instance()) {
-	  return trn("Wt.WDateTime.hours", hours > 1 ? hours : 1).arg(hours);
+          return trn("Wt.WDateTime.hours", hours > 1 ? hours : 1).arg(hours);
         } else {
           return std::to_string(hours) + " hour" + multiple(hours, "s");
         }
       else {
-	int days = hours / 24;
+        int days = hours / 24;
         if (abs(days) < 7 * minValue.count())
           if (WApplication::instance()) {
-	    return trn("Wt.WDateTime.days", days > 1 ? days : 1).arg(days);
-	  } else {
+            return trn("Wt.WDateTime.days", days > 1 ? days : 1).arg(days);
+          } else {
             return std::to_string(days) + " day" + multiple(days, "s");
           }
-	else {
-	  if (abs(days) < 31 * minValue.count()) {
-	    int weeks = days / 7;
+        else {
+          if (abs(days) < 31 * minValue.count()) {
+            int weeks = days / 7;
             if (WApplication::instance()) {
-	      return trn("Wt.WDateTime.weeks", weeks > 1 ? weeks : 1).arg(weeks);
+              return trn("Wt.WDateTime.weeks", weeks > 1 ? weeks : 1).arg(weeks);
             } else {
               return std::to_string(weeks) + " week" + multiple(weeks, "s");
             }
-	  } else {
-	    if (abs(days) < 365 * minValue.count()) {
-	      int months = days / 30;
+          } else {
+            if (abs(days) < 365 * minValue.count()) {
+              int months = days / 30;
               if (WApplication::instance()) {
-		return trn("Wt.WDateTime.months", months > 1 ? months : 1).arg(months);
+                return trn("Wt.WDateTime.months", months > 1 ? months : 1).arg(months);
               } else {
                 return std::to_string(months) + " month"
-		  + multiple(months, "s");
+                  + multiple(months, "s");
               }
-	    } else {
-	      int years = days / 365;
+            } else {
+              int years = days / 365;
               if (WApplication::instance()) {
-		return trn("Wt.WDateTime.years", years > 1 ? years : 1).arg(years);
-	      } else {
-		return std::to_string(years) + " year"
-		  + multiple(years, "s");
-	      }
-	    }
-	  }
-	}
+                return trn("Wt.WDateTime.years", years > 1 ? years : 1).arg(years);
+              } else {
+                return std::to_string(years) + " year"
+                  + multiple(years, "s");
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -320,7 +320,7 @@ WDateTime WDateTime::currentDateTime()
 
 WString WDateTime::defaultFormat()
 {
-  return WString::fromUTF8("ddd MMM d HH:mm:ss yyyy"); 
+  return WString::fromUTF8("ddd MMM d HH:mm:ss yyyy");
 }
 
 WDateTime WDateTime::fromString(const WString& s)
@@ -339,7 +339,7 @@ WDateTime WDateTime::fromString(const WString& s, const WString& format)
 }
 
 void WDateTime::fromString(WDate *date, WTime *time, const WString& s,
-			   const WString& format)
+                           const WString& format)
 {
   std::string v = s.toUTF8();
   std::string f = format.toUTF8();
@@ -361,49 +361,49 @@ void WDateTime::fromString(WDate *date, WTime *time, const WString& s,
 
     if (inQuote) {
       if (c != '\'') {
-	if (gotQuoteInQuote) {
-	  gotQuoteInQuote = false;
-	  inQuote = false;
-	} else {
-	  if (vi >= v.length() || (v[vi++] != c))
-	    return;
-	}
+        if (gotQuoteInQuote) {
+          gotQuoteInQuote = false;
+          inQuote = false;
+        } else {
+          if (vi >= v.length() || (v[vi++] != c))
+            return;
+        }
       } else {
-	if (gotQuoteInQuote) {
-	  gotQuoteInQuote = false;
-	  if (vi >= v.length() || (v[vi++] != c))
-	    return;
-	} else {
-	  gotQuoteInQuote = true;
-	  inQuote = false;
-	}
+        if (gotQuoteInQuote) {
+          gotQuoteInQuote = false;
+          if (vi >= v.length() || (v[vi++] != c))
+            return;
+        } else {
+          gotQuoteInQuote = true;
+          inQuote = false;
+        }
       }
     } else {
       CharState state = CharState::CharUnhandled;
 
       if (date) {
-	CharState dateState = WDate::handleSpecial(c, v, vi, dateParse, format);
-	if (dateState == CharState::CharInvalid)
-	  return;
-	else if (dateState == CharState::CharHandled)
-	  state = CharState::CharHandled;
+        CharState dateState = WDate::handleSpecial(c, v, vi, dateParse, format);
+        if (dateState == CharState::CharInvalid)
+          return;
+        else if (dateState == CharState::CharHandled)
+          state = CharState::CharHandled;
       }
 
       if (time) {
-	CharState timeState = WTime::handleSpecial(c, v, vi, timeParse, format);
-	if (timeState == CharState::CharInvalid)
-	  return;
-	else if (timeState == CharState::CharHandled)
-	  state = CharState::CharHandled;
+        CharState timeState = WTime::handleSpecial(c, v, vi, timeParse, format);
+        if (timeState == CharState::CharInvalid)
+          return;
+        else if (timeState == CharState::CharHandled)
+          state = CharState::CharHandled;
       }
 
       if (!finished && state == CharState::CharUnhandled) {
-	if (c == '\'') {
-	  inQuote = true;
-	  gotQuoteInQuote = false;
-	} else
-	  if (vi >= v.length() || (v[vi++] != c))
-	    return;
+        if (c == '\'') {
+          inQuote = true;
+          gotQuoteInQuote = false;
+        } else
+          if (vi >= v.length() || (v[vi++] != c))
+            return;
       }
     }
   }
@@ -417,13 +417,13 @@ void WDateTime::fromString(WDate *date, WTime *time, const WString& s,
   if (time) {
     if (timeParse.parseAMPM && timeParse.haveAMPM) {
       if (timeParse.pm)
-	timeParse.hour = (timeParse.hour % 12) + 12;
+        timeParse.hour = (timeParse.hour % 12) + 12;
       else
-	timeParse.hour = timeParse.hour % 12;
+        timeParse.hour = timeParse.hour % 12;
     }
 
     *time = WTime(timeParse.hour, timeParse.minute, timeParse.sec,
-		  timeParse.msec);
+                  timeParse.msec);
   }
 }
 
@@ -442,7 +442,7 @@ WString WDateTime::toString(const WString& format, bool localized) const
 
 WString WDateTime::toString(const WDate *date, const WTime *time,
                             const WString& format, bool localized,
-			    int zoneOffset)
+                            int zoneOffset)
 {
   if ((date && !date->isValid()) || (time && !time->isValid())) {
     if (WApplication::instance()) {
@@ -465,36 +465,36 @@ WString WDateTime::toString(const WDate *date, const WTime *time,
   bool useAmPm = false;
   if (time)
     useAmPm = WTime::usesAmPm(format);
- 
+
   for (unsigned i = 0; i < f.length() - 3; ++i) {
     if (inQuote) {
       if (f[i] != '\'') {
-	if (gotQuoteInQuote) {
-	  gotQuoteInQuote = false;
-	  inQuote = false;
-	} else
+        if (gotQuoteInQuote) {
+          gotQuoteInQuote = false;
+          inQuote = false;
+        } else
           result << f[i];
       } else {
-	if (gotQuoteInQuote) {
-	  gotQuoteInQuote = false;
+        if (gotQuoteInQuote) {
+          gotQuoteInQuote = false;
           result << f[i];
-	} else
-	  gotQuoteInQuote = true;
+        } else
+          gotQuoteInQuote = true;
       }
     }
 
     if (!inQuote) {
       bool handled = false;
       if (date)
-	handled = date->writeSpecial(f, i, result, localized);
+        handled = date->writeSpecial(f, i, result, localized);
       if (!handled && time)
         handled = time->writeSpecial(f, i, result, useAmPm, zoneOffset);
 
       if (!handled) {
-	if (f[i] == '\'') {
-	  inQuote = true;
-	  gotQuoteInQuote = false;
-	} else
+        if (f[i] == '\'') {
+          inQuote = true;
+          gotQuoteInQuote = false;
+        } else
           result << f[i];
       }
     }
@@ -505,7 +505,7 @@ WString WDateTime::toString(const WDate *date, const WTime *time,
 WDateTime WDateTime::fromTime_t(std::time_t t) {
   WDateTime dt;
   dt.setTime_t(t);
-  
+
   return dt;
 }
 

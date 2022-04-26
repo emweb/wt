@@ -49,14 +49,14 @@ void WTextEdit::init()
   version_ = getTinyMCEVersion();
 
   setJavaScriptMember(" WTextEdit", "new " WT_CLASS ".WTextEdit("
-		      + app->javaScriptClass() + "," + jsRef() + ");");
+                      + app->javaScriptClass() + "," + jsRef() + ");");
 
   setJavaScriptMember
     (WT_RESIZE_JS,
      "function(e, w, h, s) { var obj = " + jsRef() + ".wtObj; "
      "obj.wtResize(e, w, h, s); };");
 
-  std::string direction 
+  std::string direction
     = app->layoutDirection() == LayoutDirection::LeftToRight ? "ltr" : "rtl";
   setConfigurationSetting("directionality", direction);
 
@@ -80,10 +80,10 @@ void WTextEdit::init()
     //this setting is no longer mentioned in the tinymce documenation though...
     setConfigurationSetting("button_tile_map", true);
     setConfigurationSetting("theme", std::string("advanced"));
-    setConfigurationSetting("theme_advanced_toolbar_location", 
-			    std::string("top"));
+    setConfigurationSetting("theme_advanced_toolbar_location",
+                            std::string("top"));
     setConfigurationSetting("theme_advanced_toolbar_align",
-			    std::string("left"));
+                            std::string("left"));
   }
 
   onChange_.connect(this, &WTextEdit::propagateOnChange);
@@ -176,14 +176,14 @@ void WTextEdit::initTinyMCE()
       std::string folder;
       std::string jsFile;
       if (version < 3) {
-	folder = "tinymce/";
-	jsFile = "tinymce.js";
+        folder = "tinymce/";
+        jsFile = "tinymce.js";
       } else if (version == 3) {
-	folder = "tiny_mce/";
-	jsFile = "tiny_mce.js";
+        folder = "tiny_mce/";
+        jsFile = "tiny_mce.js";
       } else {
-	folder = "tinymce/";
-	jsFile = "tinymce.min.js";
+        folder = "tinymce/";
+        jsFile = "tinymce.min.js";
       }
 
       std::string tinyMCEBaseURL = WApplication::relativeResourcesUrl() + folder;
@@ -197,7 +197,7 @@ void WTextEdit::initTinyMCE()
 
     app->require(tinyMCEURL, "window['tinyMCE']");
     app->styleSheet().addRule(".mceEditor",
-			      "display: block; position: absolute;");
+                              "display: block; position: absolute;");
 
     LOAD_JAVASCRIPT(app, THIS_JS, "WTextEdit", wtjs1);
   }
@@ -264,17 +264,17 @@ void WTextEdit::updateDom(DomElement& element, bool all)
     bool first = true;
 
     for (SettingsMapType::const_iterator it = configurationSettings_.begin();
-	 it != configurationSettings_.end(); ++it) {
+         it != configurationSettings_.end(); ++it) {
       if (it->first == "plugins")
-	continue;
+        continue;
 
       if (!first)
-	config << ',';
+        config << ',';
 
       first = false;
 
       config << it->first << ": "
-	     << Impl::asJSLiteral(it->second, TextFormat::UnsafeXHTML);
+             << Impl::asJSLiteral(it->second, TextFormat::UnsafeXHTML);
     }
 
     if (!first)
@@ -290,12 +290,12 @@ void WTextEdit::updateDom(DomElement& element, bool all)
     updateDom(dummy, true);
 
     element.callJavaScript("(function() { "
-			   """var obj = " + jsRef() + ".wtObj;"
-			   """obj.render(" + config.str() + ","
-			   + jsStringLiteral(dummy.cssStyle()) + ","
-			   + (changed().isConnected() ? "true" : "false")
-			   + ");"
-			   "})();");
+                           """var obj = " + jsRef() + ".wtObj;"
+                           """obj.render(" + config.str() + ","
+                           + jsStringLiteral(dummy.cssStyle()) + ","
+                           + (changed().isConnected() ? "true" : "false")
+                           + ");"
+                           "})();");
 
     contentChanged_ = false;
   }
@@ -307,7 +307,7 @@ void WTextEdit::updateDom(DomElement& element, bool all)
 }
 
 void WTextEdit::getDomChanges(std::vector<DomElement *>& result,
-			      WApplication *app)
+                              WApplication *app)
 {
   /*
    * We apply changes directly to the table element, except of the textarea
@@ -325,11 +325,11 @@ void WTextEdit::getDomChanges(std::vector<DomElement *>& result,
    * is to listen for the onInit() event -> we should be able to add a
    * wrapping ... .onInit(function(ed) { .... }) around the changes
    *
-   * New version of tinyMCE uses divs instead of table and removing the _tbl 
+   * New version of tinyMCE uses divs instead of table and removing the _tbl
    * makes it work on all version
    */
   DomElement *e = DomElement::getForUpdate(formName()/* + "_tbl" */ ,
-					   DomElementType::TABLE);
+                                           DomElementType::TABLE);
   updateDom(*e, false);
 
   WTextArea::getDomChanges(result, app);
@@ -352,8 +352,8 @@ int WTextEdit::boxBorder(Orientation orientation) const
   return 0;
 }
 
-void WTextEdit::setConfigurationSetting(const std::string& name, 
-					const cpp17::any& value)
+void WTextEdit::setConfigurationSetting(const std::string& name,
+                                        const cpp17::any& value)
 {
   if (cpp17::any_has_value(value))
     configurationSettings_[name] = value;

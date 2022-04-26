@@ -57,13 +57,13 @@ WGoogleMap::Coordinate::Coordinate(const std::pair<double, double>& lat_long)
   setLatitude(lat_long.first);
   setLongitude(lat_long.second);
 }
-#endif 
+#endif
 
 void WGoogleMap::Coordinate::setLatitude(double latitude)
 {
   if (latitude < -90.0 || latitude > 90.0)
     throw std::out_of_range("invalid latitude: "
-			    + std::to_string(latitude));
+                            + std::to_string(latitude));
 
   lat_ = latitude;
 }
@@ -72,7 +72,7 @@ void WGoogleMap::Coordinate::setLongitude(double longitude)
 {
   if (longitude < -180.0 || longitude > 180.0)
     throw std::out_of_range("invalid longitude: "
-			    + std::to_string(longitude));
+                            + std::to_string(longitude));
 
   lon_ = longitude;
 }
@@ -128,13 +128,13 @@ WGoogleMap::WGoogleMap(GoogleMapsVersion version)
 }
 
 WGoogleMap::~WGoogleMap()
-{ 
+{
   delete mouseMoved_;
 }
 
-void WGoogleMap::streamJSListener(const JSignal<Coordinate> &signal, 
-				  std::string signalName,
-				  Wt::WStringStream &strm) 
+void WGoogleMap::streamJSListener(const JSignal<Coordinate> &signal,
+                                  std::string signalName,
+                                  Wt::WStringStream &strm)
 {
   strm <<
     """google.maps.event.addListener(map, \"" << signalName << "\", "
@@ -163,7 +163,7 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
   if (flags.test(RenderFlag::Full)) {
     WApplication *app = WApplication::instance();
 
-    std::string initFunction = 
+    std::string initFunction =
       app->javaScriptClass() + ".init_google_maps_" + id();
 
     // initialize the map
@@ -177,23 +177,23 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
       "}";
 
     strm <<
-	"var latlng = new google.maps.LatLng(47.01887777, 8.651888);"
-	"var myOptions = {"
-	"" "zoom: 13,"
-	"" "center: latlng,"
-	"" "mapTypeId: google.maps.MapTypeId.ROADMAP"
-	"};"
-	"var map = new google.maps.Map(self, myOptions);"
-	"map.overlays = [];"
-	"map.infowindows = [];";
+        "var latlng = new google.maps.LatLng(47.01887777, 8.651888);"
+        "var myOptions = {"
+        "" "zoom: 13,"
+        "" "center: latlng,"
+        "" "mapTypeId: google.maps.MapTypeId.ROADMAP"
+        "};"
+        "var map = new google.maps.Map(self, myOptions);"
+        "map.overlays = [];"
+        "map.infowindows = [];";
       setJavaScriptMember(WT_RESIZE_JS,
                           "function(self, w, h) {"
-			  """if (w >= 0) "
-			  ""  "self.style.width=w + 'px';"
-			  """if (h >= 0) "
-			  ""  "self.style.height=h + 'px';"
+                          """if (w >= 0) "
+                          ""  "self.style.width=w + 'px';"
+                          """if (h >= 0) "
+                          ""  "self.style.height=h + 'px';"
                           """if (self.map)"
-			  """ google.maps.event.trigger(self.map, 'resize');"
+                          """ google.maps.event.trigger(self.map, 'resize');"
                           "}");
     strm << "self.map = map;";
 
@@ -212,7 +212,7 @@ void WGoogleMap::render(WFlags<RenderFlag> flags)
          << '3'
          << "'," << Wt::WWebWidget::jsStringLiteral(googlekey_)
          << "," << initFunction << ");"
-	 << "}"; // private scope
+         << "}"; // private scope
 
     additions_.clear();
 
@@ -270,7 +270,7 @@ void WGoogleMap::addIconMarker(const Coordinate &pos,
                                const std::string& iconURL)
 {
   std::stringstream strm;
-  
+
   strm << "var position = ";
   write(strm, pos);
   strm << ";"
@@ -281,13 +281,13 @@ void WGoogleMap::addIconMarker(const Coordinate &pos,
        << "});"
 
        << jsRef() << ".map.overlays.push(marker);";
- 
+
   doGmJavaScript(strm.str());
 }
 
-void WGoogleMap::addCircle(const Coordinate& center, double radius, 
-			   const WColor& strokeColor, int strokeWidth,
-			   const WColor& fillColor)
+void WGoogleMap::addCircle(const Coordinate& center, double radius,
+                           const WColor& strokeColor, int strokeWidth,
+                           const WColor& fillColor)
 {
   std::stringstream strm;
 
@@ -316,7 +316,7 @@ void WGoogleMap::addCircle(const Coordinate& center, double radius,
 }
 
 void WGoogleMap::addPolyline(const std::vector<Coordinate>& points,
-			     const WColor& color, int width, double opacity)
+                             const WColor& color, int width, double opacity)
 {
   if (opacity == 1.0)
     opacity = color.alpha() / 255.0;
@@ -346,13 +346,13 @@ void WGoogleMap::addPolyline(const std::vector<Coordinate>& points,
 }
 
 void WGoogleMap::openInfoWindow(const Coordinate& pos,
-				const WString& myHtml)
+                                const WString& myHtml)
 {
   std::stringstream strm;
   strm << "var pos = ";
   write(strm, pos);
   strm << ";";
-  
+
   strm << "var infowindow = new google.maps.InfoWindow({"
     "content: " << WWebWidget::jsStringLiteral(myHtml) << "," <<
     "position: pos"
@@ -401,7 +401,7 @@ void WGoogleMap::setZoom(int level)
 void WGoogleMap::zoomIn()
 {
   std::stringstream strm;
-  strm 
+  strm
     << "var zoom = " << jsRef() << ".map.getZoom();"
     << jsRef() << ".map.setZoom(zoom + 1);";
   doGmJavaScript(strm.str());
@@ -410,7 +410,7 @@ void WGoogleMap::zoomIn()
 void WGoogleMap::zoomOut()
 {
   std::stringstream strm;
-  strm 
+  strm
     << "var zoom = " << jsRef() << ".map.getZoom();"
     << jsRef() << ".map.setZoom(zoom - 1);";
   doGmJavaScript(strm.str());
@@ -434,8 +434,8 @@ void WGoogleMap::returnToSavedPosition()
   doGmJavaScript(strm.str());
 }
 
-void WGoogleMap::setMapOption(const std::string &option, 
-			      const std::string &value)
+void WGoogleMap::setMapOption(const std::string &option,
+                              const std::string &value)
 {
   std::stringstream strm;
   strm
@@ -470,13 +470,13 @@ void WGoogleMap::disableDoubleClickZoom()
 void WGoogleMap::enableGoogleBar()
 {
   throw std::logic_error("WGoogleMap::enableGoogleBar is not supported "
-			   "in the Google Maps API v3.");
+                           "in the Google Maps API v3.");
 }
 
 void WGoogleMap::disableGoogleBar()
 {
   throw std::logic_error("WGoogleMap::disableGoogleBar is not supported "
-			   "in the Google Maps API v3.");
+                           "in the Google Maps API v3.");
 }
 
 void WGoogleMap::enableScrollWheelZoom()
@@ -496,19 +496,19 @@ void WGoogleMap::zoomWindow(const std::pair<Coordinate, Coordinate>& bbox)
 }
 #endif
 
-void WGoogleMap::zoomWindow(const Coordinate& topLeft, 
-			    const Coordinate& rightBottom)
+void WGoogleMap::zoomWindow(const Coordinate& topLeft,
+                            const Coordinate& rightBottom)
 {
   const Coordinate center
     ((topLeft.latitude() + rightBottom.latitude()) / 2.0,
      (topLeft.longitude() + rightBottom.longitude()) / 2.0);
 
-  Coordinate topLeftC = 
+  Coordinate topLeftC =
     Coordinate(std::min(topLeft.latitude(), rightBottom.latitude()),
-	       std::min(topLeft.longitude(), rightBottom.longitude()));
-  Coordinate rightBottomC = 
+               std::min(topLeft.longitude(), rightBottom.longitude()));
+  Coordinate rightBottomC =
     Coordinate(std::max(topLeft.latitude(), rightBottom.latitude()),
-	       std::max(topLeft.longitude(), rightBottom.longitude()));
+               std::max(topLeft.longitude(), rightBottom.longitude()));
   std::stringstream strm;
   strm << "var bbox = new google.maps.LatLngBounds(";
   write(strm, topLeftC);
@@ -559,7 +559,7 @@ void WGoogleMap::setMapTypeControl(MapTypeControl type)
     << """}"
     << "};"
     << jsRef() << ".map.setOptions(options);";
-  
+
   doGmJavaScript(strm.str());
 }
 

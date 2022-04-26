@@ -11,13 +11,13 @@
 namespace Wt {
 
 WGroupBox::WGroupBox()
-{ 
+{
   init();
 }
 
 WGroupBox::WGroupBox(const WString& title)
   : title_(title)
-{ 
+{
   init();
 }
 

@@ -46,7 +46,7 @@ enum class DomElementType {
   MAP, AREA, STYLE,
 
   OBJECT, PARAM,
-  
+
   AUDIO, VIDEO, SOURCE,
 
   B, STRONG, EM, I, HR,
@@ -99,7 +99,7 @@ public:
   virtual void setPositionScheme(PositionScheme scheme) override;
   virtual PositionScheme positionScheme() const override;
   virtual void setOffsets(const WLength& offset,
-			  WFlags<Side> sides = AllSides) override;
+                          WFlags<Side> sides = AllSides) override;
   virtual WLength offset(Side s) const override;
   virtual void resize(const WLength& width, const WLength& height) override;
   virtual WLength width() const override;
@@ -138,18 +138,18 @@ public:
   void setStyleClass(const char *styleClass);
   virtual WT_USTRING styleClass() const override;
   virtual void addStyleClass(const WT_USTRING& styleClass,
-			     bool force = false) override;
+                             bool force = false) override;
   void addStyleClass(const char *styleClass, bool force = false);
   virtual void removeStyleClass(const WT_USTRING& styleClass,
-				bool force = false) override;
+                                bool force = false) override;
   void removeStyleClass(const char *styleClass, bool force = false);
   virtual bool hasStyleClass(const WT_USTRING& styleClass) const override;
   virtual void setVerticalAlignment(AlignmentFlag alignment,
-				    const WLength& length = WLength()) override;
+                                    const WLength& length = WLength()) override;
   virtual AlignmentFlag verticalAlignment() const override;
   virtual WLength verticalAlignmentLength() const override;
   virtual void setToolTip(const WString& text,
-			  TextFormat textFormat = TextFormat::Plain)
+                          TextFormat textFormat = TextFormat::Plain)
     override;
   virtual void setDeferredToolTip(bool enable,
                                   TextFormat textFormat = TextFormat::Plain)
@@ -157,13 +157,13 @@ public:
   virtual WString toolTip() const override;
   virtual void refresh() override;
   virtual void setAttributeValue(const std::string& name,
-				 const WT_USTRING& value) override;
+                                 const WT_USTRING& value) override;
   virtual WT_USTRING attributeValue(const std::string& name) const override;
   virtual void setJavaScriptMember(const std::string& name,
-				   const std::string& value) override;
+                                   const std::string& value) override;
   virtual std::string javaScriptMember(const std::string& name) const override;
   virtual void callJavaScriptMember(const std::string& name,
-				    const std::string& args) override;
+                                    const std::string& args) override;
   virtual void load() override;
   virtual bool loaded() const override;
   virtual int zIndex() const override;
@@ -191,7 +191,7 @@ public:
    */
 #endif
   virtual void getDomChanges(std::vector<DomElement *>& result,
-			     WApplication *app);
+                             WApplication *app);
   virtual DomElementType domElementType() const = 0;
 
   DomElement *createStubElement(WApplication *app);
@@ -216,18 +216,18 @@ public:
    * \sa WApplication::setTwoPhaseRenderingThreshold()
    */
   void setLoadLaterWhenInvisible(bool);
-  
+
   /*!
    * \brief returns the current html tag name
-   * 
+   *
    * \sa setHtmlTagName()
    */
   std::string htmlTagName() const;
 
   /*!
    * \brief set the custom HTML tag name
-   * 
-   * The custom tag will replace the actual tag. 
+   *
+   * The custom tag will replace the actual tag.
    * The tag is not tested to see if
    * it is a valid one and a closing tag will always be added.
    *
@@ -248,9 +248,9 @@ public:
    * The \p delimiter may be a single or double quote.
    */
   static std::string jsStringLiteral(const std::string& v,
-				     char delimiter = '\'');
+                                     char delimiter = '\'');
   static std::string jsStringLiteral(const WString& v,
-				     char delimiter = '\'');
+                                     char delimiter = '\'');
 
   static std::string resolveRelativeUrl(const std::string& url);
 
@@ -332,7 +332,7 @@ protected:
 #ifndef WT_TARGET_JAVA
   template <class Widget>
   std::unique_ptr<WWidget> manageWidget(std::unique_ptr<Widget>& managed,
-					std::unique_ptr<Widget> w)
+                                        std::unique_ptr<Widget> w)
 #else // WT_TARGET_JAVA
   std::unique_ptr<WWidget> manageWidget(std::unique_ptr<WWidget> managed, std::unique_ptr<WWidget> w)
 #endif // WT_TARGET_JAVA
@@ -452,7 +452,7 @@ private:
     WLength offsets_[4]; // left, right, top, bottom
     WLength minimumWidth_, minimumHeight_, maximumWidth_, maximumHeight_;
     int baseZIndex_;
-    int	zIndex_; // -1 = wants popup
+    int        zIndex_; // -1 = wants popup
     AlignmentFlag verticalAlignment_;
     WLength verticalAlignmentLength_, margin_[4], lineHeight_;
 
@@ -481,8 +481,8 @@ private:
     DropMimeType(const WT_USTRING& hoverStyleClass);
   };
 
-  enum class JavaScriptStatementType { 
-    SetMember, 
+  enum class JavaScriptStatementType {
+    SetMember,
     CallMethod,
     Statement
   };
@@ -495,7 +495,7 @@ private:
 
     struct JavaScriptStatement {
       JavaScriptStatement(JavaScriptStatementType type,
-			  const std::string& data);
+                          const std::string& data);
 
       JavaScriptStatementType type;
       std::string data;
@@ -531,7 +531,7 @@ private:
 
   virtual bool needsToBeRendered() const override;
   virtual void getSDomChanges(std::vector<DomElement *>& result,
-			      WApplication *app) override;
+                              WApplication *app) override;
   void getSFormObjects(FormObjectsMap& formObjects);
 
   WWebWidget *parentWebWidget() const;
@@ -540,17 +540,17 @@ private:
    * Drag & drop stuff.
    */
   bool setAcceptDropsImpl(const std::string& mimeType,
-			  bool accept,
-			  const WT_USTRING& hoverStyleClass);
+                          bool accept,
+                          const WT_USTRING& hoverStyleClass);
   void setImplementLayoutSizeAware(bool aware);
   JSignal<int, int>& resized();
 
   void addJavaScriptStatement(JavaScriptStatementType type,
-			      const std::string& data);
+                              const std::string& data);
   int indexOfJavaScriptMember(const std::string& name) const;
   void declareJavaScriptMember(DomElement& element,
-			       const std::string& name,
-			       const std::string& value);
+                               const std::string& name,
+                               const std::string& value);
   WString storedToolTip() const;
   void undoSetFocus();
 
@@ -573,7 +573,7 @@ protected:
   EventSignal<WGestureEvent> *gestureEventSignal(const char *name, bool create);
 
   void updateSignalConnection(DomElement& element, EventSignalBase& signal,
-			      const char *name, bool all);
+                              const char *name, bool all);
 
   virtual void parentResized(WWidget *parent, WFlags<Orientation> directions);
   void containsLayout();

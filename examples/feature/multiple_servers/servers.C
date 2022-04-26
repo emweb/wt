@@ -52,8 +52,8 @@ int main(int, char **)
 
     if (server1.start()) {
       if (server2.start()) {
-	WServer::waitForShutdown();
-	server2.stop();
+        WServer::waitForShutdown();
+        server2.stop();
       }
       server1.stop();
     }

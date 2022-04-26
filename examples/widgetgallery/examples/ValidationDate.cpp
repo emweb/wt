@@ -20,13 +20,13 @@ dv->setFormat("dd/MM/yyyy");
 dv->setMandatory(true);
 dv->setInvalidBlankText("A birthdate is mandatory!");
 dv->setInvalidNotADateText("You should enter a date in the format "
-			   "\"dd/MM/yyyy\"!");
+                           "\"dd/MM/yyyy\"!");
 dv->setInvalidTooEarlyText
     (Wt::WString("That's too early... The date must be {1} or later!"
-		 "").arg(dv->bottom().toString("dd/MM/yyyy")));
+                 "").arg(dv->bottom().toString("dd/MM/yyyy")));
 dv->setInvalidTooLateText
     (Wt::WString("That's too late... The date must be {1} or earlier!"
-		 "").arg(dv->top().toString("dd/MM/yyyy")));
+                 "").arg(dv->top().toString("dd/MM/yyyy")));
 
 dateEdit->setValidator(dv);
 
@@ -44,11 +44,11 @@ button->clicked().connect([=] {
         Wt::WDate d = Wt::WDate::currentServerDate();
         int years = d.year() - dateEdit->date().year();
         int days = d.daysTo(dateEdit->date().addYears(years));
-	if (days < 0)
-	    days = d.daysTo( dateEdit->date().addYears(years + 1) );
-	out->setText("<p>In " + std::to_string(days) +
-		     " days, we will be celebrating your next anniversary!</p>");
-	out->setStyleClass("alert alert-success");
+        if (days < 0)
+            days = d.daysTo( dateEdit->date().addYears(years + 1) );
+        out->setText("<p>In " + std::to_string(days) +
+                     " days, we will be celebrating your next anniversary!</p>");
+        out->setStyleClass("alert alert-success");
     } else {
         dateEdit->setFocus(true);
         out->setText(result.message());

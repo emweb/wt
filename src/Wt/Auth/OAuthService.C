@@ -73,7 +73,7 @@ public:
   }
 
   virtual void handleRequest(const Http::Request& request,
-			     Http::Response& response) override
+                             Http::Response& response) override
   {
 #ifndef WT_TARGET_JAVA
     if (!request.continuation()) {
@@ -82,27 +82,27 @@ public:
 
       const std::string *stateE = request.getParameter("state");
       if (!stateE || *stateE != process_->oAuthState_) {
-	LOG_ERROR(ERROR_MSG("invalid-state") << 
-		  ", state: " << (stateE ? *stateE : "(empty)"));
-	process_->setError(ERROR_MSG("invalid-state"));
-	sendError(response);
-	return;
+        LOG_ERROR(ERROR_MSG("invalid-state") <<
+                  ", state: " << (stateE ? *stateE : "(empty)"));
+        process_->setError(ERROR_MSG("invalid-state"));
+        sendError(response);
+        return;
       }
 
       const std::string *errorE = request.getParameter("error");
       if (errorE) {
-	LOG_ERROR(ERROR_MSG(+ *errorE));
-	process_->setError(ERROR_MSG(+ *errorE));
-	sendError(response);
-	return;
+        LOG_ERROR(ERROR_MSG(+ *errorE));
+        process_->setError(ERROR_MSG(+ *errorE));
+        sendError(response);
+        return;
       }
 
       const std::string *codeE = request.getParameter("code");
       if (!codeE) {
-	LOG_ERROR(ERROR_MSG("missing-code"));
-	process_->setError(ERROR_MSG("missing-code"));
-	sendError(response);
-	return;
+        LOG_ERROR(ERROR_MSG("missing-code"));
+        process_->setError(ERROR_MSG("missing-code"));
+        sendError(response);
+        return;
       }
 
 #ifndef WT_TARGET_JAVA
@@ -173,17 +173,17 @@ private:
 OAuthAccessToken::OAuthAccessToken()
 { }
 
-OAuthAccessToken::OAuthAccessToken(const std::string& accessToken, 
-				   const WDateTime& expires,
-				   const std::string& refreshToken)
+OAuthAccessToken::OAuthAccessToken(const std::string& accessToken,
+                                   const WDateTime& expires,
+                                   const std::string& refreshToken)
   : accessToken_(accessToken),
     refreshToken_(refreshToken),
     expires_(expires)
 { }
 
 OAuthAccessToken::OAuthAccessToken(const std::string& accessToken,
-				   const WDateTime& expires,
-				   const std::string& refreshToken,
+                                   const WDateTime& expires,
+                                   const std::string& refreshToken,
                                    const std::string& idToken)
   : accessToken_(accessToken),
     refreshToken_(refreshToken),
@@ -194,7 +194,7 @@ OAuthAccessToken::OAuthAccessToken(const std::string& accessToken,
 const OAuthAccessToken OAuthAccessToken::Invalid;
 
 OAuthProcess::OAuthProcess(const OAuthService& service,
-			   const std::string& scope)
+                           const std::string& scope)
   : service_(service),
     scope_(scope),
     authenticate_(false),
@@ -290,7 +290,7 @@ void OAuthProcess::connectStartAuthenticate(EventSignalBase &s)
     WStringStream js;
     js << "function(object, event) {"
        << WT_CLASS ".PopupWindow(" WT_CLASS
-       << "," << WWebWidget::jsStringLiteral(authorizeUrl()) 
+       << "," << WWebWidget::jsStringLiteral(authorizeUrl())
        << ", " << service_.popupWidth()
        << ", " << service_.popupHeight() << ");"
        << "}";
@@ -350,7 +350,7 @@ void OAuthProcess::requestToken(const std::string& authorizationCode)
 
   WStringStream ss;
   ss << "grant_type=authorization_code"
-     << "&redirect_uri=" 
+     << "&redirect_uri="
      << Wt::Utils::urlEncode(service_.generateRedirectEndpoint())
      << "&code=" << authorizationCode;
 
@@ -358,7 +358,7 @@ void OAuthProcess::requestToken(const std::string& authorizationCode)
   httpClient_->setTimeout(std::chrono::seconds(15));
   httpClient_->done().connect
     (this, std::bind(&OAuthProcess::handleToken, this,
-		     std::placeholders::_1, std::placeholders::_2));
+                     std::placeholders::_1, std::placeholders::_2));
 
   std::string clientId = Wt::Utils::urlEncode(service_.clientId());
   std::string clientSecret = Wt::Utils::urlEncode(service_.clientSecret());
@@ -368,10 +368,10 @@ void OAuthProcess::requestToken(const std::string& authorizationCode)
     if (service_.clientSecretMethod() == HttpAuthorizationBasic) {
       headers.push_back(Http::Message::Header("Authorization",
         "Basic " + Wt::Utils::base64Encode(
-	  clientId + ":" + clientSecret, false)));
+          clientId + ":" + clientSecret, false)));
     } else if (service_.clientSecretMethod() == PlainUrlParameter) {
       ss << "&client_id=" << clientId
-	<< "&client_secret=" << clientSecret;
+        << "&client_secret=" << clientSecret;
     }
 
     bool hasQuery = url.find('?') != std::string::npos;
@@ -383,11 +383,11 @@ void OAuthProcess::requestToken(const std::string& authorizationCode)
     post.setHeader("Content-Type", "application/x-www-form-urlencoded");
     if (service_.clientSecretMethod() == HttpAuthorizationBasic) {
       post.setHeader("Authorization",
-		     "Basic " + Wt::Utils::base64Encode(clientId + ":" + clientSecret,
-							false));
+                     "Basic " + Wt::Utils::base64Encode(clientId + ":" + clientSecret,
+                                                        false));
     } else if (service_.clientSecretMethod() == RequestBodyParameter) {
       ss << "&client_id=" << clientId
-	<< "&client_secret=" << clientSecret;
+        << "&client_secret=" << clientSecret;
     }
     post.addBodyText(ss.str());
     httpClient_->post(url, post);
@@ -395,7 +395,7 @@ void OAuthProcess::requestToken(const std::string& authorizationCode)
 }
 
 void OAuthProcess::handleToken(AsioWrapper::error_code err,
-			       const Http::Message& response)
+                               const Http::Message& response)
 {
   if (!err)
     doParseTokenResponse(response);
@@ -440,22 +440,22 @@ OAuthAccessToken OAuthProcess::parseTokenResponse(const Http::Message& response)
       std::string combinedType; // type/subtype
       std::string params;
       if (tokens.size() > 0) {
-	combinedType = tokens[0];
-	boost::trim(combinedType);
+        combinedType = tokens[0];
+        boost::trim(combinedType);
       }
       if (tokens.size() > 1) {
-	params = tokens[1];
-	boost::trim(params);
+        params = tokens[1];
+        boost::trim(params);
       }
       if (combinedType == "text/plain") {
-	if (boost::starts_with(params, "charset=UTF-8"))
-	  return parseUrlEncodedToken(response);
-	else
-	  throw TokenError(ERROR_MSG("badresponse"));
+        if (boost::starts_with(params, "charset=UTF-8"))
+          return parseUrlEncodedToken(response);
+        else
+          throw TokenError(ERROR_MSG("badresponse"));
       } else if (combinedType == "application/json")
-	return parseJsonToken(response);
+        return parseJsonToken(response);
       else
-	throw TokenError(ERROR_MSG("badresponse"));
+        throw TokenError(ERROR_MSG("badresponse"));
     } else
       throw TokenError(ERROR_MSG("badresponse"));
   } else
@@ -469,26 +469,26 @@ OAuthAccessToken OAuthProcess::parseUrlEncodedToken(const Http::Message& respons
   Http::Utils::parseFormUrlEncoded(response, params);
 
   if (response.status() == 200) {
-    const std::string *accessTokenE 
+    const std::string *accessTokenE
       = Http::Utils::getParamValue(params, "access_token");
     if (accessTokenE) {
       std::string accessToken = *accessTokenE;
 
       WDateTime expires;
-      const std::string *expiresE 
-	= Http::Utils::getParamValue(params, "expires");
+      const std::string *expiresE
+        = Http::Utils::getParamValue(params, "expires");
       if (expiresE)
-	expires = WDateTime::currentDateTime().addSecs
-	  (Wt::Utils::stoi(*expiresE));
+        expires = WDateTime::currentDateTime().addSecs
+          (Wt::Utils::stoi(*expiresE));
 
       // FIXME refresh token
-      
+
       return OAuthAccessToken(accessToken, expires, std::string());
     } else
       throw TokenError(ERROR_MSG("badresponse"));
   } else {
     const std::string *errorE = Http::Utils::getParamValue(params, "error");
-    
+
     if (errorE)
       throw TokenError(ERROR_MSG(+ *errorE));
     else
@@ -519,35 +519,35 @@ OAuthAccessToken OAuthProcess::parseJsonToken(const Http::Message& response)
   } else {
     if (response.status() == 200) {
       try {
-	std::string accessToken = root.get("access_token");
-	int secs = root.get("expires_in").orIfNull(-1);
-	WDateTime expires;
-	if (secs > 0)
-	  expires = WDateTime::currentDateTime().addSecs(secs);
+        std::string accessToken = root.get("access_token");
+        int secs = root.get("expires_in").orIfNull(-1);
+        WDateTime expires;
+        if (secs > 0)
+          expires = WDateTime::currentDateTime().addSecs(secs);
 
         std::string refreshToken = root.get("refresh_token").orIfNull("");
         std::string idToken = root.get("id_token").orIfNull("");
 
-	return OAuthAccessToken(accessToken, expires, refreshToken, idToken);
+        return OAuthAccessToken(accessToken, expires, refreshToken, idToken);
       } catch (std::exception& e) {
-	LOG_ERROR("token response error: " << e.what());
-	throw TokenError(ERROR_MSG("badresponse"));
+        LOG_ERROR("token response error: " << e.what());
+        throw TokenError(ERROR_MSG("badresponse"));
       }
     } else {
       throw TokenError
-	(ERROR_MSG(+ (root.get("error").orIfNull("missing error"))));
+        (ERROR_MSG(+ (root.get("error").orIfNull("missing error"))));
     }
   }
 }
 
 struct OAuthService::Impl
-{ 
+{
   Impl()
     : redirectResource_(nullptr)
   {
     try {
       secret_ = OAuthService::configurationProperty("oauth2-secret");
-    } catch (std::exception& e) {    
+    } catch (std::exception& e) {
       secret_ = WRandom::generateId(32);
     }
   }
@@ -569,39 +569,39 @@ struct OAuthService::Impl
     }
 
     virtual void handleRequest(const Http::Request& request,
-			       Http::Response& response) override
+                               Http::Response& response) override
     {
       const std::string *stateE = request.getParameter("state");
 
       if (stateE) {
-	std::string redirectUrl = service_.decodeState(*stateE);
+        std::string redirectUrl = service_.decodeState(*stateE);
 
-	if (!redirectUrl.empty()) {
-	  bool hasQuery = redirectUrl.find('?') != std::string::npos;
-	  redirectUrl += (hasQuery ? '&' : '?');
-	  redirectUrl += "state=" + Wt::Utils::urlEncode(*stateE);
+        if (!redirectUrl.empty()) {
+          bool hasQuery = redirectUrl.find('?') != std::string::npos;
+          redirectUrl += (hasQuery ? '&' : '?');
+          redirectUrl += "state=" + Wt::Utils::urlEncode(*stateE);
 
-	  const std::string *errorE = request.getParameter("error");
-	  if (errorE)
-	    redirectUrl += "&error=" + Wt::Utils::urlEncode(*errorE);
+          const std::string *errorE = request.getParameter("error");
+          if (errorE)
+            redirectUrl += "&error=" + Wt::Utils::urlEncode(*errorE);
 
-	  const std::string *codeE = request.getParameter("code");
-	  if (codeE)
-	    redirectUrl += "&code=" + Wt::Utils::urlEncode(*codeE);
+          const std::string *codeE = request.getParameter("code");
+          if (codeE)
+            redirectUrl += "&code=" + Wt::Utils::urlEncode(*codeE);
 
-	  response.setStatus(302);
-	  response.addHeader("Location", redirectUrl);
-	  return;
-	} else
-	  LOG_ERROR("RedirectEndpoint: could not decode state " << *stateE);
+          response.setStatus(302);
+          response.addHeader("Location", redirectUrl);
+          return;
+        } else
+          LOG_ERROR("RedirectEndpoint: could not decode state " << *stateE);
       } else
-	LOG_ERROR("RedirectEndpoint: missing state");
+        LOG_ERROR("RedirectEndpoint: missing state");
 
       response.setStatus(400);
       response.setMimeType("text/html");
       response.out() << "<html><body>"
-		     << "<h1>OAuth Authentication error</h1>"
-		     << "</body></html>";
+                     << "<h1>OAuth Authentication error</h1>"
+                     << "</body></html>";
     }
 
   private:
@@ -675,15 +675,15 @@ std::string OAuthService::redirectEndpointPath() const
     if (deployPath != publicDeployPath) {
       int diff = (int)publicDeployPath.length() - deployPath.length();
       if (diff > 0) {
-	std::string prefix = publicDeployPath.substr(0, diff);
-	if (boost::starts_with(path, prefix))
-	  path = path.substr(prefix.length());
+        std::string prefix = publicDeployPath.substr(0, diff);
+        if (boost::starts_with(path, prefix))
+          path = path.substr(prefix.length());
       }
     }
   }
 #endif
 
-  return path; 
+  return path;
 }
 
 void OAuthService::configureRedirectEndpoint() const
@@ -700,9 +700,9 @@ void OAuthService::configureRedirectEndpoint() const
       WApplication *app = WApplication::instance();
       WServer *server;
       if (app)
-	server = app->environment().server();
+        server = app->environment().server();
       else
-	server = WServer::instance();
+        server = WServer::instance();
 
       server->addResource(r.get(), path);
 

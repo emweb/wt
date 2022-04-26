@@ -138,9 +138,9 @@ void Connection::clear() noexcept
 
     if (signalLink_) {
       if (lastConnection)
-	signalLink_->connection_ring_ = nullptr;
+        signalLink_->connection_ring_ = nullptr;
       else if (signalLink_->connection_ring_ == this)
-	signalLink_->connection_ring_ = next_;
+        signalLink_->connection_ring_ = next_;
     }
 
     next_->prev_ = prev_;

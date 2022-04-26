@@ -19,7 +19,7 @@ namespace Wt {
   namespace Auth {
 
 LostPasswordWidget::LostPasswordWidget(AbstractUserDatabase& users,
-				       const AuthService& auth)
+                                       const AuthService& auth)
   : WTemplate(tr("Wt.Auth.template.lost-password")),
     users_(users),
     baseAuth_(auth)

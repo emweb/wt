@@ -22,7 +22,7 @@ public:
   virtual const std::vector<std::string>& classes() const override { return classes_; }
 
   void setElementName(const std::string& name) {
-    elementName_ = name; 
+    elementName_ = name;
     elementType_ = Wt::DomElement::parseTagName(elementName_);
   }
 

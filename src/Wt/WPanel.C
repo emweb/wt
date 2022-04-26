@@ -38,7 +38,7 @@ WPanel::WPanel()
 
   impl_->bindEmpty("titlebar");
   impl_->bindWidget("contents", std::move(centralArea));
-  
+
 
   setJavaScriptMember
     (WT_RESIZE_JS,
@@ -149,9 +149,9 @@ void WPanel::setCollapsible(bool on)
       setTitleBar(true);
       std::unique_ptr<WIconPair> icon
         (collapseIcon_ = new WIconPair(resources + "collapse.gif",
-				       resources + "expand.gif"));
+                                       resources + "expand.gif"));
       collapseIcon_->setFloatSide(Side::Left);
-      
+
       titleBarWidget()->insertWidget(0, std::move(icon));
 
       collapseIcon_->icon1Clicked().connect(this, &WPanel::doCollapse);
@@ -163,7 +163,7 @@ void WPanel::setCollapsible(bool on)
       collapseIcon_->setState(isCollapsed() ? 1 : 0);
 
       titleBarWidget()->clicked().connect(this, &WPanel::toggleCollapse);
-      
+
       app->theme()->apply(this, collapseIcon_, PanelCollapseButton);
     } else if (!on && collapseIcon_) {
       isCollapsible_ = on;

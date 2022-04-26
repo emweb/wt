@@ -51,8 +51,8 @@ item->setCheckable(true);
 
 item->triggered().connect([=] {
     out->setText(Wt::WString("<p>{1} item is {2}.</p>")
-		 .arg(item->text())
-		 .arg(item->isChecked() ? "checked" : "unchecked"));
+                 .arg(item->text())
+                 .arg(item->isChecked() ? "checked" : "unchecked"));
 });
 
 popup->addSeparator();
@@ -73,12 +73,12 @@ subMenu->addSeparator();
 subMenu->addItem("About")->triggered().connect([=] {
 #ifndef WT_TARGET_JAVA
     auto messageBox = subMenu->addChild(
-	    std::make_unique<Wt::WMessageBox>
+            std::make_unique<Wt::WMessageBox>
 #else // WT_TARGET_JAVA
     auto messageBox = new Wt::WMessageBox
 #endif // WT_TARGET_JAVA
-	    ("About", "<p>This is a program to make connections.</p>",
-	     Wt::Icon::Information,
+            ("About", "<p>This is a program to make connections.</p>",
+             Wt::Icon::Information,
 #ifndef WT_TARGET_JAVA
              Wt::StandardButton::Ok));
 #else // WT_TARGET_JAVA
@@ -104,7 +104,7 @@ button->setMenu(std::move(popupPtr));
 popup->itemSelected().connect([=] (Wt::WMenuItem *selectedItem) {
     status->setText
         (Wt::WString("Selected menu item: {1}.")
-	 .arg(selectedItem->text()));
+         .arg(selectedItem->text()));
 });
 
 #ifndef WT_TARGET_JAVA

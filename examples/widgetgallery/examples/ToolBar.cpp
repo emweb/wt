@@ -11,9 +11,9 @@ namespace {
     {
         auto button = std::make_unique<Wt::WPushButton>();
         button->setTextFormat(Wt::TextFormat::XHTML);
-	button->setText(text);
-	button->addStyleClass(className);
-	return button;
+        button->setText(text);
+        button->addStyleClass(className);
+        return button;
     }
 }
 

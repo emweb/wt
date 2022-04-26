@@ -11,7 +11,7 @@
 namespace Wt {
 
 WIconPair::WIconPair(const std::string& icon1URI, const std::string& icon2URI,
-		     bool clickIsSwitch)
+                     bool clickIsSwitch)
   : impl_(new WContainerWidget()),
     icon1_(new WImage(icon1URI)),
     icon2_(new WImage(icon2URI))
@@ -34,9 +34,9 @@ WIconPair::WIconPair(const std::string& icon1URI, const std::string& icon2URI,
     std::string hide_2 = WT_CLASS ".hide('" + fic2 +"');";
     std::string show_2 = WT_CLASS ".inline('" + fic2 +"');";
     implementJavaScript(&WIconPair::showIcon1, hide_2 + show_1
-			+ WT_CLASS ".cancelEvent(e);");
+                        + WT_CLASS ".cancelEvent(e);");
     implementJavaScript(&WIconPair::showIcon2, hide_1 + show_2
-			+ WT_CLASS ".cancelEvent(e);");
+                        + WT_CLASS ".cancelEvent(e);");
 #else
     icon1_->clicked().preventPropagation();
     icon2_->clicked().preventPropagation();

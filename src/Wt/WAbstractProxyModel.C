@@ -35,7 +35,7 @@ bool WAbstractProxyModel::setData(const WModelIndex& index,
 }
 
 bool WAbstractProxyModel::setItemData(const WModelIndex& index,
-				      const DataMap& values)
+                                      const DataMap& values)
 {
   return sourceModel_->setItemData(mapToSource(index), values);
 }
@@ -46,13 +46,13 @@ WFlags<ItemFlag> WAbstractProxyModel::flags(const WModelIndex& index) const
 }
 
 bool WAbstractProxyModel::insertColumns(int column, int count,
-					const WModelIndex& parent)
+                                        const WModelIndex& parent)
 {
   return sourceModel_->insertColumns(column, count, parent);
 }
 
 bool WAbstractProxyModel::removeColumns(int column, int count,
-					const WModelIndex& parent)
+                                        const WModelIndex& parent)
 {
   return sourceModel_->removeColumns(column, count, parent);
 }
@@ -68,8 +68,8 @@ std::vector<std::string> WAbstractProxyModel::acceptDropMimeTypes() const
 }
 
 void WAbstractProxyModel::dropEvent(const WDropEvent& e, DropAction action,
-				    int row, int column,
-				    const WModelIndex& parent)
+                                    int row, int column,
+                                    const WModelIndex& parent)
 {
   WModelIndex sourceParent = mapToSource(parent);
 
@@ -93,7 +93,7 @@ WModelIndex WAbstractProxyModel::fromRawIndex(void *rawIndex) const
 }
 
 WFlags<HeaderFlag> WAbstractProxyModel::headerFlags(int section,
-						    Orientation orientation) const
+                                                    Orientation orientation) const
 {
   if (orientation == Wt::Orientation::Horizontal) {
     section = mapToSource(index(0, section, Wt::WModelIndex())).column();
@@ -115,14 +115,14 @@ cpp17::any WAbstractProxyModel::headerData(int section, Orientation orientation,
 }
 
 WModelIndex WAbstractProxyModel::createSourceIndex(int row, int column,
-						   void *ptr) const
+                                                   void *ptr) const
 {
   return sourceModel_->createIndex(row, column, ptr);
 }
 
 void WAbstractProxyModel::startShiftModelIndexes(const WModelIndex& sourceParent,
-						 int start, int count,
-						 ItemMap& items)
+                                                 int start, int count,
+                                                 ItemMap& items)
 {
   /*
    * We must shift all indexes within sourceParent >= start with count
@@ -142,7 +142,7 @@ void WAbstractProxyModel::startShiftModelIndexes(const WModelIndex& sourceParent
   if (!startIndex.isValid())
     return;
 #endif
-  
+
   for (ItemMap::iterator it = items.lower_bound(startIndex);
        it != items.end();) {
 #ifndef WT_TARGET_JAVA
@@ -153,35 +153,35 @@ void WAbstractProxyModel::startShiftModelIndexes(const WModelIndex& sourceParent
     if (i == sourceParent) {
 #ifndef WT_TARGET_JAVA
       it = n;
-#endif      
+#endif
       continue;
     }
 
     if (i.isValid()) {
       WModelIndex p = i.parent();
       if (p != sourceParent && !WModelIndex::isAncestor(p, sourceParent))
-	break;
+        break;
 
       if (p == sourceParent) { /* Child of source parent: shift or remove */
-	if (count < 0 &&
-	    i.row() >= start &&
-	    i.row() < start + (-count))
-	  erased.push_back(it->second);
-	else {
-	  itemsToShift_.push_back(it->second);
-	}
+        if (count < 0 &&
+            i.row() >= start &&
+            i.row() < start + (-count))
+          erased.push_back(it->second);
+        else {
+          itemsToShift_.push_back(it->second);
+        }
       } else if (count < 0) { /* Other descendent: remove if necessary */
-	// delete indexes that are about to be deleted, if they are within
-	// the range of deleted indexes
-	do {
-	  if (p.parent() == sourceParent
-	      && p.row() >= start
-	      && p.row() < start + (-count)) {
-	    erased.push_back(it->second);
-	    break;
-	  } else
-	    p = p.parent();
-	} while (p != sourceParent);
+        // delete indexes that are about to be deleted, if they are within
+        // the range of deleted indexes
+        do {
+          if (p.parent() == sourceParent
+              && p.row() >= start
+              && p.row() < start + (-count)) {
+            erased.push_back(it->second);
+            break;
+          } else
+            p = p.parent();
+        } while (p != sourceParent);
       }
     }
 
@@ -207,10 +207,10 @@ void WAbstractProxyModel::startShiftModelIndexes(const WModelIndex& sourceParent
   if (count > 0)
     endShiftModelIndexes(sourceParent, start, count, items);
 }
- 
+
 void WAbstractProxyModel::endShiftModelIndexes(const WModelIndex& sourceParent,
-					       int start, int count,
-					       ItemMap& items)
+                                               int start, int count,
+                                               ItemMap& items)
 {
   for (unsigned i = 0; i < itemsToShift_.size(); ++i)
     items[itemsToShift_[i]->sourceIndex_] = itemsToShift_[i];

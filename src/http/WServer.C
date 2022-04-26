@@ -78,9 +78,9 @@ struct WServer::Impl
 };
 
 WServer::WServer(const std::string& applicationPath,
-		 const std::string& wtConfigurationFile)
+                 const std::string& wtConfigurationFile)
   : impl_(new Impl())
-{ 
+{
   init(applicationPath, wtConfigurationFile);
 }
 
@@ -118,7 +118,7 @@ WServer::~WServer()
 }
 
 void WServer::setServerConfiguration(int argc, char *argv[],
-				     const std::string& serverConfigurationFile)
+                                     const std::string& serverConfigurationFile)
 {
   std::string applicationPath = argv[0];
   std::vector<std::string> args(argv + 1, argv + argc);
@@ -174,10 +174,10 @@ bool WServer::start()
 
   configuration().setUseSlashExceptionForInternalPaths
     (impl_->serverConfiguration_->defaultStatic());
-  
+
   if (!impl_->serverConfiguration_->sessionIdPrefix().empty())
     configuration().setSessionIdPrefix(impl_->serverConfiguration_
-				       ->sessionIdPrefix());
+                                       ->sessionIdPrefix());
 
   if (impl_->serverConfiguration_->threads() != -1)
     configuration().setNumThreads(impl_->serverConfiguration_->threads());
@@ -196,7 +196,7 @@ bool WServer::start()
 
   try {
     impl_->server_ = new http::server::Server(*impl_->serverConfiguration_,
-					      *this);
+                                              *this);
 
 #ifndef WT_THREADED
     LOG_WARN("No thread support, running in main thread.");
@@ -235,7 +235,7 @@ void WServer::resume()
     LOG_ERROR("resume(): server not yet started!");
     return;
   } else {
-    impl_->server_->resume();    
+    impl_->server_->resume();
   }
 }
 

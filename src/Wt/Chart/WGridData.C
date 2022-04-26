@@ -63,10 +63,10 @@ int WGridData::countSimpleData() const
       continue;
     for (int j=0; j<nbModelCols; j++) {
       if (j == XAbscisColumn_)
-	continue;
+        continue;
 
       if (!cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerBrushColor))) {
-	result++;
+        result++;
       }
     }
   }
@@ -153,27 +153,27 @@ void WGridData::findRange() const
       continue;
     for (int j=0; j<nbModelCols; j++) {
       if (j == XAbscisColumn_)
-	continue;
+        continue;
       zVal = Wt::asNumber(model_->data(i,j));
       if (zVal < minSoFar) {
-	minSoFar = zVal;
+        minSoFar = zVal;
       }
       if (zVal > maxSoFar) {
-	maxSoFar = zVal;
+        maxSoFar = zVal;
       }
     }
   }
-  
+
   zMin_ = minSoFar;
   zMax_ = maxSoFar;
   rangeCached_ = true;
 }
 
 void WGridData::pointDataFromModel(FloatBuffer& simplePtsArray,
-				   FloatBuffer& simplePtsSize,
-				   FloatBuffer& coloredPtsArray,
-				   FloatBuffer& coloredPtsSize,
-				   FloatBuffer& coloredPtsColor) const {
+                                   FloatBuffer& simplePtsSize,
+                                   FloatBuffer& coloredPtsArray,
+                                   FloatBuffer& coloredPtsSize,
+                                   FloatBuffer& coloredPtsColor) const {
   int nbModelRows = model_->rowCount();
   int nbModelCols = model_->columnCount();
 
@@ -191,14 +191,14 @@ void WGridData::pointDataFromModel(FloatBuffer& simplePtsArray,
   for (int i=0; i<nbModelRows; i++) {
     if (i == YAbscisRow_)
       continue;
-    scaledXAxis.push_back((float)((Wt::asNumber(model_->data(i,XAbscisColumn_)) 
-				   - xMin)/(xMax - xMin)));
+    scaledXAxis.push_back((float)((Wt::asNumber(model_->data(i,XAbscisColumn_))
+                                   - xMin)/(xMax - xMin)));
   }
   for (int j=0; j<nbModelCols; j++) {
     if (j == XAbscisColumn_)
       continue;
     scaledYAxis.push_back((float)((Wt::asNumber(model_->data(YAbscisRow_,j))
-				   - yMin)/(yMax - yMin)));
+                                   - yMin)/(yMax - yMin)));
   }
 
   int rowOffset = 0, colOffset = 0;
@@ -210,36 +210,36 @@ void WGridData::pointDataFromModel(FloatBuffer& simplePtsArray,
     colOffset = 0;
     for (int j=0; j<nbModelCols; j++) {
       if (j == XAbscisColumn_) {
-	colOffset = 1;
-	continue;
+        colOffset = 1;
+        continue;
       }
       if (!cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerBrushColor))) {
-	simplePtsArray.push_back(scaledXAxis[i-rowOffset]);
-	simplePtsArray.push_back(scaledYAxis[j-colOffset]);
-	simplePtsArray.push_back((float)((Wt::asNumber(model_->data(i,j,ItemDataRole::Display))-zMin)/(zMax-zMin)));
-	if (cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerScaleFactor))) {
-	  simplePtsSize.push_back((float)(Wt::asNumber(model_->data(i,j,ItemDataRole::MarkerScaleFactor))));
-	} else {
-	  simplePtsSize.push_back((float)pointSize());
-	}
+        simplePtsArray.push_back(scaledXAxis[i-rowOffset]);
+        simplePtsArray.push_back(scaledYAxis[j-colOffset]);
+        simplePtsArray.push_back((float)((Wt::asNumber(model_->data(i,j,ItemDataRole::Display))-zMin)/(zMax-zMin)));
+        if (cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerScaleFactor))) {
+          simplePtsSize.push_back((float)(Wt::asNumber(model_->data(i,j,ItemDataRole::MarkerScaleFactor))));
+        } else {
+          simplePtsSize.push_back((float)pointSize());
+        }
       } else {
-	coloredPtsArray.push_back(scaledXAxis[i-rowOffset]);
-	coloredPtsArray.push_back(scaledYAxis[j-colOffset]);
-	coloredPtsArray.push_back((float)((Wt::asNumber(model_->data(i,j))-zMin)
-					  /(zMax-zMin)));
-	WColor color = cpp17::any_cast<WColor>(model_->data(i,j,ItemDataRole::MarkerBrushColor));
-	coloredPtsColor.push_back((float)color.red());
-	coloredPtsColor.push_back((float)color.green());
-	coloredPtsColor.push_back((float)color.blue());
-	coloredPtsColor.push_back((float)color.alpha());
+        coloredPtsArray.push_back(scaledXAxis[i-rowOffset]);
+        coloredPtsArray.push_back(scaledYAxis[j-colOffset]);
+        coloredPtsArray.push_back((float)((Wt::asNumber(model_->data(i,j))-zMin)
+                                          /(zMax-zMin)));
+        WColor color = cpp17::any_cast<WColor>(model_->data(i,j,ItemDataRole::MarkerBrushColor));
+        coloredPtsColor.push_back((float)color.red());
+        coloredPtsColor.push_back((float)color.green());
+        coloredPtsColor.push_back((float)color.blue());
+        coloredPtsColor.push_back((float)color.alpha());
 
-	if (cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerScaleFactor))) {
-	  coloredPtsSize.push_back
-	    ((float)(Wt::asNumber
-		     (model_->data(i,j, ItemDataRole::MarkerScaleFactor))));
-	} else {
-	  coloredPtsSize.push_back((float)pointSize());
-	}
+        if (cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerScaleFactor))) {
+          coloredPtsSize.push_back
+            ((float)(Wt::asNumber
+                     (model_->data(i,j, ItemDataRole::MarkerScaleFactor))));
+        } else {
+          coloredPtsSize.push_back((float)pointSize());
+        }
       }
     }
   }
@@ -263,14 +263,14 @@ void WGridData::surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) 
   for (int i=0; i<nbModelRows; i++) {
     if (i == YAbscisRow_)
       continue;
-    scaledXAxis.push_back((float)((Wt::asNumber(model_->data(i,XAbscisColumn_)) 
-				   - xMin)/(xMax - xMin)));
+    scaledXAxis.push_back((float)((Wt::asNumber(model_->data(i,XAbscisColumn_))
+                                   - xMin)/(xMax - xMin)));
   }
   for (int j=0; j<nbModelCols; j++) {
     if (j == XAbscisColumn_)
       continue;
     scaledYAxis.push_back((float)((Wt::asNumber(model_->data(YAbscisRow_,j))
-				   - yMin)/(yMax - yMin)));
+                                   - yMin)/(yMax - yMin)));
   }
 
   int nbXaxisBuffers = nbXPoints()/(SURFACE_SIDE_LIMIT-1);
@@ -291,22 +291,22 @@ void WGridData::surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) 
       int i = k*SURFACE_SIDE_LIMIT;
       rowOffset = 0;
       for (; i < (k+1)*SURFACE_SIDE_LIMIT + 1; i++) {
-	if (i >= YAbscisRow_) {
-	  rowOffset = 1;
-	}
-	int cnt2 = 0;
-	int j = l*SURFACE_SIDE_LIMIT;
-	colOffset = 0;
-	for (; j < (l+1)*SURFACE_SIDE_LIMIT + 1; j++) {
-	  if (j >= XAbscisColumn_) {
-	    colOffset = 1;
-	  }
-	  simplePtsArrays[bufferIndex].push_back(scaledXAxis[i]);
-	  simplePtsArrays[bufferIndex].push_back(scaledYAxis[j]);
-	  simplePtsArrays[bufferIndex].push_back((float)((Wt::asNumber(model_->data(i+rowOffset,j+colOffset))-zMin)/(zMax-zMin)));
-	  cnt2++;
-	}
-	cnt1++;
+        if (i >= YAbscisRow_) {
+          rowOffset = 1;
+        }
+        int cnt2 = 0;
+        int j = l*SURFACE_SIDE_LIMIT;
+        colOffset = 0;
+        for (; j < (l+1)*SURFACE_SIDE_LIMIT + 1; j++) {
+          if (j >= XAbscisColumn_) {
+            colOffset = 1;
+          }
+          simplePtsArrays[bufferIndex].push_back(scaledXAxis[i]);
+          simplePtsArrays[bufferIndex].push_back(scaledYAxis[j]);
+          simplePtsArrays[bufferIndex].push_back((float)((Wt::asNumber(model_->data(i+rowOffset,j+colOffset))-zMin)/(zMax-zMin)));
+          cnt2++;
+        }
+        cnt1++;
       }
     }
     bufferIndex = k*nbYaxisBuffers + nbYaxisBuffers - 1;
@@ -315,17 +315,17 @@ void WGridData::surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) 
     rowOffset = 0;
     for (; i < (k+1)*SURFACE_SIDE_LIMIT + 1; i++) {
       if (i >= YAbscisRow_) {
-	rowOffset = 1;
+        rowOffset = 1;
       }
       int j = (nbYaxisBuffers-1)*SURFACE_SIDE_LIMIT;
       colOffset = 0;
       for (; j < nbModelCols - 1; j++) {
-	if (j >= XAbscisColumn_) {
-	  colOffset = 1;
-	}
-	simplePtsArrays[bufferIndex].push_back(scaledXAxis[i]);
-	simplePtsArrays[bufferIndex].push_back(scaledYAxis[j]);
-	simplePtsArrays[bufferIndex].push_back((float)((Wt::asNumber(model_->data(i+rowOffset,j+colOffset))-zMin)/(zMax-zMin)));
+        if (j >= XAbscisColumn_) {
+          colOffset = 1;
+        }
+        simplePtsArrays[bufferIndex].push_back(scaledXAxis[i]);
+        simplePtsArrays[bufferIndex].push_back(scaledYAxis[j]);
+        simplePtsArrays[bufferIndex].push_back((float)((Wt::asNumber(model_->data(i+rowOffset,j+colOffset))-zMin)/(zMax-zMin)));
       }
       cnt1++;
     }
@@ -336,19 +336,19 @@ void WGridData::surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) 
     rowOffset = 0;
     for (; i < nbModelRows - 1; i++) {
       if (i >= YAbscisRow_) {
-	rowOffset = 1;
+        rowOffset = 1;
       }
       int cnt2 = 0;
       int j = l*SURFACE_SIDE_LIMIT;
       colOffset = 0;
       for (; j < (l+1)*SURFACE_SIDE_LIMIT + 1; j++) {
-	if (j >= XAbscisColumn_) {
-	  colOffset = 1;
-	}
-	simplePtsArrays[bufferIndex].push_back(scaledXAxis[i]);
-	simplePtsArrays[bufferIndex].push_back(scaledYAxis[j]);
-	simplePtsArrays[bufferIndex].push_back((float)((Wt::asNumber(model_->data(i+rowOffset,j+colOffset))-zMin)/(zMax-zMin)));
-	cnt2++;
+        if (j >= XAbscisColumn_) {
+          colOffset = 1;
+        }
+        simplePtsArrays[bufferIndex].push_back(scaledXAxis[i]);
+        simplePtsArrays[bufferIndex].push_back(scaledYAxis[j]);
+        simplePtsArrays[bufferIndex].push_back((float)((Wt::asNumber(model_->data(i+rowOffset,j+colOffset))-zMin)/(zMax-zMin)));
+        cnt2++;
       }
     }
   }
@@ -363,7 +363,7 @@ void WGridData::surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) 
     colOffset = 0;
     for (; j < nbModelCols - 1; j++) {
       if (j >= XAbscisColumn_) {
-	colOffset = 1;
+        colOffset = 1;
       }
       simplePtsArrays[bufferIndex].push_back(scaledXAxis[i]);
       simplePtsArrays[bufferIndex].push_back(scaledYAxis[j]);
@@ -383,17 +383,17 @@ void WGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) cons
     if (dynamic_cast<WAbstractGridData*>(dataseries[i]) != nullptr) {
       WAbstractGridData* griddata = dynamic_cast<WAbstractGridData*>(dataseries[i]);
       if (griddata == this ||
-	  griddata->type() != Series3DType::Bar) {
-	break;
+          griddata->type() != Series3DType::Bar) {
+        break;
       }
       if (first) {
-	xDim = griddata->nbXPoints();
-	yDim = griddata->nbYPoints();
-	first = false;
+        xDim = griddata->nbXPoints();
+        yDim = griddata->nbYPoints();
+        first = false;
       }
-      if ( griddata->nbXPoints() != xDim || griddata->nbYPoints() != yDim 
-	   || griddata->isHidden()) {
-	continue;
+      if ( griddata->nbXPoints() != xDim || griddata->nbYPoints() != yDim
+           || griddata->isHidden()) {
+        continue;
       }
       prevDataseries.push_back( griddata );
     }
@@ -434,13 +434,13 @@ void WGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) cons
     colOffset = 0;
     for (int j=0; j < nbModelCols - 1; j++) {
       if (j >= XAbscisColumn_) {
-	colOffset = 1;
+        colOffset = 1;
       }
       float z0 = stackAllValues(prevDataseries, i,j);
 
       if (simpleCount == BAR_BUFFER_LIMIT) {
-	simpleBufferIndex++;
-	simpleCount = 0;
+        simpleBufferIndex++;
+        simpleCount = 0;
       }
       simplePtsArrays[simpleBufferIndex].push_back(scaledXAxis[i]);
       simplePtsArrays[simpleBufferIndex].push_back(scaledYAxis[j]);
@@ -455,8 +455,8 @@ void WGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) cons
 }
 
 void WGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays,
-				 std::vector<FloatBuffer>& coloredPtsArrays,
-				 std::vector<FloatBuffer>& coloredPtsColors) const
+                                 std::vector<FloatBuffer>& coloredPtsArrays,
+                                 std::vector<FloatBuffer>& coloredPtsColors) const
 {
   // search for previously initialized barSeries data
   const std::vector<WAbstractDataSeries3D*> dataseries = chart_->dataSeries();
@@ -467,17 +467,17 @@ void WGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays,
     if ( dynamic_cast<WAbstractGridData*>(dataseries[i]) != 0) {
       WAbstractGridData* griddata = dynamic_cast<WAbstractGridData*>(dataseries[i]);
       if (griddata == this ||
-	  griddata->type() != Series3DType::Bar) {
-	break;
+          griddata->type() != Series3DType::Bar) {
+        break;
       }
       if (first) {
-	xDim = griddata->nbXPoints();
-	yDim = griddata->nbYPoints();
-	first = false;
+        xDim = griddata->nbXPoints();
+        yDim = griddata->nbYPoints();
+        first = false;
       }
-      if ( griddata->nbXPoints() != xDim || griddata->nbYPoints() != yDim 
-	   || griddata->isHidden()) {
-	continue;
+      if ( griddata->nbXPoints() != xDim || griddata->nbYPoints() != yDim
+           || griddata->isHidden()) {
+        continue;
       }
       prevDataseries.push_back( griddata );
     }
@@ -518,43 +518,43 @@ void WGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays,
     colOffset = 0;
     for (int j=0; j < nbModelCols - 1; j++) {
       if (j >= XAbscisColumn_) {
-	colOffset = 1;
+        colOffset = 1;
       }
       float z0 = stackAllValues(prevDataseries, i,j);
 
       if (!cpp17::any_has_value(model_->data(i+rowOffset,j+colOffset,ItemDataRole::MarkerBrushColor))) {
-	if (simpleCount == BAR_BUFFER_LIMIT) {
-	  simpleBufferIndex++;
-	  simpleCount = 0;
-	}
-	simplePtsArrays[simpleBufferIndex].push_back(scaledXAxis[i]);
-	simplePtsArrays[simpleBufferIndex].push_back(scaledYAxis[j]);
-	// first the value of all previous series stacked,then the current value
-	simplePtsArrays[simpleBufferIndex].push_back(z0);
-	double modelVal = Wt::asNumber(model_->data(i+rowOffset,j+colOffset));
-	float delta = (modelVal <= 0) ? zeroBarCompensation : 0;
-	simplePtsArrays[simpleBufferIndex].push_back((float)((modelVal-zMin)/(zMax-zMin))+delta);
-	simpleCount++;
+        if (simpleCount == BAR_BUFFER_LIMIT) {
+          simpleBufferIndex++;
+          simpleCount = 0;
+        }
+        simplePtsArrays[simpleBufferIndex].push_back(scaledXAxis[i]);
+        simplePtsArrays[simpleBufferIndex].push_back(scaledYAxis[j]);
+        // first the value of all previous series stacked,then the current value
+        simplePtsArrays[simpleBufferIndex].push_back(z0);
+        double modelVal = Wt::asNumber(model_->data(i+rowOffset,j+colOffset));
+        float delta = (modelVal <= 0) ? zeroBarCompensation : 0;
+        simplePtsArrays[simpleBufferIndex].push_back((float)((modelVal-zMin)/(zMax-zMin))+delta);
+        simpleCount++;
       } else {
-	if (coloredCount == BAR_BUFFER_LIMIT) {
-	  coloredBufferIndex++;
-	  coloredCount = 0;
-	}
-	coloredPtsArrays[coloredBufferIndex].push_back(scaledXAxis[i]);
-	coloredPtsArrays[coloredBufferIndex].push_back(scaledYAxis[j]);
-	coloredPtsArrays[coloredBufferIndex].push_back(z0);
-	double modelVal = Wt::asNumber(model_->data(i+rowOffset,j+colOffset));
-	float delta = (modelVal <= 0) ? zeroBarCompensation : 0;
-	coloredPtsArrays[coloredBufferIndex].push_back((float)((modelVal-zMin)/(zMax-zMin))+delta);
+        if (coloredCount == BAR_BUFFER_LIMIT) {
+          coloredBufferIndex++;
+          coloredCount = 0;
+        }
+        coloredPtsArrays[coloredBufferIndex].push_back(scaledXAxis[i]);
+        coloredPtsArrays[coloredBufferIndex].push_back(scaledYAxis[j]);
+        coloredPtsArrays[coloredBufferIndex].push_back(z0);
+        double modelVal = Wt::asNumber(model_->data(i+rowOffset,j+colOffset));
+        float delta = (modelVal <= 0) ? zeroBarCompensation : 0;
+        coloredPtsArrays[coloredBufferIndex].push_back((float)((modelVal-zMin)/(zMax-zMin))+delta);
 
-	WColor color = cpp17::any_cast<WColor>(model_->data(i+rowOffset,j+colOffset,ItemDataRole::MarkerBrushColor));
-	for (int k=0; k < 8; k++) {
-	  coloredPtsColors[coloredBufferIndex].push_back((float)color.red());
-	  coloredPtsColors[coloredBufferIndex].push_back((float)color.green());
-	  coloredPtsColors[coloredBufferIndex].push_back((float)color.blue());
-	  coloredPtsColors[coloredBufferIndex].push_back((float)color.alpha());
-	}
-	coloredCount++;
+        WColor color = cpp17::any_cast<WColor>(model_->data(i+rowOffset,j+colOffset,ItemDataRole::MarkerBrushColor));
+        for (int k=0; k < 8; k++) {
+          coloredPtsColors[coloredBufferIndex].push_back((float)color.red());
+          coloredPtsColors[coloredBufferIndex].push_back((float)color.green());
+          coloredPtsColors[coloredBufferIndex].push_back((float)color.blue());
+          coloredPtsColors[coloredBufferIndex].push_back((float)color.alpha());
+        }
+        coloredCount++;
       }
     }
   }

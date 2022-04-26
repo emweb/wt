@@ -14,14 +14,14 @@
 namespace Wt {
 
 WTreeTableNode::WTreeTableNode(const WString& labelText,
-			       std::unique_ptr<WIconPair> labelIcon)
+                               std::unique_ptr<WIconPair> labelIcon)
   : WTreeNode(labelText, std::move(labelIcon)),
     table_(nullptr),
     row_(nullptr)
 { }
 
 void WTreeTableNode::insertChildNode(int index,
-				     std::unique_ptr<WTreeNode> node)
+                                     std::unique_ptr<WTreeNode> node)
 {
   if (table_)
     (dynamic_cast<WTreeTableNode *>(node.get()))->setTable(table_);
@@ -30,7 +30,7 @@ void WTreeTableNode::insertChildNode(int index,
 }
 
 void WTreeTableNode::setColumnWidget(int column,
-				     std::unique_ptr<WWidget> widget)
+                                     std::unique_ptr<WWidget> widget)
 {
   --column;
 

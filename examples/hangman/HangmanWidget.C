@@ -30,7 +30,7 @@ HangmanWidget::HangmanWidget(const std::string &name)
     badGuesses_(0)
 {
   setContentAlignment(AlignmentFlag::Center);
-  
+
   title_ = addWidget(std::make_unique<WText>(tr("hangman.readyToPlay")));
 
   word_ = addWidget(std::make_unique<WordWidget>());

@@ -163,8 +163,8 @@ public:
    * The image is transformed using the current painter settings.
    */
   virtual void drawImage(const WRectF& rect, const std::string& imageUri,
-			 int imgWidth, int imgHeight,
-			 const WRectF& sourceRect) = 0;
+                         int imgWidth, int imgHeight,
+                         const WRectF& sourceRect) = 0;
 
   /*! \brief Draws a line.
    *
@@ -196,11 +196,11 @@ public:
    * the point is inside of the current clip area. If not,
    * the text is not drawn.
    */
-  virtual void drawText(const WRectF& rect, 
-			WFlags<AlignmentFlag> alignmentFlags,
-			TextFlag textFlag,
-			const WString& text,
-			const WPointF* clipPoint) = 0;
+  virtual void drawText(const WRectF& rect,
+                        WFlags<AlignmentFlag> alignmentFlags,
+                        TextFlag textFlag,
+                        const WString& text,
+                        const WPointF* clipPoint) = 0;
 
   /*! \brief Measures rendered text size.
    *
@@ -220,7 +220,7 @@ public:
    * provide font metrics.
    */
   virtual WTextItem measureText(const WString& text, double maxWidth = -1,
-				bool wordWrap = false) = 0;
+                                bool wordWrap = false) = 0;
 
   /*! \brief Returns font metrics.
    *

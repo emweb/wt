@@ -57,7 +57,7 @@ public:
    * \sa setTimeout()
    */
   std::chrono::steady_clock::duration timeout() const;
-  
+
   virtual ~FixedSqlConnectionPool();
   virtual std::unique_ptr<SqlConnection> getConnection() override;
   virtual void returnConnection(std::unique_ptr<SqlConnection>) override;
@@ -73,7 +73,7 @@ protected:
    * and another attempt is made to obtain a connection.
    */
   virtual void handleTimeout();
-  
+
 private:
   struct Impl;
   std::unique_ptr<Impl> impl_;

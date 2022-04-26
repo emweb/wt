@@ -172,7 +172,7 @@ namespace Wt {
    * longer (has more characters), but does not lead to a loss of
    * information.
    *
-   * \sa fromUTF8(const std::string& s), narrow(const std::wstring&, const std::locale&) 
+   * \sa fromUTF8(const std::string& s), narrow(const std::wstring&, const std::locale&)
    *
    * \relates WString
    */
@@ -199,7 +199,7 @@ namespace Wt {
    * longer (has more characters), but does not lead to a loss of
    * information.
    *
-   * \sa utf8ToUTF32(const std::string& s), narrow(const std::u32string&, const std::locale&) 
+   * \sa utf8ToUTF32(const std::string& s), narrow(const std::u32string&, const std::locale&)
    *
    * \relates WString
    */
@@ -218,7 +218,7 @@ namespace Wt {
    * meaningless.
    *
    * \sa toUTF8(const std::wstring& s), fromUTF8(const std::string &),
-   * narrow(const std::wstring&, const std::locale&) 
+   * narrow(const std::wstring&, const std::locale&)
    *
    * \relates WString
    */

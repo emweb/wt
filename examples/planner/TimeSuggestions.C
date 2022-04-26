@@ -31,7 +31,7 @@ TimeSuggestions::TimeSuggestions()
     char buffer [25];
     std::sprintf(buffer, "%02d", i);
     std::string h = buffer;
-    
+
     addSuggestion(WString(h + ":00"));
     addSuggestion(WString(h + ":30"));
   }

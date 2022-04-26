@@ -13,8 +13,8 @@ WStatelessSlot::WStatelessSlot(WObject* obj, WObjectMethod method)
     learned_(false)
 { }
 
-WStatelessSlot::WStatelessSlot(WObject* obj, WObjectMethod method, 
-			       WObjectMethod undomethod)
+WStatelessSlot::WStatelessSlot(WObject* obj, WObjectMethod method,
+                               WObjectMethod undomethod)
   : target_(obj),
     method_(method),
     undoMethod_(undomethod),
@@ -22,7 +22,7 @@ WStatelessSlot::WStatelessSlot(WObject* obj, WObjectMethod method,
 { }
 
 WStatelessSlot::WStatelessSlot(WObject* obj, WObjectMethod method,
-			       const std::string& javaScript)
+                               const std::string& javaScript)
   : target_(obj),
     method_(method),
     undoMethod_(nullptr),
@@ -84,8 +84,8 @@ WStatelessSlot::SlotType WStatelessSlot::type() const
       return SlotType::AutoLearnStateless;
     else
       return SlotType::PreLearnStateless;
-} 
- 
+}
+
 bool WStatelessSlot::learned() const
 {
   return learned_;
@@ -119,7 +119,7 @@ void WStatelessSlot::setNotLearned()
     learned_ = false;
 
     for (size_t i = 0; i < connectingSignals_.size(); i++)
-      connectingSignals_[i]->ownerRepaint();    
+      connectingSignals_[i]->ownerRepaint();
   }
 }
 
@@ -143,9 +143,9 @@ bool WStatelessSlot::addConnection(EventSignalBase* s)
     return true;
   } else
     return false;
-}	
+}
 
-bool WStatelessSlot::removeConnection(EventSignalBase* s)	
+bool WStatelessSlot::removeConnection(EventSignalBase* s)
 {
   return Utils::erase(connectingSignals_, s);
 }

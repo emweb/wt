@@ -12,7 +12,7 @@
 
 using namespace Wt;
 
-WidgetFunction widgetFunction; 
+WidgetFunction widgetFunction;
 
 std::unique_ptr<WWidget> createLineEdit(const std::vector<WString>& args)
 {

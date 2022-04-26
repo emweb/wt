@@ -74,7 +74,7 @@ public:
   virtual ~WLocalizedStrings();
 
   /*! \brief Purges memory resources, if possible.
-   * 
+   *
    * This is called afer event handling, and is an opportunity to
    * conserve memory inbetween events, by freeing memory used for
    * cached key/value bindings, if applicable.
@@ -84,7 +84,7 @@ public:
   virtual void hibernate();
 
   /*! \brief Resolves a key in the given locale.
-   * 
+   *
    * This method is used by WString to obtain the UTF-8 value corresponding
    * to a key in the given locale.
    *
@@ -95,7 +95,7 @@ public:
   virtual LocalizedString resolveKey(const WLocale& locale, const std::string& key) = 0;
 
   /*! \brief Resolves the plural form of a key in the given locale.
-   * 
+   *
    * This method is used by WString to obtain the UTF-8 value
    * corresponding to a key in the current locale, taking into account
    * the possibility of multiple plural forms, and chosing the right
@@ -109,7 +109,7 @@ public:
    * \sa WString::trn()
    */
   virtual LocalizedString resolvePluralKey(const WLocale& locale,
-				const std::string& key, 
+                                const std::string& key,
                                 ::uint64_t amount);
 
   /*! \brief Utility method to evaluate a plural expression.
@@ -117,10 +117,10 @@ public:
    * This evaluates C expressions such as used by ngettext for a particular
    * value, which can be useful to implement plural key resolution.
    *
-   * \sa resolvePluralKey() 
+   * \sa resolvePluralKey()
    */
   static int evaluatePluralExpression(const std::string &expression,
-				      ::uint64_t n);
+                                      ::uint64_t n);
 
 
 };

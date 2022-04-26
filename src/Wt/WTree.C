@@ -27,10 +27,10 @@ namespace {
     WTreeNode *p = n->parentNode();
     if (p) {
       if (!p->isExpanded())
-	return false;
+        return false;
       else
-	if (!getAncestors(p, ancestors))
-	  return false;
+        if (!getAncestors(p, ancestors))
+          return false;
     }
 
     ancestors.push_back(n);
@@ -59,16 +59,16 @@ namespace {
       return n1;
 
     for (unsigned i = 1; i < std::min(ancestors1.size(), ancestors2.size());
-	 ++i) {
+         ++i) {
       if (ancestors1[i] != ancestors2[i]) {
-	WTreeNode *parent = ancestors1[i-1];
-	int i1 = Utils::indexOf(parent->childNodes(), ancestors1[i]);
-	int i2 = Utils::indexOf(parent->childNodes(), ancestors2[i]);
+        WTreeNode *parent = ancestors1[i-1];
+        int i1 = Utils::indexOf(parent->childNodes(), ancestors1[i]);
+        int i2 = Utils::indexOf(parent->childNodes(), ancestors2[i]);
 
-	if (i1 < i2)
-	  return n1;
-	else
-	  return n2;
+        if (i1 < i2)
+          return n1;
+        else
+          return n2;
       }
     }
 
@@ -86,25 +86,25 @@ namespace Wt {
     {
     public:
       SentinelTreeNode(WTree *tree)
-	: WTreeNode(""),
-	  tree_(tree)
+        : WTreeNode(""),
+          tree_(tree)
       {
-	addStyleClass("Wt-sentinel");
-	setNodeVisible(false);
-	expand();
+        addStyleClass("Wt-sentinel");
+        setNodeVisible(false);
+        expand();
      }
-      
+
      virtual WTree *tree() const override { return tree_; }
 
     protected:
       virtual void descendantRemoved(WTreeNode *node) override
       {
-	tree_->nodeRemoved(node);
+        tree_->nodeRemoved(node);
       }
 
       virtual void descendantAdded(WTreeNode *node) override
       {
-	tree_->nodeAdded(node);
+        tree_->nodeAdded(node);
       }
 
     private:
@@ -146,7 +146,7 @@ void WTree::clearSelection()
 
 void WTree::select(WTreeNode *node, bool selected)
 {
-  if (selectionMode_ == SelectionMode::Single && selected && 
+  if (selectionMode_ == SelectionMode::Single && selected &&
       selection_.size() == 1 && Utils::first(selection_) == node)
     return; // node was already selected, avoid re-emission of signals
 
@@ -156,14 +156,14 @@ void WTree::select(WTreeNode *node, bool selected)
   if (!selected || selectionMode_ != SelectionMode::None) {
     if (selected) {
       if (node->isSelectable()) {
-	selection_.insert(node);
-	node->renderSelected(selected);
+        selection_.insert(node);
+        node->renderSelected(selected);
       }
     } else {
       if (selection_.erase(node))
-	node->renderSelected(false);
+        node->renderSelected(false);
       else
-	return; // node was not selected, avoid re-emission of signals
+        return; // node was not selected, avoid re-emission of signals
     }
   }
 
@@ -226,20 +226,20 @@ void WTree::selectRange(WTreeNode *from, WTreeNode *to)
       break;
     else {
       if (n->isExpanded() && !n->childNodes().empty())
-	n = n->childNodes()[0];
+        n = n->childNodes()[0];
       else {
-	for (;;) {
-	  const std::vector<WTreeNode *>& cs = n->parentNode()->childNodes();
-	  int i = Utils::indexOf(cs, n);
+        for (;;) {
+          const std::vector<WTreeNode *>& cs = n->parentNode()->childNodes();
+          int i = Utils::indexOf(cs, n);
 
-	  i++;
-	  if (i < static_cast<int>(cs.size())) {
-	    n = cs[i];
-	    break;
-	  } else {
-	    n = n->parentNode();
-	  }
-	}
+          i++;
+          if (i < static_cast<int>(cs.size())) {
+            n = cs[i];
+            break;
+          } else {
+            n = n->parentNode();
+          }
+        }
       }
     }
   }
@@ -259,21 +259,21 @@ void WTree::extendSelection(WTreeNode *node)
     WTreeNode *top = nullptr, *bottom = nullptr;
 
     for (WTreeNodeSet::const_iterator i = selection_.begin();
-	 i != selection_.end(); ++i) {
+         i != selection_.end(); ++i) {
       WTreeNode *s = *i;
 
       WTreeNode *f1 = firstNode(top, s);
       if (!f1)
-	continue;
+        continue;
 
       top = f1;
 
       if (!bottom)
-	bottom = s;
+        bottom = s;
       else {
-	WTreeNode *f2 = firstNode(bottom, s);
-	if (f2 == bottom)
-	  bottom = s;
+        WTreeNode *f2 = firstNode(bottom, s);
+        if (f2 == bottom)
+          bottom = s;
       }
     }
 
@@ -305,15 +305,15 @@ void WTree::onClick(WTreeNode *node, WMouseEvent event)
       extendSelection(node);
     } else {
       if (!(event.modifiers() & (KeyboardModifier::Control |
-				 KeyboardModifier::Meta))) {
-	if (isSelected(node))
-	  return;
-	else {
-	  clearSelection();
-	  select(node);
-	}
+                                 KeyboardModifier::Meta))) {
+        if (isSelected(node))
+          return;
+        else {
+          clearSelection();
+          select(node);
+        }
       } else
-	select(node, !isSelected(node));
+        select(node, !isSelected(node));
     }
   } else
     select(node);

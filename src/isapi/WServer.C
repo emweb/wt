@@ -26,7 +26,7 @@ struct WServer::Impl {
   {
     if (!isapi::IsapiServer::instance()->addServer(server))
       throw Exception("WServer::WServer(): "
-		      "Only one simultaneous WServer supported");
+                      "Only one simultaneous WServer supported");
     server->instance_ = server;
 
     std::stringstream approotLog;
@@ -35,11 +35,11 @@ struct WServer::Impl {
       std::string inifile = applicationPath + ".ini";
       char buffer[1024];
       GetPrivateProfileString("isapi", "approot", "",
-	buffer, sizeof(buffer), inifile.c_str());
+        buffer, sizeof(buffer), inifile.c_str());
       approot = buffer;
       if (approot != "") {
-	approotLog << "ISAPI: read approot (" << approot
-	  << ") from ini file " << inifile;
+        approotLog << "ISAPI: read approot (" << approot
+          << ") from ini file " << inifile;
       }
     }
 
@@ -54,7 +54,7 @@ struct WServer::Impl {
 };
 
 WServer::WServer(const std::string& applicationPath,
-		 const std::string& configurationFile)
+                 const std::string& configurationFile)
   : impl_(new Impl())
 {
   init(applicationPath, configurationFile);
@@ -95,7 +95,7 @@ std::vector<WServer::SessionInfo> WServer::sessions() const
 }
 
 void WServer::setServerConfiguration(int argc, char *argv[],
-				     const std::string& serverConfigurationFile)
+                                     const std::string& serverConfigurationFile)
 { }
 
 void WServer::setServerConfiguration(const std::string &applicationName,
@@ -104,11 +104,11 @@ void WServer::setServerConfiguration(const std::string &applicationName,
 { }
 
 //void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,
-//			    const std::string& path, const std::string& favicon)
+//                            const std::string& path, const std::string& favicon)
 //{
 //  if (!impl_->configuration())
 //    throw Exception("WServer::addEntryPoint(): "
-//		    "call setServerConfiguration() first");
+//                    "call setServerConfiguration() first");
 //
 //  impl_->configuration()
 //    ->addEntryPoint(EntryPoint(type, callback, path, favicon));
@@ -194,27 +194,27 @@ void WServer::run()
 //}
 
 //void WServer::schedule(int milliSeconds,
-//		       const boost::function<void ()>& function)
+//                       const boost::function<void ()>& function)
 //{
 //  webMain->schedule(milliSeconds, function);
 //}
 
 //void WServer::post(const std::string& sessionId,
-//		   const boost::function<void ()>& function,
-//		   const boost::function<void ()>& fallbackFunction)
+//                   const boost::function<void ()>& function,
+//                   const boost::function<void ()>& fallbackFunction)
 //{
 //  schedule(0, sessionId, function, fallbackFunction);
 //}
 
 //void WServer::schedule(int milliSeconds,
-//		       const std::string& sessionId,
-//		       const boost::function<void ()>& function,
-//		       const boost::function<void ()>& fallbackFunction)
+//                       const std::string& sessionId,
+//                       const boost::function<void ()>& function,
+//                       const boost::function<void ()>& fallbackFunction)
 //{
 //  ApplicationEvent event(sessionId, function, fallbackFunction);
 //
 //  schedule(milliSeconds, boost::bind(&WebController::handleApplicationEvent,
-//				     &webMain->controller(), event));
+//                                     &webMain->controller(), event));
 //}
 
 //std::string WServer::appRoot() const

@@ -52,14 +52,14 @@ public:
   /*! \brief Constructor.
    */
   OAuthAccessToken(const std::string& value,
-		   const WDateTime& expires,
-		   const std::string& refreshToken);
+                   const WDateTime& expires,
+                   const std::string& refreshToken);
 
   /*! \brief Constructor with an OpenID Connect ID token.
    */
   OAuthAccessToken(const std::string& value,
-		   const WDateTime& expires,
-		   const std::string& refreshToken,
+                   const WDateTime& expires,
+                   const std::string& refreshToken,
                    const std::string& idToken);
 
   /*! \brief Returns whether the token is valid.
@@ -101,7 +101,7 @@ public:
    * This is a token that is not isValid().
    */
   static const OAuthAccessToken Invalid;
-    
+
 private:
   std::string accessToken_, refreshToken_, idToken_;
   WDateTime expires_;
@@ -201,10 +201,10 @@ public:
   virtual void startAuthenticate();
 
 #ifdef WT_TARGET_JAVA
-  /*! \brief Connects an implementation to start an authentication process to a signal 
+  /*! \brief Connects an implementation to start an authentication process to a signal
    *
    * If JavaScript is available, this method connects a JavaScript function to
-   * the \p signal, otherwise startAuthenticate() is connected to \p signal. 
+   * the \p signal, otherwise startAuthenticate() is connected to \p signal.
    */
   void connectStartAuthenticate(EventSignalBase &signal);
 #endif
@@ -295,7 +295,7 @@ protected:
 
     /*! \brief The error.
      */
-    WString error() const { return error_; } 
+    WString error() const { return error_; }
 
   private:
     WString error_;
@@ -341,7 +341,7 @@ private:
 
   void requestToken(const std::string& authorizationCode);
   void handleToken(AsioWrapper::error_code err,
-		   const Http::Message& response);
+                   const Http::Message& response);
   OAuthAccessToken parseUrlEncodedToken(const Http::Message& response);
   OAuthAccessToken parseJsonToken(const Http::Message& response);
 
@@ -384,7 +384,7 @@ private:
  * Like all <b>service classes</b>, this class holds only
  * configuration state. Thus, once configured, it can be safely shared
  * between multiple sessions since its state (the configuration) is
- * read-only. 
+ * read-only.
  * \if cpp
  * A "const OAuthService" object is thus thread-safe.
  * \endif
@@ -527,7 +527,7 @@ public:
    *
    * \if cpp
    * \sa WServer::addResource()
-   * \elseif java 
+   * \elseif java
    * @see WtServlet#addResource(WResource r, String path)
    * \endif
    */

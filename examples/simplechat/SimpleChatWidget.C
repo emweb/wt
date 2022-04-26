@@ -62,17 +62,17 @@ void SimpleChatWidget::letLogin()
   auto hLayout_(std::make_unique<Wt::WHBoxLayout>());
   auto hLayout = hLayout_.get();
   vLayout->addLayout(std::move(hLayout_), 0,
-		     Wt::AlignmentFlag::Top | Wt::AlignmentFlag::Left);
+                     Wt::AlignmentFlag::Top | Wt::AlignmentFlag::Left);
 
   hLayout->addWidget(std::make_unique<Wt::WLabel>("User name:"),
-		     0, Wt::AlignmentFlag::Middle);
+                     0, Wt::AlignmentFlag::Middle);
 
   userNameEdit_ = hLayout->addWidget(std::make_unique<Wt::WLineEdit>(user_),
-				     0, Wt::AlignmentFlag::Middle);
+                                     0, Wt::AlignmentFlag::Middle);
   userNameEdit_->setFocus();
 
   auto button = hLayout->addWidget(std::make_unique<Wt::WPushButton>("Login"),
-				    0, Wt::AlignmentFlag::Middle);
+                                    0, Wt::AlignmentFlag::Middle);
 
   button->clicked().connect(this, &SimpleChatWidget::login);
   userNameEdit_->enterPressed().connect(this, &SimpleChatWidget::login);
@@ -91,7 +91,7 @@ void SimpleChatWidget::login()
 
     if (!startChat(name))
       statusMsg_->setText("Sorry, name '" + escapeText(name) +
-			  "' is already taken.");
+                          "' is already taken.");
   }
 }
 
@@ -107,8 +107,8 @@ void SimpleChatWidget::logout()
 }
 
 void SimpleChatWidget::createLayout(std::unique_ptr<WWidget> messages, std::unique_ptr<WWidget> userList,
-				    std::unique_ptr<WWidget> messageEdit,
-				    std::unique_ptr<WWidget> sendButton, std::unique_ptr<WWidget> logoutButton)
+                                    std::unique_ptr<WWidget> messageEdit,
+                                    std::unique_ptr<WWidget> sendButton, std::unique_ptr<WWidget> logoutButton)
 {
   /*
    * Create a vertical layout, which will hold 3 rows,
@@ -180,8 +180,8 @@ void SimpleChatWidget::render(Wt::WFlags<Wt::RenderFlag> flags)
       /* Handle a page refresh correctly */
       messageEdit_->setText(Wt::WString::Empty);
       doJavaScript("setTimeout(function() { "
-		   + messages_->jsRef() + ".scrollTop += "
-		   + messages_->jsRef() + ".scrollHeight;}, 0);");
+                   + messages_->jsRef() + ".scrollTop += "
+                   + messages_->jsRef() + ".scrollHeight;}, 0);");
     }
   }
 
@@ -198,7 +198,7 @@ bool SimpleChatWidget::startChat(const Wt::WString& user)
     loggedIn_ = true;
     connect();
 
-    user_ = user;    
+    user_ = user;
 
     clear();
     userNameEdit_ = 0;
@@ -253,31 +253,31 @@ bool SimpleChatWidget::startChat(const Wt::WString& user)
      * offline and enable it once we're back online
      */
     Wt::WApplication::instance()->setConnectionMonitor(
-		"window.monitor={ "
-		"'onChange':function(type, newV) {"
-		  "var connected = window.monitor.status.connectionStatus != 0;"
-		  "if(connected) {"
-			+ messageEdit_->jsRef() + ".disabled=false;"
-			+ messageEdit_->jsRef() + ".placeholder='';"
-		  "} else { "
-			+ messageEdit_->jsRef() + ".disabled=true;"
-			+ messageEdit_->jsRef() + ".placeholder='connection lost';"
-		  "}"
-		"}"
-		"}"
-		);
+                "window.monitor={ "
+                "'onChange':function(type, newV) {"
+                  "var connected = window.monitor.status.connectionStatus != 0;"
+                  "if(connected) {"
+                        + messageEdit_->jsRef() + ".disabled=false;"
+                        + messageEdit_->jsRef() + ".placeholder='';"
+                  "} else { "
+                        + messageEdit_->jsRef() + ".disabled=true;"
+                        + messageEdit_->jsRef() + ".placeholder='connection lost';"
+                  "}"
+                "}"
+                "}"
+                );
 
     // Bind the C++ and JavaScript event handlers.
     if (sendButton_) {
       sendButton_->clicked().connect(this, &SimpleChatWidget::send);
       sendButton_->clicked().connect(clearInput_);
       sendButton_->clicked().connect((WWidget *)messageEdit_,
-				     &WWidget::setFocus);
+                                     &WWidget::setFocus);
     }
     messageEdit_->enterPressed().connect(this, &SimpleChatWidget::send);
     messageEdit_->enterPressed().connect(clearInput_);
     messageEdit_->enterPressed().connect((WWidget *)messageEdit_,
-					 &WWidget::setFocus);
+                                         &WWidget::setFocus);
 
     // Prevent the enter from generating a new line, which is its default
     // action
@@ -297,7 +297,7 @@ bool SimpleChatWidget::startChat(const Wt::WString& user)
     joinMsg->setStyleClass("chat-msg");
 
     updateUsers();
-    
+
     return true;
   } else
     return false;
@@ -328,21 +328,21 @@ void SimpleChatWidget::updateUsers()
     users_.clear();
 
     for (SimpleChatServer::UserSet::iterator i = users.begin();
-	 i != users.end(); ++i) {
+         i != users.end(); ++i) {
       Wt::WCheckBox *w = userList_->addWidget(std::make_unique<Wt::WCheckBox>(escapeText(*i)));
       w->setInline(false);
 
       UserMap::const_iterator j = oldUsers.find(*i);
       if (j != oldUsers.end())
-	w->setChecked(j->second);
+        w->setChecked(j->second);
       else
-	w->setChecked(true);
+        w->setChecked(true);
 
       users_[*i] = w->isChecked();
       w->changed().connect(std::bind(&SimpleChatWidget::updateUser, this, w));
 
       if (*i == user_)
-	w->setStyleClass("chat-self");
+        w->setStyleClass("chat-self");
     }
   }
 }
@@ -427,7 +427,7 @@ void SimpleChatWidget::processChatEvent(const ChatEvent& event)
      * Little javascript trick to make sure we scroll along with new content
      */
     app->doJavaScript(messages_->jsRef() + ".scrollTop += "
-		       + messages_->jsRef() + ".scrollHeight;");
+                       + messages_->jsRef() + ".scrollHeight;");
 
     /* If this message belongs to another user, play a received sound */
     if (event.user() != user_ && messageReceived_)

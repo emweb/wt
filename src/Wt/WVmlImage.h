@@ -54,11 +54,11 @@ public:
   virtual void drawLine(double x1, double y1, double x2, double y2) override;
   virtual void drawRect(const WRectF& rectangle) override;
   virtual void drawPath(const WPainterPath& path) override;
-  virtual void drawText(const WRectF& rect, 
-			WFlags<AlignmentFlag> alignmentFlags,
-			TextFlag textFlag,
-			const WString& text,
-			const WPointF *clipPoint) override;
+  virtual void drawText(const WRectF& rect,
+                        WFlags<AlignmentFlag> alignmentFlags,
+                        TextFlag textFlag,
+                        const WString& text,
+                        const WPointF *clipPoint) override;
   virtual WTextItem measureText(const WString& text, double maxWidth = -1,
                                 bool wordWrap = false) override;
   virtual WFontMetrics fontMetrics() override;

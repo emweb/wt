@@ -111,7 +111,7 @@ private:
   int saltLength_;
 };
 
-  } 
+  }
 }
 
 #endif // WT_AUTH_PASSWORD_VERIFIER

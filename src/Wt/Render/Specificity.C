@@ -13,7 +13,7 @@ Specificity::Specificity(int a, int b, int c, int d)
     valid_(true)
 {
   setA(a);
-  setB(b); 
+  setB(b);
   setC(c);
   setD(d);
 }

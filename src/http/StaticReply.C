@@ -69,7 +69,7 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
   if (request_path.empty() || request_path[0] != '/'
       || request_path.find("..") != std::string::npos) {
     setRelay(ReplyPtr(new StockReply(request_, StockReply::not_found,
-				     "", configuration())));
+                                     "", configuration())));
     return;
   }
 
@@ -107,7 +107,7 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
 
   if (!stream_) {
     setRelay(ReplyPtr(new StockReply(request_, StockReply::not_found,
-				     "", configuration())));
+                                     "", configuration())));
     return;
   } else {
     try {
@@ -131,8 +131,8 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
     if (curpos != rangeBegin_) {
       // Won't be able to send even a single byte -> error 416
       ReplyPtr sr(new StockReply
-		  (request_, StockReply::requested_range_not_satisfiable,
-		   "", configuration()));
+                  (request_, StockReply::requested_range_not_satisfiable,
+                   "", configuration()));
       if (fileSize_ != -1) {
         // 416 SHOULD include a Content-Range with byte-range-resp-spec * and
         // instance-length set to current lenght
@@ -172,7 +172,7 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
 
   if ((ims && ims->value == modifiedDate) || (inm && inm->value == etag)) {
     setRelay(ReplyPtr(new StockReply(request_, StockReply::not_modified,
-				     configuration())));
+                                     configuration())));
     stream_.close();
     return;
   }
@@ -198,7 +198,7 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
 
   if (!modifiedDate.empty())
     addHeader("Last-Modified", modifiedDate);
- 
+
   if (gzipReply)
     addHeader("Content-Encoding", "gzip");
 
@@ -226,8 +226,8 @@ std::string StaticReply::computeExpires()
 }
 
 bool StaticReply::consumeData(const char *begin,
-			      const char *end,
-			      Request::State state)
+                              const char *end,
+                              Request::State state)
 {
   if (state != Request::Partial)
     send();
@@ -278,7 +278,7 @@ bool StaticReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
       rangeRemainder = rangeEnd_ - stream_.tellg() + 1;
 
     stream_.read(buf_, (std::streamsize)
-		 (std::min<boost::uintmax_t>)(rangeRemainder, sizeof(buf_)));
+                 (std::min<boost::uintmax_t>)(rangeRemainder, sizeof(buf_)));
 
     if (stream_.gcount() > 0) {
       result.push_back(asio::buffer(buf_, stream_.gcount()));

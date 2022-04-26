@@ -19,7 +19,7 @@ public:
     InstantiateWidget;
 
   bool operator()(WTemplate *t, const std::vector<WString>& args,
-		  std::ostream& result);
+                  std::ostream& result);
 
   void registerType(const std::string& name, InstantiateWidget instantiate);
 

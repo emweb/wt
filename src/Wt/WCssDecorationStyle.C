@@ -54,8 +54,8 @@ void WCssDecorationStyle::copy(const WCssDecorationStyle& other)
   setCursor(other.cursor_);
   setBackgroundColor(other.backgroundColor());
   setBackgroundImage(other.backgroundImage(),
-		     other.backgroundImageRepeat(),
-		     other.backgroundImageLocation_);
+                     other.backgroundImageRepeat(),
+                     other.backgroundImageLocation_);
   setForegroundColor(other.foregroundColor());
 
   for (unsigned i = 0; i < 4; ++i) {
@@ -118,8 +118,8 @@ void WCssDecorationStyle::setFont(const WFont& font)
 }
 
 void WCssDecorationStyle::setBackgroundImage(const WLink& image,
-					     WFlags<Orientation> repeat,
-					     WFlags<Side> sides)
+                                             WFlags<Orientation> repeat,
+                                             WFlags<Side> sides)
 {
   if (image.type() == LinkType::Resource)
     image.resource()->dataChanged().connect
@@ -140,8 +140,8 @@ void WCssDecorationStyle::setBackgroundImage(const WLink& image,
 
 #ifdef WT_TARGET_JAVA
 void WCssDecorationStyle::setBackgroundImage(const std::string& url,
-					     WFlags<Orientation> repeat,
-					     WFlags<Side> sides)
+                                             WFlags<Orientation> repeat,
+                                             WFlags<Side> sides)
 {
   setBackgroundImage(WLink(url), repeat, sides);
 }
@@ -231,7 +231,7 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
     switch (cursor_) {
     case Cursor::Auto:
       if (cursorChanged_)
-	element.setProperty(Property::StyleCursor, "auto");
+        element.setProperty(Property::StyleCursor, "auto");
       break;
     case Cursor::Arrow:
       element.setProperty(Property::StyleCursor, "default"); break;
@@ -250,9 +250,9 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
     }
 
     if (!cursorImage_.empty()) {
-      element.setProperty(Property::StyleCursor, 
-			  "url(" + cursorImage_ + "),"
-			  + element.getProperty(Property::StyleCursor));
+      element.setProperty(Property::StyleCursor,
+                          "url(" + cursorImage_ + "),"
+                          + element.getProperty(Property::StyleCursor));
     }
 
     cursorChanged_ = false;
@@ -267,18 +267,18 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
   /*
    * set border
    */
-  Property properties[4] 
+  Property properties[4]
     = { Property::StyleBorderTop,
-	Property::StyleBorderRight,
-	Property::StyleBorderBottom,
-	Property::StyleBorderLeft };
+        Property::StyleBorderRight,
+        Property::StyleBorderBottom,
+        Property::StyleBorderLeft };
 
   if (borderChanged_ || all) {
     for (unsigned i = 0; i < 4; ++i) {
       if (border_[i])
-	element.setProperty(properties[i], border_[i]->cssText());
+        element.setProperty(properties[i], border_[i]->cssText());
       else if (borderChanged_)
-	element.setProperty(properties[i], "");
+        element.setProperty(properties[i], "");
     }
 
     borderChanged_ = false;
@@ -289,68 +289,68 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
    */
   if (foregroundColorChanged_ || all) {
     if ((all && !foregroundColor_.isDefault())
-	|| foregroundColorChanged_)
+        || foregroundColorChanged_)
       element.setProperty(Property::StyleColor, foregroundColor_.cssText());
     foregroundColorChanged_ = false;
   }
 
   if (backgroundColorChanged_ || all) {
     if ((all && !backgroundColor_.isDefault()) ||
-	backgroundColorChanged_)
+        backgroundColorChanged_)
       element.setProperty(Property::StyleBackgroundColor,
-			  backgroundColor_.cssText());
+                          backgroundColor_.cssText());
     backgroundColorChanged_ = false;
   }
 
   if (backgroundImageChanged_ || all) {
     if (!backgroundImage_.isNull() || backgroundImageChanged_) {
       if (backgroundImage_.isNull())
-	element.setProperty(Property::StyleBackgroundImage, "none");
+        element.setProperty(Property::StyleBackgroundImage, "none");
       else {
-	Wt::WApplication *app = Wt::WApplication::instance();
+        Wt::WApplication *app = Wt::WApplication::instance();
 
-	std::string url = app->encodeUntrustedUrl
-	  (app->resolveRelativeUrl(backgroundImage_.url()));
+        std::string url = app->encodeUntrustedUrl
+          (app->resolveRelativeUrl(backgroundImage_.url()));
 
-	element.setProperty(Property::StyleBackgroundImage,
-			    "url(" + WWebWidget::jsStringLiteral(url, '"')
-			    + ")");
+        element.setProperty(Property::StyleBackgroundImage,
+                            "url(" + WWebWidget::jsStringLiteral(url, '"')
+                            + ")");
       }
 
-      if (backgroundImageRepeat_ != 
-	  (Orientation::Horizontal | Orientation::Vertical) ||
-	  !backgroundImageLocation_.empty()) {
-	if (backgroundImageRepeat_ == (Orientation::Horizontal |
-				       Orientation::Vertical))
-	  element.setProperty(Property::StyleBackgroundRepeat, "repeat");
-	else if (backgroundImageRepeat_ == Orientation::Horizontal)
-	  element.setProperty(Property::StyleBackgroundRepeat, "repeat-x");
-	else if (backgroundImageRepeat_ == Orientation::Vertical)
-	  element.setProperty(Property::StyleBackgroundRepeat, "repeat-y");
-	else
-	  element.setProperty(Property::StyleBackgroundRepeat, "no-repeat");
+      if (backgroundImageRepeat_ !=
+          (Orientation::Horizontal | Orientation::Vertical) ||
+          !backgroundImageLocation_.empty()) {
+        if (backgroundImageRepeat_ == (Orientation::Horizontal |
+                                       Orientation::Vertical))
+          element.setProperty(Property::StyleBackgroundRepeat, "repeat");
+        else if (backgroundImageRepeat_ == Orientation::Horizontal)
+          element.setProperty(Property::StyleBackgroundRepeat, "repeat-x");
+        else if (backgroundImageRepeat_ == Orientation::Vertical)
+          element.setProperty(Property::StyleBackgroundRepeat, "repeat-y");
+        else
+          element.setProperty(Property::StyleBackgroundRepeat, "no-repeat");
 
-	if (!backgroundImageLocation_.empty()) {
-	  // www3schools claims this is needed for mozilla -- but not true ?
-	  //element.setProperty(Property::StyleBackgroundAttachment, "fixed");
+        if (!backgroundImageLocation_.empty()) {
+          // www3schools claims this is needed for mozilla -- but not true ?
+          //element.setProperty(Property::StyleBackgroundAttachment, "fixed");
 
-	  std::string location;
-	  if (backgroundImageLocation_.test(Side::CenterY))
-	    location += " center";
-	  else if (backgroundImageLocation_.test(Side::Bottom))
-	    location += " bottom";
-	  else
-	    location += " top";
+          std::string location;
+          if (backgroundImageLocation_.test(Side::CenterY))
+            location += " center";
+          else if (backgroundImageLocation_.test(Side::Bottom))
+            location += " bottom";
+          else
+            location += " top";
 
-	  if (backgroundImageLocation_.test(Side::CenterX))
-	    location += " center";
-	  else if (backgroundImageLocation_.test(Side::Right))
-	    location += " right";
-	  else 
-	    location += " left";
+          if (backgroundImageLocation_.test(Side::CenterX))
+            location += " center";
+          else if (backgroundImageLocation_.test(Side::Right))
+            location += " right";
+          else
+            location += " left";
 
-	  element.setProperty(Property::StyleBackgroundPosition, location);
-	}
+          element.setProperty(Property::StyleBackgroundPosition, location);
+        }
       }
     }
 

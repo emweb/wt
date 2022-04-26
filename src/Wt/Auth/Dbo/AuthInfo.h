@@ -26,7 +26,7 @@ template <class AuthIdentityType> class AuthIdentity;
 
 /*! \class AuthInfo Wt/Auth/Dbo/AuthInfo.h
  *  \brief A default implementation for authentication data in %Wt::%Dbo
- * 
+ *
  * This class implements the requirements for use as a data type in
  * Wt::Auth::Dbo::UserDatabase.
  *
@@ -102,7 +102,7 @@ public:
   /*! \brief Sets a password.
    */
   void setPassword(const std::string& hash, const std::string& hashFunction,
-		   const std::string& hashSalt) {
+                   const std::string& hashSalt) {
     passwordHash_ = hash;
     passwordMethod_ = hashFunction;
     passwordSalt_ = hashSalt;
@@ -151,7 +151,7 @@ public:
   /*! \brief Sets the email token.
    */
   void setEmailToken(const std::string& hash, const WDateTime& expires,
-		     EmailTokenRole role) {
+                     EmailTokenRole role) {
     emailToken_ = hash;
     emailTokenExpires_ = expires;
     emailTokenRole_ = role;
@@ -288,7 +288,7 @@ private:
 
 /*! \class AuthToken Wt/Auth/Dbo/AuthInfo.h
  *  \brief A default implementation for an authentication token in %Wt::%Dbo
- * 
+ *
  * This class is used by AuthInfo, and stores authentication tokens.
  *
  * \sa AuthInfo
@@ -342,7 +342,7 @@ private:
 
 /*! \class AuthIdentity Wt/Auth/Dbo/AuthInfo.h
  *  \brief A default implementation for a authentication identity in %Wt::%Dbo
- * 
+ *
  * This class is used by AuthInfo, and stores identities.
  *
  * \sa AuthInfo

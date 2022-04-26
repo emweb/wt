@@ -35,7 +35,7 @@ void CalendarCell::update(const dbo::ptr<UserAccount>& user, const WDate& date)
 
   dbo::Session& session = PlannerApplication::plannerApplication()->session;
   dbo::Transaction transaction(session);
-  
+
   WString day;
   day += std::to_string(date.day());
   if (date.day() == 1)
@@ -54,7 +54,7 @@ void CalendarCell::update(const dbo::ptr<UserAccount>& user, const WDate& date)
     if (counter == maxEntries) {
       auto extra =
         std::make_unique<WText>(tr("calendar.cell.extra")
-		  .arg((int)(entries.size() - maxEntries)));
+                  .arg((int)(entries.size() - maxEntries)));
       auto extraPtr = addWidget(std::move(extra));
       extraPtr->setStyleClass("cell-extra");
 
@@ -65,9 +65,9 @@ void CalendarCell::update(const dbo::ptr<UserAccount>& user, const WDate& date)
 
     WString format = EntryDialog::timeFormat;
     addWidget(std::make_unique<WText>((*i)->start.toString(format) +
-			"-" + 
-			(*i)->stop.toString(format) + 
-			": " + (*i)->summary));
+                        "-" +
+                        (*i)->stop.toString(format) +
+                        ": " + (*i)->summary));
   }
 
   transaction.commit();
@@ -87,7 +87,7 @@ void CalendarCell::showAllEntriesDialog()
   WString title =
     tr("calendar.cell.all-entries.title")
     .arg(date_.toString("ddd, d MMM yyyy"));
-  
+
   dialog_ = std::make_unique<AllEntriesDialog>(title, this);
   dialog_->show();
 }

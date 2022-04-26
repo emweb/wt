@@ -19,12 +19,12 @@
 
 extern unsigned char _crypt_itoa64[];
 extern char *_crypt_gensalt_traditional_rn(const char *prefix,
-	unsigned long count,
-	const char *input, int size, char *output, int output_size);
+        unsigned long count,
+        const char *input, int size, char *output, int output_size);
 extern char *_crypt_gensalt_extended_rn(const char *prefix,
-	unsigned long count,
-	const char *input, int size, char *output, int output_size);
+        unsigned long count,
+        const char *input, int size, char *output, int output_size);
 extern char *_crypt_gensalt_md5_rn(const char *prefix, unsigned long count,
-	const char *input, int size, char *output, int output_size);
+        const char *input, int size, char *output, int output_size);
 
 #endif

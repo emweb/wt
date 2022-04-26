@@ -41,26 +41,26 @@ namespace Wt {
  * \elseif java
  * \code
  * WTabWidget examples = new WTabWidget(this);
- *	 
+ *
  * examples.addTab(helloWorldExample(), "Hello World");
  * examples.addTab(chartExample(), "Charts");
  * examples.addTab(new WText("A WText"), "WText");
- *	 
+ *
  * examples.currentChanged().addListener(this, new Signal.Listener(){
- *	public void trigger() {
- *		//custom code
- *	}
- *  });
+ *   public void trigger() {
+ *     //custom code
+ *   }
+ * });
  * examples.setInternalPathEnabled();
- * examples.setInternalBasePath("/examples");		
+ * examples.setInternalBasePath("/examples");
  * \endcode
  * \endif
  *
  * <h3>CSS</h3>
  *
  * The tab widget is styled by the current CSS theme.
- * 
- * <TABLE border="0" align="center"> <TR> <TD> 
+ *
+ * <TABLE border="0" align="center"> <TR> <TD>
  * \image html WTabWidget-default-1.png "An example WTabWidget (default)"
  * </TD> <TD>
  * \image html WTabWidget-polished-1.png "An example WTabWidget (polished)"
@@ -78,8 +78,8 @@ public:
    * Returns the menu item that implements the tab item.
    */
   WMenuItem *addTab(std::unique_ptr<WWidget> child,
-		    const WString& label,
-		    ContentLoading loadPolicy = ContentLoading::Lazy);
+                    const WString& label,
+                    ContentLoading loadPolicy = ContentLoading::Lazy);
 
   /*! \brief Inserts a new tab, with <i>child</i> as content, and the given label.
    *
@@ -247,12 +247,12 @@ public:
    * contents stack.
    */
   WStackedWidget *contentsStack() const;
-  
+
   /*! \brief Sets how overflow of contained children must be handled.
    */
   void setOverflow(Overflow overflow,
-		   WFlags<Orientation> orientation 
-		   = (Orientation::Horizontal | Orientation::Vertical));
+                   WFlags<Orientation> orientation
+                   = (Orientation::Horizontal | Orientation::Vertical));
 
 
 private:

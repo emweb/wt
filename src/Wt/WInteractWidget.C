@@ -139,7 +139,7 @@ EventSignal<WMouseEvent>& WInteractWidget::mouseDragged()
 EventSignal<WMouseEvent>& WInteractWidget::mouseWheel()
 {
   if (WApplication::instance()->environment().agentIsIElt(9) ||
-      WApplication::instance()->environment().agent() 
+      WApplication::instance()->environment().agent()
       == UserAgent::Edge) {
     return *mouseEventSignal(MOUSE_WHEEL_SIGNAL, true);
   } else {
@@ -199,46 +199,46 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 
     if (enterPress) {
       if (enterPress->needsUpdate(true)) {
-	/*
-	 * prevent enterPressed from triggering a changed event on all
-	 * browsers except for Opera and IE
-	 */
-	std::string extraJS;
+        /*
+         * prevent enterPressed from triggering a changed event on all
+         * browsers except for Opera and IE
+         */
+        std::string extraJS;
 
-	const WEnvironment& env = app->environment();
+        const WEnvironment& env = app->environment();
 
-	if (dynamic_cast<WFormWidget *>(this)
-	    && !env.agentIsOpera() && !env.agentIsIE())
-	  extraJS = "var g=this.onchange;"
-	    ""      "this.onchange=function(){this.onchange=g;};";
+        if (dynamic_cast<WFormWidget *>(this)
+            && !env.agentIsOpera() && !env.agentIsIE())
+          extraJS = "var g=this.onchange;"
+            ""      "this.onchange=function(){this.onchange=g;};";
 
-	actions.push_back
-	  (DomElement::EventAction("e.keyCode && (e.keyCode == 13)",
-				   enterPress->javaScript() + extraJS,
-				   enterPress->encodeCmd(),
-				   enterPress->isExposedSignal()));
+        actions.push_back
+          (DomElement::EventAction("e.keyCode && (e.keyCode == 13)",
+                                   enterPress->javaScript() + extraJS,
+                                   enterPress->encodeCmd(),
+                                   enterPress->isExposedSignal()));
       }
       enterPress->updateOk();
     }
 
     if (escapePress) {
       if (escapePress->needsUpdate(true)) {
-	actions.push_back
-	  (DomElement::EventAction("e.keyCode && (e.keyCode == 27)",
-				   escapePress->javaScript(),
-				   escapePress->encodeCmd(),
-				   escapePress->isExposedSignal()));
+        actions.push_back
+          (DomElement::EventAction("e.keyCode && (e.keyCode == 27)",
+                                   escapePress->javaScript(),
+                                   escapePress->encodeCmd(),
+                                   escapePress->isExposedSignal()));
       }
       escapePress->updateOk();
     }
 
     if (keyDown) {
       if (keyDown->needsUpdate(true)) {
-	actions.push_back
-	  (DomElement::EventAction(std::string(),
-				   keyDown->javaScript(),
-				   keyDown->encodeCmd(),
-				   keyDown->isExposedSignal()));
+        actions.push_back
+          (DomElement::EventAction(std::string(),
+                                   keyDown->javaScript(),
+                                   keyDown->encodeCmd(),
+                                   keyDown->isExposedSignal()));
       }
       keyDown->updateOk();
     }
@@ -296,19 +296,19 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
       js << app->javaScriptClass() << "._p_.saveDownPos(event);";
 
     if ((mouseDrag && mouseDrag->isConnected())
-	|| (mouseDown && mouseDown->isConnected()
-	    && ((mouseUp && mouseUp->isConnected())
-		|| (mouseMove && mouseMove->isConnected()))))
+        || (mouseDown && mouseDown->isConnected()
+            && ((mouseUp && mouseUp->isConnected())
+                || (mouseMove && mouseMove->isConnected()))))
       js << WT_CLASS ".capture(this);";
 
     if ((mouseMove && mouseMove->isConnected())
-	|| (mouseDrag && mouseDrag->isConnected()))
+        || (mouseDrag && mouseDrag->isConnected()))
       js << WT_CLASS ".mouseDown(e);";
 
     if (mouseDown) {
       js << mouseDown->javaScript();
       element.setEvent("mousedown", js.str(),
-		       mouseDown->encodeCmd(), mouseDown->isExposedSignal());
+                       mouseDown->encodeCmd(), mouseDown->isExposedSignal());
       mouseDown->updateOk();
     } else
       element.setEvent("mousedown", js.str(), std::string(), false);
@@ -324,13 +324,13 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     js << CheckDisabled;
 
     if ((mouseMove && mouseMove->isConnected())
-	|| (mouseDrag && mouseDrag->isConnected()))
+        || (mouseDrag && mouseDrag->isConnected()))
       js << WT_CLASS ".mouseUp(e);";
-      
+
     if (mouseUp) {
       js << mouseUp->javaScript();
       element.setEvent("mouseup", js.str(),
-		       mouseUp->encodeCmd(), mouseUp->isExposedSignal());
+                       mouseUp->encodeCmd(), mouseUp->isExposedSignal());
       mouseUp->updateOk();
     } else
       element.setEvent("mouseup", js.str(), std::string(), false);
@@ -341,23 +341,23 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
      * We need to mix mouseDrag and mouseMove events.
      */
     std::vector<DomElement::EventAction> actions;
-    
+
     if (mouseMove) {
       actions.push_back
-	(DomElement::EventAction(std::string(),
-				 mouseMove->javaScript(),
-				 mouseMove->encodeCmd(),
-				 mouseMove->isExposedSignal()));
+        (DomElement::EventAction(std::string(),
+                                 mouseMove->javaScript(),
+                                 mouseMove->encodeCmd(),
+                                 mouseMove->isExposedSignal()));
       mouseMove->updateOk();
     }
 
     if (mouseDrag) {
       actions.push_back
-	(DomElement::EventAction(WT_CLASS ".buttons",
-				 mouseDrag->javaScript()
-				 + WT_CLASS ".drag(e);",
-				 mouseDrag->encodeCmd(),
-				 mouseDrag->isExposedSignal()));
+        (DomElement::EventAction(WT_CLASS ".buttons",
+                                 mouseDrag->javaScript()
+                                 + WT_CLASS ".drag(e);",
+                                 mouseDrag->encodeCmd(),
+                                 mouseDrag->isExposedSignal()));
       mouseDrag->updateOk();
     }
 
@@ -392,7 +392,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
      * When we have:
      *  - a touchStart + (touchMove or touchEnd),
      * we need to capture everything after on touch start, and keep track of the
-     * down button if we have a touchMove 
+     * down button if we have a touchMove
      */
     WStringStream js;
 
@@ -402,14 +402,14 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
       js << app->javaScriptClass() << "._p_.saveDownPos(event);";
 
     if ((touchStart && touchStart->isConnected()
-	    && ((touchEnd && touchEnd->isConnected())
-		|| (touchMove && touchMove->isConnected()))))
+            && ((touchEnd && touchEnd->isConnected())
+                || (touchMove && touchMove->isConnected()))))
       js << WT_CLASS ".capture(this);";
 
     if (touchStart) {
       js << touchStart->javaScript();
       element.setEvent("touchstart", js.str(),
-		       touchStart->encodeCmd(), touchStart->isExposedSignal());
+                       touchStart->encodeCmd(), touchStart->isExposedSignal());
       touchStart->updateOk();
     } else
       element.setEvent("touchstart", js.str(), std::string(), false);
@@ -427,17 +427,17 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     if (touchEnd) {
       js << touchEnd->javaScript();
       element.setEvent("touchend", js.str(),
-		         touchEnd->encodeCmd(), touchEnd->isExposedSignal());
+                         touchEnd->encodeCmd(), touchEnd->isExposedSignal());
       touchEnd->updateOk();
     } else
       element.setEvent("touchend", js.str(), std::string(), false);
   }
 
   if (updateTouchMove) {
-    
+
     if (touchMove) {
       element.setEvent("touchmove", touchMove->javaScript(),
-			touchMove->encodeCmd(), touchMove->isExposedSignal());
+                        touchMove->encodeCmd(), touchMove->isExposedSignal());
       touchMove->updateOk();
     }
   }
@@ -449,7 +449,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
   EventSignal<WMouseEvent> *mouseClick
     = mouseEventSignal(M_CLICK_SIGNAL, false);
   EventSignal<WMouseEvent> *mouseDblClick
-    = mouseEventSignal(DBL_CLICK_SIGNAL, false);  
+    = mouseEventSignal(DBL_CLICK_SIGNAL, false);
 
   bool updateMouseClick
     = (mouseClick && mouseClick->needsUpdate(all))
@@ -472,71 +472,71 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 
       /* We have to prevent this immediately ! */
       if (mouseClick) {
-	if (mouseClick->defaultActionPrevented() ||
-	    mouseClick->propagationPrevented()) {
-	  js << WT_CLASS ".cancelEvent(e";
-	  if (mouseClick->defaultActionPrevented() &&
-	      mouseClick->propagationPrevented())
-	    js << ");";
-	  else if (mouseClick->defaultActionPrevented())
-	    js << ",0x2);";
-	  else
-	    js << ",0x1);";
-	}
+        if (mouseClick->defaultActionPrevented() ||
+            mouseClick->propagationPrevented()) {
+          js << WT_CLASS ".cancelEvent(e";
+          if (mouseClick->defaultActionPrevented() &&
+              mouseClick->propagationPrevented())
+            js << ");";
+          else if (mouseClick->defaultActionPrevented())
+            js << ",0x2);";
+          else
+            js << ",0x1);";
+        }
       }
 
       js << "if(" WT_CLASS ".isDblClick(o, e)) {"
-	 << mouseDblClick->javaScript();
+         << mouseDblClick->javaScript();
 
       if (mouseDblClick->isExposedSignal())
-	js << app->javaScriptClass()
-		 << "._p_.update(o,'" << mouseDblClick->encodeCmd()
-		 << "',e,true);";
+        js << app->javaScriptClass()
+                 << "._p_.update(o,'" << mouseDblClick->encodeCmd()
+                 << "',e,true);";
 
       mouseDblClick->updateOk();
 
       js <<
-	"}else{"
-	"""if (" WT_CLASS ".isIElt9 && document.createEventObject) "
-	""  "e = document.createEventObject(e);"
-	"""o.wtE1 = e;"
-	"""o.wtClickTimeout = setTimeout(function() {"
-	""   "o.wtClickTimeout = null; o.wtE1 = null;";
+        "}else{"
+        """if (" WT_CLASS ".isIElt9 && document.createEventObject) "
+        ""  "e = document.createEventObject(e);"
+        """o.wtE1 = e;"
+        """o.wtClickTimeout = setTimeout(function() {"
+        ""   "o.wtClickTimeout = null; o.wtE1 = null;";
 
       if (mouseClick) {
-	js << mouseClick->javaScript();
+        js << mouseClick->javaScript();
 
-	if (mouseClick->isExposedSignal()) {
-	  js << app->javaScriptClass()
-		   << "._p_.update(o,'" << mouseClick->encodeCmd()
-		   << "',e,true);";
-	}
+        if (mouseClick->isExposedSignal()) {
+          js << app->javaScriptClass()
+                   << "._p_.update(o,'" << mouseClick->encodeCmd()
+                   << "',e,true);";
+        }
 
-	mouseClick->updateOk();
+        mouseClick->updateOk();
       }
 
       const Configuration& conf = app->environment().server()->configuration();
       js << "}," << conf.doubleClickTimeout() << ");}";
     } else {
       if (mouseClick && mouseClick->needsUpdate(all)) {
-	js << mouseClick->javaScript();
+        js << mouseClick->javaScript();
 
-	if (mouseClick->isExposedSignal()) {
-	  js << app->javaScriptClass()
-	     << "._p_.update(o,'" << mouseClick->encodeCmd()
-	     << "',e,true);";
-	}
+        if (mouseClick->isExposedSignal()) {
+          js << app->javaScriptClass()
+             << "._p_.update(o,'" << mouseClick->encodeCmd()
+             << "',e,true);";
+        }
 
-	mouseClick->updateOk();
+        mouseClick->updateOk();
       }
     }
 
     element.setEvent(CLICK_SIGNAL, js.str(),
-		     mouseClick ? mouseClick->encodeCmd() : "");
+                     mouseClick ? mouseClick->encodeCmd() : "");
 
     if (mouseDblClick) {
       if (app->environment().agentIsIElt(9))
-	element.setEvent("dblclick", "this.onclick()");
+        element.setEvent("dblclick", "this.onclick()");
     }
   }
 
@@ -546,7 +546,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
   EventSignal<WMouseEvent> *mouseOver
     = mouseEventSignal(MOUSE_OVER_SIGNAL, false);
   EventSignal<WMouseEvent> *mouseOut
-    = mouseEventSignal(MOUSE_OUT_SIGNAL, false); 
+    = mouseEventSignal(MOUSE_OUT_SIGNAL, false);
 
   bool updateMouseOver = mouseOver && mouseOver->needsUpdate(all);
 
@@ -554,12 +554,12 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     if (updateMouseOver) {
       WStringStream js;
       js << "o.over=setTimeout(function() {"
-	 << "o.over = null;"
-	 << mouseOver->javaScript();
+         << "o.over = null;"
+         << mouseOver->javaScript();
 
       if (mouseOver->isExposedSignal()) {
-	js << app->javaScriptClass()
-	   << "._p_.update(o,'" << mouseOver->encodeCmd() << "',e,true);";
+        js << app->javaScriptClass()
+           << "._p_.update(o,'" << mouseOver->encodeCmd() << "',e,true);";
       }
 
       js << "}," << mouseOverDelay_ << ");";
@@ -569,12 +569,12 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
       mouseOver->updateOk();
 
       if (!mouseOut)
-	mouseOut = mouseEventSignal(MOUSE_OUT_SIGNAL, true);
+        mouseOut = mouseEventSignal(MOUSE_OUT_SIGNAL, true);
 
       element.setEvent("mouseout",
-		       "clearTimeout(o.over); o.over=null;"
-		       + mouseOut->javaScript(),
-		       mouseOut->encodeCmd(), mouseOut->isExposedSignal());
+                       "clearTimeout(o.over); o.over=null;"
+                       + mouseOut->javaScript(),
+                       mouseOut->encodeCmd(), mouseOut->isExposedSignal());
       mouseOut->updateOk();
     }
   } else {
@@ -625,7 +625,7 @@ void WInteractWidget::updateEventSignals(DomElement& element, bool all)
     EventSignalBase& s = **i;
 
     if (s.name() == WInteractWidget::M_CLICK_SIGNAL
-	&& flags_.test(BIT_REPAINT_TO_AJAX))
+        && flags_.test(BIT_REPAINT_TO_AJAX))
       element.unwrap();
 
     updateSignalConnection(element, s, s.name(), all);
@@ -674,8 +674,8 @@ void WInteractWidget::propagateSetEnabled(bool enabled)
 }
 
 void WInteractWidget::setDraggable(const std::string& mimeType,
-				   WWidget *dragWidget, bool isDragWidgetOnly,
-				   WObject *sourceObject)
+                                   WWidget *dragWidget, bool isDragWidgetOnly,
+                                   WObject *sourceObject)
 {
   if (dragWidget == nullptr)
     dragWidget = this;
@@ -696,19 +696,19 @@ void WInteractWidget::setDraggable(const std::string& mimeType,
   if (!dragSlot_) {
     dragSlot_.reset(new JSlot());
     dragSlot_->setJavaScript("function(o,e){" + app->javaScriptClass()
-			     + "._p_.dragStart(o,e);" + "}");
+                             + "._p_.dragStart(o,e);" + "}");
   }
 
   if (!dragTouchSlot_) {
     dragTouchSlot_.reset(new JSlot());
     dragTouchSlot_->setJavaScript("function(o,e){" + app->javaScriptClass()
-				+ "._p_.touchStart(o,e);" + "}");
+                                + "._p_.touchStart(o,e);" + "}");
   }
 
   if (!dragTouchEndSlot_) {
     dragTouchEndSlot_.reset(new JSlot());
     dragTouchEndSlot_->setJavaScript("function(){" + app->javaScriptClass()
-				+ "._p_.touchEnded();" + "}");
+                                + "._p_.touchEnded();" + "}");
   }
 
   voidEventSignal(DRAGSTART_SIGNAL, true)->preventDefaultAction(true);

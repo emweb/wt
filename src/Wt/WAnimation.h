@@ -78,26 +78,26 @@ public:
    * An animation is created with given effects, timing and duration.
    */
   WAnimation(WFlags<AnimationEffect> effects,
-	     TimingFunction timing = TimingFunction::Linear,
-	     int duration = 250);
+             TimingFunction timing = TimingFunction::Linear,
+             int duration = 250);
 
 #ifdef WT_TARGET_JAVA
   /*! \brief Creates an animation.
    *
    * An animation is created with one effect, timing and duration.
    */
-  WAnimation(AnimationEffect effect, 
-	     TimingFunction timing = TimingFunction::Linear,
-	     int duration = 250);
+  WAnimation(AnimationEffect effect,
+             TimingFunction timing = TimingFunction::Linear,
+             int duration = 250);
 
   /*! \brief Creates an animation.
    *
    * An animation is created with two effects (a motion and Fade).
    */
   WAnimation(AnimationEffect effect1, AnimationEffect effect2,
-	     TimingFunction timing = TimingFunction::Linear,
-	     int duration = 250);
-  
+             TimingFunction timing = TimingFunction::Linear,
+             int duration = 250);
+
   /*! \brief Clone method.
    *
    * Clones this animation object.

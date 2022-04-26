@@ -17,11 +17,11 @@ using namespace Wt;
 
 class PlannerCalendar : public WCalendar
 {
-public: 
+public:
   PlannerCalendar(dbo::ptr<UserAccount> user);
 protected:
   virtual WWidget* renderCell(WWidget* widget, const WDate& date) override;
- 
+
 private:
   dbo::ptr<UserAccount> user_;
 };

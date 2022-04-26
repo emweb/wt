@@ -230,7 +230,7 @@ public:
   /*! \brief Sets a validator.
    */
   virtual void setValidator(Field field,
-			    const std::shared_ptr<WValidator>& validator);
+                            const std::shared_ptr<WValidator>& validator);
 
   /*! \brief Returns a validator.
    *

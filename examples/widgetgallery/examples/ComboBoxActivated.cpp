@@ -18,7 +18,7 @@ out->addStyleClass("help-block");
 
 cb->changed().connect([=] {
     out->setText(Wt::WString("You selected {1}.")
-		 .arg(cb->currentText()));
+                 .arg(cb->currentText()));
 });
 
 SAMPLE_END(return std::move(container))

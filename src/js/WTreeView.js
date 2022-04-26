@@ -34,36 +34,36 @@ WT_DECLARE_WT_MEMBER
 
      while (t && t != el) {
        if (WT.hasTag(t, 'LI')) {
-	 if (columnId == -1)
+         if (columnId == -1)
            columnId = 0;
-	 nodeId = t.id;
+         nodeId = t.id;
 
-	 break;
+         break;
        } else if (t.className && t.className.indexOf('Wt-tv-c') == 0) {
-	 if (t.className.indexOf('Wt-tv-c') == 0)
-	   columnId = t.className.split(' ')[0].substring(7) * 1;
-	 else if (columnId == -1)
-	   columnId = 0;
-	 if (t.getAttribute('drop') === 'true')
-	   drop = true;
-	 ele = t;
+         if (t.className.indexOf('Wt-tv-c') == 0)
+           columnId = t.className.split(' ')[0].substring(7) * 1;
+         else if (columnId == -1)
+           columnId = 0;
+         if (t.getAttribute('drop') === 'true')
+           drop = true;
+         ele = t;
        }
 
        if ($(t).hasClass(selectedClass))
-	 selected = true;
+         selected = true;
 
        t = t.parentNode;
      }
 
      return { columnId: columnId, nodeId: nodeId, selected: selected,
-	      drop: drop, el: ele };
+              drop: drop, el: ele };
    }
 
    this.click = function(obj, event) {
      var item = getItem(event);
      if (item.columnId != -1) {
        APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
-		item.nodeId + ':' + item.columnId, 'clicked', '', '');
+                item.nodeId + ':' + item.columnId, 'clicked', '', '');
      }
    };
 
@@ -71,7 +71,7 @@ WT_DECLARE_WT_MEMBER
      var item = getItem(event);
      if (item.columnId != -1) {
        APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
-		item.nodeId + ':' + item.columnId, 'dblclicked', '', '');
+                item.nodeId + ':' + item.columnId, 'dblclicked', '', '');
      }
    };
 
@@ -80,7 +80,7 @@ WT_DECLARE_WT_MEMBER
      var item = getItem(event);
      if (item.columnId != -1) {
        APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
-		item.nodeId + ':' + item.columnId, 'mousedown', '', '');
+                item.nodeId + ':' + item.columnId, 'mousedown', '', '');
        if (el.getAttribute('drag') === 'true' && item.selected)
          APP._p_.dragStart(el, event);
      }
@@ -90,17 +90,17 @@ WT_DECLARE_WT_MEMBER
      var item = getItem(event);
      if (item.columnId != -1) {
        APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
-		item.nodeId + ':' + item.columnId, 'mouseup', '', '');
+                item.nodeId + ':' + item.columnId, 'mouseup', '', '');
      }
    };
-  
+
    var touchStartTimer;
 
    function emitTouchEvent(obj, event, evtType) {
      var item = getItem(event);
      if (item.columnId != -1) {
        APP.emit(el, { name: 'itemTouchEvent', eventObject: obj, event: event},
-		item.nodeId + ':' + item.columnId, evtType);
+                item.nodeId + ':' + item.columnId, evtType);
      }
    }
 
@@ -132,22 +132,22 @@ WT_DECLARE_WT_MEMBER
 
    this.rootClick = function(obj, event) {
      APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
-	      '', 'clicked', '', '');
+              '', 'clicked', '', '');
    };
 
    this.rootDblClick = function(obj, event) {
      APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
-	      '', 'dblclicked', '', '');
+              '', 'dblclicked', '', '');
    };
 
    this.rootMouseDown = function(obj, event) {
      APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
-	      '', 'mousedown', '', '');
+              '', 'mousedown', '', '');
    };
 
    this.rootMouseUp = function(obj, event) {
      APP.emit(el, { name: 'itemEvent', eventObject: obj, event: event },
-	      '', 'mouseup', '', '');
+              '', 'mouseup', '', '');
    };
 
    this.resizeHandleMDown = function(obj, event) {
@@ -159,7 +159,7 @@ WT_DECLARE_WT_MEMBER
            cw = WT.pxself(r, 'width'),
            minDelta = -cw,
            maxDelta = 10000,
-	   rtl = $(document.body).hasClass('Wt-rtl');
+           rtl = $(document.body).hasClass('Wt-rtl');
 
        if (rtl) {
          var tmp = minDelta;
@@ -168,15 +168,15 @@ WT_DECLARE_WT_MEMBER
        }
 
        new WT.SizeHandle(WT, 'h', obj.offsetWidth, el.offsetHeight,
-	                 minDelta, maxDelta, 'Wt-hsh2',
-			 function (delta) {
-			   var newWidth = cw + (rtl ? -delta : delta),
-			       columnId = c.substring(7) * 1;
-			   r.style.width = newWidth + 'px';
-			   self.adjustColumns();
-			     APP.emit(el, 'columnResized', columnId,
-				      parseInt(newWidth));
-			 }, obj, el, event, -2, -1);
+                         minDelta, maxDelta, 'Wt-hsh2',
+                         function (delta) {
+                           var newWidth = cw + (rtl ? -delta : delta),
+                               columnId = c.substring(7) * 1;
+                           r.style.width = newWidth + 'px';
+                           self.adjustColumns();
+                             APP.emit(el, 'columnResized', columnId,
+                                      parseInt(newWidth));
+                         }, obj, el, event, -2, -1);
      }
    };
 
@@ -214,42 +214,42 @@ WT_DECLARE_WT_MEMBER
 
      for (var i=0, length=hc.childNodes.length; i < length; ++i) {
        if (hc.childNodes[i].className) { // IE may have only a text node
-	 var cl = hc.childNodes[i].className.split(' ')[0],
-	   r = WT.getCssRule('#' + el.id + ' .' + cl);
+         var cl = hc.childNodes[i].className.split(' ')[0],
+           r = WT.getCssRule('#' + el.id + ' .' + cl);
 
-	 if (r.style.display == 'none')
-	   continue;
+         if (r.style.display == 'none')
+           continue;
 
-	 // 7 = 2 * 3px (padding) + 1px border
-	 allw_1 += WT.pxself(r, 'width') + 7;
+         // 7 = 2 * 3px (padding) + 1px border
+         allw_1 += WT.pxself(r, 'width') + 7;
        }
      }
 
      if (!rowHeaderCount) {
        /*
-	* A floating container does not relate to size of contained
-	* children. It needs an explicit width (as to the letter of the
-	* @!@#$%! CSS spec, btw.). Only IE in RTL mode (when float: left)
-	* seems to implement this correctly and thus needs the following:
-	*/
+        * A floating container does not relate to size of contained
+        * children. It needs an explicit width (as to the letter of the
+        * @!@#$%! CSS spec, btw.). Only IE in RTL mode (when float: left)
+        * seems to implement this correctly and thus needs the following:
+        */
        if (WT.isIE && $(document.body).hasClass('Wt-rtl')) {
-	 var rrow = WT.getCssRule('#' + el.id + ' .Wt-tv-row');
-	 if (rrow)
-	   rrow.style.width = allw_1 + 'px';
+         var rrow = WT.getCssRule('#' + el.id + ' .Wt-tv-row');
+         if (rrow)
+           rrow.style.width = allw_1 + 'px';
        }
 
        if (!c0r.style.width) {
-	 // first resize and c0 width not set
-	 // 9 = 2px (widget border) - 7px column padding - 22px (scrollbar room)
-	 var c0rw = el.scrollWidth - hc.offsetWidth - 9 - 15;
-	 if (c0rw > 0)
-	   c0r.style.width = c0rw + 'px';
+         // first resize and c0 width not set
+         // 9 = 2px (widget border) - 7px column padding - 22px (scrollbar room)
+         var c0rw = el.scrollWidth - hc.offsetWidth - 9 - 15;
+         if (c0rw > 0)
+           c0r.style.width = c0rw + 'px';
        } else
-	 $(el).find('.Wt-headerdiv .' + c0id).css('width', c0r.style.width);
+         $(el).find('.Wt-headerdiv .' + c0id).css('width', c0r.style.width);
      }
 
      if (c0r.style['width'] == 'auto')
-	 return;
+         return;
 
      /*
       * IE6 is still not entirely right. It seems to be caused by a padding
@@ -270,14 +270,14 @@ WT_DECLARE_WT_MEMBER
        // already does that. It doesn't hurt, though.
        self.wtResize();
        if (APP.layouts2)
-	 APP.layouts2.adjust();
+         APP.layouts2.adjust();
 
        if (WT.isIE) {
-	 setTimeout(function() {
-	     $(el).find('.Wt-tv-rowc')
-	       .css('width', allw_1 + 'px')
-	       .css('width', '');
-	   }, 0);
+         setTimeout(function() {
+             $(el).find('.Wt-tv-rowc')
+               .css('width', allw_1 + 'px')
+               .css('width', '');
+           }, 0);
        }
 
        el.changed = true;
@@ -344,8 +344,8 @@ WT_DECLARE_WT_MEMBER
 
      if (!item.selected && item.drop && itemDropsEnabled && item.columnId != -1) {
        if (action=='drop') {
-	 APP.emit(el, { name: 'itemEvent', eventObject: object, event: event },
-		  item.nodeId + ':' + item.columnId, 'drop', sourceId, mimeType);
+         APP.emit(el, { name: 'itemEvent', eventObject: object, event: event },
+                  item.nodeId + ':' + item.columnId, 'drop', sourceId, mimeType);
        } else {
          object.className = 'Wt-valid-drop';
          dropEl = item.el;
@@ -368,8 +368,8 @@ WT_DECLARE_WT_MEMBER
        }
 
        if (action == 'drop') {
-	 APP.emit(el, { name: 'rowDropEvent', eventObject: object, event: event },
-		  item.nodeId + ':' + item.columnId, sourceId, mimeType, side);
+         APP.emit(el, { name: 'rowDropEvent', eventObject: object, event: event },
+                  item.nodeId + ':' + item.columnId, sourceId, mimeType, side);
        } else {
          object.className = 'Wt-valid-drop';
          showRowDropSite(node, side);
@@ -400,10 +400,10 @@ WT_DECLARE_WT_MEMBER
       var tw = WT.pxself(el, 'width');
 
       if (tw == 0)
-	tw = el.clientWidth;
+        tw = el.clientWidth;
       else if (WT.boxSizing(el)) {
-	tw -= WT.px(el, 'borderLeftWidth');
-	tw -= WT.px(el, 'borderRightWidth');
+        tw -= WT.px(el, 'borderLeftWidth');
+        tw -= WT.px(el, 'borderRightWidth');
       }
 
       var scrollwidth = contentsContainer.offsetWidth
@@ -411,84 +411,84 @@ WT_DECLARE_WT_MEMBER
 
       // IE cannot accurately estimate scrollwidth from time to time ?
       if (scrollwidth > 50)
-	scrollwidth = 0;
+        scrollwidth = 0;
 
       if (contentsContainer.clientWidth > 0)
-	tw -= scrollwidth;
+        tw -= scrollwidth;
 
       if ($el.hasClass('column1')) {
-	c0id = $el.find('.Wt-headerdiv').get(0)
-	  .lastChild.className.split(' ')[0];
-	c0r = WT.getCssRule('#' + el.id + ' .' + c0id);
-	c0w = WT.pxself(c0r, 'width');
+        c0id = $el.find('.Wt-headerdiv').get(0)
+          .lastChild.className.split(' ')[0];
+        c0r = WT.getCssRule('#' + el.id + ' .' + c0id);
+        c0w = WT.pxself(c0r, 'width');
       }
 
       // XXX: IE's incremental rendering foobars completely
       if ((!WT.isIE || tw > 100)
-	  && (tw != contentsContainer.tw ||
-	      c0w != contentsContainer.c0w ||
-	      el.changed)) {
-	var adjustColumns = !el.changed;
+          && (tw != contentsContainer.tw ||
+              c0w != contentsContainer.c0w ||
+              el.changed)) {
+        var adjustColumns = !el.changed;
 
-	contentsContainer.tw = tw;
-	contentsContainer.c0w = c0w;
+        contentsContainer.tw = tw;
+        contentsContainer.c0w = c0w;
 
-	c0id = $el.find('.Wt-headerdiv').get(0)
-	  .lastChild.className.split(' ')[0];
-	c0r = WT.getCssRule('#' + el.id + ' .' + c0id);
+        c0id = $el.find('.Wt-headerdiv').get(0)
+          .lastChild.className.split(' ')[0];
+        c0r = WT.getCssRule('#' + el.id + ' .' + c0id);
 
-	var table = contents.firstChild,
+        var table = contents.firstChild,
           r = WT.getCssRule('#' + el.id + ' .cwidth'),
           contentstoo = (r.style.width == (table.offsetWidth + 1) + 'px'),
           hc = headers.firstChild;
 
-	r.style.width = tw + 'px';
+        r.style.width = tw + 'px';
 
-	contentsContainer.style.width = (tw + scrollwidth) + 'px';
+        contentsContainer.style.width = (tw + scrollwidth) + 'px';
 
-	var rtl = $(document.body).hasClass('Wt-rtl');
-	if (!rtl) {
-	  headerContainer.style.marginRight = scrollwidth + 'px';
-	  $('#' + el.id + ' .Wt-scroll').css('marginRight', scrollwidth + 'px');
-	}
+        var rtl = $(document.body).hasClass('Wt-rtl');
+        if (!rtl) {
+          headerContainer.style.marginRight = scrollwidth + 'px';
+          $('#' + el.id + ' .Wt-scroll').css('marginRight', scrollwidth + 'px');
+        }
 
-	if (c0w != null) {
-	  var w = tw - c0w - (WT.isIE6 ? 10 : 7);
+        if (c0w != null) {
+          var w = tw - c0w - (WT.isIE6 ? 10 : 7);
 
-	  if (w > 0) {
-	    var w2
-	      = Math.min(w, WT.pxself
-			 (WT.getCssRule('#' + el.id + ' .Wt-tv-rowc'),'width'));
-	    tw -= (w - w2);
+          if (w > 0) {
+            var w2
+              = Math.min(w, WT.pxself
+                         (WT.getCssRule('#' + el.id + ' .Wt-tv-rowc'),'width'));
+            tw -= (w - w2);
 
-	    headers.style.width=tw + 'px';
-	    table.style.width=tw + 'px';
+            headers.style.width=tw + 'px';
+            table.style.width=tw + 'px';
 
-	    /* This is really slow in FF, slower than the jquery equivalent */
-	    WT.getCssRule('#' + el.id + ' .Wt-tv-row').style.width = w2 + 'px';
+            /* This is really slow in FF, slower than the jquery equivalent */
+            WT.getCssRule('#' + el.id + ' .Wt-tv-row').style.width = w2 + 'px';
 
-	    if (WT.isIE)
-	      setTimeout(function() {
-			   $el.find(' .Wt-tv-row')
-			     .css('width', w2 + 'px')
-			     .css('width', '');
-			 }, 0);
-	  }
-	} else {
-	  if (contentstoo) {
-	    headers.style.width=r.style.width;
-	    table.style.width=r.style.width;
-	  } else
-	    headers.style.width = table.offsetWidth + 'px';
-	}
+            if (WT.isIE)
+              setTimeout(function() {
+                           $el.find(' .Wt-tv-row')
+                             .css('width', w2 + 'px')
+                             .css('width', '');
+                         }, 0);
+          }
+        } else {
+          if (contentstoo) {
+            headers.style.width=r.style.width;
+            table.style.width=r.style.width;
+          } else
+            headers.style.width = table.offsetWidth + 'px';
+        }
 
-	if (!rowHeaderCount && (table.offsetWidth - hc.offsetWidth >= 7))
-	  c0r.style.width = (table.offsetWidth - hc.offsetWidth - 7) + 'px';
+        if (!rowHeaderCount && (table.offsetWidth - hc.offsetWidth >= 7))
+          c0r.style.width = (table.offsetWidth - hc.offsetWidth - 7) + 'px';
 
-	el.changed = false;
+        el.changed = false;
 
-	if (adjustColumns/* && WT.isIE */)
-	  self.adjustColumns();
+        if (adjustColumns/* && WT.isIE */)
+          self.adjustColumns();
       }
   };
 
@@ -496,12 +496,12 @@ WT_DECLARE_WT_MEMBER
      if (y != -1) {
        y *= rowHeight;
        var top = contentsContainer.scrollTop,
-	   height = contentsContainer.clientHeight;
+           height = contentsContainer.clientHeight;
        if (hint == EnsureVisible) {
-	 if (top + height < y)
-	   hint = PositionAtTop;
-	 else if (y < top)
-	   hint = PositionAtBottom;
+         if (top + height < y)
+           hint = PositionAtTop;
+         else if (y < top)
+           hint = PositionAtBottom;
        }
 
        switch (hint) {
@@ -530,12 +530,12 @@ WT_DECLARE_WT_MEMBER
   var offsetRowColorImg = function() {
     if (rowHeight == 0)
       return;
-    
+
     var scrollPos = contentsContainer.scrollTop;
     var rootNode = contents.children[0].children[0];
     rootNode.style.backgroundPosition = "0px " + Math.floor(scrollPos/(2*rowHeight)) * (2*rowHeight) + "px";
   };
-  
+
   if (contentsContainer.addEventListener) {
     contentsContainer.addEventListener("scroll", offsetRowColorImg);
   } else if (contentsContainer.attachEvent) {

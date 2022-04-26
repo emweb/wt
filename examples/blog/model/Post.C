@@ -50,6 +50,6 @@ std::string Post::titleToUrl() const
     else
       result[i] = tolower(result[i]);
   }
-  
+
   return result;
 }

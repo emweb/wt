@@ -43,7 +43,7 @@ private:
 };
 
 ChatApplication::ChatApplication(const Wt::WEnvironment& env,
-				 SimpleChatServer& server)
+                                 SimpleChatServer& server)
   : WApplication(env),
     server_(server),
     env_(env)
@@ -73,7 +73,7 @@ void ChatApplication::javaScriptTest()
 {
   if(!env_.javaScript()){
     javaScriptError_ =
-	root()->addWidget(std::make_unique<Wt::WText>(Wt::WString::tr("serverpushwarning")));
+        root()->addWidget(std::make_unique<Wt::WText>(Wt::WString::tr("serverpushwarning")));
 
     // The 5 second timer is a fallback for real server push. The updated
     // server state will piggy back on the response to this timeout.
@@ -123,7 +123,7 @@ ChatWidget::ChatWidget(const Wt::WEnvironment& env, SimpleChatServer& server)
   if (div) {
     setJavaScriptClass(*div);
     std::unique_ptr<PopupChatWidget> chatWidgetPtr =
-	std::make_unique<PopupChatWidget>(server, *div);
+        std::make_unique<PopupChatWidget>(server, *div);
     PopupChatWidget *chatWidget = chatWidgetPtr.get();
     bindWidget(std::move(chatWidgetPtr), *div);
 
@@ -131,8 +131,8 @@ ChatWidget::ChatWidget(const Wt::WEnvironment& env, SimpleChatServer& server)
 
     std::string chat = javaScriptClass();
     doJavaScript("if (window." + chat + "User) "
-		 + chat + ".emit(" + chat + ", 'login', " + chat + "User);"
-		 + "document.body.appendChild(" + chatWidget->jsRef() + ");");
+                 + chat + ".emit(" + chat + ", 'login', " + chat + "User);"
+                 + "document.body.appendChild(" + chatWidget->jsRef() + ");");
   } else {
     std::cerr << "Missing: parameter: 'div'" << std::endl;
     quit();
@@ -140,7 +140,7 @@ ChatWidget::ChatWidget(const Wt::WEnvironment& env, SimpleChatServer& server)
 }
 
 std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment& env,
-				SimpleChatServer& server)
+                                SimpleChatServer& server)
 {
   return std::make_unique<ChatApplication>(env, server);
 }

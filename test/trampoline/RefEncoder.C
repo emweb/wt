@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE(test_trampoline1)
 
   {
     Wt::WText t("<div style=\"background-image: "
-		"url(http://www.google.be)\"></div>");
+                "url(http://www.google.be)\"></div>");
 
     std::stringstream s;
     t.htmlText(s);
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(test_trampoline1)
 
   {
     Wt::WText t("<div style=\"background-image: "
-		"url('http://www.google.be')\"></div>");
+                "url('http://www.google.be')\"></div>");
     std::stringstream s;
     t.htmlText(s);
 
@@ -49,9 +49,9 @@ BOOST_AUTO_TEST_CASE(test_trampoline1)
 
   {
     Wt::WText t("<div style=\"background-image: "
-		"url('http://www.google.be')\">"
-		"<span style=\"background-image: "
-		"url('http://www.webtoolkit.eu')\"></span></div>");
+                "url('http://www.google.be')\">"
+                "<span style=\"background-image: "
+                "url('http://www.webtoolkit.eu')\"></span></div>");
     std::stringstream s;
     t.htmlText(s);
 

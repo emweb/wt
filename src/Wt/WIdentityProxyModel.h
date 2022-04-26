@@ -90,7 +90,7 @@ public:
    * Forwards the result indicating success from the source model.
    */
    virtual bool insertColumns(int column, int count,
-		     const WModelIndex &parent = WModelIndex()) override;
+                     const WModelIndex &parent = WModelIndex()) override;
 
   /*! \brief Inserts one or more rows.
    *
@@ -99,7 +99,7 @@ public:
    * Forwards the result indicating success from the source model.
    */
   virtual bool insertRows(int row, int count,
-		  const WModelIndex &parent = WModelIndex()) override;
+                  const WModelIndex &parent = WModelIndex()) override;
 
   /*! \brief Removes columns.
    *
@@ -108,7 +108,7 @@ public:
    * Forwards the result indicating success from the source model.
    */
   virtual bool removeColumns(int column, int count,
-		     const WModelIndex &parent = WModelIndex()) override;
+                     const WModelIndex &parent = WModelIndex()) override;
 
   /*! \brief Removes rows.
    *
@@ -117,7 +117,7 @@ public:
    * Forwards the result indicating success from the source model.
    */
   virtual bool removeRows(int row, int count,
-		  const WModelIndex &parent = WModelIndex()) override;
+                  const WModelIndex &parent = WModelIndex()) override;
 
   using WAbstractProxyModel::setHeaderData;
 
@@ -128,25 +128,25 @@ public:
    * Forwards the result indicating success from the source model.
    */
   bool setHeaderData(int section, Orientation orientation,
-		     const cpp17::any& value, ItemDataRole role = ItemDataRole::Edit);
+                     const cpp17::any& value, ItemDataRole role = ItemDataRole::Edit);
 
 private:
   std::vector<Wt::Signals::connection> modelConnections_;
 
   void sourceColumnsAboutToBeInserted(const WModelIndex &parent,
-				      int start, int end);
+                                      int start, int end);
   void sourceColumnsAboutToBeRemoved(const WModelIndex &parent,
-				     int start, int end);
+                                     int start, int end);
   void sourceColumnsInserted(const WModelIndex &parent, int start, int end);
   void sourceColumnsRemoved(const WModelIndex &parent, int start, int end);
   void sourceRowsAboutToBeInserted(const WModelIndex &parent,
-				   int start, int end);
+                                   int start, int end);
   void sourceRowsAboutToBeRemoved(const WModelIndex &parent,
-				  int start, int end);
+                                  int start, int end);
   void sourceRowsInserted(const WModelIndex &parent, int start, int end);
   void sourceRowsRemoved(const WModelIndex &parent, int start, int end);
   void sourceDataChanged(const WModelIndex &topLeft,
-			 const WModelIndex &bottomRight);
+                         const WModelIndex &bottomRight);
   void sourceHeaderDataChanged(Orientation orientation, int start, int end);
   void sourceLayoutAboutToBeChanged();
   void sourceLayoutChanged();

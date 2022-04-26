@@ -52,13 +52,13 @@ namespace Wt {
  * \elseif java
  * \code
  * enum Vote { Republican , Democrat , NoVote };
- * 
+ *
  * // use a group box as widget container for 3 radio buttons, with a title
  * WGroupBox container = new WGroupBox("USA elections vote");
- * 		 
+ *
  * // use a button group to logically group the 3 options
  * WButtonGroup group = new WButtonGroup(this);
- *		 
+ *
  * WRadioButton button;
  * button = new WRadioButton("I voted Republican", container);
  * new WBreak(container);
@@ -71,7 +71,7 @@ namespace Wt {
  * button = new WRadioButton("I didn't vote", container);
  * new WBreak(container);
  * group.addButton(button, Vote.NoVote.ordinal());
- *		 
+ *
  * group.setCheckedButton(group.button(Vote.NoVote.ordinal()));
  * \endcode
  * \endif
@@ -94,7 +94,7 @@ public:
   /*! \brief Creates a groupbox with empty title.
    */
   WGroupBox();
-  
+
   /*! \brief Creates a groupbox with given title message.
    */
   WGroupBox(const WString& title);

@@ -26,13 +26,13 @@ public:
 
   typedef void (WObject::*WObjectMethod)();
 
-  enum class SlotType { 
+  enum class SlotType {
     AutoLearnStateless,
     PreLearnStateless,
     JavaScriptSpecified
   };
-    
-  SlotType type() const; 
+
+  SlotType type() const;
   bool learned() const;
   void setNotLearned();
   void invalidate();
@@ -56,9 +56,9 @@ public:
 protected:
   WStatelessSlot(WObject *target, WObjectMethod method);
   WStatelessSlot(WObject *target, WObjectMethod method,
-		 WObjectMethod undoMethod);
+                 WObjectMethod undoMethod);
   WStatelessSlot(WObject *target, WObjectMethod method,
-		 const std::string& javaScript);
+                 const std::string& javaScript);
 
 private:
   void reimplementPreLearn(WObjectMethod undoMethod);
@@ -70,7 +70,7 @@ private:
 
   bool                           learned_;
   std::string                    jscript_;
-  std::vector<EventSignalBase *> connectingSignals_;     
+  std::vector<EventSignalBase *> connectingSignals_;
 
   friend class WObject;
   friend class JSlot;

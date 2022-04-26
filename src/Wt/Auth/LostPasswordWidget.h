@@ -25,14 +25,14 @@ class AuthService;
  * \sa AuthWidget::createLostPasswordView()
  *
  * \ingroup auth
- */ 
+ */
 class WT_API LostPasswordWidget : public WTemplate
 {
 public:
   /*! \brief Constructor
    */
   LostPasswordWidget(AbstractUserDatabase& users,
-		     const AuthService& auth);
+                     const AuthService& auth);
 
 protected:
   void send();

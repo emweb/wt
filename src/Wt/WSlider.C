@@ -26,7 +26,7 @@ namespace Wt {
 const Wt::WFlags<WSlider::TickPosition> WSlider::NoTicks = None;
 const Wt::WFlags<WSlider::TickPosition> WSlider::TicksBothSides
   = WSlider::TickPosition::TicksAbove | WSlider::TickPosition::TicksBelow;
-  
+
 const char *WSlider::INPUT_SIGNAL = "input";
 
 class PaintedSlider final : public WPaintedWidget
@@ -134,7 +134,7 @@ PaintedSlider::PaintedSlider(WSlider *slider)
 
   handle_->setPositionScheme(PositionScheme::Absolute);
   handle_->setStyleClass("handle");
-  
+
   handle_->setCanReceiveFocus(true);
   slider_->setCanReceiveFocus(true);
 
@@ -165,13 +165,13 @@ PaintedSlider::~PaintedSlider()
 
 double PaintedSlider::w() const
 {
-  return width().toPixels() 
+  return width().toPixels()
     + (slider_->orientation() == Orientation::Horizontal ? 10 : 0);
 }
 
 double PaintedSlider::h() const
 {
-  return height().toPixels() 
+  return height().toPixels()
     + (slider_->orientation() == Orientation::Vertical ? 10 : 0);
 }
 
@@ -215,49 +215,49 @@ void PaintedSlider::updateState()
    */
   WStringStream mouseDownJS;
   mouseDownJS << "obj.setAttribute('down', " WT_CLASS
-	      <<                     ".widgetCoordinates(obj, event)." << u
-	      <<                  ");";
+              <<                     ".widgetCoordinates(obj, event)." << u
+              <<                  ");";
 
   WStringStream computeD; // = 'u' position relative to background, corrected for slider
   computeD << "var objh = " << handle_->jsRef() << ","
-	   <<     "objf = " << fill_->jsRef() << ","
-	   <<     "objb = " << slider_->jsRef() << ","
-	   <<     "page_u = WT.pageCoordinates(event)." << u << ","
-	   <<     "widget_page_u = WT.widgetPageCoordinates(objb)." << u << ","
-	   <<     "pos = page_u - widget_page_u,"
-	   <<     "rtl = " << rtl << ","
-	   <<     "horizontal = " << horizontal << ";"
-	   <<     "if (rtl && horizontal)";
+           <<     "objf = " << fill_->jsRef() << ","
+           <<     "objb = " << slider_->jsRef() << ","
+           <<     "page_u = WT.pageCoordinates(event)." << u << ","
+           <<     "widget_page_u = WT.widgetPageCoordinates(objb)." << u << ","
+           <<     "pos = page_u - widget_page_u,"
+           <<     "rtl = " << rtl << ","
+           <<     "horizontal = " << horizontal << ";"
+           <<     "if (rtl && horizontal)";
   computeD <<       "pos = " << Utils::round_js_str(l, 3, buf) << " - pos;";
   computeD <<     "var d = pos - down;";
-  
+
   WStringStream mouseMovedJS;
   mouseMovedJS << "var down = obj.getAttribute('down');"
-	       << "var WT = " WT_CLASS ";"
-	       << "if (down != null && down != '') {"
-	       <<    computeD.str();
+               << "var WT = " WT_CLASS ";"
+               << "if (down != null && down != '') {"
+               <<    computeD.str();
   mouseMovedJS <<   "d = Math.max(0, Math.min(d, " << Utils::round_js_str(max, 3, buf) << "));";
   mouseMovedJS <<   "var v = Math.round(d/" << Utils::round_js_str(pixelsPerUnit, 3, buf) << ");";
   mouseMovedJS <<   "var intd = v*" << Utils::round_js_str(pixelsPerUnit, 3, buf) << ";";
   mouseMovedJS <<   "if (Math.abs(WT.pxself(objh, '" << dir
-	       <<                 "') - intd) > 1) {"
-	       <<     "objf.style." << size << " = ";
+               <<                 "') - intd) > 1) {"
+               <<     "objf.style." << size << " = ";
   if (o == Orientation::Vertical) {
     mouseMovedJS << '(' << Utils::round_js_str(max, 3, buf);
     mouseMovedJS << " - intd + " << (slider_->handleWidth() / 2)
-		 << ")";
+                 << ")";
   } else
     mouseMovedJS << "intd + " << (slider_->handleWidth() / 2);
-  mouseMovedJS <<       " + 'px';" 
-	       <<     "objh.style." << dir << " = intd + 'px';"
-	       <<     "var vs = ";
+  mouseMovedJS <<       " + 'px';"
+               <<     "objh.style." << dir << " = intd + 'px';"
+               <<     "var vs = ";
   if (o == Orientation::Horizontal)
     mouseMovedJS << "v + " << slider_->minimum();
   else
     mouseMovedJS << slider_->maximum() << " - v";
   mouseMovedJS <<     ";"
-	       <<     "var f = objb.onValueChange;"
-	       <<     "if (f) f(vs);";
+               <<     "var f = objb.onValueChange;"
+               <<     "if (f) f(vs);";
 
   if (slider_->sliderMoved().needsUpdate(true)) {
 #ifndef WT_TARGET_JAVA
@@ -268,33 +268,33 @@ void PaintedSlider::updateState()
   }
 
   mouseMovedJS <<   "}"
-	       << "}";
+               << "}";
 
   WStringStream mouseUpJS;
   mouseUpJS << "var down = obj.getAttribute('down');"
-	    << "var WT = " WT_CLASS ";"
-	    << "if (down != null && down != '') {"
-	    <<    computeD.str()
-	    <<   "d += " << (slider_->handleWidth() / 2) << ";"
+            << "var WT = " WT_CLASS ";"
+            << "if (down != null && down != '') {"
+            <<    computeD.str()
+            <<   "d += " << (slider_->handleWidth() / 2) << ";"
 #ifndef WT_TARGET_JAVA
-	    <<    sliderReleased_.createCall({"Math.round(d)"})
+            <<    sliderReleased_.createCall({"Math.round(d)"})
 #else
-	    <<    sliderReleased_.createCall("Math.round(d)")
+            <<    sliderReleased_.createCall("Math.round(d)")
 #endif
-	    <<   "obj.removeAttribute('down');"
-	    << "}";
+            <<   "obj.removeAttribute('down');"
+            << "}";
 
   bool enabled = !slider_->isDisabled();
-  
-  mouseDownJS_.setJavaScript(std::string("function(obj, event) {") 
-			     + (enabled ? mouseDownJS.str() : "") 
-			     + "}");
-  mouseMovedJS_.setJavaScript(std::string("function(obj, event) {") 
-			      + (enabled ? mouseMovedJS.str() : "") 
-			      + "}");
-  mouseUpJS_.setJavaScript(std::string("function(obj, event) {") 
-			   + (enabled ? mouseUpJS.str() : "") 
-			   + "}");
+
+  mouseDownJS_.setJavaScript(std::string("function(obj, event) {")
+                             + (enabled ? mouseDownJS.str() : "")
+                             + "}");
+  mouseMovedJS_.setJavaScript(std::string("function(obj, event) {")
+                              + (enabled ? mouseMovedJS.str() : "")
+                              + "}");
+  mouseUpJS_.setJavaScript(std::string("function(obj, event) {")
+                           + (enabled ? mouseUpJS.str() : "")
+                           + "}");
 
   update();
   updateSliderPosition();
@@ -332,12 +332,12 @@ void PaintedSlider::sliderResized(const WLength& width, const WLength& height)
     if (!h.isAuto())
       h = WLength(h.toPixels() - 10);
 
-    resize(width, h);    
+    resize(width, h);
   }
 
   updateState();
 }
- 
+
 void PaintedSlider::onSliderClick(const WMouseEvent& event)
 {
   int x = event.widget().x;
@@ -362,15 +362,15 @@ void PaintedSlider::onSliderReleased(int u)
   double pixelsPerUnit = (l - slider_->handleWidth()) / range();
 
   double v = std::max(slider_->minimum(),
-		      std::min(slider_->maximum(),
-			       slider_->minimum() 
-			       + (int)((double)u / pixelsPerUnit + 0.5)));
+                      std::min(slider_->maximum(),
+                               slider_->minimum()
+                               + (int)((double)u / pixelsPerUnit + 0.5)));
 
   // TODO changed() ?
   slider_->sliderMoved().emit(static_cast<int>(v));
 
   slider_->setValue(static_cast<int>(v));
-  slider_->valueChanged().emit(slider_->value());  
+  slider_->valueChanged().emit(slider_->value());
 
   updateSliderPosition();
 }
@@ -452,14 +452,14 @@ bool WSlider::nativeControl() const
 {
   if (preferNative_) {
     const WEnvironment& env = WApplication::instance()->environment();
-    if ((env.agentIsChrome() && 
-	 static_cast<unsigned int>(env.agent()) >= 
-	 static_cast<unsigned int>(UserAgent::Chrome5))
-	|| (env.agentIsSafari() && 
-	    static_cast<unsigned int>(env.agent()) >= 
-	    static_cast<unsigned int>(UserAgent::Safari4))
-	|| (env.agentIsOpera() && 
-	    static_cast<unsigned int>(env.agent()) >=
+    if ((env.agentIsChrome() &&
+         static_cast<unsigned int>(env.agent()) >=
+         static_cast<unsigned int>(UserAgent::Chrome5))
+        || (env.agentIsSafari() &&
+            static_cast<unsigned int>(env.agent()) >=
+            static_cast<unsigned int>(UserAgent::Safari4))
+        || (env.agentIsOpera() &&
+            static_cast<unsigned int>(env.agent()) >=
       static_cast<unsigned int>(UserAgent::Opera10))
   || (env.agentIsGecko() &&
       static_cast<unsigned int>(env.agent()) >=
@@ -635,12 +635,12 @@ void WSlider::updateDom(DomElement& element, bool all)
       element.setAttribute("max", std::to_string(maximum_));
 
       if (!changedConnected_
-	  && (valueChanged_.isConnected() || sliderMoved_.isConnected())) {
-	changedConnected_ = true;
+          && (valueChanged_.isConnected() || sliderMoved_.isConnected())) {
+        changedConnected_ = true;
         changed().connect(this, &WSlider::onChange);
       } else if (!inputConnected_ && (valueChanged_.isConnected() || sliderMoved_.isConnected())) {
-	changedConnected_ = true;
-	input().connect(this, &WSlider::onChange);
+        changedConnected_ = true;
+        input().connect(this, &WSlider::onChange);
       }
 
       changed_ = false;
@@ -675,7 +675,7 @@ void WSlider::setValueText(const WT_USTRING& value)
 {
   try {
     value_ = Utils::stoi(value.toUTF8());
-  } catch (std::exception& e) { 
+  } catch (std::exception& e) {
   }
 }
 
@@ -714,16 +714,16 @@ void WSlider::paintTick(WPainter& painter, int value, int x, int y)
     switch (orientation_) {
     case Orientation::Horizontal:
       if (tickPosition_.test(WSlider::TickPosition::TicksAbove))
-	painter.drawLine(x + 0.5, y1, x + 0.5, y2);
+        painter.drawLine(x + 0.5, y1, x + 0.5, y2);
       if (tickPosition_.test(WSlider::TickPosition::TicksBelow))
-	painter.drawLine(x + 0.5, y3, x + 0.5, y4);
+        painter.drawLine(x + 0.5, y3, x + 0.5, y4);
 
       break;
     case Orientation::Vertical:
       if (tickPosition_.test(WSlider::TickPosition::TicksAbove))
-	painter.drawLine(y1, y + 0.5, y2, y + 0.5);
+        painter.drawLine(y1, y + 0.5, y2, y + 0.5);
       if (tickPosition_.test(WSlider::TickPosition::TicksBelow))
-	painter.drawLine(y3, y + 0.5, y4, y + 0.5);
+        painter.drawLine(y3, y + 0.5, y4, y + 0.5);
     }
   }
 }

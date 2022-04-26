@@ -103,7 +103,7 @@ void WAbstractChart::setModel(const std::shared_ptr<WAbstractChartModel>& model)
   model_ = model;
 
   modelConnections_.push_back(model_->changed().connect
-		      (this, &WAbstractChart::modelReset));
+                      (this, &WAbstractChart::modelReset));
 
   modelChanged();
 }

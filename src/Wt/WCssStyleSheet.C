@@ -27,7 +27,7 @@ public:
   }
 
   virtual void setOffsets(const WLength& offset,
-			  WFlags<Side> sides = AllSides) override {
+                          WFlags<Side> sides = AllSides) override {
     WWebWidget::setOffsets(offset, sides);
     rule_->modified();
   }
@@ -37,14 +37,14 @@ public:
     rule_->modified();
   }
 
-  virtual void setMinimumSize(const WLength& width, const WLength& height) 
+  virtual void setMinimumSize(const WLength& width, const WLength& height)
     override
   {
     WWebWidget::setMinimumSize(width, height);
     rule_->modified();
   }
 
-  virtual void setMaximumSize(const WLength& width, const WLength& height) 
+  virtual void setMaximumSize(const WLength& width, const WLength& height)
     override
   {
     WWebWidget::setMaximumSize(width, height);
@@ -68,13 +68,13 @@ public:
   }
 
   virtual void setMargin(const WLength& margin,
-			 WFlags<Side> sides = AllSides) override {
+                         WFlags<Side> sides = AllSides) override {
     WWebWidget::setMargin(margin, sides);
     rule_->modified();
   }
 
-  virtual void setHidden(bool hidden, 
-			 const WAnimation& animation = WAnimation()) override {
+  virtual void setHidden(bool hidden,
+                         const WAnimation& animation = WAnimation()) override {
     WWebWidget::setHidden(hidden, animation);
     rule_->modified();
   }
@@ -98,13 +98,13 @@ public:
   }
 
   virtual void setVerticalAlignment(AlignmentFlag alignment,
-				    const WLength& length) override {
+                                    const WLength& length) override {
     WWebWidget::setVerticalAlignment(alignment, length);
     rule_->modified();
   }
 
-  virtual DomElementType domElementType() const override { 
-    return DomElementType::SPAN; 
+  virtual DomElementType domElementType() const override {
+    return DomElementType::SPAN;
   }
 
 private:
@@ -158,14 +158,14 @@ bool WCssTemplateRule::updateDomElement(DomElement& element, bool all)
 }
 
 WCssTextRule::WCssTextRule(const std::string& selector,
-			   const WT_USTRING& declarations)
+                           const WT_USTRING& declarations)
   : WCssRule(selector),
     declarations_(declarations)
 { }
 
 std::string WCssTextRule::declarations()
 {
-  return declarations_.toUTF8(); 
+  return declarations_.toUTF8();
 }
 
 WCssStyleSheet::WCssStyleSheet()
@@ -175,7 +175,7 @@ WCssStyleSheet::~WCssStyleSheet()
 { }
 
 WCssRule *WCssStyleSheet::addRule(std::unique_ptr<WCssRule> rule,
-				  const std::string& ruleName)
+                                  const std::string& ruleName)
 {
   rule->sheet_ = this;
 
@@ -189,8 +189,8 @@ WCssRule *WCssStyleSheet::addRule(std::unique_ptr<WCssRule> rule,
 }
 
 WCssTemplateRule *WCssStyleSheet::addRule(const std::string& selector,
-					  const WCssDecorationStyle& style,
-					  const std::string& ruleName)
+                                          const WCssDecorationStyle& style,
+                                          const std::string& ruleName)
 {
   std::unique_ptr<WCssTemplateRule> r(new WCssTemplateRule(selector));
   r->templateWidget()->setDecorationStyle(style);
@@ -200,8 +200,8 @@ WCssTemplateRule *WCssStyleSheet::addRule(const std::string& selector,
 }
 
 WCssTextRule *WCssStyleSheet::addRule(const std::string& selector,
-				      const WT_USTRING& declarations,
-				      const std::string& ruleName)
+                                      const WT_USTRING& declarations,
+                                      const std::string& ruleName)
 {
   std::unique_ptr<WCssTextRule> r(new WCssTextRule(selector, declarations));
   WCssTextRule *result = r.get();
@@ -211,15 +211,15 @@ WCssTextRule *WCssStyleSheet::addRule(const std::string& selector,
 
 #ifndef WT_TARGET_JAVA
 WCssTextRule *WCssStyleSheet::addRule(const std::string& selector,
-				      const char *declarations,
-				      const std::string& ruleName)
+                                      const char *declarations,
+                                      const std::string& ruleName)
 {
   return addRule(selector, WT_USTRING::fromUTF8(declarations), ruleName);
 }
 
 WCssTextRule *WCssStyleSheet::addRule(const std::string& selector,
-				      const std::string& declarations,
-				      const std::string& ruleName)
+                                      const std::string& declarations,
+                                      const std::string& ruleName)
 {
   return addRule(selector, WT_USTRING::fromUTF8(declarations), ruleName);
 }
@@ -276,7 +276,7 @@ void WCssStyleSheet::cssText(WStringStream& out, bool all)
 }
 
 void WCssStyleSheet::javaScriptUpdate(WApplication *app,
-				      WStringStream& js, bool all)
+                                      WStringStream& js, bool all)
 {
   if (!all) {
     for (unsigned i = 0; i < rulesRemoved_.size(); ++i) {
@@ -287,15 +287,15 @@ void WCssStyleSheet::javaScriptUpdate(WApplication *app,
     rulesRemoved_.clear();
 
     for (RuleSet::const_iterator i = rulesModified_.begin();
-	 i != rulesModified_.end(); ++i) {
+         i != rulesModified_.end(); ++i) {
       js << "{ var d= " WT_CLASS ".getCssRule(";
       DomElement::jsStringLiteral(js, (*i)->selector(), '\'');
       js << ");if(d){";
 
       DomElement *d = DomElement::updateGiven("d", DomElementType::SPAN);
       if ((*i)->updateDomElement(*d, false)) {
-	EscapeOStream sout(js);
-	d->asJavaScript(sout, DomElement::Priority::Update);
+        EscapeOStream sout(js);
+        d->asJavaScript(sout, DomElement::Priority::Update);
       }
 
       delete d;
@@ -311,21 +311,21 @@ void WCssStyleSheet::javaScriptUpdate(WApplication *app,
       const auto& toProcess = rules_;
 
       for (unsigned i = 0; i < toProcess.size(); ++i) {
-	auto rule = toProcess[i].get();
-	js << WT_CLASS ".addCss('"
-	   << rule->selector() << "',";
-	DomElement::jsStringLiteral(js, rule->declarations(), '\'');
-	js << ");\n";
+        auto rule = toProcess[i].get();
+        js << WT_CLASS ".addCss('"
+           << rule->selector() << "',";
+        DomElement::jsStringLiteral(js, rule->declarations(), '\'');
+        js << ");\n";
       }
     } else {
       const auto& toProcess = rulesAdded_;
 
       for (unsigned i = 0; i < toProcess.size(); ++i) {
-	auto rule = toProcess[i];
-	js << WT_CLASS ".addCss('"
-	   << rule->selector() << "',";
-	DomElement::jsStringLiteral(js, rule->declarations(), '\'');
-	js << ");\n";
+        auto rule = toProcess[i];
+        js << WT_CLASS ".addCss('"
+           << rule->selector() << "',";
+        DomElement::jsStringLiteral(js, rule->declarations(), '\'');
+        js << ");\n";
       }
     }
 

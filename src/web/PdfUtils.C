@@ -10,7 +10,7 @@
 
 namespace Wt {
   namespace Pdf {
-#ifdef WT_TARGET_JAVA	
+#ifdef WT_TARGET_JAVA
     class PdfUtils {
     private:
       PdfUtils() { }
@@ -28,49 +28,49 @@ namespace Wt {
       case FontFamily::Serif:
       case FontFamily::Fantasy: // Not really !
       case FontFamily::Cursive: // Not really !
-	base = "Times";
-	italic = "Italic";
-	bold = "Bold";
-	break;
+        base = "Times";
+        italic = "Italic";
+        bold = "Bold";
+        break;
       case FontFamily::SansSerif:
-	base = "Helvetica";
-	italic = "Oblique";
-	bold = "Bold";
-	break;
+        base = "Helvetica";
+        italic = "Oblique";
+        bold = "Bold";
+        break;
       case FontFamily::Monospace:
-	base = "Courier";
-	italic = "Oblique";
-	bold = "Bold";
-	break;
+        base = "Courier";
+        italic = "Oblique";
+        bold = "Bold";
+        break;
       }
 
       if (font.specificFamilies() == "Symbol")
-	base = "Symbol";
+        base = "Symbol";
       else if (font.specificFamilies() == "ZapfDingbats")
-	base = "ZapfDingbats";
+        base = "ZapfDingbats";
 
       if (italic)
-	switch (font.style()) {
-	case FontStyle::Normal:
-	  italic = nullptr;
-	  break;
-	default:
-	  break;
-	}
+        switch (font.style()) {
+        case FontStyle::Normal:
+          italic = nullptr;
+          break;
+        default:
+          break;
+        }
 
       if (font.weightValue() <= 400)
-	bold = nullptr;
+        bold = nullptr;
 
       std::string name = base;
       if (bold) {
-	name += std::string("-") + bold;
-	if (italic)
-	  name += italic;
+        name += std::string("-") + bold;
+        if (italic)
+          name += italic;
       } else if (italic)
-	name += std::string("-") + italic;
+        name += std::string("-") + italic;
 
       if (name == "Times")
-	name = "Times-Roman";
+        name = "Times-Roman";
 
       return name;
     }

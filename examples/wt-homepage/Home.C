@@ -33,14 +33,14 @@ using namespace Wt;
 
 static const std::string SRC_INTERNAL_PATH = "src";
 
-Home::~Home() 
+Home::~Home()
 {
 }
 
 Home::Home(const WEnvironment& env,
-	   Dbo::SqlConnectionPool& blogDb,
-	   const std::string& title, const std::string& resourceBundle,
-	   const std::string& cssPath)
+           Dbo::SqlConnectionPool& blogDb,
+           const std::string& title, const std::string& resourceBundle,
+           const std::string& cssPath)
   : WApplication(env),
     blogDb_(blogDb),
     homePage_(0),
@@ -340,9 +340,9 @@ void Home::readReleases(WTable *releaseTable)
     ->addWidget(std::make_unique<WText>(tr("home.download.description")));
 
   releaseTable->elementAt(0, 0)->resize(WLength(15, LengthUnit::FontEx),
-					WLength::Auto);
+                                        WLength::Auto);
   releaseTable->elementAt(0, 1)->resize(WLength(15, LengthUnit::FontEx),
-					WLength::Auto);
+                                        WLength::Auto);
 
   int row = 1;
 
@@ -352,7 +352,7 @@ void Home::readReleases(WTable *releaseTable)
 
     if (f) {
       typedef boost::tokenizer<boost::escaped_list_separator<char> >
-	CsvTokenizer;
+        CsvTokenizer;
       CsvTokenizer tok(line);
 
       CsvTokenizer::iterator i=tok.begin();
@@ -363,11 +363,11 @@ void Home::readReleases(WTable *releaseTable)
       releaseTable->elementAt(row, 2)->addWidget(std::make_unique<WText>(*(++i)));
 
       ++i;
-      std::string url = "http://prdownloads.sourceforge.net/witty/" 
-	+ fileName + "?download";
+      std::string url = "http://prdownloads.sourceforge.net/witty/"
+        + fileName + "?download";
       if (i != tok.end())
-	url = *i;
-	
+        url = *i;
+
       releaseTable->elementAt(row, 0)->addWidget
         (std::make_unique<WText>(href(url, description)));
 
@@ -430,7 +430,7 @@ WString Home::tr(const char *key)
 void Home::googleAnalyticsLogger()
 {
   doJavaScript("if (window.ga) ga('send','pageview',"
-	       + WWebWidget::jsStringLiteral(environment().deploymentPath() 
-					     + internalPath()) + ");");
+               + WWebWidget::jsStringLiteral(environment().deploymentPath()
+                                             + internalPath()) + ");");
 }
 

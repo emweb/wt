@@ -56,7 +56,7 @@ std::unique_ptr<WLayoutItem> WBoxLayout::removeItem(WLayoutItem *item)
     switch (direction_) {
     case LayoutDirection::RightToLeft:
       if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
-	index = grid_.columns_.size() - 1 - index;
+        index = grid_.columns_.size() - 1 - index;
     case LayoutDirection::LeftToRight: {
         result = std::move(grid_.items_[0][index].item_);
         grid_.columns_.erase(grid_.columns_.begin() + index);
@@ -117,13 +117,13 @@ void WBoxLayout::setSpacing(int size)
 }
 
 void WBoxLayout::addWidget(std::unique_ptr<WWidget> widget, int stretch,
-			   WFlags<AlignmentFlag> alignment)
+                           WFlags<AlignmentFlag> alignment)
 {
   insertWidget(count(), std::move(widget), stretch, alignment);
 }
 
 void WBoxLayout::addLayout(std::unique_ptr<WLayout> layout, int stretch,
-			   WFlags<AlignmentFlag> alignment)
+                           WFlags<AlignmentFlag> alignment)
 {
   insertLayout(count(), std::move(layout), stretch, alignment);
 }
@@ -139,20 +139,20 @@ void WBoxLayout::addStretch(int stretch)
 }
 
 void WBoxLayout::insertWidget(int index, std::unique_ptr<WWidget> widget,
-			      int stretch,
-			      WFlags<AlignmentFlag> alignment)
+                              int stretch,
+                              WFlags<AlignmentFlag> alignment)
 {
   if (widget->layoutSizeAware() && stretch == 0)
     stretch = -1;
 
   insertItem(index,
-	     std::unique_ptr<WLayoutItem>(new WWidgetItem(std::move(widget))),
-	     stretch, alignment);
+             std::unique_ptr<WLayoutItem>(new WWidgetItem(std::move(widget))),
+             stretch, alignment);
 }
 
 void WBoxLayout::insertLayout(int index, std::unique_ptr<WLayout> layout,
-			      int stretch,
-			      WFlags<AlignmentFlag> alignment)
+                              int stretch,
+                              WFlags<AlignmentFlag> alignment)
 {
   insertItem(index, std::move(layout), stretch, alignment);
 }
@@ -161,16 +161,16 @@ void WBoxLayout::insertSpacing(int index, const WLength& size)
 {
   std::unique_ptr<WWidget> spacer(createSpacer(size));
   insertItem(index,
-	     std::unique_ptr<WWidgetItem>(new WWidgetItem(std::move(spacer))),
-	     0, None);
+             std::unique_ptr<WWidgetItem>(new WWidgetItem(std::move(spacer))),
+             0, None);
 }
 
 void WBoxLayout::insertStretch(int index, int stretch)
 {
   std::unique_ptr<WWidget> spacer = createSpacer(WLength(0));
   insertItem(index,
-	     std::unique_ptr<WWidgetItem>(new WWidgetItem(std::move(spacer))),
-	     stretch, None);
+             std::unique_ptr<WWidgetItem>(new WWidgetItem(std::move(spacer))),
+             stretch, None);
 }
 
 bool WBoxLayout::setStretchFactor(WWidget *widget, int stretch)
@@ -219,7 +219,7 @@ void WBoxLayout::setStretchFactor(int i, int stretch)
 }
 
 void WBoxLayout::insertItem(int index, std::unique_ptr<WLayoutItem> item,
-			    int stretch, WFlags<AlignmentFlag> alignment)
+                            int stretch, WFlags<AlignmentFlag> alignment)
 {
   WLayoutItem *it = item.get();
 
@@ -229,14 +229,14 @@ void WBoxLayout::insertItem(int index, std::unique_ptr<WLayoutItem> item,
       index = grid_.columns_.size() - index;
   case LayoutDirection::LeftToRight:
     grid_.columns_.insert(grid_.columns_.begin() + index,
-			  Impl::Grid::Section(stretch));
+                          Impl::Grid::Section(stretch));
     if (grid_.items_.empty()) {
       grid_.items_.push_back(std::vector<Impl::Grid::Item>());
       grid_.rows_.push_back(Impl::Grid::Section());
       grid_.rows_[0].stretch_ = -1; // make height managed
     }
     grid_.items_[0].insert(grid_.items_[0].begin() + index,
-			   Impl::Grid::Item(std::move(item), alignment));
+                           Impl::Grid::Item(std::move(item), alignment));
     break;
   case LayoutDirection::BottomToTop:
     if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
@@ -247,9 +247,9 @@ void WBoxLayout::insertItem(int index, std::unique_ptr<WLayoutItem> item,
       grid_.columns_[0].stretch_ = -1; // make width managed
     }
     grid_.rows_.insert(grid_.rows_.begin() + index,
-		       Impl::Grid::Section(stretch));
+                       Impl::Grid::Section(stretch));
     grid_.items_.insert(grid_.items_.begin() + index,
-			std::vector<Impl::Grid::Item>());
+                        std::vector<Impl::Grid::Item>());
     grid_.items_[index].push_back(Impl::Grid::Item(std::move(item), alignment));
     break;
   }
@@ -262,8 +262,8 @@ std::unique_ptr<WWidget> WBoxLayout::createSpacer(const WLength& size)
   std::unique_ptr<Spacer> spacer(new Spacer());
 
   if (size.toPixels() > 0) {
-    if (direction_ == LayoutDirection::LeftToRight || 
-	direction_ == LayoutDirection::RightToLeft)
+    if (direction_ == LayoutDirection::LeftToRight ||
+        direction_ == LayoutDirection::RightToLeft)
       spacer->setMinimumSize(size, WLength::Auto);
     else
       spacer->setMinimumSize(WLength::Auto, size);
@@ -273,7 +273,7 @@ std::unique_ptr<WWidget> WBoxLayout::createSpacer(const WLength& size)
 }
 
 void WBoxLayout::setResizable(int index, bool enabled,
-			      const WLength& initialSize)
+                              const WLength& initialSize)
 {
   if (preferredImplementation() == LayoutImplementation::Flex) {
     LOG_WARN("Resize handles are not supported for flex layout implementation, "
@@ -324,7 +324,7 @@ void WBoxLayout::iterateWidgets(const HandleWidgetMethod& method) const
     for (unsigned c = 0; c < grid_.columns_.size(); ++c) {
       WLayoutItem *item = grid_.items_[r][c].item_.get();
       if (item)
-	item->iterateWidgets(method);
+        item->iterateWidgets(method);
     }
   }
 }

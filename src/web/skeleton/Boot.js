@@ -12,12 +12,12 @@ function loadScript(url, callback) {
 
     async.onreadystatechange = function() {
       if (async.readyState == 4) {
-	var s = document.createElement('script');
-	s.type = 'text/javascript';
-	s.innerHTML=async.responseText;
-	h.appendChild(s);
-	if (callback)
-	  callback();
+        var s = document.createElement('script');
+        s.type = 'text/javascript';
+        s.innerHTML=async.responseText;
+        h.appendChild(s);
+        if (callback)
+          callback();
       }
     };
 
@@ -26,16 +26,16 @@ function loadScript(url, callback) {
     var s = document.createElement('script');
     if (callback) {
       if (s.readyState) {
-	s.onreadystatechange = function() {
-	  if (s.readyState == "loaded" || s.readyState == "complete") {
-	    s.onreadystatechange = null;
-	    callback();
-	  }
-	};
+        s.onreadystatechange = function() {
+          if (s.readyState == "loaded" || s.readyState == "complete") {
+            s.onreadystatechange = null;
+            callback();
+          }
+        };
       } else {
-	s.onload = function() {
-	  callback();
-	};
+        s.onload = function() {
+          callback();
+        };
       }
     }
 
@@ -132,7 +132,7 @@ function getParameter(name) {
     tokens = params[i].split("=");
     if (tokens.length >= 2)
       if (tokens[0] === name)
-	return unescape(tokens[1]);
+        return unescape(tokens[1]);
   }
 
   return null;
@@ -147,10 +147,10 @@ function createUrl(name, value) {
     tokens = params[i].split("=");
     if (tokens.length >= 2)
       if (tokens[0] === name) {
-	tokens[1] = escape(value);
-	params[i] = tokens.join("=");
-	found = true;
-	break;
+        tokens[1] = escape(value);
+        params[i] = tokens.join("=");
+        found = true;
+        break;
       }
   }
 
@@ -192,8 +192,8 @@ _$_$if_COOKIE_CHECKS_$_();
 // client-side cookie support
 var testcookie='jscookietest=valid';
 doc.cookie=testcookie;
-no_replace = no_replace || 
-	  (_$_USE_COOKIES_$_ && doc.cookie.indexOf(testcookie) != -1);
+no_replace = no_replace ||
+          (_$_USE_COOKIES_$_ && doc.cookie.indexOf(testcookie) != -1);
 doc.cookie=testcookie+';expires=Thu, 01 Jan 1970 00:00:00 GMT';
 
 // server-side cookie support
@@ -233,7 +233,7 @@ if (window.WebGLRenderingContext) {
         } catch (e) {}
     }
     if (ctx != null) {
-	otherInfo += "&webGL=true";
+        otherInfo += "&webGL=true";
     }
 }
 _$_$endif_$_();

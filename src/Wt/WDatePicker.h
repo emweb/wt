@@ -29,7 +29,7 @@ class WTemplate;
  * Each of these widgets may be accessed individually (lineEdit(),
  * calendar(), and displayWidget()) and there is a constructor that
  * allows you to specify an existing line edit and display widget.
- * 
+ *
  * The date format used by default is <tt>"dd/MM/yyyy"</tt> and can be
  * changed using setFormat(). At any time, the date set may be read
  * using date(), or can be changed using setDate().
@@ -80,7 +80,7 @@ public:
    * conjunction with the date picker.
    */
   WDatePicker(std::unique_ptr<WInteractWidget> displayWidget,
-	      WLineEdit *forEdit);
+              WLineEdit *forEdit);
 
   /*! \brief Destructor.
    */
@@ -133,7 +133,7 @@ public:
 
   /*! \brief The popup widget.
    *
-   * Returns the popup widget that contains the calendar. 
+   * Returns the popup widget that contains the calendar.
    */
   WPopupWidget *popupWidget() const { return popup_.get(); }
 
@@ -182,7 +182,7 @@ public:
   /*! \brief Returns the bottom date of the valid range.
    */
   WDate bottom() const;
-  
+
   /*! \brief Sets the top of the valid date range.
    */
   void setTop(const WDate& top);
@@ -225,7 +225,7 @@ private:
   JSlot positionJS_;
 
   void create(std::unique_ptr<WInteractWidget> displayWidget,
-	      WLineEdit *forEdit);
+              WLineEdit *forEdit);
 
   void setFromCalendar();
   void setFromLineEdit();

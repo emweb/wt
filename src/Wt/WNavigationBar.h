@@ -76,7 +76,7 @@ public:
    * \note WBootstrap5Theme ignores alignment. Use classes like "me-auto" and "ms-auto" for alignment instead.
    */
   void addFormField(std::unique_ptr<WWidget> widget,
-		    AlignmentFlag alignment = AlignmentFlag::Left);
+                    AlignmentFlag alignment = AlignmentFlag::Left);
 
   /*! \brief Adds a search widget to the navigation bar.
    *
@@ -87,7 +87,7 @@ public:
    * \note WBootstrap5Theme ignores alignment. Use classes like "me-auto" and "ms-auto" for alignment instead.
    */
   void addSearch(std::unique_ptr<WLineEdit> field,
-		 AlignmentFlag alignment = AlignmentFlag::Left);
+                 AlignmentFlag alignment = AlignmentFlag::Left);
 
   /*! \brief Adds a widget to the navigation bar.
    *
@@ -97,7 +97,7 @@ public:
    * \note WBootstrap5Theme ignores alignment. Use classes like "me-auto" and "ms-auto" for alignment instead.
    */
   void addWidget(std::unique_ptr<WWidget> widget,
-		 AlignmentFlag alignment = AlignmentFlag::Left);
+                 AlignmentFlag alignment = AlignmentFlag::Left);
 
   /*! \brief Adds a widget to the navigation bar, returning a raw pointer.
    *

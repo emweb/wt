@@ -31,7 +31,7 @@ FIND_PATH(ODBC_INCLUDE sql.h
     ${ODBC_PREFIX}/include
     /usr/include
     /usr/local/include
-    /opt/local/include	
+    /opt/local/include
 )
 
 SET(ODBC_FOUND FALSE)

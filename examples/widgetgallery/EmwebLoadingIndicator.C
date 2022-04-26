@@ -32,30 +32,30 @@ EmwebLoadingIndicator::EmwebLoadingIndicator()
     app->styleSheet().addRule("body", "height: 100%; margin: 0;");
 
     app->styleSheet().addRule("div#" + cover_->id(), std::string() +
-			      "background: #DDDDDD;"
-			      "height: 100%; width: 100%;"
-			      "top: 0px; left: 0px;"
-			      "opacity: 0.5; position: absolute;"
-			      "-khtml-opacity: 0.5;"
-			      "z-index: 10000;" +
-			      (app->environment().agentIsIE() ?
-			       "filter: alpha(opacity=50);"
-			       :
-			       "-moz-opacity:0.5;"
-			       "-moz-background-clip: -moz-initial;"
-			       "-moz-background-origin: -moz-initial;"
-			       "-moz-background-inline-policy: -moz-initial;"
-			       ));
+                              "background: #DDDDDD;"
+                              "height: 100%; width: 100%;"
+                              "top: 0px; left: 0px;"
+                              "opacity: 0.5; position: absolute;"
+                              "-khtml-opacity: 0.5;"
+                              "z-index: 10000;" +
+                              (app->environment().agentIsIE() ?
+                               "filter: alpha(opacity=50);"
+                               :
+                               "-moz-opacity:0.5;"
+                               "-moz-background-clip: -moz-initial;"
+                               "-moz-background-origin: -moz-initial;"
+                               "-moz-background-inline-policy: -moz-initial;"
+                               ));
 
     app->styleSheet().addRule("div#" + center_->id(),
-			      "background: white;"
-			      "border: 3px solid #333333;"
-			      "z-index: 10001; visibility: visible;"
-			      "position: absolute; left: 50%; top: 50%;"
-			      "margin-left: -120px; margin-top: -60px;"
-			      "width: 240px; height: 120px;"
-			      "font-family: arial,sans-serif;"
-			      "text-align: center");
+                              "background: white;"
+                              "border: 3px solid #333333;"
+                              "z-index: 10001; visibility: visible;"
+                              "position: absolute; left: 50%; top: 50%;"
+                              "margin-left: -120px; margin-top: -60px;"
+                              "width: 240px; height: 120px;"
+                              "font-family: arial,sans-serif;"
+                              "text-align: center");
 }
 
 void EmwebLoadingIndicator::setMessage(const WString& text)

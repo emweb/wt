@@ -148,8 +148,8 @@ int WDate::toJulianDay() const
     int a = std::floor((14 - month())/12);
     int nyears = year() + 4800 - a;
     int nmonths = month() + 12*a -3;
-    return day() + std::floor((153*nmonths + 2)/5) 
-      + 365*nyears + std::floor(nyears/4) 
+    return day() + std::floor((153*nmonths + 2)/5)
+      + 365*nyears + std::floor(nyears/4)
       - std::floor(nyears/100) + std::floor(nyears/400) - 32045;
   }
 }
@@ -238,7 +238,7 @@ int WDate::parseShortDayName(const std::string& v, unsigned& pos)
     return -1;
 
   std::string d = v.substr(pos, 3);
-  
+
   for (int i = 1; i <= 7; ++i) {
     if (d == shortDayName(i).toUTF8()) {
       pos += 3;
@@ -270,8 +270,8 @@ int WDate::parseLongDayName(const std::string& v, unsigned& pos)
 
     if (remainder.length() >= m.length())
       if (remainder.substr(0, m.length()) == m) {
-	pos += m.length();
-	return i;
+        pos += m.length();
+        return i;
       }
   }
 
@@ -281,7 +281,7 @@ int WDate::parseLongDayName(const std::string& v, unsigned& pos)
 WString WDate::shortMonthName(int month, bool localized)
 {
   static const char *v[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-			    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+                            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
   if (localized && WApplication::instance())
     return WString::tr(WT_WDATE + "3." + v[month - 1]);
@@ -295,7 +295,7 @@ int WDate::parseShortMonthName(const std::string& v, unsigned& pos)
     return -1;
 
   std::string m = v.substr(pos, 3);
-  
+
   for (int i = 1; i <= 12; ++i) {
     if (m == shortMonthName(i).toUTF8()) {
       pos += 3;
@@ -309,8 +309,8 @@ int WDate::parseShortMonthName(const std::string& v, unsigned& pos)
 WString WDate::longMonthName(int month, bool localized)
 {
   static const char *v[] = {"January", "February", "March", "April", "May",
-			    "June", "July", "August", "September",
-			    "October", "November", "December" };
+                            "June", "July", "August", "September",
+                            "October", "November", "December" };
 
   if (localized && WApplication::instance())
     return WString::tr(WT_WDATE + v[month - 1]);
@@ -327,8 +327,8 @@ int WDate::parseLongMonthName(const std::string& v, unsigned& pos)
 
     if (remainder.length() >= m.length())
       if (remainder.substr(0, m.length()) == m) {
-	pos += m.length();
-	return i;
+        pos += m.length();
+        return i;
       }
   }
 
@@ -337,7 +337,7 @@ int WDate::parseLongMonthName(const std::string& v, unsigned& pos)
 
 WString WDate::defaultFormat()
 {
-  return WString::fromUTF8("ddd MMM d yyyy"); 
+  return WString::fromUTF8("ddd MMM d yyyy");
 }
 
 WDate WDate::fromString(const WString& s)
@@ -361,14 +361,14 @@ WDate WDate::fromString(const WString& s, const WString& format)
 }
 
 WDateTime::CharState WDate::handleSpecial(char c, const std::string& v,
-					  unsigned& vi, ParseState& parse,
-					  const WString& format)
+                                          unsigned& vi, ParseState& parse,
+                                          const WString& format)
 {
   switch (c) {
   case 'd':
     if (parse.d == 0)
       if (!parseLast(v, vi, parse, format))
-	return WDateTime::CharState::CharInvalid;
+        return WDateTime::CharState::CharInvalid;
 
     ++parse.d;
 
@@ -377,7 +377,7 @@ WDateTime::CharState WDate::handleSpecial(char c, const std::string& v,
   case 'M':
     if (parse.M == 0)
       if (!parseLast(v, vi, parse, format))
-	return WDateTime::CharState::CharInvalid;
+        return WDateTime::CharState::CharInvalid;
 
     ++parse.M;
 
@@ -386,7 +386,7 @@ WDateTime::CharState WDate::handleSpecial(char c, const std::string& v,
   case 'y':
     if (parse.y == 0)
       if (!parseLast(v, vi, parse, format))
-	return WDateTime::CharState::CharInvalid;
+        return WDateTime::CharState::CharInvalid;
 
     ++parse.y;
 
@@ -451,8 +451,8 @@ static void fatalFormatError(const WString& format, int c, const char* cs)
 }
 
 bool WDate::parseLast(const std::string& v, unsigned& vi,
-		      ParseState& parse,
-		      const WString& format)
+                      ParseState& parse,
+                      const WString& format)
 {
   if (parse.d != 0) {
     switch (parse.d) {
@@ -460,43 +460,43 @@ bool WDate::parseLast(const std::string& v, unsigned& vi,
       std::string dstr;
 
       if (vi >= v.length())
-	return false;
+        return false;
       dstr += v[vi++];
 
       if (vi < v.length())
-	if ('0' <= v[vi] && v[vi] <= '9')
-	  dstr += v[vi++];
+        if ('0' <= v[vi] && v[vi] <= '9')
+          dstr += v[vi++];
 
       try {
-	parse.day = Utils::stoi(dstr);
+        parse.day = Utils::stoi(dstr);
       } catch (std::exception&) {
-	return false;
+        return false;
       }
-      
+
       break;
     }
     case 2: {
       if (vi + 1 >= v.length())
-	return false;
+        return false;
 
       std::string dstr = v.substr(vi, 2);
       vi += 2;
 
       try {
-	parse.day = Utils::stoi(dstr);
+        parse.day = Utils::stoi(dstr);
       } catch (std::exception&) {
-	return false;
-      }      
+        return false;
+      }
 
       break;
     }
     case 3:
       if (parseShortDayName(v, vi) == -1)
-	return false;
+        return false;
       break;
     case 4:
       if (parseLongDayName(v, vi) == -1)
-	return false;
+        return false;
       break;
     default:
       fatalFormatError(format, parse.d, "d's");
@@ -511,45 +511,45 @@ bool WDate::parseLast(const std::string& v, unsigned& vi,
       std::string Mstr;
 
       if (vi >= v.length())
-	return false;
+        return false;
       Mstr += v[vi++];
 
       if (vi < v.length())
-	if ('0' <= v[vi] && v[vi] <= '9')
-	  Mstr += v[vi++];
+        if ('0' <= v[vi] && v[vi] <= '9')
+          Mstr += v[vi++];
 
       try {
-	parse.month = Utils::stoi(Mstr);
+        parse.month = Utils::stoi(Mstr);
       } catch (std::exception&) {
-	return false;
+        return false;
       }
-      
+
       break;
     }
     case 2: {
       if (vi + 1 >= v.length())
-	return false;
+        return false;
 
       std::string Mstr = v.substr(vi, 2);
       vi += 2;
 
       try {
-	parse.month = Utils::stoi(Mstr);
+        parse.month = Utils::stoi(Mstr);
       } catch (std::exception&) {
-	return false;
-      }      
+        return false;
+      }
 
       break;
     }
     case 3:
       parse.month = parseShortMonthName(v, vi);
       if (parse.month == -1)
-	return false;
+        return false;
       break;
     case 4:
       parse.month = parseLongMonthName(v, vi);
       if (parse.month == -1)
-	return false;
+        return false;
       break;
     default:
       fatalFormatError(format, parse.M, "M's");
@@ -562,35 +562,35 @@ bool WDate::parseLast(const std::string& v, unsigned& vi,
     switch (parse.y) {
     case 2: {
       if (vi + 1 >= v.length())
-	return false;
+        return false;
 
       std::string ystr = v.substr(vi, 2);
       vi += 2;
 
       try {
-	parse.year = Utils::stoi(ystr);
-	if (parse.year < 38)
-	  parse.year += 2000;
-	else
-	  parse.year += 1900;
+        parse.year = Utils::stoi(ystr);
+        if (parse.year < 38)
+          parse.year += 2000;
+        else
+          parse.year += 1900;
       } catch (std::exception&) {
-	return false;
-      }      
+        return false;
+      }
 
       break;
     }
     case 4: {
       if (vi + 3 >= v.length())
-	return false;
+        return false;
 
       std::string ystr = v.substr(vi, 4);
       vi += 4;
 
       try {
-	parse.year = Utils::stoi(ystr);
+        parse.year = Utils::stoi(ystr);
       } catch (std::exception&) {
-	return false;
-      }      
+        return false;
+      }
 
       break;
     }
@@ -615,7 +615,7 @@ WString WDate::toString(const WString& format) const
 }
 
 bool WDate::writeSpecial(const std::string& f, unsigned& i,
-			 WStringStream& result, bool localized) const
+                         WStringStream& result, bool localized) const
 {
   char buf[30];
 
@@ -623,19 +623,19 @@ bool WDate::writeSpecial(const std::string& f, unsigned& i,
   case 'd':
     if (f[i + 1] == 'd') {
       if (f[i + 2] == 'd') {
-	if (f[i + 3] == 'd') {
-	  // 4 d's
-	  i += 3;
-	  result << longDayName(dayOfWeek(), localized).toUTF8();
-	} else {
-	  // 3 d's
-	  i += 2;
-	  result << shortDayName(dayOfWeek(), localized).toUTF8();
-	}
+        if (f[i + 3] == 'd') {
+          // 4 d's
+          i += 3;
+          result << longDayName(dayOfWeek(), localized).toUTF8();
+        } else {
+          // 3 d's
+          i += 2;
+          result << shortDayName(dayOfWeek(), localized).toUTF8();
+        }
       } else {
-	// 2 d's
-	i += 1;
-	result << Utils::pad_itoa(day(), 2, buf);
+        // 2 d's
+        i += 1;
+        result << Utils::pad_itoa(day(), 2, buf);
       }
     } else {
       // 1 d
@@ -646,19 +646,19 @@ bool WDate::writeSpecial(const std::string& f, unsigned& i,
   case 'M':
     if (f[i + 1] == 'M') {
       if (f[i + 2] == 'M') {
-	if (f[i + 3] == 'M') {
-	  // 4 M's
-	  i += 3;
-	  result << longMonthName(month(), localized).toUTF8();
-	} else {
-	  // 3 M's
-	  i += 2;
-	  result << shortMonthName(month(), localized).toUTF8();
-	}
+        if (f[i + 3] == 'M') {
+          // 4 M's
+          i += 3;
+          result << longMonthName(month(), localized).toUTF8();
+        } else {
+          // 3 M's
+          i += 2;
+          result << shortMonthName(month(), localized).toUTF8();
+        }
       } else {
-	// 2 M's
-	i += 1;
-	result << Utils::pad_itoa(month(), 2, buf);
+        // 2 M's
+        i += 1;
+        result << Utils::pad_itoa(month(), 2, buf);
       }
     } else {
       // 1 M
@@ -669,17 +669,17 @@ bool WDate::writeSpecial(const std::string& f, unsigned& i,
   case 'y':
     if (f[i + 1] == 'y') {
       if (f[i + 2] == 'y' && f[i + 3] == 'y') {
-	// 4 y's
-	i += 3;
-	result << Utils::itoa(year(), buf);
+        // 4 y's
+        i += 3;
+        result << Utils::itoa(year(), buf);
 
-	return true;
+        return true;
       } else {
-	// 2 y's
-	i += 1;
-	result << Utils::pad_itoa(year() % 100, 2, buf);
+        // 2 y's
+        i += 1;
+        result << Utils::pad_itoa(year() % 100, 2, buf);
 
-	return true;
+        return true;
       }
     }
   default:
@@ -706,19 +706,19 @@ namespace {
   }
 
   void writeExtLast(std::string& result, int& d, int& M, int& y,
-		    const WString& format) {
+                    const WString& format) {
     if (d != 0) {
       switch (d) {
       case 1:
-	result += 'j'; break;
+        result += 'j'; break;
       case 2:
-	result += 'd'; break;
+        result += 'd'; break;
       case 3:
-	result += 'D'; break;
+        result += 'D'; break;
       case 4:
-	result += 'l'; break;
+        result += 'l'; break;
       default:
-	fatalFormatError(format, d, "d's");
+        fatalFormatError(format, d, "d's");
       }
 
       d = 0;
@@ -727,15 +727,15 @@ namespace {
     if (M != 0) {
       switch (M) {
       case 1:
-	result += 'n'; break;
+        result += 'n'; break;
       case 2:
-	result += 'm'; break;
+        result += 'm'; break;
       case 3:
-	result += 'M'; break;
+        result += 'M'; break;
       case 4:
-	result += 'F'; break;
+        result += 'F'; break;
       default:
-	fatalFormatError(format, M, "M's");
+        fatalFormatError(format, M, "M's");
       }
 
       M = 0;
@@ -744,11 +744,11 @@ namespace {
     if (y != 0) {
       switch (y) {
       case 2:
-	result += 'y'; break;
+        result += 'y'; break;
       case 4:
-	result += 'Y'; break;
+        result += 'Y'; break;
       default:
-	fatalFormatError(format, y, "y's");
+        fatalFormatError(format, y, "y's");
       }
 
       y = 0;
@@ -764,49 +764,49 @@ std::string WDate::extFormat(const WString& format)
   bool inQuote = false;
   bool gotQuoteInQuote = false;
 
-  int d = 0, M = 0, y = 0; 
+  int d = 0, M = 0, y = 0;
 
   for (unsigned i = 0; i < f.length(); ++i) {
     if (inQuote) {
       if (f[i] != '\'') {
-	if (gotQuoteInQuote) {
-	  gotQuoteInQuote = false;
-	  inQuote = false;
-	} else
-	  result += extLiteral(f[i]);
+        if (gotQuoteInQuote) {
+          gotQuoteInQuote = false;
+          inQuote = false;
+        } else
+          result += extLiteral(f[i]);
       } else {
-	if (gotQuoteInQuote) {
-	  gotQuoteInQuote = false;
-	  result += extLiteral(f[i]);
-	} else
-	  gotQuoteInQuote = true;
+        if (gotQuoteInQuote) {
+          gotQuoteInQuote = false;
+          result += extLiteral(f[i]);
+        } else
+          gotQuoteInQuote = true;
       }
     }
 
     if (!inQuote) {
       switch (f[i]) {
       case 'd':
-	if (d == 0)
-	  writeExtLast(result, d, M, y, format);
-	++d;
-	break;
+        if (d == 0)
+          writeExtLast(result, d, M, y, format);
+        ++d;
+        break;
       case 'M':
-	if (M == 0)
-	  writeExtLast(result, d, M, y, format);
-	++M;
-	break;
+        if (M == 0)
+          writeExtLast(result, d, M, y, format);
+        ++M;
+        break;
       case 'y':
-	if (y == 0)
-	  writeExtLast(result, d, M, y, format);
-	++y;
-	break;
+        if (y == 0)
+          writeExtLast(result, d, M, y, format);
+        ++y;
+        break;
       default:
-	writeExtLast(result, d, M, y, format);
-	if (f[i] == '\'') {
-	  inQuote = true;
-	  gotQuoteInQuote = false;
-	} else
-	  result += extLiteral(f[i]);
+        writeExtLast(result, d, M, y, format);
+        if (f[i] == '\'') {
+          inQuote = true;
+          gotQuoteInQuote = false;
+        } else
+          result += extLiteral(f[i]);
       }
     }
   }
@@ -827,21 +827,21 @@ namespace {
   }
 
   void writeRegExpLast(WDate::RegExpInfo& result, int& d, int& M, int& y,
-		       const WString& format, int& currentGroup) {
+                       const WString& format, int& currentGroup) {
     if (d != 0) {
       switch (d) {
       case 1:
       case 2:
-	if (d == 1)
-	  result.regexp += "(\\d{1,2})";
-	else
-	  result.regexp += "(\\d{2})";
+        if (d == 1)
+          result.regexp += "(\\d{1,2})";
+        else
+          result.regexp += "(\\d{2})";
 
-	result.dayGetJS = "return parseInt(results["
-	  + std::to_string(currentGroup++) + "], 10);";
-	break;
+        result.dayGetJS = "return parseInt(results["
+          + std::to_string(currentGroup++) + "], 10);";
+        break;
       default:
-	fatalFormatRegExpError(format, d, "d's");
+        fatalFormatRegExpError(format, d, "d's");
       }
 
       d = 0;
@@ -851,16 +851,16 @@ namespace {
       switch (M) {
       case 1:
       case 2:
-	if (M == 1)
-	  result.regexp += "(\\d{1,2})";
-	else
-	  result.regexp += "(\\d{2})";
+        if (M == 1)
+          result.regexp += "(\\d{1,2})";
+        else
+          result.regexp += "(\\d{2})";
 
-	result.monthGetJS = "return parseInt(results["
-	  + std::to_string(currentGroup++) + "], 10);";
-	break;
+        result.monthGetJS = "return parseInt(results["
+          + std::to_string(currentGroup++) + "], 10);";
+        break;
       default:
-	fatalFormatRegExpError(format, M, "M's");
+        fatalFormatRegExpError(format, M, "M's");
       }
 
       M = 0;
@@ -869,18 +869,18 @@ namespace {
     if (y != 0) {
       switch (y) {
       case 2:
-	result.regexp += "(\\d{2})";
-	result.yearGetJS = "var y=parseInt(results["
-	  + std::to_string(currentGroup++) + "], 10);"
-	  "return y > 38 ? 1900 + y : 2000 + y;";
-	break;
+        result.regexp += "(\\d{2})";
+        result.yearGetJS = "var y=parseInt(results["
+          + std::to_string(currentGroup++) + "], 10);"
+          "return y > 38 ? 1900 + y : 2000 + y;";
+        break;
       case 4:
-	result.regexp += "(\\d{4})";
-	result.yearGetJS = "return parseInt(results["
-	  + std::to_string(currentGroup++) + "], 10)";
-	break;
+        result.regexp += "(\\d{4})";
+        result.yearGetJS = "return parseInt(results["
+          + std::to_string(currentGroup++) + "], 10)";
+        break;
       default:
-	fatalFormatRegExpError(format, y, "y's");
+        fatalFormatRegExpError(format, y, "y's");
       }
 
       y = 0;
@@ -903,52 +903,52 @@ WDate::RegExpInfo WDate::formatToRegExp(const WT_USTRING& format)
 
   static const std::string regexSpecial = "/[\\^$.|?*+()";
 
-  int d = 0, M = 0, y = 0; 
+  int d = 0, M = 0, y = 0;
 
   for (unsigned i = 0; i < f.length(); ++i) {
     if (inQuote) {
       if (f[i] != '\'') {
-	if (gotQuoteInQuote) {
-	  gotQuoteInQuote = false;
-	  inQuote = false;
-	} else
-	  result.regexp += f[i];
+        if (gotQuoteInQuote) {
+          gotQuoteInQuote = false;
+          inQuote = false;
+        } else
+          result.regexp += f[i];
       } else {
-	if (gotQuoteInQuote) {
-	  gotQuoteInQuote = false;
-	  result.regexp += f[i];
-	} else
-	  gotQuoteInQuote = true;
+        if (gotQuoteInQuote) {
+          gotQuoteInQuote = false;
+          result.regexp += f[i];
+        } else
+          gotQuoteInQuote = true;
       }
     }
 
     if (!inQuote) {
       switch (f[i]) {
       case 'd':
-	if (d == 0)
-	  writeRegExpLast(result, d, M, y, format, currentGroup);
-	++d;
-	break;
+        if (d == 0)
+          writeRegExpLast(result, d, M, y, format, currentGroup);
+        ++d;
+        break;
       case 'M':
-	if (M == 0)
-	  writeRegExpLast(result, d, M, y, format, currentGroup);
-	++M;
-	break;
+        if (M == 0)
+          writeRegExpLast(result, d, M, y, format, currentGroup);
+        ++M;
+        break;
       case 'y':
-	if (y == 0)
-	  writeRegExpLast(result, d, M, y, format, currentGroup);
-	++y;
-	break;
+        if (y == 0)
+          writeRegExpLast(result, d, M, y, format, currentGroup);
+        ++y;
+        break;
       default:
-	writeRegExpLast(result, d, M, y, format, currentGroup);
-	if (f[i] == '\'') {
-	  inQuote = true;
-	  gotQuoteInQuote = false;
-	} else if (regexSpecial.find(f[i]) != std::string::npos) {
-	  result.regexp += "\\";
-	  result.regexp += f[i];
-	} else
-	  result.regexp += f[i];
+        writeRegExpLast(result, d, M, y, format, currentGroup);
+        if (f[i] == '\'') {
+          inQuote = true;
+          gotQuoteInQuote = false;
+        } else if (regexSpecial.find(f[i]) != std::string::npos) {
+          result.regexp += "\\";
+          result.regexp += f[i];
+        } else
+          result.regexp += f[i];
       }
     }
   }

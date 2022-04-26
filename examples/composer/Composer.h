@@ -56,7 +56,7 @@ public:
    */
   void setMessage(const WString& message);
 
-  /*! \brief Set the address book, for autocomplete suggestions. 
+  /*! \brief Set the address book, for autocomplete suggestions.
    */
   void setAddressBook(const std::vector<Contact>& addressBook);
 

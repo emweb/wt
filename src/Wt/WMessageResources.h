@@ -36,8 +36,8 @@ public:
 
   LocalizedString resolveKey(const WLocale& locale, const std::string& key) const;
   LocalizedString resolvePluralKey(const WLocale& locale,
-			const std::string& key, 
-			::uint64_t amount) const;
+                        const std::string& key,
+                        ::uint64_t amount) const;
 
   static int evalPluralCase(const std::string &expression, ::uint64_t n);
 
@@ -70,8 +70,8 @@ private:
                           const std::string &fileName) const;
 
   std::string findCase(const std::vector<std::string> &cases,
-		       std::string pluralExpression,
-		       ::uint64_t amount) const;
+                       std::string pluralExpression,
+                       ::uint64_t amount) const;
 };
 
 }

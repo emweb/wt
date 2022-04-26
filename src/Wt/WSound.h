@@ -59,7 +59,7 @@ public:
 
   /*! \brief Destructor.
    *
-   * Deleting a sound also stops it (if it was playing). 
+   * Deleting a sound also stops it (if it was playing).
    */
   ~WSound();
 

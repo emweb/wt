@@ -69,7 +69,7 @@ image->mouseMoved().connect([=] (const Wt::WMouseEvent& e) {
     out->setText("You're pointing the background at "
                  "(" + std::to_string(e.widget().x) +
                  "," + std::to_string(e.widget().y) +
-		 ").");
+                 ").");
 });
 
 

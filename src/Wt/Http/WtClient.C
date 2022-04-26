@@ -22,7 +22,7 @@ namespace asio = AsioWrapper::asio;
 
 namespace {
   unsigned int doGet(const std::string& host, const std::string& port,
-		     const std::string& path, std::string *result)
+                     const std::string& path, std::string *result)
   {
 
 //
@@ -87,7 +87,7 @@ namespace {
     if (!response_stream || http_version.substr(0, 5) != "HTTP/")
       throw WException("Invalid response");
 
-    if (status_code == 200) { 
+    if (status_code == 200) {
       std::stringstream content;
 
       // Read the response headers, which are terminated by a blank line.
@@ -95,19 +95,19 @@ namespace {
 
       // Write whatever content we already have to output.
       if (result && response.size() > 0)
-	content << &response;
+        content << &response;
 
       // Read until EOF, writing data to output as we go.
       while (asio::read(socket, response,
                                asio::transfer_at_least(1), error))
-	if (result)
-	  content << &response;
+        if (result)
+          content << &response;
 
       if (error != asio::error::eof)
-	throw Wt::AsioWrapper::system_error(error);
+        throw Wt::AsioWrapper::system_error(error);
 
       if (result)
-	*result = content.str();
+        *result = content.str();
     }
 
     return status_code;
@@ -115,10 +115,10 @@ namespace {
 }
 
 void WtClient::startWtSession(const std::string& host,
-			      const std::string& port,
-			      const std::string& path,
-			      const std::string& query,
-			      WFlags<ClientOption> flags)
+                              const std::string& port,
+                              const std::string& path,
+                              const std::string& query,
+                              WFlags<ClientOption> flags)
 {
   std::string url = path;
   if (!query.empty())
@@ -128,7 +128,7 @@ void WtClient::startWtSession(const std::string& host,
   int status = doGet(host, port, url, &result);
 
   if (status != 200)
-    throw WException("Http status != 200: " + std::to_string(status));    
+    throw WException("Http status != 200: " + std::to_string(status));
 
   static const std::regex session_e(".*\\?wtd=([a-zA-Z0-9]+)&amp;.*");
 

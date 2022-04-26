@@ -18,8 +18,8 @@ class ProxyReply final : public Reply
 {
 public:
   ProxyReply(Request& request,
-	     const Configuration& config,
-	     SessionProcessManager& sessionManager);
+             const Configuration& config,
+             SessionProcessManager& sessionManager);
 
   virtual ~ProxyReply();
 
@@ -28,8 +28,8 @@ public:
   virtual void writeDone(bool success) override;
 
   virtual bool consumeData(const char *begin,
-			   const char *end,
-			   Request::State state) override;
+                           const char *end,
+                           Request::State state) override;
 
   void closeClientSocket();
 
@@ -48,7 +48,7 @@ private:
   void handleChildConnected(const Wt::AsioWrapper::error_code& ec);
   void assembleRequestHeaders();
   void handleDataWritten(const Wt::AsioWrapper::error_code& ec,
-			 std::size_t transferred);
+                         std::size_t transferred);
   void handleStatusRead(const Wt::AsioWrapper::error_code& ec);
   void handleHeadersRead(const Wt::AsioWrapper::error_code& ec);
   void handleResponseRead(const Wt::AsioWrapper::error_code& ec);

@@ -47,10 +47,10 @@ void TreesTables::populateSubMenu(WMenu *menu)
 std::unique_ptr<WWidget> TreesTables::tables()
 {
   auto result = std::make_unique<TopicTemplate>("treestables-Tables");
- 
+
   result->bindWidget("PlainTable", PlainTable());
   result->bindWidget("StyledTable", StyledTable());
- 
+
   return std::move(result);
 }
 
@@ -197,7 +197,7 @@ std::unique_ptr<WWidget> TreesTables::proxyModels()
   WPushButton *filter = result->addWidget(std::make_unique<WPushButton>("Apply"));
   filter->clicked().
     connect(this, &TreesTables::changeRegexp);
-  
+
   std::vector<std::shared_ptr<WAbstractItemModel>> models;
   std::vector<WString> headers;
 

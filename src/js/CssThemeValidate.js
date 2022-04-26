@@ -11,9 +11,9 @@ WT_DECLARE_WT_MEMBER
  function(edit) {
      var v;
      if (edit.options)
-	 v = edit.options.item(edit.selectedIndex).text;
+         v = edit.options.item(edit.selectedIndex).text;
      else
-	 v = edit.value;
+         v = edit.value;
 
      v = edit.wtValidate.validate(v);
 
@@ -27,15 +27,15 @@ WT_DECLARE_WT_MEMBER
      /* const */ var ValidationValidStyle = 0x2;
 
      var validStyle = (state == 1) &&
-	 ((styles & ValidationValidStyle) != 0);
+         ((styles & ValidationValidStyle) != 0);
      var invalidStyle = (state != 1) &&
-	 ((styles & ValidationInvalidStyle) != 0);
+         ((styles & ValidationInvalidStyle) != 0);
 
      var $edit = $(edit);
 
      $edit
-	 .toggleClass("Wt-valid", validStyle)
-	 .toggleClass("Wt-invalid", invalidStyle);
+         .toggleClass("Wt-valid", validStyle)
+         .toggleClass("Wt-invalid", invalidStyle);
 
      if (typeof edit.defaultTT === 'undefined')
        edit.defaultTT = edit.getAttribute('title') || '';

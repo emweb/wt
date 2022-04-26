@@ -166,7 +166,7 @@ public:
   /*! \brief Inserts an interactive area, returning a raw pointer.
    *
    * This is implemented as:
-   * 
+   *
    * \code
    * Area *result = area.get();
    * insertArea(index, std::unique_ptr<WAbstractArea>(std::move(area)));

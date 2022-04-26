@@ -8,7 +8,7 @@ auto container = std::make_unique<Wt::WContainerWidget>();
 
 #ifndef WT_TARGET_JAVA
 auto sound = container->addChild(
-	std::make_unique<Wt::WSound>("sounds/beep.mp3"));
+        std::make_unique<Wt::WSound>("sounds/beep.mp3"));
 #else // WT_TARGET_JAVA
 auto sound = new Wt::WSound("sounds/beep.mp3");
 #endif // WT_TARGET_JAVA

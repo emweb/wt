@@ -48,8 +48,8 @@ WDataSeries::WDataSeries(int modelColumn, SeriesType type, int axis)
     yAxis_(axis),
     customFlags_(None),
     fillRange_(FillRangeType::None),
-    marker_(type == SeriesType::Point ? 
-	    MarkerType::Circle : MarkerType::None),
+    marker_(type == SeriesType::Point ?
+            MarkerType::Circle : MarkerType::None),
     markerSize_(6),
     legend_(true),
     xLabel_(false),
@@ -70,12 +70,12 @@ WDataSeries::~WDataSeries()
   }
 }
 
-void WDataSeries::setBarWidth(const double width) 
+void WDataSeries::setBarWidth(const double width)
 {
   barWidth_ = width;
 }
 
-double WDataSeries::barWidth() const 
+double WDataSeries::barWidth() const
 {
   return barWidth_;
 }
@@ -139,11 +139,11 @@ WPen WDataSeries::pen() const
   else
     if (chart_)
       if (type_ == SeriesType::Bar)
-	return chart_->palette()
-	  ->borderPen(chart_->seriesIndexOf(*this));
+        return chart_->palette()
+          ->borderPen(chart_->seriesIndexOf(*this));
       else
-	return chart_->palette()
-	  ->strokePen(chart_->seriesIndexOf(*this));
+        return chart_->palette()
+          ->strokePen(chart_->seriesIndexOf(*this));
     else {
       WPen defaultPen;
       defaultPen.setCapStyle(PenCapStyle::Round);
@@ -281,7 +281,7 @@ void WDataSeries::setHidden(bool hidden)
   hidden_ = hidden;
 }
 
-bool WDataSeries::isHidden() const 
+bool WDataSeries::isHidden() const
 {
   return hidden_;
 }
@@ -308,7 +308,7 @@ WPointF WDataSeries::mapFromDevice(const WPointF& deviceCoordinates) const
 }
 
 WPointF WDataSeries::mapToDevice(const cpp17::any& xValue, const cpp17::any& yValue,
-				 int segment) const
+                                 int segment) const
 {
   if (chart_)
     return chart_->mapToDevice(xValue, yValue,
@@ -319,7 +319,7 @@ WPointF WDataSeries::mapToDevice(const cpp17::any& xValue, const cpp17::any& yVa
     return WPointF();
 }
 
-void WDataSeries::setXSeriesColumn(int modelColumn) 
+void WDataSeries::setXSeriesColumn(int modelColumn)
 {
   XSeriesColumn_ = modelColumn;
 }

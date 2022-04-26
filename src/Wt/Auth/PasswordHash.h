@@ -37,7 +37,7 @@ public:
   /*! \brief Constructor.
    */
   PasswordHash(const std::string& function, const std::string& salt,
-	       const std::string& value);
+               const std::string& value);
 
   /*! \brief Returns whether the password is empty.
    */

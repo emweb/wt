@@ -377,7 +377,7 @@ public:
 
   /*! \brief Mutes or unmutes the playback volume.
    *
-   * \sa setVolume() 
+   * \sa setVolume()
    */
   void mute(bool mute);
 
@@ -477,7 +477,7 @@ private:
   WString title_;
   std::vector<Source> media_;
   std::string initialJs_;
- 
+
   observing_ptr<WInteractWidget> control_[11];
   WText *display_[3];
   WProgressBar *progressBar_[2];
@@ -500,14 +500,14 @@ private:
   void createDefaultGui();
 
   void addAnchor(WTemplate *t, MediaPlayerButtonId id, const char *bindId,
-		 const std::string& styleClass,
-		 const std::string& altText = std::string());
+                 const std::string& styleClass,
+                 const std::string& altText = std::string());
   void addText(WTemplate *t, MediaPlayerTextId id, const char *bindId,
-	       const std::string& styleClass);
+               const std::string& styleClass);
   void addProgressBar(WTemplate *t, MediaPlayerProgressBarId id,
-		      const char *bindId,
-		      const std::string& styleClass,
-		      const std::string& valueStyleClass);
+                      const char *bindId,
+                      const std::string& styleClass,
+                      const std::string& valueStyleClass);
   JSignal<>& signal(const char *name);
   JSignal<double>& signalDouble(const char *name, const std::string& expr);
 
@@ -515,8 +515,8 @@ private:
   void updateFromProgressBar(MediaPlayerProgressBarId id, double value);
 
   void playerDo(const std::string& method,
-		const std::string& args = std::string());
-  void playerDoData(const std::string& method, const std::string& args); 
+                const std::string& args = std::string());
+  void playerDoData(const std::string& method, const std::string& args);
   void playerDoRaw(const std::string& jqueryMethod);
 
   static const char *LOAD_STARTED_SIGNAL;

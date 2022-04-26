@@ -10,15 +10,15 @@ using namespace Wt;
 
 namespace {
     WTreeTableNode *addNode(WTreeTableNode *parent, const char *name,
-				const char *yuppie, const char *holidays,
-				const char *favorite) {
-	auto node = std::make_unique<WTreeTableNode>(name);
-	auto node_ = node.get();
-	parent->addChildNode(std::move(node));
-	node_->setColumnWidget(1, std::make_unique<WText>(yuppie));
-	node_->setColumnWidget(2, std::make_unique<WText>(holidays));
-	node_->setColumnWidget(3, std::make_unique<WText>(favorite));
-	return node_;
+                                const char *yuppie, const char *holidays,
+                                const char *favorite) {
+        auto node = std::make_unique<WTreeTableNode>(name);
+        auto node_ = node.get();
+        parent->addChildNode(std::move(node));
+        node_->setColumnWidget(1, std::make_unique<WText>(yuppie));
+        node_->setColumnWidget(2, std::make_unique<WText>(holidays));
+        node_->setColumnWidget(3, std::make_unique<WText>(favorite));
+        return node_;
     }
 }
 

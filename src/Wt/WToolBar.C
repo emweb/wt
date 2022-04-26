@@ -36,7 +36,7 @@ void WToolBar::setOrientation(Orientation orientation)
 }
 
 void WToolBar::addButton(std::unique_ptr<WPushButton> button,
-			 AlignmentFlag alignmentFlag)
+                         AlignmentFlag alignmentFlag)
 {
   widgets_.push_back(button.get());
 
@@ -52,7 +52,7 @@ void WToolBar::addButton(std::unique_ptr<WPushButton> button,
 }
 
 void WToolBar::addButton(std::unique_ptr<WSplitButton> button,
-			 AlignmentFlag alignmentFlag)
+                         AlignmentFlag alignmentFlag)
 {
   widgets_.push_back(button.get());
 
@@ -64,7 +64,7 @@ void WToolBar::addButton(std::unique_ptr<WSplitButton> button,
 }
 
 void WToolBar::addWidget(std::unique_ptr<WWidget> widget,
-			 AlignmentFlag alignmentFlag)
+                         AlignmentFlag alignmentFlag)
 {
   widgets_.push_back(widget.get());
 
@@ -104,19 +104,19 @@ void WToolBar::setCompact(bool compact)
 
     if (compact) {
       if (impl_->count() > 0)
-	LOG_INFO("setCompact(true): not implemented");
+        LOG_INFO("setCompact(true): not implemented");
       setStyleClass("btn-group");
     } else {
       setStyleClass("btn-toolbar");
       if (impl_->count() > 0) {
-	std::unique_ptr<WContainerWidget> group(new WContainerWidget());
-	group->setStyleClass("btn-group me-2");
-	while (impl_->count() > 0) {
-	  auto w = impl_->removeWidget(impl_->widget(0));
-	  group->addWidget(std::move(w));
-	}
-	lastGroup_ = group.get();
-	impl_->addWidget(std::move(group));
+        std::unique_ptr<WContainerWidget> group(new WContainerWidget());
+        group->setStyleClass("btn-group me-2");
+        while (impl_->count() > 0) {
+          auto w = impl_->removeWidget(impl_->widget(0));
+          group->addWidget(std::move(w));
+        }
+        lastGroup_ = group.get();
+        impl_->addWidget(std::move(group));
       }
     }
   }

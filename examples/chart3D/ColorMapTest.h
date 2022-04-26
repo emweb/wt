@@ -28,22 +28,22 @@ public:
   ~ColorMapTest()
   {
   }
-  
+
 protected:
   void paintEvent(Wt::WPaintDevice *paintDevice) {
     Wt::WPainter painter(paintDevice);
 
     painter.translate(50,0);
     colormap_->paintLegend(&painter);
-    
+
     painter.translate(150,0);
     colormap2_->paintLegend(&painter);
-    
+
     painter.translate(150,0);
     colormap2_->discretise(5);
     colormap2_->paintLegend(&painter);
   }
-  
+
 private:
   std::unique_ptr<Wt::Chart::WStandardColorMap> colormap_;
   std::unique_ptr<Wt::Chart::WStandardColorMap> colormap2_;

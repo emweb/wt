@@ -21,19 +21,19 @@ class WMemoryResource;
 /*! \class WScatterData
  *  \brief Class representing a collection of points for on a 3D chart.
  *
- * General information can be found at WAbstractDataSeries3D. The model should 
- * be structured as a table where every row represents a point. In the simplest 
- * case, there are three columns representing the x-, y- and z-values. By 
- * default, this is column 0 for X, column 1 for Y and column 2 for Z. It is 
- * also possible to provide an additional column containing information on the 
- * color for each point. The same is possible for the size. Color-information 
+ * General information can be found at WAbstractDataSeries3D. The model should
+ * be structured as a table where every row represents a point. In the simplest
+ * case, there are three columns representing the x-, y- and z-values. By
+ * default, this is column 0 for X, column 1 for Y and column 2 for Z. It is
+ * also possible to provide an additional column containing information on the
+ * color for each point. The same is possible for the size. Color-information
  * in the model should be present as a WColor.
  *
- * If these extra columns are not included, the ItemDataRole::MarkerBrushColor and 
- * ItemDataRole::MarkerScaleFactor can still be used to style individual points. These 
+ * If these extra columns are not included, the ItemDataRole::MarkerBrushColor and
+ * ItemDataRole::MarkerScaleFactor can still be used to style individual points. These
  * dataroles should be set on the values in the column containing the z-values.
  *
- * The figure below shows an upward spiral of points, with droplines enabled 
+ * The figure below shows an upward spiral of points, with droplines enabled
  * and a pointsize of 5 pixels.
  *
  * \image html spiral.png "An example of WScatterData"
@@ -48,8 +48,8 @@ public:
 
   /*! \brief Enables or disables droplines for all points.
    *
-   * Enabling droplines will cause a line to be drawn from every point to the 
-   * the ground-plane of the chart's plotcube. By default the droplines are 
+   * Enabling droplines will cause a line to be drawn from every point to the
+   * the ground-plane of the chart's plotcube. By default the droplines are
    * disabled.
    *
    * \sa setDroplinesPen()
@@ -64,7 +64,7 @@ public:
 
   /*! \brief Sets the pen that is used to draw droplines.
    *
-   * The default pen is a default constructed WPen. 
+   * The default pen is a default constructed WPen.
    *
    * Note: only the width and color of the pen are used.
    *
@@ -78,71 +78,71 @@ public:
    */
   WPen droplinesPen() const { return droplinesPen_; }
 
-  /*! \brief Sets the column-index from the model that is used for the 
+  /*! \brief Sets the column-index from the model that is used for the
    * x-coordinate of all points.
    *
    * The default X column index is 0.
    */
   void setXSeriesColumn(int columnNumber) { XSeriesColumn_ = columnNumber; }
 
-  /*! \brief Returns the column-index from the model that is used for the 
+  /*! \brief Returns the column-index from the model that is used for the
    * x-coordinate of all points.
    *
    * \sa setXSeriesColumn()
    */
   int XSeriesColumn() const { return XSeriesColumn_; }
 
-  /*! \brief Sets the column-index from the model that is used for the 
+  /*! \brief Sets the column-index from the model that is used for the
    * y-coordinate of all points.
    *
    * The default X column index is 1.
    */
   void setYSeriesColumn(int columnNumber) { YSeriesColumn_ = columnNumber; }
 
-  /*! \brief Returns the column-index from the model that is used for the 
+  /*! \brief Returns the column-index from the model that is used for the
    * y-coordinate of all points.
    *
    * \sa setYSeriesColumn()
    */
   int YSeriesColumn() const { return YSeriesColumn_; }
 
-  /*! \brief Sets the column-index from the model that is used for the 
+  /*! \brief Sets the column-index from the model that is used for the
    * z-coordinate of all points.
    *
    * The default Z column index is 2.
    *
-   * Note that this column is also used to check for a ItemDataRole::MarkerBrushColor 
+   * Note that this column is also used to check for a ItemDataRole::MarkerBrushColor
    * and a ItemDataRole::MarkerScaleFactor is no color-column or size-column are set.
    *
    * \sa setColorColumn(), setSizeColumn()
    */
   void setZSeriesColumn(int columnNumber) { ZSeriesColumn_ = columnNumber; }
 
-  /*! \brief Returns the column-index from the model that is used for the 
+  /*! \brief Returns the column-index from the model that is used for the
    * z-coordinate of all points.
    *
    * \sa setZSeriesColumn()
    */
   int ZSeriesColumn() const { return ZSeriesColumn_; }
 
-  /*! \brief Configure a column in the model to be used for the color of the 
+  /*! \brief Configure a column in the model to be used for the color of the
    * points.
    *
-   * By default, the color-column is set to -1. This means there is no column 
-   * which specifies color-values. Also, the basic mechanism of using the 
-   * ItemDataRole::MarkerBrushColor (if present) is then active. The Z-seriescolumn is 
+   * By default, the color-column is set to -1. This means there is no column
+   * which specifies color-values. Also, the basic mechanism of using the
+   * ItemDataRole::MarkerBrushColor (if present) is then active. The Z-seriescolumn is
    * checked for the presence of this Role.
    *
    * \sa setZSeriesColumn()
    */
   void setColorColumn(int columnNumber, ItemDataRole role = ItemDataRole::Display);
 
-  /*! \brief Configure a column in the model to be used for the size of the 
+  /*! \brief Configure a column in the model to be used for the size of the
    * points.
    *
-   * By default, the size-column is set to -1. This means there is no column 
-   * which specifies size-values. Also, the basic mechanism of using the 
-   * ItemDataRole::MarkerScaleFactor (if present) is then active. The Z-seriescolumn is 
+   * By default, the size-column is set to -1. This means there is no column
+   * which specifies size-values. Also, the basic mechanism of using the
+   * ItemDataRole::MarkerScaleFactor (if present) is then active. The Z-seriescolumn is
    * checked for the presence of this Role.
    *
    * \sa setZSeriesColumn()
@@ -180,12 +180,12 @@ public:
 private:
   int countSimpleData() const;
   void dataFromModel(FloatBuffer& simplePtsArray,
-		     FloatBuffer& simplePtsSize,
-		     FloatBuffer& coloredPtsArray,
-		     FloatBuffer& coloredPtsSize,
-		     FloatBuffer& coloredPtsColor);
+                     FloatBuffer& simplePtsSize,
+                     FloatBuffer& coloredPtsArray,
+                     FloatBuffer& coloredPtsSize,
+                     FloatBuffer& coloredPtsColor);
   void dropLineVertices(FloatBuffer& dataPoints,
-			FloatBuffer& verticesOUT);
+                        FloatBuffer& verticesOUT);
   void initShaders();
   void findXRange() const;
   void findYRange() const;
@@ -252,7 +252,7 @@ private:
   WGLWidget::UniformLocation offsetUniform_;
   WGLWidget::UniformLocation scaleFactorUniform_;
 };
-    
+
   }
 }
 

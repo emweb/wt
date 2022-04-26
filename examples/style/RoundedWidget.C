@@ -32,29 +32,29 @@ void RoundedWidget::create()
 
   if (corners_.test(Corner::TopLeft)) {
     images[0] = std::make_unique<CornerImage>(
-				Corner::TopLeft, backgroundColor_,
-				surroundingColor_, radius_);
+                                Corner::TopLeft, backgroundColor_,
+                                surroundingColor_, radius_);
     images[0]->setPositionScheme(PositionScheme::Absolute);
     images[0]->setMargin(0);
   }
 
   if (corners_.test(Corner::TopRight))
     images[1] = std::make_unique<CornerImage>(
-				Corner::TopRight, backgroundColor_,
-				surroundingColor_, radius_);
+                                Corner::TopRight, backgroundColor_,
+                                surroundingColor_, radius_);
 
   if (corners_.test(Corner::BottomLeft)) {
     images[2] = std::make_unique<CornerImage>(
-				Corner::BottomLeft, backgroundColor_,
-				surroundingColor_, radius_);
+                                Corner::BottomLeft, backgroundColor_,
+                                surroundingColor_, radius_);
     images[2]->setPositionScheme(PositionScheme::Absolute);
     images[2]->setMargin(0);
   }
 
   if (corners_.test(Corner::BottomRight))
     images[3] = std::make_unique<CornerImage>(
-				Corner::BottomRight, backgroundColor_,
-				surroundingColor_, radius_);
+                                Corner::BottomRight, backgroundColor_,
+                                surroundingColor_, radius_);
 
   for (int i = 0; i < 4; ++i)
     images_[i] = images[i].get();
@@ -132,8 +132,8 @@ void RoundedWidget::enableRoundedCorners(bool how)
     else
       top_->decorationStyle()
         .setBackgroundImage(images_[1]->imageLink(),
-			    WFlags<Orientation>(),
-			    Side::Top | Side::Right);
+                            WFlags<Orientation>(),
+                            Side::Top | Side::Right);
   }
 
   if (images_[3]) {
@@ -143,8 +143,8 @@ void RoundedWidget::enableRoundedCorners(bool how)
     else
       bottom_->decorationStyle()
         .setBackgroundImage(images_[3]->imageLink(),
-			    WFlags<Orientation>(),
-			    Side::Top | Side::Right);
+                            WFlags<Orientation>(),
+                            Side::Top | Side::Right);
   }
 }
 
@@ -164,7 +164,7 @@ void RoundedWidget::adjust()
   if (images_[3] && !images_[3]->isHidden())
     images_[3]->setForeground(backgroundColor_);
 
-  if (images_[1]) 
+  if (images_[1])
     top_->decorationStyle().setBackgroundImage(images_[1]->imageLink(),
                                                WFlags<Orientation>(),
                                                Side::Top | Side::Right);

@@ -15,8 +15,8 @@
  * configured with the given mime type
  */
 WImage *createDragImage(const char *url, const char *smallurl,
-			const char *mimeType,
-			WContainerWidget *p)
+                        const char *mimeType,
+                        WContainerWidget *p)
 {
   WImage *result = p->addWidget(std::make_unique<WImage>(url));
   WImage *dragImage = p->addWidget(std::make_unique<WImage>(smallurl));
@@ -46,11 +46,11 @@ DragExample::DragExample():
   pills->setContentAlignment(AlignmentFlag::Center);
 
   createDragImage("icons/blue-pill.jpg",
-		  "icons/blue-pill-small.png",
-		  "blue-pill", pills);
+                  "icons/blue-pill-small.png",
+                  "blue-pill", pills);
   createDragImage("icons/red-pill.jpg",
-		  "icons/red-pill-small.png",
-		  "red-pill", pills);
+                  "icons/red-pill-small.png",
+                  "red-pill", pills);
 
   WContainerWidget *dropSites = this->addWidget(std::make_unique<WContainerWidget>());
 

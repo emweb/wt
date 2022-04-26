@@ -163,7 +163,7 @@ public:
 
     Wt::Dbo::Transaction transaction(dbStruct_->session);
     Wt::Dbo::ptr<World> entry = dbStruct_->session.load<World>(dbStruct_->rand());
-    
+
     Wt::Dbo::JsonSerializer writer(response.out());
     writer.serialize(entry);
   }
@@ -351,7 +351,7 @@ int main(int argc, char** argv) {
 
     UpdateResource updateResource;
     server.addResource(&updateResource, "/updates");
-    
+
     PlaintextResource plaintextResource;
     server.addResource(&plaintextResource, "/plaintext");
 

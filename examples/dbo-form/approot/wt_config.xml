@@ -1,6 +1,6 @@
 <server>
     <application-settings location="*">
-	<properties>
+        <properties>
             <!-- TinyMCE properties
 
               These properties are used to configure TinyMCE for WTextEdit.
@@ -15,6 +15,6 @@
             <property name="tinyMCEVersion">3</property>
             <property name="tinyMCEURL"></property>
             <property name="tinyMCEBaseURL">resources/tiny_mce</property>
-	</properties>
+        </properties>
     </application-settings>
 </server>

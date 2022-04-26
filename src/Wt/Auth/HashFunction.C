@@ -37,26 +37,26 @@ HashFunction::~HashFunction()
 { }
 
 bool HashFunction::verify(const std::string& msg,
-			  const std::string& salt,
-			  const std::string& hash) const
+                          const std::string& salt,
+                          const std::string& hash) const
 {
   return compute(msg, salt) == hash;
 }
 
 #ifndef WT_TARGET_JAVA
 std::string MD5HashFunction::compute(const std::string& msg,
-				     const std::string& salt) const
+                                     const std::string& salt) const
 {
   return Utils::encodeAscii(Wt::Utils::md5(salt + msg));
 }
 
 std::string MD5HashFunction::name() const
 {
-  return "MD5"; 
+  return "MD5";
 }
 
 std::string SHA1HashFunction::compute(const std::string& msg,
-				      const std::string& salt) const
+                                      const std::string& salt) const
 {
   SHA1Context sha;
 
@@ -81,7 +81,7 @@ std::string SHA1HashFunction::compute(const std::string& msg,
 
 std::string SHA1HashFunction::name() const
 {
-  return "SHA1"; 
+  return "SHA1";
 }
 
 BCryptHashFunction::BCryptHashFunction(int count)
@@ -89,7 +89,7 @@ BCryptHashFunction::BCryptHashFunction(int count)
 { }
 
 std::string BCryptHashFunction::compute(const std::string& msg,
-					const std::string& salt) const
+                                        const std::string& salt) const
 {
   char setting[32];
 
@@ -112,8 +112,8 @@ std::string BCryptHashFunction::compute(const std::string& msg,
 }
 
 bool BCryptHashFunction::verify(const std::string& msg,
-				const std::string& salt,
-				const std::string& hash) const
+                                const std::string& salt,
+                                const std::string& hash) const
 {
   char result[64];
 
@@ -127,8 +127,8 @@ bool BCryptHashFunction::verify(const std::string& msg,
 
 std::string BCryptHashFunction::name() const
 {
-  return "bcrypt"; 
+  return "bcrypt";
 }
 #endif
-	}
+  }
 }

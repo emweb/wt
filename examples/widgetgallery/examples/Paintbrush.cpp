@@ -19,39 +19,39 @@ public:
     PaintBrush(int width, int height)
         : WPaintedWidget()
     {
-	resize(width, height);
+        resize(width, height);
 
-	decorationStyle().setCursor("icons/pencil.cur", Wt::Cursor::Cross);
+        decorationStyle().setCursor("icons/pencil.cur", Wt::Cursor::Cross);
 
-	mouseDragged().connect(this, &PaintBrush::mouseDrag);
-	mouseWentDown().connect(this, &PaintBrush::mouseDown);
-	touchStarted().connect(this, &PaintBrush::touchStart);
-	touchMoved().connect(this, &PaintBrush::touchMove);
-	touchMoved().preventDefaultAction();
-  
+        mouseDragged().connect(this, &PaintBrush::mouseDrag);
+        mouseWentDown().connect(this, &PaintBrush::mouseDown);
+        touchStarted().connect(this, &PaintBrush::touchStart);
+        touchMoved().connect(this, &PaintBrush::touchMove);
+        touchMoved().preventDefaultAction();
+
         color_ = Wt::WColor(Wt::StandardColor::Black);
     }
 
     void clear() {
-	update();
+        update();
     }
 
     void setColor(const Wt::WColor& c) {
-	color_ = c;
+        color_ = c;
     }
 
 protected:
     virtual void paintEvent(Wt::WPaintDevice *paintDevice) {
         Wt::WPainter painter(paintDevice);
         painter.setRenderHint(Wt::RenderHint::Antialiasing);
-  
+
         Wt::WPen pen;
-	pen.setWidth(3);
-	pen.setColor(color_);
-	pen.setCapStyle(Wt::PenCapStyle::Flat);
-	pen.setJoinStyle(Wt::PenJoinStyle::Miter);
-	painter.setPen(pen);
-	painter.drawPath(path_);
+        pen.setWidth(3);
+        pen.setColor(color_);
+        pen.setCapStyle(Wt::PenCapStyle::Flat);
+        pen.setJoinStyle(Wt::PenJoinStyle::Miter);
+        painter.setPen(pen);
+        painter.drawPath(path_);
 
         path_ = Wt::WPainterPath(path_.currentPosition());
     }
@@ -67,8 +67,8 @@ private:
 
     void mouseDrag(const Wt::WMouseEvent& e) {
         Wt::Coordinates c = e.widget();
-	path_.lineTo(c.x, c.y);
-	update(Wt::PaintFlag::Update);
+        path_.lineTo(c.x, c.y);
+        update(Wt::PaintFlag::Update);
     }
 
     void touchStart(const Wt::WTouchEvent& e) {
@@ -78,8 +78,8 @@ private:
 
     void touchMove(const Wt::WTouchEvent& e) {
         Wt::Coordinates c = e.touches()[0].widget();
-	path_.lineTo(c.x, c.y);
-	update(Wt::PaintFlag::Update);
+        path_.lineTo(c.x, c.y);
+        update(Wt::PaintFlag::Update);
     }
 };
 
@@ -87,7 +87,7 @@ namespace {
 
 extern 
 Wt::WPushButton *createColorToggle(const char *className, const Wt::WColor& color,
-				   PaintBrush *canvas)
+                                   PaintBrush *canvas)
 {
     auto button = new Wt::WPushButton();
     button->setTextFormat(Wt::TextFormat::XHTML);
@@ -96,7 +96,7 @@ Wt::WPushButton *createColorToggle(const char *className, const Wt::WColor& colo
     button->addStyleClass(className);
     button->setWidth(30);
     button->checked().connect([=] {
-	canvas->setColor(color);
+        canvas->setColor(color);
     });
 
     return button;

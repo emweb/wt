@@ -44,7 +44,7 @@ class WStandardItem;
  * When using the model with a view class, you can use the
  * itemFromIndex() and indexFromItem() models to translate between
  * model indexes (that are used by the view class) and standard items.
- * 
+ *
  * \if cpp
  * Usage example for tabular data:
  * \code
@@ -84,7 +84,7 @@ class WStandardItem;
  *   root->appendRow(std::move(topLevel));
  * }
  * \endcode
- * \endif 
+ * \endif
  *
  * \ingroup modelview
  */
@@ -166,7 +166,7 @@ public:
    * \sa WStandardItem::insertColumn()
    */
   void insertColumn(int column,
-		    std::vector<std::unique_ptr<WStandardItem> > items);
+                    std::vector<std::unique_ptr<WStandardItem> > items);
 
   /*! \brief Adds a single row of top level items.
    *
@@ -325,7 +325,7 @@ public:
    * By default, no flags are set.
    */
   void setHeaderFlags(int section, Orientation orientation,
-		      WFlags<HeaderFlag> flags);
+                      WFlags<HeaderFlag> flags);
 
 
 #ifndef DOXYGEN_ONLY
@@ -334,7 +334,7 @@ public:
   using WAbstractItemModel::setHeaderData;
 
   virtual WFlags<HeaderFlag> headerFlags
-    (int section, Orientation orientation = Orientation::Horizontal) 
+    (int section, Orientation orientation = Orientation::Horizontal)
     const override;
   virtual WFlags<ItemFlag> flags(const WModelIndex& index) const override;
 
@@ -344,12 +344,12 @@ public:
                        ItemDataRole role = ItemDataRole::Display)
     const override;
   virtual cpp17::any headerData(int section,
-			     Orientation orientation = Orientation::Horizontal,
+                             Orientation orientation = Orientation::Horizontal,
                              ItemDataRole role = ItemDataRole::Display)
     const override;
 
   virtual WModelIndex index(int row, int column,
-			    const WModelIndex& parent = WModelIndex())
+                            const WModelIndex& parent = WModelIndex())
     const override;
 
   virtual int columnCount(const WModelIndex& parent = WModelIndex())
@@ -359,22 +359,22 @@ public:
     const override;
 
   virtual bool insertColumns(int column, int count,
-			     const WModelIndex& parent = WModelIndex())
+                             const WModelIndex& parent = WModelIndex())
     override;
   virtual bool insertRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex())
+                          const WModelIndex& parent = WModelIndex())
     override;
   virtual bool removeColumns(int column, int count,
-			     const WModelIndex& parent = WModelIndex())
+                             const WModelIndex& parent = WModelIndex())
     override;
   virtual bool removeRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex())
+                          const WModelIndex& parent = WModelIndex())
     override;
   virtual bool setData(const WModelIndex& index, const cpp17::any& value,
                        ItemDataRole role = ItemDataRole::Edit)
     override;
   virtual bool setHeaderData(int section, Orientation orientation,
-			     const cpp17::any& value,
+                             const cpp17::any& value,
                              ItemDataRole role = ItemDataRole::Edit)
     override;
 
@@ -382,7 +382,7 @@ public:
   virtual WModelIndex fromRawIndex(void *rawIndex) const override;
 
   virtual void dropEvent(const WDropEvent& e, DropAction action,
-			 int row, int column, const WModelIndex& parent) override;
+                         int row, int column, const WModelIndex& parent) override;
 
 #endif // DOXYGEN_ONLY
 
@@ -437,11 +437,11 @@ private:
   WStandardItem *itemFromIndex(const WModelIndex& index, bool lazyCreate)
     const;
   void insertHeaderData(std::vector<HeaderData>& headerData,
-			std::vector<WFlags<HeaderFlag> >& fl,
-			WStandardItem *item, int index,	int count);
+                        std::vector<WFlags<HeaderFlag> >& fl,
+                        WStandardItem *item, int index, int count);
   void removeHeaderData(std::vector<HeaderData>& headerData,
-			std::vector<WFlags<HeaderFlag> >& fl,
-			WStandardItem *item, int index, int count);
+                        std::vector<WFlags<HeaderFlag> >& fl,
+                        WStandardItem *item, int index, int count);
 
   friend class WStandardItem;
 };

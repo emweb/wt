@@ -11,7 +11,7 @@ namespace Wt {
 
 WStandardChartProxyModel
 ::WStandardChartProxyModel(const std::shared_ptr<WAbstractItemModel>&
-			   sourceModel)
+                           sourceModel)
   : sourceModel_(sourceModel)
 #ifndef WT_TARGET_JAVA
     ,
@@ -20,21 +20,21 @@ WStandardChartProxyModel
 #endif // WT_TARGET_JAVA
 {
   sourceModel->columnsInserted().connect(
-	this, &WStandardChartProxyModel::sourceModelModified);
+        this, &WStandardChartProxyModel::sourceModelModified);
   sourceModel->columnsRemoved().connect(
-	this, &WStandardChartProxyModel::sourceModelModified);
+        this, &WStandardChartProxyModel::sourceModelModified);
   sourceModel->rowsInserted().connect(
-	this, &WStandardChartProxyModel::sourceModelModified);
+        this, &WStandardChartProxyModel::sourceModelModified);
   sourceModel->rowsRemoved().connect(
-	this, &WStandardChartProxyModel::sourceModelModified);
+        this, &WStandardChartProxyModel::sourceModelModified);
   sourceModel->dataChanged().connect(
-	this, &WStandardChartProxyModel::sourceModelModified);
+        this, &WStandardChartProxyModel::sourceModelModified);
   sourceModel->headerDataChanged().connect(
-	this, &WStandardChartProxyModel::sourceModelModified);
+        this, &WStandardChartProxyModel::sourceModelModified);
   sourceModel->layoutChanged().connect(
-	this, &WStandardChartProxyModel::sourceModelModified);
+        this, &WStandardChartProxyModel::sourceModelModified);
   sourceModel->modelReset().connect(
-	this, &WStandardChartProxyModel::sourceModelModified);
+        this, &WStandardChartProxyModel::sourceModelModified);
 }
 
 WStandardChartProxyModel::~WStandardChartProxyModel()
@@ -52,9 +52,9 @@ WString WStandardChartProxyModel::displayData(int row, int column) const
 
 WString WStandardChartProxyModel::headerData(int column) const
 {
-  return asString(sourceModel_->headerData(column, 
-					   Orientation::Horizontal, 
-					   ItemDataRole::Display));
+  return asString(sourceModel_->headerData(column,
+                                           Orientation::Horizontal,
+                                           ItemDataRole::Display));
 }
 
 WString WStandardChartProxyModel::toolTip(int row, int column) const
@@ -141,8 +141,8 @@ const WColor *WStandardChartProxyModel::barBrushColor(int row, int column) const
 
 const double *WStandardChartProxyModel::markerScaleFactor(int row, int column) const
 {
-  cpp17::any result = sourceModel_->data(row, column, 
-				      ItemDataRole::MarkerScaleFactor);
+  cpp17::any result = sourceModel_->data(row, column,
+                                      ItemDataRole::MarkerScaleFactor);
 
   if (!cpp17::any_has_value(result)) {
     return WAbstractChartModel::markerScaleFactor(row, column);

@@ -48,7 +48,7 @@ public:
 #endif // WT_TARGET_JAVA
 
   static void fitWidget(WContainerWidget *container,
-			std::unique_ptr<WWidget> widget);
+                        std::unique_ptr<WWidget> widget);
 
   virtual void addItem(std::unique_ptr<WLayoutItem> item) override;
   virtual std::unique_ptr<WLayoutItem> removeItem(WLayoutItem *item) override;

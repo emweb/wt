@@ -86,7 +86,7 @@ std::string WPointF::jsValue() const
 WPointF WPointF::swapHV(double width) const
 {
   WPointF result(width - y(), x());
-  
+
   if (isJavaScriptBound()) {
     WStringStream ss;
     char buf[30];
@@ -122,8 +122,8 @@ void WPointF::assignFromJSON(const Json::Value &value)
     const Json::Array &ar = static_cast<Json::Array&>(value);
 #endif
     if (ar.size() == 2 &&
-	!ar[0].toNumber().isNull() &&
-	!ar[1].toNumber().isNull()) {
+        !ar[0].toNumber().isNull() &&
+        !ar[1].toNumber().isNull()) {
       x_ = ar[0].toNumber().orIfNull(x_);
       y_ = ar[1].toNumber().orIfNull(y_);
     } else {

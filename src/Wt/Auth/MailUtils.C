@@ -11,9 +11,9 @@ namespace Wt {
   namespace Auth {
     namespace MailUtils {
       void sendMail(const Mail::Message &m) {
-	Mail::Client client;
-	client.connect();
-	client.send(m);
+        Mail::Client client;
+        client.connect();
+        client.send(m);
       }
     }
   }

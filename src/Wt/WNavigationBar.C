@@ -185,8 +185,8 @@ void WNavigationBar::addWidget(std::unique_ptr<WWidget> widget,
 }
 
 void WNavigationBar::addWrapped(std::unique_ptr<WWidget> widget,
-				AlignmentFlag alignment,
-				int role)
+                                AlignmentFlag alignment,
+                                int role)
 {
   auto contents = resolve<WContainerWidget *>("contents");
   auto wrap = contents->addNew<WContainerWidget>();

@@ -41,7 +41,7 @@ class ChartConfig : public Wt::WContainerWidget
 {
 public:
   /*! \brief Constructor.
-   */  
+   */
   ChartConfig(Wt::Chart::WCartesianChart *chart);
 
   void setValueFill(Wt::Chart::FillRangeType fill);

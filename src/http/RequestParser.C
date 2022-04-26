@@ -69,11 +69,11 @@ RequestParser::RequestParser(Server *server) :
   reset();
 }
 
-RequestParser::~RequestParser() 
+RequestParser::~RequestParser()
 {
 #ifdef WTHTTP_WITH_ZLIB
   if(inflateInitialized_)
-	inflateEnd(&zInState_);
+    inflateEnd(&zInState_);
 #endif
 }
 
@@ -89,8 +89,8 @@ void RequestParser::reset()
   maxSize_ = 0;
   haveHeader_ = false;
 #ifdef WTHTTP_WITH_ZLIB
-  if(inflateInitialized_) 
-	inflateEnd(&zInState_);	
+  if(inflateInitialized_)
+    inflateEnd(&zInState_);
 
   inflateInitialized_ = false;
   frameCompressed_ = false;
@@ -107,9 +107,9 @@ bool RequestParser::initInflate() {
 
   int ret = inflateInit2(&zInState_, -1 *  SERVER_DEFAULT_WINDOW_BITS); //15 bits
   if(ret != Z_OK) {
-	LOG_ERROR("Cannot init inflate");
-	return false;
-  }	
+    LOG_ERROR("Cannot init inflate");
+    return false;
+  }
   inflateInitialized_ = true;
   return true;
 }
@@ -153,7 +153,7 @@ bool RequestParser::initialState() const
 
 boost::tuple<boost::tribool, char *>
 RequestParser::parse(Request& req, char *begin,
-		     char *end)
+                     char *end)
 {
   boost::tribool result = boost::indeterminate;
 
@@ -174,7 +174,7 @@ RequestParser::parse(Request& req, char *begin,
 }
 
 RequestParser::ParseResult RequestParser::parseBody(Request& req, ReplyPtr reply,
-			      char *& begin, char *end)
+                                                    char *& begin, char *end)
 {
   if (req.type == Request::WebSocket) {
     Request::State state;
@@ -194,8 +194,7 @@ RequestParser::ParseResult RequestParser::parseBody(Request& req, ReplyPtr reply
 
     begin = thisEnd;
 
-    bool canReadMore = reply->consumeData(thisBegin, thisEnd,
-	Request::Partial);
+    bool canReadMore = reply->consumeData(thisBegin, thisEnd, Request::Partial);
 
     if (reply->status() == Reply::request_entity_too_large)
       return Done;
@@ -215,7 +214,7 @@ RequestParser::ParseResult RequestParser::parseBody(Request& req, ReplyPtr reply
     bool endOfRequest = remainder_ == 0;
 
     bool canReadMore = reply->consumeData(thisBegin, thisEnd,
-			 endOfRequest ? Request::Complete : Request::Partial);
+                                          endOfRequest ? Request::Complete : Request::Partial);
 
     if (reply->status() == Reply::request_entity_too_large)
       return Done;
@@ -238,7 +237,7 @@ bool RequestParser::doWebSocketHandshake00(const Request& req)
     ::uint32_t n1, n2;
 
     if (parseCrazyWebSocketKey(k1->value, n1)
-	&& parseCrazyWebSocketKey(k2->value, n2)) {
+        && parseCrazyWebSocketKey(k2->value, n2)) {
       unsigned char key3[8];
       memcpy(key3, ws00_buf_, 8);
 
@@ -263,7 +262,7 @@ bool RequestParser::doWebSocketHandshake00(const Request& req)
 }
 
 bool RequestParser::parseCrazyWebSocketKey(const buffer_string& k,
-					   ::uint32_t& result)
+                                           ::uint32_t& result)
 {
   std::string key = k.str();
 
@@ -280,7 +279,7 @@ bool RequestParser::parseCrazyWebSocketKey(const buffer_string& k,
 
   if (!spaces)
     return false;
-  
+
   if (n % spaces == 0) {
     result = n / spaces;
     return true;
@@ -307,93 +306,93 @@ std::string RequestParser::doWebSocketHandshake13(const Request& req)
 }
 
 #ifdef WTHTTP_WITH_ZLIB
-bool RequestParser::doWebSocketPerMessageDeflateNegotiation(const Request& req, std::string& response) 
+bool RequestParser::doWebSocketPerMessageDeflateNegotiation(const Request& req, std::string& response)
 {
   req.pmdState_.enabled = false;
   response = "";
 
   const Request::Header *k = req.getHeader("Sec-WebSocket-Extensions");
   if (server_->configuration().compression() && k) {
-	std::string key = k->value.str();
-	std::vector<std::string> negotiatedHeaders;
-	boost::split(negotiatedHeaders, key, boost::is_any_of(";"));
+        std::string key = k->value.str();
+        std::vector<std::string> negotiatedHeaders;
+        boost::split(negotiatedHeaders, key, boost::is_any_of(";"));
 
-	if (key.find("permessage-deflate") != std::string::npos) {
-	  req.pmdState_.enabled = true;
-	  response = "permessage-deflate";
-	} else return true;
-  
-	bool hasClientWBit = false;
-	bool hasServerWBit = false;
-	bool hasClientNoCtx = false;
-	bool hasServerNoCtx = false;
-	
-	req.pmdState_.server_max_window_bits = SERVER_MAX_WINDOW_BITS;
-	req.pmdState_.client_max_window_bits = CLIENT_MAX_WINDOW_BITS;
+        if (key.find("permessage-deflate") != std::string::npos) {
+          req.pmdState_.enabled = true;
+          response = "permessage-deflate";
+        } else return true;
 
-	for (unsigned int i = 0; i < negotiatedHeaders.size(); ++i) {
-	  std::string key = negotiatedHeaders[i];
-	  if(key.find("permessage-deflate") != std::string::npos) {
-		continue; // already parsed
-	  } else if (key.find("client_no_context_takeover") != std::string::npos) {
+        bool hasClientWBit = false;
+        bool hasServerWBit = false;
+        bool hasClientNoCtx = false;
+        bool hasServerNoCtx = false;
 
-		if (hasClientWBit) return false;
+        req.pmdState_.server_max_window_bits = SERVER_MAX_WINDOW_BITS;
+        req.pmdState_.client_max_window_bits = CLIENT_MAX_WINDOW_BITS;
 
-		hasClientNoCtx = true;
+        for (unsigned int i = 0; i < negotiatedHeaders.size(); ++i) {
+          std::string key = negotiatedHeaders[i];
+          if(key.find("permessage-deflate") != std::string::npos) {
+                continue; // already parsed
+          } else if (key.find("client_no_context_takeover") != std::string::npos) {
 
-		req.pmdState_.client_max_window_bits = -1;
-		response+="; client_no_context_takeover";
-	  } else if (key.find("server_no_context_takeover") != std::string::npos) {
+                if (hasClientWBit) return false;
 
-		if (hasServerWBit) return false;
+                hasClientNoCtx = true;
 
-		hasServerNoCtx = true;
+                req.pmdState_.client_max_window_bits = -1;
+                response+="; client_no_context_takeover";
+          } else if (key.find("server_no_context_takeover") != std::string::npos) {
 
-		req.pmdState_.server_max_window_bits = -1;
-		response+="; server_no_context_takeover";
-	  } else if (key.find("server_max_window_bits") != std::string::npos) {
+                if (hasServerWBit) return false;
 
-		if (hasServerNoCtx) return false;
+                hasServerNoCtx = true;
 
-		boost::trim(key);
-		size_t pos = key.find("=");
-		if (pos != std::string::npos) {
-		  hasServerWBit = true;
-		  int ws = 0;
-		  try {
-		    ws = Wt::Utils::stoi(key.substr(pos + 1));
-		  } catch (const std::invalid_argument &e) {
-		    return false;
-		  }
+                req.pmdState_.server_max_window_bits = -1;
+                response+="; server_no_context_takeover";
+          } else if (key.find("server_max_window_bits") != std::string::npos) {
 
-		  if (ws < 8 || ws > 15) return false;
+                if (hasServerNoCtx) return false;
 
-		  req.pmdState_.server_max_window_bits  = ws;
-		  response+="; server_max_window_bits = " + key.substr(pos + 1);
-		} else return false;
-	  } else if (key.find("client_max_window_bits") != std::string::npos) {
+                boost::trim(key);
+                size_t pos = key.find("=");
+                if (pos != std::string::npos) {
+                  hasServerWBit = true;
+                  int ws = 0;
+                  try {
+                    ws = Wt::Utils::stoi(key.substr(pos + 1));
+                  } catch (const std::invalid_argument &e) {
+                    return false;
+                  }
 
-		if (hasClientNoCtx) return false;
+                  if (ws < 8 || ws > 15) return false;
 
-		boost::trim(key);
-		size_t pos = key.find("=");
-		if (pos != std::string::npos) {
-		  hasClientWBit = true;
-		  int ws = 0;
-		  try {
-		    ws = Wt::Utils::stoi(key.substr(pos + 1));
-		  } catch (const std::invalid_argument &e) {
-		    return false;
-		  }
+                  req.pmdState_.server_max_window_bits  = ws;
+                  response+="; server_max_window_bits = " + key.substr(pos + 1);
+                } else return false;
+          } else if (key.find("client_max_window_bits") != std::string::npos) {
 
-		  if (ws < 8 || ws > 15) return false;
+                if (hasClientNoCtx) return false;
 
-		  req.pmdState_.client_max_window_bits = ws;
-		  response+="; client_max_window_bits = " + key.substr(pos + 1);
-		} else response+="; client_max_window_bits = " + boost::lexical_cast<std::string>(CLIENT_MAX_WINDOW_BITS);
+                boost::trim(key);
+                size_t pos = key.find("=");
+                if (pos != std::string::npos) {
+                  hasClientWBit = true;
+                  int ws = 0;
+                  try {
+                    ws = Wt::Utils::stoi(key.substr(pos + 1));
+                  } catch (const std::invalid_argument &e) {
+                    return false;
+                  }
 
-	  }
-	}
+                  if (ws < 8 || ws > 15) return false;
+
+                  req.pmdState_.client_max_window_bits = ws;
+                  response+="; client_max_window_bits = " + key.substr(pos + 1);
+                } else response+="; client_max_window_bits = " + boost::lexical_cast<std::string>(CLIENT_MAX_WINDOW_BITS);
+
+          }
+        }
   }
   return true;
 }
@@ -401,89 +400,89 @@ bool RequestParser::doWebSocketPerMessageDeflateNegotiation(const Request& req, 
 
 Request::State
 RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
-				     char *& begin,
-				     char * end)
+                                     char *& begin,
+                                     char * end)
 {
   switch (wsState_) {
   case ws_start:
     {
       if (req.webSocketVersion != 0
-	  && req.webSocketVersion != 7
-	  && req.webSocketVersion != 8
-	  && req.webSocketVersion != 13) {
-	LOG_ERROR("ws: unsupported protocol version " << req.webSocketVersion);
-	// FIXME add Sec-WebSocket-Version fields
-	return Request::Error;
+          && req.webSocketVersion != 7
+          && req.webSocketVersion != 8
+          && req.webSocketVersion != 13) {
+        LOG_ERROR("ws: unsupported protocol version " << req.webSocketVersion);
+        // FIXME add Sec-WebSocket-Version fields
+        return Request::Error;
       }
 
       if (req.webSocketVersion == 0) {
-	LOG_INFO("ws: connect with protocol version 0");
-	/*
-	 * In version 00, the hand shake is two-staged, we first need to
-	 * send the 101 to be able to access the part of the handshake
-	 * that is sent after the GET
-	 */
-	const Request::Header *host = req.getHeader("Host");
-	if (!host || host->value.empty()) {
-	  LOG_ERROR("ws: missing Host field");
-	  return Request::Error;
-	}
+        LOG_INFO("ws: connect with protocol version 0");
+        /*
+         * In version 00, the hand shake is two-staged, we first need to
+         * send the 101 to be able to access the part of the handshake
+         * that is sent after the GET
+         */
+        const Request::Header *host = req.getHeader("Host");
+        if (!host || host->value.empty()) {
+          LOG_ERROR("ws: missing Host field");
+          return Request::Error;
+        }
 
-	wsState_ = ws00_hand_shake;
-	wsCount_ = 0;
+        wsState_ = ws00_hand_shake;
+        wsCount_ = 0;
 
-	reply->setStatus(Reply::switching_protocols);
-	reply->addHeader("Connection", "Upgrade");
-	reply->addHeader("Upgrade", "WebSocket");
+        reply->setStatus(Reply::switching_protocols);
+        reply->addHeader("Connection", "Upgrade");
+        reply->addHeader("Upgrade", "WebSocket");
 
-	const Request::Header *origin = req.getHeader("Origin");
-	if (origin && !origin->value.empty())
-	  reply->addHeader("Sec-WebSocket-Origin", origin->value.str());
+        const Request::Header *origin = req.getHeader("Origin");
+        if (origin && !origin->value.empty())
+          reply->addHeader("Sec-WebSocket-Origin", origin->value.str());
 
-	std::string location = std::string(req.urlScheme)
-	  + "://" + host->value.str() + req.request_path
-	  + "?" + req.request_query;
-	reply->addHeader("Sec-WebSocket-Location", location);
+        std::string location = std::string(req.urlScheme)
+          + "://" + host->value.str() + req.request_path
+          + "?" + req.request_query;
+        reply->addHeader("Sec-WebSocket-Location", location);
 
-	reply->consumeData(&*begin, &*begin, Request::Partial);
+        reply->consumeData(&*begin, &*begin, Request::Partial);
 
-	return Request::Complete;
+        return Request::Complete;
       } else {
-	LOG_INFO("ws: connect with protocol version " << req.webSocketVersion);
-	std::string accept = doWebSocketHandshake13(req);
+        LOG_INFO("ws: connect with protocol version " << req.webSocketVersion);
+        std::string accept = doWebSocketHandshake13(req);
 
-	if (accept.empty()) {
-	  LOG_ERROR("ws: error computing handshake result");
-	  return Request::Error;
-	} else {
-	  wsState_ = ws13_frame_start;
-	  reply->setStatus(Reply::switching_protocols);
-	  reply->addHeader("Connection", "Upgrade");
-	  reply->addHeader("Upgrade", "WebSocket");
-	  reply->addHeader("Sec-WebSocket-Accept", accept);
+        if (accept.empty()) {
+          LOG_ERROR("ws: error computing handshake result");
+          return Request::Error;
+        } else {
+          wsState_ = ws13_frame_start;
+          reply->setStatus(Reply::switching_protocols);
+          reply->addHeader("Connection", "Upgrade");
+          reply->addHeader("Upgrade", "WebSocket");
+          reply->addHeader("Sec-WebSocket-Accept", accept);
 #ifdef WTHTTP_WITH_ZLIB
-	  std::string compressHeader;
-	  if(!doWebSocketPerMessageDeflateNegotiation(req, compressHeader)) {
-	    LOG_ERROR("ws: error during per_message_deflate negotiation");
-	    return Request::Error;
-	  }
+          std::string compressHeader;
+          if(!doWebSocketPerMessageDeflateNegotiation(req, compressHeader)) {
+            LOG_ERROR("ws: error during per_message_deflate negotiation");
+            return Request::Error;
+          }
 
-	  if(!compressHeader.empty())  {
-		// We can use per message deflate
-		if(initInflate()) {
-		  LOG_DEBUG("Extension per_message_deflate requested");
-		  reply->addHeader("Sec-WebSocket-Extensions", compressHeader);
-		}else {
-		  // Decompress not available disable
-		  req.pmdState_.enabled = false;
-		}
-	  }
+          if(!compressHeader.empty())  {
+                // We can use per message deflate
+                if(initInflate()) {
+                  LOG_DEBUG("Extension per_message_deflate requested");
+                  reply->addHeader("Sec-WebSocket-Extensions", compressHeader);
+                }else {
+                  // Decompress not available disable
+                  req.pmdState_.enabled = false;
+                }
+          }
 #endif
 
-	  reply->consumeData(&*begin, &*begin, Request::Complete);
+          reply->consumeData(&*begin, &*begin, Request::Complete);
 
-	  return Request::Complete;
-	}
+          return Request::Complete;
+        }
       }
 
       break;
@@ -491,26 +490,26 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
   case ws00_hand_shake:
     {
       unsigned thisSize = std::min((::int64_t)(end - begin),
-				   (::int64_t)(8 - wsCount_));
+                                   (::int64_t)(8 - wsCount_));
 
       memcpy(ws00_buf_ + wsCount_, &*begin, thisSize);
       wsCount_ += thisSize;
       begin += thisSize;
 
       if (wsCount_ == 8) {
-	bool okay = doWebSocketHandshake00(req);
+        bool okay = doWebSocketHandshake00(req);
 
-	if (okay) {
-	  wsState_ = ws00_frame_start;
-	  reply->consumeData(ws00_buf_, ws00_buf_ + 16, Request::Complete);
+        if (okay) {
+          wsState_ = ws00_frame_start;
+          reply->consumeData(ws00_buf_, ws00_buf_ + 16, Request::Complete);
 
-	  return Request::Complete;
-	} else {
-	  LOG_ERROR("ws: invalid client hand-shake");
-	  return Request::Error;
-	}
+          return Request::Complete;
+        } else {
+          LOG_ERROR("ws: invalid client hand-shake");
+          return Request::Error;
+        }
       } else
-	return Request::Partial;
+        return Request::Partial;
     }
   default:
     break;
@@ -538,12 +537,12 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
       wsFrameType_ = *begin;
 
       if (wsFrameType_ & 0x80) {
-	wsState_ = ws00_binary_length;
-	remainder_ = 0;
+        wsState_ = ws00_binary_length;
+        remainder_ = 0;
       } else {
-	wsState_ = ws00_text_data;
-	dataBegin = begin + 1;
-	remainder_ = 0;
+        wsState_ = ws00_text_data;
+        dataBegin = begin + 1;
+        remainder_ = 0;
       }
 
       ++begin;
@@ -556,11 +555,11 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
       }
       remainder_ = remainder_ << 7 | (*begin & 0x7F);
       if ((*begin & 0x80) == 0) {
-	if (remainder_ == 0 || remainder_ >= maxFrameLength) {
-	  LOG_ERROR("ws: oversized binary frame of length " << remainder_);
-	  return Request::Error;
-	}
-	wsState_ = ws00_binary_data;
+        if (remainder_ == 0 || remainder_ >= maxFrameLength) {
+          LOG_ERROR("ws: oversized binary frame of length " << remainder_);
+          return Request::Error;
+        }
+        wsState_ = ws00_binary_data;
       }
 
       ++begin;
@@ -568,16 +567,16 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
       break;
     case ws00_text_data:
       if (static_cast<unsigned char>(*begin) == 0xFF) {
-	state = Request::Complete;
-	wsState_ = ws00_frame_start;
-	dataEnd = begin;
+        state = Request::Complete;
+        wsState_ = ws00_frame_start;
+        dataEnd = begin;
       } else {
-	++remainder_;
+        ++remainder_;
 
-	if (remainder_ >= maxFrameLength) {
-	  LOG_ERROR("ws: oversized text frame of length " << remainder_);
-	  return Request::Error;
-	}
+        if (remainder_ >= maxFrameLength) {
+          LOG_ERROR("ws: oversized text frame of length " << remainder_);
+          return Request::Error;
+        }
       }
 
       ++begin;
@@ -585,88 +584,88 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
       break;
     case ws00_binary_data:
       {
-	::int64_t thisSize = std::min((::int64_t)(end - begin), remainder_);
+        ::int64_t thisSize = std::min((::int64_t)(end - begin), remainder_);
 
-	dataBegin = begin;
-	begin = begin + thisSize;
-	dataEnd = begin;
-	remainder_ -= thisSize;
+        dataBegin = begin;
+        begin = begin + thisSize;
+        dataEnd = begin;
+        remainder_ -= thisSize;
 
-	if (remainder_ == 0) {
-	  state = Request::Complete;
-	  wsState_ = ws00_frame_start;
-	}
+        if (remainder_ == 0) {
+          state = Request::Complete;
+          wsState_ = ws00_frame_start;
+        }
 
-	break;
+        break;
       }
     case ws13_frame_start:
       {
-	unsigned char frameType = *begin;
+        unsigned char frameType = *begin;
 
-	LOG_DEBUG("ws: new frame, opcode byte=" << (int)frameType);
+        LOG_DEBUG("ws: new frame, opcode byte=" << (int)frameType);
 
 #ifdef WTHTTP_WITH_ZLIB
-	/* RSV1-3 must be 0 */
-	if (frameType & 0x70 && (!req.pmdState_.enabled && frameType & 0x30)) 
-	  return Request::Error;
-	
+        /* RSV1-3 must be 0 */
+        if (frameType & 0x70 && (!req.pmdState_.enabled && frameType & 0x30))
+          return Request::Error;
+
 #else
-	if(frameType & 0x70)
-	  return Request::Error;
+        if(frameType & 0x70)
+          return Request::Error;
 #endif
 
 
-	switch (frameType & 0x0F) {
-	case 0x0: // Continuation frame of a fragmented message
-	  if (frameType & 0x80)
-	    wsFrameType_ |= 0x80; // mark the end-of-frame
+        switch (frameType & 0x0F) {
+        case 0x0: // Continuation frame of a fragmented message
+          if (frameType & 0x80)
+            wsFrameType_ |= 0x80; // mark the end-of-frame
 
-	  break;
-	case 0x1: // Text frame
-	case 0x2: // Binary frame
-	case 0x8: // Close
-	case 0x9: // Ping
-	case 0xA: // Pong
-	  wsFrameType_ = frameType;
+          break;
+        case 0x1: // Text frame
+        case 0x2: // Binary frame
+        case 0x8: // Close
+        case 0x9: // Ping
+        case 0xA: // Pong
+          wsFrameType_ = frameType;
 #ifdef WTHTTP_WITH_ZLIB
-	  frameCompressed_ = frameType & 0x40;
+          frameCompressed_ = frameType & 0x40;
 #endif // WTHTTP_WITH_ZLIB
 
-	  break;
-	default:
-	  LOG_ERROR("ws: unknown opcode");
-	  return Request::Error;
-	}
+          break;
+        default:
+          LOG_ERROR("ws: unknown opcode");
+          return Request::Error;
+        }
 
-	wsState_ = ws13_payload_length;
-	wsCount_ = 0;
+        wsState_ = ws13_payload_length;
+        wsCount_ = 0;
 
-	++begin;
+        ++begin;
 
-	break;
+        break;
       }
     case ws13_payload_length:
       /* Client frame must be masked */
       if ((*begin & 0x80) == 0) {
-	LOG_ERROR("ws: client frame not masked");
-	return Request::Error;
+        LOG_ERROR("ws: client frame not masked");
+        return Request::Error;
       }
 
       remainder_ = *begin & 0x7F;
 
       if (remainder_ < 126) {
-	LOG_DEBUG("ws: new frame length " << remainder_);
-	wsMask_ = 0;
-	wsState_ = ws13_mask;
-	wsCount_ = 4;
+        LOG_DEBUG("ws: new frame length " << remainder_);
+        wsMask_ = 0;
+        wsState_ = ws13_mask;
+        wsCount_ = 4;
       } else if (remainder_ == 126) {
-	wsState_ = ws13_extended_payload_length;
-	wsCount_ = 2;
-	remainder_ = 0;
+        wsState_ = ws13_extended_payload_length;
+        wsCount_ = 2;
+        remainder_ = 0;
       } else if (remainder_ == 127) {
-	wsState_ = ws13_extended_payload_length;
-	wsCount_ = 8;
-	remainder_ = 0;
+        wsState_ = ws13_extended_payload_length;
+        wsCount_ = 8;
+        remainder_ = 0;
       }
 
       ++begin;
@@ -683,14 +682,14 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
       --wsCount_;
 
       if (wsCount_ == 0) {
-	LOG_DEBUG("ws: new frame length " << remainder_);
-	if (remainder_ >= maxFrameLength) {
+        LOG_DEBUG("ws: new frame length " << remainder_);
+        if (remainder_ >= maxFrameLength) {
           LOG_ERROR("ws: oversized frame of length " << remainder_ << " exceeds --max-memory-request-size (= " << maxFrameLength << " bytes)");
-	  return Request::Error;
-	}
-	wsMask_ = 0;
-	wsState_ = ws13_mask;
-	wsCount_ = 4;
+          return Request::Error;
+        }
+        wsMask_ = 0;
+        wsState_ = ws13_mask;
+        wsCount_ = 4;
       }
 
       ++begin;
@@ -702,51 +701,51 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
       --wsCount_;
 
       if (wsCount_ == 0) {
-	LOG_DEBUG("ws: new frame read mask");
-	if (remainder_ != 0) {
-	  wsState_ = ws13_payload;
-	} else {
-	  // Frame without data (like pong)
-	  if (wsFrameType_ & 0x80)
+        LOG_DEBUG("ws: new frame read mask");
+        if (remainder_ != 0) {
+          wsState_ = ws13_payload;
+        } else {
+          // Frame without data (like pong)
+          if (wsFrameType_ & 0x80)
             state = Request::Complete;
-	  wsState_ = ws13_frame_start;
-	}
+          wsState_ = ws13_frame_start;
+        }
       }
-      
+
       ++begin;
 
       break;
     case ws13_payload:
       {
-	::int64_t thisSize = std::min((::int64_t)(end - begin), remainder_);
+        ::int64_t thisSize = std::min((::int64_t)(end - begin), remainder_);
 
-	dataBegin = begin;
-	begin = begin + thisSize;
-	dataEnd = begin;
-	remainder_ -= thisSize;
+        dataBegin = begin;
+        begin = begin + thisSize;
+        dataEnd = begin;
+        remainder_ -= thisSize;
 
-	/* Unmask dataBegin to dataEnd, mask offset in wsCount_ */
-	for (char *i = dataBegin; i != dataEnd; ++i) {
-	  unsigned char d = *i;
-	  unsigned char m = (unsigned char)(wsMask_ >> ((3 - wsCount_) * 8));
-	  d = d ^ m;
-	  *i = d;
-	  wsCount_ = (wsCount_ + 1) % 4;
-	}
+        /* Unmask dataBegin to dataEnd, mask offset in wsCount_ */
+        for (char *i = dataBegin; i != dataEnd; ++i) {
+          unsigned char d = *i;
+          unsigned char m = (unsigned char)(wsMask_ >> ((3 - wsCount_) * 8));
+          d = d ^ m;
+          *i = d;
+          wsCount_ = (wsCount_ + 1) % 4;
+        }
 
-	LOG_DEBUG("ws: reading payload, remains = " << remainder_);
+        LOG_DEBUG("ws: reading payload, remains = " << remainder_);
 
-	if (remainder_ == 0) {
+        if (remainder_ == 0) {
           if (wsFrameType_ & 0x80) {
             state = Request::Complete;
           } else {
             endOfPartialFrame = true;
           }
 
-	  wsState_ = ws13_frame_start;
-	}
+          wsState_ = ws13_frame_start;
+        }
 
-	break;
+        break;
       }
     default:
       assert(false);
@@ -756,54 +755,54 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
   LOG_DEBUG("ws: " << (dataEnd - dataBegin) << "," << state);
 
   if (dataBegin < dataEnd || state == Request::Complete) {
-	char* beg = &*dataBegin;
-	char* end = &*dataEnd;
+        char* beg = &*dataBegin;
+        char* end = &*dataEnd;
 #ifdef WTHTTP_WITH_ZLIB
-	if (frameCompressed_) {
-	  Reply::ws_opcode opcode = (Reply::ws_opcode)(wsFrameType_ & 0x0F);
-	  if (wsState_ < ws13_frame_start) {
-		if (wsFrameType_ == 0x00)
-		  opcode = Reply::text_frame;
-	  }
-	  unsigned char appendBlock[] = { 0x00, 0x00, 0xff, 0xff };
-	  bool hasMore = false;
-	  char buffer[16 * 1024];
-	  do {
-		read_ = 0;
-		bool ret1 =  inflate(reinterpret_cast<unsigned char*>(&*beg), 
-			end - beg, reinterpret_cast<unsigned char*>(buffer), hasMore);
+        if (frameCompressed_) {
+          Reply::ws_opcode opcode = (Reply::ws_opcode)(wsFrameType_ & 0x0F);
+          if (wsState_ < ws13_frame_start) {
+                if (wsFrameType_ == 0x00)
+                  opcode = Reply::text_frame;
+          }
+          unsigned char appendBlock[] = { 0x00, 0x00, 0xff, 0xff };
+          bool hasMore = false;
+          char buffer[16 * 1024];
+          do {
+                read_ = 0;
+                bool ret1 =  inflate(reinterpret_cast<unsigned char*>(&*beg),
+                        end - beg, reinterpret_cast<unsigned char*>(buffer), hasMore);
 
                 if (!ret1)
                   return Request::Error;
-		
+
                 bool ret2 = reply->consumeWebSocketMessage(opcode, &buffer[0], &buffer[read_], hasMore ? Request::Partial : state);
 
                 if (!ret2)
                   return Request::Error;
-	  } while (hasMore);
+          } while (hasMore);
 
-	  if (state == Request::Complete) 
-	    if(!inflate(appendBlock, 4, reinterpret_cast<unsigned char*>(buffer), hasMore))
-	      return Request::Error;
+          if (state == Request::Complete)
+            if(!inflate(appendBlock, 4, reinterpret_cast<unsigned char*>(buffer), hasMore))
+              return Request::Error;
 
-	  return state;
-	}
+          return state;
+        }
 #endif
 
-	// handle uncompressed frame
-	if (wsState_ < ws13_frame_start) {
+        // handle uncompressed frame
+        if (wsState_ < ws13_frame_start) {
           if (wsFrameType_ == 0x00) {
             bool ret = reply->consumeWebSocketMessage(Reply::text_frame,
                          beg, end, state);
             if (!ret)
               return Request::Error;
           }
-	} else {
-	  Reply::ws_opcode opcode = (Reply::ws_opcode)(wsFrameType_ & 0x0F);
+        } else {
+          Reply::ws_opcode opcode = (Reply::ws_opcode)(wsFrameType_ & 0x0F);
           bool ret = reply->consumeWebSocketMessage(opcode, beg, end, state);
           if (!ret)
             return Request::Error;
-	}
+        }
   }
 
   return state;
@@ -815,8 +814,8 @@ bool RequestParser::inflate(unsigned char* in, size_t size, unsigned char out[],
 {
   LOG_DEBUG("wthttp: ws: inflate frame");
   if (!hasMore) {
-	zInState_.avail_in = size;
-	zInState_.next_in = in;
+        zInState_.avail_in = size;
+        zInState_.next_in = in;
   }
   hasMore = true;
 
@@ -907,9 +906,9 @@ boost::tribool& RequestParser::consume(Request& req, char *it)
     else
     {
       if (consumeChar(it))
-	return Indeterminate;
+        return Indeterminate;
       else
-	return False;
+        return False;
     }
   case uri_start:
     if (is_ctl(input))
@@ -938,9 +937,9 @@ boost::tribool& RequestParser::consume(Request& req, char *it)
     else
     {
       if (consumeChar(it))
-	return Indeterminate;
+        return Indeterminate;
       else
-	return False;
+        return False;
     }
   case http_version_h:
     if (input == 'H')
@@ -1089,9 +1088,9 @@ boost::tribool& RequestParser::consume(Request& req, char *it)
     else
     {
       if (consumeChar(it))
-	return Indeterminate;
+        return Indeterminate;
       else
-	return False;
+        return False;
     }
   case space_before_header_value:
     if (input == ' ')
@@ -1123,9 +1122,9 @@ boost::tribool& RequestParser::consume(Request& req, char *it)
     else
     {
       if (consumeChar(it))
-	return Indeterminate;
+        return Indeterminate;
       else
-	return False;
+        return False;
     }
   case expecting_newline_2:
     if (input == '\n')
@@ -1192,12 +1191,12 @@ Reply::status_type RequestParser::validate(Request& req)
       const char *cl = h->value.data;
       req.contentLength = strtoll(cl, &endptr, 10);
       if (*endptr != 0)
-	return Reply::bad_request;
+        return Reply::bad_request;
     } else {
       try {
-	req.contentLength = Wt::Utils::stoll(h->value.str());
+        req.contentLength = Wt::Utils::stoll(h->value.str());
       } catch (std::exception&) {
-	return Reply::bad_request;
+        return Reply::bad_request;
       }
     }
 

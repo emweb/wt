@@ -43,8 +43,8 @@ int FlexItemImpl::minimumHeight() const
 }
 
 DomElement *FlexItemImpl::createDomElement(DomElement *parent,
-					   bool fitWidth, bool fitHeight,
-					   WApplication *app)
+                                           bool fitWidth, bool fitHeight,
+                                           WApplication *app)
 {
   WWidget *w = item_->widget();
 

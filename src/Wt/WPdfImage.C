@@ -32,8 +32,8 @@
 
 namespace {
   void HPDF_STDCALL error_handler(HPDF_STATUS   error_no,
-		                  HPDF_STATUS   detail_no,
-		                  void         *user_data) {
+                                  HPDF_STATUS   detail_no,
+                                  void         *user_data) {
     Wt::WPdfImage *image = (Wt::WPdfImage *)user_data;
 
     image->errorHandler(error_no, detail_no);
@@ -77,7 +77,7 @@ WPdfImage::WPdfImage(const WLength& width, const WLength& height)
 }
 
 WPdfImage::WPdfImage(HPDF_Doc pdf, HPDF_Page page, HPDF_REAL x, HPDF_REAL y,
-		     HPDF_REAL width, HPDF_REAL height)
+                     HPDF_REAL width, HPDF_REAL height)
   : width_(width, LengthUnit::Pixel),
     height_(height, LengthUnit::Pixel),
     painter_(nullptr),
@@ -180,7 +180,7 @@ void WPdfImage::addFontCollection(const std::string& directory, bool recursive)
 void WPdfImage::applyTransform(const WTransform& t)
 {
   HPDF_Page_Concat(page_, t.m11(), t.m12(), t.m21(),
-		   t.m22(), t.dx(), t.dy());
+                   t.m22(), t.dx(), t.dy());
 }
 
 void WPdfImage::setChanged(WFlags<PainterChangeFlag> flags)
@@ -224,53 +224,53 @@ void WPdfImage::setChanged(WFlags<PainterChangeFlag> flags)
 
       switch (pen.capStyle()) {
       case PenCapStyle::Flat:
-	HPDF_Page_SetLineCap(page_, HPDF_BUTT_END);
-	break;
+        HPDF_Page_SetLineCap(page_, HPDF_BUTT_END);
+        break;
       case PenCapStyle::Square:
-	HPDF_Page_SetLineCap(page_, HPDF_PROJECTING_SCUARE_END); // scuary !
-	break;
+        HPDF_Page_SetLineCap(page_, HPDF_PROJECTING_SCUARE_END); // scuary !
+        break;
       case PenCapStyle::Round:
-	HPDF_Page_SetLineCap(page_, HPDF_ROUND_END);
-	break;
+        HPDF_Page_SetLineCap(page_, HPDF_ROUND_END);
+        break;
       }
 
       switch (pen.joinStyle()) {
       case PenJoinStyle::Miter:
-	HPDF_Page_SetLineJoin(page_, HPDF_MITER_JOIN);
-	break;
+        HPDF_Page_SetLineJoin(page_, HPDF_MITER_JOIN);
+        break;
       case PenJoinStyle::Bevel:
-	HPDF_Page_SetLineJoin(page_, HPDF_BEVEL_JOIN);
-	break;
+        HPDF_Page_SetLineJoin(page_, HPDF_BEVEL_JOIN);
+        break;
       case PenJoinStyle::Round:
-	HPDF_Page_SetLineJoin(page_, HPDF_ROUND_JOIN);
-	break;
+        HPDF_Page_SetLineJoin(page_, HPDF_ROUND_JOIN);
+        break;
       }
 
       switch (pen.style()) {
       case PenStyle::None:
-	break;
+        break;
       case PenStyle::SolidLine:
-	HPDF_Page_SetDash(page_, nullptr, 0, 0);
-	break;
+        HPDF_Page_SetDash(page_, nullptr, 0, 0);
+        break;
       case PenStyle::DashLine: {
-	const HPDF_UINT16 dash_ptn[] = { 4, 2 };
-	HPDF_Page_SetDash(page_, dash_ptn, 2, 0);
-	break;
+        const HPDF_UINT16 dash_ptn[] = { 4, 2 };
+        HPDF_Page_SetDash(page_, dash_ptn, 2, 0);
+        break;
       }
       case PenStyle::DotLine: {
-	const HPDF_UINT16 dash_ptn[] = { 1, 2 };
-	HPDF_Page_SetDash(page_, dash_ptn, 2, 0);
-	break;
+        const HPDF_UINT16 dash_ptn[] = { 1, 2 };
+        HPDF_Page_SetDash(page_, dash_ptn, 2, 0);
+        break;
       }
       case PenStyle::DashDotLine: {
-	const HPDF_UINT16 dash_ptn[] = { 4, 2, 1, 2 };
-	HPDF_Page_SetDash(page_, dash_ptn, 4, 0);
-	break;
+        const HPDF_UINT16 dash_ptn[] = { 4, 2, 1, 2 };
+        HPDF_Page_SetDash(page_, dash_ptn, 4, 0);
+        break;
       }
       case PenStyle::DashDotDotLine: {
-	const HPDF_UINT16 dash_ptn[] = { 4, 2, 1, 2, 1, 2 };
-	HPDF_Page_SetDash(page_, dash_ptn, 6, 0);
-	break;
+        const HPDF_UINT16 dash_ptn[] = { 4, 2, 1, 2, 1, 2 };
+        HPDF_Page_SetDash(page_, dash_ptn, 6, 0);
+        break;
       }
       }
     }
@@ -303,7 +303,7 @@ void WPdfImage::setChanged(WFlags<PainterChangeFlag> flags)
       FontSupport::FontMatch match = trueTypeFonts_->matchFont(font);
 
       if (match.matched())
-	ttfFont = match.fileName();
+        ttfFont = match.fileName();
     }
 
     LOG_DEBUG("font: " << ttfFont);
@@ -323,14 +323,14 @@ void WPdfImage::setChanged(WFlags<PainterChangeFlag> flags)
       bool fontOk = false;
 
       std::map<std::string, const char *>::const_iterator i
-	= ttfFonts_.find(ttfFont);
+        = ttfFonts_.find(ttfFont);
 
       if (i != ttfFonts_.end()) {
-	font_name = i->second;
-	fontOk = true;
+        font_name = i->second;
+        fontOk = true;
       } else if (ttfFont.length() > 4) {
-	std::string suffix
-	  = Utils::lowerCase(ttfFont.substr(ttfFont.length() - 4));
+        std::string suffix
+          = Utils::lowerCase(ttfFont.substr(ttfFont.length() - 4));
 
         try {
           if (suffix == ".ttf") {
@@ -345,26 +345,26 @@ void WPdfImage::setChanged(WFlags<PainterChangeFlag> flags)
           LOG_ERROR("error reading font: '" << ttfFont << "': " << e.what());
         }
 
-	if (!font_name)
-	  HPDF_ResetError (pdf_);
-	else {
-	  ttfFonts_[ttfFont] = font_name;
-	  fontOk = true;
-	}
+        if (!font_name)
+          HPDF_ResetError (pdf_);
+        else {
+          ttfFonts_[ttfFont] = font_name;
+          fontOk = true;
+        }
       }
 
       if (!fontOk)
-	LOG_ERROR("cannot read font: '" << ttfFont << "': "
-		  "expecting a true type font (.ttf, .ttc)");
+        LOG_ERROR("cannot read font: '" << ttfFont << "': "
+                  "expecting a true type font (.ttf, .ttc)");
     }
 
     if (!font_ && font_name) {
       font_ = HPDF_GetFont (pdf_, font_name, "UTF-8");
 
       if (!font_)
-	HPDF_ResetError (pdf_);
+        HPDF_ResetError (pdf_);
       else {
-	trueTypeFont_ = true;
+        trueTypeFont_ = true;
         currentTtfFont_ = ttfFont;
       }
     }
@@ -388,7 +388,7 @@ void WPdfImage::drawArc(const WRectF& rect, double startAngle, double spanAngle)
   HPDF_Page_GSave(page_);
 
   HPDF_Page_Concat(page_, 1, 0, 0, rect.height() / rect.width(),
-		   rect.center().x(), rect.center().y());
+                   rect.center().x(), rect.center().y());
 
   double start = startAngle;
   double end = start + spanAngle;
@@ -421,8 +421,8 @@ void WPdfImage::paintPath()
 }
 
 void WPdfImage::drawImage(const WRectF& rect, const std::string& imgUrl,
-			  int imgWidth, int imgHeight,
-			  const WRectF& srect)
+                          int imgWidth, int imgHeight,
+                          const WRectF& srect)
 {
   HPDF_Image img = nullptr;
 
@@ -432,13 +432,13 @@ void WPdfImage::drawImage(const WRectF& rect, const std::string& imgUrl,
 #if HAVE_LOAD_FROM_MEM
     DataUri uri(imgUrl);
     if ("image/png" == uri.mimeType)
-      img = HPDF_LoadPngImageFromMem(pdf_, 
-				     (HPDF_BYTE*)&uri.data[0], 
-				     uri.data.size()); 
+      img = HPDF_LoadPngImageFromMem(pdf_,
+                                     (HPDF_BYTE*)&uri.data[0],
+                                     uri.data.size());
     else if ("image/jpeg" == uri.mimeType)
-      img = HPDF_LoadJpegImageFromMem(pdf_, 
-				      (HPDF_BYTE*)&uri.data[0], 
-				      uri.data.size());
+      img = HPDF_LoadJpegImageFromMem(pdf_,
+                                      (HPDF_BYTE*)&uri.data[0],
+                                      uri.data.size());
 #else
       LOG_ERROR("drawImage: data URI support requires libharu 2.2.0 or later");
 #endif
@@ -448,7 +448,7 @@ void WPdfImage::drawImage(const WRectF& rect, const std::string& imgUrl,
       img = HPDF_LoadPngImageFromFile2(pdf_, imgUrl.c_str());
     else if ("image/jpeg" == mimeType)
       img = HPDF_LoadJpegImageFromFile(pdf_, imgUrl.c_str());
-  } 
+  }
 
   if (!img)
     throw WException("WPdfImage::drawImage(): cannot load image: " + imgUrl);
@@ -583,17 +583,17 @@ void WPdfImage::drawPlainPath(const WPainterPath& path)
   }
 }
 
-void WPdfImage::drawText(const WRectF& rect, 
-			 WFlags<AlignmentFlag> flags,
-			 TextFlag textFlag,
-			 const WString& text,
-			 const WPointF *clipPoint)
+void WPdfImage::drawText(const WRectF& rect,
+                         WFlags<AlignmentFlag> flags,
+                         TextFlag textFlag,
+                         const WString& text,
+                         const WPointF *clipPoint)
 {
   // FIXME: textFlag
-  
+
   if (clipPoint && painter() && !painter()->clipPath().isEmpty()) {
     if (!painter()->clipPathTransform().map(painter()->clipPath())
-	  .isPointInPath(painter()->worldTransform().map(*clipPoint)))
+          .isPointInPath(painter()->worldTransform().map(*clipPoint)))
       return;
   }
 
@@ -621,11 +621,11 @@ void WPdfImage::drawText(const WRectF& rect,
       break;
     case AlignmentFlag::Center:
       {
-	float center = rect.center().x();
-	left = center - 5000;
-	right = center + 5000;
-	alignment = HPDF_TALIGN_CENTER;
-	break;
+        float center = rect.center().x();
+        left = center - 5000;
+        right = center + 5000;
+        alignment = HPDF_TALIGN_CENTER;
+        break;
       }
     }
 
@@ -660,7 +660,7 @@ void WPdfImage::drawText(const WRectF& rect,
     std::string s = trueTypeFont_ ? text.toUTF8() : text.narrow();
 
     HPDF_Page_TextRect(page_, left, fontSize_, right, 0, s.c_str(),
-		       alignment, nullptr);
+                       alignment, nullptr);
 
     HPDF_Page_EndText(page_);
 
@@ -683,17 +683,17 @@ WFontMetrics WPdfImage::fontMetrics()
   int leading = bbox.top - ascent;
 
   return WFontMetrics(painter()->font(),
-		      fontSize_ * leading / 1000.0,
-		      fontSize_ * ascent / 1000.0,
-		      fontSize_ * descent / 1000.0);
+                      fontSize_ * leading / 1000.0,
+                      fontSize_ * ascent / 1000.0,
+                      fontSize_ * descent / 1000.0);
 }
 
 WTextItem WPdfImage::measureText(const WString& text, double maxWidth,
-				 bool wordWrap)
+                                 bool wordWrap)
 {
   if (trueTypeFont_ && !trueTypeFonts_->busy())
     return trueTypeFonts_->measureText(painter()->font(), text, maxWidth,
-				       wordWrap);
+                                       wordWrap);
   else {
     HPDF_REAL width = 0;
 
@@ -708,7 +708,7 @@ WTextItem WPdfImage::measureText(const WString& text, double maxWidth,
     std::string s = trueTypeFont_ ? text.toUTF8() : text.narrow();
 
     int bytes = HPDF_Page_MeasureText(page_, s.c_str(), maxWidth, wordWrap,
-				      &width);
+                                      &width);
 
     if (trueTypeFont_)
       return WTextItem(WString::fromUTF8(s.substr(0, bytes)), width);
@@ -718,7 +718,7 @@ WTextItem WPdfImage::measureText(const WString& text, double maxWidth,
 }
 
 void WPdfImage::handleRequest(const Http::Request& request,
-			      Http::Response& response)
+                              Http::Response& response)
 {
   HPDF_SaveToStream(pdf_);
 
@@ -730,7 +730,7 @@ void WPdfImage::handleRequest(const Http::Request& request,
     HPDF_BYTE buf[4096];
     HPDF_UINT32 siz = 4096;
     HPDF_ReadFromStream (pdf_, buf, &siz);
- 
+
     if (siz == 0)
         break;
 
@@ -739,7 +739,7 @@ void WPdfImage::handleRequest(const Http::Request& request,
 }
 
 void WPdfImage::errorHandler(HPDF_STATUS error_no,
-			     HPDF_STATUS detail_no)
+                             HPDF_STATUS detail_no)
 {
   char buf[200];
   snprintf(buf, 200, "WPdfImage error: error_no=%04X, detail_no=%d",

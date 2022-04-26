@@ -70,17 +70,17 @@ BOOST_AUTO_TEST_CASE( CssParser_test1 )
 
   {
     auto s5 = parser.parse(
-	  "h1{color: 20px; something: blue; something_else: \"bla\" }");
+          "h1{color: 20px; something: blue; something_else: \"bla\" }");
     BOOST_REQUIRE( s5 );
     BOOST_REQUIRE( s5->rulesetSize() == 1 );
     /*BOOST_REQUIRE( s5->rulesetAt(0).declarationBlock().value("color").value_
-				    == 20.0 );
+                                    == 20.0 );
     BOOST_REQUIRE( s5->rulesetAt(0).declarationBlock().value("color").unit_
-				    == Wt::Render::Term::Px );
+                                    == Wt::Render::Term::Px );
     BOOST_REQUIRE( s5->rulesetAt(0).declarationBlock().value("something")
-				   .identifier_ == "blue" );
+                                   .identifier_ == "blue" );
     BOOST_REQUIRE( s5->rulesetAt(0).declarationBlock().value("something_else")
-				   .quotedString_ == "bla" );*/
+                                   .quotedString_ == "bla" );*/
   }
 
   // Test hex color

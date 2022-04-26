@@ -35,7 +35,7 @@ public:
    */
   Attachment(const std::u32string aFileName,
              const std::u32string aContentDescription,
-	     const std::string aSpoolFileName)
+             const std::string aSpoolFileName)
     : fileName(aFileName),
       contentDescription(aContentDescription),
       spoolFileName(aSpoolFileName)

@@ -13,7 +13,7 @@ auto hbox = container->setLayout(std::make_unique<Wt::WHBoxLayout>());
 auto item = std::make_unique<Wt::WText>("Item 1");
 item->setStyleClass("green-box");
 hbox->addWidget(std::move(item), 1);
-  
+
 item = std::make_unique<Wt::WText>("Item 2");
 item->setStyleClass("blue-box");
 hbox->addWidget(std::move(item));

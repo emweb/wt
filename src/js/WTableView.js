@@ -435,7 +435,7 @@ WT_DECLARE_WT_MEMBER
          var coords = WT.widgetCoordinates(item.el, event);
          var side = (coords.y - item.el.clientHeight / 2) <= 0 ? 'top' : 'bottom';
        }
-       
+
        if (action == 'drop') {
          APP.emit(el, { name: 'rowDropEvent', eventObject: object, event: event },
                   rowIdx, columnId, sourceId, mimeType, side);

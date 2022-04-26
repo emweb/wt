@@ -700,7 +700,7 @@ public:
       bool result = getRes<SQL_C_TYPE_TIMESTAMP>(column, &ts);
       if (!result)
         return false; // NULL
-      *value = 
+      *value =
         date::sys_days{ date::year{ ts.year } / ts.month / ts.day } +
         std::chrono::duration_cast<std::chrono::system_clock::duration>(
           std::chrono::hours{ ts.hour } +
@@ -772,7 +772,7 @@ private:
   struct Value {
     union {
       struct {
-        void *p; // buffer pointer 
+        void *p; // buffer pointer
         SQLLEN size; // buffer size
       } buf;
       short s;

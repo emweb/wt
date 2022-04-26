@@ -51,7 +51,7 @@ public:
    * The <i>currentSegmentArea</i> specifies the clipping area.
    */
   virtual void startSegment(int currentXSegment, int currentYSegment,
-			    const WRectF& currentSegmentArea);
+                            const WRectF& currentSegmentArea);
 
   /*! \brief End handling a particular segment.
    *
@@ -67,7 +67,7 @@ public:
    * series is in the <i>currentBarGroup</i>'th group.
    */
   virtual bool startSeries(const WDataSeries& series, double groupWidth,
-			   int numBarGroups, int currentBarGroup);
+                           int numBarGroups, int currentBarGroup);
 
   /*! \brief End iterating a particular series.
    */
@@ -85,8 +85,8 @@ public:
    * stacked.
    */
   virtual void newValue(const WDataSeries& series, double x, double y,
-			double stackY, int xRow, int xColumn,
-			int yRow, int yColumn);
+                        double stackY, int xRow, int xColumn,
+                        int yRow, int yColumn);
 
   /*! \brief Returns the current X segment.
    */
@@ -97,14 +97,14 @@ public:
   int currentYSegment() const { return currentYSegment_; }
 
   static void setPenColor(WPen& pen, const WDataSeries& series,
-		   int xRow, int xColumn,
-		   int yRow, int yColumn,
-		   ItemDataRole colorRole);
+                   int xRow, int xColumn,
+                   int yRow, int yColumn,
+                   ItemDataRole colorRole);
 
   static void setBrushColor(WBrush& brush, const WDataSeries& series,
-		     int xRow, int xColumn,
-		     int yRow, int yColumn,
-		     ItemDataRole colorRole);
+                     int xRow, int xColumn,
+                     int yRow, int yColumn,
+                     ItemDataRole colorRole);
 
 private:
   int currentXSegment_, currentYSegment_;
@@ -360,7 +360,7 @@ typedef std::map<WFlags<KeyboardModifier>, InteractiveAction> WheelActions;
  * The cartesian chart has support for dual Y axes. Each data series may
  * be bound to one of the two Y axes. By default, only the first Y axis
  * is displayed. To show the second Y axis you will need to call:
- * 
+ *
  * \if cpp
  * \code
  * chart->axis(Axis::Y2).setVisible(true);
@@ -386,14 +386,14 @@ typedef std::map<WFlags<KeyboardModifier>, InteractiveAction> WheelActions;
  * %WCartesianChart has several features that allow interaction with the
  * chart without server roundtrips. These features include zoom, pan,
  * crosshair and follow curve functionality.
- * 
+ *
  * \note Client side interaction is only available if the chart is drawn
  *       on an HTML canvas. This is the default rendering method on
  *       modern browsers, see WPaintedWidget::setPreferredMethod()
  *
  * \note Some features are currently not supported in interactive mode:
  *       - Axes set at AxisValue::Zero position will not always be drawn correctly.
- *	     They may be clipped off outside of the chart area, and when
+ *             They may be clipped off outside of the chart area, and when
  *         zooming, the axis ticks will change size.
  *       - WAxis::setBreak() is incompatible with interactive mode
  *
@@ -462,7 +462,7 @@ public:
   /*! \brief Returns the chart orientation.
    *
    * \sa setOrientation()
-   */  
+   */
   Orientation orientation() const { return orientation_; }
 
   /*! \brief Sets the the model column for the X series.
@@ -828,7 +828,7 @@ public:
    * \sa WDataSeries::setLegendEnabled()
    */
   void setLegendLocation(LegendLocation location, Side side,
-			 AlignmentFlag alignment);
+                         AlignmentFlag alignment);
 
   /*! \brief Configures the legend decoration.
    *
@@ -842,7 +842,7 @@ public:
    * \sa setLegendEnabled()
    */
   void setLegendStyle(const WFont& font, const WPen& border,
-		      const WBrush& background);
+                      const WBrush& background);
 
   /*! \brief Returns the legend location.
    *
@@ -905,7 +905,7 @@ public:
    * \sa setAutoLayoutEnabled()
    */
   void setLegendColumns(int columns, const WLength& width);
-  
+
   virtual void paint(WPainter& painter, const WRectF& rectangle = WRectF())
     const override;
 
@@ -933,7 +933,7 @@ public:
    * \sa renderLegendItem()
    */
   virtual void renderLegendIcon(WPainter& painter, const WPointF& pos,
-				const WDataSeries& series) const;
+                                const WDataSeries& series) const;
 
   /*! \brief Renders the legend item for a given data series.
    *
@@ -950,7 +950,7 @@ public:
    * \sa setLegendEnabled()
    */
   virtual void renderLegendItem(WPainter& painter, const WPointF& pos,
-				const WDataSeries& series) const;
+                                const WDataSeries& series) const;
 
   /*! \brief Maps from device coordinates to model coordinates.
    *
@@ -967,7 +967,7 @@ public:
    * \sa mapToDevice()
    */
   WPointF mapFromDevice(const WPointF& point,
-			Axis ordinateAxis = Axis::Ordinate) const;
+                        Axis ordinateAxis = Axis::Ordinate) const;
 
   /*! \brief Maps from device coordinates to model coordinates.
    *
@@ -1003,7 +1003,7 @@ public:
    * \sa mapToDeviceWithoutTransform()
    */
   WPointF mapFromDeviceWithoutTransform(const WPointF& point,
-			Axis ordinateAxis = Axis::Ordinate) const;
+                        Axis ordinateAxis = Axis::Ordinate) const;
 
   /*! \brief Maps from device coordinates to model coordinates.
    *
@@ -1083,8 +1083,8 @@ public:
    * \sa mapFromDevice()
    */
   WPointF mapToDevice(const cpp17::any& xValue, const cpp17::any& yValue,
-		      Axis axis = Axis::Ordinate, int xSegment = 0,
-		      int ySegment = 0) const;
+                      Axis axis = Axis::Ordinate, int xSegment = 0,
+                      int ySegment = 0) const;
 
   /*! \brief Maps model values onto chart coordinates.
    *
@@ -1156,8 +1156,8 @@ public:
    * \sa mapFromDeviceWithoutTransform()
    */
   WPointF mapToDeviceWithoutTransform(const cpp17::any& xValue, const cpp17::any& yValue,
-		      Axis axis = Axis::Ordinate, int xSegment = 0,
-		      int ySegment = 0) const;
+                      Axis axis = Axis::Ordinate, int xSegment = 0,
+                      int ySegment = 0) const;
 
   /*! \brief Maps model values onto chart coordinates, ignoring the current zoom range
    *
@@ -1222,11 +1222,11 @@ public:
    * area is assumed.
    */
   bool initLayout(const WRectF& rectangle = WRectF(),
-		  WPaintDevice *device = nullptr) const;
+                  WPaintDevice *device = nullptr) const;
 
   /*! \brief Creates a widget which renders the a legend item.
-   * 
-   * The legend item widget will contain a text and a WPaintedWidget 
+   *
+   * The legend item widget will contain a text and a WPaintedWidget
    * which draws the series' symbol.
    */
   std::unique_ptr<WWidget> createLegendItemWidget(int index);
@@ -1240,8 +1240,8 @@ public:
    *       at the data point is not empty.
    */
   virtual void addDataPointArea(const WDataSeries& series,
-				int xRow, int xColumn,
-				std::unique_ptr<WAbstractArea> area);
+                                int xRow, int xColumn,
+                                std::unique_ptr<WAbstractArea> area);
 
   /*! \brief Sets the padding between the chart area and the axes.
    *
@@ -1302,14 +1302,14 @@ public:
    *
    * These methods allow to activate the client side interactive features of
    * a %WCartesianChart.
-   * 
+   *
    * \note Client side interaction is only available if the chart is drawn
    *       on an HTML canvas. This is the default rendering method on
    *       modern browsers, see WPaintedWidget::setPreferredMethod()
    *
    * \note Some features are currently not supported in interactive mode:
    *       - Axes set at AxisValue::Zero position will not always be drawn correctly.
-   *	     They may be clipped off outside of the chart area, and when
+   *             They may be clipped off outside of the chart area, and when
    *         zooming, the axis ticks will change size.
    *       - WAxis::setBreak() is incompatible with interactive mode
    */
@@ -1363,7 +1363,7 @@ public:
    * \sa panEnabled()
    */
   void setPanEnabled(bool pan = true);
-  
+
   /*! \brief Returns whether pan is enabled.
    *
    * \sa setPanEnabled()
@@ -1491,7 +1491,7 @@ public:
   void setRubberBandEffectEnabled(bool rubberBand = true);
 
   /*! \brief Checks whether the rubberband effect is enabled.
-   * 
+   *
    * \see setRubberBandEffectEnabled()
    */
   bool rubberBandEffectEnabled() const;
@@ -1507,7 +1507,7 @@ public:
    * \sa setWheelActions()
    */
   WheelActions wheelActions() const { return wheelActions_; }
-  
+
   /*! \brief Enables or disables soft label clipping on all axes.
    *
    * \sa WAxis::setSoftLabelClipping()
@@ -1637,7 +1637,7 @@ public:
   //!@}
 
   void iterateSeries(SeriesIterator *iterator,
-		     WPainter *painter, bool reverseStacked = false, bool extremesOnly = false) const;
+                     WPainter *painter, bool reverseStacked = false, bool extremesOnly = false) const;
 
   // For use in WAxisSliderWidget
   void addAxisSliderWidget(WAxisSliderWidget *slider);
@@ -1669,8 +1669,8 @@ private:
     WJavaScriptHandle<WPen> gridPen;
 
     PenAssignment(const WJavaScriptHandle<WPen>& pen,
-		  const WJavaScriptHandle<WPen>& textPen,
-		  const WJavaScriptHandle<WPen>& gridPen)
+                  const WJavaScriptHandle<WPen>& textPen,
+                  const WJavaScriptHandle<WPen>& gridPen)
       : pen(pen), textPen(textPen), gridPen(gridPen)
     { }
   };
@@ -1750,10 +1750,10 @@ private:
   struct BarTooltip {
     BarTooltip(const WDataSeries &series, int xRow, int xColumn, int yRow, int yColumn)
       : series(&series),
-	xRow(xRow),
-	xColumn(xColumn),
-	yRow(yRow),
-	yColumn(yColumn)
+        xRow(xRow),
+        xColumn(xColumn),
+        yRow(yRow),
+        yColumn(yColumn)
     { }
 
     double xs[4];
@@ -1831,9 +1831,9 @@ protected:
    *
    * \endif
    */
-  virtual WPointF map(double xValue, double yValue, 
-		      Axis yAxis = Axis::Ordinate,
-		      int currentXSegment = 0, int currentYSegment = 0) const;
+  virtual WPointF map(double xValue, double yValue,
+                      Axis yAxis = Axis::Ordinate,
+                      int currentXSegment = 0, int currentYSegment = 0) const;
 
   /*! \brief Map (x, y) value pair to chart coordinates coordinates.
    *
@@ -1874,9 +1874,9 @@ protected:
    * horizontal text, regardless of the chart orientation.
    */
   virtual void renderLabel(WPainter& painter, const WString& text,
-			   const WPointF& pos,
-			   WFlags<AlignmentFlag> flags, double angle,
-			   int margin) const;
+                           const WPointF& pos,
+                           WFlags<AlignmentFlag> flags, double angle,
+                           int margin) const;
 
   /*! \brief Conversion between chart and painter coordinates.
    *
@@ -1948,7 +1948,7 @@ protected:
    * \sa render()
    */
   virtual void renderAxes(WPainter& painter,
-			  WFlags<AxisProperty> properties) const;
+                          WFlags<AxisProperty> properties) const;
 
   /*! \brief Renders the border of the chart area.
    *
@@ -1981,7 +1981,7 @@ protected:
    * \sa renderAxes()
    */
   virtual void renderAxis(WPainter& painter, const WAxis& axis,
-			  WFlags<AxisProperty> properties) const;
+                          WFlags<AxisProperty> properties) const;
 
   /*! \brief Renders grid lines along the ticks of the given axis.
    *
@@ -2097,10 +2097,10 @@ private:
   class IconWidget : public WPaintedWidget {
   public:
     IconWidget(WCartesianChart *chart, int index);
-    
+
   protected:
     virtual void paintEvent(WPaintDevice *paintDevice) override;
-    
+
   private:
     WCartesianChart* chart_;
     int index_;

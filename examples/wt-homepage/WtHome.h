@@ -13,7 +13,7 @@
 
 using namespace Wt;
 
-class WtHome : public Home 
+class WtHome : public Home
 {
 public:
   WtHome(const WEnvironment& env, Dbo::SqlConnectionPool& blogDb);

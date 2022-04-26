@@ -27,7 +27,7 @@ namespace Wt {
  * The signal is identified by a unique name within the scope of a
  * WObject, or a unique global name (when declaring the signal in your
  * WApplication).
- * 
+ *
  * The signal supports up to 6 arguments. Values for these arguments
  * may be specified in the JavaScript Wt.emit().
  *
@@ -109,8 +109,8 @@ namespace Wt {
 template <typename... A>
 #else // WT_CNOR
 template <typename A1 = NoClass, typename A2 = NoClass,
-	  typename A3 = NoClass, typename A4 = NoClass,
-	  typename A5 = NoClass, typename A6 = NoClass>
+          typename A3 = NoClass, typename A4 = NoClass,
+          typename A5 = NoClass, typename A6 = NoClass>
 #endif // WT_CNOR
 class JSignal : public EventSignalBase
 {
@@ -133,7 +133,7 @@ public:
    * \sa \link WObject::implementStateless() stateless slot learning\endlink
    */
   JSignal(WObject *object, const std::string& name,
-	  bool collectSlotJavaScript = false);
+          bool collectSlotJavaScript = false);
 
   /*! \brief Destructor.
    */
@@ -167,11 +167,11 @@ public:
   const std::string createCall(std::initializer_list<std::string> args) const;
 #else // WT_TARGET_JAVA
   const std::string createCall(const std::string& arg1 = std::string(),
-			       const std::string& arg2 = std::string(),
-			       const std::string& arg3 = std::string(),
-			       const std::string& arg4 = std::string(),
-			       const std::string& arg5 = std::string(),
-			       const std::string& arg6 = std::string()) const;
+                               const std::string& arg2 = std::string(),
+                               const std::string& arg3 = std::string(),
+                               const std::string& arg4 = std::string(),
+                               const std::string& arg5 = std::string(),
+                               const std::string& arg6 = std::string()) const;
 #endif // WT_TARGET_JAVA
 
   /*! \brief Returns a JavaScript call that triggers the signal, passing
@@ -196,17 +196,17 @@ public:
    */
 #ifndef WT_TARGET_JAVA
   const std::string createEventCall(const std::string& jsObject,
-				    const std::string& jsEvent,
-				    std::initializer_list<std::string> args)
+                                    const std::string& jsEvent,
+                                    std::initializer_list<std::string> args)
     const;
 #else // WT_TARGET_JAVA
   const std::string createEventCall(const std::string& jsObject,
-				    const std::string& jsEvent,
-				    const std::string& arg1 = std::string(),
-				    const std::string& arg2 = std::string(),
-				    const std::string& arg3 = std::string(),
-				    const std::string& arg4 = std::string(),
-				    const std::string& arg5 = std::string())
+                                    const std::string& jsEvent,
+                                    const std::string& arg1 = std::string(),
+                                    const std::string& arg2 = std::string(),
+                                    const std::string& arg3 = std::string(),
+                                    const std::string& arg4 = std::string(),
+                                    const std::string& arg5 = std::string())
     const;
 #endif // WT_TARGET_JAVA
 
@@ -225,7 +225,7 @@ public:
    */
   template<class F> Wt::Signals::connection connect(F function);
   template<class F> Wt::Signals::connection connect(const WObject *target,
-						    F function);
+                                                    F function);
 
   /*! \brief Connect a slot that takes no arguments.
    */
@@ -244,16 +244,16 @@ public:
     Wt::Signals::connection connect(T *target, void (V::*method)(A1, A2));
   template<class T, class V>
     Wt::Signals::connection connect(T *target,
-				       void (V::*method)(A1,A2,A3));
+                                       void (V::*method)(A1,A2,A3));
   template<class T, class V>
     Wt::Signals::connection connect(T *target,
-				       void (V::*method)(A1,A2,A3,A4));
+                                       void (V::*method)(A1,A2,A3,A4));
   template<class T, class V>
     Wt::Signals::connection connect(T *target,
-				       void (V::*method)(A1,A2,A3,A4,A5));
+                                       void (V::*method)(A1,A2,A3,A4,A5));
   template<class T, class V>
     Wt::Signals::connection connect(T *target,
-				       void (V::*method)(A1,A2,A3,A4,A5,A6));
+                                       void (V::*method)(A1,A2,A3,A4,A5,A6));
 #endif // WT_CNOR
 
   /*! \brief Connects a JavaScript function.
@@ -297,8 +297,8 @@ public:
   void emit(A... args) const;
 #else // WT_CNOR
   void emit(A1 a1 = NoClass::none, A2 a2 = NoClass::none,
-	    A3 a3 = NoClass::none, A4 a4 = NoClass::none,
-	    A5 a5 = NoClass::none, A6 a6 = NoClass::none);
+            A3 a3 = NoClass::none, A4 a4 = NoClass::none,
+            A5 a5 = NoClass::none, A6 a6 = NoClass::none);
 #endif // WT_CNOR
 
   /*! \brief Emit the signal.
@@ -311,12 +311,12 @@ public:
   void operator()(A... args) const;
 #else // WT_CNOR
   void operator()(A1 a1 = NoClass::none, A2 a2 = NoClass::none,
-		  A3 a3 = NoClass::none, A4 a4 = NoClass::none,
-		  A5 a5 = NoClass::none, A6 a6 = NoClass::none);
+                  A3 a3 = NoClass::none, A4 a4 = NoClass::none,
+                  A5 a5 = NoClass::none, A6 a6 = NoClass::none);
 #endif // WT_CNOR
 
   virtual Wt::Signals::connection connect(WObject *target,
-					  void (WObject::*method)()) override;
+                                          void (WObject::*method)()) override;
 
 protected:
   virtual int argumentCount() const override;
@@ -340,14 +340,14 @@ class WT_API JSignal0 : public JSignal<NoClass>
 {
 public:
   JSignal0(WObject *object, const std::string& name,
-	   bool collectSlotJavaScript = false);
+           bool collectSlotJavaScript = false);
 
   template<class T, class V>
     Wt::Signals::connection connect(T *target, void (V::*method)());
   template<class F> Wt::Signals::connection connect(F f);
   template<class F> Wt::Signals::connection connect(const WObject *target,
-						    F function);
-  
+                                                    F function);
+
   void connect(const std::string& function);
   void connect(const char * function);
 
@@ -365,8 +365,8 @@ std::string WT_API senderId(WObject *sender);
 
 template <typename... A>
 JSignal<A...>::JSignal(WObject *object,
-		       const std::string& name,
-		       bool collectSlotJavaScript)
+                       const std::string& name,
+                       bool collectSlotJavaScript)
   : EventSignalBase(nullptr, object, collectSlotJavaScript),
     name_(name)
 {
@@ -390,16 +390,16 @@ const std::string JSignal<A...>
 ::createCall(std::initializer_list<std::string> args) const
 {
   return EventSignalBase::createUserEventCall(std::string(), std::string(),
-					      name_, args);
+                                              name_, args);
 }
 
 template <typename... A>
 const std::string JSignal<A...>
 ::createEventCall(const std::string& jsObject, const std::string& jsEvent,
-		  std::initializer_list<std::string> args) const
+                  std::initializer_list<std::string> args) const
 {
   return EventSignalBase::createUserEventCall(jsObject, jsEvent,
-					      name_, args);
+                                              name_, args);
 }
 
 template <typename... A>
@@ -413,7 +413,7 @@ Wt::Signals::connection JSignal<A...>::connect(F function)
 template <typename... A>
 template <class F>
 Wt::Signals::connection JSignal<A...>::connect(const WObject *target,
-					       F function)
+                                               F function)
 {
   exposeSignal();
   return Signals::Impl::connectFunction<F, A...>(impl_, std::move(function), target);
@@ -432,7 +432,7 @@ Wt::Signals::connection JSignal<A...>
 
 /* Oops how to do that?
 template <typename A1, typename A2, typename A3,
-	  typename A4, typename A5, typename A6>
+          typename A4, typename A5, typename A6>
 template <class T, class V>
 Wt::Signals::connection JSignal<A1, A2, A3, A4, A5, A6>
 ::connect(T *target, void (V::*method)())
@@ -489,7 +489,7 @@ void JSignal<A...>::connect(JSlot& slot)
 
 template <typename... A>
 Wt::Signals::connection JSignal<A...>::connect(WObject *target,
-					       void (WObject::*method)())
+                                               void (WObject::*method)())
 {
   exposeSignal();
   WStatelessSlot *s = target->isStateless(method);

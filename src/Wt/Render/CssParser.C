@@ -289,7 +289,7 @@ CssGrammar<Iterator>::CssGrammar()
     = +(STRING_ | nonstring_) [phoenix::bind(&Term::setValue, _val, _1)];
 
   nonstring_ = ~char_("\"';}");
-  
+
   element_name_
     = IDENT_
     | lit('*')

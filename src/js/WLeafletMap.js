@@ -34,7 +34,7 @@ WT_DECLARE_WT_MEMBER
       lastZoom = zoom;
       self.map.setZoom(zoom);
     };
-    
+
     this.panTo = function(lat, lng) {
       lastLatLng = [lat, lng];
       self.map.panTo([lat, lng]);

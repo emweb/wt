@@ -34,7 +34,7 @@ struct FixedSqlConnectionPool::Impl {
 };
 
 FixedSqlConnectionPool::FixedSqlConnectionPool(std::unique_ptr<SqlConnection> connection,
-					       int size)
+                                               int size)
   : impl_(new Impl)
 {
   SqlConnection *conn = connection.get();
@@ -58,7 +58,7 @@ std::chrono::steady_clock::duration FixedSqlConnectionPool::timeout() const
 {
   return impl_->timeout;
 }
-  
+
 std::unique_ptr<SqlConnection> FixedSqlConnectionPool::getConnection()
 {
 #ifdef WT_THREADED
@@ -68,7 +68,7 @@ std::unique_ptr<SqlConnection> FixedSqlConnectionPool::getConnection()
     LOG_WARN("no free connections, waiting for connection");
     if (impl_->timeout > std::chrono::steady_clock::duration::zero()) {
       if (impl_->connectionAvailable.wait_for(lock, impl_->timeout) == std::cv_status::timeout) {
-	handleTimeout();
+        handleTimeout();
       }
     } else
       impl_->connectionAvailable.wait(lock);
@@ -76,7 +76,7 @@ std::unique_ptr<SqlConnection> FixedSqlConnectionPool::getConnection()
 #else
   if (impl_->freeList.empty())
     throw Exception("FixedSqlConnectionPool::getConnection(): "
-		    "no connection available but single-threaded build?");
+                    "no connection available but single-threaded build?");
 #endif // WT_THREADED
 
   std::unique_ptr<SqlConnection> result = std::move(impl_->freeList.back());
@@ -89,7 +89,7 @@ void FixedSqlConnectionPool::handleTimeout()
 {
   throw Exception("FixedSqlConnectionPool::getConnection(): timeout");
 }
-  
+
 void FixedSqlConnectionPool::returnConnection(std::unique_ptr<SqlConnection> connection)
 {
 #ifdef WT_THREADED

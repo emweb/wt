@@ -42,7 +42,7 @@ void WInPlaceEdit::create()
   setInline(true);
 
   impl_->addWidget(std::unique_ptr<WWidget>
-		   (text_ = new WText(WString::Empty, TextFormat::Plain)));
+                   (text_ = new WText(WString::Empty, TextFormat::Plain)));
   text_->decorationStyle().setCursor(Cursor::Arrow);
 
   impl_->addWidget(std::unique_ptr<WWidget>(editing_ = new WContainerWidget()));
@@ -168,7 +168,7 @@ void WInPlaceEdit::setButtonsEnabled(bool enabled)
     save_->clicked().connect(save_, &WFormWidget::disable);
     save_->clicked().connect(cancel_, &WFormWidget::disable);
     save_->clicked().connect(this, &WInPlaceEdit::save);
-    
+
     cancel_->clicked().connect(editing_, &WWidget::hide);
     cancel_->clicked().connect(text_, &WWidget::show);
     cancel_->clicked().connect(this, &WInPlaceEdit::cancel);

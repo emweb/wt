@@ -17,7 +17,7 @@ window.WT_DECLARE_WT_MEMBER = function(i, type, name, fn)
       .prototype[name.substr(proto + '.prototype.'.length)] = fn;
   } else if (type == JavaScriptFunction) {
     _$_WT_CLASS_$_[name] = function() {
-	return fn.apply(_$_WT_CLASS_$_, arguments);
+        return fn.apply(_$_WT_CLASS_$_, arguments);
     };
   } else {
     _$_WT_CLASS_$_[name] = fn;
@@ -169,7 +169,7 @@ this.isIElt9 = ie < 9;
 this.isIEMobile = agent.indexOf("msie 4")!=-1 || agent.indexOf("msie 5")!=-1;
 this.isOpera = typeof window.opera !== UNDEFINED;
 this.isAndroid = (agent.indexOf("safari") != -1)
-		  && (agent.indexOf("android") != -1);
+                  && (agent.indexOf("android") != -1);
 this.isWebKit = (agent.indexOf("applewebkit") != -1);
 this.isGecko = agent.indexOf("gecko") != -1 && !this.isWebKit;
 this.isIOS = agent.indexOf("iphone") != -1 || agent.indexOf("ipad") != -1 || agent.indexOf("ipod") != -1;
@@ -203,7 +203,7 @@ function host(url) {
 }
 
 this.initAjaxComm = function(url, handler) {
-  var crossDomain = 
+  var crossDomain =
     (url.indexOf("://") != -1 || url.indexOf("//") == 0) &&
     host(url) != window.location.host;
 
@@ -213,42 +213,42 @@ this.initAjaxComm = function(url, handler) {
     if (window.XMLHttpRequest) {
       request = new XMLHttpRequest();
       if (crossDomain) {
-	if ("withCredentials" in request) {
-	  if (url) {
-	    request.open(method, url, true);
-	    request.withCredentials = "true";
-	  }
-	} else if (typeof XDomainRequest != "undefined") {
-	  request = new XDomainRequest();
-	  if (url) {
-	    supportsRequestHeader = false;
-	    try {
-	      request.open(method, url + '&contentType=x-www-form-urlencoded');
-	    } catch (err) {
-	      request = null;
-	    }
-	  }
-	} else
-	  request = null;
+        if ("withCredentials" in request) {
+          if (url) {
+            request.open(method, url, true);
+            request.withCredentials = "true";
+          }
+        } else if (typeof XDomainRequest != "undefined") {
+          request = new XDomainRequest();
+          if (url) {
+            supportsRequestHeader = false;
+            try {
+              request.open(method, url + '&contentType=x-www-form-urlencoded');
+            } catch (err) {
+              request = null;
+            }
+          }
+        } else
+          request = null;
       } else
-	if (url)
-	  request.open(method, url, true);
+        if (url)
+          request.open(method, url, true);
     } else if (!crossDomain && window.ActiveXObject) {
       try {
-	request = new ActiveXObject("Msxml2.XMLHTTP");
+        request = new ActiveXObject("Msxml2.XMLHTTP");
       } catch (err) {
-	try {
-	  request = new ActiveXObject("Microsoft.XMLHTTP");
-	} catch (err2) {
-	}
+        try {
+          request = new ActiveXObject("Microsoft.XMLHTTP");
+        } catch (err2) {
+        }
       }
       if (url && request)
-	request.open(method, url, true);
+        request.open(method, url, true);
     }
 
     if (request && url && supportsRequestHeader)
       request.setRequestHeader("Content-type",
-			       "application/x-www-form-urlencoded");
+                               "application/x-www-form-urlencoded");
 
     return request;
   }
@@ -260,110 +260,110 @@ this.initAjaxComm = function(url, handler) {
       var sessionUrl = url;
 
       function Request(data, userData, id, timeout) {
-	var request = createRequest('POST', sessionUrl);
-	var timer = null;
-	var handled = false;
+        var request = createRequest('POST', sessionUrl);
+        var timer = null;
+        var handled = false;
 
-	function handleResponse(good) {
-	  if (handled)
-	    return;
+        function handleResponse(good) {
+          if (handled)
+            return;
 
-	  clearTimeout(timer);
+          clearTimeout(timer);
 
-	  if (!sessionUrl)
-	    return;
+          if (!sessionUrl)
+            return;
 
-	  handled = true;
+          handled = true;
 
-	  var rq = request;
-	  if (request) {
-	    request.onreadystatechange = new Function;
-	    try {
-	      request.onload = request.onreadystatechange;
-	    } catch (e) {
-	      /*
-	       * See comment below.
-	       */
-	    }
-	    request = null;
-	  }
+          var rq = request;
+          if (request) {
+            request.onreadystatechange = new Function;
+            try {
+              request.onload = request.onreadystatechange;
+            } catch (e) {
+              /*
+               * See comment below.
+               */
+            }
+            request = null;
+          }
 
-	  if (good) {
-	    handler(0, rq.responseText, userData);
-	  } else {
-	    handler(1, null, userData); 
-	  }
-	}
+          if (good) {
+            handler(0, rq.responseText, userData);
+          } else {
+            handler(1, null, userData);
+          }
+        }
 
-	function recvCallback() {
-	  if (request.readyState == 4) {
-	    var good = request.status == 200
-	      && request.getResponseHeader("Content-Type")
-	      && request.getResponseHeader("Content-Type")
-		.indexOf("text/javascript") == 0;
+        function recvCallback() {
+          if (request.readyState == 4) {
+            var good = request.status == 200
+              && request.getResponseHeader("Content-Type")
+              && request.getResponseHeader("Content-Type")
+                .indexOf("text/javascript") == 0;
 
-	    handleResponse(good);
-	  }
-	}
+            handleResponse(good);
+          }
+        }
 
-	function handleTimeout() {
-	  if (handled)
-	    return;
+        function handleTimeout() {
+          if (handled)
+            return;
 
-	  if (!sessionUrl)
-	    return;
+          if (!sessionUrl)
+            return;
 
-	  request.onreadystatechange = new Function;
-	  request = null;
-	  handled = true;
-	  handler(2, null, userData);
-	}
+          request.onreadystatechange = new Function;
+          request = null;
+          handled = true;
+          handler(2, null, userData);
+        }
 
-	this.abort = function() {
-	  if (request != null) {
-	    request.onreadystatechange = new Function;
-	    handled = true;
-	    request.abort();
-	    request = null;
-	  }
-	};
+        this.abort = function() {
+          if (request != null) {
+            request.onreadystatechange = new Function;
+            handled = true;
+            request.abort();
+            request = null;
+          }
+        };
 
-	if (_$_CLOSE_CONNECTION_$_)
-	  request.setRequestHeader("Connection","close");
+        if (_$_CLOSE_CONNECTION_$_)
+          request.setRequestHeader("Connection","close");
 
-	if (timeout > 0)
-	  timer = setTimeout(handleTimeout, timeout);
-	  request.onreadystatechange = recvCallback;
-	  try {
-	    request.onload = function() {
-	      handleResponse(true);
-	    };
-	    request.onerror = function() {
-	      handleResponse(false);
-	    };
-	  } catch (e) {
-	    /*
-	     * On IE, when "Enable Native XMLHTTP Support is unchecked",
-	     * setting these members will result in an exception.
-	     */
-	  }
-	request.send(data);
+        if (timeout > 0)
+          timer = setTimeout(handleTimeout, timeout);
+          request.onreadystatechange = recvCallback;
+          try {
+            request.onload = function() {
+              handleResponse(true);
+            };
+            request.onerror = function() {
+              handleResponse(false);
+            };
+          } catch (e) {
+            /*
+             * On IE, when "Enable Native XMLHTTP Support is unchecked",
+             * setting these members will result in an exception.
+             */
+          }
+        request.send(data);
       }
 
       this.responseReceived = function(updateId) { };
 
       this.sendUpdate = function(data, userData, id, timeout) {
-	if (!sessionUrl)
-	  return null;
-	return new Request(data, userData, id, timeout);
+        if (!sessionUrl)
+          return null;
+        return new Request(data, userData, id, timeout);
       };
 
       this.cancel = function() {
-	sessionUrl = null;
+        sessionUrl = null;
       };
 
       this.setUrl = function(url) {
-	sessionUrl = url;
+        sessionUrl = url;
       };
     })();
   } else {
@@ -372,51 +372,51 @@ this.initAjaxComm = function(url, handler) {
       var request = null;
 
       function Request(data, userData, id, timeout) {
-	var self = this;
+        var self = this;
 
-	this.userData = userData;
+        this.userData = userData;
 
-	var s = this.script = document.createElement('script');
-	s.id = "script" + id;
-	s.setAttribute('src', sessionUrl + '&' + data);
+        var s = this.script = document.createElement('script');
+        s.id = "script" + id;
+        s.setAttribute('src', sessionUrl + '&' + data);
 
-	function onerror() {
-	  handler(1, null, userData);
-	  s.parentNode.removeChild(s);
-	}
+        function onerror() {
+          handler(1, null, userData);
+          s.parentNode.removeChild(s);
+        }
 
-	s.onerror = onerror;
+        s.onerror = onerror;
 
-	var h = document.getElementsByTagName('head')[0];
-	h.appendChild(s);
+        var h = document.getElementsByTagName('head')[0];
+        h.appendChild(s);
 
-	this.abort = function() {
-	  s.parentNode.removeChild(s);
-	};
+        this.abort = function() {
+          s.parentNode.removeChild(s);
+        };
       }
 
       this.responseReceived = function(updateId) {
         if (request != null) {
           var req = request;
-	  request.script.parentNode.removeChild(request.script);
+          request.script.parentNode.removeChild(request.script);
           request = null;
-	  handler(0, "", req.userData);
-	}
+          handler(0, "", req.userData);
+        }
       };
 
       this.sendUpdate = function(data, userData, id, timeout) {
-	if (!sessionUrl)
-	  return null;
+        if (!sessionUrl)
+          return null;
         request = new Request(data, userData, id, timeout);
         return request;
       };
 
       this.cancel = function() {
-	sessionUrl = null;
+        sessionUrl = null;
       };
 
       this.setUrl = function(url) {
-	sessionUrl = url;
+        sessionUrl = url;
       };
 
     })();
@@ -429,19 +429,19 @@ this.setHtml = function (el, html, add) {
     switch (e.nodeType) {
     case 1: // element
       if (e.namespaceURI === null)
-	newNode = document.createElement(e.nodeName);
+        newNode = document.createElement(e.nodeName);
       else
-	newNode = document.createElementNS(e.namespaceURI, e.nodeName);
+        newNode = document.createElementNS(e.namespaceURI, e.nodeName);
       if (e.attributes && e.attributes.length > 0)
-	for (i = 0, il = e.attributes.length; i < il;)
-	  newNode.setAttribute(e.attributes[i].nodeName,
-			       e.getAttribute(e.attributes[i++].nodeName));
+        for (i = 0, il = e.attributes.length; i < il;)
+          newNode.setAttribute(e.attributes[i].nodeName,
+                               e.getAttribute(e.attributes[i++].nodeName));
       if (deep && e.childNodes.length > 0)
-	for (i = 0, il = e.childNodes.length; i < il;) {
-	  var c = myImportNode(e.childNodes[i++], deep);
-	  if (c)
-	    newNode.appendChild(c);
-	}
+        for (i = 0, il = e.childNodes.length; i < il;) {
+          var c = myImportNode(e.childNodes[i++], deep);
+          if (c)
+            newNode.appendChild(c);
+        }
       return newNode;
       break;
     case 3: // text
@@ -518,7 +518,7 @@ this.replaceWith = function(w1Id, $w2)
   /* Reapply client-side validation, bootstrap applys validation classes
      also outside the element into its ancestors */
   if ($w2.get(0).wtValidate && WT.validate) {
-    setTimeout(function() { 
+    setTimeout(function() {
       WT.validate($w2.get(0));
     }, 0);
   }
@@ -577,9 +577,9 @@ this.changeTag = function(e, type)
     if (e.attributes && e.attributes.length > 0) {
       var i, il;
       for (i = 0, il = e.attributes.length; i < il; i++) {
-	var nn = e.attributes[i].nodeName;
-	if (nn != 'type' && nn != 'name')
-	  n.setAttribute(nn, e.getAttribute(nn));
+        var nn = e.attributes[i].nodeName;
+        if (nn != 'type' && nn != 'name')
+          n.setAttribute(nn, e.getAttribute(nn));
       }
     }
   }
@@ -600,9 +600,9 @@ this.unwrap = function(e) {
     var style = e.getAttribute('style');
     if (style) {
       if (WT.isIE)
-	wrapped.style.setAttribute('cssText', style);
+        wrapped.style.setAttribute('cssText', style);
       else
-	wrapped.setAttribute('style', style);
+        wrapped.setAttribute('style', style);
     }
     e.parentNode.replaceChild(wrapped, e);
   } else {
@@ -629,9 +629,9 @@ this.ajaxInternalPaths = function(basePath) {
   $('.Wt-ip').each(function() {
       var href = this.getAttribute('href'), wtd = href.lastIndexOf('?wtd');
       if (wtd === -1)
-	wtd = href.lastIndexOf('&wtd');
+        wtd = href.lastIndexOf('&wtd');
       if (wtd !== -1)
-	href = href.substr(0, wtd);
+        href = href.substr(0, wtd);
 
       var internalPath;
 
@@ -640,29 +640,29 @@ this.ajaxInternalPaths = function(basePath) {
        * also turn the basePath into an absolute URL.
        */
       if (href.indexOf("://") != -1) {
-	var el= document.createElement('div');
-	el.innerHTML= '<a href="' + basePath +'">x</a>';
-	var absBase = el.firstChild.href;
-	internalPath = href.substr(absBase.length - 1);
+        var el= document.createElement('div');
+        el.innerHTML= '<a href="' + basePath +'">x</a>';
+        var absBase = el.firstChild.href;
+        internalPath = href.substr(absBase.length - 1);
       } else {
-	while (href.substr(0, 3) == "../")
-	  href = href.substr(3);
-	if (href.charAt(0) != '/')
-	  href = '/' + href;
-	internalPath = href.substr(basePath.length);
-	if (internalPath.substr(0, 2) == "_=" &&
-	    basePath.charAt(basePath.length - 1) == '?')
-	  internalPath = '?' + internalPath;  /* eaten one too much */
+        while (href.substr(0, 3) == "../")
+          href = href.substr(3);
+        if (href.charAt(0) != '/')
+          href = '/' + href;
+        internalPath = href.substr(basePath.length);
+        if (internalPath.substr(0, 2) == "_=" &&
+            basePath.charAt(basePath.length - 1) == '?')
+          internalPath = '?' + internalPath;  /* eaten one too much */
       }
 
       if (internalPath.length == 0 || internalPath.charAt(0) != '/')
-	internalPath = '/' + internalPath;
+        internalPath = '/' + internalPath;
       if (internalPath.substr(0, 4) == "/?_=")
-	internalPath = internalPath.substr(4);
+        internalPath = internalPath.substr(4);
       this.setAttribute('href', href); // computes this.href
       this.setAttribute('href', this.href);
       this.onclick = function(event) {
-	WT.navigateInternalPath(event, internalPath);
+        WT.navigateInternalPath(event, internalPath);
       };
       $(this).removeClass("Wt-ip");
     });
@@ -672,9 +672,9 @@ this.resolveRelativeAnchors = function() {
   if (window.$)
     $('.Wt-rr').each(function() {
       if (this.href)
-	this.setAttribute('href', this.href);
+        this.setAttribute('href', this.href);
       if (this.src)
-	this.setAttribute('src', this.src);
+        this.setAttribute('src', this.src);
 
       $(this).removeClass("Wt-rr");
     });
@@ -776,7 +776,7 @@ this.pageCoordinates = function(e) {
         }
       }
     }
-  
+
   if (e.touches && e.touches[0]) {
     return WT.pageCoordinates(e.touches[0]);
   } else if (!WT.isIE && e.changedTouches && e.changedTouches[0]) {
@@ -947,14 +947,14 @@ function toUnicodeSelection(selection, text) {
   if (text) {
     for (i = 0; i < text.length; ++i) {
       if (i >= selection.start && i >= selection.end)
-	return {start: start, end: end};
+        return {start: start, end: end};
       if (isHighSurrogate(text.charCodeAt(i)) &&
-	  (i + 1) < text.length &&
-	  isLowSurrogate(text.charCodeAt(i + 1))) {
-	if (i < selection.start)
-	  --start;
-	if (i < selection.end)
-	  --end;
+          (i + 1) < text.length &&
+          isLowSurrogate(text.charCodeAt(i + 1))) {
+        if (i < selection.start)
+          --start;
+        if (i < selection.end)
+          --end;
       }
     }
   }
@@ -974,18 +974,18 @@ this.getSelectionRange = function(elem) {
 
       var pos = 0;
       if(sel.text.length > 1) {
-	pos = pos - sel.text.length;
-	if(pos < 0) {
-	  pos = 0;
-	}
+        pos = pos - sel.text.length;
+        if(pos < 0) {
+          pos = 0;
+        }
       }
 
       var caretPos = -1 + pos;
       sel2.moveStart('character', pos);
 
       while (sel2.inRange(sel)) {
-	sel2.moveStart('character');
-	caretPos++;
+        sel2.moveStart('character');
+        caretPos++;
       }
 
       var selStr = sel.text.replace(/\r/g, "");
@@ -1040,18 +1040,18 @@ this.setSelectionRange = function(elem, start, end, unicode) {
     var i;
     for (i = 0; i < val.length; ++i) {
       if (i >= start && i >= end)
-	break;
+        break;
       if (isHighSurrogate(val.charCodeAt(i)) &&
-	  (i + 1) < val.length &&
-	  isLowSurrogate(val.charCodeAt(i + 1))) {
-	if (i < start)
-	  ++start;
-	if (i < end)
-	  ++end;
+          (i + 1) < val.length &&
+          isLowSurrogate(val.charCodeAt(i + 1))) {
+        if (i < start)
+          ++start;
+        if (i < end)
+          ++end;
       }
     }
   }
-  
+
   if (typeof elem.selectionStart !== UNDEFINED) {
     elem.selectionStart = start;
     elem.selectionEnd = end;
@@ -1078,10 +1078,10 @@ this.isKeyPress = function(e) {
   else {
     if (WT.isOpera)
       return (e.keyCode == 13 || e.keyCode == 27
-	      || (e.keyCode >= 32 && e.keyCode < 125));
+              || (e.keyCode >= 32 && e.keyCode < 125));
     else
       return (e.keyCode == 13 || e.keyCode == 27 || e.keyCode == 32
-	      || (e.keyCode > 46 && e.keyCode < 112));
+              || (e.keyCode > 46 && e.keyCode < 112));
 
   }
 };
@@ -1136,11 +1136,11 @@ this.css = function(c, s) {
       cacheC = c;
 
       if (window.getComputedStyle)
-	cacheS = window.getComputedStyle(c, null);
+        cacheS = window.getComputedStyle(c, null);
       else if (c.currentStyle)
-	cacheS = c.currentStyle;
+        cacheS = c.currentStyle;
       else
-	cacheS = null;
+        cacheS = null;
     }
 
     return cacheS ? cacheS[s] : null;
@@ -1180,22 +1180,22 @@ this.pctself = function(c, s) {
 // Convert from css property to element attribute (possibly a vendor name)
 this.styleAttribute = function(cssProp) {
     function toCamelCase(str) {
-	var n=str.search(/-./);
-	while (n != -1) {
-	    var letter = (str.charAt(n+1)).toUpperCase();
-	    str = str.replace(/-./, letter);
-	    n=str.search(/-./);
-	}
-	return str;
+        var n=str.search(/-./);
+        while (n != -1) {
+            var letter = (str.charAt(n+1)).toUpperCase();
+            str = str.replace(/-./, letter);
+            n=str.search(/-./);
+        }
+        return str;
     }
 
     var prefixes = ['', '-moz-', '-webkit-', '-o-', '-ms-'];
     var elem = document.createElement('div'), i, il;
 
     for (i = 0, il = prefixes.length; i < il; ++i) {
-	var attr = toCamelCase(prefixes[i] + cssProp);
-	if (attr in elem.style)
-	    return attr;
+        var attr = toCamelCase(prefixes[i] + cssProp);
+        if (attr in elem.style)
+            return attr;
     }
     return toCamelCase(cssProp);
 };
@@ -1203,8 +1203,8 @@ this.styleAttribute = function(cssProp) {
 this.vendorPrefix = function(attr) {
     var prefixes = ['Moz', 'Webkit', 'O', 'Ms'];
     for (i = 0, il = prefixes.length; i < il; ++i) {
-	if (attr.search(prefixes[i]) != -1)
-	    return prefixes[i];
+        if (attr.search(prefixes[i]) != -1)
+            return prefixes[i];
     }
     return '';
 };
@@ -1230,7 +1230,7 @@ this.innerWidth = function(el) {
   var result = el.offsetWidth;
   if (!WT.boxSizing(el)) {
     result -= WT.px(el, 'paddingLeft') + WT.px(el, 'paddingRight')
-	  + WT.px(el, 'borderLeftWidth') + WT.px(el, 'borderRightWidth');
+          + WT.px(el, 'borderLeftWidth') + WT.px(el, 'borderRightWidth');
   }
   return result;
 };
@@ -1239,7 +1239,7 @@ this.innerHeight = function(el) {
   var result = el.offsetHeight;
   if (!WT.boxSizing(el)) {
     result -= WT.px(el, 'paddingTop') + WT.px(el, 'paddingBottom')
-	  + WT.px(el, 'borderTopWidth') + WT.px(el, 'borderBottomWidth');
+          + WT.px(el, 'borderTopWidth') + WT.px(el, 'borderBottomWidth');
   }
   return result;
 };
@@ -1298,7 +1298,7 @@ function delegateCapture(e) {
       p = p.parentNode;
 
     /*
-     * We don't need to capture	the event when the event falls inside the
+     * We don't need to capture        the event when the event falls inside the
      * capture element. In this way, more specific widgets inside may still
      * handle (and cancel) the event if they want.
      *
@@ -1399,10 +1399,10 @@ function attachMouseHandlers(el) {
 
     if (WT.isGecko) {
       window.addEventListener('mouseout', function(e) {
-				if (!e.relatedTarget
-				    && WT.hasTag(e.target, "HTML"))
-				  mouseUp(e);
-			      }, true);
+                                if (!e.relatedTarget
+                                    && WT.hasTag(e.target, "HTML"))
+                                  mouseUp(e);
+                              }, true);
     }
   } else {
     el.attachEvent('onmousemove', mouseMove);
@@ -1482,7 +1482,7 @@ this.getElementsByClassName = function(className, parentElement) {
     for (var i = 0, length = cc.length; i < length; i++) {
       c = cc[i];
       if (c.className.indexOf(className) != -1)
-	els.push(c);
+        els.push(c);
     }
     return els;
   }
@@ -1497,8 +1497,8 @@ function getInlineStyleSheet() {
     for (i = 0, il = ds.length; i < il; ++i) {
       var s = ds[i];
       if (WT.hasTag(ds[i].ownerNode, 'STYLE')) {
-	inlineStyleSheet = s;
-	break;
+        inlineStyleSheet = s;
+        break;
       }
     }
 
@@ -1537,8 +1537,8 @@ this.addCssText = function(cssText) {
   } else {
     var ss = s.previousSibling;
     if (!ss
-	|| !WT.hasTag(ss, "STYLE")
-	|| ss.styleSheet.cssText.length > 32*1024) {
+        || !WT.hasTag(ss, "STYLE")
+        || ss.styleSheet.cssText.length > 32*1024) {
       ss = document.createElement('style');
       s.parentNode.insertBefore(ss, s);
       ss.styleSheet.cssText = cssText;
@@ -1558,32 +1558,32 @@ this.getCssRule = function(selector, deleteFlag) {
       var ii = 0;
       var cssRule;
       do {
-	cssRule = null;
-	try {
-	  if (styleSheet.cssRules)
-	    cssRule = styleSheet.cssRules[ii];
-	  else if (styleSheet.rules)
-	    cssRule = styleSheet.rules[ii];
-	  if (cssRule && cssRule.selectorText) {
-	    if (cssRule.selectorText.toLowerCase()==selector) {
-	      if (deleteFlag == 'delete') {
-		if (styleSheet.cssRules)
-		  styleSheet.deleteRule(ii);
-		else
-		  styleSheet.removeRule(ii);
-		return true;
-	      } else
-		return cssRule;
-	    }
-	  }
-	} catch (err) {
-	  /*
-	     firefox security error 1000 when access a stylesheet.cssRules
-	     hosted from another domain
-	   */
-	}
+        cssRule = null;
+        try {
+          if (styleSheet.cssRules)
+            cssRule = styleSheet.cssRules[ii];
+          else if (styleSheet.rules)
+            cssRule = styleSheet.rules[ii];
+          if (cssRule && cssRule.selectorText) {
+            if (cssRule.selectorText.toLowerCase()==selector) {
+              if (deleteFlag == 'delete') {
+                if (styleSheet.cssRules)
+                  styleSheet.deleteRule(ii);
+                else
+                  styleSheet.removeRule(ii);
+                return true;
+              } else
+                return cssRule;
+            }
+          }
+        } catch (err) {
+          /*
+             firefox security error 1000 when access a stylesheet.cssRules
+             hosted from another domain
+           */
+        }
 
-	++ii;
+        ++ii;
       } while (cssRule);
     }
   }
@@ -1732,8 +1732,8 @@ this.fitToWindow = function(e, x, y, rightx, bottomy) {
     if (op == document.body)
       scrollY = (op.clientHeight - windowSize.y);
     bottomy = bottomy - offsetParent.y + scrollY;
-    y = op.clientHeight - 
-	  (bottomy + WT.px(e, 'marginBottom') + WT.px(e, 'borderBottomWidth'));
+    y = op.clientHeight -
+          (bottomy + WT.px(e, 'marginBottom') + WT.px(e, 'borderBottomWidth'));
     vside = 1;
   } else {
     var scrollY = op.scrollTop;
@@ -1831,7 +1831,7 @@ this.positionAtWidget = function(id, atId, orientation, delta) {
   var posP = WT.css(p, 'position');
   if (posP != 'absolute' && posP != 'relative')
     p.style.position = 'relative';
-  
+
   p.appendChild(w);
   $(w).addClass('wt-reparented');
 
@@ -1863,25 +1863,25 @@ this.progressed = function(domRoot) {
   setTimeout(function() {
       var i, il;
       for (i = 0, il = delayedClicks.length; i < il; ++i) {
-	if (doc.createEvent) {
-	  var e = delayedClicks[i];
-	  var ec = doc.createEvent('MouseEvents');
-	  ec.initMouseEvent('click', e.bubbles, e.cancelable, window,
-			    e.detail, e.screenX, e.screenY,
-			    e.clientX, e.clientY, e.ctrlKey, e.altKey,
-			    e.shiftKey, e.metaKey, e.button, null);
-	  var el = WT.getElement(e.targetId);
-	  if (el)
-	    el.dispatchEvent(ec);
-	} else {
-	  var e = delayedClicks[i];
-	  var ec = doc.createEventObject();
-	  for (i in e)
-	    ec[i] = e[i];
-	  var el = WT.getElement(e.targetId);
-	  if (el)
-	    el.fireEvent('onclick', ec);
-	}
+        if (doc.createEvent) {
+          var e = delayedClicks[i];
+          var ec = doc.createEvent('MouseEvents');
+          ec.initMouseEvent('click', e.bubbles, e.cancelable, window,
+                            e.detail, e.screenX, e.screenY,
+                            e.clientX, e.clientY, e.ctrlKey, e.altKey,
+                            e.shiftKey, e.metaKey, e.button, null);
+          var el = WT.getElement(e.targetId);
+          if (el)
+            el.dispatchEvent(ec);
+        } else {
+          var e = delayedClicks[i];
+          var ec = doc.createEventObject();
+          for (i in e)
+            ec[i] = e[i];
+          var el = WT.getElement(e.targetId);
+          if (el)
+            el.fireEvent('onclick', ec);
+        }
       }
     }, 0);
 };
@@ -1979,7 +1979,7 @@ if (html5History) {
 
     for (i=0, il = qp.length; i<il; ++i)
       if (qp[i].split("=")[0] != name)
-	q += (q.length ? '&' : '?') + qp[i];
+        q += (q.length ? '&' : '?') + qp[i];
 
     return q;
   }
@@ -1995,28 +1995,28 @@ if (html5History) {
       saveState(initialState);
 
       function onPopState(event) {
-	var newState = null;
+        var newState = null;
         if (event.state && event.state.state)
           newState = event.state.state;
 
-	if (newState == null)
-	  newState = stateMap[w.location.pathname + w.location.search];
+        if (newState == null)
+          newState = stateMap[w.location.pathname + w.location.search];
 
-	if (newState == null) {
-	  var endw = w.location.pathname.lastIndexOf(currentState);
-	  if (endw != -1 &&
-	      endw == w.location.pathname.length - currentState.length) {
-	    saveState(currentState);
-	    return;
-	  } else {
-	    newState = w.location.pathname.substr(baseUrl.length);
-	  }
-	}
+        if (newState == null) {
+          var endw = w.location.pathname.lastIndexOf(currentState);
+          if (endw != -1 &&
+              endw == w.location.pathname.length - currentState.length) {
+            saveState(currentState);
+            return;
+          } else {
+            newState = w.location.pathname.substr(baseUrl.length);
+          }
+        }
 
-	if (newState != currentState) {
-	  currentState = newState;
-	  onStateChange(currentState != "" ? currentState : "/");
-	}
+        if (newState != currentState) {
+          currentState = newState;
+          onStateChange(currentState != "" ? currentState : "/");
+        }
         //console.log("onPopState: " + JSON.stringify(window.history.state));
       }
 
@@ -2029,10 +2029,10 @@ if (html5History) {
       baseUrl = deployUrl;
       if (baseUrl.length >= 1 && baseUrl[baseUrl.length - 1] == '/') {
 _$_$if_UGLY_INTERNAL_PATHS_$_();
-	ugly = true;
+        ugly = true;
 _$_$endif_$_();
 _$_$ifnot_UGLY_INTERNAL_PATHS_$_();
-	baseUrl = baseUrl.substr(0, baseUrl.length - 1);
+        baseUrl = baseUrl.substr(0, baseUrl.length - 1);
 _$_$endif_$_();
       }
     },
@@ -2056,21 +2056,21 @@ _$_$endif_$_();
       var ip = gentleURIEncode(state), url = baseUrl;
 
       if (ip.length != 0)
-	url += (ugly ? "?_=" : "") + ip;
+        url += (ugly ? "?_=" : "") + ip;
 
       if (!ugly) {
-	url += window.location.search;
+        url += window.location.search;
       } else {
-	var q = stripParameter(window.location.search, '_');
+        var q = stripParameter(window.location.search, '_');
 
-	if (q.length > 1) {
-	  if (q.length > 2 && q[0] == '?' && q[1] == '&')
-	    q = q.substr(1);
-	  if (url.indexOf('?') == -1)
-	    url += '?' + q.substr(1);
-	  else
-	    url += '&' + q.substr(1);
-	}
+        if (q.length > 1) {
+          if (q.length > 2 && q[0] == '?' && q[1] == '&')
+            q = q.substr(1);
+          if (url.indexOf('?') == -1)
+            url += '?' + q.substr(1);
+          else
+            url += '&' + q.substr(1);
+        }
       }
 
       try {
@@ -2084,14 +2084,14 @@ _$_$endif_$_();
         // update scroll position of stack top with the position at the time of leaving the page
         updateScrollHistory();
         //console.log("pushState before: " + JSON.stringify(window.history.state));
-	window.history.pushState(historyState, document.title, url);
+        window.history.pushState(historyState, document.title, url);
         //console.log("pushState after: " + JSON.stringify(window.history.state));
       } catch (error) {
-	/*
-	 * In case we are wrong about our baseUrl or base href
-	 * In any case, this shouldn't be fatal.
-	 */
-	console.log(error.toString());
+        /*
+         * In case we are wrong about our baseUrl or base href
+         * In any case, this shouldn't be fatal.
+         */
+        console.log(error.toString());
       }
 
       // We used to call scrollIntoView here. We modified this to have
@@ -2102,7 +2102,7 @@ _$_$endif_$_();
       // round-trip, which is not ideal.
 
       if (generateEvent)
-	cb(state);
+        cb(state);
     },
 
     getCurrentState: function () {
@@ -2125,10 +2125,10 @@ _$_$endif_$_();
       cb = onStateChange;
 
       function onHashChange() {
-	if (currentState != w.location.hash) {
-	  currentState = w.location.hash.substring(1);
-	  cb(currentState);
-	}
+        if (currentState != w.location.hash) {
+          currentState = w.location.hash.substring(1);
+          cb(currentState);
+        }
       }
 
       w.onhashchange = onHashChange;
@@ -2143,7 +2143,7 @@ _$_$endif_$_();
       w.location.hash = state;
 
       if (generateEvent)
-	cb(state);
+        cb(state);
     },
 
     getCurrentState: function () {
@@ -2225,28 +2225,28 @@ _$_$endif_$_();
     fqstate = elem ? elem.innerText : null;
     hash = _getHash();
     setInterval(function () {
-	var newfqstate, newHash;
-	doc = _histFrame.contentWindow.document;
-	elem = doc.getElementById("state");
-	newfqstate = elem ? elem.innerText : null;
-	newHash = _getHash();
-	if (newfqstate !== fqstate) {
-	  fqstate = newfqstate;
-	  _handleFQStateChange(fqstate);
-	  if (!fqstate) {
-	    newHash = _initialState;
-	  } else {
-	    newHash = fqstate;
-	  }
-	  if (location.hash != newHash && 
-	      location.hash.substring(1) != newHash)
-	    location.hash = newHash;
-	  hash = newHash;
-	  _storeStates();
-	} else if (newHash !== hash) {
-	  hash = newHash;
-	  _updateIFrame(newHash);
-	}
+        var newfqstate, newHash;
+        doc = _histFrame.contentWindow.document;
+        elem = doc.getElementById("state");
+        newfqstate = elem ? elem.innerText : null;
+        newHash = _getHash();
+        if (newfqstate !== fqstate) {
+          fqstate = newfqstate;
+          _handleFQStateChange(fqstate);
+          if (!fqstate) {
+            newHash = _initialState;
+          } else {
+            newHash = fqstate;
+          }
+          if (location.hash != newHash &&
+              location.hash.substring(1) != newHash)
+            location.hash = newHash;
+          hash = newHash;
+          _storeStates();
+        } else if (newHash !== hash) {
+          hash = newHash;
+          _updateIFrame(newHash);
+        }
       }, 50);
     _initialized = true;
     if (_onLoadFn != null)
@@ -2262,15 +2262,15 @@ _$_$endif_$_();
     if (_interval)
       clearInterval(_interval);
     _interval = setInterval(function () {
-	var state, newHash, newCounter;
-	newHash = _getHash();
-	newCounter = history.length;
-	if (newHash !== hash) {
-	  hash = newHash;
-	  counter = newCounter;
-	  _handleFQStateChange(hash);
-	  _storeStates();
-	}
+        var state, newHash, newCounter;
+        newHash = _getHash();
+        newCounter = history.length;
+        if (newHash !== hash) {
+          hash = newHash;
+          counter = newCounter;
+          _handleFQStateChange(hash);
+          _storeStates();
+        }
       }, 50);
   }
 
@@ -2292,7 +2292,7 @@ _$_$endif_$_();
       _initTimeout();
       _initialized = true;
       if (_onLoadFn != null)
-	_onLoadFn();
+        _onLoadFn();
     }
   }
   return {
@@ -2322,19 +2322,19 @@ _$_$endif_$_();
     if (typeof stateField === "string")
       stateField = document.getElementById(stateField);
     if (!stateField ||
-	stateField.tagName.toUpperCase() !== "TEXTAREA" &&
-	(stateField.tagName.toUpperCase() !== "INPUT" ||
-	 stateField.type !== "hidden" &&
-	 stateField.type !== "text")) {
+        stateField.tagName.toUpperCase() !== "TEXTAREA" &&
+        (stateField.tagName.toUpperCase() !== "INPUT" ||
+         stateField.type !== "hidden" &&
+         stateField.type !== "text")) {
       return;
     }
     _stateField = stateField;
     if (_UAie) {
       if (typeof histFrame === "string") {
-	histFrame = document.getElementById(histFrame);
+        histFrame = document.getElementById(histFrame);
       }
       if (!histFrame || histFrame.tagName.toUpperCase() !== "IFRAME") {
-	return;
+        return;
       }
       _histFrame = histFrame;
     }
@@ -2350,7 +2350,7 @@ _$_$endif_$_();
       _updateIFrame(fqstate);
     } else {
       if (fqstate.length > 0) {
-	location.hash = fqstate;
+        location.hash = fqstate;
       }
     }
     if (generateEvent)
@@ -2461,8 +2461,8 @@ function dragStart(obj, e) {
   if (e.touches) {
     if ("vibrate" in navigator) {
       navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
-      if (navigator.vibrate) 
-	navigator.vibrate(100);
+      if (navigator.vibrate)
+        navigator.vibrate(100);
     }
   }
   if ((e.ctrlKey || WT.button(e) > 1) && !e.touches) //Ignore drags with rigth click.
@@ -2473,14 +2473,14 @@ function dragStart(obj, e) {
      * Ignore drags that start on a scrollbar (#1231)
      */
     if (WT.css(t, 'display') !== 'inline' &&
-	(t.offsetWidth > t.clientWidth ||
-	 t.offsetHeight > t.clientHeight)) {
+        (t.offsetWidth > t.clientWidth ||
+         t.offsetHeight > t.clientHeight)) {
       var wc = WT.widgetPageCoordinates(t);
       var pc = WT.pageCoordinates(e);
       var x = pc.x - wc.x;
       var y = pc.y - wc.y;
       if (x > t.clientWidth || y > t.clientHeight)
-	return true;
+        return true;
     }
   }
 
@@ -2552,8 +2552,8 @@ function dragDrag(e) {
     var xy = WT.pageCoordinates(e);
 
     if (ds.object.style.display !== '' &&
-	ds.xy.x !== xy.x &&
-	ds.xy.y !== xy.y)
+        ds.xy.x !== xy.x &&
+        ds.xy.y !== xy.y)
       ds.object.style.display = '';
 
     ds.object.style.left = (xy.x - ds.offsetX) + 'px';
@@ -2562,19 +2562,19 @@ function dragDrag(e) {
     var prevDropTarget = ds.dropTarget;
     var t;
     if (e.changedTouches) {
-	ds.object.style['display']='none';
-	t = document.elementFromPoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-	ds.object.style['display']='';
+        ds.object.style['display']='none';
+        t = document.elementFromPoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+        ds.object.style['display']='';
      } else {
-	t = WT.target(e);
+        t = WT.target(e);
         if (t == ds.object) {
           if (document.elementFromPoint) {
-	    ds.object.style['display']='none';
-	    t = document.elementFromPoint(e.clientX, e.clientY);
-	    ds.object.style['display']='';
-      	  } 
-    	}
-      } 
+            ds.object.style['display']='none';
+            t = document.elementFromPoint(e.clientX, e.clientY);
+            ds.object.style['display']='';
+                }
+            }
+      }
 
     var mimeType = "{" + ds.mimeType + ":";
     var amts = null;
@@ -2584,42 +2584,42 @@ function dragDrag(e) {
     while (t) {
       amts = t.getAttribute("amts");
       if ((amts != null) && (amts.indexOf(mimeType) != -1)) {
-	ds.dropTarget = t;
-	break;
+        ds.dropTarget = t;
+        break;
       }
       t = t.parentNode;
       if (!t.tagName || WT.hasTag(t, "HTML"))
-	break;
+        break;
     }
 
     if (ds.dropTarget != prevDropTarget) {
       if (ds.dropTarget) {
         var s = amts.indexOf(mimeType) + mimeType.length;
-	var se = amts.indexOf("}", s);
-	var style = amts.substring(s, se);
-	if (style.length != 0) {
+        var se = amts.indexOf("}", s);
+        var style = amts.substring(s, se);
+        if (style.length != 0) {
           ds.dropTarget.setAttribute("dos", ds.dropTarget.className);
-	  ds.dropTarget.className = ds.dropTarget.className + " " + style;
+          ds.dropTarget.className = ds.dropTarget.className + " " + style;
         }
       } else {
         ds.object.styleClass = '';
       }
 
       if (prevDropTarget != null) {
-	if (prevDropTarget.handleDragDrop){
-	  prevDropTarget.handleDragDrop('end', ds.object, e, '', mimeType);}
-	var dos = prevDropTarget.getAttribute("dos");
+        if (prevDropTarget.handleDragDrop){
+          prevDropTarget.handleDragDrop('end', ds.object, e, '', mimeType);}
+        var dos = prevDropTarget.getAttribute("dos");
         if (dos != null)
-	  prevDropTarget.className = dos;
+          prevDropTarget.className = dos;
       }
-    } 
+    }
 
     if (ds.dropTarget) {
       if (ds.dropTarget.handleDragDrop)
-	ds.dropTarget.handleDragDrop('drag', ds.object, e, '', mimeType);
+        ds.dropTarget.handleDragDrop('drag', ds.object, e, '', mimeType);
       else
-	ds.object.className = ds.objectPrevStyle.className + ' Wt-valid-drop';
-    } else 
+        ds.object.className = ds.objectPrevStyle.className + ' Wt-valid-drop';
+    } else
       ds.object.className = ds.objectPrevStyle.className + '';
     return false;
   }
@@ -2667,17 +2667,17 @@ function dragEnd(e) {
     if (ds.dropTarget) {
       var dos = ds.dropTarget.getAttribute("dos");
       if (dos != null){
-	  ds.dropTarget.className = dos;}
+          ds.dropTarget.className = dos;}
       if (ds.dropTarget.handleDragDrop){
-	ds.dropTarget.handleDragDrop('drop', ds.object, e,
-				     ds.sourceId, ds.mimeType);
+        ds.dropTarget.handleDragDrop('drop', ds.object, e,
+                                     ds.sourceId, ds.mimeType);
       }else{
- 	if (e.touches)
-	  emit(ds.dropTarget, {name: "_drop2", eventObject: ds.dropTarget,
-	      event: e}, ds.sourceId, ds.mimeType);
-	else
-	  emit(ds.dropTarget, {name: "_drop", eventObject: ds.dropTarget,
-	      event: e}, ds.sourceId, ds.mimeType);
+         if (e.touches)
+          emit(ds.dropTarget, {name: "_drop2", eventObject: ds.dropTarget,
+              event: e}, ds.sourceId, ds.mimeType);
+        else
+          emit(ds.dropTarget, {name: "_drop", eventObject: ds.dropTarget,
+              event: e}, ds.sourceId, ds.mimeType);
       }
     } else {
       // could not be dropped, animate it floating back ?
@@ -2697,11 +2697,11 @@ function encodeTouches(touches, widgetCoords) {
     if (i != 0)
       result += ';';
     result += [ t.identifier,
-		Math.round(t.clientX), Math.round(t.clientY),
-		Math.round(t.pageX), Math.round(t.pageY),
-		Math.round(t.screenX), Math.round(t.screenY),
-		Math.round(t.pageX - widgetCoords.x),
-		Math.round(t.pageY - widgetCoords.y) ].join(';');
+                Math.round(t.clientX), Math.round(t.clientY),
+                Math.round(t.pageX), Math.round(t.pageY),
+                Math.round(t.screenX), Math.round(t.screenY),
+                Math.round(t.pageX - widgetCoords.x),
+                Math.round(t.pageY - widgetCoords.y) ].join(';');
   }
 
   return result;
@@ -2734,27 +2734,27 @@ function encodeEvent(event, i) {
       v = el.wtEncodeValue(el);
     else if (el.type == 'select-multiple') {
       for (j = 0, jl = el.options.length; j < jl; j++)
-	if (el.options[j].selected) {
+        if (el.options[j].selected) {
           result.push(formObjects[x] + '='
               + encodeURIComponent(el.options[j].value));
-	}
+        }
     } else if (el.type == 'checkbox' || el.type == 'radio') {
       if (el.indeterminate || el.style.opacity == '0.5')
-	v = 'i';
+        v = 'i';
       else if (el.checked)
-	v = el.value;
+        v = el.value;
     } else if (el.type != 'file') {
       if ($(el).hasClass('Wt-edit-emptyText'))
-	v = '';
+        v = '';
       else {
-	/* For WTextEdit */
-	if (el.ed)
-	  el.ed.save();
-	v = '' + el.value;
+        /* For WTextEdit */
+        if (el.ed)
+          el.ed.save();
+        v = '' + el.value;
       }
 
       if (WT.hasFocus(el)) {
-	var range = WT.getUnicodeSelectionRange(el);
+        var range = WT.getUnicodeSelectionRange(el);
         result.push('selstart=' + range.start,
                     'selend=' + range.end);
       }
@@ -2763,15 +2763,15 @@ function encodeEvent(event, i) {
     if (v != null) {
       var component;
       try {
-	component = encodeURIComponent(v);
+        component = encodeURIComponent(v);
         result.push(formObjects[x] + '=' + component);
       } catch (e) {
-	// encoding failed, omit this form field
-	// This can happen on Windows when typing a character
-	// with a high and low surrogate pair (like an emoji).
-	// On Chrome and Firefox this is split out into two pairs
-	// of keydown/keyup events instead of one.
-	console.error("Form object " + formObjects[x] + " failed to encode, discarded", e);
+        // encoding failed, omit this form field
+        // This can happen on Windows when typing a character
+        // with a high and low surrogate pair (like an emoji).
+        // On Chrome and Firefox this is split out into two pairs
+        // of keydown/keyup events instead of one.
+        console.error("Form object " + formObjects[x] + " failed to encode, discarded", e);
       }
     }
   }
@@ -2802,7 +2802,7 @@ function encodeEvent(event, i) {
   } catch (e) {
   }
 
-  if (typeof e.clientX !== UNDEFINED && 
+  if (typeof e.clientX !== UNDEFINED &&
       typeof e.clientX !== UNKNOWN)
     result.push('clientX=' + Math.round(e.clientX),
                 'clientY=' + Math.round(e.clientY));
@@ -2834,7 +2834,7 @@ function encodeEvent(event, i) {
     var objY = widgetCoords.y;
 
     if (typeof event.object.scrollLeft !== UNDEFINED &&
-	typeof event.object.scrollLeft !== UNKNOWN) {
+        typeof event.object.scrollLeft !== UNKNOWN) {
       result.push('scrollX=' + Math.round(event.object.scrollLeft),
                   'scrollY=' + Math.round(event.object.scrollTop),
                   'width=' + Math.round(event.object.clientWidth),
@@ -2856,7 +2856,7 @@ function encodeEvent(event, i) {
   }
   result.push('button=' + button);
 
-  if (typeof e.keyCode !== UNDEFINED && 
+  if (typeof e.keyCode !== UNDEFINED &&
       typeof e.keyCode !== UNKNOWN)
     result.push('keyCode=' + e.keyCode);
 
@@ -2864,15 +2864,15 @@ function encodeEvent(event, i) {
     var charCode = 0;
     if (typeof e.charCode !== UNDEFINED) {
       if (e.type === 'keypress')
-	charCode = e.charCode;
+        charCode = e.charCode;
     } else {
       if (e.type === 'keypress')
-	charCode = e.keyCode;
+        charCode = e.keyCode;
     }
     result.push('charCode=' + charCode);
   }
 
-  if (typeof e.altKey !== UNDEFINED && 
+  if (typeof e.altKey !== UNDEFINED &&
       typeof e.altKey !== UNKNOWN &&
       e.altKey)
     result.push('altKey=1');
@@ -2919,7 +2919,7 @@ function encodePendingEvents(maxLength) {
     var eventData = se + pendingEvents[i].data.join(se);
     if (pendingEvents[i].evAckId < ackUpdateId)
       eventData += se + 'evAckId=' + pendingEvents[i].evAckId;
-    
+
     if ((result.length + eventData.length) < maxLength) {
       feedback = feedback || pendingEvents[i].feedback;
       result += eventData;
@@ -3056,7 +3056,7 @@ function load(fullapp) {
   if (!("activeElement" in document)) {
     function trackActiveElement(evt) {
       if (evt && evt.target) {
-	document.activeElement = evt.target == document ? null : evt.target;
+        document.activeElement = evt.target == document ? null : evt.target;
       }
     }
 
@@ -3121,7 +3121,7 @@ function wsWaitFeedback() {
       }
       var wsReqI = parseInt(wsReq, 10);
       if (wsReqI > maxRqId)
-	maxRqId = wsReqI;
+        maxRqId = wsReqI;
     }
   }
   nextWsRqId = maxRqId + 1;
@@ -3209,12 +3209,12 @@ _$_$if_CATCH_ERROR_$_();
       var stack = e.stack || e.stacktrace;
       var description = e.description || e.message;
       var err = { "exception_code": e.code,
-		  "exception_description": description,
-		  "exception_js": msg };
+                  "exception_description": description,
+                  "exception_js": msg };
       err.stack = stack;
       sendError(err,
-		"Wt internal error; code: " +  e.code
-		+ ", description: " + description);
+                "Wt internal error; code: " +  e.code
+                + ", description: " + description);
       throw e;
     }
 _$_$endif_$_();
@@ -3280,7 +3280,7 @@ function setConnectionMonitor(aMonitor) {
   connectionMonitor.onStatusChange = function(type, newS) {
     var old = connectionMonitor.status[type];
     if (old == newS)
-	return;
+        return;
     connectionMonitor.status[type] = newS;
     connectionMonitor.onChange(type, old, newS);
   };
@@ -3290,7 +3290,7 @@ var updating = false;
 
 function update(el, signalName, e, feedback) {
   checkEventOverflow();
-  
+
   /*
    * Konqueror may recurisvely call update() because
    * /reading/ offsetLeft or offsetTop triggers an onscroll event ??
@@ -3336,10 +3336,10 @@ function schedulePing() {
     (function() {
       var ws = websocket.socket;
       if (ws.readyState == 1)
-	ws.send('&signal=ping');
+        ws.send('&signal=ping');
       else {
-	clearInterval(websocket.keepAlive);
-	websocket.keepAlive = null;
+        clearInterval(websocket.keepAlive);
+        websocket.keepAlive = null;
       }
     }, _$_SERVER_PUSH_TIMEOUT_$_);
 }
@@ -3367,132 +3367,132 @@ _$_$if_WEB_SOCKETS_$_();
       var ws = websocket.socket;
 
       if ((ws == null || ws.readyState > 1)) {
-	if (ws != null && websocket.state == WebSocketUnknown)
-	  websocket.state = WebSocketUnavailable;
-	else {
-	  function reconnect() {
-	    if (!hasQuit) {
-	      ++websocket.reconnectTries;
-	      var ms = Math.min(120000, Math.exp(websocket.reconnectTries)
-				* 500);
-	      setTimeout(function() { scheduleUpdate(); }, ms);
-	    }
-	  }
+        if (ws != null && websocket.state == WebSocketUnknown)
+          websocket.state = WebSocketUnavailable;
+        else {
+          function reconnect() {
+            if (!hasQuit) {
+              ++websocket.reconnectTries;
+              var ms = Math.min(120000, Math.exp(websocket.reconnectTries)
+                                * 500);
+              setTimeout(function() { scheduleUpdate(); }, ms);
+            }
+          }
 
-	  var protocolEnd = sessionUrl.indexOf("://"), wsurl;
-	  if (protocolEnd != -1) {
-	    wsurl = "ws" + sessionUrl.substr(4);
-	  } else {
-	    var query = sessionUrl.substr(sessionUrl.indexOf('?'));
-	    wsurl = "ws" + location.protocol.substr(4)
-	      + "//" + location.host + _$_WS_PATH_$_ + query;
-	  }
+          var protocolEnd = sessionUrl.indexOf("://"), wsurl;
+          if (protocolEnd != -1) {
+            wsurl = "ws" + sessionUrl.substr(4);
+          } else {
+            var query = sessionUrl.substr(sessionUrl.indexOf('?'));
+            wsurl = "ws" + location.protocol.substr(4)
+              + "//" + location.host + _$_WS_PATH_$_ + query;
+          }
 
-	  wsurl += "&request=ws";
+          wsurl += "&request=ws";
 
-	  var wsid = _$_WS_ID_$_;
-	  if (wsid.length > 0)
-	    wsurl += "&wsid=" + wsid;
+          var wsid = _$_WS_ID_$_;
+          if (wsid.length > 0)
+            wsurl += "&wsid=" + wsid;
 
-	  if (typeof window.WebSocket !== UNDEFINED)
-	    websocket.socket = ws = new WebSocket(wsurl);
-	  else
-	    websocket.socket = ws = new MozWebSocket(wsurl);
+          if (typeof window.WebSocket !== UNDEFINED)
+            websocket.socket = ws = new WebSocket(wsurl);
+          else
+            websocket.socket = ws = new MozWebSocket(wsurl);
 
-	  websocket.state = WebSocketConnecting;
+          websocket.state = WebSocketConnecting;
 
-	  if (websocket.keepAlive)
-	    clearInterval(websocket.keepAlive);
-	  websocket.keepAlive = null;
+          if (websocket.keepAlive)
+            clearInterval(websocket.keepAlive);
+          websocket.keepAlive = null;
 
-	  ws.onmessage = function(event) {
-	    var js = null;
+          ws.onmessage = function(event) {
+            var js = null;
 
-	    if (websocket.state == WebSocketConnecting) {
-	      if (event.data == "connect") {
-		if (responsePending != null && pollTimer != null) {
-		  clearTimeout(pollTimer);
-		  pollTimer = null;
-		  responsePending.abort();
-		  responsePending = null;
-		}
+            if (websocket.state == WebSocketConnecting) {
+              if (event.data == "connect") {
+                if (responsePending != null && pollTimer != null) {
+                  clearTimeout(pollTimer);
+                  pollTimer = null;
+                  responsePending.abort();
+                  responsePending = null;
+                }
 
                 if (responsePending ||
                     !$.isEmptyObject(pendingWsRequests))
                   websocket.state = WebSocketAckConnect;
                 else
-		  webSocketAckConnect();
-	      } else {
-		console.log("WebSocket: was expecting a connect?");
-		console.log(event.data);
-		return;
-	      }
-	    } else {
-	      if (connectionMonitor) {
-		connectionMonitor.onStatusChange('websocket', true);
-		connectionMonitor.onStatusChange('connectionStatus', 1);
-	      }
+                  webSocketAckConnect();
+              } else {
+                console.log("WebSocket: was expecting a connect?");
+                console.log(event.data);
+                return;
+              }
+            } else {
+              if (connectionMonitor) {
+                connectionMonitor.onStatusChange('websocket', true);
+                connectionMonitor.onStatusChange('connectionStatus', 1);
+              }
               websocket.state = WebSocketWorking;
-	      js = event.data;
-	    }
+              js = event.data;
+            }
 
-	    websocket.reconnectTries = 0;
-	    if (js != null)
+            websocket.reconnectTries = 0;
+            if (js != null)
               handleResponse(0, js, null);
-	  };
+          };
 
-	  ws.onerror = function(event) {
-	    /*
-	     * Sometimes, we can connect but cannot send data
-	     */
-	    if (connectionMonitor)
-	      connectionMonitor.onStatusChange('websocket', false);
-	    if (websocket.reconnectTries == 3 &&
-		websocket.state == WebSocketUnknown)
-	      websocket.state = WebSocketUnavailable;
-	    reconnect();
-	  };
+          ws.onerror = function(event) {
+            /*
+             * Sometimes, we can connect but cannot send data
+             */
+            if (connectionMonitor)
+              connectionMonitor.onStatusChange('websocket', false);
+            if (websocket.reconnectTries == 3 &&
+                websocket.state == WebSocketUnknown)
+              websocket.state = WebSocketUnavailable;
+            reconnect();
+          };
 
-	  ws.onclose = function(event) {
-	    /*
-	     * Sometimes, we can connect but cannot send data
-	     */
-	    if (connectionMonitor)
-	      connectionMonitor.onStatusChange('websocket', false);
-	    if (websocket.reconnectTries == 3 &&
-		websocket.state == WebSocketUnknown)
-	      websocket.state = WebSocketUnavailable;
-	    reconnect();
-	  };
+          ws.onclose = function(event) {
+            /*
+             * Sometimes, we can connect but cannot send data
+             */
+            if (connectionMonitor)
+              connectionMonitor.onStatusChange('websocket', false);
+            if (websocket.reconnectTries == 3 &&
+                websocket.state == WebSocketUnknown)
+              websocket.state = WebSocketUnavailable;
+            reconnect();
+          };
 
-	  ws.onopen = function(event) {
-	    /*
-	     * WebSockets are suppossedly reliable, but there is nothing
-	     * in the protocol that makes them so...
-	     *
-	     * WebSockets are supposedly using a ping/pong protocol to
-	     * motivate proxies to keep connections open, but we've never
-	     * seen a browser pinging us ?
-	     *
-	     * So, we ping pong ourselves.
-	     */
-	    if (connectionMonitor) {
-	      connectionMonitor.onStatusChange('websocket', true);
-	      connectionMonitor.onStatusChange('connectionStatus', 1);
-	    }
+          ws.onopen = function(event) {
+            /*
+             * WebSockets are suppossedly reliable, but there is nothing
+             * in the protocol that makes them so...
+             *
+             * WebSockets are supposedly using a ping/pong protocol to
+             * motivate proxies to keep connections open, but we've never
+             * seen a browser pinging us ?
+             *
+             * So, we ping pong ourselves.
+             */
+            if (connectionMonitor) {
+              connectionMonitor.onStatusChange('websocket', true);
+              connectionMonitor.onStatusChange('connectionStatus', 1);
+            }
 
-	    /*
-	      ws.send('&signal=ping'); // to get our first onmessage
-	     */
-	    schedulePing();
-	  };
-	}
+            /*
+              ws.send('&signal=ping'); // to get our first onmessage
+             */
+            schedulePing();
+          };
+        }
       }
 
       if ((ws.readyState == 1) && (ws.state == WebSocketWorking)) {
-	schedulePing();
-	sendUpdate();
-	return;
+        schedulePing();
+        sendUpdate();
+        return;
       }
     }
   }
@@ -3516,9 +3516,9 @@ _$_$endif_$_();
     } else {
       var diff = (new Date).getTime() - updateTimeoutStart;
       if (diff > WT.updateDelay) {
-	clearTimeout(updateTimeout);
-	updateTimeout = null;
-	sendUpdate();
+        clearTimeout(updateTimeout);
+        updateTimeout = null;
+        sendUpdate();
       }
     }
   }
@@ -3592,10 +3592,10 @@ function sendUpdate() {
       d = d.parentNode;
 
       for (; !WT.hasTag(d, 'BODY'); d = d.parentNode) {
-	if (d.id) {
-	  if (solution != '') solution += ',';
-	  solution += d.id;
-	}
+        if (d.id) {
+          if (solution != '') solution += ',';
+          solution += d.id;
+        }
       }
     }
 
@@ -3610,7 +3610,7 @@ function sendUpdate() {
   if (params.length > 0)
     data += '&Wt-params=' + encodeURIComponent(params);
 
-  
+
   if (pendingEvents.length > 0) {
     var maxEventsSize = _$_MAX_FORMDATA_SIZE_$_ - data.length;
     if (useWebSockets)
@@ -3632,10 +3632,10 @@ function sendUpdate() {
 
     if (!poll) {
       if (tm) {
-	var wsRqId = nextWsRqId;
-	pendingWsRequests[wsRqId] = {time: Date.now(), tm: tm};
-	++nextWsRqId;
-	data += '&wsRqId=' + wsRqId;
+        var wsRqId = nextWsRqId;
+        pendingWsRequests[wsRqId] = {time: Date.now(), tm: tm};
+        ++nextWsRqId;
+        data += '&wsRqId=' + wsRqId;
       }
 
       websocket.socket.send(data);
@@ -3643,14 +3643,14 @@ function sendUpdate() {
   } else {
     if (responsePending) {
       try {
-	throw new Error("responsePending is true before comm.sendUpdate");
+        throw new Error("responsePending is true before comm.sendUpdate");
       } catch (e) {
-	var stack = e.stack || e.stacktrace;
-	var description = e.description || e.message;
-	var err = { "exception_description" : description };
-	err.stack = stack;
-	sendError(err, "Wt internal error; description: " + description);
-	throw e;
+        var stack = e.stack || e.stacktrace;
+        var description = e.description || e.message;
+        var err = { "exception_description" : description };
+        err.stack = stack;
+        sendError(err, "Wt internal error; description: " + description);
+        throw e;
       }
     }
 
@@ -3686,7 +3686,7 @@ function propagateSize(element, width, height) {
 
 function emit(object, config) {
   checkEventOverflow();
-  
+
   var userEvent = new Object(), ei = pendingEvents.length;
   userEvent.signal = "user";
 
@@ -3732,7 +3732,7 @@ function checkEventOverflow() {
       pendingEvents.length >= _$_MAX_PENDING_EVENTS_$_) {
     var errMsg = "too many pending events";
     sendError(errMsg, "Wt internal error; description: " + errMsg);
-    
+
     pendingEvents = [];
     throw new Error(errMsg);
   }
@@ -3743,16 +3743,16 @@ function addTimerEvent(timerid, msec, repeat) {
     var obj = WT.getElement(timerid);
     if (obj) {
       if (repeat != -1)
-	obj.timer = setTimeout(obj.tm, repeat);
+        obj.timer = setTimeout(obj.tm, repeat);
       else {
-	obj.timer = null;
-	obj.tm = null;
+        obj.timer = null;
+        obj.tm = null;
       }
       if (obj.onclick)
-	obj.onclick();
+        obj.onclick();
     }
   };
-  
+
   var obj = WT.getElement(timerid);
   if (obj.timer)
     clearTimeout(obj.timer);
@@ -3787,7 +3787,7 @@ function jsLoaded(path)
       waitingForJavaScript = false;
       jsLibsLoaded[path]();
       if (!waitingForJavaScript && serverPush)
-	sendUpdate();
+        sendUpdate();
     }
     jsLibsLoaded[path] = true;
   }
@@ -3803,14 +3803,14 @@ function loadScript(uri, symbol, tries)
 
       var t = tries === undefined ? (WT.isIE ? 1 : 2) : tries;
       if (t > 1) {
-	loadScript(uri, symbol, t - 1);
+        loadScript(uri, symbol, t - 1);
       } else {
-	var err = {
-	  "error-description" : 'Fatal error: failed loading ' + uri
-	};
-	sendError(err, err["error-description"]);
-	quit(null);
-      }     
+        var err = {
+          "error-description" : 'Fatal error: failed loading ' + uri
+        };
+        sendError(err, err["error-description"]);
+        quit(null);
+      }
     }
   }
 
@@ -3837,12 +3837,12 @@ function loadScript(uri, symbol, tries)
     s.onreadystatechange = function() {
       var rs = s.readyState;
       if (rs == 'loaded') { // may still be 404 in IE<=8; too bad!
-	if (WT.isOpera || WT.isIE) {
-	  onload();
-	} else
-	  onerror();
+        if (WT.isOpera || WT.isIE) {
+          onload();
+        } else
+          onerror();
       } else if (rs == 'complete') {
-	onload();
+        onload();
       }
     };
     var h = document.getElementsByTagName('head')[0];
@@ -3904,11 +3904,11 @@ function ArrayBufferPreloader(uris, callback) {
   this.work = uris.length;
   // resulting buffers
   this.arrayBuffers = [];
-  
+
   // if urls are missing, call callback without buffers
   if (uris.length == 0)
     callback(this.arrayBuffers);
-  else 
+  else
   {
     // if uris are given, load them asynchronously
     for (var i = 0; i < uris.length; i++)
@@ -3921,7 +3921,7 @@ ArrayBufferPreloader.prototype.preload = function(uri, index) {
   var xhr = new XMLHttpRequest();
   // open the resource, send asynchronously (without waiting for answer)
   xhr.open("GET", uri, true);
-  xhr.responseType = "arraybuffer"; 
+  xhr.responseType = "arraybuffer";
 
   // give xhr write access to array
   xhr.arrayBuffers = this.arrayBuffers;
@@ -3982,7 +3982,7 @@ window.onunload = function()
 };
 
 function setLocale(m)
-{	
+{
   if (WT.isIEMobile || m == '') return;
   document.documentElement.lang = m
 }
@@ -3994,7 +3994,7 @@ function setCloseMessage(m)
       var e = event || window.event;
 
       if (e)
-	e.returnValue = m;
+        e.returnValue = m;
 
       return m;
     };
@@ -4019,26 +4019,26 @@ function updateGlobal(id) {
     var elemEvents = globalEventsFunctions ? globalEventsFunctions[domId] : null;
     var eventFunc = null;
 
-    if (elemEvents) 
+    if (elemEvents)
       eventFunc = elemEvents[keyEvents[i]];
 
     var bindEvent = function(evtfunc) {
       return function(event) {
-	var g=event||window.event;
-	var t=g.target||g.srcElement;
-	if ((!t| WT.hasTag(t,'DIV')
-	  || WT.hasTag(t,'BODY')
-	    || WT.hasTag(t,'HTML'))) {
-	      var func = evtfunc;
-	      if(func)
-		func(event);
-	    }
+        var g=event||window.event;
+        var t=g.target||g.srcElement;
+        if ((!t| WT.hasTag(t,'DIV')
+          || WT.hasTag(t,'BODY')
+            || WT.hasTag(t,'HTML'))) {
+              var func = evtfunc;
+              if(func)
+                func(event);
+            }
       };
     };
 
     if (eventFunc)
       document['on' + keyEvents[i] ] = bindEvent(eventFunc);
-    else 
+    else
       document['on' + keyEvents[i] ] = null;
 
   }
@@ -4047,7 +4047,7 @@ function updateGlobal(id) {
   if (globalEventsFunctions) {
     for (var i in globalEventsFunctions) {
       if (!document.getElementById(i)) {
-	delete globalEventsFunctions[i];
+        delete globalEventsFunctions[i];
       }
     }
   }
@@ -4068,7 +4068,7 @@ function bindGlobal(event, id, f) {
   if(init)
     setTimeout(function() {
       if(firstCall)
-	updateGlobal(null);
+        updateGlobal(null);
     }, 0);
 }
 
@@ -4124,9 +4124,9 @@ this._p_ = {
   enableInternalPaths : enableInternalPaths,
   onHashChange : onHashChange,
   setHash : setHash,
-  ImagePreloader : ImagePreloader,  
+  ImagePreloader : ImagePreloader,
   ArrayBufferPreloader : ArrayBufferPreloader,
-  
+
   doAutoJavaScript : doAutoJavaScript,
   autoJavaScript : function() { },
 

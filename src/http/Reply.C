@@ -69,7 +69,7 @@ void httpDateBuf(time_t t, Wt::WStringStream& buf)
     = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
   static const char monthStr[12][4]
     = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
   // Wed, 15 Jan 2014 21:20:01 GMT
   buf << dayOfWeekStr[td.tm_wday] << ", "
@@ -185,7 +185,7 @@ Reply::Reply(Request& request, const Configuration& config)
 { }
 
 Reply::~Reply()
-{ 
+{
   LOG_DEBUG("~Reply");
 #ifdef WTHTTP_WITH_ZLIB
   if (gzipBusy_)
@@ -223,9 +223,9 @@ void Reply::setStatus(status_type status)
 }
 
 bool Reply::consumeWebSocketMessage(ws_opcode opcode,
-				    const char* begin,
-				    const char* end,
-				    Request::State state)
+                                    const char* begin,
+                                    const char* end,
+                                    Request::State state)
 {
   LOG_ERROR("Reply::consumeWebSocketMessage() is pure virtual");
   assert(false);
@@ -275,7 +275,7 @@ bool Reply::nextWrappedContentBuffers(std::vector<asio::const_buffer>& result) {
   int encodedSize;
 
   bool lastData = encodeNextContentBuffer(contentBuffers, originalSize,
-					  encodedSize);
+                                          encodedSize);
 
   contentSent_ += encodedSize;
   contentOriginalSize_ += originalSize;
@@ -288,15 +288,15 @@ bool Reply::nextWrappedContentBuffers(std::vector<asio::const_buffer>& result) {
       buf_.asioBuffers(result);
 
       if (encodedSize) {
-	result.insert(result.end(),
-	    contentBuffers.begin(), contentBuffers.end());
-	postBuf_ << "\r\n";
+        result.insert(result.end(),
+            contentBuffers.begin(), contentBuffers.end());
+        postBuf_ << "\r\n";
 
-	if (lastData) {
-	  postBuf_ << "0\r\n\r\n";
-	}
+        if (lastData) {
+          postBuf_ << "0\r\n\r\n";
+        }
       } else {
-	postBuf_ << "\r\n";
+        postBuf_ << "\r\n";
       }
 
       postBuf_.asioBuffers(result);
@@ -323,7 +323,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
     if (!transmitting_) {
       transmitting_ = true;
       bool http10 = (request_.http_version_major == 1)
-	&& (request_.http_version_minor == 0);
+        && (request_.http_version_minor == 0);
 
       closeConnection_ = closeConnection_ || request_.closeConnection();
 
@@ -340,12 +340,12 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
       status_strings::toText(buf_, status_);
 
       if (!http10 && status_ != switching_protocols) {
-	/*
-	 * Date header (current time)
-	 */
-	buf_ << "Date: ";
-	httpDateBuf(time(0), buf_);
-	buf_ << "\r\n";
+        /*
+         * Date header (current time)
+         */
+        buf_ << "Date: ";
+        httpDateBuf(time(0), buf_);
+        buf_ << "\r\n";
       }
 
       /*
@@ -354,12 +354,12 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
 
       std::string ct;
       if (status_ >= 300 && status_ < 400) {
-	if (!location().empty()) {
-	  buf_ << "Location: " << location() << "\r\n";
-	}
+        if (!location().empty()) {
+          buf_ << "Location: " << location() << "\r\n";
+        }
       } else if (status_ != not_modified && status_ != switching_protocols) {
-	ct = contentType();
-	buf_ << "Content-Type: " << ct << "\r\n";
+        ct = contentType();
+        buf_ << "Content-Type: " << ct << "\r\n";
       }
 
       /*
@@ -367,17 +367,17 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
        */
       bool haveContentEncoding = false;
       for (unsigned i = 0; i < headers_.size(); ++i) {
-	if (headers_[i].first == "Content-Encoding")
-	  haveContentEncoding = true;
-	buf_ << headers_[i].first << ": " << headers_[i].second << "\r\n";
+        if (headers_[i].first == "Content-Encoding")
+          haveContentEncoding = true;
+        buf_ << headers_[i].first << ": " << headers_[i].second << "\r\n";
       }
 
       ::int64_t cl = -1;
 
       if (status_ != not_modified)
-	cl = contentLength();
+        cl = contentLength();
       else
-	cl = 0;
+        cl = 0;
 
       /*
        * We would need to figure out the content length based on the
@@ -386,71 +386,71 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
        * inbetween each call to nextContentBuffer()
        */
       if ((cl == -1) && http10)
-	closeConnection_ = true;
+        closeConnection_ = true;
 
       /*
        * Connection
        */
       if (closeConnection_ && request_.type == Request::HTTP) {
-	buf_ << "Connection: close\r\n";
+        buf_ << "Connection: close\r\n";
       } else {
-	if (http10) {
-	  buf_ << "Connection: keep-alive\r\n";
-	}
+        if (http10) {
+          buf_ << "Connection: keep-alive\r\n";
+        }
       }
 
       if (status_ != not_modified) {
 #ifdef WTHTTP_WITH_ZLIB
-	/*
-	 * Content-Encoding: gzip ?
-	 */
-	gzipEncoding_ = 
-	     !haveContentEncoding
-	  && configuration_.compression()
-	  && request_.acceptGzipEncoding()
-	  && (cl == -1)
-	  && (ct.find("text/html") != std::string::npos
-	      || ct.find("text/plain") != std::string::npos
-	      || ct.find("text/javascript") != std::string::npos
-	      || ct.find("text/css") != std::string::npos
-	      || ct.find("application/xhtml+xml")!= std::string::npos
-	      || ct.find("image/svg+xml")!= std::string::npos
-	      || ct.find("application/octet")!= std::string::npos
-	      || ct.find("text/x-json") != std::string::npos);
+        /*
+         * Content-Encoding: gzip ?
+         */
+        gzipEncoding_ =
+             !haveContentEncoding
+          && configuration_.compression()
+          && request_.acceptGzipEncoding()
+          && (cl == -1)
+          && (ct.find("text/html") != std::string::npos
+              || ct.find("text/plain") != std::string::npos
+              || ct.find("text/javascript") != std::string::npos
+              || ct.find("text/css") != std::string::npos
+              || ct.find("application/xhtml+xml")!= std::string::npos
+              || ct.find("image/svg+xml")!= std::string::npos
+              || ct.find("application/octet")!= std::string::npos
+              || ct.find("text/x-json") != std::string::npos);
 
-	if (gzipEncoding_) {
-	  buf_ << "Content-Encoding: gzip\r\n";
-	  
-	  initGzip();
-	}
+        if (gzipEncoding_) {
+          buf_ << "Content-Encoding: gzip\r\n";
+
+          initGzip();
+        }
 #endif
 
-	/*
-	 * We do not need to determine the length of the response...
-	 * Transmit only header first.
-	 */
-	if (cl != -1) {
-	  buf_ << "Content-Length: " << (long long)cl << "\r\n";
-	  chunkedEncoding_ = false;
-	} else
-	  if (closeConnection_)
-	    chunkedEncoding_ = false; // should be false
-	  else
-	    if (!http10 && status_ != switching_protocols)
-	      chunkedEncoding_ = true;
+        /*
+         * We do not need to determine the length of the response...
+         * Transmit only header first.
+         */
+        if (cl != -1) {
+          buf_ << "Content-Length: " << (long long)cl << "\r\n";
+          chunkedEncoding_ = false;
+        } else
+          if (closeConnection_)
+            chunkedEncoding_ = false; // should be false
+          else
+            if (!http10 && status_ != switching_protocols)
+              chunkedEncoding_ = true;
 
-	if (chunkedEncoding_) {
-	  buf_ << "Transfer-Encoding: chunked\r\n";
-	}
+        if (chunkedEncoding_) {
+          buf_ << "Transfer-Encoding: chunked\r\n";
+        }
 
-	buf_ << "\r\n";
+        buf_ << "\r\n";
 
-	return nextWrappedContentBuffers(result);
+        return nextWrappedContentBuffers(result);
       } else { // status_ == not-modified
-	buf_ << "\r\n";
+        buf_ << "\r\n";
 
-	buf_.asioBuffers(result);
-	return true;
+        buf_.asioBuffers(result);
+        return true;
       }
     } else { // transmitting (data)
       return nextWrappedContentBuffers(result);
@@ -485,7 +485,7 @@ void Reply::receive()
 {
   connection_->strand().post
     (std::bind(&Connection::readMore, connection_,
-	       shared_from_this(), 120));
+               shared_from_this(), 120));
 }
 
 void Reply::send()
@@ -499,7 +499,7 @@ void Reply::send()
     connection_->server()->service().post
       (connection_->strand().wrap
        (std::bind(&Connection::startWriteResponse, connection_,
-		  shared_from_this())));
+                  shared_from_this())));
   }
 }
 
@@ -564,7 +564,7 @@ void Reply::initGzip()
   gzipStrm_.next_in = Z_NULL;
   int r = 0;
   r = deflateInit2(&gzipStrm_, Z_DEFAULT_COMPRESSION,
-		   Z_DEFLATED, 15+16, 8, Z_DEFAULT_STRATEGY);
+                   Z_DEFLATED, 15+16, 8, Z_DEFAULT_STRATEGY);
   gzipBusy_ = true;
   assert(r == Z_OK);
 }
@@ -597,22 +597,22 @@ bool Reply::encodeNextContentBuffer(
 
       unsigned char out[16*1024];
       do {
-	gzipStrm_.next_out = out;
-	gzipStrm_.avail_out = sizeof(out);
+        gzipStrm_.next_out = out;
+        gzipStrm_.avail_out = sizeof(out);
 
-	int r = 0;
-	r = deflate(&gzipStrm_,
-		    lastData && (i == buffers.size() - 1) ? 
-		    Z_FINISH : Z_NO_FLUSH);
+        int r = 0;
+        r = deflate(&gzipStrm_,
+                    lastData && (i == buffers.size() - 1) ?
+                    Z_FINISH : Z_NO_FLUSH);
 
-	assert(r != Z_STREAM_ERROR);
+        assert(r != Z_STREAM_ERROR);
 
-	unsigned have = sizeof(out) - gzipStrm_.avail_out;
+        unsigned have = sizeof(out) - gzipStrm_.avail_out;
 
-	if (have) {
-	  encodedSize += have;
-	  result.push_back(buf(std::string((char *)out, have)));
-	}
+        if (have) {
+          encodedSize += have;
+          result.push_back(buf(std::string((char *)out, have)));
+        }
       } while (gzipStrm_.avail_out == 0);
     }
 

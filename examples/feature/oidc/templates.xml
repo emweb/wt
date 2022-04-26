@@ -35,10 +35,10 @@
           ${email}
         ${</if:email>}
 
-	<label for="${id:name}">Full name
-	  ${name-info class="Wt-info"}
-	</label>
-	${name}
+        <label for="${id:name}">Full name
+          ${name-info class="Wt-info"}
+        </label>
+        ${name}
       </div>
 
       ${<if:oauth>}

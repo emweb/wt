@@ -46,7 +46,7 @@ private:
   void addFolder();
 
   /*!\brief Remove a folder.
-   */ 
+   */
   void removeFolder();
 
   /*!\brief Create a "folder" node, and insert in the given parent.

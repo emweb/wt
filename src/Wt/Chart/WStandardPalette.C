@@ -98,8 +98,8 @@ WColor WStandardPalette::color(int index) const
       [index % 8];
 
     return WColor((rgb & 0xFF0000) >> 16,
-		  (rgb & 0x00FF00) >> 8,
-		  (rgb & 0x0000FF));
+                  (rgb & 0x00FF00) >> 8,
+                  (rgb & 0x0000FF));
   } else {
     int v = 255 - (index % 8) * 32;
 

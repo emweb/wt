@@ -43,7 +43,7 @@ public:
   void actMapping(Impl::MappingInfo *mapping);
   template<typename V> void actId(V& value, const std::string& name, int size);
   template<class C> void actId(ptr<C>& value, const std::string& name, int size,
-			       int fkConstraints);
+                               int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actWeakPtr(const WeakPtrRef<C>& field);
@@ -67,16 +67,16 @@ private:
 class WTDBO_API DropSchema
 {
 public:
-  DropSchema(Session& session, 
-	     Impl::MappingInfo& mapping,
-	     std::set<std::string>& tablesCreated);
+  DropSchema(Session& session,
+             Impl::MappingInfo& mapping,
+             std::set<std::string>& tablesCreated);
 
   template<class C> void visit(C& obj);
 
   void actMapping(Impl::MappingInfo *mapping);
   template<typename V> void actId(V& value, const std::string& name, int size);
   template<class C> void actId(ptr<C>& value, const std::string& name, int size,
-			       int fkConstraints);
+                               int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actWeakPtr(const WeakPtrRef<C>& field);
@@ -116,7 +116,7 @@ protected:
   MetaDboBase& dbo() { return *dbo_; }
   Impl::MappingInfo& mapping() { return *mapping_; }
   int setStatementIdx() const { return setStatementIdx_; }
-  
+
 private:
   Session *session_;
   MetaDboBase *dbo_;
@@ -129,7 +129,7 @@ class WTDBO_API LoadBaseAction : public DboAction
 {
 public:
   LoadBaseAction(MetaDboBase& dbo, Impl::MappingInfo& mapping,
-		 SqlStatement *statement, int& column);
+                 SqlStatement *statement, int& column);
 
   template<typename V> void act(const FieldRef<V>& field);
   template<class D> void actPtr(const PtrRef<D>& field);
@@ -151,13 +151,13 @@ class LoadDbAction : public LoadBaseAction
 {
 public:
   LoadDbAction(MetaDbo<C>& dbo, Session::Mapping<C>& mapping,
-	       SqlStatement *statement, int& column);
+               SqlStatement *statement, int& column);
 
   void visit(C& obj);
 
   template<typename V> void actId(V& value, const std::string& name, int size);
   template<class D> void actId(ptr<D>& value, const std::string& name, int size,
-			       int fkConstraints);
+                               int fkConstraints);
 
 private:
   MetaDbo<C>& dbo_;
@@ -174,9 +174,9 @@ public:
    * to simply bind values to a statement using field().
    */
   SaveBaseAction(Session *session, SqlStatement *statement, int column);
-  
+
   SaveBaseAction(MetaDboBase& dbo, Impl::MappingInfo& mapping,
-		 SqlStatement *statement = nullptr, int column = 0);
+                 SqlStatement *statement = nullptr, int column = 0);
 
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
@@ -184,7 +184,7 @@ public:
   template<class C> void actCollection(const CollectionRef<C>& field);
   template<typename V> void actId(V& value, const std::string& name, int size);
   template<class D> void actId(ptr<D>& value, const std::string& name, int size,
-			       int fkConstraints);
+                               int fkConstraints);
 
   template<class C> void visitAuxIds(C& obj);
 
@@ -219,7 +219,7 @@ public:
 
   template<typename V> void actId(V& value, const std::string& name, int size);
   template<class D> void actId(ptr<D>& value, const std::string& name, int size,
-			       int fkConstraints);
+                               int fkConstraints);
 
 private:
   MetaDbo<C>& dbo_;
@@ -229,13 +229,13 @@ class WTDBO_API TransactionDoneAction : public DboAction
 {
 public:
   TransactionDoneAction(MetaDboBase& dbo, Session& session,
-			Impl::MappingInfo& mapping, bool success);
+                        Impl::MappingInfo& mapping, bool success);
 
   template<class C> void visit(C& obj);
 
   template<typename V> void actId(V& value, const std::string& name, int size);
   template<class C> void actId(ptr<C>& value, const std::string& name, int size,
-			       int fkConstraints);
+                               int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actWeakPtr(const WeakPtrRef<C>& field);
@@ -259,7 +259,7 @@ public:
 
   template<typename V> void actId(V& value, const std::string& name, int size);
   template<class C> void actId(ptr<C>& value, const std::string& name, int size,
-			       int fkConstraints);
+                               int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actWeakPtr(const WeakPtrRef<C>& field);
@@ -274,14 +274,14 @@ class WTDBO_API SetReciproceAction
 {
 public:
   SetReciproceAction(Session *session,
-		     const std::string& joinName, MetaDboBase *value);
+                     const std::string& joinName, MetaDboBase *value);
 
   template<class C> void visit(C& obj);
 
   void actMapping(Impl::MappingInfo *mapping);
   template<typename V> void actId(V& value, const std::string& name, int size);
   template<class C> void actId(ptr<C>& value, const std::string& name, int size,
-			       int fkConstraints);
+                               int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actWeakPtr(const WeakPtrRef<C>& field);
@@ -312,7 +312,7 @@ public:
   void actMapping(Impl::MappingInfo *mapping);
   template<typename V> void actId(V& value, const std::string& name, int size);
   template<class C> void actId(ptr<C>& value, const std::string& name, int size,
-			       int fkConstraints);
+                               int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actWeakPtr(const WeakPtrRef<C>& field);
@@ -340,7 +340,7 @@ public:
   void actMapping(Impl::MappingInfo *mapping);
   template<typename V> void actId(V& value, const std::string& name, int size);
   template<class C> void actId(ptr<C>& value, const std::string& name, int size,
-			       int fkConstraints);
+                               int fkConstraints);
   template<typename V> void act(const FieldRef<V>& field);
   template<class C> void actPtr(const PtrRef<C>& field);
   template<class C> void actWeakPtr(const WeakPtrRef<C>& field);

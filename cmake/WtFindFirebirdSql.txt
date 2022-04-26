@@ -33,7 +33,7 @@ FIND_LIBRARY(FIREBIRD_LIBRARIES
     /usr/lib
     /usr/lib64
     /usr/local/lib
-    /opt/local/lib	
+    /opt/local/lib
 )
 
 SET(FIREBIRD_FOUND FALSE)

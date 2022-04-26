@@ -1,15 +1,15 @@
 IF(BOOST_WT_FOUND)
 WT_ADD_EXAMPLE(oidc.wt
-	Oidc.C
-        OAuthWidget.C
-        RegistrationView.C
-        OAuthAuthorizationEndpoint.C
-        model/User.C
-	model/IssuedToken.C
-	model/OAuthClient.C
-        model/OidcUserDatabase.C
-        model/Session.C
-        model/UserDetailsModel.C
+  Oidc.C
+  OAuthWidget.C
+  RegistrationView.C
+  OAuthAuthorizationEndpoint.C
+  model/User.C
+  model/IssuedToken.C
+  model/OAuthClient.C
+  model/OidcUserDatabase.C
+  model/Session.C
+  model/UserDetailsModel.C
 )
 
 TARGET_LINK_LIBRARIES(oidc.wt ${EXAMPLES_DBO_LIBS})

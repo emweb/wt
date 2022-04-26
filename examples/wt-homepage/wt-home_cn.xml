@@ -3,55 +3,55 @@
   <message id="template">
     <div id="top_wrapper">
       <div id="top_content">
-	${languages}
-	<div id="top_wt">
-	  <a href="//www.emweb.be/">
-	    <img src="/css/wt/emweb_powered.jpg" alt="Emweb" height="22" />
-	  </a>
-	</div>
+        ${languages}
+        <div id="top_wt">
+          <a href="//www.emweb.be/">
+            <img src="/css/wt/emweb_powered.jpg" alt="Emweb" height="22" />
+          </a>
+        </div>
       </div>
     </div>
 
     <div id="banner_wrapper">
       <div id="banner_content">
-	<div id="banner_end"> <div id="banner"><a href="#">Wt</a></div> </div>
+        <div id="banner_end"> <div id="banner"><a href="#">Wt</a></div> </div>
       </div>
     </div>
 
     <div id="main_wrapper" class="home">
       <div id="main_content">
-	<div id="main_menu">
-	  ${menu}
-	  ${sidebar}
-	</div>
-	${contents}
+        <div id="main_menu">
+          ${menu}
+          ${sidebar}
+        </div>
+        ${contents}
 
-	<div class="clearall"></div>
+        <div class="clearall"></div>
       </div>
     </div>
 
     <div id="footer_wrapper">
       <div id="footer_content">
-	<div id="footer_copyright"> 
-	  <a href="//www.emweb.be/">
-	    <img src="/css/wt/emweb_large.jpg" height="25" width="101"
-		 alt="Emweb.be" title="emweb.be"/></a>
-	  基于WEB的应用系统解决方案<br/>
-	  <a href="//www.emweb.be/">www.emweb.be</a>
-	</div>
+        <div id="footer_copyright">
+          <a href="//www.emweb.be/">
+            <img src="/css/wt/emweb_large.jpg" height="25" width="101"
+                 alt="Emweb.be" title="emweb.be"/></a>
+          基于WEB的应用系统解决方案<br/>
+          <a href="//www.emweb.be/">www.emweb.be</a>
+        </div>
 
-	<div id="footer_menu"> 
-	  <a href="//www.webtoolkit.eu/wt/">首页</a>
-	  | <a href="//www.emweb.be/contact">联系我们</a>
-	</div>
+        <div id="footer_menu">
+          <a href="//www.webtoolkit.eu/wt/">首页</a>
+          | <a href="//www.emweb.be/contact">联系我们</a>
+        </div>
 
-	<div id="chat"></div>
-	<script src="//www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat" type="text/javascript"></script>
+        <div id="chat"></div>
+        <script src="//www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat" type="text/javascript"></script>
 
-	<div class="clearall"></div>
+        <div class="clearall"></div>
       </div>
       <script type="text/javascript">
-	    /*<![CDATA[*/
+            /*<![CDATA[*/
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -136,7 +136,7 @@ Wt为开发者提供了几乎所有Web实现细节的抽象，其中包括事件
 跳过去不与理会。同时，这些应用通常不能符合可访问性的原则，也不能很好被搜索
 机器人索引到。</p>
 
-<p>安全方面，生成HTML或填充HTML模版很容易导致安全问题，如<a 
+<p>安全方面，生成HTML或填充HTML模版很容易导致安全问题，如<a
 href="http://en.wikipedia.org/wiki/Cross-site_scripting">跨站脚本（XSS）
 </a>和<a href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">
 跨站请求伪造（CSRF）</a>；XSS问题一般由（疏忽）允许嵌入JavaScript代码引起，
@@ -210,34 +210,34 @@ Wt将最大限度的使用JavaScript和Ajax，但在Ajax功能受限时，Wt也�
 
 <ul>
   <li>支持所有主流浏览器（包括Firefox/Gecko、Internet Explorer、Safari、
-	Chrome、Konqueror以及Opera），同时在纯HTML浏览器上亦能正常工作
-	（已经测试过的有Links和Lynx）；</li>
+        Chrome、Konqueror以及Opera），同时在纯HTML浏览器上亦能正常工作
+        （已经测试过的有Links和Lynx）；</li>
 
   <li>既可以在Unix/GNU Linux（gcc）上开发和部署，又可以在MS Windows
    （Visual Studio）上；</li>
 
   <li>Wt利用优雅降低与渐进增强可以保证应用在有无JavaScript或Ajax支持
-	的情况下动作行为尽可能一致（渐进增加须使用渐进启动方法）；</li>
+        的情况下动作行为尽可能一致（渐进增加须使用渐进启动方法）；</li>
 
   <li>Wt整合了Unicode支持（UTF8/UTF16），便于全面实现本地化；</li>
 
   <li>当Ajax获得支持时，基于Wt的应用只有变化才被渲染；</li>
 
   <li>在Wt中，页面变化有可见变化和背景中不可见变化两类，当Ajax被支持时，
-	两类都会得到渲染，而当Ajax不被支持时，只有可见内容的变化被渲染；</li>
+        两类都会得到渲染，而当Ajax不被支持时，只有可见内容的变化被渲染；</li>
 
   <li>Wt中的会话跟踪选项是可以按需配置的，主要包括URL重写和Cookies两种；</li>
 
   <li>Wt中纯HTML页面或Ajax会话的动作行为是统一的，因此Wt支持浏览器历史
-	导航操作（向后、向前按钮和书签），可生成良好URL地址，利于搜索引擎
-	优化工作；</li>
+        导航操作（向后、向前按钮和书签），可生成良好URL地址，利于搜索引擎
+        优化工作；</li>
 
   <li>Wt拥有高性能的特点，允许部署在低端嵌入式设备上，或者部署在所用功耗、
-	物理空间、经费预算等相对平衡的Internet或extranet网站上；</li>
+        物理空间、经费预算等相对平衡的Internet或extranet网站上；</li>
 
   <li>Wt采用了完全基于事件驱动的异步I/O机制：会话不用绑定于线程，也不会延迟应答
-	（如服务器推）或锁定线程；相反，线程只会被用来提高并发请求处理或事件循环
-	的重新进入。</li>
+        （如服务器推）或锁定线程；相反，线程只会被用来提高并发请求处理或事件循环
+        的重新进入。</li>
 </ul>
 
 <h4>事件处理</h4>
@@ -248,10 +248,10 @@ Wt将最大限度的使用JavaScript和Ajax，但在Ajax功能受限时，Wt也�
     键盘键位等；</li>
   <li>自动同步表单数据；</li>
   <li>Wt通过无状态槽实现获得了C++至JavaScript的动态转换；在此，单一C++槽的实现
-	提供了客户端和服务器端双重事件处理：即客户端实现显示的变化，服务器端实现
-	应用状态的变化；</li>
+        提供了客户端和服务器端双重事件处理：即客户端实现显示的变化，服务器端实现
+        应用状态的变化；</li>
   <li>Wt还提供了面向开发者自定义的JavaScript代码的钩技术，比如让原本仅用于客户端
-	  事件处理的JavaScript代码在执行后释放出C++信号；</li>
+          事件处理的JavaScript代码在执行后释放出C++信号；</li>
   <li>Wt提供了拖放API；</li>
   <li>Wt支持定时事件，同时内置支持服务器端初始更新（“服务器推”）。</li>
 </ul>
@@ -260,8 +260,8 @@ Wt将最大限度的使用JavaScript和Ajax，但在Ajax功能受限时，Wt也�
 
 <ul>
   <li>Wt提供统一的绘图API，此系统使用了浏览器原生的（向量）图像支持
-	（如内联VML、内联SVG、HTML 5画布），也可以渲染到通用的图片格式
-	（如PNG、GIF等等）或向量格式（如SVG、PDF等）；</li>
+        （如内联VML、内联SVG、HTML 5画布），也可以渲染到通用的图片格式
+        （如PNG、GIF等等）或向量格式（如SVG、PDF等）；</li>
   <li>Wt支持任意画笔路径、裁剪、输入文本、图像、变形、投影等</li>
   <li>使用绘图API可以绘制widget，或者创建SVG、PDF及PNG/GIF图像。</li>
 </ul>
@@ -277,15 +277,15 @@ Wt将最大限度的使用JavaScript和Ajax，但在Ajax功能受限时，Wt也�
   <li>Wt采用Kernel级的内存保护方案，特别是在采用专属进程模式下，
     会话之间完全隔离，这样Wt完全可以保护隐私数据免受程序错误的影响；</li>
   <li>Wt使用安全套接字协议层（SSL）或传输层安全协议（TLS）通过HTTPS
-	来支持加密和服务器认证；</li>
+        来支持加密和服务器认证；</li>
   <li>Wt满足低带宽下HTTPS持续使用的各种需求（细粒度Ajax）；</li>
   <li>Wt提供内置跨站脚本（XSS）保护，通过预先过滤掉渲染文本中的恶意代码，
-	使Wt应用免受XSS的攻击；</li>
+        使Wt应用免受XSS的攻击；</li>
   <li>Wt应用能够对跨站请求伪造（CSRF）有一定的防护，因为用于会话跟踪的
-	Cookies是可选的，即使是如此，Cookies也永远不会严格依赖于触发事件处理代码
-	的请求；</li>
+        Cookies是可选的，即使是如此，Cookies也永远不会严格依赖于触发事件处理代码
+        的请求；</li>
   <li>Wt对跳过特定URL而对应用逻辑的破坏也有一定的防护，因为只有界面
-	明确的事件才会被触发；</li>
+        明确的事件才会被触发；</li>
 </ul>
 
 <h4>对象关系映射库</h4>
@@ -303,21 +303,21 @@ href="//www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">此处</a>）
 <ul>
   <li>没有所谓代码生成、没有宏、没有XML配置，仅面向C++！</li>
   <li>使用模板化的访问者模式，该模式要求单一模版方法以提供映射，也就是
-	常说的“不要重复”（DRY）或尽最大可能高效！</li>
+        常说的“不要重复”（DRY）或尽最大可能高效！</li>
   <li>在该库中，你可以指定代理自增键，或映射任意C++类型的自然键，当然也
-	可以是组合类型（例如，当需要不止一个数据库字段时）；</li>
+        可以是组合类型（例如，当需要不止一个数据库字段时）；</li>
   <li>支持<a
     href="http://en.wikipedia.org/wiki/Optimistic_concurrency_control">
-	最佳并发控制</a>（利用版本字段）</li>
+        最佳并发控制</a>（利用版本字段）</li>
   <li>Dbo支持多对一和多对多关系到标准模板库（兼容）集合的映射</li>
   <li>支持模式生成（即数据定义语言DDL）和CRUD操作（即数据操作语言DML）；</li>
   <li>Dbo使用了预备语句；</li>
   <li>每个会话都会追踪脏对象并提供第一层缓存；</li>
   <li>提供灵活的、针对单个字段、对象以及他们组合（使用Boost.Tuple）的查询；</li>
   <li>使用单个连接或多个会话间共享连接池，这些连接只有当交互处于活动状态时
-	才被使用；</li>
+        才被使用；</li>
   <li>Dbo默认支持Sqlite3和PostgreSQL后端，同时<a
-	href="http://wtdbomysql.sourceforge.net/">MySQL后端(GPL协议)</a>
+        href="http://wtdbomysql.sourceforge.net/">MySQL后端(GPL协议)</a>
     正由社区爱好者开发和维护（作者Paul Harisson）。</li>
 </ul>
 
@@ -340,7 +340,7 @@ Wt库将不同的部署选项抽象为连接器库，连接器库将Wt连接到�
 
 <ul>
   <li>该模式下Wt是简单、且适合于基于C++ asio库的高性能Web应用服务器
-	（支持多线程、异步输入输出）；</li>
+        （支持多线程、异步输入输出）；</li>
   <li>既支持HTTP，也支持OpenSSL下的HTTPS；</li>
   <li>支持应答分割与压缩；</li>
   <li>支持单一进程（方便部署和调试），也方便嵌入已有应用；</li>
@@ -354,7 +354,7 @@ Wt库将不同的部署选项抽象为连接器库，连接器库将Wt连接到�
   <li>该模式能与多数通用web服务器(如apache, lighttpd)整合在一起；</li>
   <li>提供不同的会话-进程映射策略；</li>
   <li>支持热部署，即新会话使用新的应用版本，同时部署时未终止的旧会话仍可以
-	按旧的应用版本继续运行；</li>
+        按旧的应用版本继续运行；</li>
   <li>该模式仅用于UNIX平台。</li>
 </ul>
 
@@ -397,7 +397,7 @@ Wt库将不同的部署选项抽象为连接器库，连接器库将Wt连接到�
 <p>这个简单的例子展示了Wt的基本概念：</p>
 <ul>
   <li>
-	如何创建一个最小的Wt应用，如何使用<b>WRun()</b>启动web服务器，以及
+        如何创建一个最小的Wt应用，如何使用<b>WRun()</b>启动web服务器，以及
     如何创建一个新的<a
     href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WApplication.html"
     target="_blank">WApplication</a>实例（新会话）；
@@ -413,7 +413,7 @@ Wt库将不同的部署选项抽象为连接器库，连接器库将Wt连接到�
   </li>
 </ul>
 
-<p>对hello world示例的完整阐述请参见由Victor Venkman撰写的<a 
+<p>对hello world示例的完整阐述请参见由Victor Venkman撰写的<a
 href="http://www.codeguru.com/cpp/i-n/internet/browsercontrol/article.php/c15275/"
 target="_blank">Wt介绍</a>（可能有点过时）。
 </p>
@@ -497,7 +497,7 @@ target="_blank">Wt介绍</a>（可能有点过时）。
     来实现别一个模型数据的排序和过滤；
   </li>
   <li>
-	该示例还展示如何实现选中条目的拖放效果；
+        该示例还展示如何实现选中条目的拖放效果；
   </li>
   <li>
     使用了可嵌套的布局管理器（水平方向和垂直方向的
@@ -605,29 +605,29 @@ target="_blank">WComboBox</a>与MVC数据模型关联，在以上背景下，Wt�
 
   <ul>
     <li>
-	  其中<i>ContactSuggestions</i>类提供了“收件人”、“抄送”、“密送”地址的
-	  自动补全功能，该类继承自
+          其中<i>ContactSuggestions</i>类提供了“收件人”、“抄送”、“密送”地址的
+          自动补全功能，该类继承自
       <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSuggestionPopup.html"
-	  target="_blank">WSuggestionPopup</a>类，此类使用了诸多
+          target="_blank">WSuggestionPopup</a>类，此类使用了诸多
       <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1JSlot.html"
-	  target="_blank">JSlot</a>对象。对这些槽，客户端JavaScript事件处理代码
-	  由开发者自定义的JavaScript决定（这不同于无状态槽中客户端JavaScript
-	  代码由第一次调用时“学习”得到的方式）。Wt采用这种方式，弹出的可能适合
-	  的联系人列表的排序完全由客户端决定。注意：建议框中的联系人是在背景中
-	  自动传递的，原因很简单，因为他们是不可见的。
+          target="_blank">JSlot</a>对象。对这些槽，客户端JavaScript事件处理代码
+          由开发者自定义的JavaScript决定（这不同于无状态槽中客户端JavaScript
+          代码由第一次调用时“学习”得到的方式）。Wt采用这种方式，弹出的可能适合
+          的联系人列表的排序完全由客户端决定。注意：建议框中的联系人是在背景中
+          自动传递的，原因很简单，因为他们是不可见的。
     </li>
     <li>
       其中的<i>AttachmentEdit</i>展示了
       <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WFileUpload.html"
-	  target="_blank">WFileUpload</a>的使用，该类允许
+          target="_blank">WFileUpload</a>的使用，该类允许
       <b>文件的异步传输</b>，也就是说我们可以实现编辑邮件内容的同时上传附件。
     </li>
     <li>
-	  其中的<i>Option</i>和<i>OptionList</i>类展示了无状态槽是如何在行为不完全
-	  是无状态的情况下使用的。在这种情况下，一个Option的隐藏影响了临近可见Option：
-	  即只有当存在某个临近选项时，一个选项才需要分隔线。当状态变化后，通过
-	  <b>使无状态槽的实现失效</b>，我们仍能够使用无状态槽的实现，并体验到
-	  客户端事件处理的高效！
+          其中的<i>Option</i>和<i>OptionList</i>类展示了无状态槽是如何在行为不完全
+          是无状态的情况下使用的。在这种情况下，一个Option的隐藏影响了临近可见Option：
+          即只有当存在某个临近选项时，一个选项才需要分隔线。当状态变化后，通过
+          <b>使无状态槽的实现失效</b>，我们仍能够使用无状态槽的实现，并体验到
+          客户端事件处理的高效！
     </li>
   </ul>
 </div>
@@ -669,11 +669,11 @@ target="_blank">WComboBox</a>与MVC数据模型关联，在以上背景下，Wt�
 
 <p>
   <a href="//www.webtoolkit.eu/widgets" class="run" target="_blank">
-    <img src="icons/green-play.png" style="vertical-align: top"/>前往widget展示库 
+    <img src="icons/green-play.png" style="vertical-align: top"/>前往widget展示库
   </a>
 </p>
 
-<p> 
+<p>
  该示例展示了Wt中大部分widget，另外还展示了相应的事件处理、布局类等。
  这可以作为Wt库中可执行的widget及其相关特性的参考，是有一定帮助作用的。
 </p>
@@ -750,7 +750,7 @@ Wt安装器需要<tt>CMake</tt>和<tt>GNU make</tt>，同时可能会通过<tt>w
     必不可少的<a href="http://www.boost.org/">
     boost C++ 库</a>： boost-1.36 或更高版本。 <br />
 
-	下面的boost库需要安装（不只是头文件）：
+        下面的boost库需要安装（不只是头文件）：
       <tt>boost_date_time</tt>、<tt>boost_regex</tt>、
       <tt>boost_program_options</tt>、<tt>boost_signals</tt>、
       <tt>boost_system</tt>和可选的（但强力推荐）
@@ -763,13 +763,13 @@ Wt安装器需要<tt>CMake</tt>和<tt>GNU make</tt>，同时可能会通过<tt>w
   <li><a href="http://www.postgresql.org/">PostgreSQL</a>：如果安装上，那么
     <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1Dbo_1_1backend_1_1Postgres.html">postgres
     连接器</a>将会为实现ORM库（<a href="//www.webtoolkit.eu/wt/doc/tutorial/dbo/tutorial.html">Wt::Dbo</a>）
-	而被编译；</li>
+        而被编译；</li>
   <li><a href="https://github.com/libharu/libharu/wiki">libharu</a>：如果安装上，那么
-	<a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPdfImage.html">WPdfImage</a>绘图设备
-	将被编译，这样就能够将图片整合进PDF文件或作为PDF文件处理；</li>
+        <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WPdfImage.html">WPdfImage</a>绘图设备
+        将被编译，这样就能够将图片整合进PDF文件或作为PDF文件处理；</li>
   <li><a href="http://www.graphicsmagick.org/">GraphicsMagick</a>：如果安装上，那么
     <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WRasterImage.html">WRasterImage</a>
-	绘图设备将被编译，这样就能够在光栅扫描图像（PNG或GIF）上绘图了；</li>
+        绘图设备将被编译，这样就能够在光栅扫描图像（PNG或GIF）上绘图了；</li>
 </ul>
 
 <p>其他必需部分依赖于你所选择的连接器支持，连接器是能够实现你的Wt应用与浏览器通讯的工具：</p>
@@ -784,12 +784,12 @@ Wt安装器需要<tt>CMake</tt>和<tt>GNU make</tt>，同时可能会通过<tt>w
   </li>
 
    <li>
-	 使用apache时：
+         使用apache时：
      Apache <a href="http://www.fastcgi.com/dist/mod_fastcgi-2.4.6.tar.gz">mod_fastcgi</a>：
      mod_fastcgi-2.4.x.<br />或者也可以使用
      <a href="http://httpd.apache.org/download.cgi#mod_fcgid">mod_fcgid</a>：
      mod_fcgid-2.3.5。
-  </li> 
+  </li>
 </ul>
 
 <h5>对于内置 httpd（wthttpd）：</h5>
@@ -969,7 +969,7 @@ href="http://www.nsa.be/index.php/eng/Blog/Using-Jwt-yes-it-s-a-J-with-Clojure">
 
   </message>
   <message id="home.documentation">
- 
+
 <h3><span>文档</span></h3>
 
 <h4>编译和安装</h4>
@@ -1037,7 +1037,7 @@ target="_blank">在此查看</a>（新窗口中打开）。</p>
       <h2>Wt示例源代码</h2>
 
       <p>
-	  浏览<a href="//www.webtoolkit.eu/wt">Wt</a>中所有示例的源代码。
+          浏览<a href="//www.webtoolkit.eu/wt">Wt</a>中所有示例的源代码。
       </p>
     </div>
   </message>
@@ -1049,9 +1049,9 @@ target="_blank">在此查看</a>（新窗口中打开）。</p>
       <h2><i>Hello world</i>示例源代码</h2>
 
       <p>
-	浏览以下 
-	<a href="#/cn/examples/hello_world">
-	  Hello world</a>示例源代码。
+        浏览以下
+        <a href="#/cn/examples/hello_world">
+          Hello world</a>示例源代码。
       </p>
     </div>
   </message>
@@ -1063,9 +1063,9 @@ target="_blank">在此查看</a>（新窗口中打开）。</p>
       <h2><i>图表</i>示例源代码</h2>
 
       <p>
-	浏览以下
-	<a href="#/cn/examples/charts">
-	  图表</a>示例源代码。
+        浏览以下
+        <a href="#/cn/examples/charts">
+          图表</a>示例源代码。
       </p>
     </div>
   </message>
@@ -1077,9 +1077,9 @@ target="_blank">在此查看</a>（新窗口中打开）。</p>
       <h2><i>树视图</i>示例源代码</h2>
 
       <p>
-	浏览以下
-	<a href="#/cn/examples/treeview">
-	  树视图</a>示例源代码。
+        浏览以下
+        <a href="#/cn/examples/treeview">
+          树视图</a>示例源代码。
       </p>
     </div>
   </message>
@@ -1091,23 +1091,23 @@ target="_blank">在此查看</a>（新窗口中打开）。</p>
       <h2><i>邮件编辑器</i>示例源代码</h2>
 
       <p>
-	浏览以下
-	<a href="#/cn/examples/composer">
-	  邮件编辑器</a>示例源代码。
+        浏览以下
+        <a href="#/cn/examples/composer">
+          邮件编辑器</a>示例源代码。
       </p>
     </div>
   </message>
 
   <message id="srcview.title.composer">示例：邮件编辑器</message>
-  
+
   <message id="srcview.title.CPP.wt-homepage">
     <div class="srcviewtitle">
       <h2><i>Wt网站</i>示例源代码</h2>
 
       <p>
-	浏览以下
-	<a href="#/cn/examples/wt-homepage">
-	  Wt网站</a>示例源代码。
+        浏览以下
+        <a href="#/cn/examples/wt-homepage">
+          Wt网站</a>示例源代码。
       </p>
     </div>
   </message>
@@ -1119,9 +1119,9 @@ target="_blank">在此查看</a>（新窗口中打开）。</p>
       <h2><i>Git查看器</i>示例源代码</h2>
 
       <p>
-	浏览以下
-	<a href="#/cn/examples/gitmodel">
-	  Git查看器</a>示例源代码。
+        浏览以下
+        <a href="#/cn/examples/gitmodel">
+          Git查看器</a>示例源代码。
       </p>
     </div>
   </message>
@@ -1133,9 +1133,9 @@ target="_blank">在此查看</a>（新窗口中打开）。</p>
       <h2><i>简单聊天</i>示例源代码</h2>
 
       <p>
-	浏览以下
-	<a href="#/cn/examples/simplechat">
-	  简单聊天</a>示例源代码。
+        浏览以下
+        <a href="#/cn/examples/simplechat">
+          简单聊天</a>示例源代码。
       </p>
     </div>
   </message>
@@ -1147,9 +1147,9 @@ target="_blank">在此查看</a>（新窗口中打开）。</p>
       <h2><i>Widget展示库</i>示例源代码</h2>
 
       <p>
-	浏览以下
-	<a href="#/cn/examples/widgetgallery">
-	  Widget展示库</a>示例源代码。
+        浏览以下
+        <a href="#/cn/examples/widgetgallery">
+          Widget展示库</a>示例源代码。
       </p>
     </div>
   </message>

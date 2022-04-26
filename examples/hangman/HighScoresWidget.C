@@ -25,11 +25,11 @@ HighScoresWidget::HighScoresWidget(Session *session):
 void HighScoresWidget::update()
 {
   clear();
-  
+
   this->addWidget(std::make_unique<WText>("<h2>Hall of fame</h2>"));
-  
+
   int ranking = session_->findRanking();
-  
+
   std::string yourScore;
   if (ranking == 1)
     yourScore = "Congratulations! You are currently leading the pack.";
@@ -41,7 +41,7 @@ void HighScoresWidget::update()
 
   WText *score = this->addWidget(std::make_unique<WText>("<p>" + yourScore + "</p>"));
   score->addStyleClass("score");
-  
+
   std::vector<User> top = session_->topUsers(20);
 
   WTable *table = this->addWidget(std::make_unique<WTable>());
@@ -61,7 +61,7 @@ void HighScoresWidget::update()
       formerScore = user.score;
       ++rank;
     }
-    
+
     int row = table->rowCount();
     table->elementAt(row, 0)->addWidget(std::make_unique<WText>(asString(rank)));
     table->elementAt(row, 1)->addWidget(std::make_unique<WText>(user.name));
@@ -72,7 +72,7 @@ void HighScoresWidget::update()
                 + " ago"));
     else
       table->elementAt(row, 4)->addWidget(std::make_unique<WText>("---"));
-    
+
     if (session_->login().loggedIn() && session_->userName() == user.name)
       table->rowAt(row)->setId("self");
   }

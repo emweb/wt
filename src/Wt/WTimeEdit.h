@@ -64,7 +64,7 @@ public:
     WT_USTRING format() const;
 
     virtual void setHidden(bool hidden,
-			   const WAnimation& animation = WAnimation()) override;
+                           const WAnimation& animation = WAnimation()) override;
 
     /*! \brief Sets the lower limit of the valid time range
      */
@@ -138,7 +138,7 @@ private:
     void setFromLineEdit();
     void defineJavaScript();
     void connectJavaScript(Wt::EventSignalBase& s,
-			   const std::string& methodName);
+                           const std::string& methodName);
 };
 
 }

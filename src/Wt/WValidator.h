@@ -19,9 +19,9 @@ class WFormWidget;
 /*! \brief The state in which validated input can exist.
  */
 enum class ValidationState {
-  Invalid,	//!< The input is invalid.
+  Invalid,      //!< The input is invalid.
   InvalidEmpty, //!< The input is invalid (empty and mandatory).
-  Valid	        //!< The input is valid.
+  Valid         //!< The input is valid.
 };
 
 /*! \class WValidator Wt/WValidator.h Wt/WValidator.h

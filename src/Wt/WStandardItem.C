@@ -20,17 +20,17 @@ namespace {
   {
     WStandardItemCompare(WStandardItem *anItem, int aColumn, SortOrder anOrder)
       : item(anItem),
-	column(aColumn),
-	order(anOrder)
+        column(aColumn),
+        order(anOrder)
     { }
 
 #ifndef WT_TARGET_JAVA
     bool operator()(int r1, int r2) const {
 
       if (order == SortOrder::Ascending)
-	return compare(r1, r2);
+        return compare(r1, r2);
       else
-	return compare(r2, r1);
+        return compare(r2, r1);
     }
 
     bool compare(int r1, int r2) const {
@@ -38,15 +38,15 @@ namespace {
       WStandardItem *item2 = item->child(r2, column);
 
       if (item1)
-	if (item2)
-	  return (*item1) < (*item2);
-	else
-	  return UNSPECIFIED_RESULT == -1;
+        if (item2)
+          return (*item1) < (*item2);
+        else
+          return UNSPECIFIED_RESULT == -1;
       else
-	if (item2)
-	  return UNSPECIFIED_RESULT != -1;
-	else
-	  return false;
+        if (item2)
+          return UNSPECIFIED_RESULT != -1;
+        else
+          return false;
     }
 #else
     int compare(int r1, int r2) const {
@@ -56,18 +56,18 @@ namespace {
       int result;
 
       if (item1)
-	if (item2)
+        if (item2)
           result = item1->compare(*item2);
-	else
-	  result = 1;
+        else
+          result = 1;
       else
-	if (item2)
-	  result = -1;
-	else
-	  result = 0;
+        if (item2)
+          result = -1;
+        else
+          result = 0;
 
       if (order == SortOrder::Descending)
-	result = -result;
+        result = -result;
 
       return result;
     }
@@ -295,7 +295,7 @@ void WStandardItem::setChecked(bool checked)
 void WStandardItem::setCheckState(CheckState state)
 {
   cpp17::any d = data(ItemDataRole::Checked);
-  if (!cpp17::any_has_value(d) || checkState() != state || 
+  if (!cpp17::any_has_value(d) || checkState() != state ||
       !cpp17::any_has_value(data(ItemDataRole::Checked))) {
     if (isTristate())
       setData(cpp17::any(state), ItemDataRole::Checked);
@@ -393,7 +393,7 @@ void WStandardItem
 
 void WStandardItem
 ::insertColumn(int column,
-	       std::vector<std::unique_ptr<WStandardItem> > items)
+               std::vector<std::unique_ptr<WStandardItem> > items)
 {
   unsigned rc = rowCount();
 
@@ -402,7 +402,7 @@ void WStandardItem
 
     for (unsigned i = 0; i < items.size(); ++i)
       if (items[i])
-	adoptChild(i, column, items[i].get());
+        adoptChild(i, column, items[i].get());
 
     (*columns_)[0] = std::move(items);
   } else {
@@ -416,7 +416,7 @@ void WStandardItem
 
     for (unsigned i = 0; i < items.size(); ++i)
       if (items[i])
-	adoptChild(i, column, items[i].get());
+        adoptChild(i, column, items[i].get());
 
     columns_->insert(columns_->begin() + column, std::move(items));
 
@@ -438,7 +438,7 @@ void WStandardItem::appendRow(std::vector<std::unique_ptr<WStandardItem> > items
 }
 
 void WStandardItem::insertRow(int row,
-			      std::vector<std::unique_ptr<WStandardItem> > items)
+                              std::vector<std::unique_ptr<WStandardItem> > items)
 {
   if (!columns_)
     setColumnCount(1);
@@ -474,7 +474,7 @@ void WStandardItem::insertColumns(int column, int count)
 {
   if (count > 0) {
     if (model_)
-      model_->beginInsertColumns(index(), column, column + count - 1);    
+      model_->beginInsertColumns(index(), column, column + count - 1);
 
     int rc = rowCount();
 
@@ -508,7 +508,7 @@ void WStandardItem::insertRows(int row, int count)
     for (unsigned i = 0; i < cc; ++i) {
       Column& c = (*columns_)[i];
       for (int j = 0; j < count; ++j)
-	c.insert(c.begin() + row + j, std::unique_ptr<WStandardItem>());
+        c.insert(c.begin() + row + j, std::unique_ptr<WStandardItem>());
     }
 
     renumberRows(row + count);
@@ -531,7 +531,7 @@ void WStandardItem::insertRow(int row, std::unique_ptr<WStandardItem> item)
 }
 
 void WStandardItem::appendRows(std::vector<std::unique_ptr<WStandardItem> >
-			       items)
+                               items)
 {
   insertRows(rowCount(), std::move(items));
 }
@@ -547,7 +547,7 @@ void WStandardItem
 }
 
 void WStandardItem::setChild(int row, int column,
-			     std::unique_ptr<WStandardItem> item)
+                             std::unique_ptr<WStandardItem> item)
 {
   if (column >= columnCount())
     setColumnCount(column + 1);
@@ -598,7 +598,7 @@ void WStandardItem::setModel(WStandardItemModel *model)
       auto& c = (*columns_)[i][j];
 
       if (c)
-	c->setModel(model);
+        c->setModel(model);
     }
 }
 
@@ -622,13 +622,13 @@ std::unique_ptr<WStandardItem> WStandardItem::takeChild(int row, int column)
   std::unique_ptr<WStandardItem> result;
   if (item) {
     WModelIndex idx = item->index();
-    
+
     if (item->hasChildren())
       model_->beginRemoveRows(item->index(), 0, item->rowCount() - 1);
-    
+
     orphanChild(item);
     result = std::move((*columns_)[column][row]);
-    
+
     if (item->hasChildren())
       model_->endRemoveRows();
 
@@ -701,7 +701,7 @@ void WStandardItem::removeColumns(int column, int count)
     model_->beginRemoveColumns(index(), column, column + count - 1);
 
   columns_->erase(columns_->begin() + column,
-		  columns_->begin() + column + count);
+                  columns_->begin() + column + count);
 
   if (columns_->empty())
     columns_.reset();
@@ -740,7 +740,7 @@ void WStandardItem::renumberColumns(int column)
     for (int r = 0; r < rowCount(); ++r) {
       WStandardItem *item = child(r, c);
       if (item)
-	item->column_ = c;
+        item->column_ = c;
     }
 }
 
@@ -750,7 +750,7 @@ void WStandardItem::renumberRows(int row)
     for (int r = row; r < rowCount(); ++r) {
       WStandardItem *item = child(r, c);
       if (item)
-	item->row_ = r;
+        item->row_ = r;
     }
 }
 
@@ -822,13 +822,13 @@ void WStandardItem::recursiveSortChildren(int column, SortOrder order)
 #ifndef WT_TARGET_JAVA
         temp[r] = std::move(cc[permutation[r]]);
 #else
-	temp.push_back(cc[permutation[r]]);
+        temp.push_back(cc[permutation[r]]);
 #endif // WT_TARGET_JAVA
-	if (temp[r])
-	  temp[r]->row_ = r;
+        if (temp[r])
+          temp[r]->row_ = r;
       }
       for (int r = 0; r < rowCount(); ++r) {
-	cc[r] = std::move(temp[r]);
+        cc[r] = std::move(temp[r]);
       }
     }
   }
@@ -837,7 +837,7 @@ void WStandardItem::recursiveSortChildren(int column, SortOrder order)
     for (int r = 0; r < rowCount(); ++r) {
       WStandardItem *ch = child(r, c);
       if (ch)
-	ch->recursiveSortChildren(column, order);
+        ch->recursiveSortChildren(column, order);
     }
 }
 

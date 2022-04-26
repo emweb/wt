@@ -14,16 +14,16 @@
 
 namespace Wt {
 
-StandardButton WMessageBox::order_[] = { 
+StandardButton WMessageBox::order_[] = {
   StandardButton::Ok,
-  StandardButton::Yes, 
-  StandardButton::YesAll, 
-  StandardButton::Retry, 
+  StandardButton::Yes,
+  StandardButton::YesAll,
+  StandardButton::Retry,
   StandardButton::No,
-  StandardButton::NoAll, 
-  StandardButton::Abort, 
-  StandardButton::Ignore, 
-  StandardButton::Cancel 
+  StandardButton::NoAll,
+  StandardButton::Abort,
+  StandardButton::Ignore,
+  StandardButton::Cancel
 };
 
 const char *WMessageBox::buttonText_[]
@@ -42,7 +42,7 @@ WMessageBox::WMessageBox()
 }
 
 WMessageBox::WMessageBox(const WString& caption, const WString& text,
-			 Icon icon, WFlags<StandardButton> buttons)
+                         Icon icon, WFlags<StandardButton> buttons)
   : WDialog(caption),
     icon_(Icon::None),
     defaultButton_(nullptr),
@@ -83,12 +83,12 @@ WPushButton *WMessageBox::addButton(const WString& text, StandardButton result)
 }
 
 void WMessageBox::addButton(std::unique_ptr<WPushButton> button,
-			    const StandardButton result)
+                            const StandardButton result)
 {
   buttons_.push_back(Button());
   buttons_.back().button = button.get();
   buttons_.back().result = result;
-  
+
   button->clicked().connect
     (this, std::bind(&WMessageBox::onButtonClick, this, result));
 
@@ -214,28 +214,28 @@ void WMessageBox::onFinished()
   if (result() == DialogCode::Rejected) {
     if (escapeButton_) {
       for (unsigned i = 0; i < buttons_.size(); ++i) {
-	if (buttons_[i].button == escapeButton_) {
-	  onButtonClick(buttons_[i].result);
-	  return;
-	}
+        if (buttons_[i].button == escapeButton_) {
+          onButtonClick(buttons_[i].result);
+          return;
+        }
       }
     } else {
       if (buttons_.size() == 1) {
-	onButtonClick(buttons_[0].result);
-	return;
+        onButtonClick(buttons_[0].result);
+        return;
       } else {
-	WPushButton *b = button(StandardButton::Cancel);
-	if (b) {
-	  onButtonClick(StandardButton::Cancel);
-	  return;
-	}
-	b = button(StandardButton::No);
-	if (b) {
-	  onButtonClick(StandardButton::No);
-	  return;
-	}
+        WPushButton *b = button(StandardButton::Cancel);
+        if (b) {
+          onButtonClick(StandardButton::Cancel);
+          return;
+        }
+        b = button(StandardButton::No);
+        if (b) {
+          onButtonClick(StandardButton::No);
+          return;
+        }
 
-	onButtonClick(StandardButton::None);
+        onButtonClick(StandardButton::None);
       }
     }
   }
@@ -246,11 +246,11 @@ void WMessageBox::setHidden(bool hidden, const WAnimation& animation)
   if (!hidden) {
     if (!defaultButton_) {
       for (unsigned i = 0; i < buttons_.size(); ++i) {
-	if (buttons_[i].result == StandardButton::Ok || 
-	    buttons_[i].result == StandardButton::Yes) {
-	  buttons_[i].button->setDefault(true);	
-	  break;
-	}
+        if (buttons_[i].result == StandardButton::Ok ||
+            buttons_[i].result == StandardButton::Yes) {
+          buttons_[i].button->setDefault(true);
+          break;
+        }
       }
     }
   }
@@ -259,9 +259,9 @@ void WMessageBox::setHidden(bool hidden, const WAnimation& animation)
 }
 
 StandardButton WMessageBox::show(const WString& caption,
-				 const WString& text,
-				 WFlags<StandardButton> buttons,
-				 const WAnimation& animation)
+                                 const WString& text,
+                                 WFlags<StandardButton> buttons,
+                                 const WAnimation& animation)
 {
   WMessageBox box(caption, text, Icon::Information, buttons);
   box.buttonClicked().connect(&box, &WMessageBox::accept);

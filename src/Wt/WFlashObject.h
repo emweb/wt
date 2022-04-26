@@ -114,7 +114,7 @@ public:
 protected:
   virtual void updateDom(DomElement& element, bool all) override;
   virtual void getDomChanges(std::vector<DomElement *>& result,
-			     WApplication *app) override;
+                             WApplication *app) override;
   virtual DomElementType domElementType() const override;
 
 private:

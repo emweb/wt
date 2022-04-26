@@ -33,7 +33,7 @@ WLabel::WLabel(std::unique_ptr<WImage> image)
   : buddyChanged_(false),
     newImage_(false),
     newText_(false)
-{ 
+{
   manageWidget(image_, std::move(image));
 }
 
@@ -153,7 +153,7 @@ void WLabel::updateDom(DomElement& element, bool all)
 }
 
 void WLabel::updateImage(DomElement& element, bool all, WApplication *app,
-			 int pos)
+                         int pos)
 {
   if (newImage_ || all) {
     if (image_)
@@ -163,7 +163,7 @@ void WLabel::updateImage(DomElement& element, bool all, WApplication *app,
 }
 
 void WLabel::updateText(DomElement& element, bool all, WApplication *app,
-			int pos)
+                        int pos)
 {
   if (newText_ || all) {
     if (text_)
@@ -192,7 +192,7 @@ void WLabel::propagateRenderOk(bool deep)
 DomElementType WLabel::domElementType() const
 {
   // The label in <a><label /></a> eats an onclick event in IE
-  // We should explicitly continue to propagate the onclick event ? 
+  // We should explicitly continue to propagate the onclick event ?
   // For now we avoid to create a LABEL element if no buddy is set
   // (This is used e.g. in WTreeView)
   if (buddy_)
@@ -202,7 +202,7 @@ DomElementType WLabel::domElementType() const
 }
 
 void WLabel::getDomChanges(std::vector<DomElement *>& result,
-			   WApplication *app)
+                           WApplication *app)
 {
   WInteractWidget::getDomChanges(result, app);
 

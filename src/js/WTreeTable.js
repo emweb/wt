@@ -20,10 +20,10 @@ WT_DECLARE_WT_MEMBER
      var hdefined = h >= 0;
 
      if (setSize) {
-     	if (hdefined)
-	  el.style.height = h + 'px';
-	else
-	  el.style.height = '';
+             if (hdefined)
+          el.style.height = h + 'px';
+        else
+          el.style.height = '';
      }
 
      var c = el.lastChild;
@@ -32,7 +32,7 @@ WT_DECLARE_WT_MEMBER
 
      if (hdefined && h > 0) {
        if (c.style.height != h + 'px')
-	 c.style.height = h + 'px';
+         c.style.height = h + 'px';
      } else
        c.style.height = '';
    };
@@ -47,7 +47,7 @@ WT_DECLARE_WT_MEMBER
 
        var h = WT.pxself(table, 'height');
        if (h)
-	 self.wtResize(table, 0, h, false);
+         self.wtResize(table, 0, h, false);
      }
    };
  });

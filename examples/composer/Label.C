@@ -10,7 +10,7 @@
 
 Label::Label(const WString& text, WContainerWidget *parent)
   : WText(text)
-{ 
+{
   setStyleClass(L"label");
   parent->setContentAlignment(AlignmentFlag::Right);
 }

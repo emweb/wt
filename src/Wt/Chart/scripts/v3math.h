@@ -7,9 +7,9 @@ struct v3 {
 
 // Turns 90 degrees around x
 v3 xTurnAndTranslate(v3 point,
-		     double xOffset,
-		     double yOffset,
-		     double zOffset)
+                     double xOffset,
+                     double yOffset,
+                     double zOffset)
 {
   v3 result;
   result.x =   point.x + xOffset;
@@ -20,9 +20,9 @@ v3 xTurnAndTranslate(v3 point,
 
 // Turns -90 degrees around x
 v3 xCounterTurnAndTranslate(v3 point,
-			    double xOffset,
-			    double yOffset,
-			    double zOffset)
+                            double xOffset,
+                            double yOffset,
+                            double zOffset)
 {
   v3 result;
   result.x =   point.x + xOffset;
@@ -33,9 +33,9 @@ v3 xCounterTurnAndTranslate(v3 point,
 
 // Turns 90 degrees around Y
 v3 yTurnAndTranslate(v3 point,
-		     double xOffset,
-		     double yOffset,
-		     double zOffset)
+                     double xOffset,
+                     double yOffset,
+                     double zOffset)
 {
   v3 result;
   result.x =   point.z + xOffset;
@@ -46,9 +46,9 @@ v3 yTurnAndTranslate(v3 point,
 
 // Turns -90 degrees around Y
 v3 yCounterTurnAndTranslate(v3 point,
-		     double xOffset,
-		     double yOffset,
-		     double zOffset)
+                     double xOffset,
+                     double yOffset,
+                     double zOffset)
 {
   v3 result;
   result.x = - point.z + xOffset;
@@ -60,9 +60,9 @@ v3 yCounterTurnAndTranslate(v3 point,
 
 // Turns 90 degrees around Z
 v3 zTurnAndTranslate(v3 point,
-		     double xOffset,
-		     double yOffset,
-		     double zOffset)
+                     double xOffset,
+                     double yOffset,
+                     double zOffset)
 {
   v3 result;
   result.x = - point.y + xOffset;

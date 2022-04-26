@@ -594,10 +594,10 @@ appRoot=C:\Program Files\MyApplications\AppRoot
       cookies when available, otherwise using URL rewriting),
       strictly using URL rewriting (which allows multiple concurrent
       sessions from one user), or a combined tracking strategy that uses
-	  URL rewriting in combination with a shared cookie between
-	  sessions in the same browser for extra session hijacking protection.
-	  The combined strategy does not fall back to only URL rewriting when
-	  cookies are not available: it will simply refuse access.</dd>
+      URL rewriting in combination with a shared cookie between
+      sessions in the same browser for extra session hijacking protection.
+      The combined strategy does not fall back to only URL rewriting when
+      cookies are not available: it will simply refuse access.</dd>
 
     <dt><strong>reload-is-new-session</strong></dt>
 
@@ -801,10 +801,10 @@ appRoot=C:\Program Files\MyApplications\AppRoot
     <dd>%Wt considers three types of sessions:
       <ul>
         <li>Ajax sessions: use Ajax and JavaScript</li>
-	<li>plain HTML sessions: use plain old server POSTs</li>
-	<li>bots: have clean internal paths, no persistent sessions, no
-	  html &lt;form&gt; elements, and no auto-generated DOM element
-	  id's.</li>
+        <li>plain HTML sessions: use plain old server POSTs</li>
+        <li>bots: have clean internal paths, no persistent sessions, no
+          html &lt;form&gt; elements, and no auto-generated DOM element
+          id's.</li>
       </ul>
 
       <p>By default, %Wt does a browser detection to distinguish
@@ -882,16 +882,16 @@ configuration file that is located at /etc/wt/wthttpd.
 
 The configuration file syntax is line based:
 <ul>
-      	<li>
-		<p>A line in the form:</p>
-		<p><code>name = value</code></p>
-		<p>gives a value to an option.</p>
-	</li>
+  <li>
+    <p>A line in the form:</p>
+    <p><code>name = value</code></p>
+    <p>gives a value to an option.</p>
+  </li>
 
-	<li>
-		<p>The <code>#</code> character introduces a
-        	comment that spans until the end of the line.</p>
-	</li>
+  <li>
+    <p>The <code>#</code> character introduces a
+       comment that spans until the end of the line.</p>
+  </li>
 </ul>
 
 \code

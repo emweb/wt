@@ -41,7 +41,7 @@ using std::memset;
 namespace Wt {
 
   LOGGER("wtfcgi");
- 
+
 /*
  * From the FCGI Specifaction
  */
@@ -189,9 +189,9 @@ const std::string Server::socketPath(const std::string& sessionId)
       f >> pid;
 
       if (!pid.empty())
-	return conf.runDirectory() + "/server-" + pid;
+        return conf.runDirectory() + "/server-" + pid;
       else
-	return std::string();
+        return std::string();
     } else
       return std::string();
 
@@ -225,7 +225,7 @@ void Server::handleSignal(const char *signal)
 
   /* We need to kill all children */
   for (unsigned i = 0; i < sessionProcessPids_.size(); ++i)
-    kill(sessionProcessPids_[i], SIGTERM); 
+    kill(sessionProcessPids_[i], SIGTERM);
 
   exit(0);
 }
@@ -250,51 +250,51 @@ void Server::doHandleSigChld()
       std::unique_lock<std::recursive_mutex> sessionsLock(mutex_);
 #endif
       for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();
-	   ++i) {
-	if (i->second->childPId() == cpid) {
-	  LOG_INFO_S(&wt_, "deleting session: " << i->second->sessionId());
+           ++i) {
+        if (i->second->childPId() == cpid) {
+          LOG_INFO_S(&wt_, "deleting session: " << i->second->sessionId());
 
-	  unlink(socketPath(i->second->sessionId()).c_str());
-	  delete i->second;
-	  sessions_.erase(i);
+          unlink(socketPath(i->second->sessionId()).c_str());
+          delete i->second;
+          sessions_.erase(i);
 
-	  break;
-	}
+          break;
+        }
       }
     } else {
 #ifdef WT_THREADED
       std::unique_lock<std::recursive_mutex> sessionsLock(mutex_);
 #endif
       for (unsigned i = 0; i < sessionProcessPids_.size(); ++i) {
-	if (sessionProcessPids_[i] == cpid) {
-	  sessionProcessPids_.erase(sessionProcessPids_.begin() + i);
+        if (sessionProcessPids_[i] == cpid) {
+          sessionProcessPids_.erase(sessionProcessPids_.begin() + i);
 
-	  /*
-	   * TODO: cleanup all sessions that pointed to this pid
-	   */
+          /*
+           * TODO: cleanup all sessions that pointed to this pid
+           */
 
-	  ++childrenDied_;
+          ++childrenDied_;
 
-	  if (childrenDied_ < 5) {
-	    spawnSharedProcess();
-	  } else
-	    LOG_ERROR_S(&wt_, "sessions process restart limit (5) reached");
+          if (childrenDied_ < 5) {
+            spawnSharedProcess();
+          } else
+            LOG_ERROR_S(&wt_, "sessions process restart limit (5) reached");
 
-	  break;
-	}
+          break;
+        }
       }
     }
   }
 }
 
 bool Server::getSessionFromQueryString(const std::string& queryString,
-				       std::string& sessionId)
+                                       std::string& sessionId)
 {
   Configuration& conf = wt_.configuration();
 
   static const std::regex
     session_e(".*wtd=([a-zA-Z0-9]{" + std::to_string(conf.fullSessionIdLength())
-	      + "}).*");
+              + "}).*");
 
   std::smatch what;
   if (std::regex_match(queryString, what, session_e)) {
@@ -306,7 +306,7 @@ bool Server::getSessionFromQueryString(const std::string& queryString,
 }
 
 int Server::connectToSession(const std::string& sessionId,
-			     const std::string& socketPath, int maxTries)
+                             const std::string& socketPath, int maxTries)
 {
   int s = socket(AF_UNIX, SOCK_STREAM, 0);
   if (s == -1) {
@@ -331,7 +331,7 @@ int Server::connectToSession(const std::string& sessionId,
   if (tries == maxTries) {
     LOG_ERROR_S(&wt_, "connect(): " << (const char *)strerror(errno));
     LOG_INFO_S(&wt_, "giving up on session: " << sessionId
-	     << " (" << socketPath << ")");
+             << " (" << socketPath << ")");
     close(s);
     unlink(socketPath.c_str());
 
@@ -353,7 +353,7 @@ void Server::checkConfig()
   if (test == NULL) {
     if (mkdir(conf.runDirectory().c_str(), 777) != 0) {
       LOG_ERROR_S(&wt_, "fatal: cannot create run directory '"
-		<< conf.runDirectory() << "'");
+                << conf.runDirectory() << "'");
       exit(1);
     }
   } else {
@@ -375,18 +375,18 @@ int Server::run()
   struct sockaddr_un clientname;
   socklen_t socklen = sizeof(clientname);
 
-  if (signal(SIGCHLD, Wt::handleSigChld) == SIG_ERR) 
+  if (signal(SIGCHLD, Wt::handleSigChld) == SIG_ERR)
     LOG_ERROR_S(&wt_, "cannot catch SIGCHLD: signal(): "
-		<< (const char *)strerror(errno));
+                << (const char *)strerror(errno));
   if (signal(SIGTERM, Wt::handleServerSigTerm) == SIG_ERR)
     LOG_ERROR_S(&wt_, "cannot catch SIGTERM: signal(): "
-		<< (const char *)strerror(errno));
-  if (signal(SIGUSR1, Wt::handleServerSigUsr1) == SIG_ERR) 
+                << (const char *)strerror(errno));
+  if (signal(SIGUSR1, Wt::handleServerSigUsr1) == SIG_ERR)
     LOG_ERROR_S(&wt_, "cannot catch SIGUSR1: signal(): "
-		<< (const char *)strerror(errno));
-  if (signal(SIGHUP, Wt::handleServerSigHup) == SIG_ERR) 
+                << (const char *)strerror(errno));
+  if (signal(SIGHUP, Wt::handleServerSigHup) == SIG_ERR)
     LOG_ERROR_S(&wt_, "cannot catch SIGHUP: signal(): "
-		<< (const char *)strerror(errno));
+                << (const char *)strerror(errno));
 
   if (args_.size() == 1 && boost::starts_with(args_[0], "--socket=")) {
     std::string socketName = args_[0].substr(9);
@@ -394,7 +394,7 @@ int Server::run()
     if (!bindUDStoStdin(socketName, wt_))
       return -1;
     LOG_INFO_S(&wt_,
-	       "reading FastCGI stream from socket '" << socketName << '\'');
+               "reading FastCGI stream from socket '" << socketName << '\'');
   } else
     LOG_INFO_S(&wt_, "reading FastCGI stream from stdin");
 
@@ -402,7 +402,7 @@ int Server::run()
 
   for (;;) {
     int serverSocket = accept(STDIN_FILENO, (sockaddr *) &clientname,
-			      &socklen);
+                              &socklen);
 
     if (serverSocket < 0) {
       LOG_ERROR_S(&wt_, "fatal: accept(): " << (const char *)strerror(errno));
@@ -491,26 +491,26 @@ void Server::handleRequest(int serverSocket)
       LOG_DEBUG_S(&wt_, "server read");
 
       if (d->good()) {
-	// LOG_DEBUG_S(&wt_, *d); BROKEN !
-	consumedRecords_.push_back(d);
+        // LOG_DEBUG_S(&wt_, *d); BROKEN !
+        consumedRecords_.push_back(d);
 
-	if (d->type() == FCGI_PARAMS) {
-	  if (d->contentLength() == 0)
-	    break;
-	  else {
-	    std::string value;
+        if (d->type() == FCGI_PARAMS) {
+          if (d->contentLength() == 0)
+            break;
+          else {
+            std::string value;
 
-	    if (d->getParam("QUERY_STRING", value))
-	      haveSessionId = getSessionFromQueryString(value, sessionId);
-	    if (d->getParam("HTTP_COOKIE", value))
-	      cookies = value;
-	    if (d->getParam("SCRIPT_NAME", value))
-	      scriptName = value;
-	  }
-	}
+            if (d->getParam("QUERY_STRING", value))
+              haveSessionId = getSessionFromQueryString(value, sessionId);
+            if (d->getParam("HTTP_COOKIE", value))
+              cookies = value;
+            if (d->getParam("SCRIPT_NAME", value))
+              scriptName = value;
+          }
+        }
       } else {
-	delete d;
-	break;
+        delete d;
+        break;
       }
     }
 
@@ -526,14 +526,14 @@ void Server::handleRequest(int serverSocket)
     Configuration& conf = wt_.configuration();
 
     if ((conf.sessionTracking() == Configuration::CookiesURL)
-	&& !cookies.empty() && !scriptName.empty()
-	&& !conf.reloadIsNewSession()) {
+        && !cookies.empty() && !scriptName.empty()
+        && !conf.reloadIsNewSession()) {
       std::string cookieSessionId
-	= WebController::sessionFromCookie(cookies.c_str(), scriptName,
-					   conf.fullSessionIdLength());
+        = WebController::sessionFromCookie(cookies.c_str(), scriptName,
+                                           conf.fullSessionIdLength());
       if (!cookieSessionId.empty()) {
-	sessionId = cookieSessionId;
-	haveSessionId = true;
+        sessionId = cookieSessionId;
+        haveSessionId = true;
       }
     }
 
@@ -551,7 +551,7 @@ void Server::handleRequest(int serverSocket)
       // exists, try to connect (for 1 second)
       std::string path = socketPath(sessionId);
       if (stat(path.c_str(), &finfo) != -1)
-	clientSocket = connectToSession(sessionId, path, 10);
+        clientSocket = connectToSession(sessionId, path, 10);
     }
 
     while (clientSocket == -1) {
@@ -559,86 +559,86 @@ void Server::handleRequest(int serverSocket)
        * New session
        */
       if (conf.sessionPolicy() == Configuration::DedicatedProcess) {
-	/*
-	 * For dedicated process, create session at server, so that we
-	 * can keep track of process id for the session
-	 */
-	do {
-	  sessionId = conf.generateSessionId();
-	  if (!conf.registerSessionId(std::string(), sessionId))
-	    sessionId.clear();
-	} while (sessionId.empty());
+        /*
+         * For dedicated process, create session at server, so that we
+         * can keep track of process id for the session
+         */
+        do {
+          sessionId = conf.generateSessionId();
+          if (!conf.registerSessionId(std::string(), sessionId))
+            sessionId.clear();
+        } while (sessionId.empty());
 
-	std::string path = socketPath(sessionId);
+        std::string path = socketPath(sessionId);
 
-	/*
-	 * Create and fork a new session.
-	 *
-	 * But not if we have already too many sessions running...
-	 */
-	if ((int)sessions_.size() > conf.maxNumSessions()) {
-	  LOG_ERROR_S(&wt_, "session limit reached (" << 
-		      conf.maxNumSessions() << ')');
-	  break;
-	}
+        /*
+         * Create and fork a new session.
+         *
+         * But not if we have already too many sessions running...
+         */
+        if ((int)sessions_.size() > conf.maxNumSessions()) {
+          LOG_ERROR_S(&wt_, "session limit reached (" <<
+                      conf.maxNumSessions() << ')');
+          break;
+        }
 
-	pid_t pid = fork();
-	if (pid == -1) {
-	  LOG_ERROR_S(&wt_, "fatal: fork(): " << (const char *)strerror(errno));
-	  exit(1);
-	} else if (pid == 0) {
-	  /* the child process */
-	  execChild(true, sessionId);
-	  exit(1);
-	} else {
-	  LOG_INFO_S(&wt_, "spawned dedicated process for " << sessionId
-		   << ": pid=" << pid);
-	  {
+        pid_t pid = fork();
+        if (pid == -1) {
+          LOG_ERROR_S(&wt_, "fatal: fork(): " << (const char *)strerror(errno));
+          exit(1);
+        } else if (pid == 0) {
+          /* the child process */
+          execChild(true, sessionId);
+          exit(1);
+        } else {
+          LOG_INFO_S(&wt_, "spawned dedicated process for " << sessionId
+                   << ": pid=" << pid);
+          {
 #ifdef WT_THREADED
-	    std::unique_lock<std::recursive_mutex> sessionsLock(mutex_);
+            std::unique_lock<std::recursive_mutex> sessionsLock(mutex_);
 #endif
-	    sessions_[sessionId] = new SessionInfo(sessionId, pid);
-	  }
+            sessions_[sessionId] = new SessionInfo(sessionId, pid);
+          }
 
-	  clientSocket = connectToSession(sessionId, path, 1000);
-	}
+          clientSocket = connectToSession(sessionId, path, 1000);
+        }
       } else {
-	/*
-	 * For SharedProcess, connect to a random server.
-	 */
+        /*
+         * For SharedProcess, connect to a random server.
+         */
 
-	/*
-	 * Patch from Andrii Arsirii: it could be that the
-	 * sessionProcessPids_ vector is empty because concurrently a
-	 * shared process died: we need to wait until it is respawned.
-	 */
-	for (;;) {
-	  int processCount = sessionProcessPids_.size();
-	  if (processCount == 0)
-	    sleep(1);
-	  else {
-	    unsigned i = lrand48() % processCount;
+        /*
+         * Patch from Andrii Arsirii: it could be that the
+         * sessionProcessPids_ vector is empty because concurrently a
+         * shared process died: we need to wait until it is respawned.
+         */
+        for (;;) {
+          int processCount = sessionProcessPids_.size();
+          if (processCount == 0)
+            sleep(1);
+          else {
+            unsigned i = lrand48() % processCount;
 
-	    if (i >= sessionProcessPids_.size())
-	      sleep(1);
-	    else {
-	      // This is still not entirely okay: a race condition could
-	      // still occur between checking the size and getting the
-	      // element.
-	      int pid = sessionProcessPids_[i];
-	      std::string path = conf.runDirectory() + "/server-"
-		+ std::to_string(pid);
+            if (i >= sessionProcessPids_.size())
+              sleep(1);
+            else {
+              // This is still not entirely okay: a race condition could
+              // still occur between checking the size and getting the
+              // element.
+              int pid = sessionProcessPids_[i];
+              std::string path = conf.runDirectory() + "/server-"
+                + std::to_string(pid);
 
-	      clientSocket = connectToSession("", path, 100);
+              clientSocket = connectToSession("", path, 100);
 
-	      if (clientSocket == -1)
-		LOG_ERROR_S(&wt_, "session process " << pid <<
-			    " not responding ?");
+              if (clientSocket == -1)
+                LOG_ERROR_S(&wt_, "session process " << pid <<
+                            " not responding ?");
 
-	      break;
-	    }
-	  }
-	}
+              break;
+            }
+          }
+        }
       }
     }
 
@@ -652,9 +652,9 @@ void Server::handleRequest(int serverSocket)
      */
     for (unsigned i = 0; i < consumedRecords_.size(); ++i) {
       if (!writeToSocket(clientSocket, consumedRecords_[i]->plainText(),
-			 consumedRecords_[i]->plainTextLength())) {
-	LOG_ERROR_S(&wt_, "error writing to client");
-	return;
+                         consumedRecords_[i]->plainTextLength())) {
+        LOG_ERROR_S(&wt_, "error writing to client");
+        return;
       }
 
       delete consumedRecords_[i];
@@ -673,52 +673,52 @@ void Server::handleRequest(int serverSocket)
 
       LOG_DEBUG_S(&wt_, "select()");
       if (select(FD_SETSIZE, &rfds, NULL, NULL, NULL) < 0) {
-	if (errno != EINTR)
-	  LOG_ERROR_S(&wt_, "fatal: select(): "
-		      << (const char *)strerror(errno));
+        if (errno != EINTR)
+          LOG_ERROR_S(&wt_, "fatal: select(): "
+                      << (const char *)strerror(errno));
 
-	break;
+        break;
       }
 
       if (FD_ISSET(serverSocket, &rfds)) {
-	FCGIRecord d;
-	d.read(serverSocket);
+        FCGIRecord d;
+        d.read(serverSocket);
 
-	if (d.good()) {
-	  // LOG_DEBUG_S(&wt_, "record from server: " << d); BROKEN !
-	  if (!writeToSocket(clientSocket, d.plainText(),
-			     d.plainTextLength())) {
-	    LOG_ERROR_S(&wt_, "error writing to application");
+        if (d.good()) {
+          // LOG_DEBUG_S(&wt_, "record from server: " << d); BROKEN !
+          if (!writeToSocket(clientSocket, d.plainText(),
+                             d.plainTextLength())) {
+            LOG_ERROR_S(&wt_, "error writing to application");
 
-	    break;
-	  }
-	} else {
-	  LOG_ERROR_S(&wt_, "error reading from web server");
+            break;
+          }
+        } else {
+          LOG_ERROR_S(&wt_, "error reading from web server");
 
-	  break;
-	}
+          break;
+        }
       }
 
       if (FD_ISSET(clientSocket, &rfds)) {
-	FCGIRecord d;
-	d.read(clientSocket);
+        FCGIRecord d;
+        d.read(clientSocket);
 
-	if (d.good()) {
-	  // LOG_DEBUG_S(&wt_, "record from client: " << d); BROKEN !
-	  if (!writeToSocket(serverSocket, d.plainText(),
-			     d.plainTextLength())) {
-	    LOG_ERROR_S(&wt_, "error writing to web server");
+        if (d.good()) {
+          // LOG_DEBUG_S(&wt_, "record from client: " << d); BROKEN !
+          if (!writeToSocket(serverSocket, d.plainText(),
+                             d.plainTextLength())) {
+            LOG_ERROR_S(&wt_, "error writing to web server");
 
-	    break;
-	  }
+            break;
+          }
 
-	  if (d.type() == FCGI_END_REQUEST)
-	    break;
-	} else {
-	  LOG_ERROR_S(&wt_, "error reading from application");
+          if (d.type() == FCGI_END_REQUEST)
+            break;
+        } else {
+          LOG_ERROR_S(&wt_, "error reading from application");
 
-	  break;
-	}
+          break;
+        }
       }
     }
 

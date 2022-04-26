@@ -15,7 +15,7 @@
 
 namespace Wt {
   namespace Color {
-#ifdef WT_TARGET_JAVA	
+#ifdef WT_TARGET_JAVA
     class ColorUtils {
     private:
       ColorUtils() { }

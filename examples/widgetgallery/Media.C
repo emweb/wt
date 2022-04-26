@@ -10,7 +10,7 @@
 
 #include <Wt/WMenu.h>
 
-Media::Media() 
+Media::Media()
 {
 #if 0
   addText(tr("specialpurposewidgets-intro"), this);

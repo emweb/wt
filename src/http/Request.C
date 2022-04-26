@@ -59,7 +59,7 @@ unsigned buffer_string::length() const
 
   for (const buffer_string *s = this; s; s = s->next)
     result += s->len;
-  
+
   return result;
 }
 
@@ -200,15 +200,15 @@ void Request::process()
     if (!i->name.empty()) {
       HeaderList::iterator j = i;
       for (++j; j != headers.end(); ++j) {
-	if (j->name == i->name) {
-	  buffer_string *s = &i->value;
-	  while (s->next)
-	    s = s->next;
-	  s->data[s->len++] = ','; // replace '\0' with a ','
-	  s->next = &j->value;
+        if (j->name == i->name) {
+          buffer_string *s = &i->value;
+          while (s->next)
+            s = s->next;
+          s->data[s->len++] = ','; // replace '\0' with a ','
+          s->next = &j->value;
 
-	  j->name.clear();
-	}
+          j->name.clear();
+        }
       }
     }
   }
@@ -227,18 +227,18 @@ void Request::enableWebSocket()
 
       const Header *k = getHeader("Sec-WebSocket-Version");
       if (k) {
-	try {
-	  webSocketVersion = Wt::Utils::stoi(k->value.str());
-	} catch (std::exception& e) {
-	  LOG_ERROR("could not parse Sec-WebSocket-Version: "
-		    << k->value.str());
-	}
+        try {
+          webSocketVersion = Wt::Utils::stoi(k->value.str());
+        } catch (std::exception& e) {
+          LOG_ERROR("could not parse Sec-WebSocket-Version: "
+                    << k->value.str());
+        }
       }
     }
   }
 }
 
-bool Request::closeConnection() const 
+bool Request::closeConnection() const
 {
   if ((http_version_major == 1) && (http_version_minor == 0)) {
     const Header *i = getHeader("Connection");
@@ -251,7 +251,7 @@ bool Request::closeConnection() const
 
   if ((http_version_major == 1) && (http_version_minor == 1)) {
     const Header *i = getHeader("Connection");
-    
+
     if (i && i->value.icontains("close"))
       return true;
 
@@ -278,21 +278,21 @@ std::unique_ptr<Wt::WSslInfo> Request::sslInfo() const
     return nullptr;
 
   X509 *x509 = SSL_get_peer_certificate(ssl);
-  
+
   if (x509) {
     Wt::WSslCertificate clientCert = Wt::Ssl::x509ToWSslCertificate(x509);
-    
+
     X509_free(x509);
 
     std::vector<Wt::WSslCertificate> clientCertChain;
     STACK_OF(X509) *certChain = SSL_get_peer_cert_chain(ssl);
     if (certChain) {
       for (int i = 0; i < sk_X509_num(certChain); ++i) {
-	X509 *x509_i = sk_X509_value(certChain, i);
-	clientCertChain.push_back(Wt::Ssl::x509ToWSslCertificate(x509_i));
+        X509 *x509_i = sk_X509_value(certChain, i);
+        clientCertChain.push_back(Wt::Ssl::x509ToWSslCertificate(x509_i));
       }
     }
-    
+
     Wt::ValidationState state = Wt::ValidationState::Invalid;
     std::string info;
 
@@ -304,7 +304,7 @@ std::unique_ptr<Wt::WSslInfo> Request::sslInfo() const
       info = X509_verify_cert_error_string(SSL_state);
     }
     Wt::WValidator::Result clientVerificationResult(state, info);
-    
+
     return std::make_unique<Wt::WSslInfo>(clientCert,
                                                 clientCertChain,
                                                 clientVerificationResult);

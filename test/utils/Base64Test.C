@@ -40,7 +40,7 @@ std::string loremIpsumBase64(bool wrap)
     for (unsigned i = 0; i < base64.size(); ++i) {
       ss << base64[i];
       if ((i + 1 ) % WrapSize == 0)
-	ss << (char)13 << (char)10;
+        ss << (char)13 << (char)10;
     }
     return ss.str();
   } else {

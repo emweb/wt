@@ -81,7 +81,7 @@ public:
   public:
     /*! \brief Destructor.
      *
-     * If the transaction is not yet finished (committed or rolled back), 
+     * If the transaction is not yet finished (committed or rolled back),
      * it will be rolled back.
      *
      * \sa rollback()
@@ -134,7 +134,7 @@ public:
    * an invalid user if no user with that identity exists.
    */
   virtual User findWithIdentity(const std::string& provider,
-				const WT_USTRING& identity) const = 0;
+                                const WT_USTRING& identity) const = 0;
 
   /*! \brief Adds an identify for the user.
    *
@@ -147,14 +147,14 @@ public:
    * providers, LDAP, ...).
    */
   virtual void addIdentity(const User& user, const std::string& provider,
-			   const WT_USTRING& id) = 0;
+                           const WT_USTRING& id) = 0;
 
   /*! \brief Changes an identity for a user.
    *
    * The base implementation calls removeIdentity() followed by addIdentity().
    */
   virtual void setIdentity(const User& user, const std::string& provider,
-			   const WT_USTRING& id);
+                           const WT_USTRING& id);
 
   /*! \brief Returns a user identity.
    *
@@ -183,7 +183,7 @@ public:
    * This method is only used by view classes involved with
    * registration (RegistrationWidget).
    */
-  virtual User registerNew(); 
+  virtual User registerNew();
 
   /*! \brief Delete a user.
    *
@@ -218,7 +218,7 @@ public:
    * This is used only by PasswordService.
    */
   virtual void setPassword(const User& user,
-			   const PasswordHash& password);
+                           const PasswordHash& password);
 
   /*! \brief Returns a user password.
    *
@@ -230,7 +230,7 @@ public:
    */
   virtual PasswordHash password(const User& user) const;
   //!@}
-  
+
   /** @name Email addresses (for verification and lost passwords)
    */
   //!@{
@@ -266,7 +266,7 @@ public:
    * for the user to confirm this email address.
    */
   virtual void setUnverifiedEmail(const User& user,
-				  const std::string& address);
+                                  const std::string& address);
 
   /*! \brief Returns a user's unverified email address.
    *
@@ -288,7 +288,7 @@ public:
    * password functionality.
    */
   virtual void setEmailToken(const User& user, const Token& token,
-			     EmailTokenRole role);
+                             EmailTokenRole role);
 
   /*! \brief Returns an email token.
    *
@@ -351,7 +351,7 @@ public:
    * Returns -1 if not implemented.
    */
   virtual int updateAuthToken(const User& user, const std::string& oldhash,
-			      const std::string& newhash);
+                              const std::string& newhash);
   //!@}
 
   /** @name Authenticaton attempt throttling

@@ -54,10 +54,10 @@ void WLength::parseCssString(const char *s)
     auto_ = true;
     return;
   }
-  
+
   std::string unit(end);
   boost::trim(unit);
-  
+
   if (unit == "em")
     unit_ = LengthUnit::FontEm;
   else if (unit == "ex")
@@ -95,7 +95,7 @@ void WLength::parseCssString(const char *s)
 WLength::WLength(double value, LengthUnit unit)
   : auto_(false),
     value_(value)
-{ 
+{
   setUnit(unit);
 }
 
@@ -150,11 +150,11 @@ double WLength::toPixels(double fontSize) const
   static const double pxPerPt = 4.0/3.0;
   static const double unitFactor[]
     = { 1,
-	72 * pxPerPt,        // 72 'CSS'points in an inch
-	72 / 2.54 * pxPerPt, // 2.54 cm in an inch
-	72 / 25.4 * pxPerPt, // 25.4 mm in an inch
-	pxPerPt,
-	12 * pxPerPt };      // 12 points per pica
+        72 * pxPerPt,        // 72 'CSS'points in an inch
+        72 / 2.54 * pxPerPt, // 2.54 cm in an inch
+        72 / 25.4 * pxPerPt, // 25.4 mm in an inch
+        pxPerPt,
+        12 * pxPerPt };      // 12 points per pica
 
   if (auto_)
     return 0;

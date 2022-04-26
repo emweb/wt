@@ -39,7 +39,7 @@ public:
                             WResource *resource) const;
 
   void remoteLogin(QRTokenDatabase& database, const Auth::User& user,
-		   const std::string& token) const;
+                   const std::string& token) const;
 
 private:
   const Auth::AuthService& baseAuth_;

@@ -18,7 +18,7 @@ public:
   QRTokenDatabase(Dbo::Session& session);
 
   void addToken(const std::string& sessionId, const std::string& hash,
-		const std::string& url);
+                const std::string& url);
   void removeToken(const std::string& sessionId);
 
   // returns the URL to the notification resource

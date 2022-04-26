@@ -74,7 +74,7 @@ public:
    * Controls flag is set.
    */
   WVideo();
-  
+
   /*! \brief Set the poster image
    *
    * On browsers that support it, the poster image is displayed before
@@ -84,7 +84,7 @@ public:
    * feed too.
    */
   void setPoster(const std::string &url);
-  
+
   /*! \brief Returns the JavaScript reference to the video object, or null.
    *
    * It is possible, for compatibility reasons, that jsRef() is not

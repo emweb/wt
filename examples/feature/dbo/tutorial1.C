@@ -107,7 +107,7 @@ void run()
 
     for (const dbo::ptr<User> &user : users)
       std::cerr << " user " << user->name
-		<< " with karma of " << user->karma << std::endl;
+                << " with karma of " << user->karma << std::endl;
   }
 
   /*****

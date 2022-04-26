@@ -16,7 +16,7 @@ namespace Wt {
   class ImageUtils {
   public:
     static std::string identifyMimeType(const std::vector<unsigned char>&
-					header);
+                                        header);
 
     static std::string identifyMimeType(const std::string& fileName);
 

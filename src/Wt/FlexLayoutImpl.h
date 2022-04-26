@@ -34,8 +34,8 @@ public:
   virtual void update() override;
 
   virtual DomElement *createDomElement(DomElement *parent,
-				       bool fitWidth, bool fitHeight,
-				       WApplication *app) override;
+                                       bool fitWidth, bool fitHeight,
+                                       WApplication *app) override;
 
   virtual bool itemResized(WLayoutItem *item) override;
   virtual bool parentResized() override;
@@ -49,7 +49,7 @@ private:
   int minimumHeightForRow(int row) const;
   int minimumWidthForColumn(int column) const;
   DomElement *createElement(Orientation orientation, unsigned index,
-			    int totalStretch, WApplication *app);
+                            int totalStretch, WApplication *app);
   Orientation getOrientation() const;
   LayoutDirection getDirection() const;
   std::string styleDisplay() const;

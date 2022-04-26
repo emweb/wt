@@ -50,7 +50,7 @@ LOGGER("Auth.AuthWidget");
   namespace Auth {
 
 AuthWidget::AuthWidget(const AuthService& baseAuth,
-		       AbstractUserDatabase& users, Login& login)
+                       AbstractUserDatabase& users, Login& login)
   : WTemplateFormView(WString::Empty),
     model_(std::make_shared<AuthModel>(baseAuth, users)),
     login_(login)
@@ -61,7 +61,7 @@ AuthWidget::AuthWidget(const AuthService& baseAuth,
 AuthWidget::AuthWidget(Login& login)
   : WTemplateFormView(WString::Empty),
     login_(login)
-{ 
+{
   init();
 }
 
@@ -114,8 +114,8 @@ bool AuthWidget::handleRegistrationPath(const std::string& path)
       std::string ap = app->internalSubPath(basePath_);
 
       if (ap == "register/") {
-	registerNewUser();
-	return true;
+        registerNewUser();
+        return true;
       }
     }
   }
@@ -134,7 +134,7 @@ void AuthWidget::registerNewUser(const Identity& oauth)
 }
 
 WDialog *AuthWidget::showDialog(const WString& title,
-				std::unique_ptr<WWidget> contents)
+                                std::unique_ptr<WWidget> contents)
 {
   if (contents) {
     dialog_.reset(new WDialog(title));
@@ -172,7 +172,7 @@ void AuthWidget::closeDialog()
 #endif
     messageBox_.reset();
   }
-  
+
   /* Reset internal path */
   if (!basePath_.empty()) {
     WApplication *app = WApplication::instance();
@@ -260,16 +260,16 @@ void AuthWidget::logout()
 
 void AuthWidget::displayError(const WString& m)
 {
-  messageBox_.reset(new WMessageBox(tr("Wt.Auth.error"), m, 
-				    Icon::None, StandardButton::Ok));
+  messageBox_.reset(new WMessageBox(tr("Wt.Auth.error"), m,
+                                    Icon::None, StandardButton::Ok));
   messageBox_->buttonClicked().connect(this, &AuthWidget::closeDialog);
   messageBox_->show();
 }
 
 void AuthWidget::displayInfo(const WString& m)
 {
-  messageBox_.reset(new WMessageBox(tr("Wt.Auth.notice"), m, 
-				    Icon::None, StandardButton::Ok));
+  messageBox_.reset(new WMessageBox(tr("Wt.Auth.notice"), m,
+                                    Icon::None, StandardButton::Ok));
   messageBox_->buttonClicked().connect(this, &AuthWidget::closeDialog);
   messageBox_->show();
 }
@@ -311,15 +311,15 @@ void AuthWidget::onLoginChange()
   } else {
     if (login_.state() != LoginState::Disabled) {
       if (model_->baseAuth()->authTokensEnabled()) {
-	WApplication::instance()->removeCookie
-	  (model_->baseAuth()->authTokenCookieName());
+        WApplication::instance()->removeCookie
+          (model_->baseAuth()->authTokenCookieName());
       }
-      
+
       model_->reset();
       createLoginView();
     } else {
-	  createLoginView();
-	}
+          createLoginView();
+        }
   }
 }
 
@@ -374,33 +374,33 @@ void AuthWidget::updatePasswordLoginView()
       model_->configureThrottling(login);
 
       if (model_->baseAuth()->emailVerificationEnabled()) {
-	WText *text =
-	  bindWidget("lost-password",
-		     std::make_unique<WText>(tr("Wt.Auth.lost-password")));
-	text->clicked().connect(this, &AuthWidget::handleLostPassword);
+        WText *text =
+          bindWidget("lost-password",
+                     std::make_unique<WText>(tr("Wt.Auth.lost-password")));
+        text->clicked().connect(this, &AuthWidget::handleLostPassword);
       } else
-	bindEmpty("lost-password");
+        bindEmpty("lost-password");
 
       if (registrationEnabled_) {
-	if (!basePath_.empty()) {
-	  bindWidget("register",
-		     std::make_unique<WAnchor>
-		     (WLink(LinkType::InternalPath, basePath_ + "register"),
-		      tr("Wt.Auth.register")));
-	} else {
-	  WText *t = 
-	    bindWidget("register",
-		       std::make_unique<WText>(tr("Wt.Auth.register")));
-	  t->clicked().connect(this, &AuthWidget::registerNewUser);
-	}
+        if (!basePath_.empty()) {
+          bindWidget("register",
+                     std::make_unique<WAnchor>
+                     (WLink(LinkType::InternalPath, basePath_ + "register"),
+                      tr("Wt.Auth.register")));
+        } else {
+          WText *t =
+            bindWidget("register",
+                       std::make_unique<WText>(tr("Wt.Auth.register")));
+          t->clicked().connect(this, &AuthWidget::registerNewUser);
+        }
       } else
-	bindEmpty("register");
+        bindEmpty("register");
 
       if (model_->baseAuth()->emailVerificationEnabled()
-	  && registrationEnabled_)
-	bindString("sep", " | ");
+          && registrationEnabled_)
+        bindString("sep", " | ");
       else
-	bindEmpty("sep");
+        bindEmpty("sep");
     }
 
     model_->updateThrottling(login);
@@ -425,7 +425,7 @@ void AuthWidget::createOAuthLoginView()
       const OAuthService *service = model_->oAuth()[i];
 
       OAuthWidget *w
-	= icons->addWidget(std::make_unique<OAuthWidget>(*service));
+        = icons->addWidget(std::make_unique<OAuthWidget>(*service));
       w->authenticated().connect(this, &AuthWidget::oAuthDone);
     }
   }
@@ -459,8 +459,8 @@ void AuthWidget::oAuthDone(OAuthProcess *oauth, const Identity& identity)
    */
   if (identity.isValid()) {
     LOG_SECURE(oauth->service().name() << ": identified: as "
-	       << identity.id() << ", "
-	       << identity.name() << ", " << identity.email());
+               << identity.id() << ", "
+               << identity.name() << ", " << identity.email());
 
     std::unique_ptr<AbstractUserDatabase::Transaction>
       t(model_->users().startTransaction());
@@ -508,7 +508,7 @@ void AuthWidget::samlDone(Saml::Process *process, const Identity &identity)
 void AuthWidget::attemptPasswordLogin()
 {
   updateModel(model_.get());
- 
+
   if (model_->validate()) {
     if (!model_->login(login_))
       updatePasswordLoginView();
@@ -520,11 +520,11 @@ void AuthWidget::createLoggedInView()
 {
   setTemplateText(tr("Wt.Auth.template.logged-in"));
 
-  bindString("user-name", login_.user().identity(Identity::LoginName));  
+  bindString("user-name", login_.user().identity(Identity::LoginName));
 
   WPushButton *logout
     = bindWidget("logout",
-		 std::make_unique<WPushButton>(tr("Wt.Auth.logout")));
+                 std::make_unique<WPushButton>(tr("Wt.Auth.logout")));
   logout->clicked().connect(this, &AuthWidget::logout);
 }
 

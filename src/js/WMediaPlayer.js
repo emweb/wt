@@ -16,7 +16,7 @@ WT_DECLARE_WT_MEMBER
    function encodeValue() {
      var jplayer = $(el).find(".jp-jplayer").data("jPlayer"),
          status = jplayer.status,
-	 options = jplayer.options;
+         options = jplayer.options;
 
      return options.volume
        + ';' + status.currentTime

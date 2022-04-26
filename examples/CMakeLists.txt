@@ -157,7 +157,7 @@ MACRO(WT_ADD_EXAMPLE name)
     configure_file("${WT_SOURCE_DIR}/${WT_ANDROID}/AndroidManifest.xml.template"
       ${CMAKE_CURRENT_BINARY_DIR}/wt-android/AndroidManifest.xml)
 
-    add_custom_command(TARGET ${name}	
+    add_custom_command(TARGET ${name}
       POST_BUILD
       COMMAND ant -f ${CMAKE_CURRENT_BINARY_DIR}/wt-android/utils.xml
       -Dwt.dir=${WT_SOURCE_DIR} -Dexample.dir=${CMAKE_CURRENT_SOURCE_DIR} 
@@ -169,26 +169,26 @@ MACRO(WT_ADD_EXAMPLE name)
       MESSAGE("            package might be too large to fit on the target")
       MESSAGE("            device!")
     ELSE(NOT DEFINED ANDROID_STRIP)
-      add_custom_command(TARGET ${name}	
+      add_custom_command(TARGET ${name}
       POST_BUILD
       COMMAND ${ANDROID_STRIP} 
       "${CMAKE_CURRENT_BINARY_DIR}/wt-android/libs/armeabi/*")
     ENDIF(NOT DEFINED ANDROID_STRIP)
 
     add_custom_command(TARGET ${name}
-    	POST_BUILD
-	COMMAND ${ANDROID_SDK_DIR}/tools/android update project 
-	--name wt-android --target ${ANDROID_SDK_TARGET_ID} 
-	--path ${CMAKE_CURRENT_BINARY_DIR}/wt-android/)
+        POST_BUILD
+        COMMAND ${ANDROID_SDK_DIR}/tools/android update project 
+        --name wt-android --target ${ANDROID_SDK_TARGET_ID} 
+        --path ${CMAKE_CURRENT_BINARY_DIR}/wt-android/)
 
-    add_custom_command(TARGET ${name}	
+    add_custom_command(TARGET ${name}
       POST_BUILD
       COMMAND ant -f ${CMAKE_CURRENT_BINARY_DIR}/wt-android/build.xml debug)
   ENDIF(ANDROID)
 
   IF(MSVC)
     SET_TARGET_PROPERTIES(${name} PROPERTIES COMPILE_FLAGS "/W3 /Wp64 /wd4251 /wd4275")
-	SET_TARGET_PROPERTIES(${name} PROPERTIES FOLDER "examples")
+    SET_TARGET_PROPERTIES(${name} PROPERTIES FOLDER "examples")
   ENDIF(MSVC)
 
   TARGET_LINK_LIBRARIES(${name} ${EXAMPLES_CONNECTOR} ${EXAMPLES_WT_LIB})
@@ -210,13 +210,13 @@ MACRO(WT_ADD_EXAMPLE name)
     SET(DOCROOTSUBFOLDER)
     SET(_${EXAMPLENAME}_POTENTIAL_DOCROOTSUBFOLDER ${WT_SOURCE_DIR}/examples/${EXAMPLESUBDIR}/docroot)
     IF(EXISTS ${_${EXAMPLENAME}_POTENTIAL_DOCROOTSUBFOLDER})
-	SET(DOCROOTSUBFOLDER docroot)
+      SET(DOCROOTSUBFOLDER docroot)
     ENDIF(EXISTS ${_${EXAMPLENAME}_POTENTIAL_DOCROOTSUBFOLDER})
 
     SET(APPROOTSUBFOLDER)
     SET(_${EXAMPLENAME}_POTENTIAL_APPROOTSUBFOLDER ${WT_SOURCE_DIR}/examples/${EXAMPLESUBDIR}/approot)
     IF(EXISTS ${_${EXAMPLENAME}_POTENTIAL_APPROOTSUBFOLDER})
-	SET(APPROOTSUBFOLDER approot)
+      SET(APPROOTSUBFOLDER approot)
     ENDIF(EXISTS ${_${EXAMPLENAME}_POTENTIAL_APPROOTSUBFOLDER})
 
     INSTALL( TARGETS ${name} DESTINATION ${EXAMPLES_DESTINATION}/${${name}_SUBDIR} )

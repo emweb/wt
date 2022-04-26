@@ -26,9 +26,9 @@ std::unique_ptr<WApplication> createApplication(const Wt::WEnvironment& env)
 
   if (app->appRoot().empty()) {
     std::cerr << "!!!!!!!!!!" << std::endl
-	      << "!! Warning: read the README.md file for hints on deployment,"
-	      << " the approot looks suspect!" << std::endl
-	      << "!!!!!!!!!!" << std::endl;
+              << "!! Warning: read the README.md file for hints on deployment,"
+              << " the approot looks suspect!" << std::endl
+              << "!!!!!!!!!!" << std::endl;
   }
 
   // app->setLayoutDirection(LayoutDirection::RightToLeft);
@@ -65,7 +65,7 @@ std::unique_ptr<WApplication> createApplication(const Wt::WEnvironment& env)
   app->messageResourceBundle().use(app->appRoot() + "text");
   app->messageResourceBundle().use(app->appRoot() + "tpl");
   app->messageResourceBundle().use(app->appRoot() + "src");
- 
+
   app->root()->addWidget(std::make_unique<WidgetGallery>());
 
   app->setTitle("Wt Widget Gallery");

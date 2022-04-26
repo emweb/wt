@@ -36,20 +36,20 @@ JavascriptExample::JavascriptExample(const WEnvironment& env)
   confirmPay_->okPressed().connect(this, &JavascriptExample::confirmed);
 
   root()->addWidget(std::make_unique<WText>("<h2>Wt Javascript example</h2>"
-	    "<p>Wt makes abstraction of Javascript, and therefore allows you"
-	    " to develop web applications without any knowledge of Javascript,"
-	    " and which are not dependent on Javascript."
-	    " However, Wt does allow you to add custom Javascript code:</p>"
-	    " <ul>"
-	    "   <li>To call custom JavaScript code from an event handler, "
-	    "connect the Wt::EventSignal to a Wt::JSlot.</li>"
-	    "   <li>To call C++ code from custom JavaScript, use "
-	    "Wt.emit() to emit a Wt::JSignal.</li>"
-	    "   <li>To call custom JavaScript code from C++, use "
-	    "WApplication::doJavascript() or Wt::JSlot::exec().</li>"
-	    " </ul>"
-	    "<p>This simple application shows how to interact between C++ and"
-	    " JavaScript using the JSlot and JSignal classes.</p>"));
+            "<p>Wt makes abstraction of Javascript, and therefore allows you"
+            " to develop web applications without any knowledge of Javascript,"
+            " and which are not dependent on Javascript."
+            " However, Wt does allow you to add custom Javascript code:</p>"
+            " <ul>"
+            "   <li>To call custom JavaScript code from an event handler, "
+            "connect the Wt::EventSignal to a Wt::JSlot.</li>"
+            "   <li>To call C++ code from custom JavaScript, use "
+            "Wt.emit() to emit a Wt::JSignal.</li>"
+            "   <li>To call custom JavaScript code from C++, use "
+            "WApplication::doJavascript() or Wt::JSlot::exec().</li>"
+            " </ul>"
+            "<p>This simple application shows how to interact between C++ and"
+            " JavaScript using the JSlot and JSignal classes.</p>"));
 
   currentAmount_
     = root()->addWidget(std::make_unique<WText>("Current amount: $" +

@@ -19,7 +19,7 @@ namespace Wt {
 
 #ifndef WT_TARGET_JAVA
 WServer::WServer(const std::string& wtApplicationPath,
-		 const std::string& wtConfigurationFile)
+                 const std::string& wtConfigurationFile)
 {
   init(wtApplicationPath, wtConfigurationFile);
 
@@ -47,8 +47,8 @@ WTestEnvironment::WTestEnvironment(EntryPointType type)
   server_ = new WServer(std::string(), std::string());
   if (!server_->controller())
     throw WException("Error: WTestEnvironment() could not instantiate WServer,"
-		     " make sure to link only against libwttest and no other"
-		     " connector library.");
+                     " make sure to link only against libwttest and no other"
+                     " connector library.");
 
   controller_ = server_->controller();
 
@@ -56,8 +56,8 @@ WTestEnvironment::WTestEnvironment(EntryPointType type)
 }
 
 WTestEnvironment::WTestEnvironment(const std::string& applicationPath,
-				   const std::string& configurationFile,
-				   EntryPointType type)
+                                   const std::string& configurationFile,
+                                   EntryPointType type)
 {
   server_ = new WServer(applicationPath, configurationFile);
   controller_ = server_->controller();
@@ -73,7 +73,7 @@ public:
 };
 
 WTestEnvironment::WTestEnvironment(Configuration *configuration,
-				   EntryPointType type)
+                                   EntryPointType type)
 {
   std::vector<std::string> dummy;
 
@@ -107,7 +107,7 @@ void WTestEnvironment::init(EntryPointType type)
   pathInfo_ = "";
 
   setUserAgent("Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.0.11) "
-	       "Gecko/2009060309 Ubuntu/9.04 (jaunty) Firefox/3.0.11");
+               "Gecko/2009060309 Ubuntu/9.04 (jaunty) Firefox/3.0.11");
 
   host_ = "localhost";
   clientAddress_ = "127.0.0.1";

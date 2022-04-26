@@ -24,7 +24,7 @@ double inPlaneBools[faces][planes];
 
 namespace {
   void put(v3 &vertex,
-	   double x, double y, double z) {
+           double x, double y, double z) {
     vertex.x = x;
     vertex.y = y;
     vertex.z = z;
@@ -39,40 +39,40 @@ void writeAll() {
   for (int i=0; i<planes; i++) {
     for (int j=0; j<ptsPerPlane; j++) {
       myfile << bottomVertexPos[i][j].x << ", " << bottomVertexPos[i][j].y
-	     << ", " << bottomVertexPos[i][j].z << ", ";
+             << ", " << bottomVertexPos[i][j].z << ", ";
     }
   }
   for (int i=0; i<planes; i++) {
     for (int j=0; j<ptsPerPlane; j++) {
       myfile << topVertexPos[i][j].x << ", " << topVertexPos[i][j].y
-	     << ", " << topVertexPos[i][j].z << ", ";
+             << ", " << topVertexPos[i][j].z << ", ";
     }
   }
   planes = ::planes/2;
   for (int i=0; i<planes; i++) {
     for (int j=0; j<ptsPerPlane; j++) {
       myfile << backVertexPos[i][j].x << ", " << backVertexPos[i][j].y
-	     << ", " << backVertexPos[i][j].z << ", ";
+             << ", " << backVertexPos[i][j].z << ", ";
     }
   }
   for (int i=0; i<planes; i++) {
     for (int j=0; j<ptsPerPlane; j++) {
       myfile << leftVertexPos[i][j].x << ", " << leftVertexPos[i][j].y
-	     << ", " << leftVertexPos[i][j].z << ", ";
+             << ", " << leftVertexPos[i][j].z << ", ";
     }
   }
   for (int i=0; i<planes; i++) {
     for (int j=0; j<ptsPerPlane; j++) {
       myfile << frontVertexPos[i][j].x << ", " << frontVertexPos[i][j].y
-	     << ", " << frontVertexPos[i][j].z << ", ";
+             << ", " << frontVertexPos[i][j].z << ", ";
     }
   }
   for (int i=0; i<planes; i++) {
     for (int j=0; j<ptsPerPlane; j++) {
       if (i == planes-1 && j == ptsPerPlane-1)
-	break;
+        break;
       myfile << rightVertexPos[i][j].x << ", " << rightVertexPos[i][j].y
-	     << ", " << rightVertexPos[i][j].z << ", ";
+             << ", " << rightVertexPos[i][j].z << ", ";
     }
   }
   myfile << rightVertexPos[planes-1][ptsPerPlane-1].x << ", " << rightVertexPos[planes-1][ptsPerPlane-1].y << ", " << rightVertexPos[planes-1][ptsPerPlane-1].z << "};\n";
@@ -86,10 +86,10 @@ void writeAll() {
       planes = ::planes/2;
     for (int j=0; j<planes; j++) {
       for (int k=0; k<ptsPerPlane; k++) {
-	if (i == faces-1 && j == planes-1 && k == ptsPerPlane-1)
-	  break;
-	myfile << inPlaneNormals[i][j].x << ", " << inPlaneNormals[i][j].y 
-	       << ", " << inPlaneNormals[i][j].z << ", ";
+        if (i == faces-1 && j == planes-1 && k == ptsPerPlane-1)
+          break;
+        myfile << inPlaneNormals[i][j].x << ", " << inPlaneNormals[i][j].y
+               << ", " << inPlaneNormals[i][j].z << ", ";
       }
     }
   }
@@ -104,10 +104,10 @@ void writeAll() {
       planes = ::planes/2;
     for (int j=0; j<planes; j++) {
       for (int k=0; k<ptsPerPlane; k++) {
-	if (i == faces-1 && j == planes-1 && k == ptsPerPlane-1)
-	  break;
-	myfile << outOfPlaneNormals[i][j].x << ", " <<outOfPlaneNormals[i][j].y 
-	       << ", " << outOfPlaneNormals[i][j].z << ", ";
+        if (i == faces-1 && j == planes-1 && k == ptsPerPlane-1)
+          break;
+        myfile << outOfPlaneNormals[i][j].x << ", " <<outOfPlaneNormals[i][j].y
+               << ", " << outOfPlaneNormals[i][j].z << ", ";
       }
     }
   }
@@ -122,9 +122,9 @@ void writeAll() {
       planes = ::planes/2;
     for (int j=0; j<planes; j++) {
       for (int k=0; k<ptsPerPlane; k++) {
-	if (i == faces-1 && j == planes-1 && k == ptsPerPlane-1)
-	  break;
-	myfile << inPlaneBools[i][j] << ", ";
+        if (i == faces-1 && j == planes-1 && k == ptsPerPlane-1)
+          break;
+        myfile << inPlaneBools[i][j] << ", ";
       }
     }
   }
@@ -137,7 +137,7 @@ void writeAll() {
     idx = 4*i;
     for (int j=0; j<2; j++){
       if (i == nbPlanes - 1 && j == 1)
-	break;
+        break;
       myfile << idx << ", ";
       myfile << idx+1+j << ", ";
       myfile << idx+2+j << ", ";
@@ -250,7 +250,7 @@ void generateBottomAndTopFaceData(CompositeTexture& axesTexture) {
     tmp = bottomVertexPos[1][j]; tmp.z -= 1;
     bottomVertexPos[2][j] = yTurnAndTranslate(tmp,1,0,1);
     bottomVertexPos[3][j] = yCounterTurnAndTranslate(bottomVertexPos[0][j],
-						     1,0,0);
+                                                     1,0,0);
   }
   axesTexture.addCoords(4);
   axesTexture.addCoords(0);
@@ -266,7 +266,7 @@ void generateBottomAndTopFaceData(CompositeTexture& axesTexture) {
     tmp = bottomVertexPos[5][j]; tmp.z -= 1;
     bottomVertexPos[6][j] = yTurnAndTranslate(tmp,1,0,1);
     bottomVertexPos[7][j] = yCounterTurnAndTranslate(bottomVertexPos[4][j],
-						     1,0,0);
+                                                     1,0,0);
   }
   axesTexture.addCoords(4);
   axesTexture.addCoords(0);
@@ -287,7 +287,7 @@ void generateBottomAndTopFaceData(CompositeTexture& axesTexture) {
     inPlaneBools[0][i] = 0.0;
   }
 
-  
+
   // Vertices of the TOP PLANE
   // first in-plane
   put(topVertexPos[0][0], 1.0 + extension, 1.0, -size);
@@ -300,7 +300,7 @@ void generateBottomAndTopFaceData(CompositeTexture& axesTexture) {
     tmp = topVertexPos[1][j]; tmp.z -= 1;
     topVertexPos[2][j] = yTurnAndTranslate(tmp,1,0,1);
     topVertexPos[3][j] = yCounterTurnAndTranslate(topVertexPos[0][j],
-						  1,0,0);
+                                                  1,0,0);
   }
   axesTexture.addCoords(6);
   axesTexture.addCoords(2);
@@ -316,7 +316,7 @@ void generateBottomAndTopFaceData(CompositeTexture& axesTexture) {
     tmp = topVertexPos[5][j]; tmp.z -= 1;
     topVertexPos[6][j] = yTurnAndTranslate(tmp,1,0,1);
     topVertexPos[7][j] = yCounterTurnAndTranslate(topVertexPos[4][j],
-						  1,0,0);
+                                                  1,0,0);
   }
   axesTexture.addCoords(6);
   axesTexture.addCoords(2);
@@ -347,37 +347,37 @@ int main() {
   CompositeTexture axesTexture;
   int i = 0; // buffer zone at bottom
   axesTexture.defineSubTexture(CompositeTexture::vec2(0.0, 1.0-i/8.0),
-			       CompositeTexture::vec2(0.0, 0.875-i/8.0 + 0.001),
-			       CompositeTexture::vec2(1.0, 0.875-i/8.0 + 0.001),
-			       CompositeTexture::vec2(1.0, 1.0-i/8.0));
+                               CompositeTexture::vec2(0.0, 0.875-i/8.0 + 0.001),
+                               CompositeTexture::vec2(1.0, 0.875-i/8.0 + 0.001),
+                               CompositeTexture::vec2(1.0, 1.0-i/8.0));
   for (int i=1; i < 3; i++) {
     axesTexture.defineSubTexture(CompositeTexture::vec2(0.0, 1.0-i/8.0),
-				 CompositeTexture::vec2(0.0, 0.875-i/8.0),
-				 CompositeTexture::vec2(1.0, 0.875-i/8.0),
-				 CompositeTexture::vec2(1.0, 1.0-i/8.0));
+                                 CompositeTexture::vec2(0.0, 0.875-i/8.0),
+                                 CompositeTexture::vec2(1.0, 0.875-i/8.0),
+                                 CompositeTexture::vec2(1.0, 1.0-i/8.0));
   }
   i = 3; // buffer zone at top
   axesTexture.defineSubTexture(CompositeTexture::vec2(0.0, 1.0-i/8.0 - 0.001),
-			       CompositeTexture::vec2(0.0, 0.875-i/8.0),
-			       CompositeTexture::vec2(1.0, 0.875-i/8.0),
-			       CompositeTexture::vec2(1.0, 1.0-i/8.0 - 0.001));
+                               CompositeTexture::vec2(0.0, 0.875-i/8.0),
+                               CompositeTexture::vec2(1.0, 0.875-i/8.0),
+                               CompositeTexture::vec2(1.0, 1.0-i/8.0 - 0.001));
   i = 4; // buffer zone at bottom
   axesTexture.defineSubTexture(CompositeTexture::vec2(0.0, 1.0-i/8.0),
-			       CompositeTexture::vec2(0.0, 0.875-i/8.0 + 0.001),
-			       CompositeTexture::vec2(1.0, 0.875-i/8.0 + 0.001),
-			       CompositeTexture::vec2(1.0, 1.0-i/8.0));
+                               CompositeTexture::vec2(0.0, 0.875-i/8.0 + 0.001),
+                               CompositeTexture::vec2(1.0, 0.875-i/8.0 + 0.001),
+                               CompositeTexture::vec2(1.0, 1.0-i/8.0));
   for (int i=5; i < 7; i++) {
     axesTexture.defineSubTexture(CompositeTexture::vec2(0.0, 1.0-i/8.0),
-				 CompositeTexture::vec2(0.0, 0.875-i/8.0),
-				 CompositeTexture::vec2(1.0, 0.875-i/8.0),
-				 CompositeTexture::vec2(1.0, 1.0-i/8.0));
+                                 CompositeTexture::vec2(0.0, 0.875-i/8.0),
+                                 CompositeTexture::vec2(1.0, 0.875-i/8.0),
+                                 CompositeTexture::vec2(1.0, 1.0-i/8.0));
   }
   i = 7; // buffer zone at top
   axesTexture.defineSubTexture(CompositeTexture::vec2(0.0, 1.0-i/8.0 - 0.001),
-			       CompositeTexture::vec2(0.0, 0.875-i/8.0),
-			       CompositeTexture::vec2(1.0, 0.875-i/8.0),
-			       CompositeTexture::vec2(1.0, 1.0-i/8.0 - 0.001));
-  
+                               CompositeTexture::vec2(0.0, 0.875-i/8.0),
+                               CompositeTexture::vec2(1.0, 0.875-i/8.0),
+                               CompositeTexture::vec2(1.0, 1.0-i/8.0 - 0.001));
+
 
   generateBottomAndTopFaceData(axesTexture);
   generateSideFaceData(axesTexture);

@@ -34,7 +34,7 @@ public:
 
   Require(const std::string& method, const std::string& function)
     : WException("You need to specialize "
-		 + method + " for " + function)
+                 + method + " for " + function)
   { }
 };
 
@@ -70,14 +70,14 @@ PasswordHash AbstractUserDatabase::password(const User& user) const
 }
 
 void AbstractUserDatabase::setPassword(const User& user,
-				       const PasswordHash& password)
+                                       const PasswordHash& password)
 {
   LOG_ERROR(Require("setPassword()", PASSWORDS).what());
 }
 
 void AbstractUserDatabase::setIdentity(const User& user,
-				       const std::string& provider,
-				       const WT_USTRING& id)
+                                       const std::string& provider,
+                                       const WT_USTRING& id)
 {
   removeIdentity(user, provider);
   addIdentity(user, provider, id);
@@ -103,7 +103,7 @@ std::string AbstractUserDatabase::email(const User& user) const
 }
 
 bool AbstractUserDatabase::setEmail(const User& user,
-				    const std::string& address)
+                                    const std::string& address)
 {
   LOG_ERROR(Require("setEmail()", EMAIL_VERIFICATION).what());
   return false;
@@ -124,7 +124,7 @@ std::string AbstractUserDatabase::unverifiedEmail(const User& user) const
 }
 
 void AbstractUserDatabase::setUnverifiedEmail(const User& user,
-					      const std::string& address)
+                                              const std::string& address)
 {
   LOG_ERROR(Require("setUnverifiedEmail()", EMAIL_VERIFICATION).what());
 }
@@ -145,7 +145,7 @@ EmailTokenRole AbstractUserDatabase::emailTokenRole(const User& user)
 }
 
 void AbstractUserDatabase::setEmailToken(const User& user, const Token& token,
-					 EmailTokenRole role)
+                                         EmailTokenRole role)
 {
   LOG_ERROR(Require("setEmailToken()", EMAIL_VERIFICATION).what());
 }
@@ -163,14 +163,14 @@ void AbstractUserDatabase::addAuthToken(const User& user, const Token& token)
 }
 
 void AbstractUserDatabase::removeAuthToken(const User& user,
-					   const std::string& hash)
+                                           const std::string& hash)
 {
   LOG_ERROR(Require("removeAuthToken()", AUTH_TOKEN).what());
 }
 
 int AbstractUserDatabase::updateAuthToken(const User& user,
-					  const std::string& hash,
-					  const std::string& newHash)
+                                          const std::string& hash,
+                                          const std::string& newHash)
 {
   LOG_WARN(Require("updateAuthToken()", AUTH_TOKEN).what());
 
@@ -192,7 +192,7 @@ int AbstractUserDatabase::failedLoginAttempts(const User& user) const
 }
 
 void AbstractUserDatabase::setFailedLoginAttempts(const User& user, int count)
-{ 
+{
   LOG_ERROR(Require("setFailedLoginAttempts()", THROTTLING).what());
 }
 
@@ -204,7 +204,7 @@ WDateTime AbstractUserDatabase::lastLoginAttempt(const User& user) const
 }
 
 void AbstractUserDatabase::setLastLoginAttempt(const User& user,
-					       const WDateTime& t)
+                                               const WDateTime& t)
 {
   LOG_ERROR(Require("setLastLoginAttempt()", THROTTLING).what());
 }
@@ -218,8 +218,8 @@ Auth::IssuedToken AbstractUserDatabase::idpTokenAdd(const std::string& value,
                                                     const User& user,
                                                     const OAuthClient& authClient)
 {
-	LOG_ERROR(Require("idpTokenAdd()", IDP_SUPPORT).what());
-	return IssuedToken();
+  LOG_ERROR(Require("idpTokenAdd()", IDP_SUPPORT).what());
+  return IssuedToken();
 }
 
 void AbstractUserDatabase::idpTokenRemove(const IssuedToken& token)

@@ -155,7 +155,7 @@ public:
    * system-wide default format for C style strings (e.g. to UTF-8).
    */
   WString(const char *value,
-	  CharEncoding encoding = CharEncoding::Default);
+          CharEncoding encoding = CharEncoding::Default);
 
   /*! \brief Creates a %WString from a C string.
    *
@@ -178,7 +178,7 @@ public:
 
    */
   WString(const std::string& value,
-	  CharEncoding encoding = CharEncoding::Default);
+          CharEncoding encoding = CharEncoding::Default);
 
   /*! \brief Creates a %WString from a C++ string.
    *
@@ -194,7 +194,7 @@ public:
 
    */
   WString(std::string&& value,
-	  CharEncoding encoding = CharEncoding::Default);
+          CharEncoding encoding = CharEncoding::Default);
 
   /*! \brief Creates a %WString from a C++ string.
    *
@@ -605,7 +605,7 @@ public:
    * the shop.</tt>"
    */
   WString& arg(const std::string& value,
-	       CharEncoding encoding = CharEncoding::Default);
+               CharEncoding encoding = CharEncoding::Default);
 
   /*! \brief Substitutes the next positional argument with a string value.
    *
@@ -618,7 +618,7 @@ public:
    * the shop.</tt>"
    */
   WString& arg(const char *value,
-	       CharEncoding encoding = CharEncoding::Default);
+               CharEncoding encoding = CharEncoding::Default);
 
   /*! \brief Substitutes the next positional argument with a string value.
    *

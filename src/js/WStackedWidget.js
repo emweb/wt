@@ -23,7 +23,7 @@ WT_DECLARE_WT_MEMBER
       this.wtResize(widget, lastResizeWidth, lastResizeHeight, false);
     }
   }
-  
+
   this.wtResize = function(self, w, h, setSize) {
     lastResizeWidth = w;
     lastResizeHeight = h;
@@ -33,10 +33,10 @@ WT_DECLARE_WT_MEMBER
     if (setSize) {
       if (hdefined) {
         self.style.height = h + 'px';
-	self.lh = true;
+        self.lh = true;
       } else {
         self.style.height = '';
-	self.lh = false;
+        self.lh = false;
       }
     } else
       self.lh = false;
@@ -62,10 +62,10 @@ WT_DECLARE_WT_MEMBER
       result += WT.px(el, 'marginBottom');
 
       if (!WT.boxSizing(el)) {
-	result += WT.px(el, 'borderTopWidth');
-	result += WT.px(el, 'borderBottomWidth');
-	result += WT.px(el, 'paddingTop');
-	result += WT.px(el, 'paddingBottom');
+        result += WT.px(el, 'borderTopWidth');
+        result += WT.px(el, 'borderBottomWidth');
+        result += WT.px(el, 'paddingTop');
+        result += WT.px(el, 'paddingBottom');
       }
 
       return result;
@@ -76,40 +76,40 @@ WT_DECLARE_WT_MEMBER
       c = self.childNodes[j];
 
       if (isProperChild(c)) {
-	if (!WT.isHidden(c) && !$(c).hasClass("out")) {
-	  if (hdefined) {
-	    var ch = h - marginV(c);
-	    if (ch > 0) {
-	      /*
-		to prevent that the first child widget's top margin bleeds
-		to shift this child down, we set overflow. See also #2809
-		and the original work-around 548948b63
-	      */
-	      if (c.offsetTop > 0) {
-		var of = WT.css(c, 'overflow');
-		if (of === 'visible' || of === '')
-		  c.style.overflow = 'auto';
-	      }
+        if (!WT.isHidden(c) && !$(c).hasClass("out")) {
+          if (hdefined) {
+            var ch = h - marginV(c);
+            if (ch > 0) {
+              /*
+                to prevent that the first child widget's top margin bleeds
+                to shift this child down, we set overflow. See also #2809
+                and the original work-around 548948b63
+              */
+              if (c.offsetTop > 0) {
+                var of = WT.css(c, 'overflow');
+                if (of === 'visible' || of === '')
+                  c.style.overflow = 'auto';
+              }
 
-	      if (c.wtResize) {
-		c.wtResize(c, w, ch, true);
-	      }	else {
-		var cheight = ch + 'px';
-		if (c.style.height != cheight) {
-		  c.style.height = cheight;
-		  c.lh = true;
-		}
-	      }
-	    }
-	  } else {
-	    if (c.wtResize)
-	      c.wtResize(c, w, -1, true);
-	    else {
-	      c.style.height = '';
-	      c.lh = false;
-	    }
-	  }
-	}
+              if (c.wtResize) {
+                c.wtResize(c, w, ch, true);
+              }        else {
+                var cheight = ch + 'px';
+                if (c.style.height != cheight) {
+                  c.style.height = cheight;
+                  c.lh = true;
+                }
+              }
+            }
+          } else {
+            if (c.wtResize)
+              c.wtResize(c, w, -1, true);
+            else {
+              c.style.height = '';
+              c.lh = false;
+            }
+          }
+        }
       }
     }
   };
@@ -126,20 +126,20 @@ WT_DECLARE_WT_MEMBER
       c = widget.childNodes[j];
 
       if (isProperChild(c)) {
-	if (c != child) {
-	  if (c.style.display != 'none') {
-	    scrollLefts[j] = sl;
-	    scrollTops[j] = st;
-	  }
-	} else {
-	  if (typeof scrollLefts[j] !== 'undefined') {
-	    widget.scrollLeft = scrollLefts[j];
-	    widget.scrollTop = scrollTops[j];
-	  } else {
-	    widget.scrollLeft = 0;
-	    widget.scrollTop = 0;
-	  }
-	}
+        if (c != child) {
+          if (c.style.display != 'none') {
+            scrollLefts[j] = sl;
+            scrollTops[j] = st;
+          }
+        } else {
+          if (typeof scrollLefts[j] !== 'undefined') {
+            widget.scrollLeft = scrollLefts[j];
+            widget.scrollTop = scrollTops[j];
+          } else {
+            widget.scrollLeft = 0;
+            widget.scrollTop = 0;
+          }
+        }
       }
     }
   };
@@ -153,21 +153,21 @@ WT_DECLARE_WT_MEMBER
       c = widget.childNodes[j];
 
       if (isProperChild(c)) {
-	if (c != child) {
-	  if (c.style.display != 'none') {
-	    c.style.display = 'none';
-	  }
-	} else {
+        if (c != child) {
+          if (c.style.display != 'none') {
+            c.style.display = 'none';
+          }
+        } else {
           if (c.style.flexFlow)
             c.style.display = 'flex';
           else
-	    c.style.display = '';
+            c.style.display = '';
 
-	  if (widget.lh) {
-	    widget.lh = false;
-	    widget.style.height = '';
-	  }
-	}
+          if (widget.lh) {
+            widget.lh = false;
+            widget.style.height = '';
+          }
+        }
       }
     }
 
@@ -198,7 +198,7 @@ WT_DECLARE_WT_MEMBER
        prefix = WT.vendorPrefix(WT.styleAttribute("animation-duration"));
 
      var animationEventEnd = prefix == "Webkit"
-	   ? "webkitAnimationEnd" : "animationend";
+           ? "webkitAnimationEnd" : "animationend";
 
      /*
       * We only need to implement the show() -- we hide the currently
@@ -214,12 +214,12 @@ WT_DECLARE_WT_MEMBER
        var i, il=stack.childNodes.length, fromI = -1, toI = -1;
 
        for (i = 0; i < il && (fromI == -1 || toI == -1); ++i) {
-	 var ch = stack.childNodes[i];
+         var ch = stack.childNodes[i];
 
-	 if (ch == child)
-	   toI = i;
-	 else if (ch.style.display !== 'none' && !$(ch).hasClass('out'))
-	   fromI = i;
+         if (ch == child)
+           toI = i;
+         else if (ch.style.display !== 'none' && !$(ch).hasClass('out'))
+           fromI = i;
        }
 
        return { from: fromI, to: toI };
@@ -243,10 +243,10 @@ WT_DECLARE_WT_MEMBER
        to.style.width = '';
        to.style.top = '';
        if (!stack.lh) { // stack has no layout-set height
-	 if (!to.lh)    // child has no layout-set height (by itself)
-	   to.style.height = '';
+         if (!to.lh)    // child has no layout-set height (by itself)
+           to.style.height = '';
        } else
-	 to.lh = true;  // height was set before animation
+         to.lh = true;  // height was set before animation
 
        if (WT.isGecko && (effects & Fade))
          to.style.opacity = '1';
@@ -258,12 +258,12 @@ WT_DECLARE_WT_MEMBER
        $from.removeClass(anim + ' out');
        from.style.display = 'none';
        if (stack.lh) { // stack has a layout-set height
-	 if (to.lh) { // child had a layout-set height
-	   to.style.height = '';
-	   to.lh = false;
-	 }
+         if (to.lh) { // child had a layout-set height
+           to.style.height = '';
+           to.lh = false;
+         }
        }
-	 
+
        from.style[WT.styleAttribute('animation-duration')] = '';
        from.style[WT.styleAttribute('animation-timing-function')] = '';
      }
@@ -276,14 +276,14 @@ WT_DECLARE_WT_MEMBER
       */
      if ($from.hasClass("in")) {
        $from.one(animationEventEnd, function() {
-	   doAnimateChild(WT, child, effects, timing, 1, style);
-	 });
+           doAnimateChild(WT, child, effects, timing, 1, style);
+         });
        return;
      }
      else if ($to.hasClass("out")) {
        $to.one(animationEventEnd, function() {
-	   doAnimateChild(WT, child, effects, timing, 1, style);
-	 });
+           doAnimateChild(WT, child, effects, timing, 1, style);
+         });
        return;
      }
 

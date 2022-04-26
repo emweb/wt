@@ -32,7 +32,7 @@ public:
         return Wt::WString("Row {1}").arg(index.row());
       else
         return Wt::WString("Item row {1}, col {2}")
-	  .arg(index.row()).arg(index.column());
+          .arg(index.row()).arg(index.column());
     } else {
       return Wt::cpp17::any();
     }

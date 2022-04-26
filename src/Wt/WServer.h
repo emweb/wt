@@ -63,7 +63,7 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
       server.stop();
 
       if (sig == SIGHUP)
-	WServer::restart(argc, argv, environ);
+        WServer::restart(argc, argv, environ);
     }
   } catch (WServer::Exception& e) {
     std::cerr << e.what() << "\n";
@@ -126,7 +126,7 @@ public:
    */
   WTCONNECTOR_API
     WServer(const std::string& wtApplicationPath = std::string(),
-	    const std::string& wtConfigurationFile = std::string());
+            const std::string& wtConfigurationFile = std::string());
 
   WServer(const WServer &) = delete;
 
@@ -234,8 +234,8 @@ public:
    */
   WTCONNECTOR_API
     void setServerConfiguration(int argc, char *argv[],
-				const std::string& serverConfigurationFile
-				= std::string());
+                                const std::string& serverConfigurationFile
+                                = std::string());
 
   /*! \brief Configures the HTTP(S) server or FastCGI process.
    *
@@ -290,7 +290,7 @@ public:
    * \sa removeEntryPoint()
    */
   WT_API void addEntryPoint(EntryPointType type, ApplicationCreator callback,
-		            const std::string& path = std::string(),
+                            const std::string& path = std::string(),
                             const std::string& favicon = std::string());
 #endif
 
@@ -455,7 +455,7 @@ public:
    *
    * If a \p fallbackFunction is specified then in case the session
    * is dead, it is called instead.
-   * 
+   *
    * This provides a good alternative to grabbing the update lock of
    * an application to directly push changes to a session out of its
    * event loop.
@@ -467,9 +467,9 @@ public:
    * yourself from this by using WApplication::bind().
    */
   WT_API void post(const std::string& sessionId,
-	           const std::function<void ()>& function,
-	           const std::function<void ()>& fallBackFunction
-	             = std::function<void ()>());
+                   const std::function<void ()>& function,
+                   const std::function<void ()>& fallBackFunction
+                     = std::function<void ()>());
 
   /*! \brief Posts a function to all currently active sessions.
    *
@@ -486,10 +486,10 @@ public:
    * \sa post()
    */
   WT_API void schedule(std::chrono::steady_clock::duration duration,
-		       const std::string& sessionId,
-		       const std::function<void ()>& function,
-		       const std::function<void ()>& fallBackFunction
-		         = std::function<void ()>());
+                       const std::string& sessionId,
+                       const std::function<void ()>& function,
+                       const std::function<void ()>& fallBackFunction
+                         = std::function<void ()>());
 
   /*! \brief Change input method for server certificate passwords (http backend)
    *
@@ -519,7 +519,7 @@ public:
 
    */
   WT_API bool readConfigurationProperty(const std::string& name,
-					std::string& value) const;
+                                        std::string& value) const;
 
 #else
   /*! \brief Reads a configuration property.
@@ -530,7 +530,7 @@ public:
    * \sa WApplication::readConfigurationProperty()
    */
   std::string *readConfigurationProperty(const std::string& name,
-					 const std::string& value);
+                                         const std::string& value);
 #endif // WT_TARGET_JAVA
 
   /*! \brief Sets the resource object that provides localized strings.
@@ -541,8 +541,8 @@ public:
    * The default value is 0.
    */
   WT_API void setLocalizedStrings(const std::shared_ptr<WLocalizedStrings>&
-				  stringResolver);
-  
+                                  stringResolver);
+
   /*! \brief Sets the resource object that provides localized strings.
    *
    * \sa setLocalizedStrings()
@@ -587,7 +587,7 @@ public:
   WT_API WLogEntry log(const std::string& type) const;
 
   WT_API void initLogger(const std::string& logFile,
-			 const std::string& logConfig);
+                         const std::string& logConfig);
 
   /*! \brief Reflects whether the current process is a dedicated session process
    *
@@ -638,7 +638,7 @@ private:
   Impl *impl_;
 
   WT_API void setConfiguration(const std::string& file,
-			       const std::string& application);
+                               const std::string& application);
 
   WT_API void setConfiguration(const std::string& file);
   const std::string& configurationFile() const {
@@ -646,7 +646,7 @@ private:
   }
 
   WT_API void init(const std::string& wtApplicationPath,
-	           const std::string& configurationFile);
+                   const std::string& configurationFile);
   WT_API void destroy();
   WT_API void setCatchSignals(bool catchSignals);
   WT_API std::string prependDefaultPath(const std::string& path);
@@ -661,4 +661,4 @@ private:
 };
 
 }
-#endif // WSERVER_H_ 
+#endif // WSERVER_H_

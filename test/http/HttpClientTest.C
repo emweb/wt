@@ -28,7 +28,7 @@ namespace {
   public:
     TestFixture(const WEnvironment& env)
       : WApplication(env),
-	done_(false)
+        done_(false)
     { }
 
     void waitDone()
@@ -36,7 +36,7 @@ namespace {
       std::unique_lock<std::mutex> guard(doneMutex_);
 
       while (!done_)
-	doneCondition_.wait(guard);
+        doneCondition_.wait(guard);
     }
 
     void reset() 
@@ -54,16 +54,16 @@ namespace {
       message_ = m;
 
       if (err_)
-	std::cerr << "Http client error: " << err_.message() << std::endl;
+        std::cerr << "Http client error: " << err_.message() << std::endl;
       else {
-	std::cerr << "Http client result status: " << m.status() << std::endl;
-	for (unsigned i = 0; i < m.headers().size(); ++i) {
-	  const Message::Header& h = m.headers()[i];
-	  std::cerr << " " << h.name() << ": " << h.value() << std::endl;
-	}
-	std::cerr << " Body: -----" << std::endl;
-	std::cerr << m.body();
-	std::cerr << "-----" << std::endl;
+        std::cerr << "Http client result status: " << m.status() << std::endl;
+        for (unsigned i = 0; i < m.headers().size(); ++i) {
+          const Message::Header& h = m.headers()[i];
+          std::cerr << " " << h.name() << ": " << h.value() << std::endl;
+        }
+        std::cerr << " Body: -----" << std::endl;
+        std::cerr << m.body();
+        std::cerr << "-----" << std::endl;
       }
 
       done_ = true;
@@ -87,8 +87,8 @@ BOOST_AUTO_TEST_CASE( http_client_test1 )
 
   std::unique_ptr<Client> c(new Client());
   c->done().connect(std::bind(&TestFixture::onDone, &app,
-			      std::placeholders::_1,
-			      std::placeholders::_2));
+                              std::placeholders::_1,
+                              std::placeholders::_2));
 
   std::string ok = "www.google.com/";
 
@@ -106,8 +106,8 @@ BOOST_AUTO_TEST_CASE( http_client_test2 )
 
   std::unique_ptr<Client> c(new Client());
   c->done().connect(std::bind(&TestFixture::onDone, &app,
-			      std::placeholders::_1,
-			      std::placeholders::_2));
+                              std::placeholders::_1,
+                              std::placeholders::_2));
 
   std::string verifyFail = "pause.perl.org/";
 
@@ -126,8 +126,8 @@ BOOST_AUTO_TEST_CASE( http_client_test3 )
 
   std::unique_ptr<Client> c(new Client());
   c->done().connect(std::bind(&TestFixture::onDone, &app,
-			      std::placeholders::_1,
-			      std::placeholders::_2));
+                              std::placeholders::_1,
+                              std::placeholders::_2));
 
   std::string asioFail = "www.google.be/";
 
@@ -148,8 +148,8 @@ BOOST_AUTO_TEST_CASE( http_client_test4 )
   
   std::unique_ptr<Client> c(new Client());
   c->done().connect(std::bind(&TestFixture::onDone, &app,
-			      std::placeholders::_1,
-			      std::placeholders::_2));
+                              std::placeholders::_1,
+                              std::placeholders::_2));
 
   std::string ok = "www.google.com/";
 

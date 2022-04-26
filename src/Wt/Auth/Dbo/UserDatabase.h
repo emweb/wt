@@ -19,7 +19,7 @@ namespace Wt {
 
 /*! \class UserDatabase Wt/Auth/Dbo/UserDatabase.h
  *  \brief A default implementation for an authentication user database.
- * 
+ *
  * This is a template class, and needs as parameter the Dbo type which
  * models the authentication information. A suitable implementation,
  * which stores authentication information outside the "user" class,
@@ -93,19 +93,19 @@ public:
   }
 
   virtual User findWithIdentity(const std::string& provider,
-				const WString& identity) const override {
+                                const WString& identity) const override {
     if (userProvider_ != provider || userIdentity_ != identity) {
       Wt::Dbo::Transaction t(session_);
       Wt::Dbo::Query<Wt::Dbo::ptr<DboType> > query =
-	  session_.query<Wt::Dbo::ptr<DboType> >(std::string() +
-	       "select u from " + session_.tableNameQuoted<DboType>() + " u "
-	       "join " + session_.tableNameQuoted<AuthIdentityType>() + " i "
-	       "on u.id = i.\"" + session_.tableName<DboType>() + "_id\"")
-	      .where("i.\"provider\" = ?").bind(provider);
+          session_.query<Wt::Dbo::ptr<DboType> >(std::string() +
+               "select u from " + session_.tableNameQuoted<DboType>() + " u "
+               "join " + session_.tableNameQuoted<AuthIdentityType>() + " i "
+               "on u.id = i.\"" + session_.tableName<DboType>() + "_id\"")
+              .where("i.\"provider\" = ?").bind(provider);
       if (authService_ && authService_->identityPolicy() == IdentityPolicy::EmailAddress) {
-	query.where("lower(i.\"identity\") = lower(?)").bind(identity);
+        query.where("lower(i.\"identity\") = lower(?)").bind(identity);
       } else {
-	query.where("i.\"identity\" = ?").bind(identity);
+        query.where("i.\"identity\" = ?").bind(identity);
       }
       setUser(query.resultValue());
       t.commit();
@@ -120,7 +120,7 @@ public:
   }
 
   virtual WString identity(const User& user,
-			   const std::string& provider) const override {
+                           const std::string& provider) const override {
     WithUser find(*this, user);
 
     AuthIdentities c
@@ -135,7 +135,7 @@ public:
   }
 
   virtual void removeIdentity(const User& user,
-			      const std::string& provider) override {
+                              const std::string& provider) override {
     Wt::Dbo::Transaction t(session_);
 
     session_.execute
@@ -175,25 +175,25 @@ public:
   virtual void setPassword(const User& user, const PasswordHash& password) override {
     WithUser find(*this, user);
     user_.modify()->setPassword(password.value(),
-				password.function(),
-				password.salt());
+                                password.function(),
+                                password.salt());
   }
 
   virtual PasswordHash password(const User& user) const override {
     WithUser find(*this, user);
     return PasswordHash(user_->passwordMethod(), user_->passwordSalt(),
-			user_->passwordHash());
+                        user_->passwordHash());
   }
 
   virtual void addIdentity(const User& user, const std::string& provider,
-			   const WT_USTRING& identity) override {
+                           const WT_USTRING& identity) override {
     WithUser find(*this, user);
 
     if (session_.find<AuthIdentityType>()
-	.where("\"identity\" = ?").bind(identity)
-	.where("\"provider\" = ?").bind(provider).resultList().size() != 0) {
+        .where("\"identity\" = ?").bind(identity)
+        .where("\"provider\" = ?").bind(provider).resultList().size() != 0) {
       Wt::log("error") << "cannot add identity " << provider
-		       << ":'" << identity << "': already exists";
+                       << ":'" << identity << "': already exists";
       return;
     }
 
@@ -206,7 +206,7 @@ public:
   }
 
   virtual void setIdentity(const User& user, const std::string& provider,
-			   const WT_USTRING& identity) override {
+                           const WT_USTRING& identity) override {
     WithUser find(*this, user);
 
     AuthIdentities c
@@ -226,7 +226,7 @@ public:
     WithUser find(*this, user);
 
     if (session_.find<DboType>().where("lower(\"email\") = lower(?)")
-	.bind(address).resultList().size() != 0)
+        .bind(address).resultList().size() != 0)
       return false;
 
     user_.modify()->setEmail(address);
@@ -240,7 +240,7 @@ public:
   }
 
   virtual void setUnverifiedEmail(const User& user,
-				  const std::string& address) override {
+                                  const std::string& address) override {
     WithUser find(*this, user);
     user_.modify()->setUnverifiedEmail(address);
   }
@@ -262,7 +262,7 @@ public:
   }
 
   virtual void setEmailToken(const User& user, const Token& token,
-			     EmailTokenRole role) override {
+                             EmailTokenRole role) override {
     WithUser find(*this, user);
     user_.modify()->setEmailToken(token.hash(), token.expirationTime(), role);
   }
@@ -280,7 +280,7 @@ public:
   virtual User findWithEmailToken(const std::string& hash) const override {
     Wt::Dbo::Transaction t(session_);
     setUser(session_.find<DboType>()
-	    .where("\"email_token\" = ?").bind(hash));
+            .where("\"email_token\" = ?").bind(hash));
     t.commit();
 
     if (user_)
@@ -288,7 +288,7 @@ public:
     else
       return User();
   }
- 
+
   virtual void addAuthToken(const User& user, const Token& token) override {
     WithUser find(*this, user);
 
@@ -297,8 +297,8 @@ public:
      * security problem if we do not detect it ...
      */
     if (session_.find<AuthTokenType>().where("\"value\" = ?")
-	.bind(token.hash())
-	.resultList().size() > 0)
+        .bind(token.hash())
+        .resultList().size() > 0)
       throw WException("Token hash collision");
 
     /*
@@ -316,7 +316,7 @@ public:
         earliest_tokens.begin(), earliest_tokens.end());
 
       for (auto& token : earliest_tokens_v)
-	token.remove();
+        token.remove();
     }
 
     user_.modify()->authTokens().insert
@@ -328,25 +328,25 @@ public:
     WithUser find(*this, user);
 
     for (typename AuthTokens::const_iterator i = user_->authTokens().begin();
-	 i != user_->authTokens().end(); ++i) {
+         i != user_->authTokens().end(); ++i) {
       Wt::Dbo::ptr<AuthTokenType> t = *i;
       if (t->value() == hash) {
-	t.remove();
-	break;
+        t.remove();
+        break;
       }
     }
   }
 
   virtual int updateAuthToken(const User& user, const std::string& hash,
-			      const std::string& newHash) override {
+                              const std::string& newHash) override {
     WithUser find(*this, user);
 
     for (typename AuthTokens::const_iterator i = user_->authTokens().begin();
-	 i != user_->authTokens().end(); ++i) {
+         i != user_->authTokens().end(); ++i) {
       Wt::Dbo::ptr<AuthTokenType> t = *i;
       if (t->value() == hash) {
-	t.modify()->setValue(newHash);
-	return std::max(0, WDateTime::currentDateTime().secsTo(t->expires()));
+        t.modify()->setValue(newHash);
+        return std::max(0, WDateTime::currentDateTime().secsTo(t->expires()));
       }
     }
 
@@ -356,12 +356,12 @@ public:
   virtual User findWithAuthToken(const std::string& hash) const override {
     Wt::Dbo::Transaction t(session_);
     setUser(session_.query< Wt::Dbo::ptr<DboType> >
-	    (std::string() +
-	     "select u from " + session_.tableNameQuoted<DboType>() + " u "
-	     "join " + session_.tableNameQuoted<AuthTokenType>() + " t "
-	     "on u.id = t.\"" + session_.tableName<DboType>() + "_id\"")
-	    .where("t.\"value\" = ?").bind(hash)
-	    .where("t.\"expires\" > ?").bind(WDateTime::currentDateTime()));
+            (std::string() +
+             "select u from " + session_.tableNameQuoted<DboType>() + " u "
+             "join " + session_.tableNameQuoted<AuthTokenType>() + " t "
+             "on u.id = t.\"" + session_.tableName<DboType>() + "_id\"")
+            .where("t.\"value\" = ?").bind(hash)
+            .where("t.\"expires\" > ?").bind(WDateTime::currentDateTime()));
     t.commit();
 
     if (user_)
@@ -377,7 +377,7 @@ public:
 
   virtual int failedLoginAttempts(const User& user) const override {
     WithUser find(*this, user, true);
-    return user_->failedLoginAttempts();    
+    return user_->failedLoginAttempts();
   }
 
   virtual void setLastLoginAttempt(const User& user, const WDateTime& t) override {
@@ -387,7 +387,7 @@ public:
 
   virtual WDateTime lastLoginAttempt(const User& user) const override {
     WithUser find(*this, user, true);
-    return user_->lastLoginAttempt();    
+    return user_->lastLoginAttempt();
   }
 
   /*! \brief Returns max number of tokens user can have in the database
@@ -414,15 +414,15 @@ private:
   unsigned maxAuthTokensPerUser_;
 
   struct WithUser {
-    WithUser(const UserDatabase<DboType>& self, const User& user, 
-	     bool reread = false)
+    WithUser(const UserDatabase<DboType>& self, const User& user,
+             bool reread = false)
       : transaction(self.session_)
     {
       self.getUser(user.id(), reread);
       if (!self.user_)
-	throw WException("Invalid user");
+        throw WException("Invalid user");
     }
-    
+
     ~WithUser() {
       transaction.commit();
     }
@@ -437,7 +437,7 @@ private:
       t.commit();
     } else
       if (reread && !user_.isDirty())
-	user_.reread();
+        user_.reread();
   }
 
   void setUser(Wt::Dbo::ptr<DboType> user) const {

@@ -216,7 +216,7 @@ public:
   /*! \brief Converts to a local time.
    *
    * The conversion is based on the fact that WDateTime represents UTC time.
-   * 
+   *
    * This is the reverse of WLocalDateTime::toUTC()
    */
   WLocalDateTime toLocalTime(const WLocale& locale = WLocale::currentLocale())
@@ -341,10 +341,10 @@ private:
   enum class CharState { CharUnhandled, CharHandled, CharInvalid };
 
   static void fromString(WDate *date, WTime *time, const WString& s,
-			 const WString& format);
+                         const WString& format);
   static WString toString(const WDate *date, const WTime *time,
                           const WString& format, bool localized,
-			  int zoneOffset);
+                          int zoneOffset);
 
   friend class WDate;
   friend class WTime;

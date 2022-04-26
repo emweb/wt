@@ -64,9 +64,9 @@ extern void showDialog(Wt::WObject *owner, Wt::WText *out)
      */
     dialog->finished().connect([=] {
         if (dialog->result() == Wt::DialogCode::Accepted)
-	    out->setText("New location: " + edit->text());
-	else
-	    out->setText("No location selected.");
+            out->setText("New location: " + edit->text());
+        else
+            out->setText("No location selected.");
 
 #ifndef WT_TARGET_JAVA
         owner->removeChild(dialog);

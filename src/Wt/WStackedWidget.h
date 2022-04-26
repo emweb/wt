@@ -82,7 +82,7 @@ public:
    * The change of current widget is done using the animation settings
    * specified by setTransitionAnimation().
    *
-   * The default value for current index is 0 (provided thath 
+   * The default value for current index is 0 (provided thath
    *
    * \sa currentIndex(), setCurrentWidget()
    */
@@ -93,7 +93,7 @@ public:
    * \sa currentIndex(), setCurrentWidget()
    */
   void setCurrentIndex(int index, const WAnimation& animation,
-		       bool autoReverse = true);
+                       bool autoReverse = true);
 
   /*! \brief Changes the current widget.
    *
@@ -131,12 +131,12 @@ public:
    * \sa setCurrentIndex()
    */
   void setTransitionAnimation(const WAnimation& animation,
-			      bool autoReverse = false);
+                              bool autoReverse = false);
 
 protected:
   virtual DomElement *createDomElement(WApplication *app) override;
   virtual void getDomChanges(std::vector<DomElement *>& result,
-			     WApplication *app) override;
+                             WApplication *app) override;
   virtual void render(WFlags<RenderFlag> flags) override;
 
 private:
@@ -145,7 +145,7 @@ private:
   int currentIndex_;
   bool widgetsAdded_, javaScriptDefined_, loadAnimateJS_;
 
-  void defineJavaScript();  
+  void defineJavaScript();
   void loadAnimateJS();
 };
 

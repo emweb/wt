@@ -332,8 +332,8 @@ void SocketNotifier::threadEntry()
         if (FD_ISSET(*i, &read_fds)) {
           if (impl_->readFds_.find(*i) != impl_->readFds_.end()) {
             impl_->readFds_.erase(*i);
-	    callbacks.push_back(std::make_pair((int)*i, 
-					       WSocketNotifier::Type::Read));
+            callbacks.push_back(std::make_pair((int)*i,
+                                               WSocketNotifier::Type::Read));
           }
         }
       }
@@ -343,8 +343,8 @@ void SocketNotifier::threadEntry()
         if (FD_ISSET(*i, &write_fds)) {
           if (impl_->writeFds_.find(*i) != impl_->writeFds_.end()) {
             impl_->writeFds_.erase(*i);
-	    callbacks.push_back(std::make_pair((int)*i,
-					       WSocketNotifier::Type::Write));
+            callbacks.push_back(std::make_pair((int)*i,
+                                               WSocketNotifier::Type::Write));
           }
         }
       }
@@ -355,7 +355,7 @@ void SocketNotifier::threadEntry()
           if (impl_->exceptFds_.find(*i) != impl_->exceptFds_.end()) {
             impl_->exceptFds_.erase(*i);
             callbacks.push_back(std::make_pair((int)*i,
-					       WSocketNotifier::Type::Exception));
+                                               WSocketNotifier::Type::Exception));
           }
         }
       }

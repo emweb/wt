@@ -17,7 +17,7 @@
 
 using namespace Wt;
 
-/*! \class ExampleSourceViewer 
+/*! \class ExampleSourceViewer
  *  \brief A simple widget to visualise a set of example source files.
  */
 class ExampleSourceViewer: public WContainerWidget
@@ -26,8 +26,8 @@ public:
   /*! \brief Constructor.
    */
   ExampleSourceViewer(const std::string& deployPath,
-		      const std::string& examplesRoot,
-		      const std::string& examplesType); 
+                      const std::string& examplesRoot,
+                      const std::string& examplesType);
 
 private:
   WTreeView  *exampleView_;
@@ -40,19 +40,19 @@ private:
   std::shared_ptr<WStandardItemModel> model_;
 
   void cppTraverseDir(WStandardItem* parent,
-		      const boost::filesystem::path& path);
+                      const boost::filesystem::path& path);
   void javaTraverseDir(WStandardItem* parent,
-		       const boost::filesystem::path& path);
+                       const boost::filesystem::path& path);
   void javaTraversePackages(WStandardItem *parent,
-			    const boost::filesystem::path& srcPath,
-			    const std::string packageName);
+                            const boost::filesystem::path& srcPath,
+                            const std::string packageName);
 
   /*! \brief Displayed the currently selected file.
    */
-  void showFile(); 
+  void showFile();
 
   void handlePathChange();
 
   void setExample(const std::string& exampleDir,
-		  const std::string& example);
+                  const std::string& example);
 };

@@ -20,7 +20,7 @@ namespace Wt {
  * interactivity on a polygon area of the image. The polygon is
  * specified in pixel coordinates, and uses an even-odd winding rule
  * (overlaps create holes).
- * 
+ *
  * \if cpp
  * \code
  * auto image = std::make_unique<Wt::WImage>("images/family.jpg");
@@ -44,7 +44,7 @@ class WT_API WPolygonArea : public WAbstractArea
 public:
   /*! \brief Creates an empty polygon.
    *
-   * Defines an empty polygon. 
+   * Defines an empty polygon.
    */
   WPolygonArea();
 
@@ -82,7 +82,7 @@ public:
    */
   void addPoint(const WPointF& point);
 
-  /*! \brief Sets the polygon vertices. 
+  /*! \brief Sets the polygon vertices.
    *
    * The polygon is defined with vertices corresponding to
    * \p points. The polygon is closed by connecting the last point
@@ -91,7 +91,7 @@ public:
   void setPoints(const std::vector<WPoint>& points);
 
 #ifndef WT_TARGET_JAVA
-  /*! \brief Sets the polygon vertices. 
+  /*! \brief Sets the polygon vertices.
    *
    * The polygon is defined with vertices corresponding to
    * \p points. The polygon is closed by connecting the last point

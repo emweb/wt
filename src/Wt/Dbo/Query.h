@@ -21,7 +21,7 @@ namespace Wt {
 
       struct SelectField
       {
-	std::size_t begin, end;
+        std::size_t begin, end;
       };
 
       typedef std::vector<SelectField> SelectFieldList;
@@ -30,28 +30,28 @@ namespace Wt {
       template <class Result>
       class QueryBase {
       protected:
-	std::vector<FieldInfo> fields() const;
-	void fieldsForSelect(const SelectFieldList& list,
-			     std::vector<FieldInfo>& result) const;
+        std::vector<FieldInfo> fields() const;
+        void fieldsForSelect(const SelectFieldList& list,
+                             std::vector<FieldInfo>& result) const;
         std::pair<SqlStatement *, SqlStatement *>
         statements(const std::string& join, const std::string &where,
-		   const std::string &groupBy,
+                   const std::string &groupBy,
                    const std::string &having, const std::string &orderBy,
                    int limit, int offset) const;
         Session &session() const;
 
         QueryBase();
-	QueryBase(Session& session, const std::string& sql);
-	QueryBase(Session& session, const std::string& table,
-		  const std::string& where);
+        QueryBase(Session& session, const std::string& sql);
+        QueryBase(Session& session, const std::string& table,
+                  const std::string& where);
 
-	QueryBase& operator=(const QueryBase& other);
+        QueryBase& operator=(const QueryBase& other);
 
-	Result singleResult(const collection<Result>& results) const;
+        Result singleResult(const collection<Result>& results) const;
 
-	Session *session_;
-	std::string sql_;
-	SelectFieldLists selectFieldLists_;
+        Session *session_;
+        std::string sql_;
+        SelectFieldLists selectFieldLists_;
       };
     }
 
@@ -100,7 +100,7 @@ public:
    * This is a convenience method for creating a SQL query, and
    * concatenates a new <i>join</i> to the current query.
    *
-   * The join should be a valid SQL join expression, e.g. 
+   * The join should be a valid SQL join expression, e.g.
    * "customer c on o.customer_id = c.id"
    *
    * \note This method is not available when using a DirectBinding binding
@@ -113,7 +113,7 @@ public:
    * This is a convenience method for creating a SQL query, and
    * concatenates a new <i>left join</i> to the current query.
    *
-   * The join should be a valid SQL join expression, e.g. 
+   * The join should be a valid SQL join expression, e.g.
    * "customer c on o.customer_id = c.id"
    *
    * \note This method is not available when using a DirectBinding binding
@@ -126,14 +126,14 @@ public:
    * This is a convenience method for creating a SQL query, and
    * concatenates a new <i>right join</i> to the current query.
    *
-   * The join should be a valid SQL join expression, e.g. 
+   * The join should be a valid SQL join expression, e.g.
    * "customer c on o.customer_id = c.id"
    *
    * \note This method is not available when using a DirectBinding binding
    *       strategy.
    */
   AbstractQuery& rightJoin(const std::string& other);
-  
+
   /*! \brief Adds a query condition.
    *
    * This is a convenience method for creating a SQL query, and
@@ -211,18 +211,18 @@ public:
    *   select department.name, count(employees) from department
    *    where count(employees) > 5
    *    group by count(employees);
-   *          
+   *
    * Because you can't have aggregate fields in a where clause, but you can go:
    *
    *   select department.name, count(employees) from department
    *    group by count(employees)
    *   having count(employees) > 5;
-   *          
+   *
    * This will of course return all the departments with more than 5 employees
    * (and their employee count).
    *
    * \note You must have a group by clause, in order to have a 'having' clause
-   */  
+   */
   AbstractQuery& having(const std::string& fields);
 
   /*! \brief Sets a result offset.
@@ -258,7 +258,7 @@ public:
   /*! \brief Returns a limit set for this query.
    *
    * \sa limit(int)
-   */  
+   */
   int limit() const;
 
 protected:
@@ -273,7 +273,7 @@ protected:
 
   std::vector<Impl::ParameterBase *> parameters_;
 };
-  
+
 /*! \class Query Wt/Dbo/Query.h Wt/Dbo/Query.h
  *  \brief A database query.
  *
@@ -315,7 +315,7 @@ protected:
  * multiple times, perhaps with different parameter values or to scroll
  * through the query results. The where(), orWhere(), groupBy(), having(), and
  * orderBy() are merely convenience methods which you may use to
- * compose the querys incrementally, but you may just as well 
+ * compose the querys incrementally, but you may just as well
  * specify the entire SQL as a single string.
  *
  * When using DirectBinding, parameters are directly bound to an
@@ -417,7 +417,7 @@ public:
    * This is a convenience method for creating a SQL query, and
    * concatenates a new <i>join</i> to the current query.
    *
-   * The join should be a valid SQL join expression, e.g. 
+   * The join should be a valid SQL join expression, e.g.
    * "customer c on o.customer_id = c.id"
    *
    * \note This method is not available when using a DirectBinding binding
@@ -430,7 +430,7 @@ public:
    * This is a convenience method for creating a SQL query, and
    * concatenates a new <i>left join</i> to the current query.
    *
-   * The join should be a valid SQL join expression, e.g. 
+   * The join should be a valid SQL join expression, e.g.
    * "customer c on o.customer_id = c.id"
    *
    * \note This method is not available when using a DirectBinding binding
@@ -443,14 +443,14 @@ public:
    * This is a convenience method for creating a SQL query, and
    * concatenates a new <i>right join</i> to the current query.
    *
-   * The join should be a valid SQL join expression, e.g. 
+   * The join should be a valid SQL join expression, e.g.
    * "customer c on o.customer_id = c.id"
    *
    * \note This method is not available when using a DirectBinding binding
    *       strategy.
    */
   Query<Result, BindStrategy>& rightJoin(const std::string& other);
-  
+
   /*! \brief Adds a query condition.
    *
    * This is a convenience method for creating a SQL query, and
@@ -540,13 +540,13 @@ public:
    *   select department.name, count(employees) from department
    *    where count(employees) > 5
    *    group by count(employees);
-   *          
+   *
    * Because you can't have aggregate fields in a where clause, but you can go:
    *
    *   select department.name, count(employees) from department
    *    group by count(employees)
    *   having count(employees) > 5;
-   *          
+   *
    * This will of course return all the departments with more than 5 employees
    * (and their employee count).
    *

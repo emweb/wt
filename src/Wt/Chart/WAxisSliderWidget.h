@@ -44,7 +44,7 @@ public:
    * of the given chart.
    */
   WAxisSliderWidget(WDataSeries *series);
-  
+
   /*! \brief Destructor
    */
   virtual ~WAxisSliderWidget();
@@ -80,7 +80,7 @@ public:
   /*! \brief Set the background brush.
    */
   void setBackground(const WBrush& background);
-  
+
   /*! \brief Returns the background brush.
    */
   const WBrush& background() const { return background_; }

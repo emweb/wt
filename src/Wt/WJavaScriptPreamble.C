@@ -9,8 +9,8 @@
 namespace Wt {
 
 WJavaScriptPreamble::WJavaScriptPreamble(JavaScriptScope scope,
-					 JavaScriptObjectType type,
-					 const char *name, const char *src)
+                                         JavaScriptObjectType type,
+                                         const char *name, const char *src)
   : scope(scope),
     type(type),
     name(name),

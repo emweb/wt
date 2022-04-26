@@ -21,8 +21,8 @@ namespace Wt {
  * Like all <b>service classes</b>, this class holds only
  * configuration state. Thus, once configured, it can be safely shared
  * between multiple sessions since its state (the configuration) is
- * read-only. 
- * \if cpp 
+ * read-only.
+ * \if cpp
  * A "const PasswordService" object is thus thread-safe.
  * \endif
  *
@@ -162,7 +162,7 @@ public:
    * \sa setVerifier(), setAttemptThrottlingEnabled()
    */
   virtual PasswordResult verifyPassword(const User& user,
-					const WT_USTRING& password) const override;
+                                        const WT_USTRING& password) const override;
 
   /*! \brief Sets a new password for the given user.
    *

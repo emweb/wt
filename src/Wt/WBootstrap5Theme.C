@@ -131,54 +131,54 @@ void WBootstrap5Theme::apply(WWidget *widget, WWidget *child, int widgetRole)
   case MenuItemIcon:
     child->addStyleClass("Wt-icon");
     break;
-    
+
   case MenuItemCheckBox:
     child->setStyleClass("Wt-chkbox");
     ((WFormWidget *)child)->label()->addStyleClass("form-checkbox");
     break;
-    
+
   case MenuItemClose:
     child->addStyleClass("close");
     ((WText *)child)->setText("&times;");
     break;
-    
+
   case DialogContent:
     child->addStyleClass("modal-content");
     break;
-    
+
   case DialogCoverWidget:
     child->addStyleClass("modal-backdrop in");
     child->setAttributeValue("style", "opacity:0.5");
     break;
-    
+
   case DialogTitleBar:
     child->addStyleClass("modal-header");
     break;
-    
+
   case DialogBody:
     child->addStyleClass("modal-body");
     break;
-    
+
   case DialogFooter:
     child->addStyleClass("modal-footer");
     break;
-    
+
   case DialogCloseIcon:
     child->addStyleClass("close");
     ((WText *)child)->setText("&times;");
     break;
-    
+
   case TableViewRowContainer:
     {
       auto view = dynamic_cast<WAbstractItemView *>(widget);
       child->toggleStyleClass("Wt-striped", view->alternatingRowColors());
       break;
     }
-    
+
   case DatePickerPopup:
     child->addStyleClass("Wt-datepicker");
     break;
-    
+
   case DatePickerIcon:
     {
       auto icon = dynamic_cast<WImage*>(child);
@@ -201,7 +201,7 @@ void WBootstrap5Theme::apply(WWidget *widget, WWidget *child, int widgetRole)
     }
     break;
   }
-    
+
   case PanelTitleBar: {
     auto panel = dynamic_cast<WPanel*>(widget);
     if (panel && panel->isCollapsible()) {
@@ -242,11 +242,11 @@ void WBootstrap5Theme::apply(WWidget *widget, WWidget *child, int widgetRole)
   case InPlaceEditing:
     child->addStyleClass("input-group");
     break;
-    
+
   case InPlaceEditingButton:
     child->addStyleClass("btn-outline-secondary");
     break;
-    
+
   case NavCollapse:
     child->addStyleClass("navbar-collapse collapse");
     break;
@@ -262,7 +262,7 @@ void WBootstrap5Theme::apply(WWidget *widget, WWidget *child, int widgetRole)
   case NavbarMenu:
     child->addStyleClass("navbar-nav");
     break;
-    
+
   case NavbarBtn:
     child->addStyleClass("navbar-toggler");
     break;
@@ -532,7 +532,7 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
       widget->removeStyleClass("form-control");
     }
     break;
-  
+
   default:
     break;
   }

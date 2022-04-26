@@ -23,19 +23,19 @@ void Layout::populateSubMenu(Wt::WMenu *menu)
                 deferCreate([this]{ return containers(); }))->setPathComponent("");
   menu->addItem("HTML Templates",
                 deferCreate([this]{ return templates(); }));
-  menu->addItem("Text", 
+  menu->addItem("Text",
                 deferCreate([this]{ return text(); }));
-  menu->addItem("Grouping widgets", 
+  menu->addItem("Grouping widgets",
                 deferCreate([this]{ return grouping(); }));
-  menu->addItem("Layout managers", 
+  menu->addItem("Layout managers",
                 deferCreate([this]{ return layoutManagers(); }));
-  menu->addItem("Dialogs", 
+  menu->addItem("Dialogs",
                 deferCreate([this]{ return dialogs(); }));
-  menu->addItem("Images", 
+  menu->addItem("Images",
                 deferCreate([this]{ return images(); }));
-  menu->addItem("CSS", 
+  menu->addItem("CSS",
                 deferCreate([this]{ return css(); }));
-  menu->addItem("Themes", 
+  menu->addItem("Themes",
                 deferCreate([this]{ return themes(); }));
 }
 
@@ -61,7 +61,7 @@ std::unique_ptr<Wt::WWidget> Layout::templates()
 
   // Show the XML-template as text
   result->bindString("template-text", reindent(Wt::WString::tr("WTemplate-example")),
-		     Wt::TextFormat::Plain);
+                     Wt::TextFormat::Plain);
 
   return std::move(result);
 }
@@ -171,7 +171,7 @@ std::unique_ptr<Wt::WWidget> Layout::css()
 
   // Show the style sheet as text
   result->bindString("CSS-example-style", reindent(Wt::WString::tr("CSS-example-style")),
-		     Wt::TextFormat::Plain);
+                     Wt::TextFormat::Plain);
 
   return std::move(result);
 }

@@ -228,7 +228,7 @@ public:
    * \sa drawArc(const WRectF&, int, int)
    */
   void drawArc(double x, double y, double width, double height,
-	       int startAngle, int spanAngle);
+               int startAngle, int spanAngle);
 
   /*! \brief Draws a chord.
    *
@@ -253,7 +253,7 @@ public:
    * \sa drawChord(const WRectF&, int, int)
    */
   void drawChord(double x, double y, double width, double height,
-		 int startAngle, int spanAngle);
+                 int startAngle, int spanAngle);
 
   /*! \brief Draws an ellipse.
    *
@@ -335,7 +335,7 @@ public:
    * This is an overloaded method provided for convenience.
    */
   void drawImage(const WPointF& point, const Image& image,
-		 const WRectF& sourceRect);
+                 const WRectF& sourceRect);
 
   /*! \brief Draws an image inside a rectangle.
    *
@@ -353,7 +353,7 @@ public:
    * rectangle).
    */
   void drawImage(const WRectF& rect, const Image& image,
-		 const WRectF& sourceRect);
+                 const WRectF& sourceRect);
 
   /*! \brief Draws part of an image.
    *
@@ -362,7 +362,7 @@ public:
    * image to the location (<i>x</i>, \p y).
    */
   void drawImage(double x, double y, const Image& image,
-		 double sx = 0, double sy = 0, double sw = -1, double sh = -1);
+                 double sx = 0, double sy = 0, double sw = -1, double sh = -1);
 
   /*! \brief Draws a line.
    *
@@ -370,7 +370,7 @@ public:
    *
    * \sa drawLine(const WPointF&, const WPointF&),
    *     drawLine(double, double, double, double)
-   */  
+   */
   void drawLine(const WLineF& line);
 
   /*! \brief Draws a line.
@@ -379,7 +379,7 @@ public:
    *
    * \sa drawLine(const WLineF&),
    *     drawLine(double, double, double, double)
-   */  
+   */
   void drawLine(const WPointF& p1, const WPointF& p2);
 
   /*! \brief Draws a line.
@@ -388,13 +388,13 @@ public:
    *
    * \sa drawLine(const WLineF&),
    *     drawLine(const WPointF&, const WPointF&)
-   */  
+   */
   void drawLine(double x1, double y1, double x2, double y2);
 
   /*! \brief Draws an array of lines.
    *
    * Draws the \p lineCount first lines from the given array of lines.
-   */  
+   */
   void drawLines(const WT_ARRAY WLineF *lines, int lineCount);
 
   /*! \brief Draws an array of lines.
@@ -409,7 +409,7 @@ public:
   /*! \brief Draws an array of lines.
    *
    * Draws the lines given in the vector.
-   */  
+   */
   void drawLines(const std::vector<WLineF>& lines);
 
   /*! \brief Draws an array of lines.
@@ -417,7 +417,7 @@ public:
    * Draws a number of lines that are specified by pairs of begin- and
    * endpoints. The vector should hold a number of points that is a
    * multiple of two.
-   */  
+   */
   void drawLines(const std::vector<WPointF>& pointPairs);
 
   /*! \brief Draws a (complex) path.
@@ -426,7 +426,7 @@ public:
    *
    * \sa strokePath(const WPainterPath&, const WPen&),
    *     fillPath(const WPainterPath&, const WBrush&)
-   */  
+   */
   void drawPath(const WPainterPath& path);
 
   /*! \brief Draws a WPainterPath on every anchor point of a path.
@@ -445,8 +445,8 @@ public:
    * not be drawn when softClipping is enabled.
    */
   void drawStencilAlongPath(const WPainterPath &stencil,
-			    const WPainterPath &path,
-			    bool softClipping = false);
+                            const WPainterPath &path,
+                            bool softClipping = false);
 
   /*! \brief Draws a pie.
    *
@@ -472,7 +472,7 @@ public:
    * \sa drawPie(const WRectF&, int, int)
    */
   void drawPie(double x, double y, double width, double height,
-	       int startAngle, int spanAngle);
+               int startAngle, int spanAngle);
 
   /*! \brief Draws a point.
    *
@@ -510,7 +510,7 @@ public:
    * \sa drawPath(const WPainterPath&), drawPolyline()
    */
   void drawPolygon(const WT_ARRAY WPointF *points, int pointCount
-		   /*, FillRule fillRule */);
+                   /*, FillRule fillRule */);
 
   /*! \brief Draws a polyline.
    *
@@ -554,7 +554,7 @@ public:
    * \sa drawRect(const WRectF&)
    */
   void drawRects(const std::vector<WRectF>& rectangles);
-  
+
   /*! \brief Draws text.
    *
    * Draws text using inside the rectangle, using the current font. The
@@ -569,7 +569,7 @@ public:
    * AlignmentFlag::Top, AlignmentFlag::Middle or AlignmentFlag::Bottom.
    *
    * TextFlag determines how the text is rendered in the rectangle.
-   * Text can be rendered on one line or by wrapping the words within the 
+   * Text can be rendered on one line or by wrapping the words within the
    * rectangle.
    *
    * If a clipPoint is provided, the text will not be drawn
@@ -590,38 +590,38 @@ public:
    * rendering. Native HTML5 text rendering is supported on Firefox3+,
    * Chrome2+ and Safari4+.
    *
-   * \note TextFlag::WordWrap: using the TextFlag::WordWrap TextFlag is currently only 
+   * \note TextFlag::WordWrap: using the TextFlag::WordWrap TextFlag is currently only
    * supported by the SVG backend. The code generated by the SVG backend uses
    * features currently only supported by Inkscape. Inkscape currently supports
    * only Side::Top vertical alignments.
    */
-  void drawText(const WRectF& rect, 
-		WFlags<AlignmentFlag> alignmentFlags,
-		TextFlag textFlag,
-		const WString& text,
-		const WPointF *clipPoint = nullptr);
+  void drawText(const WRectF& rect,
+                WFlags<AlignmentFlag> alignmentFlags,
+                TextFlag textFlag,
+                const WString& text,
+                const WPointF *clipPoint = nullptr);
 
   void drawTextOnPath(const WRectF& rect,
-		      WFlags<AlignmentFlag> alignmentFlags,
-		      const std::vector<WString> &text,
-		      const WTransform &transform,
-		      const WPainterPath &path,
-		      // lineHeight could be calculated inside of this
-		      // method, but let's leave it like this for now,
-		      // with this method undocumented.
-		      double angle, double lineHeight,
-		      bool softClipping);
+                      WFlags<AlignmentFlag> alignmentFlags,
+                      const std::vector<WString> &text,
+                      const WTransform &transform,
+                      const WPainterPath &path,
+                      // lineHeight could be calculated inside of this
+                      // method, but let's leave it like this for now,
+                      // with this method undocumented.
+                      double angle, double lineHeight,
+                      bool softClipping);
 
   /*! \brief Draws text.
    *
-   * This is an overloaded method for convenience, it will render text on a 
+   * This is an overloaded method for convenience, it will render text on a
    * single line.
    *
    * \sa drawText(const WRectF&, WFlags<AlignmentFlag>, TextFlag textFlag, const WString&)
    */
   void drawText(const WRectF& rectangle, WFlags<AlignmentFlag> flags,
-		const WString& text);
-  
+                const WString& text);
+
   /*! \brief Draws text.
    *
    * This is an overloaded method for convenience.
@@ -629,21 +629,21 @@ public:
    * \sa drawText(const WRectF&, WFlags<AlignmentFlag>, const WString&)
    */
   void drawText(double x, double y, double width, double height,
-		WFlags<AlignmentFlag> flags, const WString& text);
-  
+                WFlags<AlignmentFlag> flags, const WString& text);
+
   /*! \brief Draws text.
    *
    * This is an overloaded method for convenience.
    *
-   * \sa drawText(const WRectF& rect, 
-   *		 WFlags<AlignmentFlag> alignmentFlags,
-   *		 TextFlag textFlag,
-   *		 const WString& text)
+   * \sa drawText(const WRectF& rect,
+   *              WFlags<AlignmentFlag> alignmentFlags,
+   *              TextFlag textFlag,
+   *              const WString& text)
    */
-  void drawText(double x, double y, double width, double height, 
-		WFlags<AlignmentFlag> alignmentFlags,
-		TextFlag textFlag,
-		const WString& text);
+  void drawText(double x, double y, double width, double height,
+                WFlags<AlignmentFlag> alignmentFlags,
+                TextFlag textFlag,
+                const WString& text);
 
   /*! \brief Fills a (complex) path.
    *
@@ -670,7 +670,7 @@ public:
    * \sa fillRect(const WRectF&, const WBrush&)
    */
   void fillRect(double x, double y, double width, double height,
-		const WBrush& brush);
+                const WBrush& brush);
 
   /*! \brief Strokes a path.
    *
@@ -1001,9 +1001,9 @@ private:
 
   void recalculateViewTransform();
 
-  void drawMultilineText(const WRectF& rect, 
-			 WFlags<AlignmentFlag> alignmentFlags,
-			 const WString& text);
+  void drawMultilineText(const WRectF& rect,
+                         WFlags<AlignmentFlag> alignmentFlags,
+                         const WString& text);
 };
 
 }

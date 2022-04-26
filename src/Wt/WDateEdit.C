@@ -157,8 +157,8 @@ void WDateEdit::setFromLineEdit()
       WDate j = Utils::first(calendar_->selection());
 
       if (j != d) {
-	calendar_->select(d);
-	calendar_->selectionChanged().emit();
+        calendar_->select(d);
+        calendar_->selectionChanged().emit();
       }
     }
 
@@ -194,8 +194,8 @@ WDate WDateEdit::bottom() const
 {
   return calendar_->bottom();
 }
-  
-void WDateEdit::setTop(const WDate& top) 
+
+void WDateEdit::setTop(const WDate& top)
 {
   std::shared_ptr<WDateValidator> dv = dateValidator();
   if (dv)
@@ -210,9 +210,9 @@ WDate WDateEdit::top() const
 }
 
 void WDateEdit::connectJavaScript(Wt::EventSignalBase& s,
-				  const std::string& methodName)
+                                  const std::string& methodName)
 {
-  std::string jsFunction = 
+  std::string jsFunction =
     "function(dobj, event) {"
     """var o = " + jsRef() + ";"
     """if (o && o.wtDObj) o.wtDObj." + methodName + "(dobj, event);"
@@ -228,7 +228,7 @@ void WDateEdit::defineJavaScript()
   LOAD_JAVASCRIPT(app, "js/WDateEdit.js", "WDateEdit", wtjs1);
 
   std::string jsObj = "new " WT_CLASS ".WDateEdit("
-    + app->javaScriptClass() + "," + jsRef() + "," 
+    + app->javaScriptClass() + "," + jsRef() + ","
     + jsStringLiteral(popup_->id()) + ");";
 
   setJavaScriptMember(" WDateEdit", jsObj);

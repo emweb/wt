@@ -48,13 +48,13 @@ struct WServer::Impl
     Configuration& conf = server_.configuration();
 
     if (!Server::bindUDStoStdin(conf.runDirectory() + "/" + sessionId_,
-				server_))
+                                server_))
       exit(1);
 
     try {
       FCGIStream fcgiStream;
       webMainInstance = webMain_
-	= new WebMain(&server_, &fcgiStream, sessionId_);
+        = new WebMain(&server_, &fcgiStream, sessionId_);
       webMain_->run();
 
       sleep(1);
@@ -64,14 +64,14 @@ struct WServer::Impl
 
     } catch (std::exception& e) {
       LOG_ERROR_S(&server_,
-		  "fatal: dedicated session process for " << sessionId_ <<
-		  ": caught unhandled exception: " << e.what());
+                  "fatal: dedicated session process for " << sessionId_ <<
+                  ": caught unhandled exception: " << e.what());
 
       throw;
     } catch (...) {
       LOG_ERROR_S(&server_,
-		  "fatal: dedicated session process for " << sessionId_ <<
-		  ": caught unknown, unhandled exception.");
+                  "fatal: dedicated session process for " << sessionId_ <<
+                  ": caught unknown, unhandled exception.");
 
       throw;
     }
@@ -80,10 +80,10 @@ struct WServer::Impl
   void startSharedProcess()
   {
     Configuration& conf = server_.configuration();
-    
+
     if (!Server::bindUDStoStdin(conf.runDirectory() + "/server-"
-				+ std::to_string(getpid()),
-				server_))
+                                + std::to_string(getpid()),
+                                server_))
       exit(1);
 
     try {
@@ -95,14 +95,14 @@ struct WServer::Impl
       webMainInstance = webMain_ = nullptr;
     } catch (std::exception& e) {
       LOG_ERROR_S(&server_,
-		  "fatal: shared session process: caught unhandled exception: "
-		  << e.what());
+                  "fatal: shared session process: caught unhandled exception: "
+                  << e.what());
 
       throw;
     } catch (...) {
       LOG_ERROR_S(&server_,
-		  "fatal: shared session process: caught unknown, unhandled "
-		  "exception.");
+                  "fatal: shared session process: caught unknown, unhandled "
+                  "exception.");
 
       throw;
     }
@@ -142,9 +142,9 @@ void handleSigHup(int)
 }
 
 WServer::WServer(const std::string& applicationPath,
-		 const std::string& wtConfigurationFile)
+                 const std::string& wtConfigurationFile)
   : impl_(new Impl(*this))
-{ 
+{
   init(applicationPath, wtConfigurationFile);
 }
 
@@ -178,7 +178,7 @@ std::vector<WServer::SessionInfo> WServer::sessions() const
 }
 
 void WServer::setServerConfiguration(int argc, char *argv[],
-				     const std::string&)
+                                     const std::string&)
 {
   std::string applicationPath = argv[0];
   std::vector<std::string> args(argv + 1, argv + argc);
@@ -210,8 +210,8 @@ bool WServer::start()
   }
 
   LOG_INFO_S(this, "initializing " <<
-	     (impl_->sessionId_.empty() ? "shared" : "dedicated") <<
-	     " wtfcgi session process");
+             (impl_->sessionId_.empty() ? "shared" : "dedicated") <<
+             " wtfcgi session process");
 
   if (configuration().webSockets()) {
     LOG_ERROR_S(this, "FastCGI does not support web-sockets, disabling");
@@ -222,13 +222,13 @@ bool WServer::start()
 
   if (signal(SIGTERM, Wt::handleSigTerm) == SIG_ERR)
     LOG_ERROR_S(this, "cannot catch SIGTERM: signal(): "
-		<< (const char *)strerror(errno));
-  if (signal(SIGUSR1, Wt::handleSigUsr1) == SIG_ERR) 
+                << (const char *)strerror(errno));
+  if (signal(SIGUSR1, Wt::handleSigUsr1) == SIG_ERR)
     LOG_ERROR_S(this, "cannot catch SIGUSR1: signal(): "
-		<< (const char *)strerror(errno));
-  if (signal(SIGHUP, Wt::handleSigHup) == SIG_ERR) 
+                << (const char *)strerror(errno));
+  if (signal(SIGHUP, Wt::handleSigHup) == SIG_ERR)
     LOG_ERROR_S(this, "cannot catch SIGHUP: signal(): "
-		<< (const char *)strerror(errno));
+                << (const char *)strerror(errno));
 
   webController_ = new Wt::WebController(*this, impl_->sessionId_, false);
 
@@ -277,8 +277,8 @@ void WServer::resume()
   }
 }
 
-void WServer::setSslPasswordCallback(const std::function<std::string 
-			 (std::size_t max_length, int purpose)>& cb)
+void WServer::setSslPasswordCallback(const std::function<std::string
+                         (std::size_t max_length, int purpose)>& cb)
 {
   LOG_INFO_S(this,
     "setSslPasswordCallback(): has no effect in fcgi connector");

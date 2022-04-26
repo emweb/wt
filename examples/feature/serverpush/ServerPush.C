@@ -47,7 +47,7 @@ public:
 
   virtual ~BigWorkWidget() {
     if (workThread_.get_id() != std::this_thread::get_id() &&
-	workThread_.joinable())
+        workThread_.joinable())
       workThread_.join();
   }
 

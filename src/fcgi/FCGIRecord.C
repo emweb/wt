@@ -35,7 +35,7 @@ FCGIRecord::FCGIRecord(short requestId, char version)
   plainTextBuf_[5] = 8;
   plainTextBuf_[6] = 0;
   plainTextBuf_[7] = 0;
-  
+
   plainTextBuf_[8] = 0;
   plainTextBuf_[9] = 0;
   plainTextBuf_[10] = 0;
@@ -70,8 +70,8 @@ int FCGIRecord::getChar(int fd, bool waitForIt)
     result = ::read(fd, buf, 1);
     if (result == -1) {
       if (errno != EINTR) {
-	perror("read");
-	throw Wt::WException("Error reading (1)");
+        perror("read");
+        throw Wt::WException("Error reading (1)");
       }
     } else
       break;
@@ -80,20 +80,20 @@ int FCGIRecord::getChar(int fd, bool waitForIt)
   if (result == 0) {
     if (waitForIt) {
       while (result == 0) {
-	usleep(100);
-	result = ::read(fd, buf, 1);
-	if (result == -1) {
-	  if (errno != EINTR) {
-	    perror("read");
-	    throw Wt::WException("Error reading (2)");
-	  } else
-	    result = 0; // try again
-	}
+        usleep(100);
+        result = ::read(fd, buf, 1);
+        if (result == -1) {
+          if (errno != EINTR) {
+            perror("read");
+            throw Wt::WException("Error reading (2)");
+          } else
+            result = 0; // try again
+        }
       }
     } else
       return -1;
   }
-     
+
   if (plainTextLength_ >= plainTextBufLength_) {
     plainTextBufLength_ += 1024;
     plainTextBuf_ = (unsigned char *)
@@ -106,7 +106,7 @@ int FCGIRecord::getChar(int fd, bool waitForIt)
 }
 
 bool FCGIRecord::getAndAssign(int fd, unsigned char& result,
-			      bool waitForIt)
+                              bool waitForIt)
 {
   int c = getChar(fd, waitForIt);
   if (c != -1) {
@@ -118,7 +118,7 @@ bool FCGIRecord::getAndAssign(int fd, unsigned char& result,
 }
 
 bool FCGIRecord::getBuffer(int fd, unsigned char *buf,
-			   int length)
+                           int length)
 {
   int count = 0;
 
@@ -126,8 +126,8 @@ bool FCGIRecord::getBuffer(int fd, unsigned char *buf,
     int result = ::read(fd, buf + count, length - count);
     if (result == -1) {
       if (errno != EINTR) {
-	perror("read");
-	throw Wt::WException("Error reading (3)");
+        perror("read");
+        throw Wt::WException("Error reading (3)");
       } // else try again
     } else {
       count += result;
@@ -221,24 +221,24 @@ bool FCGIRecord::getParam(const std::string name, std::string& value) const
       i += 1;
     } else {
       nameLen =
-	((unsigned)(contentData_[i] & 0x7F) << 24)
-	| ((unsigned)contentData_[i+1] << 16)
-	| ((unsigned)contentData_[i+2] << 8)
-	| ((unsigned)contentData_[i+3]);
+        ((unsigned)(contentData_[i] & 0x7F) << 24)
+        | ((unsigned)contentData_[i+1] << 16)
+        | ((unsigned)contentData_[i+2] << 8)
+        | ((unsigned)contentData_[i+3]);
       i += 4;
     }
 
     unsigned int valueLen;
-  
+
     if ((contentData_[i] >> 7) == 0) {
       valueLen = contentData_[i];
       i += 1;
     } else {
       valueLen =
-	(((unsigned)contentData_[i] & 0x7F) << 24)
-	| ((unsigned)contentData_[i+1] << 16)
-	| ((unsigned)contentData_[i+2] << 8)
-	| ((unsigned)contentData_[i+3]);
+        (((unsigned)contentData_[i] & 0x7F) << 24)
+        | ((unsigned)contentData_[i+1] << 16)
+        | ((unsigned)contentData_[i+2] << 8)
+        | ((unsigned)contentData_[i+3]);
       i += 4;
     }
 

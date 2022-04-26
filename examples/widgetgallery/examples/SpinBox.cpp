@@ -23,7 +23,7 @@ out->addStyleClass("help-block");
 sb->changed().connect([=] {
     if (sb->validate() == Wt::ValidationState::Valid) {
         out->setText(Wt::WString("Spin box value changed to {1}")
-		     .arg(sb->text()));
+                     .arg(sb->text()));
     } else {
         out->setText(Wt::WString("Invalid spin box value!"));
     }

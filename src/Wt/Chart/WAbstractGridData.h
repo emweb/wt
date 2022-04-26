@@ -287,22 +287,22 @@ public:
 
 protected:
   virtual void pointDataFromModel(FloatBuffer& simplePtsArray,
-				  FloatBuffer& simplePtsSize,
-				  FloatBuffer& coloredPtsArray,
-				  FloatBuffer& coloredPtsSize,
-				  FloatBuffer& coloredPtsColor) const = 0;
+                                  FloatBuffer& simplePtsSize,
+                                  FloatBuffer& coloredPtsArray,
+                                  FloatBuffer& coloredPtsSize,
+                                  FloatBuffer& coloredPtsColor) const = 0;
   virtual void surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) const = 0;
   virtual void barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) const = 0;
   virtual void barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays,
-				std::vector<FloatBuffer>& coloredPtsArrays,
-				std::vector<FloatBuffer>& coloredPtsColors) const = 0;
+                                std::vector<FloatBuffer>& coloredPtsArrays,
+                                std::vector<FloatBuffer>& coloredPtsColors) const = 0;
 
   // data without color-role
   virtual int countSimpleData() const = 0;
   // adds up the value (i, j) for all dataseries, i and j should be specified
   // without any offsets for axes in the model
   float stackAllValues(std::vector<WAbstractGridData*> dataseries,
-		       int i, int j) const;
+                       int i, int j) const;
 
   Series3DType seriesType_;
 
@@ -322,16 +322,16 @@ private:
   void initializeSurfaceSeriesBuffers();
   void initializeBarSeriesBuffers();
   void loadBinaryResource(FloatBuffer&,
-			  std::vector<WGLWidget::Buffer>& buffers);
+                          std::vector<WGLWidget::Buffer>& buffers);
   void barSeriesVertexData(FloatBuffer& verticesIN,
-			   FloatBuffer& verticesOUT) const;
+                           FloatBuffer& verticesOUT) const;
   void generateVertexIndices(IntBuffer& indicesOUT,
-			     int Nx, int Ny, int size = 0) const;
+                             int Nx, int Ny, int size = 0) const;
   void generateMeshIndices(IntBuffer& indicesOUT,
-			   int Nx, int Ny, int size = 0);
+                           int Nx, int Ny, int size = 0);
   void generateTextureCoords(FloatBuffer& coordsOUT,
-			     const FloatBuffer& dataArray,
-			     int size);
+                             const FloatBuffer& dataArray,
+                             int size);
 
   void paintGLIndex(unsigned index) const;
   void paintGLIndex(unsigned index, double marginX, double marginY, double marginZ) const;

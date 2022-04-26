@@ -155,8 +155,8 @@ public:
    * \note This must be set before the initial rendering and cannot
    *       be changed later.
    */
-  void setHeaderCount(int count, 
-		      Orientation orientation = Orientation::Horizontal);
+  void setHeaderCount(int count,
+                      Orientation orientation = Orientation::Horizontal);
 
   /*! \brief Returns the number of header rows or columns.
    *
@@ -231,7 +231,7 @@ protected:
   virtual DomElementType domElementType() const override;
   virtual DomElement *createDomElement(WApplication *app) override;
   virtual void getDomChanges(std::vector<DomElement *>& result,
-			     WApplication *app) override;
+                             WApplication *app) override;
   virtual void propagateRenderOk(bool deep) override;
 
   virtual void iterateChildren(const HandleWidgetMethod &method) const override;

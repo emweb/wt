@@ -42,10 +42,10 @@ public:
 
     httpClient_->done().connect
       (this, std::bind(&FacebookProcess::handleMe, this,
-		       std::placeholders::_1,
-		       std::placeholders::_2));
+                       std::placeholders::_1,
+                       std::placeholders::_2));
     httpClient_->get("https://graph.facebook.com/me?fields=name,id,email&access_token="
-		     + token.value());
+                     + token.value());
 
 #ifndef WT_TARGET_JAVA
     // Gives warning when not using popup since it's not called from the event
@@ -73,31 +73,31 @@ private:
 #else
       Json::Object me;
       try {
-	me = (Json::Object)Json::Parser().parse(response.body());
+        me = (Json::Object)Json::Parser().parse(response.body());
       } catch (Json::ParseError pe) {
       }
       bool ok = me.isNull();
 #endif
 
       if (!ok) {
-	LOG_ERROR("could not parse Json: '" << response.body() << "'");
-	setError(ERROR_MSG("badjson"));
-	authenticated().emit(Identity::Invalid);
+        LOG_ERROR("could not parse Json: '" << response.body() << "'");
+        setError(ERROR_MSG("badjson"));
+        authenticated().emit(Identity::Invalid);
       } else {
-	std::string id = me.get("id");
-	WT_USTRING userName = me.get("name");
-	std::string email = me.get("email").orIfNull("");
+        std::string id = me.get("id");
+        WT_USTRING userName = me.get("name");
+        std::string email = me.get("email").orIfNull("");
         bool emailVerified = !me.get("email").isNull();
 
-	authenticated().emit(Identity(service().name(), id, userName,
-				      email, emailVerified));
+        authenticated().emit(Identity(service().name(), id, userName,
+                                      email, emailVerified));
       }
     } else {
       if (!err) {
-	LOG_ERROR("user info request returned: " << response.status());
-	LOG_ERROR("with: " << response.body());
+        LOG_ERROR("user info request returned: " << response.status());
+        LOG_ERROR("with: " << response.body());
       } else
-	LOG_ERROR("handleMe(): " << err.message());
+        LOG_ERROR("handleMe(): " << err.message());
 
       setError(ERROR_MSG("badresponse"));
 
@@ -126,7 +126,7 @@ bool FacebookService::configured()
 
     return false;
   }
-}    
+}
 
 std::string FacebookService::name() const
 {

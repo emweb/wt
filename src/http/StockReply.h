@@ -31,17 +31,17 @@ class WTHTTP_API StockReply final : public Reply
 {
 public:
   StockReply(Request& request, status_type status,
-	     const Configuration& configuration);
+             const Configuration& configuration);
 
   StockReply(Request& request, status_type status,
-	     std::string extraContent,
-	     const Configuration& configuration);
+             std::string extraContent,
+             const Configuration& configuration);
 
   virtual void reset(const Wt::EntryPoint *ep) override;
 
   virtual bool consumeData(const char *begin,
-			   const char *end,
-			   Request::State state) override;
+                           const char *end,
+                           Request::State state) override;
 
 protected:
   virtual std::string contentType() override;

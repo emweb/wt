@@ -60,37 +60,37 @@ WT_DECLARE_WT_MEMBER
 
     if (c.nodeType == 1 && !$(c).hasClass("wt-reparented")) {
       if (hdefined) {
-	var ch = h - marginV(c);
+        var ch = h - marginV(c);
 
-	if (ch > 0) {
-	  /*
-	    to prevent that the first child widget's top margin bleeds
-	    to shift this child down, we set overflow. See also #2809
-	    and the original work-around 548948b63
-	  */
-	  if (c.offsetTop > 0) {
-	    var of = WT.css(c, 'overflow');
-	    if (of === 'visible' || of === '')
-	      c.style.overflow = 'auto';
-	  }
+        if (ch > 0) {
+          /*
+            to prevent that the first child widget's top margin bleeds
+            to shift this child down, we set overflow. See also #2809
+            and the original work-around 548948b63
+          */
+          if (c.offsetTop > 0) {
+            var of = WT.css(c, 'overflow');
+            if (of === 'visible' || of === '')
+              c.style.overflow = 'auto';
+          }
 
-	  if (c.wtResize)
-	    c.wtResize(c, w, ch, true);
-	  else {
-	    var cheight = ch + 'px';
-	    if (c.style.height != cheight) {
-	      c.style.height = cheight;
-	      c.lh = true;
-	    }
-	  }
-	}
+          if (c.wtResize)
+            c.wtResize(c, w, ch, true);
+          else {
+            var cheight = ch + 'px';
+            if (c.style.height != cheight) {
+              c.style.height = cheight;
+              c.lh = true;
+            }
+          }
+        }
       } else {
-	if (c.wtResize)
-	  c.wtResize(c, w, -1, true);
-	else {
-	  c.style.height = '';
-	  c.lh = false;
-	}
+        if (c.wtResize)
+          c.wtResize(c, w, -1, true);
+        else {
+          c.style.height = '';
+          c.lh = false;
+        }
       }
     }
   }
@@ -134,10 +134,10 @@ WT_DECLARE_WT_MEMBER
     h -= c.offsetHeight + WT.px(c, 'marginTop') + WT.px(c, 'marginBottom');
     if (h > 0) {
       if (t.wtResize)
-	t.wtResize(t, w, h, true);
+        t.wtResize(t, w, h, true);
       else {
-	t.style.height = h + 'px';
-	t.lh = true;
+        t.style.height = h + 'px';
+        t.lh = true;
       }
     }
   } else {
@@ -161,12 +161,12 @@ WT_DECLARE_WT_MEMBER
     if (c != child) {
       var pc = WT.css(c, 'position');
       if (pc != 'absolute' && pc != 'fixed') {
-	if (dir === 0) {
-	  size = Math.max(size, c.offsetWidth);
-	} else {
-	  size += c.offsetHeight + WT.px(c, 'marginTop')
-	    + WT.px(c, 'marginBottom');
-	}
+        if (dir === 0) {
+          size = Math.max(size, c.offsetWidth);
+        } else {
+          size += c.offsetHeight + WT.px(c, 'marginTop')
+            + WT.px(c, 'marginBottom');
+        }
       }
     }
   }

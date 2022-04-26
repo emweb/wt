@@ -19,7 +19,7 @@ namespace Wt {
 
 /*! \class WSslCertificate Wt/WSslCertificate.h Wt/WSslCertificate.h.C
  *  \brief An interface to an SSL certificate
- *  
+ *
  * This class provides an interface to an X.509 certificate, as used
  * by SSL (server and client cert). The certificates are usually
  * obtained by calling methods of class WSslInfo.
@@ -45,8 +45,8 @@ class WT_API WSslCertificate
    * \sa DnAttribute
    */
   enum DnAttributeName {
-    CountryName,            //!< Country name 
-    CommonName,             //!< Common name 
+    CountryName,            //!< Country name
+    CommonName,             //!< Common name
     LocalityName,           //!< Locality name
     Surname,                //!< Surname
     GivenName,              //!< Given name
@@ -60,7 +60,7 @@ class WT_API WSslCertificate
     DnAttributeNameCount
   };
 
-  /*! \brief Distinguished name attribute (also known as relative 
+  /*! \brief Distinguished name attribute (also known as relative
    *  distinguished name)
    *
    * \sa WSslCertificate::subjectDn()
@@ -68,10 +68,10 @@ class WT_API WSslCertificate
    */
   class WT_API DnAttribute {
   public:
-    DnAttribute(DnAttributeName name, std::string value) 
+    DnAttribute(DnAttributeName name, std::string value)
       : name_(name),
-	value_(value) { }
-    
+        value_(value) { }
+
     /*! \brief Returns the attribute name as an enum */
     DnAttributeName name() const { return name_; }
 
@@ -82,9 +82,9 @@ class WT_API WSslCertificate
     /*! \brief Returns the attribute's long name.
      */
     std::string longName() const;
-    
+
     /*! \brief Returns the attribute's short name.
-     */ 
+     */
     std::string shortName() const;
 
   private:
@@ -96,73 +96,73 @@ class WT_API WSslCertificate
    * WSslCertificates are for now always constructed in Wt's connectors.
    */
   WSslCertificate(const std::vector<DnAttribute> &subjectDn,
-	   const std::vector<DnAttribute> &issuerDn,
-	   const Wt::WDateTime &validityStart,
-	   const Wt::WDateTime &validityEnd,
-	   const std::string &pemCert);
+           const std::vector<DnAttribute> &issuerDn,
+           const Wt::WDateTime &validityStart,
+           const Wt::WDateTime &validityEnd,
+           const std::string &pemCert);
 
   /*! \brief Returns the distinguished name attributes of the subject.
    *
-   * A distinguished name (DN) defining the entity associated with this 
+   * A distinguished name (DN) defining the entity associated with this
    * certificate. Only the fields listed in enum DnAttributeName are
    * decoded from the certificate.
    */
-  const std::vector<DnAttribute> &subjectDn() const { 
-    return subjectDn_; 
+  const std::vector<DnAttribute> &subjectDn() const {
+    return subjectDn_;
   }
 
-  /*! \brief Returns the distinguished name of the subject in 
+  /*! \brief Returns the distinguished name of the subject in
    *   string format.
    *
    * For example: CN=Pietje Puk,OU=Development,O=Emweb
    */
   std::string subjectDnString() const;
-  
+
   /*! \brief Returns the distinguished name attributes of the issuer.
    *
-   * The distinguished name (DN) of the authority that signed and therefore 
+   * The distinguished name (DN) of the authority that signed and therefore
    * issued the certificate. This is the Certification Authority (CA),
    * unless a certificate chain is used.
    */
-  const std::vector<DnAttribute> &issuerDn() const { 
-    return issuerDn_; 
+  const std::vector<DnAttribute> &issuerDn() const {
+    return issuerDn_;
   }
-  
+
   /*! \brief Returns the distinguished name of the issuer in
    *   string format.
    *
    * An example: CN=Pietje Puk,OU=Development,O=Emweb
    */
   std::string issuerDnString() const;
-  
+
   /*! \brief Returns the start time of the validity period of the certificate.
    *
    * The returned date may be invalid if not provided in the certificate.
    *
    * \sa validityEnd()
    */
-  const Wt::WDateTime &validityStart() const { 
-    return validityStart_; 
+  const Wt::WDateTime &validityStart() const {
+    return validityStart_;
   }
-  
+
   /*! \brief Returns the end time of the validity period of the certificate.
    *
    * The returned date may be invalid if not provided in the certificate.
    *
    * \sa validityStart()
    */
-  const Wt::WDateTime &validityEnd() const { 
-    return validityEnd_; 
+  const Wt::WDateTime &validityEnd() const {
+    return validityEnd_;
   }
 
   /*! \brief Returns the textual PEM-encoded certificate.
    *
    * \sa pemToDer()
    */
-  const std::string &toPem() const { 
-    return pemCert_; 
+  const std::string &toPem() const {
+    return pemCert_;
   }
-  
+
   /*! \brief Returns the binary DER-encoded certificate.
    *
    * This function returns WSslCertificate::pemToDer(toPem()). It will therefore throw a
@@ -170,7 +170,7 @@ class WT_API WSslCertificate
    *
    * \sa pemToDer()
    */
-  std::string toDer() const { 
+  std::string toDer() const {
     return pemToDer(pemCert_);
   }
 

@@ -152,9 +152,9 @@ public:
    * entire data store by using begin() and end() iterators. The
    * row order of the data is row major.
    */
-  const ArrayType &data() const { 
+  const ArrayType &data() const {
 #ifdef WT_GENERIC_MATRIX_USE_BOOST_UBLAS
-    return m_.data(); 
+    return m_.data();
 #else // !WT_GENERIC_MATRIX_USE_BOOST_UBLAS
     return m_;
 #endif // WT_GENERIC_MATRIX_USE_BOOST_UBLAS
@@ -268,7 +268,7 @@ public:
 
   /*! \brief Returns the element at the given position
    */
-  T &operator()(int row, int column) { 
+  T &operator()(int row, int column) {
 #ifdef WT_GENERIC_MATRIX_USE_BOOST_UBLAS
     return m_(row, column);
 #else // !WT_GENERIC_MATRIX_USE_BOOST_UBLAS

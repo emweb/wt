@@ -11,7 +11,7 @@ WT_DECLARE_WT_MEMBER
  function(APP, dropwidget, maxFileSize) {
 
    dropwidget.wtLObj = this;
-   
+
    var self = this, WT = APP.WT;
    var hoverClassName = 'Wt-dropzone-hover';
    var indicationClassName = 'Wt-dropzone-indication';
@@ -26,7 +26,7 @@ WT_DECLARE_WT_MEMBER
 
    var uploadWorker = undefined;
    var chunkSize = 0;
-   
+
    var dragState = 0;
 
    var hiddenInput = document.createElement('input');
@@ -41,11 +41,11 @@ WT_DECLARE_WT_MEMBER
 
    this.eventContainsFile = function(e) {
      var items = (e.dataTransfer.items != null &&
-		  e.dataTransfer.items.length > 0 &&
-		  e.dataTransfer.items[0].kind === 'file');
+                  e.dataTransfer.items.length > 0 &&
+                  e.dataTransfer.items[0].kind === 'file');
      var types = (e.dataTransfer.types != null &&
-		  e.dataTransfer.types.length > 0 &&
-		  e.dataTransfer.types[0] === 'Files');
+                  e.dataTransfer.types.length > 0 &&
+                  e.dataTransfer.types[0] === 'Files');
      return items || types;
    };
 
@@ -67,7 +67,7 @@ WT_DECLARE_WT_MEMBER
    dropwidget.setDropIndication = function(enable) {
      dropIndication = enable;
    };
-   
+
    dropwidget.setDropForward = function(enable) {
      bodyDropForward = enable;
    };
@@ -77,8 +77,8 @@ WT_DECLARE_WT_MEMBER
        return;
      else if (self.eventContainsFile(e)) {
        if (dragState === 0)
-	 self.setPageHoverStyle();
-       
+         self.setPageHoverStyle();
+
        dragState = 2;
        self.setWidgetHoverStyle(true);
      }
@@ -90,13 +90,13 @@ WT_DECLARE_WT_MEMBER
      var el = document.elementFromPoint(x, y);
      if (x===0 && y===0) // chrome issue
        el = null;
-     
+
      if (el === dropcover) {
        self.setWidgetHoverStyle(false);
        dragState = 1;
        return;
      }
-     
+
      self.resetDragDrop();
    };
 
@@ -106,9 +106,9 @@ WT_DECLARE_WT_MEMBER
 
    bodyDragEnter = function(e) {
      if (!(dropIndication || bodyDropForward)
-	 || !$(dropwidget).is(":visible"))
+         || !$(dropwidget).is(":visible"))
        return;
-     
+
      dragState = 1;
      self.setPageHoverStyle();
    };
@@ -129,17 +129,17 @@ WT_DECLARE_WT_MEMBER
        dropwidget.ondrop(e);
      else
        self.resetDragDrop();
-   }   
+   }
 
    dropwidget.ondrop = function(e) {
      e.preventDefault();
      if (!acceptDrops)
        return;
-     
+
      self.resetDragDrop();
      if (window.FormData === undefined ||
-	 e.dataTransfer.files === null ||
-	 e.dataTransfer.files.length === 0)
+         e.dataTransfer.files === null ||
+         e.dataTransfer.files.length === 0)
        return;
 
      self.addFiles(e.dataTransfer.files);
@@ -151,18 +151,18 @@ WT_DECLARE_WT_MEMBER
        var upload = new Object();
        upload.id = Math.floor(Math.random() * Math.pow(2, 31));
        upload.file = filesList[i];
-       
+
        uploads.push(upload);
-       
+
        var newUpload = {};
        newUpload['id'] = upload.id;
        newUpload['filename'] = upload.file.name;
        newUpload['type'] = upload.file.type;
        newUpload['size'] = upload.file.size;
-       
+
        newKeys.push(newUpload);
      }
-     
+
      APP.emit(dropwidget, 'dropsignal', JSON.stringify(newKeys));
    }
 
@@ -172,21 +172,21 @@ WT_DECLARE_WT_MEMBER
        hiddenInput.click();
      }
    });
-   
+
    dropwidget.markForSending = function(files) {
      for (var j=0; j < files.length; j++) {
        var id = files[j]['id'];
        for (var i=0; i < uploads.length; i++) {
-	 if (uploads[i].id === id) {
-	   uploads[i].ready = true;
-	   break;
-	 }
+         if (uploads[i].id === id) {
+           uploads[i].ready = true;
+           break;
+         }
        }
      }
 
      if (!sending) {
        if (uploads[0].ready) {
-	 self.requestSend();
+         self.requestSend();
        }
      }
    }
@@ -196,11 +196,11 @@ WT_DECLARE_WT_MEMBER
        self.uploadFinished(null);
        return;
      }
-     
+
      sending = true;
      APP.emit(dropwidget, 'requestsend', uploads[0].id);
    }
-   
+
    dropwidget.send = function(url, useFilter) {
      upload = uploads[0];
      if (upload.file.size > maxFileSize) {
@@ -209,7 +209,7 @@ WT_DECLARE_WT_MEMBER
        return;
      } else {
        var sendFn = (uploadWorker != undefined && useFilter) ?
-	   self.workerSend : self.actualSend;
+           self.workerSend : self.actualSend;
        self.validFileCheck(upload.file, sendFn, url);
      }
    }
@@ -252,9 +252,9 @@ WT_DECLARE_WT_MEMBER
 
    this.uploadFinished = function(e) {
      if ( (e != null &&
-	   e.type === 'load' &&
-	   e.currentTarget.status === 200) ||
-	  e === true) {
+           e.type === 'load' &&
+           e.currentTarget.status === 200) ||
+          e === true) {
        APP.emit(dropwidget, 'uploadfinished', uploads[0].id);
      }
      uploads.splice(0,1);
@@ -265,23 +265,23 @@ WT_DECLARE_WT_MEMBER
        APP.emit(dropwidget, 'donesending');
      }
    }
-   
+
    dropwidget.cancelUpload = function(id) {
      if (uploads[0] && uploads[0].id === id) {
        uploads[0].skip = true;
        if (uploads[0].request) {
-	 uploads[0].request.abort();
+         uploads[0].request.abort();
        } else if (uploadWorker && uploadWorker.upload === uploads[0]) {
-	 uploadWorker.postMessage({
-	   "cmd" : "cancel",
-	   "upload" : uploads[0]
-	 });
+         uploadWorker.postMessage({
+           "cmd" : "cancel",
+           "upload" : uploads[0]
+         });
        }
      } else {
        for (var i=1; i < uploads.length; i++) {
-	 if (uploads[i].id === id) {
-	   uploads[i].skip = true;
-	 }
+         if (uploads[i].id === id) {
+           uploads[i].skip = true;
+         }
        }
      }
    };
@@ -290,8 +290,8 @@ WT_DECLARE_WT_MEMBER
      if (!acceptDrops)
        return;
      if (window.FormData === undefined ||
-	 this.files === null ||
-	 this.files.length === 0)
+         this.files === null ||
+         this.files.length === 0)
        return;
 
      self.addFiles(this.files);
@@ -301,9 +301,9 @@ WT_DECLARE_WT_MEMBER
      if (dropIndication || bodyDropForward) {
        $(dropcover).addClass(dragClassName);
        $(dropwidget).addClass(dragClassName);
-       
+
        if (dropIndication)
-	 $(dropwidget).addClass(indicationClassName);
+         $(dropwidget).addClass(indicationClassName);
      }
    };
 
@@ -320,7 +320,7 @@ WT_DECLARE_WT_MEMBER
      $(dropwidget).removeClass(dragClassName);
      $(dropcover).removeClass(dragClassName);
      self.setWidgetHoverStyle(false);
-     
+
      dragState = 0;
    };
 
@@ -336,21 +336,21 @@ WT_DECLARE_WT_MEMBER
      if (url && window.Worker) {
        uploadWorker = new Worker(url);
        uploadWorker.onmessage = function(e) {
-	 if (e.data["workerfeatures"]) {
-	   if (e.data["workerfeatures"] !== "valid") {
-	     dropwidget.setUploadWorker(null);
-	     APP.emit(dropwidget, 'filternotsupported');
-	   }
-	 } else {
-	   self.uploadFinished(e.data);
-	 }
+         if (e.data["workerfeatures"]) {
+           if (e.data["workerfeatures"] !== "valid") {
+             dropwidget.setUploadWorker(null);
+             APP.emit(dropwidget, 'filternotsupported');
+           }
+         } else {
+           self.uploadFinished(e.data);
+         }
        };
        uploadWorker.postMessage({"cmd" : "check"});
      } else {
        uploadWorker = undefined;
      }
    };
-   
+
    dropwidget.setChunkSize = function(size) {
      chunkSize = size;
    };

@@ -26,8 +26,8 @@
 
 JWtHome::JWtHome(const WEnvironment& env, Dbo::SqlConnectionPool& blogDb)
   : Home(env, blogDb,
-	 "JWt, Java Web Toolkit",
-	 "jwt-home", "css/jwt")
+         "JWt, Java Web Toolkit",
+         "jwt-home", "css/jwt")
 {
   addLanguage(Lang("en", "/", "en", "English"));
 
@@ -68,20 +68,20 @@ std::unique_ptr<WWidget> JWtHome::examples()
   // The call ->setPathComponent() is to use "/examples/" instead of
   // "/examples/hello_world" as internal path
   examplesMenu_->addTab(std::move(wrapView(&JWtHome::helloWorldExample)),
-  			tr("hello-world"))->setPathComponent("");
+                          tr("hello-world"))->setPathComponent("");
   examplesMenu_->addTab(std::move(wrapView(&JWtHome::widgetGalleryExample)),
-			tr("widget-gallery"));
+                        tr("widget-gallery"));
   examplesMenu_->addTab(std::move(wrapView(&JWtHome::chartExample)),
-  			tr("charts"));
+                          tr("charts"));
   examplesMenu_->addTab(std::move(wrapView(&JWtHome::treeviewExample)),
-			tr("treeview"));
+                        tr("treeview"));
   examplesMenu_->addTab(std::move(wrapView(&JWtHome::composerExample)),
-			tr("mail-composer"));
+                        tr("mail-composer"));
   examplesMenu_->addTab(std::move(wrapView(&JWtHome::chatExample)),
-			tr("chat"));
+                        tr("chat"));
   examplesMenu_->addTab(std::move(wrapView(&JWtHome::figtreeExample)),
-			tr("figtree"));
-  
+                        tr("figtree"));
+
   // Enable internal paths for the example menu
   examplesMenu_->setInternalPathEnabled("/examples");
   examplesMenu_->currentChanged().connect(this, &Home::googleAnalyticsLogger);

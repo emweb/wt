@@ -271,7 +271,7 @@ private:
   std::vector<Rule> rules_;
 
   void addLine(const std::string& type, const std::string& scope,
-	       const WStringStream& s) const;
+               const WStringStream& s) const;
 
   friend class WLogEntry;
 };
@@ -471,8 +471,8 @@ WT_LOGGER_API extern WLogEntry log(const std::string& type);
 
 #   define LOG_INFO_S(s,m) (s)->log("info") << WT_LOGGER << ": " << m
 #   define LOG_INFO(m) do { \
-    if ( WT_LOGGING("info", WT_LOGGER))	\
-      WT_LOG("info") << WT_LOGGER << ": " << m;	\
+    if ( WT_LOGGING("info", WT_LOGGER)) \
+      WT_LOG("info") << WT_LOGGER << ": " << m; \
     }  while(0)
 #   define LOG_WARN_S(s,m) (s)->log("warning") << WT_LOGGER << ": " << m
 #   define LOG_WARN(m) do { \

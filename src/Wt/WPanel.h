@@ -110,7 +110,7 @@ public:
    *
    * \sa setCollapsible(bool)
    */
-  bool isCollapsible() const { return isCollapsible_; } 
+  bool isCollapsible() const { return isCollapsible_; }
 
   /*! \brief Sets the panel expanded or collapsed.
    *

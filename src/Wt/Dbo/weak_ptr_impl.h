@@ -20,7 +20,7 @@ const C *weak_ptr<C>::accessor::operator->() const
 {
   return p_.operator->();
 }
- 
+
 template <class C>
 const C& weak_ptr<C>::accessor::operator*() const
 {
@@ -49,7 +49,7 @@ C *weak_ptr<C>::mutator::operator->() const
 {
   return p_.modify();
 }
- 
+
 template <class C>
 C& weak_ptr<C>::mutator::operator*() const
 {
@@ -270,7 +270,7 @@ typename dbo_traits<C>::IdType weak_ptr<C>::id() const
 
 template <class C>
 void weak_ptr<C>::setRelationData(MetaDboBase *dbo, const std::string *sql,
-				  Impl::SetInfo *info)
+                                  Impl::SetInfo *info)
 {
   collection_.setRelationData(dbo, sql, info);
 }

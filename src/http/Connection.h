@@ -43,7 +43,7 @@ class Connection : public std::enable_shared_from_this<Connection>
 public:
   /// Construct a connection with the given io_service.
   Connection(asio::io_service& io_service, Server *server,
-	     ConnectionManager& manager, RequestHandler& handler);
+             ConnectionManager& manager, RequestHandler& handler);
 
   Connection(const Connection& other) = delete;
 
@@ -82,9 +82,9 @@ public:
   // NOTE: detectDisconnect will only register one callback at a time,
   //       further calls to detectDisconnect are ignored
   void detectDisconnect(ReplyPtr reply,
-			const std::function<void()>& callback);
+                        const std::function<void()>& callback);
   void asyncDetectDisconnect(ReplyPtr reply,
-			     const std::function<void()>& callback);
+                             const std::function<void()>& callback);
 
 protected:
   /// Get the native handle of the socket
@@ -96,15 +96,15 @@ protected:
 
   void handleWriteResponse0(ReplyPtr reply,
                             const Wt::AsioWrapper::error_code& e,
-			    std::size_t bytes_transferred);
+                            std::size_t bytes_transferred);
   void handleWriteResponse(ReplyPtr reply);
   void handleReadRequest(const Wt::AsioWrapper::error_code& e,
-			 std::size_t bytes_transferred);
+                         std::size_t bytes_transferred);
   /// Process read buffer, reading request.
   void handleReadRequest0();
   void handleReadBody0(ReplyPtr reply,
                        const Wt::AsioWrapper::error_code& e,
-		       std::size_t bytes_transferred);
+                       std::size_t bytes_transferred);
 
   void setReadTimeout(int seconds);
   void setWriteTimeout(int seconds);
@@ -136,14 +136,14 @@ private:
    * Asynchronoulsy reading a request body
    */
   virtual void startAsyncReadBody(ReplyPtr reply, Buffer& buffer,
-				  int timeout) = 0;
+                                  int timeout) = 0;
 
   /*
    * Asynchronoulsy writing a response
    */
   virtual void startAsyncWriteResponse(ReplyPtr reply,
-                              const std::vector<asio::const_buffer>& buffers,
-				       int timeout) = 0;
+                                       const std::vector<asio::const_buffer>& buffers,
+                                       int timeout) = 0;
 
   /// Generic I/O error handling: closes the connection and cancels timers
   void handleError(const Wt::AsioWrapper::error_code& e);

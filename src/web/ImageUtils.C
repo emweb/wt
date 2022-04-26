@@ -22,10 +22,10 @@
 
 namespace {
   const int mimeTypeCount = 12;
-  const char *imageMimeTypes [] = { 
-    "image/png", 
-    "image/jpeg", 
-    "image/gif", 
+  const char *imageMimeTypes [] = {
+    "image/png",
+    "image/jpeg",
+    "image/gif",
     "image/gif",
     "image/bmp",
     "image/bmp",
@@ -36,10 +36,10 @@ namespace {
     "image/svg",
     "image/svg"
   };
-  const char *imageHeaders [] = { 
-    "\211PNG\r\n\032\n", 
+  const char *imageHeaders [] = {
+    "\211PNG\r\n\032\n",
     "\377\330\377",
-    "GIF87a", 
+    "GIF87a",
     "GIF89a",
     "BA",
     "BM",
@@ -84,25 +84,25 @@ LOGGER("ImageUtils");
 std::string ImageUtils::identifyMimeType(const std::string& fileName)
 {
   std::vector<unsigned char> header = FileUtils::fileHeader(fileName, 25);
- 
+
   if (header.empty())
     return "";
   else
     return identifyMimeType(header);
 }
-    
+
 std::string ImageUtils::identifyMimeType(const std::vector<unsigned char>&
-					 header)
+                                         header)
 {
   // TODO: also check the filename extension, if parsing the file did not work
   for (int i = 0; i < mimeTypeCount; ++i) {
 #ifndef WT_TARGET_JAVA
-    if (std::memcmp(&header[0], 
-		    imageHeaders[i], imageHeaderSize[i]) == 0)
+    if (std::memcmp(&header[0],
+                    imageHeaders[i], imageHeaderSize[i]) == 0)
       return std::string(imageMimeTypes[i]);
 #else
-    if (std::memcmp(header.data(), 
-		    imageHeaders[i], imageHeaderSize[i]) == 0)
+    if (std::memcmp(header.data(),
+                    imageHeaders[i], imageHeaderSize[i]) == 0)
       return std::string(imageMimeTypes[i]);
 #endif
   }
@@ -115,7 +115,7 @@ WPoint ImageUtils::getSize(const std::string& fileName)
 {
   std::vector<unsigned char> header =
       FileUtils::fileHeader(fileName, 25);
- 
+
   if (header.empty())
     return WPoint();
   else{
@@ -144,7 +144,7 @@ WPoint ImageUtils::getSvgSize(const std::string& fileName)
 
     wstr += 7;
     hstr += 8;
-    
+
     const char *wend = std::strstr(wstr, "\"");
     const char *hend = std::strstr(hstr, "\"");
 
@@ -215,13 +215,13 @@ WPoint ImageUtils::getSize(const std::vector<unsigned char>& header)
 
   if (mimeType == "image/png") {
     int width = ( ( ( toUnsigned(header[16]) << 8
-		      | toUnsigned(header[17])) << 8
-		    | toUnsigned(header[18])) << 8
-		  | toUnsigned(header[19]));
+                      | toUnsigned(header[17])) << 8
+                    | toUnsigned(header[18])) << 8
+                  | toUnsigned(header[19]));
     int height = ( ( ( toUnsigned(header[20]) << 8
-		       | toUnsigned(header[21])) << 8
-		     | toUnsigned(header[22])) << 8
-		   | toUnsigned(header[23]));
+                       | toUnsigned(header[21])) << 8
+                     | toUnsigned(header[22])) << 8
+                   | toUnsigned(header[23]));
     return WPoint(width, height);
   } else if (mimeType == "image/gif") {
     int width = toUnsigned(header[7]) << 8 | toUnsigned(header[6]);

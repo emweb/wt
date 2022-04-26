@@ -18,16 +18,16 @@ LOGGER("WebSocketMessage");
 
 WebSocketMessage::WebSocketMessage(WebSession *session)
   : session_(session)
-{ 
+{
   queryString_ = "wtd=" + session_->sessionId() + "&request=jsupdate";
 }
 
 void WebSocketMessage::flush(ResponseState state,
-			     const WriteCallback& callback)
+                             const WriteCallback& callback)
 {
   if (state != ResponseState::ResponseDone)
-    error("flush(" + std::to_string(static_cast<unsigned int>(state)) 
-	  + ") expected");
+    error("flush(" + std::to_string(static_cast<unsigned int>(state))
+          + ") expected");
 
   session_->pushUpdates();
 
@@ -82,7 +82,7 @@ void WebSocketMessage::setContentLength(::int64_t length)
 }
 
 void WebSocketMessage::addHeader(const std::string& name,
-				 const std::string& value)
+                                 const std::string& value)
 {
   error("addHeader(): not supported");
 }

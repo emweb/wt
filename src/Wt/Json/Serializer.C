@@ -32,21 +32,21 @@ void serialize(const Value& val, int indentation, EscapeOStream &result)
     result << ("null");
     break;
   case Type::String:
-	appendEscaped(val, result);
-	return;
+    appendEscaped(val, result);
+    return;
     break;
   case Type::Bool:
     if ((bool)val)
       result << ("true");
     else
       result << ("false");
-	return;
+    return;
     break;
-  case Type::Number: 
+  case Type::Number:
     {
       double intpart;
       if (fabs(std::modf(val, &intpart)) == 0.0 && fabs(intpart) < 9.22E18)
-	result << (long long)intpart;
+        result << (long long)intpart;
       else {
         double d = val;
         if (Utils::isNaN(d) || fabs(d) == std::numeric_limits<double>::infinity())
@@ -59,11 +59,11 @@ void serialize(const Value& val, int indentation, EscapeOStream &result)
     break;
   case Type::Object:
     serialize((const Object&)val, indentation + 1, result);
-	return;
+    return;
     break;
   case Type::Array:
     serialize((const Array&)val, indentation + 1, result);
-	return;
+    return;
     break;
   }
 }
@@ -81,20 +81,20 @@ void serialize(const Object& obj, int indentation, EscapeOStream& result)
   result << ("{\n");
 
   for( Object::const_iterator it = obj.begin(); it != obj.end(); ++it) {
-    
-	// indent values
+
+    // indent values
     for (int i=0; i<indentation; ++i)
       result << ("\t");
 
     // key (= string-type)
-	appendEscaped(it->first, result);
+    appendEscaped(it->first, result);
 
     // name-separator
     result << (" : ");
 
     // value
     const Value& val = obj.get(it->first);
-	serialize(val, indentation, result);
+    serialize(val, indentation, result);
 
     // value-separator
     if (it != --obj.end())
@@ -121,23 +121,23 @@ void serialize(const Array& arr, int indentation, EscapeOStream& result)
   result << ("[\n");
 
   for (unsigned i = 0; i < arr.size(); ++i) {
-	// indent values
-	for (int j = 0; j < indentation; ++j)
-	  result << ("\t");
+    // indent values
+    for (int j = 0; j < indentation; ++j)
+      result << ("\t");
 
-	// value
-	const Value& val = arr[i];
-	serialize(val, indentation, result);
+    // value
+    const Value& val = arr[i];
+    serialize(val, indentation, result);
 
-	// value-separator
-	if (i < arr.size() - 1)
-	  result << (",\n");
-	else
-	  result << ("\n");
+    // value-separator
+    if (i < arr.size() - 1)
+      result << (",\n");
+    else
+      result << ("\n");
   }
 
   for (int i = 0; i < indentation - 1; ++i)
-	result << ("\t");
+    result << ("\t");
 
   result << ("]");
 }

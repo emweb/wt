@@ -82,7 +82,7 @@ const ForeignKeyConstraint NotNull(Impl::FKNotNull);
  *
  * \note This constraint only affects the database schema creation. Currently
  *       it is not possible to update a natural Id of an already saved object
- *       through %Dbo itself. 
+ *       through %Dbo itself.
  *
  * \ingroup dbo
  */
@@ -99,7 +99,7 @@ const ForeignKeyConstraint OnUpdateCascade(Impl::FKOnUpdateCascade);
  *
  * \note This constraint only affects the database schema creation. Currently
  *       it is not possible to update a natural Id of an already saved object
- *       through %Dbo itself. 
+ *       through %Dbo itself.
  *
  * \ingroup dbo
  */
@@ -217,8 +217,8 @@ class CollectionRef
 {
 public:
   CollectionRef(collection< ptr<C> >& value, RelationType type,
-		const std::string& joinName, const std::string& joinId,
-		int fkConstraints);
+                const std::string& joinName, const std::string& joinId,
+                int fkConstraints);
 
   collection< ptr<C> >& value() const { return value_; }
   const std::string& joinName() const { return joinName_; }
@@ -302,7 +302,7 @@ private:
  */
 template <class Action, typename V>
 void id(Action& action, V& value, const std::string& name = "id",
-	int size = -1);
+        int size = -1);
 
 /*! \brief Maps a natural primary key (id) field that is a foreign key.
  *
@@ -315,17 +315,17 @@ void id(Action& action, V& value, const std::string& name = "id",
  */
 template <class Action, class C>
 void id(Action& action, ptr<C>& value, const std::string& name,
-	ForeignKeyConstraint constraints, int size = -1);
+        ForeignKeyConstraint constraints, int size = -1);
 
 template <class Action, typename V>
 void auxId(Action& action, V& value, const std::string& name,
-	   int size = -1);
+           int size = -1);
 
 template <class Action, class C>
 void auxId(Action& action, ptr<C>& value, const std::string& name,
-	   ForeignKeyConstraint constraint = ForeignKeyConstraint(0), int size = -1);
+           ForeignKeyConstraint constraint = ForeignKeyConstraint(0), int size = -1);
 
-  
+
 /*! \brief Maps a database object field.
  *
  * This function binds the field \p value to the database field \p name.
@@ -397,7 +397,7 @@ void field(Action& action, ptr<C>& value, const std::string& name, int size = -1
  */
 template <class Action, class C>
 void belongsTo(Action& action, ptr<C>& value,
-	       const std::string& name = std::string());
+               const std::string& name = std::string());
 
 /*! \brief Maps the "One"-side (foreign key) of a ManyToOne or OneToOne relation.
  *
@@ -410,7 +410,7 @@ void belongsTo(Action& action, ptr<C>& value,
  */
 template <class Action, class C>
 void belongsTo(Action& action, ptr<C>& value, const std::string& name,
-	       ForeignKeyConstraint constraints);
+               ForeignKeyConstraint constraints);
 
 /*! \brief Maps the "One"-side (foreign key) of a ManyToOne or OneToOne relation.
  *
@@ -423,7 +423,7 @@ void belongsTo(Action& action, ptr<C>& value, const std::string& name,
  */
 template <class Action, class C>
 void belongsTo(Action& action, ptr<C>& value,
-	       ForeignKeyConstraint constraints);
+               ForeignKeyConstraint constraints);
 
 /*! \brief Maps the "One"-side of a OneToOne relation.
  *
@@ -453,7 +453,7 @@ void belongsTo(Action& action, ptr<C>& value,
  */
 template <class Action, class C>
 void hasOne(Action& action, weak_ptr<C>& value,
-	    const std::string& name = std::string());
+            const std::string& name = std::string());
 
 /*! \brief Maps the "Many"-side of a ManyToOne or ManyToMany relation.
  *
@@ -487,7 +487,7 @@ void hasOne(Action& action, weak_ptr<C>& value,
  */
 template <class Action, class C>
 void hasMany(Action& action, collection< ptr<C> >& value,
-	     RelationType type, const std::string& name = std::string());
+             RelationType type, const std::string& name = std::string());
 
 /*! \brief Maps the "Many"-side of a ManyToMany relation.
  *
@@ -517,8 +517,8 @@ void hasMany(Action& action, collection< ptr<C> >& value,
  */
 template <class Action, class C>
 void hasMany(Action& action, collection< ptr<C> >& value,
-	     RelationType type, const std::string& name,
-	     const std::string& joinId,
+             RelationType type, const std::string& name,
+             const std::string& joinId,
              ForeignKeyConstraint constraints = (NotNull | OnDeleteCascade));
 
   }

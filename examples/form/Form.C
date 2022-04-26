@@ -188,8 +188,8 @@ void Form::submit()
   if (validate()) {
     // do something useful with the data...
     WString name = WString("{1} {2}")
-	.arg(firstNameEdit_->text())
-	.arg(nameEdit_->text());
+        .arg(firstNameEdit_->text())
+        .arg(nameEdit_->text());
 
     WString remarks
       = remarksEdit_->text();
@@ -202,7 +202,7 @@ void Form::submit()
 
     if (!remarks.empty())
       elementAt(0,0)->addWidget(std::make_unique<WText>(
-				  WString("<p>You had some remarks. Splendid !</p>")));
+                                  WString("<p>You had some remarks. Splendid !</p>")));
 
     wApp->quit();
   }

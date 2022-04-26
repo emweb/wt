@@ -47,9 +47,9 @@ public:
    *         rounded.
    */
   RoundedWidget(WFlags<Corner> corners = WFlags<Corner>(Corner::TopLeft) |
-							Corner::TopRight |
-							Corner::BottomLeft |
-							Corner::BottomRight);
+                                                        Corner::TopRight |
+                                                        Corner::BottomLeft |
+                                                        Corner::BottomRight);
 
   /*! \brief Set the widget background color.
    *

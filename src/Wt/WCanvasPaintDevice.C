@@ -55,29 +55,29 @@ namespace {
   }
 
   std::string defineGradient(const Wt::WGradient& gradient,
-			     std::stringstream& js) {
+                             std::stringstream& js) {
     std::string jsRef = "grad";
     if (gradient.style() == Wt::GradientStyle::Linear) {
       const WLineF& gradVec = gradient.linearGradientVector();
       js << "var " << jsRef << " = ctx.createLinearGradient("
-	  << gradVec.x1() << ", " << gradVec.y1() << ", "
-	  << gradVec.x2() << ", " << gradVec.y2()
-	  << ");";
+          << gradVec.x1() << ", " << gradVec.y1() << ", "
+          << gradVec.x2() << ", " << gradVec.y2()
+          << ");";
     } else if (gradient.style() == Wt::GradientStyle::Radial) {
       js << "var " << jsRef << " = ctx.createRadialGradient("
-	  << gradient.radialFocalPoint().x() << ", "
-	  << gradient.radialFocalPoint().y() << ","
-	  << "0, "
-	  << gradient.radialCenterPoint().x() << ", "
-	  << gradient.radialCenterPoint().y() << ", "
-	  << gradient.radialRadius() << ");";
+          << gradient.radialFocalPoint().x() << ", "
+          << gradient.radialFocalPoint().y() << ","
+          << "0, "
+          << gradient.radialCenterPoint().x() << ", "
+          << gradient.radialCenterPoint().y() << ", "
+          << gradient.radialRadius() << ");";
     }
     for (unsigned i=0; i<gradient.colorstops().size(); i++) {
-      js << jsRef << ".addColorStop(" 
-	 << gradient.colorstops()[i].position() << ","
-	 << WWebWidget::jsStringLiteral
-	(gradient.colorstops()[i].color().cssText(true))
-	 << ");";
+      js << jsRef << ".addColorStop("
+         << gradient.colorstops()[i].position() << ","
+         << WWebWidget::jsStringLiteral
+        (gradient.colorstops()[i].color().cssText(true))
+         << ");";
     }
 
     return jsRef;
@@ -85,8 +85,8 @@ namespace {
 }
 
 WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
-				       const WLength& height,
-				       bool paintUpdate)
+                                       const WLength& height,
+                                       bool paintUpdate)
   : width_(width),
     height_(height),
     painter_(nullptr),
@@ -100,19 +100,19 @@ WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
 
   if (app) {
     if (app->environment().agentIsChrome()) {
-      if (static_cast<unsigned int>(app->environment().agent()) <= 
-	  static_cast<unsigned int>(UserAgent::Chrome2))
-	textMethod_ = TextMethod::DomText;
+      if (static_cast<unsigned int>(app->environment().agent()) <=
+          static_cast<unsigned int>(UserAgent::Chrome2))
+        textMethod_ = TextMethod::DomText;
     } else if (app->environment().agentIsGecko()) {
       if (static_cast<unsigned int>(app->environment().agent()) <
-	  static_cast<unsigned int>(UserAgent::Firefox3_0))
-	textMethod_ = TextMethod::DomText;
-      else if (static_cast<unsigned int>(app->environment().agent()) 
-	       < static_cast<unsigned int>(UserAgent::Firefox3_5))
-	textMethod_ = TextMethod::MozText;
+          static_cast<unsigned int>(UserAgent::Firefox3_0))
+        textMethod_ = TextMethod::DomText;
+      else if (static_cast<unsigned int>(app->environment().agent())
+               < static_cast<unsigned int>(UserAgent::Firefox3_5))
+        textMethod_ = TextMethod::MozText;
     } else if (app->environment().agentIsSafari()) {
       if (app->environment().agent() == UserAgent::Safari3)
-	textMethod_ = TextMethod::DomText;
+        textMethod_ = TextMethod::DomText;
     }
   }
 }
@@ -157,7 +157,7 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
 
   if (!paintUpdate_) {
     tmp << "ctx.clearRect(0,0,"
-	<< width().value() << "," << height().value() << ");";
+        << width().value() << "," << height().value() << ");";
   }
 
   lastTransformWasIdentity_ = true;
@@ -208,8 +208,8 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
              "}"
            "}"
          "});"
-	 "if(!l.done)"
-	   "o.imagePreloaders.push(l);"
+         "if(!l.done)"
+           "o.imagePreloaders.push(l);"
        "}"
        "})();";
 
@@ -220,12 +220,12 @@ void WCanvasPaintDevice::render(const std::string& paintedWidgetJsRef,
 }
 
 void WCanvasPaintDevice::renderPaintCommands(std::stringstream& js_target,
-					     const std::string& canvasElement)
+                                             const std::string& canvasElement)
 {
   js_target << "var ctx=" << canvasElement << ".getContext('2d');";
   js_target << "if (!ctx.setLineDash) {ctx.setLineDash = function(a){};}";
   js_target << "ctx.save();" << js_.str()
-	    << "ctx.restore();";
+            << "ctx.restore();";
 }
 
 void WCanvasPaintDevice::init()
@@ -239,10 +239,10 @@ void WCanvasPaintDevice::init()
   currentShadow_ = WShadow();
   currentFont_ = WFont();
 
-  changeFlags_ = PainterChangeFlag::Transform | 
-    PainterChangeFlag::Pen | 
-    PainterChangeFlag::Brush | 
-    PainterChangeFlag::Shadow | 
+  changeFlags_ = PainterChangeFlag::Transform |
+    PainterChangeFlag::Pen |
+    PainterChangeFlag::Brush |
+    PainterChangeFlag::Shadow |
     PainterChangeFlag::Font;
 }
 
@@ -250,7 +250,7 @@ void WCanvasPaintDevice::done()
 { }
 
 void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
-				 double spanAngle)
+                                 double spanAngle)
 {
   if (rect.width() < EPSILON || rect.height() < EPSILON)
     return;
@@ -303,7 +303,7 @@ void WCanvasPaintDevice::drawArc(const WRectF& rect, double startAngle,
   js_ << ',' << Utils::round_js_str(rEndAngle, 6, buf) << ',';
   js_ << (anticlockwise ? "true" : "false") << ");";
 
-  // restore comes before fill and stroke, otherwise the gradient will use 
+  // restore comes before fill and stroke, otherwise the gradient will use
   // this temporary coordinate system
   js_ << "ctx.restore();";
 
@@ -323,9 +323,9 @@ int WCanvasPaintDevice::createImage(const std::string& imgUri)
 }
 
 void WCanvasPaintDevice::drawImage(const WRectF& rect,
-				   const std::string& imageUri,
-				   int imgWidth, int imgHeight,
-				   const WRectF& sourceRect)
+                                   const std::string& imageUri,
+                                   int imgWidth, int imgHeight,
+                                   const WRectF& sourceRect)
 {
   renderStateChanges(true);
 
@@ -345,7 +345,7 @@ void WCanvasPaintDevice::drawImage(const WRectF& rect,
 }
 
 void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
-				       const WPainterPath& path)
+                                       const WPainterPath& path)
 {
   char buf[30];
 
@@ -363,34 +363,34 @@ void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
     switch (s.type()) {
     case MoveTo:
       out << "ctx.moveTo(" << Utils::round_js_str(s.x() + pathTranslation_.x(),
-						  3, buf);
+                                                  3, buf);
       out << ',' << Utils::round_js_str(s.y() + pathTranslation_.y(),
-				     3, buf) << ");";
+                                     3, buf) << ");";
       break;
     case LineTo:
       out << "ctx.lineTo(" << Utils::round_js_str(s.x() + pathTranslation_.x(),
-						  3, buf);
+                                                  3, buf);
       out << ',' << Utils::round_js_str(s.y() + pathTranslation_.y(),
-					3, buf) << ");";
+                                        3, buf) << ");";
       break;
     case CubicC1:
       out << "ctx.bezierCurveTo("
-	  << Utils::round_js_str(s.x() + pathTranslation_.x(), 3, buf);
+          << Utils::round_js_str(s.x() + pathTranslation_.x(), 3, buf);
       out << ',' << Utils::round_js_str(s.y() + pathTranslation_.y(), 3, buf);
       break;
     case CubicC2:
       out << ',' << Utils::round_js_str(s.x() + pathTranslation_.x(), 3, buf)
-	  << ',';
+          << ',';
       out << Utils::round_js_str(s.y() + pathTranslation_.y(), 3, buf);
       break;
     case CubicEnd:
       out << ',' << Utils::round_js_str(s.x() + pathTranslation_.x(), 3, buf)
-	  << ',';
+          << ',';
       out << Utils::round_js_str(s.y() + pathTranslation_.y(), 3, buf) << ");";
       break;
     case ArcC:
       out << "ctx.arc(" << Utils::round_js_str(s.x() + pathTranslation_.x(), 3,
-					       buf) << ',';
+                                               buf) << ',';
       out << Utils::round_js_str(s.y() + pathTranslation_.y(), 3, buf);
       break;
     case ArcR:
@@ -425,7 +425,7 @@ void WCanvasPaintDevice::drawPlainPath(std::stringstream& out,
     }
     case QuadEnd:
       out << ','
-	  << Utils::round_js_str(s.x() + pathTranslation_.x(), 3, buf) << ',';
+          << Utils::round_js_str(s.x() + pathTranslation_.x(), 3, buf) << ',';
       out << Utils::round_js_str(s.y() + pathTranslation_.y(), 3, buf) << ");";
     }
   }
@@ -457,8 +457,8 @@ void WCanvasPaintDevice::drawPath(const WPainterPath& path)
 }
 
 void WCanvasPaintDevice::drawStencilAlongPath(const WPainterPath &stencil,
-					      const WPainterPath &path,
-					      bool softClipping)
+                                              const WPainterPath &path,
+                                              bool softClipping)
 {
   renderStateChanges(true);
   js_ << WT_CLASS << ".gfxUtils.drawStencilAlongPath(ctx,"
@@ -473,8 +473,8 @@ void WCanvasPaintDevice::drawRect(const WRectF& rectangle)
   if (rectangle.isJavaScriptBound()) {
     renderStateChanges(true);
     js_ << WT_CLASS << ".gfxUtils.drawRect(ctx," << rectangle.jsRef() << ","
-	<< (currentNoBrush_ ? "false" : "true") << ","
-	<< (currentNoPen_ ? "false" : "true") << ");";
+        << (currentNoBrush_ ? "false" : "true") << ","
+        << (currentNoPen_ ? "false" : "true") << ");";
   } else {
     drawPath(rectangle.toPath());
   }
@@ -489,14 +489,14 @@ void WCanvasPaintDevice::drawLine(double x1, double y1, double x2, double y2)
 }
 
 void WCanvasPaintDevice::drawText(const WRectF& rect,
-				  WFlags<AlignmentFlag> flags,
-				  TextFlag textFlag,
-				  const WString& text,
-				  const WPointF *clipPoint)
+                                  WFlags<AlignmentFlag> flags,
+                                  TextFlag textFlag,
+                                  const WString& text,
+                                  const WPointF *clipPoint)
 {
   if (textFlag == TextFlag::WordWrap)
     throw WException("WCanvasPaintDevice::drawText() "
-		     "WordWrap is not supported");
+                     "WordWrap is not supported");
 
   AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
   AlignmentFlag verticalAlign = flags & AlignVerticalMask;
@@ -506,13 +506,13 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
   }
 
   switch (textMethod_) {
-  case TextMethod::Html5Text: 
+  case TextMethod::Html5Text:
     {
       js_ << WT_CLASS ".gfxUtils.drawText(ctx,"
-	  << rect.jsRef() << ',' << flags.value() << ','
-	  << text.jsStringLiteral();
+          << rect.jsRef() << ',' << flags.value() << ','
+          << text.jsStringLiteral();
       if (clipPoint && painter()) {
-	js_ << ',' << painter()->worldTransform().map(*clipPoint).jsRef();
+        js_ << ',' << painter()->worldTransform().map(*clipPoint).jsRef();
       }
       js_ << ");";
     }
@@ -523,49 +523,49 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
 
       switch (horizontalAlign) {
       case AlignmentFlag::Left:
-	x = std::to_string(rect.left());
-	break;
+        x = std::to_string(rect.left());
+        break;
       case AlignmentFlag::Right:
-	x = std::to_string(rect.right())
-	  + " - ctx.mozMeasureText(" + text.jsStringLiteral() + ")";
-	break;
+        x = std::to_string(rect.right())
+          + " - ctx.mozMeasureText(" + text.jsStringLiteral() + ")";
+        break;
       case AlignmentFlag::Center:
-	x = std::to_string(rect.center().x())
-	  + " - ctx.mozMeasureText(" + text.jsStringLiteral() + ")/2";
-	break;
+        x = std::to_string(rect.center().x())
+          + " - ctx.mozMeasureText(" + text.jsStringLiteral() + ")/2";
+        break;
       default:
-	break;
+        break;
       }
 
       double fontSize;
       switch (painter()->font().size()) {
       case FontSize::FixedSize:
-	fontSize = painter()->font().sizeLength().toPixels();
-	break;
+        fontSize = painter()->font().sizeLength().toPixels();
+        break;
       default:
-	fontSize = 16;
+        fontSize = 16;
       }
 
       double y = 0;
       switch (verticalAlign) {
       case AlignmentFlag::Top:
-	y = rect.top() + fontSize * 0.75; break;
+        y = rect.top() + fontSize * 0.75; break;
       case AlignmentFlag::Middle:
-	y = rect.center().y() + fontSize * 0.25; break;
+        y = rect.center().y() + fontSize * 0.25; break;
       case AlignmentFlag::Bottom:
-	y = rect.bottom() - fontSize * 0.25 ; break;
+        y = rect.bottom() - fontSize * 0.25 ; break;
       default:
-	break;
+        break;
       }
 
       js_ << "ctx.save();";
       js_ << "ctx.translate(" << x << ", " << y << ");";
       if (currentPen_.isJavaScriptBound()) {
-	js_ << "ctx.fillStyle=" WT_CLASS ".gfxUtils.css_text(" << currentPen_.jsRef() << ".color);";
+        js_ << "ctx.fillStyle=" WT_CLASS ".gfxUtils.css_text(" << currentPen_.jsRef() << ".color);";
       } else if (currentBrush_.color() != currentPen_.color() || currentBrush_.isJavaScriptBound())
-	js_ << "ctx.fillStyle="
-	    << WWebWidget::jsStringLiteral(currentPen_.color().cssText(true))
-	    << ";";
+        js_ << "ctx.fillStyle="
+            << WWebWidget::jsStringLiteral(currentPen_.color().cssText(true))
+            << ";";
       js_ << "ctx.mozDrawText(" << text.jsStringLiteral() << ");";
       js_ << "ctx.restore();";
     }
@@ -577,13 +577,13 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
       DomElement *e = DomElement::createNew(DomElementType::DIV);
       e->setProperty(Property::StylePosition, "absolute");
       e->setProperty(Property::StyleTop,
-		     std::to_string(pos.y()) + "px");
+                     std::to_string(pos.y()) + "px");
       e->setProperty(Property::StyleLeft,
-		     std::to_string(pos.x()) + "px");
+                     std::to_string(pos.x()) + "px");
       e->setProperty(Property::StyleWidth,
-		     std::to_string(rect.width()) + "px");
+                     std::to_string(rect.width()) + "px");
       e->setProperty(Property::StyleHeight,
-		     std::to_string(rect.height()) + "px");
+                     std::to_string(rect.height()) + "px");
 
       DomElement *t = e;
 
@@ -592,21 +592,21 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
        * (neither does canvas)
        */
       if (verticalAlign != AlignmentFlag::Top) {
-	t = DomElement::createNew(DomElementType::DIV);
+        t = DomElement::createNew(DomElementType::DIV);
 
-	if (verticalAlign == AlignmentFlag::Middle) {
-	  e->setProperty(Property::StyleDisplay, "table");
-	  t->setProperty(Property::StyleDisplay, "table-cell");
-	  t->setProperty(Property::StyleVerticalAlign, "middle");
-	} else if (verticalAlign == AlignmentFlag::Bottom) {
-	  t->setProperty(Property::StylePosition, "absolute");
-	  t->setProperty(Property::StyleWidth, "100%");
-	  t->setProperty(Property::StyleBottom, "0px");
-	}
+        if (verticalAlign == AlignmentFlag::Middle) {
+          e->setProperty(Property::StyleDisplay, "table");
+          t->setProperty(Property::StyleDisplay, "table-cell");
+          t->setProperty(Property::StyleVerticalAlign, "middle");
+        } else if (verticalAlign == AlignmentFlag::Bottom) {
+          t->setProperty(Property::StylePosition, "absolute");
+          t->setProperty(Property::StyleWidth, "100%");
+          t->setProperty(Property::StyleBottom, "0px");
+        }
       }
 
       t->setProperty(Property::InnerHTML,
-		     WWebWidget::escapeText(text, true).toUTF8());
+                     WWebWidget::escapeText(text, true).toUTF8());
 
       WFont f = painter()->font();
       f.updateDomElement(*t, false, true);
@@ -614,14 +614,14 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
       t->setProperty(Property::StyleColor, painter()->pen().color().cssText());
 
       if (horizontalAlign == AlignmentFlag::Right)
-	t->setProperty(Property::StyleTextAlign, "right");
+        t->setProperty(Property::StyleTextAlign, "right");
       else if (horizontalAlign == AlignmentFlag::Center)
-	t->setProperty(Property::StyleTextAlign, "center");
+        t->setProperty(Property::StyleTextAlign, "center");
       else
-	t->setProperty(Property::StyleTextAlign, "left");
+        t->setProperty(Property::StyleTextAlign, "left");
 
       if (t != e)
-	e->addChild(t);
+        e->addChild(t);
 
       textElements_.push_back(e);
     }
@@ -629,12 +629,12 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
 }
 
 void WCanvasPaintDevice::drawTextOnPath(const WRectF &rect,
-					WFlags<AlignmentFlag> alignmentFlags,
-					const std::vector<WString> &text,
-					const WTransform &transform,
-					const WPainterPath &path,
-					double angle, double lineHeight,
-					bool softClipping)
+                                        WFlags<AlignmentFlag> alignmentFlags,
+                                        const std::vector<WString> &text,
+                                        const WTransform &transform,
+                                        const WPainterPath &path,
+                                        double angle, double lineHeight,
+                                        bool softClipping)
 {
   renderStateChanges(true);
   js_ << WT_CLASS ".gfxUtils.drawTextOnPath(ctx,[";
@@ -655,7 +655,7 @@ void WCanvasPaintDevice::drawTextOnPath(const WRectF &rect,
 }
 
 WTextItem WCanvasPaintDevice::measureText(const WString& text, double maxWidth,
-					  bool wordWrap)
+                                          bool wordWrap)
 {
   if (!fontMetrics_)
     fontMetrics_ = new ServerSideFontMetrics();
@@ -677,7 +677,7 @@ void WCanvasPaintDevice::setChanged(WFlags<PainterChangeFlag> flags)
 }
 
 void WCanvasPaintDevice::renderTransform(std::stringstream& s,
-					 const WTransform& t)
+                                         const WTransform& t)
 {
   if (!(t.isIdentity() && lastTransformWasIdentity_)) {
     s << "ctx.wtTransform=" << t.jsRef() << ';';
@@ -690,7 +690,7 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
 {
   if (resetPathTranslation) {
     if (!fequal(pathTranslation_.x(), 0) ||
-	!fequal(pathTranslation_.y(), 0))
+        !fequal(pathTranslation_.y(), 0))
       changeFlags_ |= PainterChangeFlag::Transform;
   }
 
@@ -718,8 +718,8 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
     (currentPen_ != painter()->pen()) &&
     (slowFirefox || painter()->pen().style() != PenStyle::None);
 
-  bool penColorChanged = 
-    penChanged && 
+  bool penColorChanged =
+    penChanged &&
     (painter()->pen().isJavaScriptBound() ||
      currentPen_.color() != painter()->pen().color() ||
      currentPen_.gradient() != painter()->pen().gradient());
@@ -733,8 +733,8 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
 
   bool clippingChanged = changeFlags_.test(PainterChangeFlag::Clipping)
     && (currentClippingEnabled_ != painter()->hasClipping() ||
-	 currentClipPath_ != painter()->clipPath() ||
-	 currentClipTransform_ != painter()->clipPathTransform());
+         currentClipPath_ != painter()->clipPath() ||
+         currentClipTransform_ != painter()->clipPathTransform());
 
   changeFlags_.clear(PainterChangeFlag::Clipping);
 
@@ -751,10 +751,10 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
       const WTransform& t = painter()->clipPathTransform();
       const WPainterPath &p = painter()->clipPath();
       if (!p.isEmpty()) {
-	js_ << WT_CLASS << ".gfxUtils.setClipPath(ctx," << p.jsRef() << "," << t.jsRef() << ","
-	    << (painter()->hasClipping() ? "true" : "false") << ");";
+        js_ << WT_CLASS << ".gfxUtils.setClipPath(ctx," << p.jsRef() << "," << t.jsRef() << ","
+            << (painter()->hasClipping() ? "true" : "false") << ");";
       } else {
-	js_ << WT_CLASS << ".gfxUtils.removeClipPath(ctx);";
+        js_ << WT_CLASS << ".gfxUtils.removeClipPath(ctx);";
       }
       currentClipTransform_ = t;
       currentClipPath_ = p;
@@ -772,51 +772,51 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
       WTransform f = painter()->combinedTransform();
 
       resetTransform = currentTransform_ != f ||
-	  ((!fequal(pathTranslation_.x(), 0) ||
-	    !fequal(pathTranslation_.y(), 0)) && resetPathTranslation);
+          ((!fequal(pathTranslation_.x(), 0) ||
+            !fequal(pathTranslation_.y(), 0)) && resetPathTranslation);
 
       if (!painter()->brush().gradient().isEmpty() ||
-	  !painter()->pen().gradient().isEmpty()) {
-	resetTransform = true;
+          !painter()->pen().gradient().isEmpty()) {
+        resetTransform = true;
       } else if (!resetPathTranslation
-		 && !currentTransform_.isJavaScriptBound()
-		 && !f.isJavaScriptBound()
-		 && fequal(f.m11(), currentTransform_.m11())
-		 && fequal(f.m12(), currentTransform_.m12())
-		 && fequal(f.m21(), currentTransform_.m21())
-		 && fequal(f.m22(), currentTransform_.m22())) {
-	/*
-	 * Invert scale/rotate to compute the delta needed
-	 * before applying these transformations to get the
-	 * same as the global translation.
-	 *
-	 * (This is an optimization that prevents the rendering from
-	 * involving many ctx.transform calls, when only moves
-	 * are performed.)
-	 */
-	 double det = f.m11() * f.m22() - f.m12() * f.m21();
-	 double a11 = f.m22() / det;
-	 double a12 = -f.m12() / det;
-	 double a21 = -f.m21() / det;
-	 double a22 = f.m11() / det;
+                 && !currentTransform_.isJavaScriptBound()
+                 && !f.isJavaScriptBound()
+                 && fequal(f.m11(), currentTransform_.m11())
+                 && fequal(f.m12(), currentTransform_.m12())
+                 && fequal(f.m21(), currentTransform_.m21())
+                 && fequal(f.m22(), currentTransform_.m22())) {
+        /*
+         * Invert scale/rotate to compute the delta needed
+         * before applying these transformations to get the
+         * same as the global translation.
+         *
+         * (This is an optimization that prevents the rendering from
+         * involving many ctx.transform calls, when only moves
+         * are performed.)
+         */
+         double det = f.m11() * f.m22() - f.m12() * f.m21();
+         double a11 = f.m22() / det;
+         double a12 = -f.m12() / det;
+         double a21 = -f.m21() / det;
+         double a22 = f.m11() / det;
 
-	 double fdx = f.dx() * a11 + f.dy() * a21;
-	 double fdy = f.dx() * a12 + f.dy() * a22;
+         double fdx = f.dx() * a11 + f.dy() * a21;
+         double fdy = f.dx() * a12 + f.dy() * a22;
 
-	 const WTransform& g = currentTransform_;
+         const WTransform& g = currentTransform_;
 
-	 double gdx = g.dx() * a11 + g.dy() * a21;
-	 double gdy = g.dx() * a12 + g.dy() * a22;
+         double gdx = g.dx() * a11 + g.dy() * a21;
+         double gdy = g.dx() * a12 + g.dy() * a22;
 
-	 double dx = fdx - gdx;
-	 double dy = fdy - gdy;
+         double dx = fdx - gdx;
+         double dy = fdy - gdy;
 
-	 pathTranslation_.setX(dx);
-	 pathTranslation_.setY(dy);
+         pathTranslation_.setX(dx);
+         pathTranslation_.setY(dy);
 
          changeFlags_ = None;
 
-	 resetTransform = false;
+         resetTransform = false;
       }
     }
 
@@ -843,19 +843,19 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
       tmpPen.setGradient(painter()->pen().gradient());
       currentPen_ = tmpPen;
       if (!painter()->pen().gradient().isEmpty()) {
-	std::string gradientName = defineGradient(painter()->pen().gradient(),
-						  js_);
-	js_ << "ctx.strokeStyle=" << gradientName << ";";
-	renderStateChanges(true);
+        std::string gradientName = defineGradient(painter()->pen().gradient(),
+                                                  js_);
+        js_ << "ctx.strokeStyle=" << gradientName << ";";
+        renderStateChanges(true);
       } else {
-	if (painter()->pen().isJavaScriptBound()) {
-	  js_ << "ctx.strokeStyle=" WT_CLASS ".gfxUtils.css_text(" << painter()->pen().jsRef() << ".color);";
-	} else {
-	  js_ << "ctx.strokeStyle="
-	      << WWebWidget::jsStringLiteral
-	    (painter()->pen().color().cssText(true))
-	      << ";";
-	}
+        if (painter()->pen().isJavaScriptBound()) {
+          js_ << "ctx.strokeStyle=" WT_CLASS ".gfxUtils.css_text(" << painter()->pen().jsRef() << ".color);";
+        } else {
+          js_ << "ctx.strokeStyle="
+              << WWebWidget::jsStringLiteral
+            (painter()->pen().color().cssText(true))
+              << ";";
+        }
       }
     }
 
@@ -902,30 +902,30 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
 
     js_ << "ctx.lineWidth="
         << Utils::round_js_str(lw, 3, buf)
-	<< ';';
+        << ';';
 
     if (currentPen_.capStyle() != painter()->pen().capStyle())
       switch (painter()->pen().capStyle()) {
       case PenCapStyle::Flat:
-	js_ << "ctx.lineCap='butt';";
-	break;
+        js_ << "ctx.lineCap='butt';";
+        break;
       case PenCapStyle::Square:
-	js_ << "ctx.lineCap='square';";
-	break;
+        js_ << "ctx.lineCap='square';";
+        break;
       case PenCapStyle::Round:
-	js_ << "ctx.lineCap='round';";
+        js_ << "ctx.lineCap='round';";
       }
 
     if (currentPen_.joinStyle() != painter()->pen().joinStyle())
       switch (painter()->pen().joinStyle()) {
       case PenJoinStyle::Miter:
-	js_ << "ctx.lineJoin='miter';";
-	break;
+        js_ << "ctx.lineJoin='miter';";
+        break;
       case PenJoinStyle::Bevel:
-	js_ << "ctx.lineJoin='bevel';";
-	break;
+        js_ << "ctx.lineJoin='bevel';";
+        break;
       case PenJoinStyle::Round:
-	js_ << "ctx.lineJoin='round';";
+        js_ << "ctx.lineJoin='round';";
       }
 
     currentPen_ = painter()->pen();
@@ -939,12 +939,12 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
       renderStateChanges(true);
     } else {
       if (currentBrush_.isJavaScriptBound()) {
-	js_ << "ctx.fillStyle=" WT_CLASS ".gfxUtils.css_text(" 
-	    << currentBrush_.jsRef() << ".color);";
+        js_ << "ctx.fillStyle=" WT_CLASS ".gfxUtils.css_text("
+            << currentBrush_.jsRef() << ".color);";
       } else {
-	js_ << "ctx.fillStyle=" 
-	    << WWebWidget::jsStringLiteral(currentBrush_.color().cssText(true))
-	    << ";";
+        js_ << "ctx.fillStyle="
+            << WWebWidget::jsStringLiteral(currentBrush_.color().cssText(true))
+            << ";";
       }
     }
   }
@@ -960,22 +960,22 @@ void WCanvasPaintDevice::renderStateChanges(bool resetPathTranslation)
     js_ << "ctx.shadowOffsetX=" << Utils::round_js_str(offsetX, 3, buf) << ';';
     js_ << "ctx.shadowOffsetY=" << Utils::round_js_str(offsetY, 3, buf) << ';';
     js_ << "ctx.shadowBlur=" << Utils::round_js_str(blur, 3, buf) << ';'
-	<< "ctx.shadowColor=" 
-	<< WWebWidget::jsStringLiteral(currentShadow_.color().cssText(true))
-	<< ";";
+        << "ctx.shadowColor="
+        << WWebWidget::jsStringLiteral(currentShadow_.color().cssText(true))
+        << ";";
   }
 
   if (fontChanged) {
     currentFont_ = painter_->font();
 
     switch (textMethod_) {
-    case TextMethod::Html5Text: 
+    case TextMethod::Html5Text:
       js_ << "ctx.font="
-	  << WWebWidget::jsStringLiteral(painter()->font().cssText()) << ";";
+          << WWebWidget::jsStringLiteral(painter()->font().cssText()) << ";";
       break;
     case TextMethod::MozText:
       js_ << "ctx.mozTextStyle = "
-	  << WWebWidget::jsStringLiteral(painter()->font().cssText()) << ";";
+          << WWebWidget::jsStringLiteral(painter()->font().cssText()) << ";";
       break;
     case TextMethod::DomText:
       break;

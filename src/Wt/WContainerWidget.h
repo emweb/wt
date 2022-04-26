@@ -66,7 +66,7 @@ class StdLayoutImpl;
  * \code
  *
  * // Example 1:
- * // Instantiate a container widget and add some children whose layout 
+ * // Instantiate a container widget and add some children whose layout
  * // is governed based on HTML/CSS rules.
  * auto container1 = std::make_unique<Wt::WContainerWidget>();
  * container1->addWidget(std::make_unique<Wt::WText>("Some text"));
@@ -87,23 +87,23 @@ class StdLayoutImpl;
  * \elseif java
  * \code
  * // Example 1:
- * // Instantiate a container widget and add some children whose layout 
+ * // Instantiate a container widget and add some children whose layout
  * // is governed based on HTML/CSS rules.
  * WContainerWidget container1 = new WContainerWidget();
  * container1.addWidget(new WText("Some text"));
  * container1.addWidget(new WImage("images/img.png"));
  * WContainerWidget child3 = new WContainerWidget(container1);
-		 
+
  * // Example 2:
  * // Instantiate a container widget which uses a layout manager
  * WContainerWidget container2 = new WContainerWidget();
  * // give the container a fixed height
- * container2.resize(WLength.Auto, new WLength(600)); 
+ * container2.resize(WLength.Auto, new WLength(600));
  *
  * WVBoxLayout layout = new WVBoxLayout();
  * layout.addWidget(new WText("Some text"));
  * layout.addWidget(new WImage("images/img.png"));
-		 
+
  * container2.setLayout(layout);      // set the layout to the container.
  * \endcode
  * \endif
@@ -446,8 +446,8 @@ public:
 
   /*! \brief Sets how overflow of contained children must be handled.
    */
-  void setOverflow(Overflow overflow, WFlags<Orientation> orientation = 
-		   (Orientation::Horizontal | Orientation::Vertical));
+  void setOverflow(Overflow overflow, WFlags<Orientation> orientation =
+                   (Orientation::Horizontal | Orientation::Vertical));
 
   /*! \brief Renders the container as an HTML list.
    *
@@ -473,19 +473,19 @@ public:
   /*! \brief Returns if this container is rendered as a List
    *
    * \sa setList(), isOrderedList(), isUnorderedList()
-   */  
+   */
   bool isList() const;
 
   /*! \brief Returns if this container is rendered as an Unordered List
    *
    * \sa setList(), isList(), isOrderedList()
-   */  
+   */
   bool isUnorderedList() const;
 
   /*! \brief Returns if this container is rendered as an Ordered List
    *
    * \sa setList(), isList(), isUnorderedList()
-   */  
+   */
   bool isOrderedList() const;
 
   /*! \brief Event signal emitted when scrolling in the widget.
@@ -501,7 +501,7 @@ public:
 
   /*! \brief return the number of pixels the container is scrolled horizontally
    *
-   * This value is only set if setOverflow() has been called 
+   * This value is only set if setOverflow() has been called
    *
    * \sa setOverflow()
    * \sa scrollLeft();
@@ -510,7 +510,7 @@ public:
 
   /*! \brief return the number of pixels the container is scrolled vertically
    *
-   * This value is only set if setOverflow() has been called 
+   * This value is only set if setOverflow() has been called
    *
    * \sa setOverflow()
    * \sa scrollTop();
@@ -563,7 +563,7 @@ protected:
   virtual void parentResized(WWidget *parent, WFlags<Orientation> directions)
     override;
   virtual void getDomChanges(std::vector<DomElement *>& result,
-			     WApplication *app) override;
+                             WApplication *app) override;
   virtual void iterateChildren(const HandleWidgetMethod& method) const override;
 
   DomElement *createDomElement(WApplication *app, bool addChildren);

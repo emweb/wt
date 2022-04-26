@@ -1,11 +1,11 @@
 /*
   Copyright (C) 2003, 2005, 2008 GraphicsMagick Group
   Copyright (C) 2002 ImageMagick Studio
- 
+
   This program is covered by multiple licenses, which are described in
   Copyright.txt. You should have received a copy of Copyright.txt with this
   package; otherwise see http://www.graphicsmagick.org/www/Copyright.html.
- 
+
   GraphicsMagick Alpha Composite Methods.
 */
 #ifndef _MAGICK_ALPHA_COMPOSITE_H
@@ -71,7 +71,7 @@ static inline void AlphaCompositePixel(PixelPacket *composite, const PixelPacket
   if (change_alpha == (double) TransparentOpacity)
     {
       if (composite != base)
-	*composite=*base;
+        *composite=*base;
     }
   else
     {
@@ -80,18 +80,18 @@ static inline void AlphaCompositePixel(PixelPacket *composite, const PixelPacket
         value;
 
       delta=1.0-(change_alpha/MaxRGBDouble)*(base_alpha/MaxRGBDouble);
-      
+
       value=MaxRGBDouble*(1.0-delta);
       composite->opacity=RoundDoubleToQuantum(value);
-      
+
       delta=1.0/(delta <= MagickEpsilon ? 1.0 : delta);
-      
+
       value=delta*MagickAlphaCompositeQuantum(change->red,change_alpha,base->red,base_alpha);
       composite->red=RoundDoubleToQuantum(value);
-      
+
       value=delta*MagickAlphaCompositeQuantum(change->green,change_alpha,base->green,base_alpha);
       composite->green=RoundDoubleToQuantum(value);
-      
+
       value=delta*MagickAlphaCompositeQuantum(change->blue,change_alpha,base->blue,base_alpha);
       composite->blue=RoundDoubleToQuantum(value);
     }
@@ -114,25 +114,25 @@ static inline void AtopCompositePixel(PixelPacket *composite,
   opacity=((double)(MaxRGBDouble-change->opacity)*
            (MaxRGBDouble-base->opacity)+(double) change->opacity*
            (MaxRGBDouble-base->opacity))/MaxRGBDouble;
-  
+
   color=((double) (MaxRGBDouble-change->opacity)*
          (MaxRGBDouble-base->opacity)*change->red/MaxRGBDouble+(double)
          change->opacity*(MaxRGBDouble-base->opacity)*
          base->red/MaxRGBDouble)/opacity;
   composite->red=RoundDoubleToQuantum(color);
-  
+
   color=((double) (MaxRGBDouble-change->opacity)*
          (MaxRGBDouble-base->opacity)*change->green/MaxRGBDouble+(double)
          change->opacity*(MaxRGBDouble-base->opacity)*
          base->green/MaxRGBDouble)/opacity;
   composite->green=RoundDoubleToQuantum(color);
-  
+
   color=((double) (MaxRGBDouble-change->opacity)*
          (MaxRGBDouble-base->opacity)*change->blue/MaxRGBDouble+(double)
          change->opacity*(MaxRGBDouble-base->opacity)*
          base->blue/MaxRGBDouble)/opacity;
   composite->blue=RoundDoubleToQuantum(color);
-  
+
   composite->opacity=MaxRGB-RoundDoubleToQuantum(opacity);
 }
 

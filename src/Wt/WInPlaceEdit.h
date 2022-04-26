@@ -34,7 +34,7 @@ class WPushButton;
  * edit->setStyleClass("inplace");
  * \endcode
  * \elseif java
- * \code 
+ * \code
  * WContainerWidget w = new WContainerWidget();
  * new WText("Name: ", w);
  * WInPlaceEdit edit = new WInPlaceEdit("Bob Smith", w);

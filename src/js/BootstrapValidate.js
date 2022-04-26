@@ -11,12 +11,12 @@ WT_DECLARE_WT_MEMBER
  function(edit) {
      var v;
      if (edit.options) {
-	if (edit.options.item(edit.selectedIndex) == null) 
-	  v = "";
-	else
-	  v = edit.options.item(edit.selectedIndex).text;
+        if (edit.options.item(edit.selectedIndex) == null)
+          v = "";
+        else
+          v = edit.options.item(edit.selectedIndex).text;
      } else
-	 v = edit.value;
+         v = edit.value;
 
      v = edit.wtValidate.validate(v);
 
@@ -31,9 +31,9 @@ WT_DECLARE_WT_MEMBER
      /* const */ var ValidationValidStyle = 0x2;
 
      var validStyle = (state == 1) &&
-	 ((styles & ValidationValidStyle) != 0);
+         ((styles & ValidationValidStyle) != 0);
      var invalidStyle = (state != 1) &&
-	 ((styles & ValidationInvalidStyle) != 0);
+         ((styles & ValidationInvalidStyle) != 0);
 
      var $edit = $(edit);
 
@@ -53,7 +53,7 @@ WT_DECLARE_WT_MEMBER
      var error;
 
      controlGroup = $edit.closest(".control-group");
-       
+
      if (controlGroup.length > 0) { // bootstrapVersion === 2
        success = "success";
        error = "error";
@@ -68,15 +68,15 @@ WT_DECLARE_WT_MEMBER
      if (controlGroup.length > 0) {
        var validationMsg = controlGroup.find(".Wt-validation-message");
        if (validationMsg) {
-	 if (state)
-	   validationMsg.text(edit.defaultTT);
-	 else
-	   validationMsg.text(message);
+         if (state)
+           validationMsg.text(edit.defaultTT);
+         else
+           validationMsg.text(message);
        }
 
        controlGroup
-	 .toggleClass(success, validStyle)
-	 .toggleClass(error, invalidStyle);
+         .toggleClass(success, validStyle)
+         .toggleClass(error, invalidStyle);
      }
 
      if (typeof edit.defaultTT === 'undefined')

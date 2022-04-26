@@ -229,10 +229,10 @@ public:
   class WT_API GlObject {
   public:
     GlObject(): id_(-1) {}
-    GlObject(int id) : 
+    GlObject(int id) :
       id_(id) {}
     virtual ~GlObject() {}
-    
+
     virtual std::string jsRef() const = 0;
 
     int getId() const { return id_; }
@@ -240,7 +240,7 @@ public:
     void clear() { id_ = -1; }
 
     bool isNull() const { return id_ == -1; }
-   
+
   private:
     int id_;
   };
@@ -250,13 +250,13 @@ public:
   public:
     Shader() {}
 
-    explicit Shader(int i) : 
+    explicit Shader(int i) :
       GlObject(i) {}
-    
+
     virtual std::string jsRef() const override
     {
       if (isNull())
-	throw WException("Shader: is null");
+        throw WException("Shader: is null");
       return std::string("ctx.WtShader") + std::to_string(getId());
     }
   };
@@ -265,13 +265,13 @@ public:
   class WT_API Program : public GlObject {
   public:
     Program() {}
-    explicit Program(int i) : 
+    explicit Program(int i) :
       GlObject(i) {}
-    
+
     virtual std::string jsRef() const override
     {
       if (isNull())
-	throw WException("Program: is null");
+        throw WException("Program: is null");
       return std::string("ctx.WtProgram") + std::to_string(getId());
     }
   };
@@ -280,13 +280,13 @@ public:
   class WT_API AttribLocation : public GlObject {
   public:
     AttribLocation() {}
-    explicit AttribLocation(int i) : 
+    explicit AttribLocation(int i) :
       GlObject(i) {}
-    
+
     virtual std::string jsRef() const override
     {
       if (isNull())
-	throw WException("AttribLocation: is null");
+        throw WException("AttribLocation: is null");
       return std::string("ctx.WtAttrib") + std::to_string(getId());
     }
   };
@@ -295,13 +295,13 @@ public:
   class WT_API Buffer : public GlObject {
   public:
     Buffer() {}
-    explicit Buffer(int i) : 
+    explicit Buffer(int i) :
       GlObject(i) {}
-    
+
     virtual std::string jsRef() const override
     {
       if (isNull())
-	throw WException("Buffer: is null");
+        throw WException("Buffer: is null");
       return std::string("ctx.WtBuffer") + std::to_string(getId());
     }
   };
@@ -310,13 +310,13 @@ public:
   class WT_API UniformLocation : public GlObject {
   public:
     UniformLocation() {}
-    explicit UniformLocation(int i) : 
+    explicit UniformLocation(int i) :
       GlObject(i) {}
-    
+
     virtual std::string jsRef() const override
     {
       if (isNull())
-	throw WException("UniformLocation: is null");
+        throw WException("UniformLocation: is null");
       return std::string("ctx.WtUniform") + std::to_string(getId());
     }
   };
@@ -327,14 +327,14 @@ public:
     Texture()
       : url_("")
       {}
-    explicit Texture(int i) : 
+    explicit Texture(int i) :
       GlObject(i) {}
 
     virtual std::string jsRef() const override
     {
       if (isNull()) {
-	// throw WException("Texture: is null");
-	return "null";
+        // throw WException("Texture: is null");
+        return "null";
       }
       return std::string("ctx.WtTexture") + std::to_string(getId());
     }
@@ -361,8 +361,8 @@ public:
     virtual std::string jsRef() const override
     {
       if (isNull()) {
-	//throw WException("FrameBuffer: is null");
-	return "null";
+        //throw WException("FrameBuffer: is null");
+        return "null";
       }
       return "ctx.WtFramebuffer" + std::to_string(getId());
     }
@@ -378,8 +378,8 @@ public:
     virtual std::string jsRef() const override
     {
       if (isNull()) {
-	//throw WException("RenderBuffer: is null");
-	return "null";
+        //throw WException("RenderBuffer: is null");
+        return "null";
       }
       return "ctx.WtRenderbuffer" + std::to_string(getId());
     }
@@ -397,7 +397,7 @@ public:
     virtual std::string jsRef() const override
     {
       if (isNull())
-	throw WException("ArrayBuffer: is null");
+        throw WException("ArrayBuffer: is null");
       return "ctx.WtBufferResource" + std::to_string(getId());
     }
   };
@@ -450,8 +450,8 @@ public:
     std::string jsRef() const
     {
       if (!hasContext())
-	throw WException("JavaScriptVector: does not belong to a "
-			 "WGLWidget yet");
+        throw WException("JavaScriptVector: does not belong to a "
+                         "WGLWidget yet");
       return jsRef_;
     }
 
@@ -533,7 +533,7 @@ public:
     std::string jsRef() const
     {
       if (!hasContext())
-	throw WException("JavaScriptMatrix4x4: does not belong to a WGLWidget yet");
+        throw WException("JavaScriptMatrix4x4: does not belong to a WGLWidget yet");
       return jsRef_;
     }
 
@@ -713,7 +713,7 @@ public:
     DEPTH_BUFFER_BIT               = 0x00000100,
     STENCIL_BUFFER_BIT             = 0x00000400,
     COLOR_BUFFER_BIT               = 0x00004000,
-    
+
     /* BeginMode */
     POINTS                         = 0x0000,
     LINES                          = 0x0001,
@@ -722,7 +722,7 @@ public:
     TRIANGLES                      = 0x0004,
     TRIANGLE_STRIP                 = 0x0005,
     TRIANGLE_FAN                   = 0x0006,
-    
+
     /* AlphaFunction (not supported in ES20) */
     /*      NEVER */
     /*      LESS */
@@ -732,7 +732,7 @@ public:
     /*      NOTEQUAL */
     /*      GEQUAL */
     /*      ALWAYS */
-    
+
     /* BlendingFactorDest */
     ZERO                           = 0x0,
     ONE                            = 0x1,
@@ -742,7 +742,7 @@ public:
     ONE_MINUS_SRC_ALPHA            = 0x0303,
     DST_ALPHA                      = 0x0304,
     ONE_MINUS_DST_ALPHA            = 0x0305,
-    
+
     /* BlendingFactorSrc */
     /*      ZERO */
     /*      ONE */
@@ -753,17 +753,17 @@ public:
     /*      ONE_MINUS_SRC_ALPHA */
     /*      DST_ALPHA */
     /*      ONE_MINUS_DST_ALPHA */
-    
+
     /* BlendEquationSeparate */
     FUNC_ADD                       = 0x8006,
     BLEND_EQUATION                 = 0x8009,
     BLEND_EQUATION_RGB             = 0x8009,   /* same as BLEND_EQUATION */
     BLEND_EQUATION_ALPHA           = 0x883D,
-    
+
     /* BlendSubtract */
     FUNC_SUBTRACT                  = 0x800A,
     FUNC_REVERSE_SUBTRACT          = 0x800B,
-    
+
     /* Separate Blend Functions */
     BLEND_DST_RGB                  = 0x80C8,
     BLEND_SRC_RGB                  = 0x80C9,
@@ -774,27 +774,27 @@ public:
     CONSTANT_ALPHA                 = 0x8003,
     ONE_MINUS_CONSTANT_ALPHA       = 0x8004,
     BLEND_COLOR                    = 0x8005,
-    
+
     /* Buffer Objects */
     ARRAY_BUFFER                   = 0x8892,
     ELEMENT_ARRAY_BUFFER           = 0x8893,
     ARRAY_BUFFER_BINDING           = 0x8894,
     ELEMENT_ARRAY_BUFFER_BINDING   = 0x8895,
-    
+
     STREAM_DRAW                    = 0x88E0,
     STATIC_DRAW                    = 0x88E4,
     DYNAMIC_DRAW                   = 0x88E8,
-    
+
     BUFFER_SIZE                    = 0x8764,
     BUFFER_USAGE                   = 0x8765,
-    
+
     CURRENT_VERTEX_ATTRIB          = 0x8626,
-    
+
     /* CullFaceMode */
     FRONT                          = 0x0404,
     BACK                           = 0x0405,
     FRONT_AND_BACK                 = 0x0408,
-    
+
     /* DepthFunction */
     /*      NEVER */
     /*      LESS */
@@ -804,7 +804,7 @@ public:
     /*      NOTEQUAL */
     /*      GEQUAL */
     /*      ALWAYS */
-    
+
     /* EnableCap */
     /* TEXTURE_2D */
     CULL_FACE                      = 0x0B44,
@@ -816,18 +816,18 @@ public:
     POLYGON_OFFSET_FILL            = 0x8037,
     SAMPLE_ALPHA_TO_COVERAGE       = 0x809E,
     SAMPLE_COVERAGE                = 0x80A0,
-    
+
     /* ErrorCode */
     NO_ERROR                       = 0x0,
     INVALID_ENUM                   = 0x0500,
     INVALID_VALUE                  = 0x0501,
     INVALID_OPERATION              = 0x0502,
     OUT_OF_MEMORY                  = 0x0505,
-    
+
     /* FrontFaceDirection */
     CW                             = 0x0900,
     CCW                            = 0x0901,
-    
+
     /* GetPName */
     LINE_WIDTH                     = 0x0B21,
     ALIASED_POINT_SIZE_RANGE       = 0x846D,
@@ -877,24 +877,24 @@ public:
     SAMPLES                        = 0x80A9,
     SAMPLE_COVERAGE_VALUE          = 0x80AA,
     SAMPLE_COVERAGE_INVERT         = 0x80AB,
-    
+
     /* GetTextureParameter */
     /*      TEXTURE_MAG_FILTER */
     /*      TEXTURE_MIN_FILTER */
     /*      TEXTURE_WRAP_S */
     /*      TEXTURE_WRAP_T */
-    
+
     NUM_COMPRESSED_TEXTURE_FORMATS = 0x86A2,
     COMPRESSED_TEXTURE_FORMATS     = 0x86A3,
-    
+
     /* HintMode */
     DONT_CARE                      = 0x1100,
     FASTEST                        = 0x1101,
     NICEST                         = 0x1102,
-    
+
     /* HintTarget */
     GENERATE_MIPMAP_HINT            = 0x8192,
-    
+
     /* DataType */
     BYTE                           = 0x1400,
     UNSIGNED_BYTE                  = 0x1401,
@@ -903,7 +903,7 @@ public:
     INT                            = 0x1404,
     UNSIGNED_INT                   = 0x1405,
     FLOAT                          = 0x1406,
-    
+
     /* PixelFormat */
     DEPTH_COMPONENT                = 0x1902,
     ALPHA                          = 0x1906,
@@ -911,13 +911,13 @@ public:
     RGBA                           = 0x1908,
     LUMINANCE                      = 0x1909,
     LUMINANCE_ALPHA                = 0x190A,
-    
+
     /* PixelType */
     /*      UNSIGNED_BYTE */
     UNSIGNED_SHORT_4_4_4_4         = 0x8033,
     UNSIGNED_SHORT_5_5_5_1         = 0x8034,
     UNSIGNED_SHORT_5_6_5           = 0x8363,
-    
+
     /* Shaders */
     FRAGMENT_SHADER                  = 0x8B30,
     VERTEX_SHADER                    = 0x8B31,
@@ -939,7 +939,7 @@ public:
     ACTIVE_ATTRIBUTE_MAX_LENGTH      = 0x8B8A,
     SHADING_LANGUAGE_VERSION         = 0x8B8C,
     CURRENT_PROGRAM                  = 0x8B8D,
-    
+
     /* StencilFunction */
     NEVER                          = 0x0200,
     LESS                           = 0x0201,
@@ -949,7 +949,7 @@ public:
     NOTEQUAL                       = 0x0205,
     GEQUAL                         = 0x0206,
     ALWAYS                         = 0x0207,
-    
+
     /* StencilOp */
     /*      ZERO */
     KEEP                           = 0x1E00,
@@ -959,16 +959,16 @@ public:
     INVERT                         = 0x150A,
     INCR_WRAP                      = 0x8507,
     DECR_WRAP                      = 0x8508,
-    
+
     /* StringName */
     VENDOR                         = 0x1F00,
     RENDERER                       = 0x1F01,
     VERSION                        = 0x1F02,
-    
+
     /* TextureMagFilter */
     NEAREST                        = 0x2600,
     LINEAR                         = 0x2601,
-    
+
     /* TextureMinFilter */
     /*      NEAREST */
     /*      LINEAR */
@@ -976,17 +976,17 @@ public:
     LINEAR_MIPMAP_NEAREST          = 0x2701,
     NEAREST_MIPMAP_LINEAR          = 0x2702,
     LINEAR_MIPMAP_LINEAR           = 0x2703,
-    
+
     /* TextureParameterName */
     TEXTURE_MAG_FILTER             = 0x2800,
     TEXTURE_MIN_FILTER             = 0x2801,
     TEXTURE_WRAP_S                 = 0x2802,
     TEXTURE_WRAP_T                 = 0x2803,
-    
+
     /* TextureTarget */
     TEXTURE_2D                     = 0x0DE1,
     TEXTURE                        = 0x1702,
-    
+
     TEXTURE_CUBE_MAP               = 0x8513,
     TEXTURE_BINDING_CUBE_MAP       = 0x8514,
     TEXTURE_CUBE_MAP_POSITIVE_X    = 0x8515,
@@ -996,7 +996,7 @@ public:
     TEXTURE_CUBE_MAP_POSITIVE_Z    = 0x8519,
     TEXTURE_CUBE_MAP_NEGATIVE_Z    = 0x851A,
     MAX_CUBE_MAP_TEXTURE_SIZE      = 0x851C,
-    
+
     /* TextureUnit */
     TEXTURE0                       = 0x84C0,
     TEXTURE1                       = 0x84C1,
@@ -1031,12 +1031,12 @@ public:
     TEXTURE30                      = 0x84DE,
     TEXTURE31                      = 0x84DF,
     ACTIVE_TEXTURE                 = 0x84E0,
-    
+
     /* TextureWrapMode */
     REPEAT                         = 0x2901,
     CLAMP_TO_EDGE                  = 0x812F,
     MIRRORED_REPEAT                = 0x8370,
-    
+
     /* Uniform Types */
     FLOAT_VEC2                     = 0x8B50,
     FLOAT_VEC3                     = 0x8B51,
@@ -1053,7 +1053,7 @@ public:
     FLOAT_MAT4                     = 0x8B5C,
     SAMPLER_2D                     = 0x8B5E,
     SAMPLER_CUBE                   = 0x8B60,
-    
+
     /* Vertex Arrays */
     VERTEX_ATTRIB_ARRAY_ENABLED        = 0x8622,
     VERTEX_ATTRIB_ARRAY_SIZE           = 0x8623,
@@ -1062,12 +1062,12 @@ public:
     VERTEX_ATTRIB_ARRAY_NORMALIZED     = 0x886A,
     VERTEX_ATTRIB_ARRAY_POINTER        = 0x8645,
     VERTEX_ATTRIB_ARRAY_BUFFER_BINDING = 0x889F,
-    
+
     /* Shader Source */
     COMPILE_STATUS                 = 0x8B81,
     INFO_LOG_LENGTH                = 0x8B84,
     SHADER_SOURCE_LENGTH           = 0x8B88,
-    
+
     /* Shader Precision-Specified Types */
     LOW_FLOAT                      = 0x8DF0,
     MEDIUM_FLOAT                   = 0x8DF1,
@@ -1075,11 +1075,11 @@ public:
     LOW_INT                        = 0x8DF3,
     MEDIUM_INT                     = 0x8DF4,
     HIGH_INT                       = 0x8DF5,
-    
+
     /* Framebuffer Object. */
     FRAMEBUFFER                    = 0x8D40,
     RENDERBUFFER                   = 0x8D41,
-    
+
     RGBA4                          = 0x8056,
     RGB5_A1                        = 0x8057,
     RGB565                         = 0x8D62,
@@ -1087,7 +1087,7 @@ public:
     STENCIL_INDEX                  = 0x1901,
     STENCIL_INDEX8                 = 0x8D48,
     DEPTH_STENCIL                  = 0x84F9,
-    
+
     RENDERBUFFER_WIDTH             = 0x8D42,
     RENDERBUFFER_HEIGHT            = 0x8D43,
     RENDERBUFFER_INTERNAL_FORMAT   = 0x8D44,
@@ -1097,31 +1097,31 @@ public:
     RENDERBUFFER_ALPHA_SIZE        = 0x8D53,
     RENDERBUFFER_DEPTH_SIZE        = 0x8D54,
     RENDERBUFFER_STENCIL_SIZE      = 0x8D55,
-    
+
     FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE           = 0x8CD0,
     FRAMEBUFFER_ATTACHMENT_OBJECT_NAME           = 0x8CD1,
     FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL         = 0x8CD2,
     FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE = 0x8CD3,
-    
+
     COLOR_ATTACHMENT0              = 0x8CE0,
     DEPTH_ATTACHMENT               = 0x8D00,
     STENCIL_ATTACHMENT             = 0x8D20,
     DEPTH_STENCIL_ATTACHMENT       = 0x821A,
-    
+
     NONE                           = 0x0,
-    
+
     FRAMEBUFFER_COMPLETE                      = 0x8CD5,
     FRAMEBUFFER_INCOMPLETE_ATTACHMENT         = 0x8CD6,
     FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT = 0x8CD7,
     FRAMEBUFFER_INCOMPLETE_DIMENSIONS         = 0x8CD9,
     FRAMEBUFFER_UNSUPPORTED                   = 0x8CDD,
-    
+
     FRAMEBUFFER_BINDING            = 0x8CA6,
     RENDERBUFFER_BINDING           = 0x8CA7,
     MAX_RENDERBUFFER_SIZE          = 0x84E8,
-    
+
     INVALID_FRAMEBUFFER_OPERATION  = 0x0506,
-    
+
     /* WebGL-specific enums */
     UNPACK_FLIP_Y_WEBGL            = 0x9240,
     UNPACK_PREMULTIPLY_ALPHA_WEBGL = 0x9241,
@@ -1129,8 +1129,8 @@ public:
     UNPACK_COLORSPACE_CONVERSION_WEBGL = 0x9243,
     BROWSER_DEFAULT_WEBGL          = 0x9244,
   };
-  
-  void debugger();  
+
+  void debugger();
 
   /*! @name GL methods
    * The GL methods are mostly 1-on-1 translated to the identical
@@ -1227,7 +1227,7 @@ public:
    * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/xhtml/glBlendFuncSeparate.xml">
    * glBlendFuncSeparate() OpenGL ES manpage</a>
    */
-  void blendFuncSeparate(GLenum srcRGB, GLenum dstRGB, 
+  void blendFuncSeparate(GLenum srcRGB, GLenum dstRGB,
                          GLenum srcAlpha, GLenum dstAlpha);
 
   /*! \brief glBufferData - create and initialize a buffer object's data store
@@ -1366,7 +1366,7 @@ public:
     data.reserve(end-begin);
     for (Iterator i = begin; i != end; ++i)
       data.push_back(*i);
-    
+
     bufferSubDatafv(target, offset, data, binary);
   }
 
@@ -1402,7 +1402,7 @@ public:
 #endif
 
   /*! \brief remove all binary buffer resources
-   * 
+   *
    * Removes all WMemoryResources that were allocated when calling
    * bufferDatafv with binary=true. This is not required, since the resources
    * are also managed, but if you are sure they will not be used anymore in
@@ -1417,12 +1417,12 @@ public:
    */
 #ifdef WT_TARGET_JAVA
   void bufferDataiv(GLenum target, IntBuffer &buffer, GLenum usage,
-		    GLenum type);
+                    GLenum type);
 #else
   void bufferDataiv(GLenum target, std::vector<int> &buffer, GLenum usage,
-		    GLenum type);
+                    GLenum type);
 #endif
-  
+
   /*! \brief GL function that updates an existing VBO with new float data
    *
    * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/glBufferSubData.xml">
@@ -1430,13 +1430,13 @@ public:
    */
 #ifdef WT_TARGET_JAVA
   void bufferSubDatafv(GLenum target, unsigned offset,
-		       const FloatBuffer &buffer, bool binary = false);
+                       const FloatBuffer &buffer, bool binary = false);
 
   void bufferSubDatafv(GLenum target, unsigned offset,
-		       const FloatNotByteBuffer &buffer);
+                       const FloatNotByteBuffer &buffer);
 #else
   void bufferSubDatafv(GLenum target, unsigned offset,
-		       const std::vector<float> &buffer, bool binary = false);
+                       const std::vector<float> &buffer, bool binary = false);
 #endif
 
   /*! \brief GL function that loads integer data in a VBO
@@ -1446,12 +1446,12 @@ public:
    */
 #ifdef WT_TARGET_JAVA
   void bufferSubDataiv(GLenum target,
-		       unsigned offset, IntBuffer &buffer, 
-		       GLenum type);
+                       unsigned offset, IntBuffer &buffer,
+                       GLenum type);
 #else
   void bufferSubDataiv(GLenum target,
-		       unsigned offset, std::vector<int> &buffer, 
-		       GLenum type);
+                       unsigned offset, std::vector<int> &buffer,
+                       GLenum type);
 #endif
 
   //GLenum checkFramebufferStatus(GLenum target);
@@ -1507,7 +1507,7 @@ public:
   void copyTexImage2D(GLenum target, int level,
                       GLenum internalformat,
                       int x, int y,
-                      unsigned width, unsigned height, 
+                      unsigned width, unsigned height,
                       int border);
 
   /*! \brief GL function that copies a part of a texture image
@@ -1570,7 +1570,7 @@ public:
   Texture createTextureAndLoad(const std::string &url);
 
   /*! \brief returns an paintdevice that can be used to paint a GL texture
-   * 
+   *
    * If the client has a webGL enabled browser this function returns a
    * WCanvasPaintDevice.
    *
@@ -1584,7 +1584,7 @@ public:
    * \endif
    */
   std::unique_ptr<WPaintDevice> createPaintDevice(const WLength& width,
-						  const WLength& height);
+                                                  const WLength& height);
 
   /*! \brief GL function that configures the backface culling mode
    *
@@ -1729,8 +1729,8 @@ public:
    * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/xhtml/glFramebufferRenderbuffer.xml">
    * glFramebufferRenderbuffer() OpenGL ES manpage</a>
    */
-  void framebufferRenderbuffer(GLenum target, GLenum attachment, 
-                               GLenum renderbuffertarget, 
+  void framebufferRenderbuffer(GLenum target, GLenum attachment,
+                               GLenum renderbuffertarget,
                                Renderbuffer renderbuffer);
 
   /*! \brief GL function to render directly into a texture image.
@@ -1738,7 +1738,7 @@ public:
    * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/xhtml/glFramebufferTexture2D.xml">
    * glFramebufferTexture2D() OpenGL ES manpage</a>
    */
-  void framebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, 
+  void framebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget,
                             Texture texture, int level);
 
   /*! \brief GL function that specifies which side of a triangle is the
@@ -1773,7 +1773,7 @@ public:
 
   //GLenum getError();
 
-  //any getFramebufferAttachmentParameter(GLenum target, GLenum attachment, 
+  //any getFramebufferAttachmentParameter(GLenum target, GLenum attachment,
   //                                      GLenum pname);
   //any getProgramParameter(WebGLProgram program, GLenum pname);
   //DOMString getProgramInfoLog(WebGLProgram program);
@@ -1841,7 +1841,7 @@ public:
    */
   void polygonOffset(double factor, double units);
 
-  //void readPixels(GLint x, GLint y, GLsizei width, GLsizei height, 
+  //void readPixels(GLint x, GLint y, GLsizei width, GLsizei height,
   //                GLenum format, GLenum type, ArrayBufferView pixels);
 
   /*! \brief GL function to allocate the appropriate amount of memory for
@@ -1850,7 +1850,7 @@ public:
    * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/xhtml/glRenderbufferStorage.xml">
    * glSampleCoverage() OpenGL ES manpage</a>
    */
-  void renderbufferStorage(GLenum target, GLenum internalformat, 
+  void renderbufferStorage(GLenum target, GLenum internalformat,
                            unsigned width, unsigned height);
 
   /*! \brief GL function to set multisample parameters
@@ -1920,8 +1920,8 @@ public:
    */
   void stencilOpSeparate(GLenum face, GLenum fail, GLenum zfail, GLenum zpass);
 
-  //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat, 
-  //                GLsizei width, GLsizei height, GLint border, PixelFormatEnum format, 
+  //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat,
+  //                GLsizei width, GLsizei height, GLint border, PixelFormatEnum format,
   //                GLenum type, ArrayBufferView pixels);
   /*! \brief GL function to reserve space for a 2D texture, without specifying its
    *         contents.
@@ -1935,7 +1935,7 @@ public:
    * <a href="http://www.khronos.org/opengles/sdk/2.0/docs/man/xhtml/glTexImage2D.xml">
    * glTexImage2D() OpenGL ES manpage</a>
    */
-  void texImage2D(GLenum target, int level, GLenum internalformat, 
+  void texImage2D(GLenum target, int level, GLenum internalformat,
                   unsigned width, unsigned height, int border, GLenum format);
 
   //void texImage2D(TextureTargetEnum target, int level, PixelFormatEnum internalformat,
@@ -1963,7 +1963,7 @@ public:
    * glTexImage2D() OpenGL ES manpage</a>
    */
   void texImage2D(GLenum target, int level, GLenum internalformat,
-		  GLenum format, GLenum type, WVideo *video);
+                  GLenum format, GLenum type, WVideo *video);
 
   /*! \brief GL function to load a 2D texture from a file
    *
@@ -1981,8 +1981,8 @@ public:
    * \sa createPaintDevice()
    */
   void texImage2D(GLenum target, int level, GLenum internalformat,
-		  GLenum format, GLenum type,
-		  WPaintDevice *paintdevice);
+                  GLenum format, GLenum type,
+                  WPaintDevice *paintdevice);
 
   /*! \brief GL function to load a 2D texture loaded with createTextureAndLoad()
    *
@@ -2009,16 +2009,16 @@ public:
    */
   void texParameteri(GLenum target, GLenum pname, GLenum param);
 
-  //void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, 
-  //                   GLsizei width, GLsizei height, 
+  //void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset,
+  //                   GLsizei width, GLsizei height,
   //                   GLenum format, GLenum type, ArrayBufferView pixels);
-  //void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, 
+  //void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset,
   //                   GLenum format, GLenum type, ImageData pixels);
-  //void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, 
+  //void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset,
   //                   GLenum format, GLenum type, HTMLImageElement image);
-  //void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, 
+  //void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset,
   //                   GLenum format, GLenum type, HTMLCanvasElement canvas);
-  //void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, 
+  //void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset,
   //                   GLenum format, GLenum type, HTMLVideoElement video);
 
 
@@ -2037,8 +2037,8 @@ public:
    * glUniform() OpenGL ES manpage</a>
    */
   WT_WGL_TEMPLATE(typename FloatArray)
-  void uniform1fv(const UniformLocation &location, 
-		  const WT_ARRAY FloatArray *value)
+  void uniform1fv(const UniformLocation &location,
+                  const WT_ARRAY FloatArray *value)
 #ifndef WT_TARGET_JAVA
  {
     float out[1];
@@ -2050,8 +2050,8 @@ public:
   }
 
   /// \cond
-  void uniform1fv(const UniformLocation &location, 
-		  const WT_ARRAY float *value);
+  void uniform1fv(const UniformLocation &location,
+                  const WT_ARRAY float *value);
   /// \endcond
 #else
   ;
@@ -2064,7 +2064,7 @@ public:
    * glUniform() OpenGL ES manpage</a>
    */
   void uniform1fv(const UniformLocation &location,
-		  const JavaScriptVector &v);
+                  const JavaScriptVector &v);
 
   /*! \brief GL function to set the value of a uniform variable of the current
    * program
@@ -2081,8 +2081,8 @@ public:
    * glUniform() OpenGL ES manpage</a>
    */
   WT_WGL_TEMPLATE(typename IntArray)
-  void uniform1iv(const UniformLocation &location, 
-		  const WT_ARRAY IntArray *value)
+  void uniform1iv(const UniformLocation &location,
+                  const WT_ARRAY IntArray *value)
 #ifndef WT_TARGET_JAVA
 {
     int out[1];
@@ -2094,8 +2094,8 @@ public:
   }
 
   /// \cond
-  void uniform1iv(const UniformLocation &location, 
-		  const WT_ARRAY int *value);
+  void uniform1iv(const UniformLocation &location,
+                  const WT_ARRAY int *value);
   /// \endcond
 #else
   ;
@@ -2116,21 +2116,21 @@ public:
    * glUniform() OpenGL ES manpage</a>
    */
   WT_WGL_TEMPLATE(typename FloatArray)
-  void uniform2fv(const UniformLocation &location, 
-		  const WT_ARRAY FloatArray *value)
+  void uniform2fv(const UniformLocation &location,
+                  const WT_ARRAY FloatArray *value)
 #ifndef WT_TARGET_JAVA
 {
   float out[2];
   for (int i=0; i<2; i++) {
     out[i] = (float)value[i];
   }
-  
+
   uniform2fv(location, out);
 }
 
   /// \cond
-void uniform2fv(const UniformLocation &location, 
-		const WT_ARRAY float *value);
+void uniform2fv(const UniformLocation &location,
+                const WT_ARRAY float *value);
 /// \endcond
 #else
 ;
@@ -2143,7 +2143,7 @@ void uniform2fv(const UniformLocation &location,
    * glUniform() OpenGL ES manpage</a>
    */
   void uniform2fv(const UniformLocation &location,
-		  const JavaScriptVector &v);
+                  const JavaScriptVector &v);
 
   /*! \brief GL function to set the value of a uniform variable of the current
    * program
@@ -2160,21 +2160,21 @@ void uniform2fv(const UniformLocation &location,
    * glUniform() OpenGL ES manpage</a>
    */
   WT_WGL_TEMPLATE(typename IntArray)
-  void uniform2iv(const UniformLocation &location, 
-		  const WT_ARRAY IntArray *value)
+  void uniform2iv(const UniformLocation &location,
+                  const WT_ARRAY IntArray *value)
 #ifndef WT_TARGET_JAVA
   {
     int out[2];
     for (int i=0; i<2; i++) {
       out[i] = (int)value[i];
     }
-    
+
     uniform2iv(location, out);
   }
 
 /// \cond
-void uniform2iv(const UniformLocation &location, 
-		  const WT_ARRAY int *value);
+void uniform2iv(const UniformLocation &location,
+                  const WT_ARRAY int *value);
 /// \endcond
 #else
 ;
@@ -2196,21 +2196,21 @@ void uniform2iv(const UniformLocation &location,
    * glUniform() OpenGL ES manpage</a>
    */
   WT_WGL_TEMPLATE(typename FloatArray)
-  void uniform3fv(const UniformLocation &location, 
-		  const WT_ARRAY FloatArray *value)
+  void uniform3fv(const UniformLocation &location,
+                  const WT_ARRAY FloatArray *value)
 #ifndef WT_TARGET_JAVA
   {
     float out[3];
     for (int i=0; i<3; i++) {
       out[i] = (float)value[i];
     }
-    
+
     uniform3fv(location, out);
   }
 
 /// \cond
-  void uniform3fv(const UniformLocation &location, 
-		  const WT_ARRAY float *value);
+  void uniform3fv(const UniformLocation &location,
+                  const WT_ARRAY float *value);
 /// \endcond
 #else
 ;
@@ -2223,7 +2223,7 @@ void uniform2iv(const UniformLocation &location,
    * glUniform() OpenGL ES manpage</a>
    */
   void uniform3fv(const UniformLocation &location,
-		  const JavaScriptVector &v);
+                  const JavaScriptVector &v);
 
   /*! \brief GL function to set the value of a uniform variable of the current
    * program
@@ -2240,21 +2240,21 @@ void uniform2iv(const UniformLocation &location,
    * glUniform() OpenGL ES manpage</a>
    */
   WT_WGL_TEMPLATE(typename IntArray)
-  void uniform3iv(const UniformLocation &location, 
-		  const WT_ARRAY IntArray *value)
+  void uniform3iv(const UniformLocation &location,
+                  const WT_ARRAY IntArray *value)
 #ifndef WT_TARGET_JAVA
   {
     int out[3];
     for (int i=0; i<3; i++) {
       out[i] = (int)value[i];
     }
-    
+
     uniform3iv(location, out);
   }
 
 /// \cond
-  void uniform3iv(const UniformLocation &location, 
-		  const WT_ARRAY int *value);
+  void uniform3iv(const UniformLocation &location,
+                  const WT_ARRAY int *value);
 /// \endcond
 #else
 ;
@@ -2276,21 +2276,21 @@ void uniform2iv(const UniformLocation &location,
    * glUniform() OpenGL ES manpage</a>
    */
   WT_WGL_TEMPLATE(typename FloatArray)
-  void uniform4fv(const UniformLocation &location, 
-		  const WT_ARRAY FloatArray *value)
+  void uniform4fv(const UniformLocation &location,
+                  const WT_ARRAY FloatArray *value)
 #ifndef WT_TARGET_JAVA
   {
     float out[4];
     for (int i=0; i<4; i++) {
       out[i] = (float)value[i];
     }
-    
+
     uniform4fv(location, out);
   }
 
 /// \cond
-  void uniform4fv(const UniformLocation &location, 
-		  const WT_ARRAY float *value);
+  void uniform4fv(const UniformLocation &location,
+                  const WT_ARRAY float *value);
 /// \endcond
 #else
 ;
@@ -2303,7 +2303,7 @@ void uniform2iv(const UniformLocation &location,
    * glUniform() OpenGL ES manpage</a>
    */
   void uniform4fv(const UniformLocation &location,
-		  const JavaScriptVector &v);
+                  const JavaScriptVector &v);
 
   /*! \brief GL function to set the value of a uniform variable of the current
    * program
@@ -2320,21 +2320,21 @@ void uniform2iv(const UniformLocation &location,
    * glUniform() OpenGL ES manpage</a>
    */
   WT_WGL_TEMPLATE(typename IntArray)
-  void uniform4iv(const UniformLocation &location, 
-		  const WT_ARRAY IntArray *value)
+  void uniform4iv(const UniformLocation &location,
+                  const WT_ARRAY IntArray *value)
 #ifndef WT_TARGET_JAVA
   {
     int out[4];
     for (int i=0; i<4; i++) {
       out[i] = (int)value[i];
     }
-    
+
     uniform4iv(location, out);
   }
 
 /// \cond
-  void uniform4iv(const UniformLocation &location, 
-		  const WT_ARRAY int *value);
+  void uniform4iv(const UniformLocation &location,
+                  const WT_ARRAY int *value);
 /// \endcond
 #else
 ;
@@ -2351,8 +2351,8 @@ void uniform2iv(const UniformLocation &location,
    */
   WT_WGL_TEMPLATE(typename MatrixType)
   void uniformMatrix2fv(const UniformLocation &location,
-                        bool transpose, 
-			const WT_ARRAY MatrixType *value)
+                        bool transpose,
+                        const WT_ARRAY MatrixType *value)
 #ifndef WT_TARGET_JAVA
   {
     double out[4];
@@ -2364,8 +2364,8 @@ void uniform2iv(const UniformLocation &location,
 
 /// \cond
   void uniformMatrix2fv(const UniformLocation &location,
-                        bool transpose, 
-			const WT_ARRAY double *value);
+                        bool transpose,
+                        const WT_ARRAY double *value);
 /// \endcond
 #else
 ;
@@ -2387,7 +2387,7 @@ void uniform2iv(const UniformLocation &location,
     WGenericMatrix<double, 2, 2> out;
     for (int i=0; i<2; i++) {
       for (int j=0; j<2; j++) {
-	out.at(i, j) = (double)m.at(i, j);
+        out.at(i, j) = (double)m.at(i, j);
       }
     }
     uniformMatrix2(location, out);
@@ -2411,8 +2411,8 @@ void uniform2iv(const UniformLocation &location,
    * glUniform() OpenGL ES manpage</a>
    */
   WT_WGL_TEMPLATE(typename MatrixType)
-  void uniformMatrix3fv(const UniformLocation &location, bool transpose, 
-			const WT_ARRAY MatrixType *value)
+  void uniformMatrix3fv(const UniformLocation &location, bool transpose,
+                        const WT_ARRAY MatrixType *value)
 #ifndef WT_TARGET_JAVA
   {
     double out[9];
@@ -2423,8 +2423,8 @@ void uniform2iv(const UniformLocation &location,
   }
 
 /// \cond
-  void uniformMatrix3fv(const UniformLocation &location, bool transpose, 
-			const WT_ARRAY double *value);
+  void uniformMatrix3fv(const UniformLocation &location, bool transpose,
+                        const WT_ARRAY double *value);
 /// \endcond
 #else
 ;
@@ -2440,13 +2440,13 @@ void uniform2iv(const UniformLocation &location,
    */
   WT_WGL_TEMPLATE(typename MatrixType)
   void uniformMatrix3(const UniformLocation &location,
-		      const WGenericMatrix<MatrixType, 3, 3> &m)
+                      const WGenericMatrix<MatrixType, 3, 3> &m)
 #ifndef WT_TARGET_JAVA
   {
     WGenericMatrix<double, 3, 3> out;
     for (int i=0; i<3; i++) {
       for (int j=0; j<3; j++) {
-	out.at(i, j) = (double)m.at(i, j);
+        out.at(i, j) = (double)m.at(i, j);
       }
     }
     uniformMatrix3(location, out);
@@ -2454,7 +2454,7 @@ void uniform2iv(const UniformLocation &location,
 
 /// \cond
   void uniformMatrix3(const UniformLocation &location,
-		      const WGenericMatrix<double, 3, 3> &m);
+                      const WGenericMatrix<double, 3, 3> &m);
 /// \endcond
 #else
 ;
@@ -2505,7 +2505,7 @@ void uniform2iv(const UniformLocation &location,
     WGenericMatrix<double, 4, 4> out;
     for (int i=0; i<4; i++) {
       for (int j=0; j<4; j++) {
-	out.at(i, j) = (double)m.at(i, j);
+        out.at(i, j) = (double)m.at(i, j);
       }
     }
     uniformMatrix4(location, out);
@@ -2560,8 +2560,8 @@ void uniform2iv(const UniformLocation &location,
    * glVertexAttrib() OpenGL ES manpage</a>
    */
   WT_WGL_TEMPLATE(typename FloatArray)
-  void vertexAttrib1fv(AttribLocation location, 
-		       const WT_ARRAY FloatArray *values) {
+  void vertexAttrib1fv(AttribLocation location,
+                       const WT_ARRAY FloatArray *values) {
     vertexAttrib1f(location, values[0]);
   }
 #endif
@@ -2579,8 +2579,8 @@ void uniform2iv(const UniformLocation &location,
    * glVertexAttrib() OpenGL ES manpage</a>
    */
   WT_WGL_TEMPLATE(typename FloatArray)
-  void vertexAttrib2fv(AttribLocation location, 
-		       const WT_ARRAY FloatArray *values) {
+  void vertexAttrib2fv(AttribLocation location,
+                       const WT_ARRAY FloatArray *values) {
     vertexAttrib2f(location, values[0], values[1]);
   }
 
@@ -2597,8 +2597,8 @@ void uniform2iv(const UniformLocation &location,
    * glVertexAttrib() OpenGL ES manpage</a>
    */
   WT_WGL_TEMPLATE(typename FloatArray)
-  void vertexAttrib3fv(AttribLocation location, 
-		       const WT_ARRAY FloatArray *values) {
+  void vertexAttrib3fv(AttribLocation location,
+                       const WT_ARRAY FloatArray *values) {
     vertexAttrib3f(location, values[0], values[1], values[2]);
   }
 
@@ -2616,8 +2616,8 @@ void uniform2iv(const UniformLocation &location,
    * glVertexAttrib() OpenGL ES manpage</a>
    */
   WT_WGL_TEMPLATE(typename FloatArray)
-  void vertexAttrib4fv(AttribLocation location, 
-		       const WT_ARRAY FloatArray *values) {
+  void vertexAttrib4fv(AttribLocation location,
+                       const WT_ARRAY FloatArray *values) {
     vertexAttrib4f(location, values[0], values[1], values[2], values[3]);
   }
 
@@ -2711,7 +2711,7 @@ void uniform2iv(const UniformLocation &location,
     WGenericMatrix<double, 4, 4> out;
     for (int i=0; i<4; i++) {
       for (int j=0; j<4; j++) {
-	out.at(i, j) = (double)m.at(i, j);
+        out.at(i, j) = (double)m.at(i, j);
       }
     }
     setJavaScriptMatrix4(jsm, out);
@@ -2768,7 +2768,7 @@ void uniform2iv(const UniformLocation &location,
    * updateGL() or resizeGL().
    */
   void setJavaScriptVector(JavaScriptVector &jsv,
-			   const std::vector<float> &v);
+                           const std::vector<float> &v);
 
   //!@}
 
@@ -2781,29 +2781,29 @@ void uniform2iv(const UniformLocation &location,
    * - <b>setTarget(target)</b>: This is called immediately when the mouse handler is added with an
    *                       object that uniquely identifies the WGLWidget, and a paintGL() method.
    * - <b>mouseDown(o, event)</b>: To handle the \c mousedown event. \c o is the \c &lt;canvas> (client-side rendering)
-   *			    or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
-   *			    the \c MouseEvent.
+   *                            or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
+   *                            the \c MouseEvent.
    * - <b>mouseUp(o, event)</b>: To handle the \c mouseup event. \c o is the \c &lt;canvas> (client-side rendering)
-   *			    or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
-   *			    the \c MouseEvent.
+   *                            or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
+   *                            the \c MouseEvent.
    * - <b>mouseDrag(o, event)</b>: Called when the mouse is dragged. \c o is the \c &lt;canvas> (client-side rendering)
-   *			    or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
-   *			    the \c MouseEvent.
+   *                            or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
+   *                            the \c MouseEvent.
    * - <b>mouseMove(o, event)</b>: Called when the mouse is moved. \c o is the \c &lt;canvas> (client-side rendering)
-   *			    or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
-   *			    the \c MouseEvent.
+   *                            or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
+   *                            the \c MouseEvent.
    * - <b>mouseWheel(o, event)</b>: Called when the mouse wheel is used. \c o is the \c &lt;canvas> (client-side rendering)
-   *			    or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
-   *			    the \c MouseEvent.
+   *                            or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
+   *                            the \c MouseEvent.
    * - <b>touchStart(o, event)</b>: To handle the \c touchstart event. \c o is the \c &lt;canvas> (client-side rendering)
-   *			    or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
-   *			    the \c TouchEvent.
+   *                            or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
+   *                            the \c TouchEvent.
    * - <b>touchEnd(o, event)</b>: To handle the \c touchend event. \c o is this \c &lt;canvas> (client-side rendering)
-   *			    or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
-   *			    the \c TouchEvent.
+   *                            or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
+   *                            the \c TouchEvent.
    * - <b>touchMoved(o, event)</b>: To handle the \c touchmove event. \c o is this \c &lt;canvas> (client-side rendering)
-   *			    or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
-   *			    the \c TouchEvent.
+   *                            or \c &lt;img> (server-side rendering) element corresponding to this WGLWidget. \c event is
+   *                            the \c TouchEvent.
    *
    *
    * For example, if we wanted to scale some object when we scroll, we could create
@@ -2877,9 +2877,9 @@ setClientSideMouseHandler(std::string("(function(){") +
     "function wheelDelta(e) {"
       "var delta = 0;"
       "if (e.wheelDelta) {"
-	"delta = e.wheelDelta > 0 ? 1 : -1;"
+        "delta = e.wheelDelta > 0 ? 1 : -1;"
       "} else if (e.detail) {"
-	"delta = e.detail < 0 ? 1 : -1;"
+        "delta = e.detail < 0 ? 1 : -1;"
       "}"
       "return delta;"
     "}"
@@ -2911,9 +2911,9 @@ setClientSideMouseHandler("(function(){") +
     "function wheelDelta(e) {" +
       "var delta = 0;" +
       "if (e.wheelDelta) {" +
-	"delta = e.wheelDelta > 0 ? 1 : -1;" +
+        "delta = e.wheelDelta > 0 ? 1 : -1;" +
       "} else if (e.detail) {" +
-	"delta = e.detail < 0 ? 1 : -1;" +
+        "delta = e.detail < 0 ? 1 : -1;" +
       "}" +
       "return delta;" +
     "}" +
@@ -2965,7 +2965,7 @@ setClientSideMouseHandler("(function(){") +
    * the camera.
    *
    * Through mouse operations, the camera can be changed by the user, as if
-   * he is walking around on a plane. 
+   * he is walking around on a plane.
    *
    * Pressing the left mouse button and moving the mouse left/right will
    * rotate the camera around Y axis. Moving the mouse up/down will move
@@ -3088,7 +3088,7 @@ private:
 
 #ifdef WT_TARGET_JAVA
 static void renderfv(std::ostream &os, WGenericMatrix<MatrixType, 4, 4> t,
-		     JsArrayType type);
+                     JsArrayType type);
 #endif
 
   friend class WGLWidget::JavaScriptMatrix4x4;

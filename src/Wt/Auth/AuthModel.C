@@ -58,7 +58,7 @@ void AuthModel::reset()
 
   addField(RememberMeField, info);
   setValidation(RememberMeField, WValidator::Result(ValidationState::Valid,
-						    info));
+                                                    info));
 }
 
 bool AuthModel::isVisible(Field field) const
@@ -76,11 +76,11 @@ void AuthModel::configureThrottling(WInteractWidget *button)
     LOAD_JAVASCRIPT(app, "js/AuthModel.js", "AuthThrottle", wtjs1);
 
     button->setJavaScriptMember(" AuthThrottle",
-				"new " WT_CLASS ".AuthThrottle(" WT_CLASS ","
-				+ button->jsRef() + ","
-				+ WString::tr("Wt.Auth.throttle-retry")
-				.jsStringLiteral()
-				+ ");");
+                                "new " WT_CLASS ".AuthThrottle(" WT_CLASS ","
+                                + button->jsRef() + ","
+                                + WString::tr("Wt.Auth.throttle-retry")
+                                .jsStringLiteral()
+                                + ");");
   }
 }
 
@@ -101,15 +101,15 @@ bool AuthModel::validateField(Field field)
     return true;
 
   User user = users().findWithIdentity(Identity::LoginName,
-				       valueText(LoginNameField));
+                                       valueText(LoginNameField));
   if (field == LoginNameField) {
     if (user.isValid())
       setValid(LoginNameField);
     else {
       setValidation
-	(LoginNameField,
-	 WValidator::Result(ValidationState::Invalid,
-			    WString::tr("Wt.Auth.user-name-invalid")));
+        (LoginNameField,
+         WValidator::Result(ValidationState::Invalid,
+                            WString::tr("Wt.Auth.user-name-invalid")));
 
       throttlingDelay_ = 0;
     }
@@ -118,34 +118,34 @@ bool AuthModel::validateField(Field field)
   } else if (field == PasswordField) {
     if (user.isValid()) {
       PasswordResult r
-	= passwordAuth()->verifyPassword(user, valueText(PasswordField));
+        = passwordAuth()->verifyPassword(user, valueText(PasswordField));
 
       switch (r) {
       case PasswordResult::PasswordInvalid:
-	setValidation
-	  (PasswordField,
-	   WValidator::Result(ValidationState::Invalid,
-			      WString::tr("Wt.Auth.password-invalid")));
+        setValidation
+          (PasswordField,
+           WValidator::Result(ValidationState::Invalid,
+                              WString::tr("Wt.Auth.password-invalid")));
 
-	if (passwordAuth()->attemptThrottlingEnabled())
-	  throttlingDelay_ = passwordAuth()->delayForNextAttempt(user);
+        if (passwordAuth()->attemptThrottlingEnabled())
+          throttlingDelay_ = passwordAuth()->delayForNextAttempt(user);
 
-	return false;
+        return false;
       case PasswordResult::LoginThrottling:
-	setValidation
-	  (PasswordField,
-	   WValidator::Result(ValidationState::Invalid,
-			      WString::tr("Wt.Auth.password-info")));
-	setValidated(PasswordField, false);
+        setValidation
+          (PasswordField,
+           WValidator::Result(ValidationState::Invalid,
+                              WString::tr("Wt.Auth.password-info")));
+        setValidated(PasswordField, false);
 
-	throttlingDelay_ = passwordAuth()->delayForNextAttempt(user);
-	LOG_SECURE("throttling: " << throttlingDelay_
-		   << " seconds for " << user.identity(Identity::LoginName));
+        throttlingDelay_ = passwordAuth()->delayForNextAttempt(user);
+        LOG_SECURE("throttling: " << throttlingDelay_
+                   << " seconds for " << user.identity(Identity::LoginName));
 
-	return false;
+        return false;
       case PasswordResult::PasswordValid:
-	setValid(PasswordField);
-	return true;
+        setValid(PasswordField);
+        return true;
       }
 
       /* unreachable */
@@ -175,11 +175,11 @@ void AuthModel::setRememberMeCookie(const User& user)
   const AuthService *s = baseAuth();
 
   app->setCookie(s->authTokenCookieName(),
-		 s->createAuthToken(user),
-		 s->authTokenValidity() * 60,
-		 s->authTokenCookieDomain(),
-		 "",
-		 app->environment().urlScheme() == "https");
+                 s->createAuthToken(user),
+                 s->authTokenValidity() * 60,
+                 s->authTokenCookieDomain(),
+                 "",
+                 app->environment().urlScheme() == "https");
 }
 
 bool AuthModel::login(Login& login)
@@ -195,13 +195,13 @@ bool AuthModel::login(Login& login)
     auto self = this;
 #endif // WT_TARGET_JAVA
     User user = users().findWithIdentity(Identity::LoginName,
-					 valueText(LoginNameField));
+                                         valueText(LoginNameField));
     cpp17::any v = value(RememberMeField);
     if (loginUser(login, user)) {
       reset();
 
       if (cpp17::any_has_value(v) && cpp17::any_cast<bool>(v) == true)
-	setRememberMeCookie(user);
+        setRememberMeCookie(user);
 
       return true;
     } else
@@ -254,12 +254,12 @@ User AuthModel::processAuthToken()
                          result.newTokenValidity(), "", "", app->environment().urlScheme() == "https");
         }
 
-	return result.user();
+        return result.user();
       }
       case AuthTokenState::Invalid:
         app->setCookie(baseAuth()->authTokenCookieName(),std::string(), 0, "", "", app->environment().urlScheme() == "https");
 
-	return User();
+        return User();
       }
     }
   }

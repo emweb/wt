@@ -48,8 +48,8 @@ void InitSchema::actId(V& value, const std::string& name, int size)
 
   if (mapping_.surrogateIdFieldName)
     throw Exception("Error: Wt::Dbo::id() called for class C "
-		    "with surrogate key: "
-		    "Wt::Dbo::dbo_traits<C>::surrogateIdField() != 0");
+                    "with surrogate key: "
+                    "Wt::Dbo::dbo_traits<C>::surrogateIdField() != 0");
 
   idField_ = true;
   field(*this, value, name, size);
@@ -58,15 +58,15 @@ void InitSchema::actId(V& value, const std::string& name, int size)
 
 template<class C>
 void InitSchema::actId(ptr<C>& value, const std::string& name, int size,
-		       int fkConstraints)
+                       int fkConstraints)
 {
   mapping_.naturalIdFieldName = name;
   mapping_.naturalIdFieldSize = size;
 
   if (mapping_.surrogateIdFieldName)
     throw Exception("Error: Wt::Dbo::id() called for class C "
-		    "with surrogate key: "
-		    "Wt::Dbo::dbo_traits<C>::surrogateIdField() != 0");
+                    "with surrogate key: "
+                    "Wt::Dbo::dbo_traits<C>::surrogateIdField() != 0");
 
   idField_ = true;
   actPtr(PtrRef<C>(value, name, fkConstraints));
@@ -83,13 +83,13 @@ void InitSchema::act(const FieldRef<V>& field)
 
   if ((field.flags() & FieldRef<V>::AuxId) || (fkFlags_ & PtrRef<V>::AuxId))
     flags |= FieldFlags::AuxId; // Aux id (appended in update and delete)
-  
+
   if (!foreignKeyName_.empty())
     // Foreign key
     mapping_.fields.push_back
       (FieldInfo(field.name(), &typeid(V), field.sqlType(session_),
-		 foreignKeyTable_, foreignKeyName_,
-		 flags | FieldFlags::ForeignKey, fkConstraints_));
+                 foreignKeyTable_, foreignKeyName_,
+                 flags | FieldFlags::ForeignKey, fkConstraints_));
   else
     // Normal field
     mapping_.fields.push_back
@@ -143,7 +143,7 @@ void InitSchema::actCollection(const CollectionRef<C>& field)
 
   mapping_.sets.push_back
     (Impl::SetInfo(joinTableName, field.type(), joinName, field.joinId(),
-		      field.fkConstraints()));
+                      field.fkConstraints()));
   if (field.literalJoinId())
     mapping_.sets.back().flags |= Impl::SetInfo::LiteralSelfId;
 }
@@ -166,7 +166,7 @@ void DropSchema::actId(V& /* value */, const std::string& /* name */, int /* siz
 
 template<class C>
 void DropSchema::actId(ptr<C>& /* value */, const std::string& /* name */, int /* size */,
-		       int /* fkConstraints */)
+                       int /* fkConstraints */)
 { }
 
 template<typename V>
@@ -179,12 +179,12 @@ void DropSchema::actPtr(const PtrRef<C>& /* field */)
 
 template<class C>
 void DropSchema::actWeakPtr(const WeakPtrRef<C>& /* field */)
-{ 
+{
   const char *tableName = session_.tableName<C>();
   if (tablesDropped_.count(tableName) == 0) {
-    DropSchema action(session_, 
-		      *session_.getMapping(tableName), 
-		      tablesDropped_);
+    DropSchema action(session_,
+                      *session_.getMapping(tableName),
+                      tablesDropped_);
     C dummy;
     action.visit(dummy);
   }
@@ -206,9 +206,9 @@ void DropSchema::actCollection(const CollectionRef<C>& field)
   } else {
     const char *tableName = session_.tableName<C>();
     if (tablesDropped_.count(tableName) == 0) {
-      DropSchema action(session_, 
-			*session_.getMapping(tableName), 
-			tablesDropped_);
+      DropSchema action(session_,
+                        *session_.getMapping(tableName),
+                        tablesDropped_);
       C dummy;
       action.visit(dummy);
     }
@@ -276,7 +276,7 @@ void LoadBaseAction::actPtr(const PtrRef<C>& field)
 
 template <class C>
 LoadDbAction<C>::LoadDbAction(MetaDbo<C>& dbo, Session::Mapping<C>& mapping,
-			      SqlStatement *statement, int& column)
+                              SqlStatement *statement, int& column)
   : LoadBaseAction(dbo, mapping, statement, column),
     dbo_(dbo)
 { }
@@ -328,8 +328,8 @@ void LoadDbAction<C>::actId(V& value, const std::string& name, int size)
 template<class C>
 template<class D>
 void LoadDbAction<C>::actId(ptr<D>& value, const std::string& name, int size,
-			    int fkConstraints)
-{ 
+                            int fkConstraints)
+{
   actPtr(PtrRef<D>(value, name, fkConstraints));
 
   dbo_.setId(value);
@@ -356,8 +356,8 @@ void SaveBaseAction::actId(V& value, const std::string& name, int size)
 
 template<class D>
 void SaveBaseAction::actId(ptr<D>& value, const std::string& name, int size,
-			   int fkConstraints)
-{ 
+                           int fkConstraints)
+{
   /* Only used from within visitAuxIds() */
 }
 
@@ -369,7 +369,7 @@ void SaveBaseAction::actPtr(const PtrRef<C>& field)
     {
       MetaDboBase *dbob = field.value().obj();
       if (dbob)
-	dbob->flush();
+        dbob->flush();
     }
 
     break;
@@ -385,7 +385,7 @@ void SaveBaseAction::actPtr(const PtrRef<C>& field)
       bindNull_ = false;
       auxIdOnly_ = wasAuxIdOnly;
     }
-    
+
     break;
   case Sets:
     break;
@@ -430,73 +430,73 @@ void SaveBaseAction::actCollection(const CollectionRef<C>& field)
   case Sets:
     if (field.type() == ManyToMany) {
       typename collection< ptr<C> >::Activity *activity
-	= field.value().activity();
+        = field.value().activity();
 
       if (activity) {
-	std::set< ptr<C> >& inserted = activity->inserted;
+        std::set< ptr<C> >& inserted = activity->inserted;
 
-	// Sql insert
-	int statementIdx
-	  = Session::FirstSqlSelectSet + setStatementIdx() + 1;
+        // Sql insert
+        int statementIdx
+          = Session::FirstSqlSelectSet + setStatementIdx() + 1;
 
-	SqlStatement *statement;
+        SqlStatement *statement;
 
-	statement = session()->getStatement(mapping().tableName, statementIdx);
-	{
-	  ScopedStatementUse use(statement);
+        statement = session()->getStatement(mapping().tableName, statementIdx);
+        {
+          ScopedStatementUse use(statement);
 
-	  for (typename std::set< ptr<C> >::iterator i = inserted.begin();
-	       i != inserted.end(); ++i) {
-	    MetaDboBase *dbo2 = dynamic_cast<MetaDboBase *>(i->obj());
+          for (typename std::set< ptr<C> >::iterator i = inserted.begin();
+               i != inserted.end(); ++i) {
+            MetaDboBase *dbo2 = dynamic_cast<MetaDboBase *>(i->obj());
 
-	    // Make sure it is saved
-	    dbo2->flush();
+            // Make sure it is saved
+            dbo2->flush();
 
-	    statement->reset();
-	    int column = 0;
+            statement->reset();
+            int column = 0;
 
-	    MetaDboBase *dbo1 = dynamic_cast<MetaDboBase *>(&dbo());
-	    dbo1->bindId(statement, column);
-	    dbo2->bindId(statement, column);
+            MetaDboBase *dbo1 = dynamic_cast<MetaDboBase *>(&dbo());
+            dbo1->bindId(statement, column);
+            dbo2->bindId(statement, column);
 
-	    statement->execute();
-	  }
-	}
+            statement->execute();
+          }
+        }
 
-	std::set< ptr<C> >& erased = activity->erased;
+        std::set< ptr<C> >& erased = activity->erased;
 
-	// Sql delete
-	++statementIdx;
+        // Sql delete
+        ++statementIdx;
 
-	statement = session()->getStatement(mapping().tableName, statementIdx);
+        statement = session()->getStatement(mapping().tableName, statementIdx);
 
-	{
-	  ScopedStatementUse use(statement);
-	  for (typename std::set< ptr<C> >::iterator i = erased.begin();
-	       i != erased.end(); ++i) {
-	    MetaDboBase *dbo2 = dynamic_cast<MetaDboBase *>(i->obj());
+        {
+          ScopedStatementUse use(statement);
+          for (typename std::set< ptr<C> >::iterator i = erased.begin();
+               i != erased.end(); ++i) {
+            MetaDboBase *dbo2 = dynamic_cast<MetaDboBase *>(i->obj());
 
-	    // Make sure it is saved (?)
-	    dbo2->flush();
+            // Make sure it is saved (?)
+            dbo2->flush();
 
-	    statement->reset();
-	    int column = 0;
+            statement->reset();
+            int column = 0;
 
-	    MetaDboBase *dbo1 = dynamic_cast<MetaDboBase *>(&dbo());
-	    dbo1->bindId(statement, column);
-	    dbo2->bindId(statement, column);
+            MetaDboBase *dbo1 = dynamic_cast<MetaDboBase *>(&dbo());
+            dbo1->bindId(statement, column);
+            dbo2->bindId(statement, column);
 
-	    statement->execute();
-	  }
-	}
+            statement->execute();
+          }
+        }
 
-	activity->transactionInserted.insert(activity->inserted.begin(),
-					     activity->inserted.end());
-	activity->transactionErased.insert(activity->erased.begin(),
-					   activity->erased.end());
+        activity->transactionInserted.insert(activity->inserted.begin(),
+                                             activity->inserted.end());
+        activity->transactionErased.insert(activity->erased.begin(),
+                                           activity->erased.end());
 
-	activity->inserted.clear();
-	activity->erased.clear();
+        activity->inserted.clear();
+        activity->erased.clear();
       }
     }
 
@@ -527,11 +527,11 @@ void SaveDbAction<C>::visit(C& obj)
     ScopedStatementUse use(statement_);
     if (!statement_) {
       isInsert_ = dbo_.deletedInTransaction()
-	|| (dbo_.isNew() && !dbo_.savedInTransaction());
+        || (dbo_.isNew() && !dbo_.savedInTransaction());
 
       use(statement_ = isInsert_
-	  ? dbo_.session()->template getStatement<C>(Session::SqlInsert)
-	  : dbo_.session()->template getStatement<C>(Session::SqlUpdate));
+          ? dbo_.session()->template getStatement<C>(Session::SqlInsert)
+          : dbo_.session()->template getStatement<C>(Session::SqlUpdate));
     } else
       isInsert_ = false;
 
@@ -543,9 +543,9 @@ void SaveDbAction<C>::visit(C& obj)
       dbo->bindModifyId(statement_, column_);
 
       if (mapping().versionFieldName) {
-	// when saved in the transaction, we will be at version() + 1
-	statement_->bind(column_++, dbo_.version()
-			 + (dbo_.savedInTransaction() ? 1 : 0));
+        // when saved in the transaction, we will be at version() + 1
+        statement_->bind(column_++, dbo_.version()
+                         + (dbo_.savedInTransaction() ? 1 : 0));
       }
     }
 
@@ -587,8 +587,8 @@ void SaveDbAction<C>::actId(V& value, const std::string& name, int size)
 template<class C>
 template<class D>
 void SaveDbAction<C>::actId(ptr<D>& value, const std::string& name, int size,
-			   int fkConstraints)
-{ 
+                           int fkConstraints)
+{
   actPtr(PtrRef<D>(value, name, fkConstraints));
 
   /* Later, we may also want to support id changes ? */
@@ -609,14 +609,14 @@ void TransactionDoneAction::visit(C& obj)
 
 template<typename V>
 void TransactionDoneAction::actId(V& value, const std::string& name, int size)
-{ 
+{
   field(*this, value, name, size);
 }
 
 template<class C>
 void TransactionDoneAction::actId(ptr<C>& value, const std::string& name,
-				  int size, int fkConstraints)
-{ 
+                                  int size, int fkConstraints)
+{
   actPtr(PtrRef<C>(value, name, fkConstraints));
 }
 
@@ -646,13 +646,13 @@ void TransactionDoneAction::actCollection(const CollectionRef<C>& field)
       field.value().resetActivity();
     else {
       typename collection< ptr<C> >::Activity *activity
-	= field.value().activity();
+        = field.value().activity();
 
       if (activity) {
-	activity->inserted = activity->transactionInserted;
-	activity->transactionInserted.clear();
-	activity->erased = activity->transactionErased;
-	activity->transactionErased.clear();
+        activity->inserted = activity->transactionInserted;
+        activity->transactionInserted.clear();
+        activity->erased = activity->transactionErased;
+        activity->transactionErased.clear();
       }
     }
   }
@@ -670,14 +670,14 @@ void SessionAddAction::visit(C& obj)
 
 template<typename V>
 void SessionAddAction::actId(V& value, const std::string& name, int size)
-{ 
+{
   field(*this, value, name, size);
 }
 
 template<class C>
 void SessionAddAction::actId(ptr<C>& value, const std::string& name,
-			     int size, int fkConstraints)
-{ 
+                             int size, int fkConstraints)
+{
   actPtr(PtrRef<C>(value, name, fkConstraints));
 }
 
@@ -715,14 +715,14 @@ void SetReciproceAction::visit(C& obj)
 
 template<typename V>
 void SetReciproceAction::actId(V& value, const std::string& name, int size)
-{ 
+{
   field(*this, value, name, size);
 }
 
 template<class C>
 void SetReciproceAction::actId(ptr<C>& value, const std::string& name,
-			       int size, int fkConstraints)
-{ 
+                               int size, int fkConstraints)
+{
   actPtr(PtrRef<C>(value, name, fkConstraints));
 }
 
@@ -732,7 +732,7 @@ void SetReciproceAction::act(const FieldRef<V>& /* field */)
 
 template<class C>
 void SetReciproceAction::actPtr(const PtrRef<C>& field)
-{ 
+{
   if (field.name() == joinName_)
     field.value().resetObj(value_);
 }
@@ -778,11 +778,11 @@ struct ToAny
 {
   static cpp17::any convert(const V& v) {
     return v;
-  }  
+  }
 };
 
 template <typename Enum>
-struct ToAny<Enum, typename std::enable_if<std::is_enum<Enum>::value>::type> 
+struct ToAny<Enum, typename std::enable_if<std::is_enum<Enum>::value>::type>
 {
   static cpp17::any convert(const Enum& v) {
     return static_cast<int>(v);
@@ -796,20 +796,20 @@ cpp17::any convertToAny(const V& v) {
 
 template<typename V>
 void ToAnysAction::actId(V& value, const std::string& name, int size)
-{ 
+{
   field(*this, value, name, size);
 }
 
 template<class C>
 void ToAnysAction::actId(ptr<C>& value, const std::string& name,
-			 int size, int fkConstraints)
-{ 
+                         int size, int fkConstraints)
+{
   actPtr(PtrRef<C>(value, name, fkConstraints));
 }
 
 template<typename V>
 void ToAnysAction::act(const FieldRef<V>& field)
-{ 
+{
   if (allEmpty_)
     result_.push_back(cpp17::any());
   else
@@ -843,14 +843,14 @@ void FromAnyAction::visit(const ptr<C>& obj)
   if (dbo_traits<C>::surrogateIdField()) {
     if (index_ == 0)
       throw Exception("dbo_result_traits::setValues(): cannot set surrogate "
-		      "id.");
+                      "id.");
     --index_;
   }
 
   if (dbo_traits<C>::versionField()) {
     if (index_ == 0)
       throw Exception("dbo_result_traits::setValues(): "
-		      "cannot set version field.");
+                      "cannot set version field.");
     --index_;
   }
 
@@ -865,7 +865,7 @@ struct FromAny
 {
   static V convert(const cpp17::any& v) {
     return cpp17::any_cast<V>(v);
-  }  
+  }
 };
 
 template <typename Enum>
@@ -884,7 +884,7 @@ void FromAnyAction::actId(V& value, const std::string& name, int size)
 
 template<class C>
 void FromAnyAction::actId(ptr<C>& value, const std::string& name, int size,
-			  int fkConstraints)
+                          int fkConstraints)
 {
   actPtr(PtrRef<C>(value, name, fkConstraints));
 }

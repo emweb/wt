@@ -190,7 +190,7 @@ public:
    */
   int daysTo(const WDate& date) const;
 
-  /*! \brief Converts the date to a Julian day. 
+  /*! \brief Converts the date to a Julian day.
    *
    * Returns 0 if the date is invalid.
    *
@@ -314,7 +314,7 @@ public:
    * \link toString(const WString& format) const toString(const WString& format)\endlink.
    *
    * When the date could not be parsed or is not valid, an invalid
-   * date is returned (for which isValid() returns false). 
+   * date is returned (for which isValid() returns false).
    *
    * \sa toString(const WString&) const
    */
@@ -437,11 +437,11 @@ private:
   };
 
   static bool parseLast(const std::string& v, unsigned& vi,
-			ParseState& state, const WString& format);
+                        ParseState& state, const WString& format);
 
   static WDateTime::CharState handleSpecial(char c, const std::string& v,
-					    unsigned& vi, ParseState& parse,
-					    const WString& format);
+                                            unsigned& vi, ParseState& parse,
+                                            const WString& format);
 
   bool writeSpecial(const std::string& f, unsigned& i, WStringStream& result,
                     bool localized = true)

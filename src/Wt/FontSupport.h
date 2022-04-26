@@ -158,7 +158,7 @@ public:
    * device. Otherwise, pango is used for measurements.
    */
   WTextItem measureText(const WFont& f, const WString& text, double maxWidth,
-			bool wordWrap);
+                        bool wordWrap);
 
   /*
    * Draws the text, using pango for font choices, but delegating the actual
@@ -167,8 +167,8 @@ public:
    * Precondition: device_ != nullptr
    */
   void drawText(const WFont& f,
-		const WRectF& rect,
-		WFlags<AlignmentFlag> alignmentFlags, const WString& text);
+                const WRectF& rect,
+                WFlags<AlignmentFlag> alignmentFlags, const WString& text);
 
   /*
    * Returns true while in measureText() or drawText()
@@ -193,10 +193,10 @@ public:
    * Precondition: device_ == nullptr
    */
   void drawText(const WFont& f,
-		const WRectF& rect,
-		const WTransform& transform,
-		Bitmap& bitmap,
-		WFlags<AlignmentFlag> alignmentFlags, const WString& text);
+                const WRectF& rect,
+                const WTransform& transform,
+                Bitmap& bitmap,
+                WFlags<AlignmentFlag> alignmentFlags, const WString& text);
 #endif
 
   /*
@@ -236,16 +236,16 @@ private:
   const WFont *font_;
 
   FontMatch matchFont(const WFont& font, const std::string& directory,
-		      bool recursive) const;
+                      bool recursive) const;
   void matchFont(const WFont& font,
-		 const std::vector<std::string>& fontNames,
-		 const std::string& path,
-		 bool recursive,
-		 FontMatch& match) const;
+                 const std::vector<std::string>& fontNames,
+                 const std::string& path,
+                 bool recursive,
+                 FontMatch& match) const;
   void matchFont(const WFont& font,
-		 const std::vector<std::string>& fontNames,
-		 const std::string& path,
-		 FontMatch& match) const;
+                 const std::vector<std::string>& fontNames,
+                 const std::string& path,
+                 FontMatch& match) const;
 
 #endif // WT_FONTSUPPORT_SIMPLE
 
@@ -270,7 +270,7 @@ private:
   PangoFontDescription *createFontDescription(const WFont& f) const;
   static std::string fontPath(PangoFont *font);
   GList *layoutText(const WFont& font, const std::string& utf8,
-		    std::vector<PangoGlyphString *>& glyphs, int& width);
+                    std::vector<PangoGlyphString *>& glyphs, int& width);
 
   friend class FontMatch;
 

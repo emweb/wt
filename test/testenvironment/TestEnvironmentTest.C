@@ -79,8 +79,8 @@ private:
       // with a progress indication.
       Wt::WApplication::UpdateLock uiLock(app);
       if (uiLock) {
-	progress_->setValue(i + 1);
-	app->triggerUpdate();
+        progress_->setValue(i + 1);
+        app->triggerUpdate();
       }
     }
 

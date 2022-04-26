@@ -137,8 +137,8 @@ public:
   virtual std::string utilityCssClass(int utilityCssClassRole) const override;
   virtual bool canStyleAnchorAsButton() const override;
   virtual void applyValidationStyle(WWidget *widget,
-				    const Wt::WValidator::Result& validation,
-				    WFlags<ValidationStyleFlag> styles)
+                                    const Wt::WValidator::Result& validation,
+                                    WFlags<ValidationStyleFlag> styles)
     const override;
   virtual bool canBorderBoxElement(const DomElement& element) const override;
 

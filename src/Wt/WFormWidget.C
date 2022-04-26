@@ -92,24 +92,24 @@ void WFormWidget::setPlaceholderText(const WString& placeholderText)
   } else {
     if (env.ajax()) {
       if (!emptyText_.empty()) {
-	if (!flags_.test(BIT_JS_OBJECT))
-	  defineJavaScript();
-	else
-	  updateEmptyText();
+        if (!flags_.test(BIT_JS_OBJECT))
+          defineJavaScript();
+        else
+          updateEmptyText();
 
-	if (!removeEmptyText_) {
+        if (!removeEmptyText_) {
           removeEmptyText_.reset(new JSlot(this));
 
-	  focussed().connect(*removeEmptyText_);
-	  blurred().connect(*removeEmptyText_);
-	  keyWentDown().connect(*removeEmptyText_);
+          focussed().connect(*removeEmptyText_);
+          blurred().connect(*removeEmptyText_);
+          keyWentDown().connect(*removeEmptyText_);
 
-	  std::string jsFunction =
-	    "function(obj, event) {"
-	    """" + jsRef() + ".wtObj.applyEmptyText();"
-	    "}";
-	  removeEmptyText_->setJavaScript(jsFunction);
-	}
+          std::string jsFunction =
+            "function(obj, event) {"
+            """" + jsRef() + ".wtObj.applyEmptyText();"
+            "}";
+          removeEmptyText_->setJavaScript(jsFunction);
+        }
       } else {
         removeEmptyText_.reset();
       }
@@ -132,9 +132,9 @@ void WFormWidget::defineJavaScript(bool force)
     LOAD_JAVASCRIPT(app, "js/WFormWidget.js", "WFormWidget", wtjs1);
 
     setJavaScriptMember(" WFormWidget", "new " WT_CLASS ".WFormWidget("
-			+ app->javaScriptClass() + "," 
-			+ jsRef() + ","
-			+ emptyText_.jsStringLiteral() + ");");
+                        + app->javaScriptClass() + ","
+                        + jsRef() + ","
+                        + emptyText_.jsStringLiteral() + ");");
   }
 }
 
@@ -147,8 +147,8 @@ void WFormWidget::render(WFlags<RenderFlag> flags)
     if (validator()) {
       WValidator::Result result = validator()->validate(valueText());
       WApplication::instance()->theme()
-	->applyValidationStyle(this, result, 
-			       ValidationStyleFlag::InvalidStyle);
+        ->applyValidationStyle(this, result,
+                               ValidationStyleFlag::InvalidStyle);
     }
   }
 
@@ -161,7 +161,7 @@ void WFormWidget::updateEmptyText()
   const WEnvironment &env = app->environment();
   if (env.agentIsIElt(10) && isRendered())
     doJavaScript(jsRef() + ".wtObj"
-		 ".setEmptyText(" + emptyText_.jsStringLiteral() + ");");
+                 ".setEmptyText(" + emptyText_.jsStringLiteral() + ");");
 }
 
 void WFormWidget::applyEmptyText()
@@ -186,7 +186,7 @@ void WFormWidget::enableAjax()
     setToolTip("");
     setPlaceholderText(emptyText_);
   }
-  
+
   WInteractWidget::enableAjax();
 }
 
@@ -203,7 +203,7 @@ void WFormWidget::validatorChanged()
       keyWentUp().connect(*validateJs_);
       changed().connect(*validateJs_);
       if (domElementType() != DomElementType::SELECT)
-	clicked().connect(*validateJs_);
+        clicked().connect(*validateJs_);
     }
   } else
     validateJs_.reset();
@@ -248,7 +248,7 @@ void WFormWidget::updateDom(DomElement& element, bool all)
   if (flags_.test(BIT_ENABLED_CHANGED) || all) {
     if (!all || !isEnabled())
       element.setProperty(Wt::Property::Disabled,
-			  isEnabled() ? "false" : "true");
+                          isEnabled() ? "false" : "true");
 
     if (!all && isEnabled() && env.agentIsIE()) {
       /*
@@ -262,7 +262,7 @@ void WFormWidget::updateDom(DomElement& element, bool all)
   if (flags_.test(BIT_READONLY_CHANGED) || all) {
     if (!all || isReadOnly())
       element.setProperty(Wt::Property::ReadOnly,
-			  isReadOnly() ? "true" : "false");
+                          isReadOnly() ? "true" : "false");
     flags_.reset(BIT_READONLY_CHANGED);
   }
 
@@ -340,7 +340,7 @@ void WFormWidget::setValidator(const std::shared_ptr<WValidator>& validator)
   } else {
     if (isRendered())
       WApplication::instance()->theme()
-	->applyValidationStyle(this, WValidator::Result(), None);
+        ->applyValidationStyle(this, WValidator::Result(), None);
 
     validateJs_.reset();
     filterInput_.reset();
@@ -354,7 +354,7 @@ ValidationState WFormWidget::validate()
 
     if (isRendered())
       WApplication::instance()->theme()
-	->applyValidationStyle(this, result, ValidationStyleFlag::InvalidStyle);
+        ->applyValidationStyle(this, result, ValidationStyleFlag::InvalidStyle);
 
     if (validationToolTip_ != result.message()) {
       validationToolTip_ = result.message();

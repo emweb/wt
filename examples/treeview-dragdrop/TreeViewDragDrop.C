@@ -230,14 +230,14 @@ private:
       std::shared_ptr<WAbstractProxyModel> proxyModel =
           std::dynamic_pointer_cast<WAbstractProxyModel>(m);
       if (proxyModel) {
-	m = proxyModel->sourceModel();
-	modelRow = proxyModel->mapToSource(item_).row();
+        m = proxyModel->sourceModel();
+        modelRow = proxyModel->mapToSource(item_).row();
       }
 
       m->setData(modelRow, 1, cpp17::any(nameEdit_->text()));
       m->setData(modelRow, 2, cpp17::any(typeEdit_->currentText()));
       m->setData(modelRow, 3, cpp17::any(asNumber
-					 (sizeEdit_->text().toUTF8())));
+                                         (sizeEdit_->text().toUTF8())));
       m->setData(modelRow, 4, cpp17::any(createdPicker_->date()));
       m->setData(modelRow, 5, cpp17::any(modifiedPicker_->date()));
     }
@@ -514,39 +514,39 @@ private:
     if (event.button() == MouseButton::Right) {
       // Select the item, it was not yet selected.
       if (!folderView_->isSelected(item))
-	folderView_->select(item);
+        folderView_->select(item);
 
       if (!popup_) {
         popup_ = std::make_unique<WPopupMenu>();
-	popup_->addItem("icons/folder_new.gif", "Create a New Folder");
-	popup_->addItem("Rename this Folder")->setCheckable(true);
-	popup_->addItem("Delete this Folder");
-	popup_->addSeparator();
-	popup_->addItem("Folder Details");
-	popup_->addSeparator();
-	popup_->addItem("Application Inventory");
-	popup_->addItem("Hardware Inventory");
-	popup_->addSeparator();
+        popup_->addItem("icons/folder_new.gif", "Create a New Folder");
+        popup_->addItem("Rename this Folder")->setCheckable(true);
+        popup_->addItem("Delete this Folder");
+        popup_->addSeparator();
+        popup_->addItem("Folder Details");
+        popup_->addSeparator();
+        popup_->addItem("Application Inventory");
+        popup_->addItem("Hardware Inventory");
+        popup_->addSeparator();
 
-	std::unique_ptr<WPopupMenu> subMenu = std::make_unique<WPopupMenu>();
-	subMenu->addItem("Sub Item 1");
-	subMenu->addItem("Sub Item 2");
-	popup_->addMenu("File Deployments", std::move(subMenu));
+        std::unique_ptr<WPopupMenu> subMenu = std::make_unique<WPopupMenu>();
+        subMenu->addItem("Sub Item 1");
+        subMenu->addItem("Sub Item 2");
+        popup_->addMenu("File Deployments", std::move(subMenu));
 
-	/*
-	 * This is one method of executing a popup, which does not block a
-	 * thread for a reentrant event loop, and thus scales.
-	 *
-	 * Alternatively you could call WPopupMenu::exec(), which returns
-	 * the result, but while waiting for it, blocks the thread.
-	 */      
-	popup_->aboutToHide().connect(this, &TreeViewDragDrop::popupAction);
+        /*
+         * This is one method of executing a popup, which does not block a
+         * thread for a reentrant event loop, and thus scales.
+         *
+         * Alternatively you could call WPopupMenu::exec(), which returns
+         * the result, but while waiting for it, blocks the thread.
+         */
+        popup_->aboutToHide().connect(this, &TreeViewDragDrop::popupAction);
       }
 
       if (popup_->isHidden())
-      	popup_->popup(event);
+              popup_->popup(event);
       else
-	popup_->hide();
+        popup_->hide();
     }
   }
 
@@ -566,7 +566,7 @@ private:
                                         Icon::None,
                                         StandardButton::Ok);
       popupActionBox_->buttonClicked()
-	.connect(this, &TreeViewDragDrop::dialogDone);
+        .connect(this, &TreeViewDragDrop::dialogDone);
       popupActionBox_->show();
     } else {
       popup_->hide();
@@ -662,7 +662,7 @@ private:
    * Configures flags for drag and drop support.
    */
   std::unique_ptr<WStandardItem> createFolderItem(const WString& location,
-				  const std::string& folderId = std::string())
+                                  const std::string& folderId = std::string())
   {
     auto result
         = std::make_unique<WStandardItem>(location);
@@ -688,7 +688,7 @@ std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
   app->useStyleSheet("styles.css");
   app->messageResourceBundle().use(WApplication::appRoot() + "about");
   app->refresh();
-  
+
   return std::move(app);
 }
 

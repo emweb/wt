@@ -47,12 +47,12 @@ private:
 
   static std::unique_ptr<WStandardItem> continentItem(const std::string& continent);
   static std::unique_ptr<WStandardItem> countryItem(const std::string& country,
-					const std::string& code);
+                                        const std::string& code);
   static std::vector<std::unique_ptr<WStandardItem> > cityItems(const std::string& city,
-						    WeatherIcon weather,
-						    const std::string& drink,
-						    bool useInternalPath,
-						    bool visited);
+                                                    WeatherIcon weather,
+                                                    const std::string& drink,
+                                                    bool useInternalPath,
+                                                    bool visited);
   void toggleRowHeight();
   void toggleStripes();
   void toggleRoot();

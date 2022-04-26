@@ -45,18 +45,18 @@ void OptionList::optionVisibilityChanged(Option *opt, bool hidden)
   for (std::size_t i = options_.size() - 1; i > 0; --i) {
     if (options_[i] == opt) {
       for (int j = i - 1; j >= 0; --j) {
-	if (!options_[j]->isHidden()) {
-	  if (hidden)
-	    options_[j]->hideSeparator();
-	  else
-	    options_[j]->showSeparator();
-	  break;
-	}
+        if (!options_[j]->isHidden()) {
+          if (hidden)
+            options_[j]->hideSeparator();
+          else
+            options_[j]->showSeparator();
+          break;
+        }
       }
       break;
     } else
       if (!options_[i]->isHidden())
-	break;
+        break;
   }
 
   /*
@@ -66,10 +66,10 @@ void OptionList::optionVisibilityChanged(Option *opt, bool hidden)
   for (unsigned i = 0; i < options_.size(); ++i) {
     if (options_[i] == opt) {
       for (unsigned j = i + 1; j < options_.size(); ++j) {
-	if (!options_[j]->isHidden()) {
-	  optionNeedReset_ = options_[j];
-	  break;
-	}
+        if (!options_[j]->isHidden()) {
+          optionNeedReset_ = options_[j];
+          break;
+        }
       }
 
       break;

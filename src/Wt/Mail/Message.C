@@ -87,8 +87,8 @@ void Message::addHtmlBody(const WString& text)
 }
 
 void Message::addAttachment(const std::string& mimeType,
-			    const std::string& fileName,
-			    std::istream *data)
+                            const std::string& fileName,
+                            std::istream *data)
 {
   Attachment attachment;
   attachment.mimeType = mimeType;
@@ -209,14 +209,14 @@ void Message::write(std::ostream& out) const
 
   if (mimeMultiPartMixed) {
     out << "Content-Type: multipart/mixed; boundary=\""
-	<< mixedBoundary << "\"\r\n\r\n"
-	<< "--" << mixedBoundary << "\r\n";
+        << mixedBoundary << "\"\r\n\r\n"
+        << "--" << mixedBoundary << "\r\n";
   }
 
   if (mimeMultiPartAlternative) {
     out << "Content-Type: multipart/alternative; boundary=\""
-	<< altBoundary << "\"\r\n\r\n"
-	<< "--" << altBoundary << "\r\n";
+        << altBoundary << "\"\r\n\r\n"
+        << "--" << altBoundary << "\r\n";
   }
 
   out << "Content-Type: text/plain; charset=UTF-8\r\n"
@@ -228,8 +228,8 @@ void Message::write(std::ostream& out) const
   if (mimeMultiPartAlternative) {
     out << "--" << altBoundary << "\r\n";
     out << "Content-Type: text/html; charset=UTF-8\r\n"
-	<< "Content-Transfer-Encoding: quoted-printable\r\n"
-	 << "\r\n";
+        << "Content-Transfer-Encoding: quoted-printable\r\n"
+         << "\r\n";
     encodeQuotedPrintable(htmlBody_, out);
     out << "--" << altBoundary << "--\r\n";
   }
@@ -258,7 +258,7 @@ void Message::encodeAttachment(const Attachment& attachment, std::ostream& out)
   if (!attachment.fileName.empty()) {
     out << "Content-Disposition: ";
     encodeWord(WString::fromUTF8("attachment; filename=\""
-				 + attachment.fileName + "\""), out, false);
+                                 + attachment.fileName + "\""), out, false);
     out << "\r\n";
   }
 
@@ -310,7 +310,7 @@ void Message::encodeQuotedPrintable(const WString& text, std::ostream& out)
 
     if (eol) {
       if (line.c_str()[0] == '.')
-	out << '.';
+        out << '.';
       out << line.c_str() << "\r\n";
       line.clear();
     }
@@ -332,7 +332,7 @@ void Message::encodeChar(WStringStream& s, unsigned char c)
 }
 
 void Message::encodeWord(const WString& text, std::ostream& out,
-			 bool quoteIfNeeded)
+                         bool quoteIfNeeded)
 {
   std::string msg = text.toUTF8();
 
@@ -353,7 +353,7 @@ void Message::encodeWord(const WString& text, std::ostream& out,
       bool alpha = (c >= 65 && c <= 90) || (c >= 97 && c <= 122);
       bool digit = (c >= 48 && c <= 57);
       if (!alpha && !digit && c != '.' && c != '_' && c != '-')
-	needQuote = true;
+        needQuote = true;
     }
 
     if (c == '\r' || c == '\n')
@@ -365,26 +365,26 @@ void Message::encodeWord(const WString& text, std::ostream& out,
 
     for (unsigned i = 0; i < msg.length(); ++i) {
       if (line.empty())
-	line << "=?UTF-8?q?";
+        line << "=?UTF-8?q?";
 
       unsigned char d = msg[i];
 
       if (d >= 33 && d <= 126
-	  && d != '='
-	  && d != '?'
-	  && d != '_')
-	line << (char)d;
+          && d != '='
+          && d != '?'
+          && d != '_')
+        line << (char)d;
       else if (d == ' ')
-	line << '_';
+        line << '_';
       else
-	encodeChar(line, d);
+        encodeChar(line, d);
 
       if (line.length() >= 72) {
-	line << "?=";
-	if (i != msg.length() - 1)
-	  line << "\r\n ";
-	out << line.c_str();
-	line.clear();
+        line << "?=";
+        if (i != msg.length() - 1)
+          line << "\r\n ";
+        out << line.c_str();
+        line.clear();
       }
     }
 

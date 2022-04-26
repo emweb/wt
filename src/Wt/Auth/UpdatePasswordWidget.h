@@ -38,8 +38,8 @@ public:
    * first using his current password.
    */
   UpdatePasswordWidget(const User& user,
-		       std::unique_ptr<RegistrationModel> registrationModel,
-		       const std::shared_ptr<AuthModel>& authModel);
+                       std::unique_ptr<RegistrationModel> registrationModel,
+                       const std::shared_ptr<AuthModel>& authModel);
 
   /*! \brief Signal emitted when the password was updated.
    */

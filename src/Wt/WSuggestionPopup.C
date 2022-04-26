@@ -12,7 +12,7 @@
 #include "Wt/WLogger.h"
 #include "Wt/WLineEdit.h"
 #include "Wt/WSuggestionPopup.h"
-#include "Wt/WStringStream.h" 
+#include "Wt/WStringStream.h"
 #include "Wt/WStringListModel.h"
 #include "Wt/WTemplate.h"
 #include "Wt/WText.h"
@@ -26,16 +26,16 @@
 
 namespace {
   std::string instantiateStdMatcher(const Wt::WSuggestionPopup::Options&
-				    options) {
+                                    options) {
     Wt::WStringStream s;
-    
+
     s << "new " WT_CLASS ".WSuggestionPopupStdMatcher("
       << Wt::WWebWidget::jsStringLiteral(options.highlightBeginTag) << ", "
       << Wt::WWebWidget::jsStringLiteral(options.highlightEndTag) << ", ";
 
     if (options.listSeparator)
       s << Wt::WWebWidget::jsStringLiteral
-	(std::string() + options.listSeparator);
+        (std::string() + options.listSeparator);
     else
       s << "null";
 
@@ -53,7 +53,7 @@ namespace Wt {
 LOGGER("WSuggestionPopup");
 
 #ifdef WT_TARGET_JAVA
-WSuggestionPopup::Options::Options() 
+WSuggestionPopup::Options::Options()
   : listSeparator(0)
 { }
 #endif
@@ -77,7 +77,7 @@ WSuggestionPopup::WSuggestionPopup(const Options& options)
 }
 
 WSuggestionPopup::WSuggestionPopup(const std::string& matcherJS,
-				   const std::string& replacerJS)
+                                   const std::string& replacerJS)
   : WPopupWidget(std::unique_ptr<WWidget>(new WContainerWidget())),
     modelColumn_(0),
     filterLength_(0),
@@ -127,14 +127,14 @@ void WSuggestionPopup::defineJavaScript()
   std::string ddUnfiltered = isDropDownIconUnfiltered_ ? "true" : "false";
   std::string autoSelect = isAutoSelectEnabled_ ? "true" : "false";
   setJavaScriptMember(" WSuggestionPopup",
-		      "new " WT_CLASS ".WSuggestionPopup("
-		      + app->javaScriptClass() + "," + jsRef() + ","
-		      + replacerJS_ + "," + matcherJS_ + ","
-		      + std::to_string(std::max(0, filterLength_)) + ","
-		      + std::to_string(partialResults()) + ","
+                      "new " WT_CLASS ".WSuggestionPopup("
+                      + app->javaScriptClass() + "," + jsRef() + ","
+                      + replacerJS_ + "," + matcherJS_ + ","
+                      + std::to_string(std::max(0, filterLength_)) + ","
+                      + std::to_string(partialResults()) + ","
                       + std::to_string(defaultValue_) + ","
                       + ddUnfiltered + ","
-		      + autoSelect + ");");
+                      + autoSelect + ");");
 }
 
 void WSuggestionPopup::render(WFlags<RenderFlag> flags)
@@ -148,10 +148,10 @@ void WSuggestionPopup::render(WFlags<RenderFlag> flags)
   WPopupWidget::render(flags);
 }
 
-void WSuggestionPopup::connectObjJS(EventSignalBase& s, 
-				     const std::string& methodName)
+void WSuggestionPopup::connectObjJS(EventSignalBase& s,
+                                     const std::string& methodName)
 {
-  std::string jsFunction = 
+  std::string jsFunction =
     "function(obj, event) {"
     """var o = " + jsRef() + ";"
     """if (o && o.wtObj) o.wtObj." + methodName + "(obj, event);"
@@ -160,7 +160,7 @@ void WSuggestionPopup::connectObjJS(EventSignalBase& s,
 }
 
 void WSuggestionPopup::setModel(const std::shared_ptr<WAbstractItemModel>&
-				model)
+                                model)
 {
   if (model_) {
     /* disconnect slots from previous model */
@@ -201,13 +201,13 @@ void WSuggestionPopup::setDefaultIndex(int row)
 
     if (isRendered())
       doJavaScript(jsRef() + ".wtObj.defaultValue = "
-		   + std::to_string(defaultValue_)
-		   + ';');
+                   + std::to_string(defaultValue_)
+                   + ';');
   }
 }
 
 void WSuggestionPopup::modelRowsInserted(const WModelIndex& parent,
-					 int start, int end)
+                                         int start, int end)
 {
   if (filterLength_ != 0 && !filtering_)
     return;
@@ -225,7 +225,7 @@ void WSuggestionPopup::modelRowsInserted(const WModelIndex& parent,
 
     cpp17::any d = index.data();
 
-    TextFormat format = index.flags().test(ItemFlag::XHTMLText) ? 
+    TextFormat format = index.flags().test(ItemFlag::XHTMLText) ?
       TextFormat::XHTML : TextFormat::Plain;
     WAnchor *anchor = line->addWidget(std::make_unique<WAnchor>());
     WText *value = anchor->addWidget(std::make_unique<WText>(asString(d), format));
@@ -244,7 +244,7 @@ void WSuggestionPopup::modelRowsInserted(const WModelIndex& parent,
 }
 
 void WSuggestionPopup::modelRowsRemoved(const WModelIndex& parent,
-					int start, int end)
+                                        int start, int end)
 {
   if (parent.isValid())
     return;
@@ -257,7 +257,7 @@ void WSuggestionPopup::modelRowsRemoved(const WModelIndex& parent,
 }
 
 void WSuggestionPopup::modelDataChanged(const WModelIndex& topLeft,
-					const WModelIndex& bottomRight)
+                                        const WModelIndex& bottomRight)
 {
   if (topLeft.parent().isValid())
     return;
@@ -328,7 +328,7 @@ void WSuggestionPopup::setAutoSelectEnabled(bool enabled)
 void WSuggestionPopup::showAt(WFormWidget *edit)
 {
   doJavaScript(jsRef() + ".wtObj.showAt("
-	       + edit->jsRef() + ");");
+               + edit->jsRef() + ");");
 }
 
 void WSuggestionPopup::removeEdit(WFormWidget *edit)
@@ -345,16 +345,16 @@ void WSuggestionPopup::clearSuggestions()
 }
 
 void WSuggestionPopup::addSuggestion(const WString& suggestionText,
-				     const WString& suggestionValue)
+                                     const WString& suggestionValue)
 {
   int row = model_->rowCount();
 
   if (model_->insertRow(row)) {
-    model_->setData(row, modelColumn_, cpp17::any(suggestionText), 
-		    ItemDataRole::Display);
+    model_->setData(row, modelColumn_, cpp17::any(suggestionText),
+                    ItemDataRole::Display);
     if (!suggestionValue.empty())
       model_->setData(row, modelColumn_, cpp17::any(suggestionValue),
-		      editRole());
+                      editRole());
   }
 }
 
@@ -381,8 +381,8 @@ void WSuggestionPopup::doFilter(std::string input)
    */
   WApplication::instance()->
     doJavaScript(jsRef() + ".wtObj.filtered("
-		 + WWebWidget::jsStringLiteral(input) + ","
-		 + (partialResults() ? "1" : "0") + ");");
+                 + WWebWidget::jsStringLiteral(input) + ","
+                 + (partialResults() ? "1" : "0") + ");");
 }
 
 bool WSuggestionPopup::partialResults() const
@@ -409,13 +409,13 @@ void WSuggestionPopup::doActivate(std::string itemId, std::string editId)
 
   if (edit == 0) {
     LOG_ERROR("activate from bogus editor");
-	currentItem_ = -1;
-	return;
+        currentItem_ = -1;
+        return;
   }
 
   for (int i = 0; i < impl_->count(); ++i)
     if (impl_->widget(i)->id() == itemId) {
-	  currentItem_ = i;
+          currentItem_ = i;
       activated_.emit(i, edit);
       if(edit) {
         WLineEdit *le = dynamic_cast<WLineEdit*>(edit);

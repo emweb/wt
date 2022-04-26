@@ -14,7 +14,7 @@ void addSignalToWidget(WObject* object, EventSignalBase* signal) {
   WWidget* w = dynamic_cast<WWidget*>(object);
   if(w)
     w->addJSignal(signal);
-  
+
 }
 
 namespace Impl {
@@ -45,7 +45,7 @@ void unMarshal(const JavaScriptEvent& jse, int argi, WString& s) {
 void unMarshal(const JavaScriptEvent& jse, int argi, NoClass& nc) {
   if ((unsigned)argi < jse.userEventArgs.size()) {
     Wt::log("error") << "JSignal: redundant JavaScript argument: '"
-		     << jse.userEventArgs[argi] << "'";
+                     << jse.userEventArgs[argi] << "'";
   }
 }
 

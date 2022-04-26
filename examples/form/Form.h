@@ -46,10 +46,10 @@ private:
 
   /*!\brief Submit the form.
    */
-  void submit(); 
+  void submit();
 
   void createUI();
- 
+
   WContainerWidget *feedbackMessages_;
 
   WLineEdit *nameEdit_;

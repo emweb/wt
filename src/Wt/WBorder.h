@@ -25,14 +25,14 @@ enum class BorderWidth {
  */
 enum class BorderStyle {
   None,    //!< No border (width ignored), default.
-  Hidden,  //!< Invisible border (of specified width). 
+  Hidden,  //!< Invisible border (of specified width).
   Dotted,  //!< Dotted border
   Dashed,  //!< Dashed border
   Solid,   //!< Solid border
   Double,  //!< Double lined border
   Groove,  //!< Relief border grooved into the canvas
   Ridge,   //!< Relief border coming out of the canvas
-  Inset,   //!< Relief border lowering contents into the canvas 
+  Inset,   //!< Relief border lowering contents into the canvas
   Outset   //!< Relief border letting contents come out of the canvas
 };
 
@@ -55,8 +55,8 @@ public:
 
   /*! \brief Creates a border with given style, thickness and color.
    */
-  WBorder(BorderStyle style, BorderWidth = BorderWidth::Medium, 
-	  WColor color = WColor());
+  WBorder(BorderStyle style, BorderWidth = BorderWidth::Medium,
+          WColor color = WColor());
 
   /*! \brief Creates a border with an absolute width.
    */
@@ -76,7 +76,7 @@ public:
    * \p explicitWidth is used.
    */
   void setWidth(BorderWidth width,
-		const WLength& explicitWidth = WLength::Auto);
+                const WLength& explicitWidth = WLength::Auto);
 
   /*! \brief Sets the border color.
    */
@@ -121,7 +121,7 @@ public:
    */
   WBorder clone() const;
 #endif
-  
+
 private:
   BorderWidth width_;
   WLength explicitWidth_;

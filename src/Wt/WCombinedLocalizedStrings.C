@@ -53,8 +53,8 @@ LocalizedString WCombinedLocalizedStrings::resolveKey(const WLocale& locale,
 }
 
 LocalizedString WCombinedLocalizedStrings::resolvePluralKey(const WLocale& locale,
-						 const std::string& key,
-						 ::uint64_t amount)
+                                                 const std::string& key,
+                                                 ::uint64_t amount)
 {
   for (unsigned i = 0; i < localizedStrings_.size(); ++i) {
     LocalizedString result = localizedStrings_[i]->resolvePluralKey(locale, key, amount);

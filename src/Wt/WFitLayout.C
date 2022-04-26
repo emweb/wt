@@ -18,7 +18,7 @@ namespace Wt {
 LOGGER("WFitLayout");
 
 WFitLayout::WFitLayout()
-{ 
+{
   grid_.columns_.push_back(Impl::Grid::Section(0));
   grid_.rows_.push_back(Impl::Grid::Section(0));
 
@@ -31,7 +31,7 @@ WFitLayout::~WFitLayout()
 { }
 
 void WFitLayout::fitWidget(WContainerWidget *container,
-			   std::unique_ptr<WWidget> widget)
+                           std::unique_ptr<WWidget> widget)
 {
   std::unique_ptr<WFitLayout> l(new WFitLayout());
   l->addWidget(std::move(widget));

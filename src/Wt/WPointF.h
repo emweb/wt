@@ -29,7 +29,7 @@ namespace Wt {
  * \endcode
  *
  * \warning A %WPointF that is JavaScript exposed should be modified only through its \link WJavaScriptHandle handle\endlink.
- *	    Any attempt at modifying it will cause an exception to be thrown.
+ *          Any attempt at modifying it will cause an exception to be thrown.
  *
  * \sa WPaintedWidget::createJSPoint()
  *

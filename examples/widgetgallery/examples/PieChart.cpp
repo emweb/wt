@@ -19,7 +19,7 @@ namespace {
     public:
         virtual std::unique_ptr<WStandardItem> clone() const {
             return std::make_unique<NumericItem>();
-	}
+        }
 
         virtual void setData(const cpp17::any &data, ItemDataRole role = ItemDataRole::User) {
     if (role == ItemDataRole::Edit) {
@@ -36,7 +36,7 @@ namespace {
     } else {
       WStandardItem::setData(data, role);
     }
-	}
+        }
     };
 }
 

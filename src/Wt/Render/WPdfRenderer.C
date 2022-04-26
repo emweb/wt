@@ -50,7 +50,7 @@ void WPdfRenderer::setMargin(double margin, WFlags<Side> sides)
 }
 
 void WPdfRenderer::addFontCollection(const std::string& directory,
-				     bool recursive)
+                                     bool recursive)
 {
   FontCollection c;
   c.directory = directory;
@@ -69,9 +69,9 @@ HPDF_Page WPdfRenderer::createPage(int page)
 
   return result;
 #else
-  return Wt::Render::Utils::createPage(pdf_, 
-				       HPDF_Page_GetWidth(page_), 
-				       HPDF_Page_GetHeight(page_));
+  return Wt::Render::Utils::createPage(pdf_,
+                                       HPDF_Page_GetWidth(page_),
+                                       HPDF_Page_GetHeight(page_));
 #endif
 }
 
@@ -98,7 +98,7 @@ double WPdfRenderer::pageWidth(int page) const
 {
   return HPDF_Page_GetWidth(page_) * dpi_ / 72.0;
 }
- 
+
 double WPdfRenderer::pageHeight(int page) const
 {
   return HPDF_Page_GetHeight(page_) * dpi_ / 72.0;
@@ -119,7 +119,7 @@ WPaintDevice *WPdfRenderer::startPage(int page)
 #endif
 
   WPdfImage *device = new WPdfImage(pdf_, page_, 0, 0,
-				    pageWidth(page), pageHeight(page));
+                                    pageWidth(page), pageHeight(page));
 #ifdef WT_TARGET_JAVA
   WTransform deviceTransform;
   deviceTransform.scale(72.0f/dpi_, 72.0f/dpi_);
@@ -128,7 +128,7 @@ WPaintDevice *WPdfRenderer::startPage(int page)
 
   for (unsigned i = 0; i < fontCollections_.size(); ++i)
     device->addFontCollection(fontCollections_[i].directory,
-			      fontCollections_[i].recursive);
+                              fontCollections_[i].recursive);
 
   return device;
 }

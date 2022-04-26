@@ -66,12 +66,12 @@ void WRadioButton::setFormData(const FormData& formData)
 
     if (value == id()) {
       if (buttonGroup_) {
-	buttonGroup_->uncheckOthers(this);
-	state_ = CheckState::Checked;
+        buttonGroup_->uncheckOthers(this);
+        state_ = CheckState::Checked;
       }
     } else
       if (!buttonGroup_)
-	WAbstractToggleButton::setFormData(formData);
+        WAbstractToggleButton::setFormData(formData);
   } else
     if (!buttonGroup_)
       WAbstractToggleButton::setFormData(formData);

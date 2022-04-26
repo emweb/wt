@@ -88,12 +88,12 @@ public:
   Cursor cursor() const { return cursor_; }
 
   /*! \brief Sets a custom cursor image Url.
-   * 
-   * The Url should point to a .cur file (this shoul be a real .cur file, 
+   *
+   * The Url should point to a .cur file (this shoul be a real .cur file,
    * renaming an .ico is not enough for Internet Explorer).
    */
   void setCursor(std::string cursorImage,
-		 Cursor fallback = Cursor::Arrow);
+                 Cursor fallback = Cursor::Arrow);
 
   /*! \brief Returns the cursor image.
    *
@@ -119,9 +119,9 @@ public:
    * sides by OR'ing Wt::Side values together, e.g. (Side::Right | Side::Top).
    */
   void setBackgroundImage(const WLink& link,
-			  WFlags<Orientation> repeat
-			    = Orientation::Horizontal | Orientation::Vertical,
-			  WFlags<Side> sides = None);
+                          WFlags<Orientation> repeat
+                            = Orientation::Horizontal | Orientation::Vertical,
+                          WFlags<Side> sides = None);
 
 #ifdef WT_TARGET_JAVA
   /*! \brief Sets a background image.
@@ -130,9 +130,9 @@ public:
    * sides by OR'ing Wt::Side values together, e.g. (Side::Right | Side::Top).
    */
   void setBackgroundImage(const std::string& url,
-			  WFlags<Orientation> repeat
-			    = Orientation::Horizontal | Orientation::Vertical, 
-			  WFlags<Side> sides = None);
+                          WFlags<Orientation> repeat
+                            = Orientation::Horizontal | Orientation::Vertical,
+                          WFlags<Side> sides = None);
 #endif // WT_TARGET_JAVA
 
   /*! \brief Returns the background image URL.
@@ -158,7 +158,7 @@ public:
   WColor foregroundColor() const { return foregroundColor_; }
 
   /*! \brief Sets the border style.
-   *  
+   *
    * The given \p border will be set for the specified \p sides.
    *
    * A different border style may be specified for each of the four
@@ -213,19 +213,19 @@ private:
   std::string               cursorImage_;
   std::unique_ptr<WBorder>  border_[4];
   WColor                    backgroundColor_;
-  WColor	            foregroundColor_;
-  WLink	                    backgroundImage_;
+  WColor                    foregroundColor_;
+  WLink                     backgroundImage_;
   WFlags<Orientation>       backgroundImageRepeat_;
   WFlags<Side>              backgroundImageLocation_;
-  WFont		            font_;
+  WFont                     font_;
   WFlags<TextDecoration>    textDecoration_;
 
-  bool		            cursorChanged_;
-  bool		            borderChanged_;
-  bool		            foregroundColorChanged_;
-  bool		            backgroundColorChanged_;
-  bool	  	            backgroundImageChanged_;
-  bool		            fontChanged_;
+  bool                      cursorChanged_;
+  bool                      borderChanged_;
+  bool                      foregroundColorChanged_;
+  bool                      backgroundColorChanged_;
+  bool                      backgroundImageChanged_;
+  bool                      fontChanged_;
   bool                      textDecorationChanged_;
 
   void changed(WFlags<RepaintFlag> flags = None);

@@ -40,8 +40,8 @@ void WTabWidget::create()
 }
 
 WMenuItem *WTabWidget::addTab(std::unique_ptr<WWidget> child,
-			      const WString& label,
-			      ContentLoading loadPolicy)
+                              const WString& label,
+                              ContentLoading loadPolicy)
 {
   return insertTab(count(), std::move(child), label, loadPolicy);
 }
@@ -215,7 +215,7 @@ WStackedWidget *WTabWidget::contentsStack() const
 }
 
 void WTabWidget::setOverflow(Overflow value,
-	WFlags<Orientation> orientation)
+        WFlags<Orientation> orientation)
 {
   layout_->setOverflow(value, orientation);
 }

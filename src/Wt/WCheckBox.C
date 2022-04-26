@@ -73,11 +73,11 @@ void WCheckBox::updateJSlot()
        << " obj.nextState='u';"
        << "} else if( obj.nextState=='i') {\n"
        << "obj.nextState='c';"
-       << partialOn 
+       << partialOn
        << " } else if( obj.nextState=='u') {\n"
        << "obj.nextState='i';"
        << "obj.checked=false;"
-       << partialOff 
+       << partialOff
        << " } else obj.nextState='i';"
        << "}";
     slot.reset(new JSlot(ss.str(), this));
@@ -106,7 +106,7 @@ void WCheckBox::updateNextState() {
 
   if (partialStateSelectable_)
     doJavaScript(this->jsRef() + ".nextState='"+nextState+"';");
-  else 
+  else
     doJavaScript(this->jsRef() + ".nextState=null;");
 }
 

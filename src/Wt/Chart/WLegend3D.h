@@ -14,8 +14,8 @@
 
 namespace Wt {
   namespace Chart {
-   
-class WLegend3D : public WLegend 
+
+class WLegend3D : public WLegend
 {
 public:
   void renderLegend
@@ -26,7 +26,7 @@ public:
   int height
     (const std::vector<std::unique_ptr<WAbstractDataSeries3D> >& dataseries);
 };
- 
+
   }
 }
 

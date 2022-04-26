@@ -151,7 +151,7 @@ private:
    * \throws Exception : in case the command failed
    */
   bool getCmdResult(const std::string& cmd, std::string& result,
-		    const std::string& tag) const;
+                    const std::string& tag) const;
 
   /*! \brief Returns the <i>i</i>th line from the output of a git command.
    *
@@ -162,7 +162,7 @@ private:
    * \throws Exception : in case the command failed
    */
   bool getCmdResult(const std::string& cmd, std::string& result,
-		    int index) const;
+                    int index) const;
 
   /*! \brief Returns the number of lines in the output of a git command.
    *

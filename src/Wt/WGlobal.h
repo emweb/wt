@@ -450,7 +450,7 @@ enum class Side {
 
 W_DECLARE_OPERATORS_FOR_FLAGS(Side)
 
-static const WFlags<Side> AllSides = 
+static const WFlags<Side> AllSides =
   Side::Left | Side::Right | Side::Top | Side::Bottom;
 
 /*! \brief Enumeration that specifies a horizontal or a vertical alignment.
@@ -525,13 +525,13 @@ W_DECLARE_OPERATORS_FOR_FLAGS(AlignmentFlag)
 
 /*! \brief Combination of all horizontal alignment flags */
 static const WFlags<AlignmentFlag> AlignHorizontalMask
-= AlignmentFlag::Left | AlignmentFlag::Right | 
+= AlignmentFlag::Left | AlignmentFlag::Right |
   AlignmentFlag::Center | AlignmentFlag::Justify;
 
 /*! \brief Combination of all vertical alignment flags */
 static const WFlags<AlignmentFlag> AlignVerticalMask
-= AlignmentFlag::Baseline | AlignmentFlag::Sub | 
-  AlignmentFlag::Super | AlignmentFlag::Top | 
+= AlignmentFlag::Baseline | AlignmentFlag::Sub |
+  AlignmentFlag::Super | AlignmentFlag::Top |
   AlignmentFlag::TextTop | AlignmentFlag::Middle |
   AlignmentFlag::Bottom | AlignmentFlag::TextBottom;
 
@@ -994,7 +994,7 @@ enum class MatchFlag {
 W_DECLARE_OPERATORS_FOR_FLAGS(MatchFlag)
 
 /*! \brief Type part of MatchFlags */
-static const WFlags<MatchFlag> MatchTypeMask = 
+static const WFlags<MatchFlag> MatchTypeMask =
   MatchFlag::Exactly | MatchFlag::StringExactly |
   MatchFlag::StartsWith | MatchFlag::EndsWith |
   MatchFlag::RegExp | MatchFlag::WildCard;
@@ -1048,7 +1048,7 @@ W_DECLARE_OPERATORS_FOR_FLAGS(HeaderFlag)
  */
 enum class MetaHeaderType {
   Meta,       //!< Of the form &lt;meta name=... content=... &gt;
-  Property,   //!< Of the form &lt;meta property=... content=... &gt; 
+  Property,   //!< Of the form &lt;meta property=... content=... &gt;
   HttpHeader  //!< Of the form &lt;meta http-equiv=... content=... &gt;
 };
 

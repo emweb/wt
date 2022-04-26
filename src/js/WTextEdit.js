@@ -28,15 +28,15 @@ WT_DECLARE_WT_MEMBER
      el.ed = new tinymce.Editor(el.id, config, tinymce.EditorManager);
      el.ed.render();
      if (connectOnChange) {
-	   if (tinymce.EditorManager.majorVersion < 4) {
-		 el.ed.onChange.add(function() {
-		   APP.emit(el, 'change');
-		 });
-	   } else  {
-		 el.ed.on('change', function() {
-		   APP.emit(el, 'change');
-		 });
-	   }
+           if (tinymce.EditorManager.majorVersion < 4) {
+                 el.ed.onChange.add(function() {
+                   APP.emit(el, 'change');
+                 });
+           } else  {
+                 el.ed.on('change', function() {
+                   APP.emit(el, 'change');
+                 });
+           }
      }
      setTimeout(function() {APP.emit(el, 'render');}, 0);
    };
@@ -80,29 +80,29 @@ WT_DECLARE_WT_MEMBER
        doc = iframe.contentDocument;
 
      $(doc.body).bind('paste', function(event) {
-       var clipboardData = 
-	 event.clipboardData || event.originalEvent.clipboardData,
-	 i, il;
+       var clipboardData =
+         event.clipboardData || event.originalEvent.clipboardData,
+         i, il;
 
        function isImage(t) {
-	 return t.indexOf('image/') == 0;
+         return t.indexOf('image/') == 0;
        }
 
        if (clipboardData && clipboardData.types) {
-	 for (i = 0, il = clipboardData.types.length; i < il; ++i) {
-	   var t = clipboardData.types[i];
-	   if (isImage(clipboardData.types[i]) ||
-	       isImage(clipboardData.items[i].type)) {
-	     var file = clipboardData.items[i].getAsFile();
-	     var reader = new FileReader();
-	     reader.onload = function(evt) {
-	       el.ed.insertContent("<img src=\"" + this.result + "\"></img>");
-	     };
-	     reader.readAsDataURL(file);
+         for (i = 0, il = clipboardData.types.length; i < il; ++i) {
+           var t = clipboardData.types[i];
+           if (isImage(clipboardData.types[i]) ||
+               isImage(clipboardData.items[i].type)) {
+             var file = clipboardData.items[i].getAsFile();
+             var reader = new FileReader();
+             reader.onload = function(evt) {
+               el.ed.insertContent("<img src=\"" + this.result + "\"></img>");
+             };
+             reader.readAsDataURL(file);
 
-	     WT.cancelEvent(event);
-	   }
-	 }
+             WT.cancelEvent(event);
+           }
+         }
        }
        });
    };
@@ -120,14 +120,14 @@ WT_DECLARE_WT_MEMBER
        my = WT.px(e, 'marginTop') + WT.px(e, 'marginBottom');
 
        if (!WT.boxSizing(e)) {
-	 mx += WT.px(e, 'borderLeftWidth') +
+         mx += WT.px(e, 'borderLeftWidth') +
            WT.px(e, 'borderRightWidth') +
-	   WT.px(e, 'paddingLeft') +
-      	   WT.px(e, 'paddingRight');
-	 my += WT.px(e, 'borderTopWidth') +
-	   WT.px(e, 'borderBottomWidth') +
-	   WT.px(e, 'paddingTop') +
-	   WT.px(e, 'paddingBottom');
+           WT.px(e, 'paddingLeft') +
+                 WT.px(e, 'paddingRight');
+         my += WT.px(e, 'borderTopWidth') +
+           WT.px(e, 'borderBottomWidth') +
+           WT.px(e, 'paddingTop') +
+           WT.px(e, 'paddingBottom');
        }
 
        e.style.height = (h - my) + 'px';
@@ -137,76 +137,76 @@ WT_DECLARE_WT_MEMBER
        var staticStyle = el.style.position !== 'absolute';
 
        if (tinymce.EditorManager.majorVersion < 4) {
-	 var row = iframe.parentNode.parentNode,
+         var row = iframe.parentNode.parentNode,
            tbl = row.parentNode.parentNode,
-	   i, il;
+           i, il;
 
-	 other = tbl;
-	 topLevel = tbl.parentNode;
+         other = tbl;
+         topLevel = tbl.parentNode;
 
          if (!staticStyle && typeof w !== 'undefined')
-	   topLevel.style.width = (w - 2) + 'px';
+           topLevel.style.width = (w - 2) + 'px';
 
- 	 // deduct height of all the rest
-	 for (i=0, il=tbl.rows.length; i<il; i++) {
+          // deduct height of all the rest
+         for (i=0, il=tbl.rows.length; i<il; i++) {
            if (tbl.rows[i] != row)
              h -= tbl.rows[i].offsetHeight;
          }
 
        } else {
-	 var item = iframe.parentNode,
-	   container = item.parentNode,
-	   i, il;
+         var item = iframe.parentNode,
+           container = item.parentNode,
+           i, il;
 
-	 topLevel = container.parentNode;
+         topLevel = container.parentNode;
 
          if (!staticStyle && typeof w !== 'undefined')
-	   topLevel.style.width = (w - 2) + 'px';
+           topLevel.style.width = (w - 2) + 'px';
 
-	 // deduct height of all the rest
-	 for (i=0, il=container.childNodes.length; i<il; i++) {
+         // deduct height of all the rest
+         for (i=0, il=container.childNodes.length; i<il; i++) {
            if (container.childNodes[i] != item) {
              h -= container.childNodes[i].offsetHeight + 1;
-	   }
+           }
          }
 
-	 h -= 1;
+         h -= 1;
        }
 
        if (h < 0) {
-	 if (badHeightCount < 10) {
-	   var timeoutDelay = Math.pow(2, badHeightCount) * 100;
-	   setTimeout(function() { self.wtResize(el, lastW, lastH, true); },
-		      timeoutDelay);
-	 }
-	 badHeightCount += 1;
-	 return;
+         if (badHeightCount < 10) {
+           var timeoutDelay = Math.pow(2, badHeightCount) * 100;
+           setTimeout(function() { self.wtResize(el, lastW, lastH, true); },
+                      timeoutDelay);
+         }
+         badHeightCount += 1;
+         return;
        }
 
        h = h + 'px';
 
        if (!staticStyle) {
-	 topLevel.style.position = e.style.position;
-	 topLevel.style.left = e.style.left;
-	 topLevel.style.top = e.style.top;
+         topLevel.style.position = e.style.position;
+         topLevel.style.left = e.style.left;
+         topLevel.style.top = e.style.top;
 
-	 if (!staticStyle && other)
-	   other.style.width = (w) + 'px';
+         if (!staticStyle && other)
+           other.style.width = (w) + 'px';
 
-	 if (other) {
-	   other.style.height = (h) + 'px';
-	   topLevel.style.height = e.style.height;
-	 }
+         if (other) {
+           other.style.height = (h) + 'px';
+           topLevel.style.height = e.style.height;
+         }
        } else {
-	 topLevel.style.position = 'static';
-	 topLevel.style.display = 'block';
+         topLevel.style.position = 'static';
+         topLevel.style.display = 'block';
        }
 
        if (iframe.style.height != h) {
-	 badHeightCount = 0;
-	 iframe.style.height = h;
-	 if (APP.layouts2)
-	   APP.layouts2.setElementDirty(el);
+         badHeightCount = 0;
+         iframe.style.height = h;
+         if (APP.layouts2)
+           APP.layouts2.setElementDirty(el);
        }
      } else {
        lastW = w;

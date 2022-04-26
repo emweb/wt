@@ -58,8 +58,8 @@ namespace {
   int seriesIndexOf(WCartesianChart* chart, int modelColumn) {
     for (unsigned i = 0; i < chart->series().size(); ++i)
       if (chart->series()[i]->modelColumn() == modelColumn)
-	return i;
-    
+        return i;
+
     return -1;
   }
 
@@ -79,7 +79,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart)
     fill_(FillRangeType::MinimumValue)
 {
   chart_->setLegendStyle(chart_->legendFont(), WPen(WColor("black")),
-			 WBrush(WColor(0xFF, 0xFA, 0xE5)));
+                         WBrush(WColor(0xFF, 0xFA, 0xE5)));
 
   PanelList *list = this->addWidget(std::make_unique<PanelList>());
 
@@ -261,7 +261,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart)
 
     sc.typeEdit = seriesConfig->elementAt(j,2)->addWidget(std::make_unique<WComboBox>());
     sc.typeEdit->setModel(types);
-	sc.typeEdit->setCurrentIndex(0);
+        sc.typeEdit->setCurrentIndex(0);
     connectSignals(sc.typeEdit);
 
     sc.markerEdit = seriesConfig->elementAt(j,3)->addWidget(std::make_unique<WComboBox>());
@@ -287,7 +287,7 @@ ChartConfig::ChartConfig(WCartesianChart *chart)
 
     sc.labelsEdit = seriesConfig->elementAt(j, 8)->addWidget(std::make_unique<WComboBox>());
     sc.labelsEdit->setModel(labels);
-	sc.labelsEdit->setCurrentIndex(0);
+        sc.labelsEdit->setCurrentIndex(0);
     connectSignals(sc.labelsEdit);
 
     int si = seriesIndexOf(chart, j);
@@ -297,15 +297,15 @@ ChartConfig::ChartConfig(WCartesianChart *chart)
       const WDataSeries& s = chart_->series(j);
       switch (s.type()) {
       case SeriesType::Point:
-	sc.typeEdit->setCurrentIndex(0); break;
+        sc.typeEdit->setCurrentIndex(0); break;
       case SeriesType::Line:
     sc.typeEdit->setCurrentIndex(s.fillRange() != FillRangeType::None ?
-				     (s.isStacked() ? 7 : 4) : 1); break;
+                                     (s.isStacked() ? 7 : 4) : 1); break;
       case SeriesType::Curve:
     sc.typeEdit->setCurrentIndex(s.fillRange() != FillRangeType::None ?
-				     (s.isStacked() ? 8 : 5) : 2); break;
+                                     (s.isStacked() ? 8 : 5) : 2); break;
       case SeriesType::Bar:
-	sc.typeEdit->setCurrentIndex(s.isStacked() ? 6 : 3);
+        sc.typeEdit->setCurrentIndex(s.isStacked() ? 6 : 3);
       }
 
       sc.markerEdit->setCurrentIndex((int)s.marker());
@@ -519,10 +519,10 @@ void ChartConfig::update()
       axis.setAutoLimits(AxisValue::Minimum | AxisValue::Maximum);
     else {
       if (!(axis.autoLimits() & (AxisValue::Minimum | AxisValue::Maximum)).empty()) {
-	sc.minimumEdit->setText(WLocale::currentLocale()
-				.toString(axis.minimum()));
-	sc.maximumEdit->setText(WLocale::currentLocale()
-				.toString(axis.maximum()));
+        sc.minimumEdit->setText(WLocale::currentLocale()
+                                .toString(axis.minimum()));
+        sc.maximumEdit->setText(WLocale::currentLocale()
+                                .toString(axis.maximum()));
       }
       if (validate(sc.minimumEdit) && validate(sc.maximumEdit)) {
           double min, max;
@@ -575,16 +575,16 @@ void ChartConfig::update()
     switch (sc.locationEdit->currentIndex()) {
       case 0:
     axis.setLocation(AxisValue::Minimum);
-	break;
+        break;
       case 1:
     axis.setLocation(AxisValue::Maximum);
-	break;
+        break;
       case 2:
     axis.setLocation(AxisValue::Zero);
-	break;
+        break;
       case 3:
     axis.setLocation(AxisValue::Both);
-	break;
+        break;
     }
   }
 
@@ -624,10 +624,10 @@ void ChartConfig::update()
 
     if (side == Side::Left || side == Side::Right) {
       if (legendAlignmentEdit_->currentIndex() < 3)
-	legendAlignmentEdit_->setCurrentIndex(4);
+        legendAlignmentEdit_->setCurrentIndex(4);
     } else {
       if (legendAlignmentEdit_->currentIndex() >= 3)
-	legendAlignmentEdit_->setCurrentIndex(2);
+        legendAlignmentEdit_->setCurrentIndex(2);
     }
 
     switch (legendAlignmentEdit_->currentIndex()) {
@@ -642,7 +642,7 @@ void ChartConfig::update()
     chart_->setLegendLocation(location, side, alignment);
 
     chart_->setLegendColumns((side == Side::Top || side == Side::Bottom ) ? 2 : 1,
-			     WLength(100));
+                             WLength(100));
   }
 
   if (borderEdit_->isChecked()) {

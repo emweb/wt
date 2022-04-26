@@ -81,7 +81,7 @@ void WStreamResource::handleRequestPiecewise(const Http::Request& request,
 
       std::ostringstream contentRange;
       contentRange << "bytes " << startByte << "-"
-		   << beyondLastByte_ - 1 << "/" << isize;
+                   << beyondLastByte_ - 1 << "/" << isize;
       response.addHeader("Content-Range", contentRange.str());
       response.setContentLength(::uint64_t(beyondLastByte_) - startByte);
     } else {

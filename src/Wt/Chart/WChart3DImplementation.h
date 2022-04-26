@@ -27,16 +27,16 @@ public:
   virtual ChartType chartType() const override;
   virtual Orientation orientation() const override;
   virtual int axisPadding() const override;
-  
+
   virtual int numberOfCategories(Axis axis = Axis::X) const override;
   virtual WString categoryLabel(int u, Axis axis) const override;
-  
+
   virtual RenderRange computeRenderRange(
       Axis axis, int xAxis, int yAxis, AxisScale scale = AxisScale::Linear)
     const override;
 
   virtual bool onDemandLoadingEnabled() const override;
-  
+
   virtual void update() override;
 
 private:

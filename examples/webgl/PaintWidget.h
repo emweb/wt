@@ -16,7 +16,7 @@ class PaintWidget: public WGLWidget
 {
 public:
   PaintWidget(const bool & useBinaryBuffers);
-  
+
   // Specialization of WGLWidgeT::intializeGL()
   void initializeGL();
 

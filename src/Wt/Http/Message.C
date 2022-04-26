@@ -41,7 +41,7 @@ void Message::Header::setValue(const std::string& value)
 Message::Message(std::vector<Header> headers)
   : status_(-1),
     headers_(headers)
-{ } 
+{ }
 
 Message::Message()
   : status_(-1)

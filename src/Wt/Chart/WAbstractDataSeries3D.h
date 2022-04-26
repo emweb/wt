@@ -22,21 +22,21 @@ namespace Wt {
     class WAbstractColorMap;
 
 /*! \class WAbstractDataSeries3D
- *  \brief Abstract base class for dataseries that can be drawn on a 
+ *  \brief Abstract base class for dataseries that can be drawn on a
  * WCartesian3DChart
  *
  * <h3>General</h3>
- * 
- * The model that is provided at construction or with setModel() contains the 
- * data of a dataseries. Implementations of this class format the data for 
- * representation on the chart and perform all necessary drawing operations. 
- * Note that if a dataseries holds numerical data it should be added to a chart 
- * of type \ref ChartType::Scatter, if it holds categorical data it should be added to 
+ *
+ * The model that is provided at construction or with setModel() contains the
+ * data of a dataseries. Implementations of this class format the data for
+ * representation on the chart and perform all necessary drawing operations.
+ * Note that if a dataseries holds numerical data it should be added to a chart
+ * of type \ref ChartType::Scatter, if it holds categorical data it should be added to
  * a chart of type \ref ChartType::Category.
  *
  * <h3>Color</h3>
  *
- * The color used to draw data on a chart can be specified in a number of ways. 
+ * The color used to draw data on a chart can be specified in a number of ways.
  * The priority of this is as follows (1 being the highest):
  *
  * <ol>
@@ -44,11 +44,11 @@ namespace Wt {
  * <li>WAbstractColorMap set on the dataseries</li>
  * <li>WChartPalette present in the chart</li>
  * </ol>
- * 
- * A chart-palette will specify one color for the entire dataseries. Each new 
+ *
+ * A chart-palette will specify one color for the entire dataseries. Each new
  * dataseries on a chart will receive another color.\n A colormap assigns
- * different colors to the data within one dataseries, based on the z-value of 
- * the data. WStandardColorMap provides an easy way to create a colormap that 
+ * different colors to the data within one dataseries, based on the z-value of
+ * the data. WStandardColorMap provides an easy way to create a colormap that
  * is either smooth or consists of a number of bands.
  *
  * <h3>Data-roles</h3>
@@ -57,30 +57,30 @@ namespace Wt {
  * <ul>
  * <li>ItemDataRole::MarkerBrushColor: this determines the color of a datapoint and overrides the default</li>
  * <li>ItemDataRole::MarkerScaleFactor: this determines the size of a datapoint and overrides the default</li>
- * </ul> 
+ * </ul>
  *
- * Some representations of the data ignore these roles. For example, when a 
+ * Some representations of the data ignore these roles. For example, when a
  * surface is drawn, the roles are ignored.
  *
  * <h3>Implementing a new dataseries class</h3>
- * 
- * When the existing implementations of %WAbstractDataSeries3D don't meet your 
- * needs, you might want to make your own. When doing this there are some 
- * details of the chart that you should know. The chart is made so that when 
- * a property of the chart changes, which affect any of the GL resources, 
- * all GL resources are destroyed and re-initialized. This eliminates the need 
- * to determine which chart-setting affect which GL-resources, which can be 
+ *
+ * When the existing implementations of %WAbstractDataSeries3D don't meet your
+ * needs, you might want to make your own. When doing this there are some
+ * details of the chart that you should know. The chart is made so that when
+ * a property of the chart changes, which affect any of the GL resources,
+ * all GL resources are destroyed and re-initialized. This eliminates the need
+ * to determine which chart-setting affect which GL-resources, which can be
  * a complicated problem.
  *
- * Therefore only unchanging GL resources are initialized in initializeGL(). 
- * The initializeGL function in the chart is implemented to immediately request 
- * a call to updateGL(), which then initializes the rest of the GL resources. 
- * Every call to updateGL in the chart, will first call deleteAllGLResources() 
- * on all dataseries and will then call updateGL() on all dataseries. So, when 
- * implementing a dataseries: initialize unchanging GL resources in 
- * initializeGL(), initialize the rest of your GL resources in updateGL() and 
- * make GL-delete calls to all resources initialized in updateGL() in the 
- * function deleteAllGLResources(). It is also best to check isNull() on each 
+ * Therefore only unchanging GL resources are initialized in initializeGL().
+ * The initializeGL function in the chart is implemented to immediately request
+ * a call to updateGL(), which then initializes the rest of the GL resources.
+ * Every call to updateGL in the chart, will first call deleteAllGLResources()
+ * on all dataseries and will then call updateGL() on all dataseries. So, when
+ * implementing a dataseries: initialize unchanging GL resources in
+ * initializeGL(), initialize the rest of your GL resources in updateGL() and
+ * make GL-delete calls to all resources initialized in updateGL() in the
+ * function deleteAllGLResources(). It is also best to check isNull() on each
  * of your GL-resources when deleting them.
  *
  * \ingroup charts
@@ -89,9 +89,9 @@ class WT_API WAbstractDataSeries3D : public WObject {
 public:
   /*! \brief Constructor
    *
-   * This constructor takes a WAbstractItemModel as an argument. The model 
-   * contains the data of this dataseries. How the model should be structured 
-   * is dependent on the implementation. Therefore this information is 
+   * This constructor takes a WAbstractItemModel as an argument. The model
+   * contains the data of this dataseries. How the model should be structured
+   * is dependent on the implementation. Therefore this information is
    * found in the documentation of classes deriving from this one.
    */
   WAbstractDataSeries3D(std::shared_ptr<WAbstractItemModel> model);
@@ -100,8 +100,8 @@ public:
 
   /*! \brief Sets the title of this dataseries.
    *
-   * When a dataseries that did not have a title set, is added to a 
-   * WCartesian3DChart it automatically gets the default title 'dataset i', 
+   * When a dataseries that did not have a title set, is added to a
+   * WCartesian3DChart it automatically gets the default title 'dataset i',
    * with i the count of how many dataseries have been added to the chart.
    *
    * \sa name()
@@ -131,21 +131,21 @@ public:
    */
   std::shared_ptr<WAbstractItemModel> model() const { return model_; }
 
-  /*! \brief Returns the computed minimum value of this dataseries along the 
+  /*! \brief Returns the computed minimum value of this dataseries along the
    * given axis.
    *
    * \sa maximum()
    */
   virtual double minimum(Axis axis) const = 0;
 
-  /*! \brief Returns the computed maximum value of this dataseries along the 
+  /*! \brief Returns the computed maximum value of this dataseries along the
    * given axis.
    *
    * \sa minimum()
    */
   virtual double maximum(Axis axis) const = 0;
 
-  /*! \brief Returns a const pointer to the WCartesian3DChart on which the 
+  /*! \brief Returns a const pointer to the WCartesian3DChart on which the
    * dataseries is drawn.
    */
   const WCartesian3DChart * chart() const { return chart_; }
@@ -190,10 +190,10 @@ public:
    *
    * Ownership of the WAbstractColorMap is transferred to this class.
    *
-   * By default there is no colormap set. When a colormap is set on a 
-   * dataseries, the color of WCartesian3DChart::palette() is no longer used 
-   * for this series. The colormap associates a color to the data based on the 
-   * z-value of the data. If the colormap is set to 0, the value of the palette 
+   * By default there is no colormap set. When a colormap is set on a
+   * dataseries, the color of WCartesian3DChart::palette() is no longer used
+   * for this series. The colormap associates a color to the data based on the
+   * z-value of the data. If the colormap is set to 0, the value of the palette
    * will be used again.
    *
    * \sa setColorMapVisible(), setColorMapSide()
@@ -217,7 +217,7 @@ public:
    */
   void setColorMapVisible(bool enabled = true);
 
-  /*! \brief Returns whether the colormap is shown alongside the chart in 
+  /*! \brief Returns whether the colormap is shown alongside the chart in
    * the form of a legend.
    *
    * \sa setColorMap(), setColorMapVisible(), setColorMapSide()
@@ -228,7 +228,7 @@ public:
    *
    * The default side is Side::Right.
    *
-   * Note: only Side::Left and Side::Right are valid values for this function. 
+   * Note: only Side::Left and Side::Right are valid values for this function.
    *
    * \sa setColorMap(), setColorMapVisible()
    */
@@ -280,22 +280,22 @@ public:
 
   /*! \brief Initialize GL resources
    *
-   * This function is called by initializeGL() in the chart to which this 
+   * This function is called by initializeGL() in the chart to which this
    * dataseries was added.
    */
   virtual void initializeGL() = 0;
 
   /*! \brief Update the client-side painting function.
    *
-   * This function is called by paintGL() in the chart to which this 
+   * This function is called by paintGL() in the chart to which this
    * dataseries was added.
    */
   virtual void paintGL() const = 0;
 
   /*! \brief Update GL resources
    *
-   * This function is called by updateGL() in the chart to which this 
-   * dataseries was added. Before this function is called, 
+   * This function is called by updateGL() in the chart to which this
+   * dataseries was added. Before this function is called,
    * deleteAllGLResources() is called.
    *
    * \sa deleteAllGLResources()
@@ -304,14 +304,14 @@ public:
 
   /*! \brief Act on resize events
    *
-   * This function is called by resizeGL() in the chart to which this 
+   * This function is called by resizeGL() in the chart to which this
    * dataseries was added.
    */
   virtual void resizeGL() = 0;
 
   /*! \brief Delete GL resources
    *
-   * This function is called by updateGL() in the chart to which this 
+   * This function is called by updateGL() in the chart to which this
    * dataseries was added.
    */
   virtual void deleteAllGLResources() = 0;
@@ -346,7 +346,7 @@ protected:
 private:
   std::vector<Wt::Signals::connection> connections_;
 };
-    
+
   }
 }
 

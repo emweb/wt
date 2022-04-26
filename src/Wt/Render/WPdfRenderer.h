@@ -42,7 +42,7 @@ namespace Wt {
  * extern "C" {
  *   HPDF_STATUS HPDF_UseUTFEncodings(HPDF_Doc pdf);
  * }
- *	
+ *
  * HPDF_Doc pdf = HPDF_New(error_handler, 0);
  * HPDF_UseUTFEncodings(pdf); // enables UTF-8 encoding with true type fonts
  * HPDF_Page page = HPDF_AddPage(pdf);

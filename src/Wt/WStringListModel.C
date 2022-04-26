@@ -59,7 +59,7 @@ WStringListModel::WStringListModel(const std::vector<WString>& strings)
 { }
 
 WStringListModel::~WStringListModel()
-{ 
+{
   delete otherData_;
 }
 
@@ -131,7 +131,7 @@ bool WStringListModel::setData(const WModelIndex& index,
 #else
       otherData_ = new std::vector<DataMap>();
       for (int i = 0; i < displayData_.size(); ++i)
-	otherData_->push_back(DataMap());
+        otherData_->push_back(DataMap());
 #endif
     }
 
@@ -147,7 +147,7 @@ void WStringListModel::setFlags(int row, WFlags<ItemFlag> flags)
 {
   if (flags_.empty())
     flags_.insert(flags_.begin(), rowCount(),
-		  ItemFlag::Selectable | ItemFlag::Editable);
+                  ItemFlag::Selectable | ItemFlag::Editable);
 
   flags_[row] = flags;
   dataChanged().emit(index(row, 0), index(row, 0));
@@ -168,7 +168,7 @@ bool WStringListModel::insertRows(int row, int count, const WModelIndex& parent)
     displayData_.insert(displayData_.begin() + row, count, WString());
     if (!flags_.empty())
       flags_.insert(flags_.begin() + row, count,
-		    ItemFlag::Selectable | ItemFlag::Editable);
+                    ItemFlag::Selectable | ItemFlag::Editable);
     if (otherData_)
       otherData_->insert(otherData_->begin() + row, count, DataMap());
     endInsertRows();
@@ -183,12 +183,12 @@ bool WStringListModel::removeRows(int row, int count, const WModelIndex& parent)
   if (!parent.isValid()) {
     beginRemoveRows(parent, row, row + count - 1);
     displayData_.erase(displayData_.begin() + row,
-		       displayData_.begin() + row + count);
+                       displayData_.begin() + row + count);
     if (!flags_.empty())
       flags_.erase(flags_.begin() + row, flags_.begin() + row + count);
     if (otherData_)
       otherData_->erase(otherData_->begin() + row,
-			otherData_->begin() + row + count);
+                        otherData_->begin() + row + count);
     endRemoveRows();
 
     return true;
@@ -234,9 +234,9 @@ void WStringListModel::sort(int column, SortOrder order)
     for (unsigned i = 0; i < permutation.size(); ++i) {
       displayData[i] = displayData_[permutation[i]];
       if (otherData)
-	(*otherData)[i] = (*otherData_)[permutation[i]];
+        (*otherData)[i] = (*otherData_)[permutation[i]];
       if (!flags.empty())
-	flags[i] = flags_[permutation[i]];
+        flags[i] = flags_[permutation[i]];
     }
 
     displayData_ = displayData;

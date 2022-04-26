@@ -27,13 +27,13 @@ class WAbstractItemModel;
  *
  * \ingroup charts
  */
-class WT_API WStandardChartProxyModel : public WAbstractChartModel 
+class WT_API WStandardChartProxyModel : public WAbstractChartModel
 {
 public:
   /*! \brief Creates a new WStandardChartProxyModel that wraps the given source model.
    */
   WStandardChartProxyModel(const std::shared_ptr<WAbstractItemModel>&
-			   sourceModel);
+                           sourceModel);
 
   virtual ~WStandardChartProxyModel();
 
@@ -165,7 +165,7 @@ public:
 
   /*! \brief Returns the wrapped source model.
    */
-  std::shared_ptr<WAbstractItemModel> sourceModel() const 
+  std::shared_ptr<WAbstractItemModel> sourceModel() const
   { return sourceModel_; }
 
 private:

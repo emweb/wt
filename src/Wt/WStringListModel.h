@@ -98,13 +98,13 @@ public:
     const override;
 
   virtual bool insertRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex()) override;
+                          const WModelIndex& parent = WModelIndex()) override;
 
   virtual bool removeRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex()) override;
+                          const WModelIndex& parent = WModelIndex()) override;
 
   virtual void sort(int column,
-		    SortOrder order = SortOrder::Ascending) override;
+                    SortOrder order = SortOrder::Ascending) override;
 
 private:
 #ifndef WT_TARGET_JAVA

@@ -63,7 +63,7 @@ HangmanGame::HangmanGame():
 
 void HangmanGame::onAuthEvent()
 {
-  if (session_.login().loggedIn()) {  
+  if (session_.login().loggedIn()) {
     links_->show();
     handleInternalPath(WApplication::instance()->internalPath());
   } else {

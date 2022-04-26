@@ -23,21 +23,21 @@ void Navigation::populateSubMenu(Wt::WMenu *menu)
 {
   menu->addItem("Internal paths",
                 deferCreate([this]{ return internalPaths(); }))->setPathComponent("");
-  menu->addItem("Anchor", 
+  menu->addItem("Anchor",
                 deferCreate([this]{ return anchor(); }));
-  menu->addItem("Stacked widget", 
+  menu->addItem("Stacked widget",
                 deferCreate([this]{ return stackedWidget(); }));
-  menu->addItem("Menu", 
+  menu->addItem("Menu",
                 deferCreate([this]{ return menuWidget(); }));
-  menu->addItem("Tab widget", 
+  menu->addItem("Tab widget",
                 deferCreate([this]{ return tabWidget(); }));
-  menu->addItem("Navigation bar", 
+  menu->addItem("Navigation bar",
                 deferCreate([this]{ return navigationBar(); }));
-  menu->addItem("Popup menu", 
+  menu->addItem("Popup menu",
                 deferCreate([this]{ return popupMenu(); }));
-  menu->addItem("Split button", 
+  menu->addItem("Split button",
                 deferCreate([this]{ return splitButton(); }));
-  menu->addItem("Toolbar", 
+  menu->addItem("Toolbar",
                 deferCreate([this]{ return toolBar(); }));
 }
 

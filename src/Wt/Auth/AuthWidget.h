@@ -39,7 +39,7 @@ class User;
  *   uses dialogs (by default) to interact with the user to act on the token.
  * - authentication tokens, which are stored in browser cookies, to implement
  *   remember-me functionality.
- * 
+ *
  * The processEnvironment() method initiates this process, and should
  * typically be called only at application startup time.
  *
@@ -76,7 +76,7 @@ public:
    * Authentication services need to be configured in the model().
    */
   AuthWidget(const AuthService& baseAuth, AbstractUserDatabase& users,
-	     Login& login);
+             Login& login);
 
   /*! \brief Constructor.
    *
@@ -181,7 +181,7 @@ public:
    *   primary method before doing sensitive operations. The
    *   createPasswordPromptDialog() method may be useful for this.
    *
-   * \sa letUpdatePassword() 
+   * \sa letUpdatePassword()
    */
   virtual void processEnvironment();
 
@@ -222,7 +222,7 @@ public:
   virtual std::unique_ptr<WWidget> createLostPasswordView();
 
   /*! \brief Creates a registration view.
-   * 
+   *
    * This creates a registration view, optionally using information
    * already obtained from a third party identification service (such as
    * an OAuth provider).
@@ -250,7 +250,7 @@ public:
 
   /*! \brief Creates a password prompt dialog.
    *
-   * This creates a dialog 
+   * This creates a dialog
    * password. The user is taken from the \p login object, which also
    * signals an eventual success using its Login::changed() signal.
    *
@@ -265,7 +265,7 @@ public:
    * This method display an dialog showing the error
    */
   virtual void displayError(const WString& error);
-  
+
   /*! \brief Displays the info message.
    *
    * This method display an dialog showing the info
@@ -355,7 +355,7 @@ protected:
    * When the central widget is deleted, it deletes the dialog.
    */
   virtual WDialog *showDialog(const WString& title,
-			      std::unique_ptr<WWidget> contents);
+                              std::unique_ptr<WWidget> contents);
 
   /*! \brief Creates a registration model.
    *

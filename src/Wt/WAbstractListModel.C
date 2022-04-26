@@ -21,11 +21,11 @@ WModelIndex WAbstractListModel::parent(const WModelIndex& index) const
 }
 
 WModelIndex WAbstractListModel::index(int row, int column,
-				      const WModelIndex& parent) const
+                                      const WModelIndex& parent) const
 {
   return createIndex(row, column, (void*)nullptr);
 }
- 
+
 int WAbstractListModel::columnCount(const WModelIndex& parent) const
 {
   return parent.isValid() ? 0 : 1;

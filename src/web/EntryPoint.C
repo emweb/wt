@@ -3,7 +3,7 @@
 namespace Wt {
 
 EntryPoint::EntryPoint(EntryPointType type, ApplicationCreator appCallback,
-		       const std::string& path, const std::string& favicon)
+                       const std::string& path, const std::string& favicon)
   : type_(type),
     resource_(0),
     appCallback_(appCallback),

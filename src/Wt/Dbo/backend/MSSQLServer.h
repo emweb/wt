@@ -70,7 +70,7 @@ public:
    *
    * \code
    * Driver={ODBC Driver 13 for SQL Server};
-   * Server=localhost; 
+   * Server=localhost;
    * UID=SA;
    * PWD={example password};
    * Database=example_db;
@@ -89,7 +89,7 @@ public:
   virtual void startTransaction() override;
   virtual void commitTransaction() override;
   virtual void rollbackTransaction() override;
-  
+
   virtual std::unique_ptr<SqlStatement> prepareStatement(const std::string &sql) override;
 
   /** @name Methods that return dialect information

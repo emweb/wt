@@ -30,7 +30,7 @@ namespace Impl {
   struct MappingInfo;
 
   extern WTDBO_API std::size_t ifind(const std::string& s,
-				     const std::string& needle);
+                                     const std::string& needle);
 
   struct WTDBO_API ParameterBase {
     virtual ~ParameterBase();
@@ -50,16 +50,16 @@ namespace Impl {
   };
 
   template<int N>
-  struct Parameter<const char [N]> : Parameter<const char *> 
+  struct Parameter<const char [N]> : Parameter<const char *>
   {
     Parameter(char const *v) : Parameter<const char *>(v) { }
   };
   template<int N>
-  struct Parameter<char [N]> : Parameter<const char *> 
+  struct Parameter<char [N]> : Parameter<const char *>
   {
     Parameter(char const *v) : Parameter<const char *>(v) { }
   };
-  
+
 } // namespace Impl
 
 class WTDBO_API MetaDboBase
@@ -148,14 +148,14 @@ protected:
 
 /*! \class dbo_default_traits Wt/Dbo/Dbo Wt/Dbo/Dbo
  *  \brief Default traits for a class mapped with %Wt::%Dbo.
- * 
+ *
  * This class provides the default traits. It is convenient (and
  * future proof) to inherit these default traits when customizing the
  * traits for one particular class.
  *
  * \ingroup dbo
  */
-struct dbo_default_traits 
+struct dbo_default_traits
 {
   /*! \brief Type of the primary key.
    *
@@ -280,15 +280,15 @@ struct dbo_traits : public dbo_default_traits
    *       return false;
    *   }
    * };
-   * 
+   *
    * std::ostream& operator<< (std::ostream& o, const Coordinate& c)
    * {
    *   return o << "(" << c.x << ", " << c.y << ")";
    * }
-   * 
+   *
    * namespace Wt {
    *   namespace Dbo {
-   * 
+   *
    *     template <class Action>
    *     void field(Action& action, Coordinate& coordinate, const std::string& name, int size = -1)
    *     {
@@ -380,7 +380,7 @@ private:
   IdType id_;
 
   MetaDbo(const IdType& idType, int version, int state, Session& session,
-	  C *obj);
+          C *obj);
   MetaDbo(Session& session);
 
   void doLoad();
@@ -489,7 +489,7 @@ public:
    * add it to a session):
    */
   ptr<C> self() const;
-  
+
 private:
   MetaDbo<C> *meta_;
 
@@ -857,7 +857,7 @@ private:
 
   void resetObj(MetaDboBase *dbo);
   virtual void transactionDone(bool success) override;
-  
+
   friend class Session;
   friend class SaveBaseAction;
   friend class ToAnysAction;
@@ -888,11 +888,11 @@ template <class C>
 struct query_result_traits< ptr<C> >
 {
   static void getFields(Session& session,
-			std::vector<std::string> *aliases,
-			std::vector<FieldInfo>& result);
+                        std::vector<std::string> *aliases,
+                        std::vector<FieldInfo>& result);
 
   static ptr<C> load(Session& session, SqlStatement& statement,
-		     int& column);
+                     int& column);
 
   static void getValues(const ptr<C>& ptr, std::vector<cpp17::any>& values);
   static void setValue(const ptr<C>& ptr, int& index, const cpp17::any& value);

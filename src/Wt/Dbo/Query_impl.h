@@ -24,25 +24,25 @@ namespace Wt {
 
 extern std::string WTDBO_API
 completeQuerySelectSql(const std::string& sql,
-		       const std::string& join,
-		       const std::string& where,
-		       const std::string& groupBy,
-		       const std::string& having,
-		       const std::string& orderBy,
-		       int limit, int offset,
-		       const std::vector<FieldInfo>& fields,
-		       LimitQuery useRowsFromTo);
+                       const std::string& join,
+                       const std::string& where,
+                       const std::string& groupBy,
+                       const std::string& having,
+                       const std::string& orderBy,
+                       int limit, int offset,
+                       const std::vector<FieldInfo>& fields,
+                       LimitQuery useRowsFromTo);
 
 extern std::string WTDBO_API
 createQuerySelectSql(const std::string& from,
-		     const std::string& join,
-		     const std::string& where,
-		     const std::string& groupBy,
-		     const std::string& having,
-		     const std::string& orderBy,
-		     int limit, int offset,
-		     const std::vector<FieldInfo>& fields,
-		     LimitQuery useRowsFromTo);
+                     const std::string& join,
+                     const std::string& where,
+                     const std::string& groupBy,
+                     const std::string& having,
+                     const std::string& orderBy,
+                     int limit, int offset,
+                     const std::vector<FieldInfo>& fields,
+                     LimitQuery useRowsFromTo);
 
 extern std::string WTDBO_API
 createQueryCountSql(const std::string& query,
@@ -50,11 +50,11 @@ createQueryCountSql(const std::string& query,
 
 extern void WTDBO_API
 substituteFields(const SelectFieldList& list,
-		 const std::vector<FieldInfo>& fs,
-		 std::string& sql,
+                 const std::vector<FieldInfo>& fs,
+                 std::string& sql,
                  int& offset);
 
-extern void WTDBO_API 
+extern void WTDBO_API
 parseSql(const std::string& sql, SelectFieldLists& fieldLists);
 
 template <class Result>
@@ -72,7 +72,7 @@ QueryBase<Result>::QueryBase(Session& session, const std::string& sql)
 
 template <class Result>
 QueryBase<Result>::QueryBase(Session& session, const std::string& table,
-			     const std::string& where)
+                             const std::string& where)
   : session_(&session)
 {
   sql_ = "from " + table + ' ' + where;
@@ -109,11 +109,11 @@ std::vector<FieldInfo> QueryBase<Result>::fields() const
 template <class Result>
 std::pair<SqlStatement *, SqlStatement *>
 QueryBase<Result>::statements(const std::string& join,
-			      const std::string& where,
-			      const std::string& groupBy,
-			      const std::string& having,
-			      const std::string& orderBy,
-			      int limit, int offset) const
+                              const std::string& where,
+                              const std::string& groupBy,
+                              const std::string& having,
+                              const std::string& orderBy,
+                              int limit, int offset) const
 {
   SqlStatement *statement, *countStatement;
 
@@ -165,7 +165,7 @@ QueryBase<Result>::statements(const std::string& join,
 
 template <class Result>
 void QueryBase<Result>::fieldsForSelect(const SelectFieldList& list,
-					std::vector<FieldInfo>& result) const
+                                        std::vector<FieldInfo>& result) const
 {
   std::vector<std::string> aliases;
   for (unsigned i = 0; i < list.size(); ++i) {
@@ -217,7 +217,7 @@ Query<Result, DirectBinding>::Query(Session& session, const std::string& sql)
 
 template <class Result>
 Query<Result, DirectBinding>::Query(Session& session, const std::string& table,
-				    const std::string& where)
+                                    const std::string& where)
   : Impl::QueryBase<Result>(session, table, where),
     statement_(nullptr),
     countStatement_(nullptr)
@@ -269,7 +269,7 @@ collection<Result> Query<Result, DirectBinding>::resultList() const
 
   if (!statement_)
     throw std::logic_error("Query<Result, DirectBinding>::resultList() "
-			   "may be called only once");
+                           "may be called only once");
 
   SqlStatement *s = this->statement_, *cs = this->countStatement_;
   this->statement_ = this->countStatement_ = nullptr;
@@ -297,9 +297,9 @@ void Query<Result, DirectBinding>::prepareStatements() const
 
   this->session_->flush();
 
-  std::tie(this->statement_, this->countStatement_) 
+  std::tie(this->statement_, this->countStatement_)
     = this->statements(std::string(), std::string(), std::string(), std::string(),
-		       std::string(), -1, -1);
+                       std::string(), -1, -1);
 
   column_ = 0;
 }
@@ -331,8 +331,8 @@ Query<Result, DynamicBinding>::Query(Session& session, const std::string& sql)
 
 template <class Result>
 Query<Result, DynamicBinding>::Query(Session& session,
-				     const std::string& table,
-				     const std::string& where)
+                                     const std::string& table,
+                                     const std::string& where)
   : Impl::QueryBase<Result>(session, table, where)
 { }
 

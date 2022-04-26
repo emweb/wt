@@ -47,7 +47,7 @@ namespace Wt {
  * %WLabel is an \link WWidget::setInline(bool) inline \endlink widget.
  *
  * <h3>CSS</h3>
- * 
+ *
  * This widget does not provide styling, and can be styled using
  * inline or external CSS as appropriate.  A label's text may be
  * styled via a nested <tt>&lt;span&gt;</tt> element, and it's
@@ -79,7 +79,7 @@ public:
   /*! \brief Sets the buddy of this label.
    *
    * Sets the buddy FormWidget for which this label acts as a proxy.
-   * 
+   *
    * \sa WFormWidget::label(), buddy()
    */
   void setBuddy(WFormWidget *buddy);
@@ -154,14 +154,14 @@ private:
   bool buddyChanged_, newImage_, newText_;
 
 protected:
-  virtual void           updateDom(DomElement& element, bool all) override;
+  virtual void updateDom(DomElement& element, bool all) override;
   virtual DomElementType domElementType() const override;
-  virtual void           getDomChanges(std::vector<DomElement *>& result,
+  virtual void getDomChanges(std::vector<DomElement *>& result,
                                        WApplication *app) override;
-  virtual void           propagateRenderOk(bool deep) override;
-  virtual void           propagateSetEnabled(bool enabled) override;
+  virtual void propagateRenderOk(bool deep) override;
+  virtual void propagateSetEnabled(bool enabled) override;
 
-  virtual void		 iterateChildren(const HandleWidgetMethod &method) const override;
+  virtual void iterateChildren(const HandleWidgetMethod &method) const override;
 
   void updateImage(DomElement& element, bool all, WApplication *app, int pos);
   void updateText(DomElement& element, bool all, WApplication *app, int pos);

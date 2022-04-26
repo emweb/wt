@@ -20,9 +20,9 @@ std::string::const_iterator ifind_last_as(const std::string &name)
     }
 
 FieldInfo::FieldInfo(const std::string& name,
-		     const std::type_info *type,
-		     const std::string& sqlType,
-		     int flags)
+                     const std::type_info *type,
+                     const std::string& sqlType,
+                     int flags)
   : name_(name),
     sqlType_(sqlType),
     type_(type),
@@ -30,10 +30,10 @@ FieldInfo::FieldInfo(const std::string& name,
 { }
 
 FieldInfo::FieldInfo(const std::string& name, const std::type_info *type,
-		     const std::string& sqlType,
-		     const std::string& foreignKeyTable,
-		     const std::string& foreignKeyName,
-		     int flags, int fkConstraints)
+                     const std::string& sqlType,
+                     const std::string& foreignKeyTable,
+                     const std::string& foreignKeyName,
+                     int flags, int fkConstraints)
   : name_(name),
     sqlType_(sqlType),
     foreignKeyName_(foreignKeyName),

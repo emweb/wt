@@ -68,8 +68,8 @@ public:
   };
 
   WebSession(WebController *controller, const std::string& sessionId,
-	     EntryPointType type, const std::string& favicon,
-	     const WebRequest *request, WEnvironment *env = nullptr);
+             EntryPointType type, const std::string& favicon,
+             const WebRequest *request, WEnvironment *env = nullptr);
   ~WebSession();
 
 #ifdef WT_TARGET_JAVA
@@ -153,7 +153,7 @@ public:
     const;
 
   std::string appendInternalPath(const std::string& url,
-				 const std::string& internalPath) const;
+                                 const std::string& internalPath) const;
 
   std::string appendSessionQuery(const std::string& url) const;
 
@@ -192,7 +192,7 @@ public:
 
     Handler();
     Handler(const std::shared_ptr<WebSession>& session,
-	    WebRequest& request, WebResponse& response);
+            WebRequest& request, WebResponse& response);
     Handler(const std::shared_ptr<WebSession>& session, LockOption lockOption);
     Handler(WebSession *session);
     ~Handler();
@@ -279,11 +279,11 @@ private:
 #ifndef WT_TARGET_JAVA
   void handleWebSocketRequest(Handler& handler);
   static void handleWebSocketMessage(std::weak_ptr<WebSession> session,
-				     WebReadEvent event);
+                                     WebReadEvent event);
   static void webSocketConnect(std::weak_ptr<WebSession> session,
-			       WebWriteEvent event);
+                               WebWriteEvent event);
   static void webSocketReady(std::weak_ptr<WebSession> session,
-			     WebWriteEvent event);
+                             WebWriteEvent event);
 #endif
 
   void checkTimers();
@@ -353,13 +353,13 @@ private:
   void pushUpdates();
   WResource *decodeResource(const std::string& resourceId);
   EventSignalBase *decodeSignal(const std::string& signalId,
-				bool checkExposed) const;
+                                bool checkExposed) const;
   EventSignalBase *decodeSignal(const std::string& objectId,
-				const std::string& signalName,
-				bool checkExposed) const;
+                                const std::string& signalName,
+                                bool checkExposed) const;
 
   static WObject::FormData getFormData(const WebRequest& request,
-				       const std::string& name);
+                                       const std::string& name);
 
   void render(Handler& handler);
   void serveError(int status, Handler& handler, const std::string& exception);
@@ -376,7 +376,7 @@ private:
   void propagateFormValues(const WEvent& e, const std::string& se);
 
   const std::string *getSignal(const WebRequest& request,
-			       const std::string& se) const;
+                               const std::string& se) const;
 
   void init(const WebRequest& request);
   bool start(WebResponse *response);

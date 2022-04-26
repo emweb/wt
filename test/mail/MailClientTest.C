@@ -20,25 +20,25 @@ BOOST_AUTO_TEST_CASE( mail_test1 )
   m.setFrom(Mailbox("bas@kode.be", "Bas Deforche"));
   m.addRecipient(RecipientType::To, Mailbox("koen@emweb.be", "Koen Deforche"));
   m.addRecipient(RecipientType::Bcc,
-		 Mailbox("koen.deforche@gmail.com",
-			 WString::fromUTF8("Koen Deforche")));
+                 Mailbox("koen.deforche@gmail.com",
+                         WString::fromUTF8("Koen Deforche")));
   m.setSubject(WString::fromUTF8("Hey there, \xe2\x82\xac !"));
   m.setBody(WString::fromUTF8
-	    ("Body here \xe2\x82\xac\n"
-	     "We have been working hard\n"
-	     ".beware this\n"
-	     "And long lines should be properly split using a soft line end,"
-	     "let's see how that turns out.\n"
-	     "But a space before a new line needs some special handling. \n"
-	     "Are we good?"));
+            ("Body here \xe2\x82\xac\n"
+             "We have been working hard\n"
+             ".beware this\n"
+             "And long lines should be properly split using a soft line end,"
+             "let's see how that turns out.\n"
+             "But a space before a new line needs some special handling. \n"
+             "Are we good?"));
   m.addHtmlBody(WString::fromUTF8
-		("<div>"
-		 "<h1>HTML body here</h1>"
-		 "Long lines should be properly split using a soft line "
-		 "end, let's see how that turns out.<br>"
-		 "This is necessary to make lots of \xe2\x82\xac! "
-		 "Please visit <a href=\"http://www.emweb.be\">Emweb</a>."
-		 "</div>"));
+                ("<div>"
+                 "<h1>HTML body here</h1>"
+                 "Long lines should be properly split using a soft line "
+                 "end, let's see how that turns out.<br>"
+                 "This is necessary to make lots of \xe2\x82\xac! "
+                 "Please visit <a href=\"http://www.emweb.be\">Emweb</a>."
+                 "</div>"));
 
 #if 0
   Client c;
@@ -56,23 +56,23 @@ BOOST_AUTO_TEST_CASE( mail_test2 )
   m.setDate(WLocalDateTime::currentServerDateTime());
   m.addRecipient(RecipientType::To, Mailbox("koen@emweb.be", "Koen Deforche"));
   m.addRecipient(RecipientType::Bcc,
-		 Mailbox("koen.deforche@gmail.com",
-			 WString::fromUTF8("Koen Deforche")));
+                 Mailbox("koen.deforche@gmail.com",
+                         WString::fromUTF8("Koen Deforche")));
   m.setSubject(WString::fromUTF8("Hey there, \xe2\x82\xac !"));
   m.setBody(WString::fromUTF8
-	    ("Body here \xe2\x82\xac\n"
-	     "We have been working hard\n"
-	     ".beware this\n"
-	     "And long lines should be properly split using a soft line end,"
-	     "let's see how that turns out."));
+            ("Body here \xe2\x82\xac\n"
+             "We have been working hard\n"
+             ".beware this\n"
+             "And long lines should be properly split using a soft line end,"
+             "let's see how that turns out."));
   m.addHtmlBody(WString::fromUTF8
-		("<div>"
-		 "<h1>HTML body here</h1>"
-		 "Long lines should be properly split using a soft line "
-		 "end, let's see how that turns out.<br>"
-		 "This is necessary to make lots of \xe2\x82\xac! "
-		 "Please visit <a href=\"http://www.emweb.be\">Emweb</a>."
-		 "</div>"));
+                ("<div>"
+                 "<h1>HTML body here</h1>"
+                 "Long lines should be properly split using a soft line "
+                 "end, let's see how that turns out.<br>"
+                 "This is necessary to make lots of \xe2\x82\xac! "
+                 "Please visit <a href=\"http://www.emweb.be\">Emweb</a>."
+                 "</div>"));
   std::ifstream pdf("test.pdf");
   m.addAttachment("application/pdf", "hello.pdf", &pdf);
 

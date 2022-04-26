@@ -93,8 +93,8 @@ const User& EmailTokenResult::user() const
 }
 
 AuthTokenResult::AuthTokenResult(AuthTokenState state, const User& user,
-				 const std::string& newToken,
-				 int newTokenValidity)
+                                 const std::string& newToken,
+                                 int newTokenValidity)
   : state_(state),
     user_(user),
     newToken_(newToken),
@@ -167,7 +167,7 @@ void AuthService::setIdentityPolicy(IdentityPolicy identityPolicy)
 }
 
 void AuthService::setAuthTokensEnabled(bool enabled, const std::string& cookieName,
-				       const std::string& cookieDomain)
+                                       const std::string& cookieDomain)
 {
   authTokens_ = enabled;
   authTokenCookieName_ = cookieName;
@@ -175,12 +175,12 @@ void AuthService::setAuthTokensEnabled(bool enabled, const std::string& cookieNa
 }
 
 User AuthService::identifyUser(const Identity& identity,
-			    AbstractUserDatabase& users) const
+                            AbstractUserDatabase& users) const
 {
   std::unique_ptr<AbstractUserDatabase::Transaction> t(users.startTransaction());
 
   User user = users.findWithIdentity(identity.provider(),
-				     WString::fromUTF8(identity.id()));
+                                     WString::fromUTF8(identity.id()));
 
   if (user.isValid()) {
     if (t.get())
@@ -204,12 +204,12 @@ User AuthService::identifyUser(const Identity& identity,
     if (emailVerification_ && identity.emailVerified()) {
       user = users.findWithEmail(identity.email());
       if (user.isValid()) {
-	user.addIdentity(identity.provider(), identity.id());
+        user.addIdentity(identity.provider(), identity.id());
 
-	if (t.get())
-	  t->commit();
+        if (t.get())
+          t->commit();
 
-	return user;
+        return user;
       }
     }
   }
@@ -251,7 +251,7 @@ std::string AuthService::createAuthToken(const User& user) const
 }
 
 AuthTokenResult AuthService::processAuthToken(const std::string& token,
-					      AbstractUserDatabase& users) const
+                                              AbstractUserDatabase& users) const
 {
   std::unique_ptr<AbstractUserDatabase::Transaction> t(users.startTransaction());
 
@@ -285,7 +285,7 @@ AuthTokenResult AuthService::processAuthToken(const std::string& token,
   } else {
     if (t.get())
       t->commit();
-    
+
     return AuthTokenResult(AuthTokenState::Invalid);
   }
 }
@@ -299,13 +299,13 @@ void AuthService::verifyEmailAddress(const User& user, const std::string& addres
   std::string hash = tokenHashFunction()->compute(random, std::string());
 
   Token t(hash,
-	  WDateTime::currentDateTime().addSecs(emailTokenValidity_ * 60));
+          WDateTime::currentDateTime().addSecs(emailTokenValidity_ * 60));
   user.setEmailToken(t, EmailTokenRole::VerifyEmail);
   sendConfirmMail(address, user, random);
 }
 
 void AuthService::lostPassword(const std::string& emailAddress,
-				   AbstractUserDatabase& users) const
+                               AbstractUserDatabase& users) const
 {
   /*
    * This will check that a user exists in the database, and if so,
@@ -328,7 +328,7 @@ void AuthService::lostPassword(const std::string& emailAddress,
 
 std::string AuthService::parseEmailToken(const std::string& internalPath) const
 {
-  if (emailVerification_ && 
+  if (emailVerification_ &&
       WApplication::pathMatches(internalPath, redirectInternalPath_))
     return internalPath.substr(redirectInternalPath_.length());
   else
@@ -336,7 +336,7 @@ std::string AuthService::parseEmailToken(const std::string& internalPath) const
 }
 
 EmailTokenResult AuthService::processEmailToken(const std::string& token,
-					     AbstractUserDatabase& users) const
+                                                AbstractUserDatabase& users) const
 {
   std::unique_ptr<AbstractUserDatabase::Transaction> tr(users.startTransaction());
 
@@ -351,7 +351,7 @@ EmailTokenResult AuthService::processEmailToken(const std::string& token,
       user.clearEmailToken();
 
       if (tr.get())
-	tr->commit();
+        tr->commit();
 
       return EmailTokenResult(EmailTokenState::Expired);
     }
@@ -359,7 +359,7 @@ EmailTokenResult AuthService::processEmailToken(const std::string& token,
     switch (user.emailTokenRole()) {
     case EmailTokenRole::LostPassword:
       if (tr.get())
-	tr->commit();
+        tr->commit();
 
       return EmailTokenResult(EmailTokenState::UpdatePassword, user);
 
@@ -369,13 +369,13 @@ EmailTokenResult AuthService::processEmailToken(const std::string& token,
       user.setUnverifiedEmail(std::string());
 
       if (tr.get())
-	tr->commit();
+        tr->commit();
 
       return EmailTokenResult(EmailTokenState::EmailConfirmed, user);
 
     default:
       if (tr.get())
-	tr->commit();
+        tr->commit();
 
       return EmailTokenResult(EmailTokenState::Invalid); // Unreachable
     }
@@ -394,7 +394,7 @@ std::string AuthService::createRedirectUrl(const std::string& token) const
 }
 
 void AuthService::sendConfirmMail(const std::string& address,
-				  const User& user, const std::string& token)
+                                  const User& user, const std::string& token)
   const
 {
   Mail::Message message;
@@ -404,18 +404,18 @@ void AuthService::sendConfirmMail(const std::string& address,
   message.addRecipient(Mail::RecipientType::To, Mail::Mailbox(address));
   message.setSubject(WString::tr("Wt.Auth.confirmmail.subject"));
   message.setBody(WString::tr("Wt.Auth.confirmmail.body")
-		  .arg(user.identity(Identity::LoginName))
-		  .arg(token).arg(url));
+                  .arg(user.identity(Identity::LoginName))
+                  .arg(token).arg(url));
   message.addHtmlBody(WString::tr("Wt.Auth.confirmmail.htmlbody")
-		      .arg(user.identity(Identity::LoginName))
-		      .arg(token).arg(url));
+                      .arg(user.identity(Identity::LoginName))
+                      .arg(token).arg(url));
 
   sendMail(message);
 }
 
 void AuthService::sendLostPasswordMail(const std::string& address,
-				    const User& user,
-				    const std::string& token) const
+                                       const User& user,
+                                       const std::string& token) const
 {
   Mail::Message message;
 
@@ -424,11 +424,11 @@ void AuthService::sendLostPasswordMail(const std::string& address,
   message.addRecipient(Mail::RecipientType::To, Mail::Mailbox(address));
   message.setSubject(WString::tr("Wt.Auth.lostpasswordmail.subject"));
   message.setBody(WString::tr("Wt.Auth.lostpasswordmail.body")
-		  .arg(user.identity(Identity::LoginName))
-		  .arg(token).arg(url));
+                  .arg(user.identity(Identity::LoginName))
+                  .arg(token).arg(url));
   message.addHtmlBody(WString::tr("Wt.Auth.lostpasswordmail.htmlbody")
-		      .arg(user.identity(Identity::LoginName))
-		      .arg(token).arg(url));
+                      .arg(user.identity(Identity::LoginName))
+                      .arg(token).arg(url));
 
   sendMail(message);
 }
@@ -442,9 +442,9 @@ void AuthService::sendMail(const Mail::Message& message) const
     std::string senderAddress = "noreply-auth@www.webtoolkit.eu";
 
     WApplication::readConfigurationProperty("auth-mail-sender-name",
-					    senderName);
+                                            senderName);
     WApplication::readConfigurationProperty("auth-mail-sender-address",
-					    senderAddress);
+                                            senderAddress);
 #ifndef WT_TARGET_JAVA
     m.setFrom(Mail::Mailbox(senderAddress, WString::fromUTF8(senderName)));
 #else

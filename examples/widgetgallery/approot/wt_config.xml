@@ -1,8 +1,8 @@
 <server>
     <application-settings location="*">
 
-    	<user-agents type="bot">
-      	    <user-agent>.*Googlebot.*</user-agent>
+            <user-agents type="bot">
+                  <user-agent>.*Googlebot.*</user-agent>
             <user-agent>.*msnbot.*</user-agent>
             <user-agent>.*Slurp.*</user-agent>
             <user-agent>.*Crawler.*</user-agent>
@@ -28,20 +28,20 @@
           </trusted-proxies>
         </trusted-proxy-config>
 
-	<bootstrap-method>
-	  <for path="*">progressive</for>
-	  <for path="/forms/check-boxes">default</for>
-	  <for path="/forms/slider">default</for>
-	  <for path="/forms/line_text-editor">default</for>
-	  <for path="/trees-tables/mvc-table-views">default</for>
-	  <for path="/trees-tables/mvc-tree-views">default</for>
-	  <for path="/trees-tables/mvc-item-models">default</for>
-	  <for path="/layout/layout-managers">default</for>
-	  <for path="/graphics-charts/*">default</for>
-	</bootstrap-method>
+        <bootstrap-method>
+          <for path="*">progressive</for>
+          <for path="/forms/check-boxes">default</for>
+          <for path="/forms/slider">default</for>
+          <for path="/forms/line_text-editor">default</for>
+          <for path="/trees-tables/mvc-table-views">default</for>
+          <for path="/trees-tables/mvc-tree-views">default</for>
+          <for path="/trees-tables/mvc-item-models">default</for>
+          <for path="/layout/layout-managers">default</for>
+          <for path="/graphics-charts/*">default</for>
+        </bootstrap-method>
 
-	<!-- <log-config>debug:wthttp/async</log-config> -->
-	<UA-Compatible>IE8=IE7</UA-Compatible>
+        <!-- <log-config>debug:wthttp/async</log-config> -->
+        <UA-Compatible>IE8=IE7</UA-Compatible>
 
         <properties>
             <property name="leafletJSURL">https://unpkg.com/leaflet@1.5.1/dist/leaflet.js</property>

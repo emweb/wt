@@ -24,8 +24,8 @@ class WImage;
  * The widget may react to click events, by changing state.
  *
  * <h3>CSS</h3>
- * 
- * This widget does not provide styling, 
+ *
+ * This widget does not provide styling,
  * and can be styled using inline or external CSS as appropriate.
  * The image may be styled via the <tt>&lt;img&gt;</tt> elements.
  */
@@ -39,7 +39,7 @@ public:
    * switch state.
    */
   WIconPair(const std::string& icon1URL, const std::string& icon2URL,
-	    bool clickIsSwitch = true);
+            bool clickIsSwitch = true);
 
   /*! \brief Sets the state, which determines the visible icon.
    *
@@ -60,7 +60,7 @@ public:
   /*! \brief Returns the first icon image
    */
   WImage *icon1() const { return icon1_; }
-  
+
   /*! \brief Returns the second icon image
    */
   WImage *icon2() const { return icon2_; }
@@ -74,7 +74,7 @@ public:
   /*! \brief Sets the state to 1 (show icon 2).
    *
    * \sa setState(int)
-   */ 
+   */
   void showIcon2();
 
   /*! \brief %Signal emitted when clicked while in state 0 (icon 1 is

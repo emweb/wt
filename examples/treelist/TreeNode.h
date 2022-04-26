@@ -105,7 +105,7 @@ private:
   IconPair                 *expandIcon_;
 
   //! The single image shown instead of the expand/collapse icon when no children.
-  WImage		   *noExpandIcon_;
+  WImage                   *noExpandIcon_;
 
   //! The icon next to the label.
   IconPair                 *labelIcon_;

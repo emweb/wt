@@ -87,50 +87,50 @@ NumericalExample::NumericalExample()
 //   Wt::WPushButton *button = this->addWidget(std::make_unique<Wt::WPushButton>("show camera-matrix"));
 //   Wt::WText *box = this->addWidget(std::make_unique<Wt::WText>("Nothing yet"));
 //   button->clicked().connect([=]() {
-//   	const Wt::WMatrix4x4& mat = chart_->cameraMatrix();
-//   	std::stringstream matrep;
-//   	for (int i=0; i<4; i++){
-//   	  matrep << "[";
-//   	  for (int j=0; j<4; j++) {
-//   	    matrep << (Wt::asString(mat(i,j), "%.2f")).toUTF8();
-//   	    matrep << (j!=3 ? "," : "");
-//   	  }
-//   	  matrep << "]" << std::endl;
-//   	}
-//   	box->setText(matrep.str());
+//           const Wt::WMatrix4x4& mat = chart_->cameraMatrix();
+//           std::stringstream matrep;
+//           for (int i=0; i<4; i++){
+//             matrep << "[";
+//             for (int j=0; j<4; j++) {
+//               matrep << (Wt::asString(mat(i,j), "%.2f")).toUTF8();
+//               matrep << (j!=3 ? "," : "");
+//             }
+//             matrep << "]" << std::endl;
+//           }
+//           box->setText(matrep.str());
 //       });
   Wt::WPushButton *button1 = this->addWidget(std::make_unique<Wt::WPushButton>("perspective view"));
   Wt::WPushButton *button2 = this->addWidget(std::make_unique<Wt::WPushButton>("top view"));
   Wt::WPushButton *button3 = this->addWidget(std::make_unique<Wt::WPushButton>("side view"));
   Wt::WMatrix4x4 worldTransform;
   worldTransform.lookAt(
-		   0.5, 0.5, 5, // camera position
-		   0.5, 0.5, 0.5,      // looking at
-		   0, 1, 0);        // 'up' vector
+                   0.5, 0.5, 5, // camera position
+                   0.5, 0.5, 0.5,      // looking at
+                   0, 1, 0);        // 'up' vector
   button1->clicked().connect([=]() {
         Wt::WMatrix4x4 cameraMat = worldTransform;
-	cameraMat.translate(0.5, 0.5, 0.5);
-	cameraMat.rotate(45.0, 0.0, 1.0, 0.0);
-	cameraMat.rotate(20.0, 1.0, 0.0, 1.0);
-	cameraMat.scale(2);
-	cameraMat.translate(-0.5, -0.5, -0.5);
-	chart_->setCameraMatrix(cameraMat);
+        cameraMat.translate(0.5, 0.5, 0.5);
+        cameraMat.rotate(45.0, 0.0, 1.0, 0.0);
+        cameraMat.rotate(20.0, 1.0, 0.0, 1.0);
+        cameraMat.scale(2);
+        cameraMat.translate(-0.5, -0.5, -0.5);
+        chart_->setCameraMatrix(cameraMat);
       });
   button2->clicked().connect([=]() {
         Wt::WMatrix4x4 cameraMat = worldTransform;
-	cameraMat.translate(0.5, 0.5, 0.5);
-	cameraMat.rotate(90.0, 1.0, 0.0, 0.0);
-	cameraMat.scale(2);
-	cameraMat.translate(-0.5, -0.5, -0.5);
-	chart_->setCameraMatrix(cameraMat);
+        cameraMat.translate(0.5, 0.5, 0.5);
+        cameraMat.rotate(90.0, 1.0, 0.0, 0.0);
+        cameraMat.scale(2);
+        cameraMat.translate(-0.5, -0.5, -0.5);
+        chart_->setCameraMatrix(cameraMat);
       });
   button3->clicked().connect([=]() {
         Wt::WMatrix4x4 cameraMat = worldTransform;
-	cameraMat.translate(0.5, 0.5, 0.5);
-	cameraMat.rotate(90.0, 0.0, 1.0, 0.0);
-	cameraMat.scale(2);
-	cameraMat.translate(-0.5, -0.5, -0.5);
-	chart_->setCameraMatrix(cameraMat);
+        cameraMat.translate(0.5, 0.5, 0.5);
+        cameraMat.rotate(90.0, 0.0, 1.0, 0.0);
+        cameraMat.scale(2);
+        cameraMat.translate(-0.5, -0.5, -0.5);
+        chart_->setCameraMatrix(cameraMat);
       });
 }
 

@@ -28,7 +28,7 @@ WDatePicker::WDatePicker()
 }
 
 WDatePicker::WDatePicker(std::unique_ptr<WInteractWidget> displayWidget,
-			 WLineEdit *forEdit)
+                         WLineEdit *forEdit)
 {
   create(std::move(displayWidget), forEdit);
 }
@@ -42,7 +42,7 @@ WDatePicker::~WDatePicker()
 { }
 
 void WDatePicker::create(std::unique_ptr<WInteractWidget> displayWidget,
-			 WLineEdit *forEdit)
+                         WLineEdit *forEdit)
 {
   auto layout = std::make_unique<WContainerWidget>();
   layout_ = layout.get();
@@ -162,8 +162,8 @@ void WDatePicker::setFromLineEdit()
     } else {
       WDate j = Utils::first(calendar_->selection());
       if (j != d) {
-	calendar_->select(d);
-	calendar_->selectionChanged().emit();
+        calendar_->select(d);
+        calendar_->selectionChanged().emit();
       }
     }
 
@@ -205,11 +205,11 @@ WDate WDatePicker::bottom() const
   std::shared_ptr<WDateValidator> dv = dateValidator();
   if (dv)
     return dv->bottom();
-  else 
+  else
     return WDate();
 }
-  
-void WDatePicker::setTop(const WDate& top) 
+
+void WDatePicker::setTop(const WDate& top)
 {
   std::shared_ptr<WDateValidator> dv = dateValidator();
   if (dv) {
@@ -223,7 +223,7 @@ WDate WDatePicker::top() const
   std::shared_ptr<WDateValidator> dv = dateValidator();
   if (dv)
     return dv->top();
-  else 
+  else
     return WDate();
 }
 

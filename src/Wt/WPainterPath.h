@@ -27,7 +27,7 @@ enum SegmentType {
 
   /*! \brief first control point of cubic bezier curve.
    *
-   * Always followed by a CubicC2 and CubicEnd segment 
+   * Always followed by a CubicC2 and CubicEnd segment
    */
   CubicC1 = 2,
 
@@ -105,12 +105,12 @@ enum SegmentType {
  * \elseif java
  * \code
  * WPainter painter = new WPainter();
- *	 
+ *
  * WPainterPath path = new WPainterPath(new WPointF(10, 10));
  * path.lineTo(10, 20);
  * path.lineTo(30, 20);
  * path.closeSubPath();
- *		 
+ *
  * painter.setPen(new WPen(WColor.red));
  * painter.setBrush(new WBrush(WColor.blue));
  * painter.drawPath(path);
@@ -139,7 +139,7 @@ enum SegmentType {
  * \endcode
  *
  * \warning A %WPainterPath that is JavaScript exposed should be modified only through its \link WJavaScriptHandle handle\endlink.
- *	    Any attempt at modifying it will cause an exception to be thrown.
+ *          Any attempt at modifying it will cause an exception to be thrown.
  *
  * \sa WPainter::drawPath(), WPaintedWidget::createJSPainterPath()
  *
@@ -192,7 +192,7 @@ public:
    *
    * Returns \c true if the paths are exactly the same.
    */
-  bool operator== (const WPainterPath& path) const;  
+  bool operator== (const WPainterPath& path) const;
 
   /*! \brief Comparison operator.
    *
@@ -209,7 +209,7 @@ public:
    * \throws WException if the path \link isJavaScriptBound() is JavaScript bound\endlink
    */
   void closeSubPath();
-  
+
   /*! \brief Moves the current position to a new location.
    *
    * Moves the current position to a new point, implicitly closing the last
@@ -220,7 +220,7 @@ public:
    * \sa closeSubPath(), moveTo(double, double), setOpenSubPathsEnabled(bool)
    */
   void moveTo(const WPointF& point);
-  
+
   /*! \brief Moves the current position to a new location.
    *
    * Moves the current position to a new point, implicitly closing the last
@@ -231,7 +231,7 @@ public:
    * \sa closeSubPath(), moveTo(const WPointF&), setOpenSubPathsEnabled(bool)
    */
   void moveTo(double x, double y);
-  
+
   /*! \brief Draws a straight line.
    *
    * Draws a straight line from the current position to \p point,
@@ -242,7 +242,7 @@ public:
    * \sa lineTo(double, double)
    */
   void lineTo(const WPointF& point);
-  
+
   /*! \brief Draws a straight line.
    *
    * Draws a straight line from the current position to (\p x,
@@ -253,7 +253,7 @@ public:
    * \sa lineTo(const WPointF&)
    */
   void lineTo(double x, double y);
-  
+
   /*! \brief Draws a cubic bezier curve.
    *
    * Draws a cubic bezier curve from the current position to
@@ -265,7 +265,7 @@ public:
    * \sa cubicTo(double, double, double, double, double, double)
    */
   void cubicTo(const WPointF& c1, const WPointF& c2, const WPointF& endPoint);
-  
+
   /*! \brief Draws a cubic bezier curve.
    *
    * This is an overloaded method provided for convenience.
@@ -275,8 +275,8 @@ public:
    * \sa cubicTo(const WPointF&, const WPointF&, const WPointF&)
    */
   void cubicTo(double c1x, double c1y, double c2x, double c2y,
-	       double endPointx, double endPointy);
-  
+               double endPointx, double endPointy);
+
   /*! \brief Draws an arc.
    *
    * Draws an arc which is a segment of a circle. The circle is
@@ -293,7 +293,7 @@ public:
    * \sa arcMoveTo()
    */
   void arcTo(double cx, double cy, double radius,
-	     double startAngle, double spanAngle);
+             double startAngle, double spanAngle);
 
   /*! \brief Moves to a point on an arc.
    *
@@ -439,7 +439,7 @@ public:
 
   /*! \brief A segment.
    */
-  class Segment 
+  class Segment
   {
   public:
     /*! The x parameter
@@ -457,7 +457,7 @@ public:
      * else.
      */
     double y() const { return y_; }
-    
+
     /*! The type of the segment
      */
     SegmentType type() const { return type_; }
@@ -534,10 +534,10 @@ private:
   WPointF beginPosition() const;
 
   static WPointF getArcPosition(double cx, double cy, double rx, double ry,
-				double angle);
+                                double angle);
 
   void arcTo(double x, double y, double width, double height,
-	     double startAngle, double sweepLength);
+             double startAngle, double sweepLength);
 
   friend class WSvgImage;
   friend WPainterPath WTransform::map(const WPainterPath& path) const;

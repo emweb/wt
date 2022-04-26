@@ -36,7 +36,7 @@ namespace Wt {
  * Selection is rendered by calling WTreeNode::renderSelected(bool). Only
  * tree nodes that are \link WTreeNode::setSelectable(bool) selectable\endlink
  * may participate in the selection.
- * 
+ *
  * \if cpp
  * Usage example:
  * \code
@@ -68,7 +68,7 @@ namespace Wt {
  * \endif
  *
  * A screenshot of the tree:
- * <TABLE border="0" align="center"> <TR> <TD> 
+ * <TABLE border="0" align="center"> <TR> <TD>
  * \image html WTree-default-1.png "An example WTree (default)"
  * </TD> <TD>
  * \image html WTree-polished-1.png "An example WTree (polished)"
@@ -103,7 +103,7 @@ public:
 
   /*! \brief Returns the selection mode.
    */
-  SelectionMode selectionMode() const { return selectionMode_; } 
+  SelectionMode selectionMode() const { return selectionMode_; }
 
   /*! \brief Typedef for a set of WTreeNode's.
    */

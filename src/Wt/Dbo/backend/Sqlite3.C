@@ -77,12 +77,12 @@ public:
 
 #if SQLITE_VERSION_NUMBER >= 3003009
     int err = sqlite3_prepare_v2(db_.connection(), sql.c_str(),
-				 static_cast<int>(sql.length() + 1), &st_, 
-				 nullptr);
+                                 static_cast<int>(sql.length() + 1), &st_,
+                                 nullptr);
 #else
     int err = sqlite3_prepare(db_.connection(), sql.c_str(),
-			      static_cast<int>(sql.length() + 1), &st_, 
-			      nullptr);
+                              static_cast<int>(sql.length() + 1), &st_,
+                              nullptr);
 #endif
 
     handleErr(err);
@@ -113,8 +113,8 @@ public:
     LOG_DEBUG(this << " bind " << column << " " << value);
 
     int err = sqlite3_bind_text(st_, column + 1, value.c_str(),
-				static_cast<int>(value.length()),
-				SQLITE_TRANSIENT);
+                                static_cast<int>(value.length()),
+                                SQLITE_TRANSIENT);
 
     handleErr(err);
   }
@@ -175,7 +175,7 @@ public:
   }
 
   virtual void bind(int column, const std::chrono::system_clock::time_point& value,
-		    SqlDateTimeType type) override
+                    SqlDateTimeType type) override
   {
     DateTimeStorage storageType = db_.dateTimeStorage(type);
     std::time_t t = std::chrono::system_clock::to_time_t(value);
@@ -199,8 +199,8 @@ public:
         ss << "." << std::setfill('0') << std::setw(3) << ms.count()%1000;
         v.append(ss.str());
 
-	if (storageType == DateTimeStorage::PseudoISO8601AsText)
-	  v[v.find('T')] = ' ';
+        if (storageType == DateTimeStorage::PseudoISO8601AsText)
+          v[v.find('T')] = ' ';
       }
 
       bind(column, v);
@@ -232,7 +232,7 @@ public:
       std::tm *tmDiff = thread_local_gmtime(&tdiff);
       std::chrono::milliseconds millis = std::chrono::duration_cast<std::chrono::milliseconds>(diff.time_since_epoch());
       bind(column,
-	   static_cast<long long>
+           static_cast<long long>
        ((tmDiff->tm_hour * 3600 + tmDiff->tm_min * 60 + tmDiff->tm_sec)*1000 + millis.count()%1000));
       break;
     };
@@ -246,9 +246,9 @@ public:
 
     if (value.size() == 0)
       err = sqlite3_bind_blob(st_, column + 1, "", 0, SQLITE_TRANSIENT);
-    else 
+    else
       err = sqlite3_bind_blob(st_, column + 1, &(*(value.begin())),
-			      static_cast<int>(value.size()), SQLITE_TRANSIENT);
+                              static_cast<int>(value.size()), SQLITE_TRANSIENT);
 
     handleErr(err);
   }
@@ -290,7 +290,7 @@ public:
   {
     return sqlite3_changes(db_.connection());
   }
-  
+
   virtual bool nextRow() override
   {
     switch (state_) {
@@ -302,23 +302,23 @@ public:
       return true;
     case NextRow:
       {
-	int result = sqlite3_step(st_);
+        int result = sqlite3_step(st_);
 
-	if (result == SQLITE_ROW)
-	  return true;
-	else {
-	  state_ = Done;
-	  if (result == SQLITE_DONE)
-	    return false;
+        if (result == SQLITE_ROW)
+          return true;
+        else {
+          state_ = Done;
+          if (result == SQLITE_DONE)
+            return false;
 
-	  handleErr(result);
-	}
+          handleErr(result);
+        }
       }
       break;
     case Done:
       done();
       throw Sqlite3Exception("Sqlite3: nextRow(): statement already finished");
-    }      
+    }
 
     return false;
   }
@@ -425,7 +425,7 @@ public:
   }
 
   virtual bool getResult(int column, std::chrono::system_clock::time_point *value,
-			 SqlDateTimeType type) override
+                         SqlDateTimeType type) override
   {
     DateTimeStorage storageType = db_.dateTimeStorage(type);
 
@@ -434,42 +434,42 @@ public:
     case DateTimeStorage::PseudoISO8601AsText: {
       std::string v;
       if (!getResult(column, &v, -1))
-	return false;
+        return false;
 
       try {
-    if (type == SqlDateTimeType::Date){
-      int year, month, day;
-      std::sscanf(v.c_str(), "%d-%d-%d", &year, &month, &day);
-      std::tm tm = std::tm();
-      tm.tm_year = year - 1900;
-      tm.tm_mon = month - 1;
-      tm.tm_mday = day;
-      std::time_t t = timegm(&tm);
-      *value = std::chrono::system_clock::from_time_t(t);
-    } else {
-	  std::size_t t = v.find('T');
+        if (type == SqlDateTimeType::Date) {
+          int year, month, day;
+          std::sscanf(v.c_str(), "%d-%d-%d", &year, &month, &day);
+          std::tm tm = std::tm();
+          tm.tm_year = year - 1900;
+          tm.tm_mon = month - 1;
+          tm.tm_mday = day;
+          std::time_t t = timegm(&tm);
+          *value = std::chrono::system_clock::from_time_t(t);
+        } else {
+          std::size_t t = v.find('T');
 
-	  if (t != std::string::npos)
-	    v[t] = ' ';
-	  if (v.length() > 0 && v[v.length() - 1] == 'Z')
-	    v.erase(v.length() - 1);
+          if (t != std::string::npos)
+            v[t] = ' ';
+          if (v.length() > 0 && v[v.length() - 1] == 'Z')
+            v.erase(v.length() - 1);
 
-      int year, month, day, hour, min, sec, ms;
-      std::sscanf(v.c_str(), "%d-%d-%d %d:%d:%d.%d", &year, &month, &day, &hour, &min, &sec, &ms);
-      std::tm tm = std::tm();
-      tm.tm_year = year - 1900;
-      tm.tm_mon = month - 1;
-      tm.tm_mday = day;
-      tm.tm_hour = hour;
-      tm.tm_min = min;
-      tm.tm_sec = sec;
-      std::time_t timet = timegm(&tm);
-      *value = std::chrono::system_clock::from_time_t(timet);
-      *value += std::chrono::milliseconds(ms);
-	}
+          int year, month, day, hour, min, sec, ms;
+          std::sscanf(v.c_str(), "%d-%d-%d %d:%d:%d.%d", &year, &month, &day, &hour, &min, &sec, &ms);
+          std::tm tm = std::tm();
+          tm.tm_year = year - 1900;
+          tm.tm_mon = month - 1;
+          tm.tm_mday = day;
+          tm.tm_hour = hour;
+          tm.tm_min = min;
+          tm.tm_sec = sec;
+          std::time_t timet = timegm(&tm);
+          *value = std::chrono::system_clock::from_time_t(timet);
+          *value += std::chrono::milliseconds(ms);
+        }
       } catch (std::exception& e) {
         LOG_ERROR("Sqlite3::getResult(ptime): " << e.what());
-	return false;
+        return false;
       }
 
       return true;
@@ -477,7 +477,7 @@ public:
     case DateTimeStorage::JulianDaysAsReal: {
       double v;
       if (!getResult(column, &v))
-	return false;
+        return false;
 
       int vi = static_cast<int>(v);
 
@@ -498,7 +498,7 @@ public:
       if (!getResult(column, &v))
         return false;
       std::chrono::system_clock::time_point tp =
-	std::chrono::system_clock::from_time_t(static_cast<std::time_t>(v));
+        std::chrono::system_clock::from_time_t(static_cast<std::time_t>(v));
       if (type == SqlDateTimeType::Date){
         std::time_t t = std::chrono::system_clock::to_time_t(tp);
         std::tm *tm = thread_local_gmtime(&t);
@@ -522,7 +522,7 @@ public:
 
 
   virtual bool getResult(int column, std::vector<unsigned char> *value,
-			 int size) override
+                         int size) override
   {
     if (sqlite3_column_type(st_, column) == SQLITE_NULL)
       return false;
@@ -538,7 +538,7 @@ public:
     return true;
   }
 
- 
+
   virtual std::string sql() const override {
     return sql_;
   }
@@ -553,10 +553,10 @@ private:
   {
     if (err != SQLITE_OK) {
       std::string msg = "Sqlite3: " + sql_ + ": "
-	+ sqlite3_errmsg(db_.connection());
+        + sqlite3_errmsg(db_.connection());
       try {
-	done();
-      }	catch (...) { }
+        done();
+      } catch (...) { }
 
       throw Sqlite3Exception(msg);
     }
@@ -628,10 +628,10 @@ Sqlite3::Sqlite3(const Sqlite3& other)
   : SqlConnection(other),
     conn_(other.conn_)
 {
-  dateTimeStorage_[static_cast<unsigned>(SqlDateTimeType::Date)] 
+  dateTimeStorage_[static_cast<unsigned>(SqlDateTimeType::Date)]
     = other
     .dateTimeStorage_[static_cast<unsigned>(SqlDateTimeType::Date)];
-  dateTimeStorage_[static_cast<unsigned>(SqlDateTimeType::DateTime)] 
+  dateTimeStorage_[static_cast<unsigned>(SqlDateTimeType::DateTime)]
     = other
     .dateTimeStorage_[static_cast<unsigned>(SqlDateTimeType::DateTime)];
 
@@ -678,16 +678,16 @@ std::string Sqlite3::autoincrementSql() const
   return "autoincrement";
 }
 
-std::vector<std::string> 
+std::vector<std::string>
 Sqlite3::autoincrementCreateSequenceSql(const std::string &table,
-					const std::string &id) const
+                                        const std::string &id) const
 {
   return std::vector<std::string>();
 }
 
-std::vector<std::string> 
+std::vector<std::string>
 Sqlite3::autoincrementDropSequenceSql(const std::string &table,
-				      const std::string &id) const
+                                      const std::string &id) const
 {
   return std::vector<std::string>();
 }
@@ -728,7 +728,7 @@ bool Sqlite3::supportDeferrableFKConstraint() const
 }
 
 void Sqlite3::setDateTimeStorage(SqlDateTimeType type,
-				 DateTimeStorage storage)
+                                 DateTimeStorage storage)
 {
   dateTimeStorage_[static_cast<unsigned>(type)] = storage;
 }
@@ -738,17 +738,17 @@ DateTimeStorage Sqlite3::dateTimeStorage(SqlDateTimeType type) const
   return dateTimeStorage_[static_cast<unsigned>(type)];
 }
 
-void Sqlite3::startTransaction() 
+void Sqlite3::startTransaction()
 {
   executeSql("begin transaction");
 }
 
-void Sqlite3::commitTransaction() 
+void Sqlite3::commitTransaction()
 {
   executeSql("commit transaction");
 }
 
-void Sqlite3::rollbackTransaction() 
+void Sqlite3::rollbackTransaction()
 {
   executeSql("rollback transaction");
 }

@@ -14,12 +14,12 @@ dropWidget->drop().connect([=] (const std::vector<Wt::WFileDropWidget::File*>& f
       dropWidget->cancelUpload(files[i]);
       continue;
     }
-    
+
     Wt::WContainerWidget *block = dropWidget->addNew<Wt::WContainerWidget>();
     block->setToolTip(files[i]->clientFileName());
     block->addStyleClass("upload-block spinner");
   }
-  
+
   if (dropWidget->uploads().size() >= maxFiles)
     dropWidget->setAcceptDrops(false);
 });

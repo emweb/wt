@@ -40,10 +40,10 @@ namespace Wt {
 
 UploadedFile::UploadedFile()
 {}
-    
+
 UploadedFile::UploadedFile(const std::string& spoolName,
-			   const std::string& clientFileName,
-			   const std::string& contentType)
+                           const std::string& clientFileName,
+                           const std::string& contentType)
 {
   fileInfo_.reset(new Impl());
 
@@ -101,7 +101,7 @@ Request::ByteRangeSpecifier::ByteRangeSpecifier()
 
 const std::string *get(const ParameterMap& map, const std::string& name)
 {
-  ParameterMap::const_iterator i = map.find(name);  
+  ParameterMap::const_iterator i = map.find(name);
 
   if (i != map.end())
     return &i->second[0];
@@ -289,8 +289,8 @@ Request::ByteRangeSpecifier Request::getRanges(const std::string &rangeHdr,
           std::string start = range[0];
           std::string end = range[1];
 
-	  boost::trim(start);
-	  boost::trim(end);
+          boost::trim(start);
+          boost::trim(end);
 
           uint64_t startInt=0, endInt=0;
           try {
@@ -311,8 +311,8 @@ Request::ByteRangeSpecifier Request::getRanges(const std::string &rangeHdr,
               if (endInt > 0) {
                 satisfiable = true;
                 retval.push_back
-		  (ByteRange
-		   (uint64_t(filesize - endInt), std::size_t(filesize - 1)));
+                  (ByteRange
+                   (uint64_t(filesize - endInt), std::size_t(filesize - 1)));
               }
               else {
                 // Not really specified as syntax error. The paragraph about
@@ -330,11 +330,11 @@ Request::ByteRangeSpecifier Request::getRanges(const std::string &rangeHdr,
                 // notation 599-: returns from byte 599 to eof
                 if (filesize == -1)
                   retval.push_back
-		    (ByteRange(startInt, std::numeric_limits<uint64_t>::max()));
+                    (ByteRange(startInt, std::numeric_limits<uint64_t>::max()));
                 else
                   retval.push_back
-		    (ByteRange
-		     (startInt, uint64_t(filesize - 1)));
+                    (ByteRange
+                     (startInt, uint64_t(filesize - 1)));
               } else {
                 if (startInt <= endInt) {
                   satisfiable = true;
@@ -395,7 +395,7 @@ Request::~Request()
 
 #ifndef WT_TARGET_JAVA
 void Request::parseFormUrlEncoded(const std::string& s,
-				  ParameterMap& parameters)
+                                  ParameterMap& parameters)
 {
   for (std::size_t pos = 0; pos < s.length();) {
     std::size_t next = s.find_first_of("&=", pos);
@@ -408,7 +408,7 @@ void Request::parseFormUrlEncoded(const std::string& s,
 
     if (next == std::string::npos || s[next] == '&') {
       if (next == std::string::npos)
-	next = s.length();
+        next = s.length();
       std::string key = s.substr(pos, next - pos);
       Utils::inplaceUrlDecode(key);
       parameters[key].push_back(std::string());
@@ -416,7 +416,7 @@ void Request::parseFormUrlEncoded(const std::string& s,
     } else {
       std::size_t amp = s.find('&', next + 1);
       if (amp == std::string::npos)
-	amp = s.length();
+        amp = s.length();
 
       std::string key = s.substr(pos, next - pos);
       Utils::inplaceUrlDecode(key);
@@ -433,7 +433,7 @@ void Request::parseFormUrlEncoded(const std::string& s,
 #endif // WT_TARGET_JAVA
 
 void Request::parseCookies(const std::string& cookie,
-			   std::map<std::string, std::string>& result)
+                           std::map<std::string, std::string>& result)
 {
   // in WEnvironment for oink
   WEnvironment::parseCookies(cookie, result);

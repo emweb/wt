@@ -38,13 +38,13 @@ class RequestHandler
 public:
   /// Construct with a directory containing files to be served.
   explicit RequestHandler(const Configuration &config,
-			  const Wt::Configuration& wtConfig,
-			  Wt::WLogger& logger);
+                          const Wt::Configuration& wtConfig,
+                          Wt::WLogger& logger);
 
   /// Handle a request and produce a reply.
   ReplyPtr handleRequest(Request& req, ReplyPtr& lastWtReply,
-			 ReplyPtr& lastProxyReply,
-			 ReplyPtr& lastStaticReply);
+                         ReplyPtr& lastProxyReply,
+                         ReplyPtr& lastStaticReply);
 
   RequestHandler(const RequestHandler&) = delete;
   RequestHandler& operator=(const RequestHandler&) = delete;
@@ -71,11 +71,11 @@ private:
   /// Perform URL-decoding on a string and separates in path and
   /// query. Returns false if the encoding was invalid.
   static bool url_decode(const buffer_string& in, std::string& path,
-			 std::string& query);
+                         std::string& query);
 
   static bool matchesPath(const std::string& path,
-			  const std::string& prefix,
-			  bool matchAfterSlash);
+                          const std::string& prefix,
+                          bool matchAfterSlash);
 
 };
 

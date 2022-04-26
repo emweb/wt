@@ -36,13 +36,13 @@ namespace Wt {
  * \elseif java
  * \code
  * WContainerWidget w = new WContainerWidget(this);
- *		
+ *
  * WHBoxLayout layout = new WHBoxLayout();
  * layout.addWidget(new WText("One"));
  * layout.addWidget(new WText("Two"));
  * layout.addWidget(new WText("Three"));
  * layout.addWidget(new WText("Four"));
- *	 
+ *
  * w.setLayout(layout);
  * \endcode
  * \endif

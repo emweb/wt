@@ -192,8 +192,8 @@ Signal<Result>& PayPalExpressCheckout::setup()
 
   client->done().connect
     (this, std::bind(&PayPalExpressCheckout::handleSetup, this,
-		     std::placeholders::_1,
-		     std::placeholders::_2));
+                     std::placeholders::_1,
+                     std::placeholders::_2));
 
   std::map<std::string, std::string> map;
   createSetupMessage(map);
@@ -216,13 +216,13 @@ Signal<Result>& PayPalExpressCheckout::setup()
 
 std::string
 PayPalExpressCheckout::encodeMessage(const std::map<std::string, std::string>&
-				     map) const
+                                     map) const
 {
   WStringStream ans;
 
   for (StringMap::const_iterator i = map.begin(); i != map.end(); ++i)
     ans << "&" << i->first << "=" << Wt::Utils::urlEncode(i->second);
-  
+
   return ans.str();
 }
 
@@ -345,7 +345,7 @@ std::string PayPalExpressCheckout::toString(PaymentAction action)
 
 
 void PayPalExpressCheckout::handleSetup(AsioWrapper::error_code err,
-					const Http::Message& response)
+                                        const Http::Message& response)
 {
   Result result;
 
@@ -404,7 +404,7 @@ void PayPalExpressCheckout::startPayment()
 }
 
 void PayPalExpressCheckout::setPaymentAccepted(bool accepted,
-					       const std::string& payerId)
+                                               const std::string& payerId)
 {
   impl_->accepted_ = accepted;
   impl_->customer_.setPayerId(payerId);
@@ -415,7 +415,7 @@ void PayPalExpressCheckout::onRedirect(int result)
   ApprovalOutcome outcome;
 
   if (result == -1) {
-    outcome = impl_->accepted_ 
+    outcome = impl_->accepted_
       ? ApprovalOutcome::Accepted : ApprovalOutcome::Denied;
   } else {
     outcome = ApprovalOutcome::Interrupted;
@@ -431,8 +431,8 @@ Signal<Result>& PayPalExpressCheckout::updateCustomerDetails()
 
   client->done().connect
     (this, std::bind(&PayPalExpressCheckout::handleCustomerDetails, this,
-		     std::placeholders::_1,
-		     std::placeholders::_2));
+                     std::placeholders::_1,
+                     std::placeholders::_2));
 
   std::map<std::string, std::string> map;
 
@@ -520,8 +520,8 @@ Signal<Result>& PayPalExpressCheckout::completePayment(const Money& totalAmount)
 
   client->done().connect
     (this, std::bind(&PayPalExpressCheckout::handleCompletePayment, this,
-		     std::placeholders::_1,
-		     std::placeholders::_2));
+                     std::placeholders::_1,
+                     std::placeholders::_2));
 
   std::map<std::string, std::string> map;
 
@@ -604,8 +604,8 @@ Result PayPalExpressCheckout::testMessage(AsioWrapper::error_code err,
       if (ack) {
         LOG_DEBUG("ACK = " << *ack);
         if (*ack == "Success") {
-          const std::string *token 
-	    = Http::Utils::getParamValue(params, "TOKEN");
+          const std::string *token
+            = Http::Utils::getParamValue(params, "TOKEN");
 
           if (token) {
             setToken(*token);
@@ -613,8 +613,8 @@ Result PayPalExpressCheckout::testMessage(AsioWrapper::error_code err,
             result = Result(ERROR_MSG("missing-token"));
           }
         } else {
-          const std::string *errorCode 
-	    = Http::Utils::getParamValue(params, "ERRORCODE0");
+          const std::string *errorCode
+            = Http::Utils::getParamValue(params, "ERRORCODE0");
 
           if (errorCode) {
             result = Result(ERROR_MSG("error").arg(*errorCode));
@@ -647,7 +647,7 @@ std::string PayPalExpressCheckout::messageToString(Http::ParameterMap &params)
 {
   WStringStream ans;
 
-  for(Http::ParameterMap::const_iterator i = params.begin(); 
+  for(Http::ParameterMap::const_iterator i = params.begin();
       i != params.end(); ++i){
     const Http::ParameterValues &val = i->second;
     ans << i->first << " : " << val[0] << " \n ";

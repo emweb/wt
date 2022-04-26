@@ -23,7 +23,7 @@ const char *WTreeNode::imagePlusRtl_ = "nav-plus-rtl.gif";
 const char *WTreeNode::imageMinRtl_ = "nav-minus-rtl.gif";
 
 WTreeNode::WTreeNode(const WString& labelText,
-		     std::unique_ptr<WIconPair> labelIcon)
+                     std::unique_ptr<WIconPair> labelIcon)
   : collapsed_(true),
     selectable_(true),
     visible_(true),
@@ -70,7 +70,7 @@ void WTreeNode::init(const WString &labelText, std::unique_ptr<WIconPair> labelI
   /*
    * Children
    */
-  WContainerWidget *children 
+  WContainerWidget *children
     = layout_->bindWidget("children", std::make_unique<WContainerWidget>());
   children->setList(true);
   children->hide();
@@ -78,25 +78,25 @@ void WTreeNode::init(const WString &labelText, std::unique_ptr<WIconPair> labelI
   /*
    * Expand icon
    */
-  if (WApplication::instance()->layoutDirection() == 
+  if (WApplication::instance()->layoutDirection() ==
       LayoutDirection::RightToLeft)
     expandIcon_ = layout_->bindWidget
       ("expand",
        std::make_unique<WIconPair>
        (app->theme()->resourcesUrl() + imagePlusRtl_,
-	app->theme()->resourcesUrl() + imageMinRtl_));
+        app->theme()->resourcesUrl() + imageMinRtl_));
   else
     expandIcon_ = layout_->bindWidget
       ("expand",
        std::make_unique<WIconPair>
        (app->theme()->resourcesUrl() + imagePlus_,
-	app->theme()->resourcesUrl() + imageMin_));
+        app->theme()->resourcesUrl() + imageMin_));
 
   expandIcon_->setStyleClass("Wt-ctrl Wt-expand");
   expandIcon_->hide();
 
   noExpandIcon_ = layout_->bindWidget("no-expand",
-				      std::make_unique<WText>());
+                                      std::make_unique<WText>());
   noExpandIcon_->setStyleClass("Wt-ctrl Wt-noexpand");
   addStyleClass("Wt-trunk");
 
@@ -231,10 +231,10 @@ void WTreeNode::setChildCountPolicy(ChildCountPolicy policy)
 
   if (childCountPolicy_ == Enabled) {
     WTreeNode *parent = parentNode();
- 
+
     if (parent && parent->isExpanded())
       if (doPopulate())
-	update();
+        update();
   }
 
   if (childCountPolicy_ != Disabled) {
@@ -260,10 +260,10 @@ void WTreeNode::setLoadPolicy(ContentLoading loadPolicy)
     } else {
       WTreeNode *parent = parentNode();
       if (parent && parent->isExpanded())
-	loadChildren();
+        loadChildren();
 
       expandIcon_
-	->icon1Clicked().connect(this, &WTreeNode::loadGrandChildren);
+        ->icon1Clicked().connect(this, &WTreeNode::loadGrandChildren);
     }
     break;
   case ContentLoading::Lazy:
@@ -271,9 +271,9 @@ void WTreeNode::setLoadPolicy(ContentLoading loadPolicy)
       loadChildren();
     else {
       if (childCountPolicy_ == Enabled) {
-	WTreeNode *parent = parentNode();
-	if (parent && parent->isExpanded())
-	  doPopulate();
+        WTreeNode *parent = parentNode();
+        if (parent && parent->isExpanded())
+          doPopulate();
       }
 
       expandIcon_->icon1Clicked().connect(this, &WTreeNode::expand);
@@ -327,7 +327,7 @@ void WTreeNode::descendantAdded(WTreeNode *node)
   WTreeNode *parent = parentNode();
 
   if (parent)
-    parent->descendantAdded(node);  
+    parent->descendantAdded(node);
 }
 
 void WTreeNode::descendantRemoved(WTreeNode *node)
@@ -355,7 +355,7 @@ void WTreeNode::insertChildNode(int index, std::unique_ptr<WTreeNode> node)
     childContainer()->insertWidget(index, std::move(node));
   else
     notLoadedChildren_.insert(notLoadedChildren_.begin() + index,
-			      std::move(node));
+                              std::move(node));
 
   descendantAdded(added);
 
@@ -506,7 +506,7 @@ void WTreeNode::undoDoExpand()
    */
   auto children = childNodes();
   for (auto& c : children)
-    c->undoDoCollapse();  
+    c->undoDoCollapse();
 }
 
 void WTreeNode::setLabelIcon(std::unique_ptr<WIconPair> labelIcon)
@@ -529,7 +529,7 @@ void WTreeNode::setLabelIcon(std::unique_ptr<WIconPair> labelIcon)
 void WTreeNode::renderSelected(bool isSelected)
 {
   layout_->bindString("selected", isSelected ?
-		      WApplication::instance()->theme()->activeClass() : "");
+                      WApplication::instance()->theme()->activeClass() : "");
   selected().emit(isSelected);
 }
 
@@ -570,7 +570,7 @@ void WTreeNode::update()
   if (!parentNode() || parentNode()->isExpanded()) {
     if (childCountPolicy_ == Enabled && !populated_)
       doPopulate();
-    
+
     expandIcon_->setHidden(!expandable());
     noExpandIcon_->setHidden(expandable());
   }
@@ -579,7 +579,7 @@ void WTreeNode::update()
     int n = displayedChildCount();
     if (n)
       childCountLabel_->setText
-	(WString::fromUTF8("(" + std::to_string(n) + ")"));
+        (WString::fromUTF8("(" + std::to_string(n) + ")"));
     else
       childCountLabel_->setText(WString());
   }

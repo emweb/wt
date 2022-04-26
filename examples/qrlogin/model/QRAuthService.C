@@ -81,7 +81,7 @@ std::string QRAuthService::createQRToken(QRTokenDatabase& database,
     = baseAuth_.tokenHashFunction()->compute(token, std::string());
 
   database.addToken(app->sessionId(), hash,
-		    app->makeAbsoluteUrl(loginResource->url()));
+                    app->makeAbsoluteUrl(loginResource->url()));
 
   return token;
 }
@@ -98,15 +98,15 @@ std::string QRAuthService::parseQRToken(const WEnvironment& env) const
 
 std::unique_ptr<WResource>
 QRAuthService::createLoginResource(QRTokenDatabase& database,
-				   Auth::AbstractUserDatabase& users,
-				   Auth::Login& login) const
+                                   Auth::AbstractUserDatabase& users,
+                                   Auth::Login& login) const
 {
   return std::make_unique<QRLoginResource>(database, users, login);
 }
 
 void QRAuthService::remoteLogin(QRTokenDatabase& database,
-				const Auth::User& user,
-				const std::string& token) const
+                                const Auth::User& user,
+                                const std::string& token) const
 {
   std::string hash
     = baseAuth_.tokenHashFunction()->compute(token, std::string());
@@ -124,12 +124,12 @@ void QRAuthService::remoteLogin(QRTokenDatabase& database,
 }
 
 void QRAuthService::handleHttpResponse(Wt::AsioWrapper::error_code err,
-				       const Http::Message& response,
-				       Http::Client *client) const
+                                       const Http::Message& response,
+                                       Http::Client *client) const
 {
   if (err || response.status() != 200)
     std::cerr << "Error: " << err.message() << ", " << response.status()
-	      << std::endl;
+              << std::endl;
 
   delete client;
 }

@@ -49,10 +49,10 @@ namespace Wt {
  * \code
  * // create the stack where the contents will be located
  * WStackedWidget contents = new WStackedWidget(contentsParent);
- *		 
+ *
  * // create a menu
  * WMenu menu = new WMenu(contents);
- *		 
+ *
  * // add four items using the default lazy loading policy.
  * menu.addItem("Introduction", new WText("intro"));
  * menu.addItem("Download", new WText("Not yet available"));
@@ -136,9 +136,9 @@ public:
    * \sa addItem(WMenuItem *)
    */
   WMenuItem *addItem(const WString& label,
-		     std::unique_ptr<WWidget> contents = nullptr,
-		     ContentLoading policy 
-		       = ContentLoading::Lazy);
+                     std::unique_ptr<WWidget> contents = nullptr,
+                     ContentLoading policy
+                       = ContentLoading::Lazy);
 
   /*! \brief Adds an item.
    *
@@ -156,9 +156,9 @@ public:
    * \sa addItem(WMenuItem *)
    */
   WMenuItem *addItem(const std::string& iconPath, const WString& label,
-		     std::unique_ptr<WWidget> contents = nullptr,
-		     ContentLoading policy 
-		       = ContentLoading::Lazy);
+                     std::unique_ptr<WWidget> contents = nullptr,
+                     ContentLoading policy
+                       = ContentLoading::Lazy);
 
     /*! \brief Adds an item with given text, and specify a slot method to be
    *         called when the item is triggered.
@@ -170,7 +170,7 @@ public:
    */
   template<class T, class V>
     WMenuItem *addItem(const WString& text, T *target, void (V::*method)());
-    
+
   /*! \brief Adds an item with given text and icon, and specify a slot
    *         method to be called when activated.
    *
@@ -183,7 +183,7 @@ public:
    */
   template<class T, class V>
     WMenuItem *addItem(const std::string& iconPath, const WString& text,
-		       T *target, void (V::*method)());
+                       T *target, void (V::*method)());
 
   /*! \brief Adds a submenu, with given text.
    *
@@ -202,7 +202,7 @@ public:
    * \sa add(WMenuItem *)
    */
   WMenuItem *addMenu(const std::string& iconPath, const WString& text,
-		     std::unique_ptr<WMenu> menu);
+                     std::unique_ptr<WMenu> menu);
 
   /*! \brief Adds an item.
    *
@@ -224,9 +224,9 @@ public:
    * \sa insertItem(int index, WMenuItem *)
    */
   WMenuItem *insertItem(int index, const WString& label,
-			std::unique_ptr<WWidget> contents = nullptr,
-			ContentLoading policy
-			  = ContentLoading::Lazy);
+                        std::unique_ptr<WWidget> contents = nullptr,
+                        ContentLoading policy
+                          = ContentLoading::Lazy);
 
   /*! \brief inserts an item.
    *
@@ -245,9 +245,9 @@ public:
    */
   WMenuItem *insertItem(int index, const std::string& iconPath,
                         const WString& label,
-			std::unique_ptr<WWidget> contents = nullptr,
-			ContentLoading policy
-			  = ContentLoading::Lazy);
+                        std::unique_ptr<WWidget> contents = nullptr,
+                        ContentLoading policy
+                          = ContentLoading::Lazy);
 
     /*! \brief inserts an item with given text, and specify a slot method to be
    *         called when the item is triggered.
@@ -283,7 +283,7 @@ public:
    * \sa insert(int index, WMenuItem *)
    */
   WMenuItem *insertMenu(int index, const WString& text,
-			std::unique_ptr<WMenu> menu);
+                        std::unique_ptr<WMenu> menu);
 
   /*! \brief inserts a submenu, with given icon and text.
    *
@@ -294,7 +294,7 @@ public:
    */
   WMenuItem *insertMenu(int index, const std::string& iconPath,
                         const WString& text,
-			std::unique_ptr<WMenu> menu);
+                        std::unique_ptr<WMenu> menu);
 
   /*! \brief Inserts an item.
    *
@@ -644,7 +644,7 @@ WMenuItem *WMenu::addItem(const WString& text, T *target, void (V::*method)())
 
 template<class T, class V>
 WMenuItem *WMenu::addItem(const std::string& iconPath, const WString& text,
-			  T *target, void (V::*method)())
+                          T *target, void (V::*method)())
 {
   WMenuItem *item = addItem(iconPath, text);
   item->triggered().connect(target, method);

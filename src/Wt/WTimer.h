@@ -29,10 +29,10 @@ class Time;
  *
  * By default, a timer will continue to generate events until you
  * stop() it. To create a timer that will fire only once, use
- * setSingleShot(). 
+ * setSingleShot().
  * \if cpp
  * There is also a convience static method singleShot().
- * \endif 
+ * \endif
  *
  * When connecting stateless slot implementations to the timeout
  * signal, these stateless slot implementations will be used as for
@@ -48,7 +48,7 @@ class Time;
  * \else
  * If you want to create a timer outside the %Wt event loop, take a look at {javadoclink java.util.Timer}.
  * \endif
- * 
+ *
  * \if cpp
  * Timers are one way to provide updates of a web page without the
  * user generating an event. Alternatively you may consider
@@ -108,7 +108,7 @@ public:
   /*! \brief This static function calls a slot after a given time interval.
    *
    * For example, the following code will call this->doSome() after 2
-   * seconds: 
+   * seconds:
    * \code
    *   WTimer::singleShot(2000, this, &MyClass::doSome);
    * \endcode

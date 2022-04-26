@@ -14,15 +14,15 @@ namespace Wt {
 
 template <typename V, class Enable>
 void sql_value_traits<V, Enable>::bind(const char *v, SqlStatement *statement,
-				       int column, int size)
+                                       int column, int size)
 {
   statement->bind(column, v);
 }
 
 template <typename Result>
 void query_result_traits<Result>::getFields(Session& session,
-					  std::vector<std::string> *aliases,
-					  std::vector<FieldInfo>& result)
+                                          std::vector<std::string> *aliases,
+                                          std::vector<FieldInfo>& result)
 {
   /* Adds an immutable single value field */
 
@@ -45,8 +45,8 @@ void query_result_traits<Result>::getFields(Session& session,
 
 template <typename Result>
 Result query_result_traits<Result>::load(Session& session,
-					 SqlStatement& statement,
-					 int& column)
+                                         SqlStatement& statement,
+                                         int& column)
 {
   Result result;
   sql_value_traits<Result>::read(result, &statement, column++, -1);
@@ -55,14 +55,14 @@ Result query_result_traits<Result>::load(Session& session,
 
 template <typename Result>
 void query_result_traits<Result>::getValues(const Result& result,
-					    std::vector<cpp17::any>& values)
+                                            std::vector<cpp17::any>& values)
 {
   values.push_back(result);
 }
 
 template <typename Result>
 void query_result_traits<Result>::setValue(Result& result,
-					   int& index, const cpp17::any& value)
+                                           int& index, const cpp17::any& value)
 {
   if (index == 0)
     result = cpp17::any_cast<Result>(value);

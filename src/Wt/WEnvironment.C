@@ -93,7 +93,7 @@ void WEnvironment::updateHostName(const WebRequest& request)
   }
 }
 
-void WEnvironment::updateUrlScheme(const WebRequest& request) 
+void WEnvironment::updateUrlScheme(const WebRequest& request)
 {
   Configuration& conf = session_->controller()->configuration();
 
@@ -117,7 +117,7 @@ void WEnvironment::init(const WebRequest& request)
 
 #ifndef WT_TARGET_JAVA
   if(!str(request.headerValue("Redirect-Secret")).empty())
-	session_->controller()->redirectSecret_ = str(request.headerValue("Redirect-Secret"));
+        session_->controller()->redirectSecret_ = str(request.headerValue("Redirect-Secret"));
 
   sslInfo_ = request.sslInfo(conf);
 #endif
@@ -138,9 +138,9 @@ void WEnvironment::init(const WebRequest& request)
     if (!forwardedHost.empty()) {
       std::string::size_type i = forwardedHost.rfind(',');
       if (i == std::string::npos)
-	host_ = forwardedHost;
+        host_ = forwardedHost;
       else
-	host_ = forwardedHost.substr(i+1);
+        host_ = forwardedHost.substr(i+1);
     }
   }
 
@@ -273,11 +273,11 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
       std::string vs = userAgent_.substr(t + 8);
       t = vs.find(' ');
       if (t != std::string::npos)
-	vs = vs.substr(0, t);
+        vs = vs.substr(0, t);
       try {
-	double v = Utils::stod(vs);
-	if (v >= 10)
-	  agent_ = UserAgent::Opera10;
+        double v = Utils::stod(vs);
+        if (v >= 10)
+          agent_ = UserAgent::Opera10;
       } catch (std::exception& e) { }
     }
   }
@@ -299,7 +299,7 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
       agent_ = UserAgent::Chrome5;
   } else if (userAgent_.find("Safari") != std::string::npos) {
     if (userAgent_.find("iPhone") != std::string::npos
-	|| userAgent_.find("iPad") != std::string::npos) {
+        || userAgent_.find("iPad") != std::string::npos) {
       agent_ = UserAgent::MobileWebKitiPhone;
     } else if (userAgent_.find("Android") != std::string::npos) {
       agent_ = UserAgent::MobileWebKitAndroid;
@@ -307,9 +307,9 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
       agent_ = UserAgent::MobileWebKit;
     } else if (userAgent_.find("Version") == std::string::npos) {
       if (userAgent_.find("Arora") != std::string::npos)
-	agent_ = UserAgent::Arora;
+        agent_ = UserAgent::Arora;
       else
-	agent_ = UserAgent::Safari;
+        agent_ = UserAgent::Safari;
     } else if (userAgent_.find("Version/3") != std::string::npos)
       agent_ = UserAgent::Safari3;
     else
@@ -333,19 +333,19 @@ void WEnvironment::setUserAgent(const std::string& userAgent)
       agent_ = UserAgent::Firefox;
     else {
       if (userAgent_.find("Firefox/3.0") != std::string::npos)
-	agent_ = UserAgent::Firefox3_0;
+        agent_ = UserAgent::Firefox3_0;
       else if (userAgent_.find("Firefox/3.1") != std::string::npos)
-	agent_ = UserAgent::Firefox3_1;
+        agent_ = UserAgent::Firefox3_1;
       else if (userAgent_.find("Firefox/3.1b") != std::string::npos)
-	agent_ = UserAgent::Firefox3_1b;
+        agent_ = UserAgent::Firefox3_1b;
       else if (userAgent_.find("Firefox/3.5") != std::string::npos)
-	agent_ = UserAgent::Firefox3_5;
+        agent_ = UserAgent::Firefox3_5;
       else if (userAgent_.find("Firefox/3.6") != std::string::npos)
-	agent_ = UserAgent::Firefox3_6;
+        agent_ = UserAgent::Firefox3_6;
       else if (userAgent_.find("Firefox/4.") != std::string::npos)
-	agent_ = UserAgent::Firefox4_0;
+        agent_ = UserAgent::Firefox4_0;
       else
-	agent_ = UserAgent::Firefox5_0;
+        agent_ = UserAgent::Firefox5_0;
     }
   }
 
@@ -366,13 +366,13 @@ bool WEnvironment::agentSupportsAjax() const
 
 bool WEnvironment::supportsCss3Animations() const
 {
-  return ((agentIsGecko() && 
-	   static_cast<unsigned int>(agent_) >= 
-	   static_cast<unsigned int>(UserAgent::Firefox5_0)) ||
-	  (agentIsIE() && 
-	   static_cast<unsigned int>(agent_) >= 
-	   static_cast<unsigned int>(UserAgent::IE10)) ||
-	  agentIsWebKit());
+  return ((agentIsGecko() &&
+           static_cast<unsigned int>(agent_) >=
+           static_cast<unsigned int>(UserAgent::Firefox5_0)) ||
+          (agentIsIE() &&
+           static_cast<unsigned int>(agent_) >=
+           static_cast<unsigned int>(UserAgent::IE10)) ||
+          agentIsWebKit());
 }
 
 std::string WEnvironment::libraryVersion()
@@ -448,7 +448,7 @@ bool WEnvironment::isTest() const
 }
 
 void WEnvironment::parseCookies(const std::string& cookie,
-				std::map<std::string, std::string>& result)
+                                std::map<std::string, std::string>& result)
 {
   // Cookie parsing strategy:
   // - First, split the string on cookie separators (-> name-value pair).

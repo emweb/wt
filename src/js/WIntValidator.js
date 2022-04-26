@@ -13,30 +13,30 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WIntValidator",
    function(mandatory, bottom, top, groupSeparator, blankError,
-	    NaNError, tooSmallError, tooLargeError) {
+            NaNError, tooSmallError, tooLargeError) {
      this.validate = function(text) {
        text = String(text);
 
        if (text.length == 0)
-	 if (mandatory)
-	   return { valid: false, message: blankError };
-	 else
-	   return { valid: true };
+         if (mandatory)
+           return { valid: false, message: blankError };
+         else
+           return { valid: true };
 
        if (groupSeparator != '')
-	 text = text.replace(groupSeparator, '', 'g');
+         text = text.replace(groupSeparator, '', 'g');
 
        var n = Number(text);
 
        if (isNaN(n) || (Math.round(n) != n))
-	 return { valid: false, message: NaNError };
+         return { valid: false, message: NaNError };
 
        if (bottom !== null)
-	 if (n < bottom)
-	   return { valid: false, message: tooSmallError };
+         if (n < bottom)
+           return { valid: false, message: tooSmallError };
        if (top !== null)
-	 if (n > top)
-	   return { valid: false, message: tooLargeError };
+         if (n > top)
+           return { valid: false, message: tooLargeError };
 
        return { valid: true };
      };

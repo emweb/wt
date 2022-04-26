@@ -36,14 +36,14 @@ WRectArea::WRectArea(const WRectF& rect)
 void WRectArea::setX(int x)
 {
   x_ = x;
-  
+
   repaint();
 }
 
 void WRectArea::setY(int y)
 {
   y_ = y;
-  
+
   repaint();
 }
 

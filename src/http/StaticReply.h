@@ -38,8 +38,8 @@ public:
   virtual void writeDone(bool success) override;
 
   virtual bool consumeData(const char *begin,
-			   const char *end,
-			   Request::State state) override;
+                           const char *end,
+                           Request::State state) override;
 
 protected:
   virtual std::string contentType() override;

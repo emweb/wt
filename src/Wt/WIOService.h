@@ -99,11 +99,11 @@ private:
   WIOServiceImpl *impl_;
   strand strand_;
   void handleTimeout(const std::shared_ptr<AsioWrapper::asio::steady_timer>& timer,
-		     const std::function<void ()>& function,
-		     const AsioWrapper::error_code& e);
+                     const std::function<void ()>& function,
+                     const AsioWrapper::error_code& e);
   void run();
 };
 
 }
 
-#endif // WCORE_SERVER_H_ 
+#endif // WCORE_SERVER_H_

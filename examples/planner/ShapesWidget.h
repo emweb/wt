@@ -25,7 +25,7 @@ public:
   WString selectedShape();
   bool correctlyClicked(const WMouseEvent& me);
   void initShapes();
-  
+
 protected:
   virtual void paintEvent(WPaintDevice *paintDevice);
 

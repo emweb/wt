@@ -45,7 +45,7 @@ bool AddresseeEdit::parse(std::vector<Contact>& contacts) const
 
   std::wstring t = text();
   CsvTokenizer tok(t);
-  
+
  for (CsvTokenizer::iterator i = tok.begin(); i != tok.end(); ++i) {
     std::wstring addressee = *i;
 
@@ -58,12 +58,12 @@ bool AddresseeEdit::parse(std::vector<Contact>& contacts) const
       boost::trim(email);
       boost::trim(name);
       if (email[0] == '<')
-	email = email.substr(1);
+        email = email.substr(1);
       if (email[email.length() - 1] == '>')
-	email = email.substr(0, email.length() - 1);
+        email = email.substr(0, email.length() - 1);
 
       if (!email.empty())
-	contacts.push_back(Contact(Wt::toUTF32(name), Wt::toUTF32(email)));
+        contacts.push_back(Contact(Wt::toUTF32(name), Wt::toUTF32(email)));
     } else
       if (!addressee.empty())
         contacts.push_back(Contact(U"", Wt::toUTF32(addressee)));

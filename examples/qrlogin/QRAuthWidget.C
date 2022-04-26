@@ -27,7 +27,7 @@ QRAuthWidget::QRAuthWidget(Auth::Login& login)
 { }
 
 void QRAuthWidget::configureQRAuth(const QRAuthService& service,
-				   QRTokenDatabase& database)
+                                   QRTokenDatabase& database)
 {
   qrService_ = &service;
   qrDatabase_ = &database;
@@ -54,11 +54,11 @@ void QRAuthWidget::confirmRemoteLogin()
   if (!qrToken_.empty() && login().loggedIn()) {
     auto mb
       = std::make_unique<WMessageBox>("Remote login",
-			    "<p>Do you want to login the desktop user too ?</p>"
-			    "<p><b>WARNING !</b><br/>"
-			    "You should only do this if you arrived here "
-			    "by scanning a QR code.</p>",
-			    Icon::None, StandardButton::Yes | StandardButton::No);
+                            "<p>Do you want to login the desktop user too ?</p>"
+                            "<p><b>WARNING !</b><br/>"
+                            "You should only do this if you arrived here "
+                            "by scanning a QR code.</p>",
+                            Icon::None, StandardButton::Yes | StandardButton::No);
     mb->animateShow
       (WAnimation(AnimationEffect::Pop | AnimationEffect::Fade,
                       TimingFunction::Linear, 300));

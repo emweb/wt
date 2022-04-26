@@ -31,7 +31,7 @@ namespace Wt {
  * lineEdit->setValidator(validator);
  * lineEdit->setText("01-03-2008");
  * \endcode
- * \endif 
+ * \endif
  *
  * \if java
  * The format string used are the ones accepted by java.text.SimpleDateFormat
@@ -86,8 +86,8 @@ public:
    * \endif
    */
   WDateValidator(const WT_USTRING& format,
-		 const WDate& bottom,
-		 const WDate& top);
+                 const WDate& bottom,
+                 const WDate& top);
 
   /*! \brief Sets the bottom of the valid date range.
    *
@@ -177,12 +177,12 @@ public:
    *
    * \if cpp
    * Depending on whether bottom() and top() are
-   * \link WDate::isNull() defined\endlink, the default message is 
+   * \link WDate::isNull() defined\endlink, the default message is
    * "The date must be between {1} and {2}" or "The date must be before {2}".
    * \elseif java
    * Depending on whether bottom() and top() are defined, the default message is
    * "The date must be between {1} and {2}" or "The date must be before {2}".
-   * \endif 
+   * \endif
    */
   void setInvalidTooLateText(const WString& text);
 

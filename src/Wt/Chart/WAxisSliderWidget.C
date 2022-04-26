@@ -238,9 +238,9 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
       WStringStream ss;
       ss << "\ndelete " << jsRef() << ".wtSObj;";
       ss << "\nif (" << objJsRef() << ") {"
-	   << objJsRef() << ".canvas.style.cursor = 'auto';"
-	   << "setTimeout(" << objJsRef() << ".repaint,0);"
-	    "}\n";
+           << objJsRef() << ".canvas.style.cursor = 'auto';"
+           << "setTimeout(" << objJsRef() << ".repaint,0);"
+            "}\n";
       doJavaScript(ss.str());
     }
     LOG_ERROR("WAxisSliderWidget is not associated with a line or curve series.");
@@ -255,14 +255,14 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
   bool horizontal = chart()->orientation() == Orientation::Vertical; // yes, vertical chart means horizontal X axis slider
 
   double w = horizontal ? width().value() : height().value(),
-	 h = horizontal ? height().value() : width().value();
+         h = horizontal ? height().value() : width().value();
 
   bool autoPadding = autoPadding_;
-  if (autoPadding && !(paintDevice->features() & 
-		       PaintDeviceFeatureFlag::FontMetrics) &&
+  if (autoPadding && !(paintDevice->features() &
+                       PaintDeviceFeatureFlag::FontMetrics) &&
       labelsEnabled_) {
     LOG_ERROR("setAutoLayout(): device does not have font metrics "
-	"(not even server-side font metrics).");
+        "(not even server-side font metrics).");
     autoPadding = false;
   }
 
@@ -270,36 +270,36 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
     if (horizontal) {
       if (labelsEnabled_) {
         setSelectionAreaPadding(0, Side::Top);
-	setSelectionAreaPadding(
+        setSelectionAreaPadding(
             static_cast<int>(xAxis.calcMaxTickLabelSize(
-	      paintDevice,
+              paintDevice,
               Orientation::Vertical
             ) + 10), Side::Bottom);
-	setSelectionAreaPadding(
+        setSelectionAreaPadding(
             static_cast<int>(std::max(xAxis.calcMaxTickLabelSize(
-	      paintDevice,
+              paintDevice,
               Orientation::Horizontal
             ) / 2, 10.0)), WFlags<Side>(Side::Left) | Side::Right);
       } else {
-	setSelectionAreaPadding(0, Side::Top);
-	setSelectionAreaPadding(5, WFlags<Side>(Side::Left) | Side::Right | Side::Bottom);
+        setSelectionAreaPadding(0, Side::Top);
+        setSelectionAreaPadding(5, WFlags<Side>(Side::Left) | Side::Right | Side::Bottom);
       }
     } else {
       if (labelsEnabled_) {
         setSelectionAreaPadding(0, Side::Right);
-	setSelectionAreaPadding(
+        setSelectionAreaPadding(
             static_cast<int>(std::max(xAxis.calcMaxTickLabelSize(
-	      paintDevice,
+              paintDevice,
               Orientation::Vertical
             ) / 2, 10.0)), WFlags<Side>(Side::Top) | Side::Bottom);
-	setSelectionAreaPadding(
+        setSelectionAreaPadding(
             static_cast<int>(xAxis.calcMaxTickLabelSize(
-	      paintDevice,
+              paintDevice,
               Orientation::Horizontal
             ) + 10), Side::Left);
       } else {
-	setSelectionAreaPadding(0, Side::Right);
-	setSelectionAreaPadding(5, WFlags<Side>(Side::Top) | Side::Bottom | Side::Left);
+        setSelectionAreaPadding(0, Side::Right);
+        setSelectionAreaPadding(5, WFlags<Side>(Side::Top) | Side::Bottom | Side::Left);
       }
     }
   }
@@ -345,7 +345,7 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
   painter.fillRect(rect, selectedAreaBrush_);
 
   // FIXME: Refactor this code? We have very similar code now in WCartesianChart and
-  //	    WCartesian3DChart too.
+  //        WCartesian3DChart too.
   const double TICK_LENGTH = 5;
   const double ANGLE1 = 15;
   const double ANGLE2 = 80;
@@ -369,24 +369,24 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
     if (xAxis.labelAngle() > ANGLE1) {
       labelHFlag = AlignmentFlag::Right;
       if (xAxis.labelAngle() > ANGLE2)
-	labelVFlag = AlignmentFlag::Middle;
+        labelVFlag = AlignmentFlag::Middle;
     } else if (xAxis.labelAngle() < -ANGLE1) {
       labelHFlag = AlignmentFlag::Left;
       if (xAxis.labelAngle() < -ANGLE2)
-	labelVFlag = AlignmentFlag::Middle;
+        labelVFlag = AlignmentFlag::Middle;
     }
   } else {
     if (xAxis.labelAngle() > ANGLE1) {
       labelVFlag = AlignmentFlag::Bottom;
       if (xAxis.labelAngle() > ANGLE2)
-	labelHFlag = AlignmentFlag::Center;
+        labelHFlag = AlignmentFlag::Center;
     } else if (xAxis.labelAngle() < -ANGLE1) {
       labelVFlag = AlignmentFlag::Top;
       if (xAxis.labelAngle() < -ANGLE2)
-	labelHFlag = AlignmentFlag::Center;
+        labelHFlag = AlignmentFlag::Center;
     }
   }
-  
+
   WFlags<AxisProperty> axisProperties = AxisProperty::Line;
   if (labelsEnabled_) {
     axisProperties |= AxisProperty::Labels;
@@ -394,24 +394,24 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
 
   if (horizontal) {
     xAxis.render(
-	painter,
-	axisProperties,
-	WPointF(drawArea.left(), h - bottom),
-	WPointF(drawArea.right(), h - bottom),
-	tickStart, tickEnd, labelPos,
-	WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
+        painter,
+        axisProperties,
+        WPointF(drawArea.left(), h - bottom),
+        WPointF(drawArea.right(), h - bottom),
+        tickStart, tickEnd, labelPos,
+        WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
     WPainterPath line;
     line.moveTo(drawArea.left() + 0.5, h - (bottom - 0.5));
     line.lineTo(drawArea.right(), h - (bottom - 0.5));
     painter.strokePath(line, xAxis.pen());
   } else {
     xAxis.render(
-	painter,
-	axisProperties,
-	WPointF(selectionAreaPadding(Side::Left) - 1, drawArea.left()),
-	WPointF(selectionAreaPadding(Side::Left) - 1, drawArea.right()),
-	tickStart, tickEnd, labelPos,
-	WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
+        painter,
+        axisProperties,
+        WPointF(selectionAreaPadding(Side::Left) - 1, drawArea.left()),
+        WPointF(selectionAreaPadding(Side::Left) - 1, drawArea.right()),
+        tickStart, tickEnd, labelPos,
+        WFlags<AlignmentFlag>(labelHFlag) | labelVFlag);
     WPainterPath line;
     line.moveTo(selectionAreaPadding(Side::Left) - 0.5, drawArea.left() + 0.5);
     line.lineTo(selectionAreaPadding(Side::Left) - 0.5, drawArea.right());
@@ -432,14 +432,14 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
   {
     WRectF leftHandle = hv(WRectF(-5, top, 5, h - top - bottom));
     WTransform t = (WTransform(1,0,0,1,left,-top) *
-	(WTransform().translate(transform_.value().map(selectionRect.topLeft()))));
+        (WTransform().translate(transform_.value().map(selectionRect.topLeft()))));
     painter.fillRect(hv(t).map(leftHandle), handleBrush_);
   }
 
   {
     WRectF rightHandle = hv(WRectF(0, top, 5, h - top - bottom));
     WTransform t = (WTransform(1,0,0,1,left,-top) *
-	(WTransform().translate(transform_.value().map(selectionRect.topRight()))));
+        (WTransform().translate(transform_.value().map(selectionRect.topRight()))));
     painter.fillRect(hv(t).map(rightHandle), handleBrush_);
   }
 
@@ -455,9 +455,9 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
     WPainterPath leftClipPath;
     leftClipPath.addRect(hv(WTransform(1,0,0,1,-selectionRect.width(),0).map(selectionRect)));
     painter.setClipPath(hv(
-	  WTransform(1,0,0,1,left,-top) *
-	  (WTransform().translate(transform_.value().map(selectionRect.topLeft())))
-	).map(leftClipPath));
+          WTransform(1,0,0,1,left,-top) *
+          (WTransform().translate(transform_.value().map(selectionRect.topLeft())))
+        ).map(leftClipPath));
 
     painter.setPen(seriesPen());
     painter.drawPath(curve);
@@ -465,9 +465,9 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
     WPainterPath rightClipPath;
     rightClipPath.addRect(hv(WTransform(1,0,0,1,selectionRect.width(),0).map(selectionRect)));
     painter.setClipPath(hv(
-	  WTransform(1,0,0,1,left - selectionRect.right(),-top) *
-	  (WTransform().translate(transform_.value().map(selectionRect.topRight())))
-	).map(rightClipPath));
+          WTransform(1,0,0,1,left - selectionRect.right(),-top) *
+          (WTransform().translate(transform_.value().map(selectionRect.topRight())))
+        ).map(rightClipPath));
 
     painter.drawPath(curve);
 

@@ -153,7 +153,7 @@ void User::removeAuthToken(const std::string& token) const
 }
 
 int User::updateAuthToken(const std::string& hash,
-			  const std::string& newHash) const
+                          const std::string& newHash) const
 {
   checkValid();
 

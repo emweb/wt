@@ -92,8 +92,8 @@ public:
     client_ = nullptr;
   }
 
-  void setTimeout(std::chrono::steady_clock::duration timeout) { 
-    timeout_ = timeout; 
+  void setTimeout(std::chrono::steady_clock::duration timeout) {
+    timeout_ = timeout;
   }
 
   void setMaximumResponseSize(std::size_t bytes) {
@@ -103,10 +103,10 @@ public:
   void request(Http::Method method,
                const std::string& protocol,
                const std::string& auth,
-	       const std::string& server,
-	       int port,
-	       const std::string& path,
-	       const Message& message)
+               const std::string& server,
+               int port,
+               const std::string& path,
+               const Message& message)
   {
     const char *methodNames_[] = { "GET", "POST", "PUT", "DELETE", "PATCH", "HEAD" };
 
@@ -122,21 +122,21 @@ public:
                      << std::to_string(port) << "\r\n";
 
     if (!auth.empty())
-      request_stream << "Authorization: Basic " 
-		     << Wt::Utils::base64Encode(auth) << "\r\n";
+      request_stream << "Authorization: Basic "
+                     << Wt::Utils::base64Encode(auth) << "\r\n";
 
     bool haveContentLength = false;
     for (unsigned i = 0; i < message.headers().size(); ++i) {
       const Message::Header& h = message.headers()[i];
       if (strcasecmp(h.name().c_str(), "Content-Length") == 0)
-	haveContentLength = true;
+        haveContentLength = true;
       request_stream << h.name() << ": " << h.value() << "\r\n";
     }
 
     if ((method == Http::Method::Post || method == Http::Method::Put || method == Http::Method::Delete || method == Http::Method::Patch) &&
-	!haveContentLength)
-      request_stream << "Content-Length: " << message.body().length() 
-		     << "\r\n";
+        !haveContentLength)
+      request_stream << "Content-Length: " << message.body().length()
+                     << "\r\n";
 
     request_stream << "\r\n";
 
@@ -149,9 +149,9 @@ public:
     resolver_.async_resolve
       (query,
        strand_.wrap(std::bind(&Impl::handleResolve,
-			      shared_from_this(),
-			      std::placeholders::_1,
-			      std::placeholders::_2)));
+                              shared_from_this(),
+                              std::placeholders::_1,
+                              std::placeholders::_2)));
   }
 
   void asyncStop()
@@ -164,15 +164,15 @@ protected:
   typedef std::function<void(const AsioWrapper::error_code&)>
     ConnectHandler;
   typedef std::function<void(const AsioWrapper::error_code&,
-			     const std::size_t&)> IOHandler;
+                             const std::size_t&)> IOHandler;
 
   virtual tcp::socket& socket() = 0;
   virtual void asyncConnect(tcp::endpoint& endpoint,
-			    const ConnectHandler& handler) = 0;
+                            const ConnectHandler& handler) = 0;
   virtual void asyncHandshake(const ConnectHandler& handler) = 0;
   virtual void asyncWriteRequest(const IOHandler& handler) = 0;
   virtual void asyncReadUntil(const std::string& s,
-			      const IOHandler& handler) = 0;
+                              const IOHandler& handler) = 0;
   virtual void asyncRead(const IOHandler& handler) = 0;
 
 private:
@@ -184,9 +184,9 @@ private:
 
     try {
       if (socket().is_open()) {
-	AsioWrapper::error_code ignored_ec;
-	socket().shutdown(tcp::socket::shutdown_both, ignored_ec);
-	socket().close();
+        AsioWrapper::error_code ignored_ec;
+        socket().shutdown(tcp::socket::shutdown_both, ignored_ec);
+        socket().close();
       }
     } catch (std::exception& e) {
       LOG_INFO("Client::abort(), stop(), ignoring error: " << e.what());
@@ -198,7 +198,7 @@ private:
     timer_.expires_from_now(timeout_);
     timer_.async_wait
       (strand_.wrap(std::bind(&Impl::timeout, shared_from_this(),
-			      std::placeholders::_1)));
+                              std::placeholders::_1)));
   }
 
   void cancelTimer()
@@ -215,14 +215,14 @@ private:
     if (e != asio::error::operation_aborted) {
       AsioWrapper::error_code ignored_ec;
       socket().shutdown(asio::ip::tcp::socket::shutdown_both,
-			ignored_ec);
+                        ignored_ec);
 
       err_ = asio::error::timed_out;
     }
   }
 
   void handleResolve(const AsioWrapper::error_code& err,
-		     tcp::resolver::iterator endpoint_iterator)
+                     tcp::resolver::iterator endpoint_iterator)
   {
     /* Within strand */
 
@@ -236,10 +236,10 @@ private:
 
       startTimer();
       asyncConnect(endpoint,
-		   strand_.wrap(std::bind(&Impl::handleConnect,
-					  shared_from_this(),
-					  std::placeholders::_1,
-					  ++endpoint_iterator)));
+                   strand_.wrap(std::bind(&Impl::handleConnect,
+                                          shared_from_this(),
+                                          std::placeholders::_1,
+                                          ++endpoint_iterator)));
     } else {
       if (aborted_)
         err_ = asio::error::operation_aborted;
@@ -248,9 +248,9 @@ private:
       complete();
     }
   }
- 
+
   void handleConnect(const AsioWrapper::error_code& err,
-		     tcp::resolver::iterator endpoint_iterator)
+                     tcp::resolver::iterator endpoint_iterator)
   {
     /* Within strand */
 
@@ -260,9 +260,9 @@ private:
       // The connection was successful. Do the handshake (SSL only)
       startTimer();
       asyncHandshake
-	(strand_.wrap(std::bind(&Impl::handleHandshake,
-				shared_from_this(),
-				std::placeholders::_1)));
+        (strand_.wrap(std::bind(&Impl::handleHandshake,
+                                shared_from_this(),
+                                std::placeholders::_1)));
     } else if (endpoint_iterator != tcp::resolver::iterator()) {
       // The connection failed. Try the next endpoint in the list.
       socket().close();
@@ -287,11 +287,11 @@ private:
       // The handshake was successful. Send the request.
       startTimer();
       asyncWriteRequest
-	(strand_.wrap
-	 (std::bind(&Impl::handleWriteRequest,
-		      shared_from_this(),
-		      std::placeholders::_1,
-		      std::placeholders::_2)));
+        (strand_.wrap
+         (std::bind(&Impl::handleWriteRequest,
+                      shared_from_this(),
+                      std::placeholders::_1,
+                      std::placeholders::_2)));
     } else {
       if (aborted_)
         err_ = asio::error::operation_aborted;
@@ -302,7 +302,7 @@ private:
   }
 
   void handleWriteRequest(const AsioWrapper::error_code& err,
-			  const std::size_t&)
+                          const std::size_t&)
   {
     /* Within strand */
 
@@ -312,12 +312,12 @@ private:
       // Read the response status line.
       startTimer();
       asyncReadUntil
-	("\r\n",
-	 strand_.wrap
-	 (std::bind(&Impl::handleReadStatusLine,
-		      shared_from_this(),
-		      std::placeholders::_1,
-		      std::placeholders::_2)));
+        ("\r\n",
+         strand_.wrap
+         (std::bind(&Impl::handleReadStatusLine,
+                      shared_from_this(),
+                      std::placeholders::_1,
+                      std::placeholders::_2)));
     } else {
       if (aborted_)
         err_ = asio::error::operation_aborted;
@@ -340,7 +340,7 @@ private:
   }
 
   void handleReadStatusLine(const AsioWrapper::error_code& err,
-			    const std::size_t& s)
+                            const std::size_t& s)
   {
     /* Within strand */
 
@@ -349,7 +349,7 @@ private:
     if (!err && !aborted_) {
       if (!addResponseSize(s)) {
         complete();
-	return;
+        return;
       }
 
       // Check that response is OK.
@@ -362,13 +362,13 @@ private:
       std::getline(response_stream, status_message);
       if (!response_stream || http_version.substr(0, 5) != "HTTP/") {
 #ifdef WT_ASIO_IS_BOOST_ASIO
-	err_ = boost::system::errc::make_error_code
-	  (boost::system::errc::protocol_error);
+        err_ = boost::system::errc::make_error_code
+          (boost::system::errc::protocol_error);
 #else
-	err_ = std::make_error_code(std::errc::protocol_error);
+        err_ = std::make_error_code(std::errc::protocol_error);
 #endif
-	complete();
-	return;
+        complete();
+        return;
       }
 
       LOG_DEBUG(status_code << " " << status_message);
@@ -378,12 +378,12 @@ private:
       // Read the response headers, which are terminated by a blank line.
       startTimer();
       asyncReadUntil
-	("\r\n\r\n",
-	 strand_.wrap
-	 (std::bind(&Impl::handleReadHeaders,
-		      shared_from_this(),
-		      std::placeholders::_1,
-		      std::placeholders::_2)));
+        ("\r\n\r\n",
+         strand_.wrap
+         (std::bind(&Impl::handleReadHeaders,
+                      shared_from_this(),
+                      std::placeholders::_1,
+                      std::placeholders::_2)));
     } else {
       if (aborted_)
         err_ = asio::error::operation_aborted;
@@ -394,7 +394,7 @@ private:
   }
 
   void handleReadHeaders(const AsioWrapper::error_code& err,
-			 const std::size_t& s)
+                         const std::size_t& s)
   {
     /* Within strand */
 
@@ -403,7 +403,7 @@ private:
     if (!err && !aborted_) {
       if (!addResponseSize(s)) {
         complete();
-	return;
+        return;
       }
 
       chunkedResponse_ = false;
@@ -413,24 +413,24 @@ private:
       std::istream response_stream(&responseBuf_);
       std::string header;
       while (std::getline(response_stream, header) && header != "\r") {
-	std::size_t i = header.find(':');
-	if (i != std::string::npos) {
-	  std::string name = boost::trim_copy(header.substr(0, i));
-	  std::string value = boost::trim_copy(header.substr(i+1));
-	  response_.addHeader(name, value);
+        std::size_t i = header.find(':');
+        if (i != std::string::npos) {
+          std::string name = boost::trim_copy(header.substr(0, i));
+          std::string value = boost::trim_copy(header.substr(i+1));
+          response_.addHeader(name, value);
 
-	  if (boost::iequals(name, "Transfer-Encoding") &&
-	      boost::iequals(value, "chunked")) {
-	    chunkedResponse_ = true;
-	    chunkState_.size = 0;
-	    chunkState_.parsePos = 0;
-	    chunkState_.state = ChunkState::State::Size;
-	  } else if (method_ != Http::Method::Head &&
+          if (boost::iequals(name, "Transfer-Encoding") &&
+              boost::iequals(value, "chunked")) {
+            chunkedResponse_ = true;
+            chunkState_.size = 0;
+            chunkState_.parsePos = 0;
+            chunkState_.state = ChunkState::State::Size;
+          } else if (method_ != Http::Method::Head &&
                      boost::iequals(name, "Content-Length")) {
-	    std::stringstream ss(value);
-	    ss >> contentLength_;
-	  }
-	}
+            std::stringstream ss(value);
+            ss >> contentLength_;
+          }
+        }
       }
 
       if (postSignals_) {
@@ -448,21 +448,21 @@ private:
       bool done = method_ == Http::Method::Head || response_.status() == STATUS_NO_CONTENT || contentLength_ == 0;
       // Write whatever content we already have to output.
       if (responseBuf_.size() > 0) {
-	std::stringstream ss;
-	ss << &responseBuf_;
+        std::stringstream ss;
+        ss << &responseBuf_;
         done = addBodyText(ss.str());
       }
 
       if (!done) {
-	// Start reading remaining data until EOF.
-	startTimer();
-	asyncRead(strand_.wrap
-	    (std::bind(&Impl::handleReadContent,
-		       shared_from_this(),
-		       std::placeholders::_1,
-		       std::placeholders::_2)));
+        // Start reading remaining data until EOF.
+        startTimer();
+        asyncRead(strand_.wrap
+            (std::bind(&Impl::handleReadContent,
+                       shared_from_this(),
+                       std::placeholders::_1,
+                       std::placeholders::_2)));
       } else {
-	complete();
+        complete();
       }
     } else {
       if (!aborted_)
@@ -474,7 +474,7 @@ private:
   }
 
   void handleReadContent(const AsioWrapper::error_code& err,
-			 const std::size_t& s)
+                         const std::size_t& s)
   {
     /* Within strand */
 
@@ -483,7 +483,7 @@ private:
     if (!err && !aborted_) {
       if (!addResponseSize(s)) {
         complete();
-	return;
+        return;
       }
 
       std::stringstream ss;
@@ -492,23 +492,23 @@ private:
       bool done = addBodyText(ss.str());
 
       if (!done) {
-	// Continue reading remaining data until EOF.
-	startTimer();
-	asyncRead
-	  (strand_.wrap
-	   (std::bind(&Impl::handleReadContent,
-		      shared_from_this(),
-		      std::placeholders::_1,
-		      std::placeholders::_2)));
+        // Continue reading remaining data until EOF.
+        startTimer();
+        asyncRead
+          (strand_.wrap
+           (std::bind(&Impl::handleReadContent,
+                      shared_from_this(),
+                      std::placeholders::_1,
+                      std::placeholders::_2)));
       } else {
-	complete();
+        complete();
       }
     } else if (!aborted_
                && err != asio::error::eof
-	       && err != asio::error::shut_down
-	       && err != asio::error::bad_descriptor
-	       && err != asio::error::operation_aborted
-	       && err.value() != 335544539) {
+               && err != asio::error::shut_down
+               && err != asio::error::bad_descriptor
+               && err != asio::error::operation_aborted
+               && err.value() != 335544539) {
       err_ = err;
       complete();
     } else {
@@ -524,21 +524,21 @@ private:
     if (chunkedResponse_) {
       chunkedDecode(text);
       if (chunkState_.state == ChunkState::State::Error) {
-	protocolError();
-	return true;
+        protocolError();
+        return true;
       } else if (chunkState_.state == ChunkState::State::Complete) {
-	return true;
+        return true;
       } else
-	return false;
+        return false;
     } else {
       if (maximumResponseSize_)
-	response_.addBodyText(text);
+        response_.addBodyText(text);
 
       LOG_DEBUG("Data: " << text);
       haveBodyData(text);
 
       return (contentLength_ >= 0) &&
-	(response_.body().size() >= contentLength_);
+        (response_.body().size() >= contentLength_);
     }
   }
 
@@ -548,84 +548,84 @@ private:
     while (pos != text.end()) {
       switch (chunkState_.state) {
       case ChunkState::State::Size: {
-	unsigned char ch = *(pos++);
+        unsigned char ch = *(pos++);
 
-	switch (chunkState_.parsePos) {
-	case -2:
-	  if (ch != '\r') {
-	    chunkState_.state = ChunkState::State::Error; return;
-	  }
+        switch (chunkState_.parsePos) {
+        case -2:
+          if (ch != '\r') {
+            chunkState_.state = ChunkState::State::Error; return;
+          }
 
-	  chunkState_.parsePos = -1;
+          chunkState_.parsePos = -1;
 
-	  break;
-	case -1:
-	  if (ch != '\n') {
-	    chunkState_.state = ChunkState::State::Error; return;
-	  }
+          break;
+        case -1:
+          if (ch != '\n') {
+            chunkState_.state = ChunkState::State::Error; return;
+          }
 
-	  chunkState_.parsePos = 0;
-	  
-	  break;
-	case 0:
-	  if (ch >= '0' && ch <= '9') {
-	    chunkState_.size <<= 4;
-	    chunkState_.size |= (ch - '0');
-	  } else if (ch >= 'a' && ch <= 'f') {
-	    chunkState_.size <<= 4;
-	    chunkState_.size |= (10 + ch - 'a');
-	  } else if (ch >= 'A' && ch <= 'F') {
-	    chunkState_.size <<= 4;
-	    chunkState_.size |= (10 + ch - 'A');
-	  } else if (ch == '\r') {
-	    chunkState_.parsePos = 2;
-	  } else if (ch == ';') {
-	    chunkState_.parsePos = 1;
-	  } else {
-	     chunkState_.state = ChunkState::State::Error; return;
-	  }
+          chunkState_.parsePos = 0;
 
-	  break;
-	case 1:
-	  /* Ignoring extensions and syntax for now */
-	  if (ch == '\r')
-	    chunkState_.parsePos = 2;
+          break;
+        case 0:
+          if (ch >= '0' && ch <= '9') {
+            chunkState_.size <<= 4;
+            chunkState_.size |= (ch - '0');
+          } else if (ch >= 'a' && ch <= 'f') {
+            chunkState_.size <<= 4;
+            chunkState_.size |= (10 + ch - 'a');
+          } else if (ch >= 'A' && ch <= 'F') {
+            chunkState_.size <<= 4;
+            chunkState_.size |= (10 + ch - 'A');
+          } else if (ch == '\r') {
+            chunkState_.parsePos = 2;
+          } else if (ch == ';') {
+            chunkState_.parsePos = 1;
+          } else {
+             chunkState_.state = ChunkState::State::Error; return;
+          }
 
-	  break;
-	case 2:
-	  if (ch != '\n') {
-	    chunkState_.state = ChunkState::State::Error; return;
-	  }
+          break;
+        case 1:
+          /* Ignoring extensions and syntax for now */
+          if (ch == '\r')
+            chunkState_.parsePos = 2;
 
-	  if (chunkState_.size == 0) {
-	    chunkState_.state = ChunkState::State::Complete; return;
-	  }
-	    
-	  chunkState_.state = ChunkState::State::Data;
-	}
+          break;
+        case 2:
+          if (ch != '\n') {
+            chunkState_.state = ChunkState::State::Error; return;
+          }
 
-	break;
+          if (chunkState_.size == 0) {
+            chunkState_.state = ChunkState::State::Complete; return;
+          }
+
+          chunkState_.state = ChunkState::State::Data;
+        }
+
+        break;
       }
       case ChunkState::State::Data: {
-	std::size_t thisChunk
-	  = std::min(std::size_t(text.end() - pos), chunkState_.size);
-	std::string text = std::string(pos, pos + thisChunk);
-	if (maximumResponseSize_)
-	  response_.addBodyText(text);
+        std::size_t thisChunk
+          = std::min(std::size_t(text.end() - pos), chunkState_.size);
+        std::string text = std::string(pos, pos + thisChunk);
+        if (maximumResponseSize_)
+          response_.addBodyText(text);
 
-	LOG_DEBUG("Chunked data: " << text);
-	haveBodyData(text);
-	chunkState_.size -= thisChunk;
-	pos += thisChunk;
+        LOG_DEBUG("Chunked data: " << text);
+        haveBodyData(text);
+        chunkState_.size -= thisChunk;
+        pos += thisChunk;
 
-	if (chunkState_.size == 0) {
-	  chunkState_.parsePos = -2;
-	  chunkState_.state = ChunkState::State::Size;
-	}
-	break;
+        if (chunkState_.size == 0) {
+          chunkState_.parsePos = -2;
+          chunkState_.state = ChunkState::State::Size;
+        }
+        break;
       }
       default:
-	assert(false); // Illegal state
+        assert(false); // Illegal state
       }
     }
   }
@@ -638,7 +638,7 @@ private:
 #else
     err_ = std::make_error_code(std::errc::protocol_error);
 #endif
-  } 
+  }
 
   void complete()
   {
@@ -748,7 +748,7 @@ protected:
   }
 
   virtual void asyncConnect(tcp::endpoint& endpoint,
-			    const ConnectHandler& handler) override
+                            const ConnectHandler& handler) override
   {
     socket_.async_connect(endpoint, handler);
   }
@@ -764,7 +764,7 @@ protected:
   }
 
   virtual void asyncReadUntil(const std::string& s,
-			      const IOHandler& handler) override
+                              const IOHandler& handler) override
   {
     asio::async_read_until(socket_, responseBuf_, s, handler);
   }
@@ -788,8 +788,8 @@ public:
           const std::shared_ptr<WebSession>& session,
           asio::io_service& ioService,
           bool verifyEnabled,
-	  asio::ssl::context& context,
-	  const std::string& hostName)
+          asio::ssl::context& context,
+          const std::string& hostName)
     : Impl(client, session, ioService),
       socket_(ioService_, context),
       verifyEnabled_(verifyEnabled),
@@ -809,7 +809,7 @@ protected:
   }
 
   virtual void asyncConnect(tcp::endpoint& endpoint,
-			    const ConnectHandler& handler) override
+                            const ConnectHandler& handler) override
   {
     socket_.lowest_layer().async_connect(endpoint, handler);
   }
@@ -831,7 +831,7 @@ protected:
   }
 
   virtual void asyncReadUntil(const std::string& s,
-			      const IOHandler& handler) override
+                              const IOHandler& handler) override
   {
     asio::async_read_until(socket_, responseBuf_, s, handler);
   }
@@ -926,8 +926,8 @@ bool Client::get(const std::string& url)
   return request(Http::Method::Get, url, Message());
 }
 
-bool Client::get(const std::string& url, 
-		 const std::vector<Message::Header> headers)
+bool Client::get(const std::string& url,
+                 const std::vector<Message::Header> headers)
 {
   Message m(headers);
   return request(Http::Method::Get, url, m);
@@ -966,7 +966,7 @@ bool Client::patch(const std::string& url, const Message& message)
 }
 
 bool Client::request(Http::Method method, const std::string& url,
-		     const Message& message)
+                     const Message& message)
 {
   asio::io_service *ioService = ioService_;
 
@@ -1012,9 +1012,9 @@ bool Client::request(Http::Method method, const std::string& url,
 
     if (!verifyFile_.empty() || !verifyPath_.empty()) {
       if (!verifyFile_.empty())
-	context.load_verify_file(verifyFile_);
+        context.load_verify_file(verifyFile_);
       if (!verifyPath_.empty())
-	context.add_verify_path(verifyPath_);
+        context.add_verify_path(verifyPath_);
     }
 
     impl = std::make_shared<SslImpl>(this,
@@ -1066,8 +1066,8 @@ void Client::setMaxRedirects(int maxRedirects)
 }
 
 void Client::handleRedirect(Http::Method method,
-			    AsioWrapper::error_code err,
-			    const Message& response, const Message& request)
+                            AsioWrapper::error_code err,
+                            const Message& response, const Message& request)
 {
   impl_.reset();
   int status = response.status();
@@ -1079,11 +1079,11 @@ void Client::handleRedirect(Http::Method method,
     ++ redirectCount_;
     if (newUrl) {
       if (redirectCount_ <= maxRedirects_) {
-	get(*newUrl, request.headers());
-	return;
+        get(*newUrl, request.headers());
+        return;
       } else {
-	LOG_WARN("Redirect count of " << maxRedirects_ 
-		 << " exceeded! Redirect URL: " << *newUrl);
+        LOG_WARN("Redirect count of " << maxRedirects_
+                 << " exceeded! Redirect URL: " << *newUrl);
       }
     }
   }

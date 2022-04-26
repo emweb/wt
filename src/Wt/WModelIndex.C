@@ -131,13 +131,13 @@ bool WModelIndex::operator< (const WModelIndex& i2) const
 
     if (p1 == p2) {
       if (a1.row() < a2.row())
-	return true;
+        return true;
       else if (a1.row() > a2.row())
-	return false;
+        return false;
       else if (a1.column() < a2.column())
-	return true;
+        return true;
       else
-	return false;
+        return false;
     }
 
     a1 = p1;
@@ -148,7 +148,7 @@ bool WModelIndex::operator< (const WModelIndex& i2) const
 }
 
 bool WModelIndex::UnorderedLess::operator() (const WModelIndex& i1,
-					     const WModelIndex& i2) const
+                                             const WModelIndex& i2) const
 {
   if (!i1.isValid())
     return i2.isValid();
@@ -172,7 +172,7 @@ bool WModelIndex::UnorderedLess::operator() (const WModelIndex& i1,
 }
 
 WModelIndex::WModelIndex(int row, int column, const WAbstractItemModel *model,
-			 void *ptr)
+                         void *ptr)
   : model_(model),
     row_(row),
     column_(column),
@@ -180,7 +180,7 @@ WModelIndex::WModelIndex(int row, int column, const WAbstractItemModel *model,
 { }
 
 WModelIndex::WModelIndex(int row, int column, const WAbstractItemModel *model,
-			 ::uint64_t id)
+                         ::uint64_t id)
   : model_(model),
     row_(row),
     column_(column),
@@ -285,7 +285,7 @@ WModelIndex::decodeFromRawIndexes(const std::unordered_set<WModelIndex>& encoded
 }
 
 bool WModelIndex::isAncestor(const Wt::WModelIndex& i1,
-			     const Wt::WModelIndex& i2) {
+                             const Wt::WModelIndex& i2) {
   if (!i1.isValid())
     return false;
 

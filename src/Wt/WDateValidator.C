@@ -37,7 +37,7 @@ WDateValidator::WDateValidator(const WT_USTRING& format)
 }
 
 WDateValidator::WDateValidator(const WT_USTRING& format,
-			       const WDate& bottom, const WDate& top)
+                               const WDate& bottom, const WDate& top)
   : bottom_(bottom),
     top_(top)
 {
@@ -151,15 +151,15 @@ WValidator::Result WDateValidator::validate(const WT_USTRING& input) const
       WDate d = WDate::fromString(input, formats_[i]);
 
       if (d.isValid()) {
-	if (!bottom_.isNull())
-	  if (d < bottom_)
-	    return Result(ValidationState::Invalid, invalidTooEarlyText());
+        if (!bottom_.isNull())
+          if (d < bottom_)
+            return Result(ValidationState::Invalid, invalidTooEarlyText());
 
-	if (!top_.isNull())
-	  if (d > top_)
-	    return Result(ValidationState::Invalid, invalidTooLateText());
-    
-	return Result(ValidationState::Valid);
+        if (!top_.isNull())
+          if (d > top_)
+            return Result(ValidationState::Invalid, invalidTooLateText());
+
+        return Result(ValidationState::Valid);
       }
     } catch (std::exception& e) {
       LOG_WARN("validate(): " << e.what());

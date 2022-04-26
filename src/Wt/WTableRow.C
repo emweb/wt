@@ -19,7 +19,7 @@ WTableRow::WTableRow()
   : table_(nullptr),
     hidden_(false),
     hiddenChanged_(false)
-{ 
+{
   implementStateless(&WTableRow::hide, &WTableRow::undoHide);
   implementStateless(&WTableRow::show, &WTableRow::undoHide);
 }
@@ -90,7 +90,7 @@ int WTableRow::rowNum() const
   if (table_)
     for (unsigned i = 0; i < table_->rows_.size(); ++i)
       if (table_->rows_[i].get() == this)
-	return i;
+        return i;
 
   return -1;
 }
@@ -117,10 +117,10 @@ void WTableRow::addStyleClass(const WT_USTRING& style)
   std::string currentClass = styleClass_.toUTF8();
   Utils::SplitSet classes;
   Utils::split(classes, currentClass, " ", true);
-  
+
   if (classes.find(style.toUTF8()) == classes.end()) {
     styleClass_ = WT_USTRING::fromUTF8(Utils::addWord(styleClass_.toUTF8(),
-						      style.toUTF8()));
+                                                      style.toUTF8()));
     if (table_)
       table_->repaintRow(this);
   }
@@ -134,7 +134,7 @@ void WTableRow::removeStyleClass(const WT_USTRING& style)
 
   if (classes.find(style.toUTF8()) != classes.end()) {
     styleClass_ = WT_USTRING::fromUTF8(Utils::eraseWord(styleClass_.toUTF8(),
-							style.toUTF8()));
+                                                        style.toUTF8()));
     if (table_)
       table_->repaintRow(this);
   }

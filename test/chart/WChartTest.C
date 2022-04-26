@@ -24,8 +24,8 @@ using namespace Wt::Chart;
 namespace {
 
 double plotTimeSeriesChart(const std::shared_ptr<WStandardItemModel>& model, 
-			   std::string fileName,
-			   AxisScale xScale)
+                           std::string fileName,
+                           AxisScale xScale)
 {
   WCartesianChart chart;
   chart.setModel(model);

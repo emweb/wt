@@ -66,24 +66,24 @@ class Circle : public Shape
 {
 public:
   Circle(const WPointF& center,
-	 const ShapeColor& color, 
-	 const double size);
-  
+         const ShapeColor& color,
+         const double size);
+
   virtual bool contains(const WPointF& point) const override;
   virtual WString shapeName() const override;
   virtual void paint(WPainter& painter) const override;
- 
+
  private:
-  double distanceTo(const double x1, const double y1, 
-		    const double x2, const double y2) const;
+  double distanceTo(const double x1, const double y1,
+                    const double x2, const double y2) const;
 };
 
 class Rectangle : public Shape
 {
 public:
   Rectangle(const WPointF& center,
-	    const ShapeColor& color, 
-	    const double size);
+            const ShapeColor& color,
+            const double size);
 
   virtual bool contains(const WPointF& point) const override;
   virtual WString shapeName() const override;

@@ -55,10 +55,10 @@ DialogExample::DialogExample(const WEnvironment& env)
   status_ = textdiv->addWidget(std::make_unique<WText>("Go ahead..."));
 
   styleSheet().addRule(".buttons",
-		       "padding: 5px;");
+                       "padding: 5px;");
   styleSheet().addRule(".buttons BUTTON",
-		       "padding-left: 4px; padding-right: 4px;"
-		       "margin-top: 4px; display: block");
+                       "padding-left: 4px; padding-right: 4px;"
+                       "margin-top: 4px; display: block");
 
   // avoid scrollbar problems
   styleSheet().addRule(".text", "padding: 4px 8px");
@@ -106,7 +106,7 @@ void DialogExample::messageBox4()
     = std::make_unique<WMessageBox>("Warning!",
               "Are you sure you want to continue?\n"
               "You have unsaved changes.",
-	      Icon::None, StandardButton::None);
+              Icon::None, StandardButton::None);
 
   messageBox_->addButton("Discard Modifications", StandardButton::Ok);
   WPushButton *continueButton

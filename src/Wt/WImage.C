@@ -84,7 +84,7 @@ WImage::WImage()
 }
 
 WImage::WImage(const WLink& link)
-{ 
+{
   setLoadLaterWhenInvisible(false);
 
   setImageLink(link);
@@ -92,7 +92,7 @@ WImage::WImage(const WLink& link)
 
 WImage::WImage(const WLink& link, const WString& altText)
   : altText_(altText)
-{ 
+{
   setLoadLaterWhenInvisible(false);
 
   setImageLink(link);
@@ -234,7 +234,7 @@ void WImage::updateDom(DomElement& element, bool all)
 }
 
 void WImage::getDomChanges(std::vector<DomElement *>& result,
-			   WApplication *app)
+                           WApplication *app)
 {
   if (map_) {
     // TODO: check if BIT_MAP_CREATED: then need to replace the whole

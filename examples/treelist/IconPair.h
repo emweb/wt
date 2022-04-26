@@ -61,7 +61,7 @@ public:
   /*! \brief Get the first icon image
    */
   WImage *icon1() const { return icon1_; }
-  
+
   /*! \brief Get the second icon image
    */
   WImage *icon2() const { return icon2_; }
@@ -71,7 +71,7 @@ public:
   void showIcon1();
 
   /*! \brief Set state to 1 (show icon 2).
-   */ 
+   */
   void showIcon2();
 
 private:

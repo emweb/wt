@@ -88,7 +88,7 @@ enum PasswordStrengthType {
  * for a web application). You may want to make it change the settings
  * to demand stronger passwords for sensitive applications.
  *
- * \ingroup auth 
+ * \ingroup auth
  */
 class WT_API PasswordStrengthValidator
   : public AbstractPasswordService::AbstractStrengthValidator
@@ -154,17 +154,17 @@ public:
 
   /*! \brief Evaluates the strength of a password.
    *
-   * The result is an instance of StrengthValidatorResult which 
-   * contains information on the validity and the strength (0 if invalid, 
+   * The result is an instance of StrengthValidatorResult which
+   * contains information on the validity and the strength (0 if invalid,
    * 5 if valid) of the password together with possible messages.
    *
    * The validator takes into account the user's login name and
    * email address, to exclude passwords that are too similar to these.
    */
-  virtual AbstractPasswordService::StrengthValidatorResult 
+  virtual AbstractPasswordService::StrengthValidatorResult
     evaluateStrength(const WT_USTRING& password,
-		     const WT_USTRING& loginName,
-		     const std::string& email) const override;
+                     const WT_USTRING& loginName,
+                     const std::string& email) const override;
 
 private:
   int minLength_[5];

@@ -29,7 +29,7 @@ public:
       if (*end == 0)
         dt = cpp17::any(d);
       else
-	dt = data;
+        dt = data;
     } else
       dt = data;
 
@@ -38,7 +38,7 @@ public:
 };
 
 std::shared_ptr<WStandardItemModel> csvToModel(const std::string& csvFile,
-				   bool firstLineIsHeaders)
+                                   bool firstLineIsHeaders)
 {
   std::ifstream f(csvFile.c_str());
 
@@ -52,7 +52,7 @@ std::shared_ptr<WStandardItemModel> csvToModel(const std::string& csvFile,
 }
 
 void readFromCsv(std::istream& f, std::shared_ptr<WAbstractItemModel> model,
-		 int numRows, bool firstLineIsHeaders)
+                 int numRows, bool firstLineIsHeaders)
 {
   int csvRow = 0;
 
@@ -62,32 +62,32 @@ void readFromCsv(std::istream& f, std::shared_ptr<WAbstractItemModel> model,
 
     if (f) {
       typedef boost::tokenizer<boost::escaped_list_separator<char> >
-	CsvTokenizer;
+        CsvTokenizer;
       CsvTokenizer tok(line);
 
       int col = 0;
       for (CsvTokenizer::iterator i = tok.begin();
-	   i != tok.end(); ++i, ++col) {
+           i != tok.end(); ++i, ++col) {
 
-	if (col >= model->columnCount())
-	  model->insertColumns(model->columnCount(),
-			       col + 1 - model->columnCount());
+        if (col >= model->columnCount())
+          model->insertColumns(model->columnCount(),
+                               col + 1 - model->columnCount());
 
-	if (firstLineIsHeaders && csvRow == 0)
-	  model->setHeaderData(col, cpp17::any{WString{*i}});
-	else {
-	  int dataRow = firstLineIsHeaders ? csvRow - 1 : csvRow;
+        if (firstLineIsHeaders && csvRow == 0)
+          model->setHeaderData(col, cpp17::any{WString{*i}});
+        else {
+          int dataRow = firstLineIsHeaders ? csvRow - 1 : csvRow;
 
-	  if (numRows != -1 && dataRow >= numRows)
-	    return;
+          if (numRows != -1 && dataRow >= numRows)
+            return;
 
-	  if (dataRow >= model->rowCount())
-	    model->insertRows(model->rowCount(),
-			      dataRow + 1 - model->rowCount());
+          if (dataRow >= model->rowCount())
+            model->insertRows(model->rowCount(),
+                              dataRow + 1 - model->rowCount());
 
-	  cpp17::any data{WString{*i}};
-	  model->setData(dataRow, col, data);
-	}
+          cpp17::any data{WString{*i}};
+          model->setData(dataRow, col, data);
+        }
       }
     }
 

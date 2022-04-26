@@ -53,25 +53,25 @@ BOOST_AUTO_TEST_CASE( CssSelector_test1 )
   Wt::Render::Block b(doc.get(), nullptr);
   // PASS ul to "ul"
   BOOST_REQUIRE(Match::isMatch(childBlock(&b, list_of(0)),
-			       style->rulesetAt(0).selector() ).isValid() );
+                               style->rulesetAt(0).selector() ).isValid() );
   // PASS ul/li to "ul li"
   BOOST_REQUIRE(Match::isMatch(childBlock(&b, list_of(0)(0)),
-			       style->rulesetAt(1).selector() ).isValid() );
+                               style->rulesetAt(1).selector() ).isValid() );
   // PASS ul/li to "li"
   BOOST_REQUIRE(Match::isMatch(childBlock(&b, list_of(0)(0)),
-			       style->rulesetAt(2).selector() ).isValid() );
+                               style->rulesetAt(2).selector() ).isValid() );
   // FAIL li to "ul li"
   BOOST_REQUIRE(!Match::isMatch(childBlock(&b, list_of(1)),
-				style->rulesetAt(1).selector() ).isValid() );
+                                style->rulesetAt(1).selector() ).isValid() );
   // FAIL li/h1/h2/h1 to "ul h1"
   BOOST_REQUIRE(!Match::isMatch(childBlock(&b, list_of(1)(0)(0)(0)),
-				style->rulesetAt(3).selector() ).isValid() );
+                                style->rulesetAt(3).selector() ).isValid() );
   // PASS li/h1/h2/h1 to "li h1 h1"
   BOOST_REQUIRE(Match::isMatch(childBlock(&b, list_of(1)(0)(0)(0)),
-			       style->rulesetAt(5).selector() ).isValid() );
+                               style->rulesetAt(5).selector() ).isValid() );
   // PASS li/h1/h2/h1 to "h1 h1"
   BOOST_REQUIRE(Match::isMatch(childBlock(&b, list_of(1)(0)(0)(0)),
-			       style->rulesetAt(4).selector() ).isValid() );
+                               style->rulesetAt(4).selector() ).isValid() );
 }
 
 BOOST_AUTO_TEST_CASE( CssSelector_test2 )
@@ -87,16 +87,16 @@ BOOST_AUTO_TEST_CASE( CssSelector_test2 )
   Wt::Render::Block b(doc.get(), 0);
   // PASS h1/h2/h3/h4 to "#two #four"
   BOOST_REQUIRE(Match::isMatch(childBlock(&b, list_of(0)(0)(0)(0)),
-			       style->rulesetAt(0).selector() ).isValid() );
+                               style->rulesetAt(0).selector() ).isValid() );
   // PASS h1/h2/h3/h4 to "#two h4#four"
   BOOST_REQUIRE(Match::isMatch(childBlock(&b, list_of(0)(0)(0)(0)),
-				 style->rulesetAt(1).selector() ).isValid() );
+                                 style->rulesetAt(1).selector() ).isValid() );
   // FAIL h1/h2/h3/h4 to "#two h3#four"
   BOOST_REQUIRE(!Match::isMatch(childBlock(&b, list_of(0)(0)(0)(0)),
-				style->rulesetAt(2).selector() ).isValid() );
+                                style->rulesetAt(2).selector() ).isValid() );
   // FAIL h1/h2/h3 to "#two h3#four"
   BOOST_REQUIRE(!Match::isMatch(childBlock(&b, list_of(0)(0)(0)),
-				style->rulesetAt(2).selector() ).isValid() );
+                                style->rulesetAt(2).selector() ).isValid() );
 }
 
 BOOST_AUTO_TEST_CASE( CssSelector_test3 )
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( CssSelector_test3 )
   Wt::Render::Block b(doc.get(), nullptr);
   // PASS h1/h2/h3/h4 to ".b .d"
   BOOST_REQUIRE(Match::isMatch(childBlock(&b, list_of(0)(0)(0)(0)),
-			       style->rulesetAt(0).selector() ).isValid() );
+                               style->rulesetAt(0).selector() ).isValid() );
   // PASS h1/h2/h3/h4 to ".b h4.d"
   BOOST_REQUIRE(Match::isMatch(childBlock(&b, list_of(0)(0)(0)(0)),
                   style->rulesetAt(1).selector() ).isValid() );
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE( CssSelector_test4 )
   Wt::Render::Block b(doc.get(), nullptr);
   // PASS h1/h2/h3 to "h1.a1#one.a2 * h3#two.c{}"
   BOOST_REQUIRE(  Match::isMatch(childBlock(&b, list_of(0)(0)(0)),
-				 style->rulesetAt(0).selector() ).isValid() );
+                                 style->rulesetAt(0).selector() ).isValid() );
 }
 
 BOOST_AUTO_TEST_CASE( CssSelector_testSpecificity )
@@ -171,10 +171,10 @@ BOOST_AUTO_TEST_CASE( CssSelector_test5 )
   Wt::Render::Block b(doc.get(), nullptr);
   // Sanity check, match h1/h1/h1 to "h1 h1 h1"
   BOOST_REQUIRE(  Match::isMatch(childBlock(&b, list_of(0)(0)(0)),
-				 style->rulesetAt(0).selector() ).isValid() );
+                                 style->rulesetAt(0).selector() ).isValid() );
   // FAIL h1/h1 to "h1 h1 h1"
   BOOST_REQUIRE( !Match::isMatch(childBlock(&b, list_of(0)(0)),
-				 style->rulesetAt(0).selector() ).isValid() );
+                                 style->rulesetAt(0).selector() ).isValid() );
 }
 
 #endif // CSS_PARSER

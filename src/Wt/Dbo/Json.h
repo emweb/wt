@@ -86,9 +86,9 @@ public:
     void actPtr(const PtrRef<T>& field) {
       writeFieldName(field.name());
       if (field.value())
-	outputId(field.id());
+        outputId(field.id());
       else
-	out("null");
+        out("null");
     }
 
     template<typename T>
@@ -96,27 +96,27 @@ public:
       writeFieldName(session_->tableName<T>() + std::string("_") + field.joinName());
       ptr<T> v = field.value().query();
       if (v) {
-	serialize(v);
+        serialize(v);
       } else {
-	out("null");
+        out("null");
       }
     }
 
     template<typename T>
     void actCollection(const CollectionRef<T>& collec) {
       if (collec.type() == ManyToOne) {
-	collection<ptr<T> > c = collec.value();
-	writeFieldName(session_->tableName<T>() + std::string("s_")  + collec.joinName());
-	out('[');
-	bool first = true;
-	for (typename collection<ptr<T> >::const_iterator i = c.begin(); i != c.end(); ++i) {
-	  if (first)
-	    first = false;
-	  else
-	    out(',');
-	  serialize(*i);
-	}
-	out(']');
+        collection<ptr<T> > c = collec.value();
+        writeFieldName(session_->tableName<T>() + std::string("s_")  + collec.joinName());
+        out('[');
+        bool first = true;
+        for (typename collection<ptr<T> >::const_iterator i = c.begin(); i != c.end(); ++i) {
+          if (first)
+            first = false;
+          else
+            out(',');
+          serialize(*i);
+        }
+        out(']');
       }
     }
 
@@ -155,11 +155,11 @@ public:
       out('{');
       first_ = true;
       if (dbo_traits<T>::surrogateIdField()) {
-	out('"');
-	out(dbo_traits<T>::surrogateIdField());
-	out("\":");
-	outputId(t.id());
-	first_ = false;
+        out('"');
+        out(dbo_traits<T>::surrogateIdField());
+        out("\":");
+        outputId(t.id());
+        first_ = false;
       }
       const_cast<T&>(*t).persist(*this);
       out('}');
@@ -174,11 +174,11 @@ public:
     void serialize(const std::vector<ptr<T> >& v) {
       out('[');
       for (typename std::vector<ptr<T> >::const_iterator i = v.begin(); i != v.end(); ++i) {
-	if (i != v.begin())
-	  out(',');
-	else
-	  session_ = (*i).session();
-	serialize(*i);
+        if (i != v.begin())
+          out(',');
+        else
+          session_ = (*i).session();
+        serialize(*i);
       }
       out(']');
     }
@@ -197,11 +197,11 @@ public:
       out('[');
       bool first = true;
       for (typename collection<ptr<T> >::const_iterator i = c.begin(); i != c.end(); ++i) {
-	if (first)
-	  first = false;
-	else
-	  out(',');
-	serialize(*i);
+        if (first)
+          first = false;
+        else
+          out(',');
+        serialize(*i);
       }
       out(']');
       session_ = NULL;

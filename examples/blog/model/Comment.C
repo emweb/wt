@@ -17,7 +17,7 @@ DBO_INSTANTIATE_TEMPLATES(Comment)
 
 namespace {
   std::string& replace(std::string& s, const std::string& k,
-		       const std::string& r)
+                       const std::string& r)
   {
     std::string::size_type p = 0;
 
@@ -47,30 +47,30 @@ void Comment::setText(const Wt::WString& src)
       break;
     else {
       if (b > 6 && html.substr(b - 6, 6) == "<br />") {
-	html.erase(b - 6, 6);
-	b -= 6;
-	e -= 6;
+        html.erase(b - 6, 6);
+        b -= 6;
+        e -= 6;
       }
 
       html.replace(b, 12, "<pre>");
       e -= 7;
 
       if (html.substr(b + 5, 6) == "<br />") {
-	html.erase(b + 5, 6);
-	e -= 6;
+        html.erase(b + 5, 6);
+        e -= 6;
       }
 
       if (html.substr(e - 6, 6) == "<br />") {
-	html.erase(e - 6, 6);
-	e -= 6;
+        html.erase(e - 6, 6);
+        e -= 6;
       }
 
       html.replace(e, 13, "</pre>");
       e += 6;
 
       if (e + 6 <= html.length() && html.substr(e, 6) == "<br />") {
-	html.erase(e, 6);
-	e -= 6;
+        html.erase(e, 6);
+        e -= 6;
       }
 
       b = e;

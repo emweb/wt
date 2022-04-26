@@ -50,7 +50,7 @@ struct CExpressionParser : grammar<CExpressionParser>
     bool condition_;
   };
 
-  CExpressionParser(::int64_t n, int &result, ParseState &state) : 
+  CExpressionParser(::int64_t n, int &result, ParseState &state) :
     n_(n),
     result_(result),
     state_(state)
@@ -97,7 +97,7 @@ struct CExpressionParser : grammar<CExpressionParser>
         = factor[term.value = arg1]
           >> *( ('*' >> factor[term.value *= arg1])
               | ('/' >> factor[term.value /= arg1])
-	      | ('%' >> factor[term.value %= arg1])
+              | ('%' >> factor[term.value %= arg1])
             )
         ;
 
@@ -109,64 +109,64 @@ struct CExpressionParser : grammar<CExpressionParser>
         ;
 
       expression
-	= or_expression[expression.value = arg1]
-	               [expression.condition = arg1] 
-	>> !( '?' 
-	      >> expression[bind(&CExpressionParser::set_cond)
-			    (self, expression.condition)]
-	                   [bind(&CExpressionParser::ternary_op)
-			    (self, expression.value, arg1)] 
-	      >> ':' 
-	      >> expression[bind(&CExpressionParser::set_not_cond)
-			    (self, expression.condition)]
-	                   [bind(&CExpressionParser::ternary_op)
-			    (self, expression.value, arg1)]
-			    )
-	;
+        = or_expression[expression.value = arg1]
+                       [expression.condition = arg1]
+        >> !( '?'
+              >> expression[bind(&CExpressionParser::set_cond)
+                            (self, expression.condition)]
+                           [bind(&CExpressionParser::ternary_op)
+                            (self, expression.value, arg1)]
+              >> ':'
+              >> expression[bind(&CExpressionParser::set_not_cond)
+                            (self, expression.condition)]
+                           [bind(&CExpressionParser::ternary_op)
+                            (self, expression.value, arg1)]
+                            )
+        ;
 
       or_expression
         = and_expression[or_expression.value = arg1]
-	  >> *( "||" >> and_expression[bind(&CExpressionParser::or_op)
-				       (self, or_expression.value, arg1)] )
+          >> *( "||" >> and_expression[bind(&CExpressionParser::or_op)
+                                       (self, or_expression.value, arg1)] )
         ;
-      
+
       and_expression
         = eq_expression[and_expression.value = arg1]
           >> *( "&&" >> eq_expression[bind(&CExpressionParser::and_op)
-				       (self, and_expression.value, arg1)] )
+                                       (self, and_expression.value, arg1)] )
         ;
 
       eq_expression
         = relational_expression[eq_expression.value = arg1]
           >> *( ("==" >> relational_expression[bind(&CExpressionParser::eq_op)
-					       (self, 
-						eq_expression.value, 
-						arg1)])
-	      | ("!=" >> relational_expression[bind(&CExpressionParser::neq_op)
-					       (self, 
-						eq_expression.value, 
-						arg1)])
+                                               (self,
+                                                eq_expression.value,
+                                                arg1)])
+              | ("!=" >> relational_expression[bind(&CExpressionParser::neq_op)
+                                               (self,
+                                                eq_expression.value,
+                                                arg1)])
             )
         ;
-	
+
       relational_expression
         = additive_expression[relational_expression.value = arg1]
           >> *( (">" >> additive_expression[bind(&CExpressionParser::gt_op)
-					    (self, 
-					     relational_expression.value, 
-					     arg1)])
-	      | (">=" >> additive_expression[bind(&CExpressionParser::gte_op)
-					     (self, 
-					      relational_expression.value, 
-					      arg1)])
-	      | ("<" >> additive_expression[bind(&CExpressionParser::lt_op)
-					    (self, 
-					     relational_expression.value, 
-					     arg1)])
-	      | ("<=" >> additive_expression[bind(&CExpressionParser::lte_op)
-					     (self, 
-					      relational_expression.value, 
-					      arg1)])
+                                            (self,
+                                             relational_expression.value,
+                                             arg1)])
+              | (">=" >> additive_expression[bind(&CExpressionParser::gte_op)
+                                             (self,
+                                              relational_expression.value,
+                                              arg1)])
+              | ("<" >> additive_expression[bind(&CExpressionParser::lt_op)
+                                            (self,
+                                             relational_expression.value,
+                                             arg1)])
+              | ("<=" >> additive_expression[bind(&CExpressionParser::lte_op)
+                                             (self,
+                                              relational_expression.value,
+                                              arg1)])
             )
         ;
     }
@@ -180,33 +180,33 @@ struct CExpressionParser : grammar<CExpressionParser>
       eq_expression, relational_expression;
   };
 
-private: 
+private:
   ::int64_t get_n() const { return n_; }
-  
+
   void eq_op(::int64_t &x, ::int64_t y) const { x = x == y; }
   void neq_op(::int64_t &x, ::int64_t y) const { x = x != y; }
-  
+
   void lt_op(::int64_t &x, ::int64_t y) const { x = x < y;}
   void gt_op(::int64_t &x, ::int64_t y) const { x = x > y;}
   void lte_op(::int64_t &x, ::int64_t y) const { x = x <= y;}
   void gte_op(::int64_t &x, ::int64_t y) const { x = x >= y;}
 
-  void ternary_op(::int64_t &result, ::int64_t y) const 
-  { 
-    if (state_.condition_) 
-      result = y; 
-  } 
+  void ternary_op(::int64_t &result, ::int64_t y) const
+  {
+    if (state_.condition_)
+      result = y;
+  }
 
-  void set_cond(::int64_t condition) const 
-  { 
+  void set_cond(::int64_t condition) const
+  {
     state_.condition_ = condition;
-  } 
+  }
 
-  void set_not_cond(::int64_t condition) const 
-  { 
+  void set_not_cond(::int64_t condition) const
+  {
     state_.condition_ = !condition;
-  } 
-  
+  }
+
   void or_op(::int64_t &x, ::int64_t y) const { x = x || y; }
   void and_op(::int64_t &x, ::int64_t y) const { x = x && y; }
 
@@ -233,7 +233,7 @@ namespace {
   }
 
   std::string readElementContent(xml_node<> *x_parent,
-				 std::unique_ptr<char[]>& buf) 
+                                 std::unique_ptr<char[]>& buf)
   {
     char *ptr = buf.get();
 
@@ -241,14 +241,14 @@ namespace {
       return std::string(x_parent->value(), x_parent->value_size());
     } else {
       for (xml_node<> *x_child = x_parent->first_node();
-	   x_child; x_child = x_child->next_sibling()) {
-	if (x_child->type() == node_cdata) {
-	  ptr = copy_chars(x_child->value(),
-			   x_child->value() + x_child->value_size(), ptr);
-	} else {
-	  Wt::Utils::fixSelfClosingTags(x_child);
-	  ptr = print(ptr, *x_child, print_no_indenting);
-	}
+           x_child; x_child = x_child->next_sibling()) {
+        if (x_child->type() == node_cdata) {
+          ptr = copy_chars(x_child->value(),
+                           x_child->value() + x_child->value_size(), ptr);
+        } else {
+          Wt::Utils::fixSelfClosingTags(x_child);
+          ptr = print(ptr, *x_child, print_no_indenting);
+        }
       }
 
       return std::string(buf.get(), ptr - buf.get());
@@ -258,7 +258,7 @@ namespace {
   int attributeValueToInt(xml_attribute<> *x_attribute)
   {
     return Utils::stoi(std::string(x_attribute->value(),
-				 x_attribute->value_size()));
+                                 x_attribute->value_size()));
   }
 }
 
@@ -267,7 +267,7 @@ namespace Wt {
 LOGGER("WMessageResources");
 
 WMessageResources::WMessageResources(const std::string& path,
-				     bool loadInMemory)
+                                     bool loadInMemory)
   : loadInMemory_(loadInMemory),
     path_(path),
     builtin_(nullptr)
@@ -290,7 +290,7 @@ std::set<std::string> WMessageResources::keys(const WLocale& locale) const
   for (auto& r : resources_) {
     if (r.first == locale.name()) {
       for (auto& k : r.second.map_)
-	keys.insert(k.first);
+        keys.insert(k.first);
       break;
     }
   }
@@ -308,16 +308,16 @@ void WMessageResources::load(const WLocale& locale) const
 
     for (;;) {
       if (readResourceFile(l, target))
-	break;
+        break;
 
       /* try a lesser specified variant */
       std::string::size_type i = l.rfind('-');
       if (i != std::string::npos)
-	l.erase(i);
+        l.erase(i);
       else {
-	if (locale.name().empty())
-	  LOG_ERROR("Could not load resource bundle: " << path_ << ".xml");
-	break;
+        if (locale.name().empty())
+          LOG_ERROR("Could not load resource bundle: " << path_ << ".xml");
+        break;
       }
     }
   }
@@ -345,7 +345,7 @@ LocalizedString WMessageResources::resolve(const std::string& locale, const std:
 {
   if (resources_.find(locale) == resources_.end())
     load(locale);
-  
+
   const Resource& res = resources_[locale];
 
   KeyValuesMap::const_iterator j = res.map_.find(key);
@@ -358,9 +358,9 @@ LocalizedString WMessageResources::resolve(const std::string& locale, const std:
   return LocalizedString{};
 }
 
-std::string WMessageResources::findCase(const std::vector<std::string> &cases, 
-					std::string pluralExpression,
-					::uint64_t amount)
+std::string WMessageResources::findCase(const std::vector<std::string> &cases,
+                                        std::string pluralExpression,
+                                        ::uint64_t amount)
   const
 {
 #ifdef WT_NO_SPIRIT
@@ -370,15 +370,15 @@ std::string WMessageResources::findCase(const std::vector<std::string> &cases,
 
   if (c > (int)cases.size() - 1 || c < 0) {
     WStringStream error;
-    error << "Expression '" << pluralExpression << "' evaluates to '" 
-	  << c << "' for n=" << std::to_string(amount);
-    
-    if (c < 0) 
+    error << "Expression '" << pluralExpression << "' evaluates to '"
+          << c << "' for n=" << std::to_string(amount);
+
+    if (c < 0)
       error << " and values smaller than 0 are not allowed.";
     else
-      error << " which is greater than the list of cases (size=" 
-	    << (int)cases.size() << ").";
-    
+      error << " which is greater than the list of cases (size="
+            << (int)cases.size() << ").";
+
     throw WException(error.c_str());
   }
 
@@ -387,8 +387,8 @@ std::string WMessageResources::findCase(const std::vector<std::string> &cases,
 }
 
 LocalizedString WMessageResources::resolvePluralKey(const WLocale& locale,
-					 const std::string& key, 
-					 ::uint64_t amount) const
+                                         const std::string& key,
+                                         ::uint64_t amount) const
 {
   LocalizedString result = resolvePlural(locale.name(), key, amount);
   if (result)
@@ -398,11 +398,11 @@ LocalizedString WMessageResources::resolvePluralKey(const WLocale& locale,
 }
 
 LocalizedString WMessageResources::resolvePlural(const std::string& locale,
-				      const std::string& key,
-				      ::uint64_t amount) const
+                                      const std::string& key,
+                                      ::uint64_t amount) const
 {
   if (resources_.find(locale) == resources_.end())
-    load(locale);  
+    load(locale);
 
   Resource& res = resources_[locale];
 
@@ -417,7 +417,7 @@ LocalizedString WMessageResources::resolvePlural(const std::string& locale,
 }
 
 bool WMessageResources::readResourceFile(const std::string& locale,
-				         Resource& resource) const
+                                         Resource& resource) const
 {
   if (!path_.empty()) {
     std::string fileName
@@ -431,7 +431,7 @@ bool WMessageResources::readResourceFile(const std::string& locale,
 }
 
 bool WMessageResources::readResourceStream(std::istream &s,
-					   Resource& resource,
+                                           Resource& resource,
                                            const std::string &fileName) const
 {
   if (!s)
@@ -474,43 +474,43 @@ bool WMessageResources::readResourceStream(std::istream &s,
       int read = s.gcount();
 
       for (int i = 0; i < read; i += 2) {
-	unsigned long ch;
+        unsigned long ch;
 
-	// read next 2-byte char
-	if (encoding == UTF16LE) {
-	  ch = buf[i+1];
-	  ch = (ch << 8) | buf[i];
-	} else {
-	  ch = buf[i];
-	  ch = (ch << 8) | buf[i+1];
-	}
+        // read next 2-byte char
+        if (encoding == UTF16LE) {
+          ch = buf[i+1];
+          ch = (ch << 8) | buf[i];
+        } else {
+          ch = buf[i];
+          ch = (ch << 8) | buf[i+1];
+        }
 
-	if (firstWord) {
-	  // second word of multi-word
-	  if (ch < 0xDC00 || ch > 0xDFFF) {
-	    read = 0;
-	    break;
-	  }
+        if (firstWord) {
+          // second word of multi-word
+          if (ch < 0xDC00 || ch > 0xDFFF) {
+            read = 0;
+            break;
+          }
 
-	  unsigned long cp = 0x10000 + (((firstWord & 0x3FF) << 10)
-					| (ch & 0x3FF));
+          unsigned long cp = 0x10000 + (((firstWord & 0x3FF) << 10)
+                                        | (ch & 0x3FF));
 
-	  Wt::rapidxml::xml_document<>::insert_coded_character<0>(out, cp);
+          Wt::rapidxml::xml_document<>::insert_coded_character<0>(out, cp);
 
-	  firstWord = 0;
-	} else if (ch >= 0xD800 && ch <= 0xDBFF) {
-	  // first word of multi-word
-	  firstWord = ch;
-	} else {
-	  // single-word
-	  Wt::rapidxml::xml_document<>::insert_coded_character<0>(out, ch);
+          firstWord = 0;
+        } else if (ch >= 0xD800 && ch <= 0xDBFF) {
+          // first word of multi-word
+          firstWord = ch;
+        } else {
+          // single-word
+          Wt::rapidxml::xml_document<>::insert_coded_character<0>(out, ch);
 
-	  firstWord = 0;
-	}
+          firstWord = 0;
+        }
       }
 
       if (read != BUFSIZE)
-	break;
+        break;
     }
 
     length = out - text.get();
@@ -535,14 +535,14 @@ bool WMessageResources::readResourceStream(std::istream &s,
     xml_attribute<> *x_plural = x_root->first_attribute("plural");
     if (x_nplurals && !x_plural)
       throw parse_error("Expected 'plural' attribute in <messages>",
-			x_root->value());
+                        x_root->value());
     if (x_plural && !x_nplurals)
       throw parse_error("Expected 'nplurals' attribute in <messages>",
-			x_root->value());
+                        x_root->value());
     if (x_nplurals && x_plural) {
       resource.pluralCount_ = attributeValueToInt(x_nplurals);
-      resource.pluralExpression_ 
-	= std::string(x_plural->value(), x_plural->value_size());
+      resource.pluralExpression_
+        = std::string(x_plural->value(), x_plural->value_size());
     } else {
       resource.pluralCount_ = 0;
     }
@@ -551,62 +551,62 @@ bool WMessageResources::readResourceStream(std::istream &s,
     std::unique_ptr<char[]> buf(new char[length * 2]);
 
     for (xml_node<> *x_message = x_root->first_node("message");
-	 x_message; x_message = x_message->next_sibling("message")) {
+         x_message; x_message = x_message->next_sibling("message")) {
       xml_attribute<> *x_id = x_message->first_attribute("id");
       if (!x_id)
-	throw parse_error("Missing message id", x_message->value());
+        throw parse_error("Missing message id", x_message->value());
 
       std::string id(x_id->value(), x_id->value_size());
 
       xml_node<> *x_plural = x_message->first_node("plural");
       if (x_plural) {
-	if (resource.pluralCount_ == 0)
-	  throw parse_error("Expected 'nplurals' attribute in <message>",
-			    x_plural->value());
+        if (resource.pluralCount_ == 0)
+          throw parse_error("Expected 'nplurals' attribute in <message>",
+                            x_plural->value());
 
-	resource.map_[id] = std::vector<std::string>();
-	resource.map_[id].reserve(resource.pluralCount_);
-	
-	std::vector<bool> visited;
-	visited.reserve(resource.pluralCount_);
-	
-	for (unsigned i = 0; i < resource.pluralCount_; i++) {
-	  resource.map_[id].push_back(std::string());
-	  visited.push_back(false);
-	}
-	
-	for (; x_plural; x_plural = x_plural->next_sibling("plural")) {
-	  xml_attribute<> *x_case = x_plural->first_attribute("case");
-	  int c = attributeValueToInt(x_case);
-	  if (c >= (int)resource.pluralCount_)
-	    throw parse_error("The attribute 'case' used in <plural> is greater"
-			      " than the nplurals <messages> attribute.", 
-			      x_plural->value());
-	  visited[c] = true;
-	  resource.map_[id][c] = readElementContent(x_plural, buf);
-	}
+        resource.map_[id] = std::vector<std::string>();
+        resource.map_[id].reserve(resource.pluralCount_);
 
-	for (unsigned i = 0; i < resource.pluralCount_; i++)
-	  if (!visited[i])
-	    throw parse_error("Missing plural case in <message>", 
-			      x_message->value());
+        std::vector<bool> visited;
+        visited.reserve(resource.pluralCount_);
+
+        for (unsigned i = 0; i < resource.pluralCount_; i++) {
+          resource.map_[id].push_back(std::string());
+          visited.push_back(false);
+        }
+
+        for (; x_plural; x_plural = x_plural->next_sibling("plural")) {
+          xml_attribute<> *x_case = x_plural->first_attribute("case");
+          int c = attributeValueToInt(x_case);
+          if (c >= (int)resource.pluralCount_)
+            throw parse_error("The attribute 'case' used in <plural> is greater"
+                              " than the nplurals <messages> attribute.",
+                              x_plural->value());
+          visited[c] = true;
+          resource.map_[id][c] = readElementContent(x_plural, buf);
+        }
+
+        for (unsigned i = 0; i < resource.pluralCount_; i++)
+          if (!visited[i])
+            throw parse_error("Missing plural case in <message>",
+                              x_message->value());
       } else {
-	resource.map_[id] = std::vector<std::string>();
-	resource.map_[id].reserve(1);
-	resource.map_[id].push_back(readElementContent(x_message, buf));
+        resource.map_[id] = std::vector<std::string>();
+        resource.map_[id].reserve(1);
+        resource.map_[id].push_back(readElementContent(x_message, buf));
       }
     }
   } catch (parse_error& e) {
     LOG_ERROR("Error reading " << fileName
-	      << ": at character " << (int)(e.where<char>() - text.get())
-	      << ": " << e.what());
+              << ": at character " << (int)(e.where<char>() - text.get())
+              << ": " << e.what());
   }
 
   return true;
 }
 
 int WMessageResources::evalPluralCase(const std::string &expression,
-				      ::uint64_t n)
+                                      ::uint64_t n)
 {
   int result = 0;
 

@@ -25,11 +25,11 @@ PasswordPromptDialog
     model_(model)
 {
   impl_ = contents()->addWidget(std::make_unique<WTemplateFormView>
-				(tr("Wt.Auth.template.password-prompt")));
+                                (tr("Wt.Auth.template.password-prompt")));
 
   model_->reset();
   model_->setValue(AuthModel::LoginNameField,
-		   login_.user().identity(Identity::LoginName));
+                   login_.user().identity(Identity::LoginName));
   model_->setReadOnly(AuthModel::LoginNameField, true);
 
   std::unique_ptr<WLineEdit> nameEdit(new WLineEdit());
@@ -47,8 +47,8 @@ PasswordPromptDialog
                       std::make_unique<WPushButton>(tr("Wt.WMessageBox.Ok")));
   WPushButton *cancelButton =
     impl_->bindWidget("cancel-button",
-		      std::make_unique<WPushButton>
-		      (tr("Wt.WMessageBox.Cancel")));
+                      std::make_unique<WPushButton>
+                      (tr("Wt.WMessageBox.Cancel")));
 
   model_->configureThrottling(okButton);
 
@@ -72,7 +72,7 @@ void PasswordPromptDialog::check()
   if (model_->validate()) {
     Login *login = &login_;
     accept();
-    login->login(login->user(), LoginState::Strong);    
+    login->login(login->user(), LoginState::Strong);
   } else {
     impl_->updateViewField(model_.get(), AuthModel::PasswordField);
     WPushButton *okButton = impl_->resolve<WPushButton *>("ok-button");

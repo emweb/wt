@@ -35,7 +35,7 @@ PlannerApplication::PlannerApplication(const WEnvironment& env)
     session.createTables();
     log("info") << "Database created";
   } catch (...) {
-    log("info") << "Using existing database";    
+    log("info") << "Using existing database";
   }
 
   transaction.commit();

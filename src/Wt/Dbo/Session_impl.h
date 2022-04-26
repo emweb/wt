@@ -18,21 +18,21 @@ namespace Wt {
       template <class C, typename T>
       struct LoadHelper
       {
-	static MetaDbo<C> *load(Session *session, SqlStatement *statement,
-				 int& column)
-	{
-	  return session->loadWithNaturalId<C>(statement, column);
-	};
+        static MetaDbo<C> *load(Session *session, SqlStatement *statement,
+                                 int& column)
+        {
+          return session->loadWithNaturalId<C>(statement, column);
+        };
       };
 
       template <class C>
       struct LoadHelper<C, long long>
       {
-	static MetaDbo<C> *load(Session *session, SqlStatement *statement,
-				 int& column)
-	{
-	  return session->loadWithLongLongId<C>(statement, column);
-	}
+        static MetaDbo<C> *load(Session *session, SqlStatement *statement,
+                                 int& column)
+        {
+          return session->loadWithLongLongId<C>(statement, column);
+        }
       };
     }
 
@@ -80,7 +80,7 @@ const char *Session::tableName() const
     return dynamic_cast< Mapping<MutC> *>(i->second)->tableName;
   else
     throw Exception(std::string("Class ") + typeid(MutC).name()
-		    + " was not mapped.");
+                    + " was not mapped.");
 }
 
 template <class C>
@@ -101,7 +101,7 @@ Session::Mapping<C> *Session::getMapping() const
     return mapping;
   } else
     throw Exception(std::string("Class ") + typeid(C).name()
-		    + " was not mapped.");
+                    + " was not mapped.");
 }
 
 template <class C>
@@ -176,7 +176,7 @@ MetaDbo<C> *Session::loadWithLongLongId(SqlStatement *statement, int& column)
      */
     if (!statement->getResult(column++, &id)) {
       column += (int)mapping->fields.size()
-	+ (mapping->versionFieldName ? 1 : 0);
+        + (mapping->versionFieldName ? 1 : 0);
       return nullptr;
     }
 
@@ -193,9 +193,9 @@ MetaDbo<C> *Session::loadWithLongLongId(SqlStatement *statement, int& column)
       return dbo;
     } else {
       if (!i->second->isLoaded())
-	implLoad<MutC>(*i->second, statement, column);
+        implLoad<MutC>(*i->second, statement, column);
       else
-	column += (int)mapping->fields.size() + (mapping->versionFieldName ? 1 : 0);
+        column += (int)mapping->fields.size() + (mapping->versionFieldName ? 1 : 0);
 
       return i->second;
     }
@@ -234,7 +234,7 @@ ptr<C> Session::add(std::unique_ptr<C> obj)
 
 template <class C>
 ptr<C> Session::load(const typename dbo_traits<C>::IdType& id,
-		     bool forceReread)
+                     bool forceReread)
 {
   ptr<C> result = loadLazy<C>(id);
   if (forceReread)
@@ -424,7 +424,7 @@ void Session::Mapping<C>::load(Session& session, MetaDboBase *obj)
 
 template <class C>
 MetaDbo<C> *Session::Mapping<C>::load(Session& session, SqlStatement *statement,
-				      int& column)
+                                      int& column)
 {
   typedef typename std::remove_const<C>::type MutC;
 

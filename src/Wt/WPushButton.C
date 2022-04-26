@@ -18,18 +18,18 @@ const char *WPushButton::CHECKED_SIGNAL = "M_checked";
 const char *WPushButton::UNCHECKED_SIGNAL = "M_unchecked";
 
 WPushButton::WPushButton()
-{ 
+{
   text_.format = TextFormat::Plain;
 }
 
 WPushButton::WPushButton(const WString& text)
-{ 
+{
   text_.format = TextFormat::Plain;
   text_.text = text;
 }
 
 WPushButton::WPushButton(const WString& text, TextFormat format)
-{ 
+{
   text_.format = TextFormat::Plain;
   text_.text = text;
   setTextFormat(format);
@@ -209,8 +209,8 @@ void WPushButton::updateDom(DomElement& element, bool all)
   if (updateInnerHtml || flags_.test(BIT_ICON_CHANGED)
       || (all && !icon_.isNull())) {
     DomElement *image = DomElement::createNew(DomElementType::IMG);
-    image->setProperty(Property::Src, 
-		       icon_.resolveUrl(WApplication::instance()));
+    image->setProperty(Property::Src,
+                       icon_.resolveUrl(WApplication::instance()));
     image->setId("im" + formName());
     element.insertChildAt(image, 0);
     flags_.set(BIT_ICON_RENDERED);
@@ -238,7 +238,7 @@ void WPushButton::updateDom(DomElement& element, bool all)
   if (isCheckable()) {
     if (flags_.test(BIT_CHECKED_CHANGED) || all) {
       if (!all || flags_.test(BIT_IS_CHECKED)) {
-	toggleStyleClass("active", flags_.test(BIT_IS_CHECKED), true);
+        toggleStyleClass("active", flags_.test(BIT_IS_CHECKED), true);
       }
 
       flags_.reset(BIT_CHECKED_CHANGED);
@@ -261,34 +261,34 @@ void WPushButton::renderHRef(DomElement& element)
       clicked().connect(*linkState_.clickJS);
 
       if (!app->environment().ajax())
-	clicked().connect(this, &WPushButton::doRedirect);
+        clicked().connect(this, &WPushButton::doRedirect);
     }
 
     if (linkState_.link.type() == LinkType::InternalPath)
       linkState_.clickJS->setJavaScript
-	("function(){" +
-	 app->javaScriptClass() + "._p_.setHash("
-	 + jsStringLiteral(linkState_.link.internalPath()) + ",true);"
-	 "}");
+        ("function(){" +
+         app->javaScriptClass() + "._p_.setHash("
+         + jsStringLiteral(linkState_.link.internalPath()) + ",true);"
+         "}");
     else {
       std::string url = linkState_.link.resolveUrl(app);
 
       if (linkState_.link.target() == LinkTarget::NewWindow)
-	linkState_.clickJS->setJavaScript
-	  ("function(){"
-	   "window.open(" + jsStringLiteral(url) + ");"
-	   "}");
+        linkState_.clickJS->setJavaScript
+          ("function(){"
+           "window.open(" + jsStringLiteral(url) + ");"
+           "}");
       else if (linkState_.link.target() == LinkTarget::Download)
-	linkState_.clickJS->setJavaScript
-	  ("function(){"
-	   "var ifr = document.getElementById('wt_iframe_dl_id');"
-	   "ifr.src = "  + jsStringLiteral(url) + ";"
-	   "}");
+        linkState_.clickJS->setJavaScript
+          ("function(){"
+           "var ifr = document.getElementById('wt_iframe_dl_id');"
+           "ifr.src = "  + jsStringLiteral(url) + ";"
+           "}");
       else
-	linkState_.clickJS->setJavaScript
-	  ("function(){"
-	   "window.location=" + jsStringLiteral(url) + ";"
-	   "}");
+        linkState_.clickJS->setJavaScript
+          ("function(){"
+           "window.location=" + jsStringLiteral(url) + ";"
+           "}");
     }
 
     clicked().ownerRepaint(); // XXX only for Java port necessary
@@ -299,7 +299,7 @@ void WPushButton::renderHRef(DomElement& element)
 }
 
 void WPushButton::getDomChanges(std::vector<DomElement *>& result,
-				WApplication *app)
+                                WApplication *app)
 {
   if (flags_.test(BIT_ICON_CHANGED) && flags_.test(BIT_ICON_RENDERED)) {
     DomElement *image

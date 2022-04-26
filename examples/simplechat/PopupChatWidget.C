@@ -17,7 +17,7 @@
 //  - i18n
 
 PopupChatWidget::PopupChatWidget(SimpleChatServer& server,
-				 const std::string& id)
+                                 const std::string& id)
   : SimpleChatWidget(server),
     missedMessages_(0)
 {
@@ -25,7 +25,7 @@ PopupChatWidget::PopupChatWidget(SimpleChatServer& server,
 
   if (Wt::WApplication::instance()->environment().agentIsIE()) {
     if (Wt::WApplication::instance()->environment().agent()
-	== Wt::UserAgent::IE6)
+        == Wt::UserAgent::IE6)
       setPositionScheme(Wt::PositionScheme::Absolute);
     else
       setPositionScheme(Wt::PositionScheme::Fixed);
@@ -102,9 +102,9 @@ void PopupChatWidget::goOnline()
 
     while (!startChat(name)) {
       if (name_.empty())
-	name = server().suggestGuest();
+        name = server().suggestGuest();
       else
-	name = name_ + std::to_string(++tries);
+        name = name_ + std::to_string(++tries);
     }
 
     name_ = name;
@@ -115,10 +115,10 @@ void PopupChatWidget::goOnline()
 }
 
 void PopupChatWidget::createLayout(std::unique_ptr<Wt::WWidget> messages,
-				   std::unique_ptr<Wt::WWidget> userList,
-				   std::unique_ptr<Wt::WWidget> messageEdit,
-				   std::unique_ptr<Wt::WWidget> sendButton,
-				   std::unique_ptr<Wt::WWidget> logoutButton)
+                                   std::unique_ptr<Wt::WWidget> userList,
+                                   std::unique_ptr<Wt::WWidget> messageEdit,
+                                   std::unique_ptr<Wt::WWidget> sendButton,
+                                   std::unique_ptr<Wt::WWidget> logoutButton)
 {
   auto layout(std::make_unique<Wt::WVBoxLayout>());
   layout->setContentsMargins(0, 0, 0, 0);
@@ -147,8 +147,8 @@ void PopupChatWidget::updateUsers()
       title_->setText(Wt::WString("Chat: {1} users online").arg(count));
   } else {
     title_->setText(Wt::WString("Chat: <span class=\"self\">{1}</span>"
-				" <span class=\"online\">({2} user{3})</span>")
-		    .arg(userName()).arg(count).arg(count == 1 ? "" : "s"));
+                                " <span class=\"online\">({2} user{3})</span>")
+                    .arg(userName()).arg(count).arg(count == 1 ? "" : "s"));
   }
 }
 

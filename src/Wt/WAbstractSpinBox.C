@@ -33,9 +33,9 @@ public:
     else
       return Result(ValidationState::Invalid);
   }
- 
+
   virtual std::string javaScriptValidate() const override {
-    return 
+    return
       "new function() { "
       """this.validate = function(t) {"
       ""  "return " + spinBox_->jsRef() + ".wtObj.validate(t);"
@@ -68,15 +68,15 @@ bool WAbstractSpinBox::nativeControl() const
     }
 
     const WEnvironment& env = WApplication::instance()->environment();
-    if ((env.agentIsChrome() && 
-	 static_cast<unsigned int>(env.agent()) >= 
-	 static_cast<unsigned int>(UserAgent::Chrome5))
-	|| (env.agentIsSafari() && 
-	    static_cast<unsigned int>(env.agent()) >= 
-	    static_cast<unsigned int>(UserAgent::Safari4))
-	|| (env.agentIsOpera() && 
-	    static_cast<unsigned int>(env.agent()) >=
-	    static_cast<unsigned int>(UserAgent::Opera10)))
+    if ((env.agentIsChrome() &&
+         static_cast<unsigned int>(env.agent()) >=
+         static_cast<unsigned int>(UserAgent::Chrome5))
+        || (env.agentIsSafari() &&
+            static_cast<unsigned int>(env.agent()) >=
+            static_cast<unsigned int>(UserAgent::Safari4))
+        || (env.agentIsOpera() &&
+            static_cast<unsigned int>(env.agent()) >=
+            static_cast<unsigned int>(UserAgent::Opera10)))
       return true;
   }
 
@@ -133,9 +133,9 @@ void WAbstractSpinBox::render(WFlags<RenderFlag> flags)
 }
 
 void WAbstractSpinBox::connectJavaScript(Wt::EventSignalBase& s,
-					 const std::string& methodName)
+                                         const std::string& methodName)
 {
-  std::string jsFunction = 
+  std::string jsFunction =
     "function(obj, event) {"
     """var o = " + jsRef() + ";"
     """if (o && o.wtObj) o.wtObj." + methodName + "(obj, event);"
@@ -183,14 +183,14 @@ void WAbstractSpinBox::updateDom(DomElement& element, bool all)
   if (all || changed_) {
     if (!all) {
       if (!nativeControl())
-	doJavaScript(jsRef() + ".wtObj"
-		     ".configure("
-		     + std::to_string(decimals()) + ","
-		     + prefix().jsStringLiteral() + ","
-		     + suffix().jsStringLiteral() + ","
-		     + jsMinMaxStep() + ");");
+        doJavaScript(jsRef() + ".wtObj"
+                     ".configure("
+                     + std::to_string(decimals()) + ","
+                     + prefix().jsStringLiteral() + ","
+                     + suffix().jsStringLiteral() + ","
+                     + jsMinMaxStep() + ");");
       else
-	setValidator(std::shared_ptr<WValidator>(createValidator().release()));
+        setValidator(std::shared_ptr<WValidator>(createValidator().release()));
     }
   }
 
@@ -243,7 +243,7 @@ void WAbstractSpinBox::refresh()
 {
   doJavaScript
     (jsRef() + ".wtObj"
-     ".setLocale(" 
+     ".setLocale("
      + jsStringLiteral(WLocale::currentLocale().decimalPoint()) + ","
      + jsStringLiteral(WLocale::currentLocale().groupSeparator()) + ");");
 
@@ -273,8 +273,8 @@ bool WAbstractSpinBox::parseValue(const WT_USTRING& text)
     if (boost::starts_with(textUtf8, prefixUtf8)) {
       textUtf8 = textUtf8.substr(prefixUtf8.length());
       if (boost::ends_with(textUtf8, suffixUtf8)) {
-	textUtf8 = textUtf8.substr(0, textUtf8.length() - suffixUtf8.length());
-	valid = true;
+        textUtf8 = textUtf8.substr(0, textUtf8.length() - suffixUtf8.length());
+        valid = true;
       }
     }
   }

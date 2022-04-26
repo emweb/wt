@@ -78,8 +78,8 @@ public:
    * the setter methods.
    */
   WTestEnvironment(const std::string& applicationPath,
-		   const std::string& configurationFile,
-		   EntryPointType type = EntryPointType::Application);
+                   const std::string& configurationFile,
+                   EntryPointType type = EntryPointType::Application);
 
 #else
   /*! \brief Default constructor.
@@ -92,7 +92,7 @@ public:
    * the setter methods.
    */
   WTestEnvironment(Configuration *configuration,
-		   EntryPointType type = EntryPointType::Application);
+                   EntryPointType type = EntryPointType::Application);
 
   /*! \brief Closes the test environment.
    *
@@ -292,7 +292,7 @@ public:
    * event loop. To simulate the delivery of events posted to the
    * application-under-test, by WServer::post(), you need to simulate
    * the release of the session lock.
-   * 
+   *
    * \sa startRequest()
    */
   void endRequest();

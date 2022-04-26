@@ -29,7 +29,7 @@ namespace {
 namespace Wt {
 
 LOGGER("FontSupportSimple");
-	      
+
 #ifndef WT_TARGET_JAVA
 FontSupport::Bitmap::Bitmap(int width, int height)
 { }
@@ -51,7 +51,7 @@ FontSupport::FontMatch::FontMatch(const std::string& fileName, double quality)
 FontSupport::FontSupport(WPaintDevice *device, EnabledFontFormats /* enabledFontFormats */)
   : device_(device),
     font_(nullptr)
-{ 
+{
   for (int i = 0; i < 5; ++i)
     cache_.push_back(Matched());
 }
@@ -97,7 +97,7 @@ WFontMetrics FontSupport::fontMetrics(const WFont& font)
 }
 
 WTextItem FontSupport::measureText(const WFont& font, const WString& text,
-				   double maxWidth, bool wordWrap)
+                                   double maxWidth, bool wordWrap)
 {
   font_ = &font;
   WTextItem ti = device_->measureText(text, maxWidth, wordWrap);
@@ -106,7 +106,7 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
 }
 
 void FontSupport::drawText(const WFont& font, const WRectF& rect,
-			   WFlags<AlignmentFlag> flags, const WString& text)
+                           WFlags<AlignmentFlag> flags, const WString& text)
 {
   font_ = &font;
   device_->drawText(rect, flags, TextFlag::SingleLine, text, 0);
@@ -115,9 +115,9 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
 
 #ifndef WT_TARGET_JAVA
 void FontSupport::drawText(const WFont& font, const WRectF& rect,
-			   const WTransform& transform, Bitmap& bitmap,
-			   WFlags<AlignmentFlag> flags,
-			   const WString& text)
+                           const WTransform& transform, Bitmap& bitmap,
+                           WFlags<AlignmentFlag> flags,
+                           const WString& text)
 {
   assert(false);
 }
@@ -127,9 +127,9 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& font) const
 {
   for (MatchCache::iterator i = cache_.begin(); i != cache_.end(); ++i) {
     if (i->font.genericFamily() == font.genericFamily() &&
-	i->font.specificFamilies() == font.specificFamilies() &&
-	i->font.weight() == font.weight() &&
-	i->font.style() == font.style()) {
+        i->font.specificFamilies() == font.specificFamilies() &&
+        i->font.weight() == font.weight() &&
+        i->font.style() == font.style()) {
       cache_.splice(cache_.begin(), cache_, i); // implement LRU
       return cache_.front().match;
     }
@@ -139,7 +139,7 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& font) const
 
   for (unsigned i = 0; i < fontCollections_.size(); ++i) {
     FontMatch m = matchFont(font, fontCollections_[i].directory,
-			    fontCollections_[i].recursive);
+                            fontCollections_[i].recursive);
 
     if (m.quality() > match.quality())
       match = m;
@@ -155,8 +155,8 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& font) const
 }
 
 FontSupport::FontMatch FontSupport::matchFont(const WFont& font,
-					      const std::string& directory,
-					      bool recursive) const
+                                              const std::string& directory,
+                                              bool recursive) const
 {
   if (!FileUtils::exists(directory)
       || !FileUtils::isDirectory(directory)) {
@@ -207,34 +207,34 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& font,
 }
 
 void FontSupport::matchFont(const WFont& font,
-			    const std::vector<std::string>& fontNames,
-			    const std::string& path,
-			    bool recursive,
-			    FontMatch& match) const
+                            const std::vector<std::string>& fontNames,
+                            const std::string& path,
+                            bool recursive,
+                            FontMatch& match) const
 {
   std::vector<std::string> files;
   FileUtils::listFiles(path, files);
-  
+
   for (unsigned i = 0; i < files.size(); ++i) {
     std::string f = files[i];
     if (FileUtils::isDirectory(f)) {
       if (recursive) {
-	matchFont(font, fontNames, f, recursive, match);
-	if (match.quality() == 1.0)
-	  return;
+        matchFont(font, fontNames, f, recursive, match);
+        if (match.quality() == 1.0)
+          return;
       }
     } else {
       matchFont(font, fontNames, f, match);
       if (match.quality() == 1.0)
-	return;
+        return;
     }
   }
 }
 
 void FontSupport::matchFont(const WFont& font,
-			    const std::vector<std::string>& fontNames,
-			    const std::string& path,
-			    FontMatch& match) const
+                            const std::vector<std::string>& fontNames,
+                            const std::string& path,
+                            FontMatch& match) const
 {
   if (boost::ends_with(path, ".ttf")
       || boost::ends_with(path, ".ttc")) {
@@ -252,16 +252,16 @@ void FontSupport::matchFont(const WFont& font,
     }
 
     switch (font.style()) {
-    case FontStyle::Normal: 
+    case FontStyle::Normal:
       styleVariants.push_back("regular");
-      styleVariants.push_back(""); 
+      styleVariants.push_back("");
       break;
-    case FontStyle::Italic:  
+    case FontStyle::Italic:
       styleVariants.push_back("italic");
-      styleVariants.push_back("oblique");  
+      styleVariants.push_back("oblique");
       break;
-    case FontStyle::Oblique: 
-      styleVariants.push_back("oblique"); 
+    case FontStyle::Oblique:
+      styleVariants.push_back("oblique");
       break;
     }
 
@@ -269,16 +269,16 @@ void FontSupport::matchFont(const WFont& font,
       double q = 1.0 - 0.1 * i;
 
       if (q <= match.quality())
-	return;
-      
+        return;
+
       for (unsigned w = 0; w < weightVariants.size(); ++w)
-	for (unsigned s = 0; s < styleVariants.size(); ++s) {
-	  std::string fn = fontNames[i] + weightVariants[w] + styleVariants[s];
-	  if (fn == name) {
-	    match = FontMatch(path, q);
-	    return;
-	  }
-	}
+        for (unsigned s = 0; s < styleVariants.size(); ++s) {
+          std::string fn = fontNames[i] + weightVariants[w] + styleVariants[s];
+          if (fn == name) {
+            match = FontMatch(path, q);
+            return;
+          }
+        }
     }
   }
 }

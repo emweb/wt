@@ -30,7 +30,7 @@ public:
                                           const Wt::WString& identity) const override;
 
   virtual void addIdentity(const Wt::Auth::User& user,
-			   const std::string& provider,
+                           const std::string& provider,
                            const Wt::WString& identity) override;
 
   virtual Wt::WString identity(const Wt::Auth::User& user,
@@ -52,8 +52,8 @@ public:
   virtual void addAuthToken(const Wt::Auth::User& user,
                             const Wt::Auth::Token& token) override;
   virtual int updateAuthToken(const Wt::Auth::User& user,
-			      const std::string& hash,
-			      const std::string& newHash) override;
+                              const std::string& hash,
+                              const std::string& newHash) override;
   virtual void removeAuthToken(const Wt::Auth::User& user,
                                const std::string& hash) override;
   virtual Wt::Auth::User findWithAuthToken(const std::string& hash) const override;

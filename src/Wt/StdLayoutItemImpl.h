@@ -32,8 +32,8 @@ public:
   StdLayoutImpl *parentLayoutImpl() const;
 
   virtual DomElement *createDomElement(DomElement *parent,
-				       bool fitWidth, bool fitHeight,
-				       WApplication *app) = 0;
+                                       bool fitWidth, bool fitHeight,
+                                       WApplication *app) = 0;
 };
 
 }

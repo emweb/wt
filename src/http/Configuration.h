@@ -66,7 +66,7 @@ public:
   const std::vector<std::string>& httpsListen() const { return httpsListen_; }
   const std::string& httpsAddress() const { return httpsAddress_; }
   const std::string& httpsPort() const { return httpsPort_; }
-  const std::string& sslCertificateChainFile() const 
+  const std::string& sslCertificateChainFile() const
     { return sslCertificateChainFile_; }
   const std::string& sslPrivateKeyFile() const { return sslPrivateKeyFile_; }
   const std::string& sslTmpDHFile() const { return sslTmpDHFile_; }
@@ -141,18 +141,18 @@ private:
   SslPasswordCallback sslPasswordCallback_;
 
   void createOptions(po::options_description& options,
-		     po::options_description& visible_options);
+                     po::options_description& visible_options);
   void readOptions(const po::variables_map& vm);
 
   void checkPath(const boost::program_options::variables_map& vm,
-		 std::string varName, std::string varDescription,
-		 std::string& result, int options);
+                 std::string varName, std::string varDescription,
+                 std::string& result, int options);
   void checkPath(std::string& result, std::string varDescription,
-		 int options);
+                 int options);
 
   enum PathOptions { RegularFile = 0x1,
-		     Directory = 0x2,
-		     Private = 0x4 };
+                     Directory = 0x2,
+                     Private = 0x4 };
 
   Wt::WLogEntry log(const std::string& type) const;
 };

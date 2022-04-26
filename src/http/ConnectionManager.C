@@ -84,7 +84,7 @@ void ConnectionManager::stopAll()
 #endif // WT_THREADED
 
       if (connections_.size())
-	ptr = *connections_.begin();
+        ptr = *connections_.begin();
     }
 
     if (ptr)

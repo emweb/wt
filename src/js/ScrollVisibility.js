@@ -79,7 +79,7 @@ WT_DECLARE_WT_MEMBER
        for (var p in scrollVisibilityElements) {
          if (scrollVisibilityElements.hasOwnProperty(p)) {
            var visible = elementIsInView(scrollVisibilityElements[p].el,
-       				  scrollVisibilityElements[p].margin);
+                                         scrollVisibilityElements[p].margin);
            if (visible !== scrollVisibilityElements[p].visible) {
              scrollVisibilityElements[p].visible = visible;
              APP.emit(scrollVisibilityElements[p].el, 'scrollVisibilityChanged', visible);

@@ -54,7 +54,7 @@ public:
    * The \p format indicates how the message should be formatted.
    */
   const Wt::WString formattedHTML(const Wt::WString& user,
-				  Wt::TextFormat format) const;
+                                  Wt::TextFormat format) const;
 
 private:
   Type    type_;
@@ -70,7 +70,7 @@ private:
   { }
 
   ChatEvent(Type type, const Wt::WString& user,
-	    const Wt::WString& data = Wt::WString::Empty)
+            const Wt::WString& data = Wt::WString::Empty)
     : type_(type), user_(user), data_(data)
   { }
 
@@ -112,7 +112,7 @@ public:
    *
    * Returns whether the client has been disconnected (or false if the client
    * was not connected).
-   */  
+   */
   bool disconnect(Client *client);
 
   /*! \brief Try to login with given user name.

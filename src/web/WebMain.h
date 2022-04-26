@@ -23,7 +23,7 @@ class WT_API WebMain
 {
 public:
   WebMain(WServer *server, WebStream *stream,
-	  std::string singleSessionId = std::string());
+          std::string singleSessionId = std::string());
   ~WebMain();
 
   WebController& controller() { return *server_->controller(); }

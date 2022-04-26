@@ -10,12 +10,12 @@ namespace Wt {
   namespace Utils {
 
 void split(SplitSet& tokens, const std::string &in, const char *sep,
-	   bool compress_adjacent_tokens)
+           bool compress_adjacent_tokens)
 {
     boost::split(tokens, in, boost::is_any_of(sep),
-		 compress_adjacent_tokens?
-		 boost::algorithm::token_compress_on:
-		 boost::algorithm::token_compress_off);
+                 compress_adjacent_tokens?
+                 boost::algorithm::token_compress_on:
+                 boost::algorithm::token_compress_off);
 }
 
 std::string splitEntryToString(SplitEntry se)

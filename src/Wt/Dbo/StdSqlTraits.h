@@ -34,9 +34,9 @@ struct WTDBO_API sql_value_traits<std::string, void>
 
   static std::string type(SqlConnection *conn, int size);
   static void bind(const std::string& v, SqlStatement *statement, int column,
-		   int size);
+                   int size);
   static bool read(std::string& v, SqlStatement *statement, int column,
-		   int size);
+                   int size);
 };
 
 template<>
@@ -116,9 +116,9 @@ struct WTDBO_API sql_value_traits<std::chrono::system_clock::time_point, void>
 
   static const char *type(SqlConnection *conn, int size);
   static void bind(const std::chrono::system_clock::time_point& v, SqlStatement *statement,
-		   int column, int size);
+                   int column, int size);
   static bool read(std::chrono::system_clock::time_point& v, SqlStatement *statement,
-		   int column, int size);
+                   int column, int size);
 };
 
 template<>
@@ -128,14 +128,14 @@ struct WTDBO_API sql_value_traits<std::chrono::duration<int, std::milli>, void>
 
   static const char *type(SqlConnection *conn, int size);
   static void bind(const std::chrono::duration<int, std::milli>& v,
-		   SqlStatement *statement, int column, int size);
+                   SqlStatement *statement, int column, int size);
   static bool read(std::chrono::duration<int, std::milli>& v,
-		   SqlStatement *statement, int column, int size);
+                   SqlStatement *statement, int column, int size);
 };
 
 template <typename Enum>
 struct WTDBO_API sql_value_traits<Enum,
-	         typename std::enable_if<std::is_enum<Enum>::value>::type> 
+                 typename std::enable_if<std::is_enum<Enum>::value>::type>
 : public sql_value_traits<int>
 {
   static void bind(Enum v, SqlStatement *statement, int column, int size) {
@@ -144,7 +144,7 @@ struct WTDBO_API sql_value_traits<Enum,
 
   static bool read(Enum& v, SqlStatement *statement, int column, int size) {
     return sql_value_traits<int>::read(reinterpret_cast<int&>(v), statement,
-				       column, size);
+                                       column, size);
   }
 };
 
@@ -155,9 +155,9 @@ struct WTDBO_API sql_value_traits<std::vector<unsigned char>, void>
 
   static const char *type(SqlConnection *conn, int size);
   static void bind(const std::vector<unsigned char>& v,
-		   SqlStatement *statement, int column, int size);
+                   SqlStatement *statement, int column, int size);
   static bool read(std::vector<unsigned char>& v, SqlStatement *statement,
-		   int column, int size);
+                   int column, int size);
 };
 
 template<typename T>
@@ -168,14 +168,14 @@ struct sql_value_traits<boost::optional<T>, void>
   static std::string type(SqlConnection *conn, int size) {
     std::string nested = sql_value_traits<T>::type(conn, size);
     if (nested.length() > 9
-	&& nested.substr(nested.length() - 9) == " not null")
+        && nested.substr(nested.length() - 9) == " not null")
       return nested.substr(0, nested.length() - 9);
     else
       return nested;
   }
 
   static void bind(const boost::optional<T>& v,
-		   SqlStatement *statement, int column, int size) {
+                   SqlStatement *statement, int column, int size) {
     if (v)
       sql_value_traits<T>::bind(v.get(), statement, column, size);
     else

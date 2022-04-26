@@ -43,7 +43,7 @@ enum class LayoutPosition {
  *
  * The North, West, East, and South widgets will take their preferred
  * sizes, while the Center widget takes all available remaining space.
- * 
+ *
  * \if cpp
  * Usage example:
  * \code

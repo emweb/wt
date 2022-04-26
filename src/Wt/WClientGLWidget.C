@@ -368,16 +368,16 @@ void WClientGLWidget::activeTexture(WGLWidget::GLenum texture)
 }
 
 void WClientGLWidget::attachShader(WGLWidget::Program program,
-				   WGLWidget::Shader shader)
+                                   WGLWidget::Shader shader)
 {
-  js_ << "ctx.attachShader(" << program.jsRef() 
+  js_ << "ctx.attachShader(" << program.jsRef()
       << ", " << shader.jsRef() << ");";
   GLDEBUG;
 }
 
 void WClientGLWidget::bindAttribLocation(WGLWidget::Program program,
-					 unsigned index,
-					 const std::string &name)
+                                         unsigned index,
+                                         const std::string &name)
 {
   js_ << "ctx.bindAttribLocation(" << program.jsRef() << "," << index
       << "," << WWebWidget::jsStringLiteral(name) << ");";
@@ -385,7 +385,7 @@ void WClientGLWidget::bindAttribLocation(WGLWidget::Program program,
 }
 
 void WClientGLWidget::bindBuffer(WGLWidget::GLenum target,
-				 WGLWidget::Buffer buffer)
+                                 WGLWidget::Buffer buffer)
 {
   js_ << "ctx.bindBuffer(" << toString(target) << "," << buffer.jsRef() << ");";
   currentlyBoundBuffer_ = buffer;
@@ -393,30 +393,30 @@ void WClientGLWidget::bindBuffer(WGLWidget::GLenum target,
 }
 
 void WClientGLWidget::bindFramebuffer(WGLWidget::GLenum target,
-				      WGLWidget::Framebuffer buffer)
+                                      WGLWidget::Framebuffer buffer)
 {
   js_ << "ctx.bindFramebuffer(" << toString(target) << "," << buffer.jsRef() << ");";
   GLDEBUG;
 }
 
 void WClientGLWidget::bindRenderbuffer(WGLWidget::GLenum target,
-				       WGLWidget::Renderbuffer buffer)
+                                       WGLWidget::Renderbuffer buffer)
 {
   js_ << "ctx.bindRenderbuffer(" << toString(target) << "," << buffer.jsRef() << ");";
   GLDEBUG;
 }
 
 void WClientGLWidget::bindTexture(WGLWidget::GLenum target,
-				  WGLWidget::Texture texture)
+                                  WGLWidget::Texture texture)
 {
-  js_ << "ctx.bindTexture(" << toString(target) << "," 
+  js_ << "ctx.bindTexture(" << toString(target) << ","
       << texture.jsRef() << ");";
   currentlyBoundTexture_ = texture;
   GLDEBUG;
 }
 
 void WClientGLWidget::blendColor(double red, double green, double blue,
-				 double alpha)
+                                 double alpha)
 {
   char buf[30];
   js_ << "ctx.blendColor(" << makeFloat(red, buf) << ",";
@@ -433,15 +433,15 @@ void WClientGLWidget::blendEquation(WGLWidget::GLenum mode)
 }
 
 void WClientGLWidget::blendEquationSeparate(WGLWidget::GLenum modeRGB,
-					    WGLWidget::GLenum modeAlpha)
+                                            WGLWidget::GLenum modeAlpha)
 {
-  js_ << "ctx.blendEquationSeparate(" << toString(modeRGB) << "," 
+  js_ << "ctx.blendEquationSeparate(" << toString(modeRGB) << ","
     << toString(modeAlpha) << ");";
   GLDEBUG;
 }
 
 void WClientGLWidget::blendFunc(WGLWidget::GLenum sfactor,
-				WGLWidget::GLenum dfactor)
+                                WGLWidget::GLenum dfactor)
 {
   js_ << "ctx.blendFunc(" << toString(sfactor) << ","
     << toString(dfactor) << ");";
@@ -449,9 +449,9 @@ void WClientGLWidget::blendFunc(WGLWidget::GLenum sfactor,
 }
 
 void WClientGLWidget::blendFuncSeparate(WGLWidget::GLenum srcRGB,
-					WGLWidget::GLenum dstRGB,
-					WGLWidget::GLenum srcAlpha,
-					WGLWidget::GLenum dstAlpha)
+                                        WGLWidget::GLenum dstRGB,
+                                        WGLWidget::GLenum srcAlpha,
+                                        WGLWidget::GLenum dstAlpha)
 {
   js_ << "ctx.blendFuncSeparate(" << toString(srcRGB) << ","
     << toString(dstRGB) << "," << toString(srcAlpha) << ","
@@ -460,8 +460,8 @@ void WClientGLWidget::blendFuncSeparate(WGLWidget::GLenum srcRGB,
 }
 
 void WClientGLWidget::bufferData(WGLWidget::GLenum target,
-				 WGLWidget::ArrayBuffer res,
-				 WGLWidget::GLenum usage)
+                                 WGLWidget::ArrayBuffer res,
+                                 WGLWidget::GLenum usage)
 {
   js_ << "ctx.bufferData(" << toString(target) << ",";
   js_ << res.jsRef() << ".data, ";
@@ -470,10 +470,10 @@ void WClientGLWidget::bufferData(WGLWidget::GLenum target,
 }
 
 void WClientGLWidget::bufferData(WGLWidget::GLenum target,
-				 WGLWidget::ArrayBuffer res,
-				 unsigned bufferResourceOffset,
-				 unsigned bufferResourceSize,
-				 WGLWidget::GLenum usage)
+                                 WGLWidget::ArrayBuffer res,
+                                 unsigned bufferResourceOffset,
+                                 unsigned bufferResourceSize,
+                                 WGLWidget::GLenum usage)
 {
   js_ << "ctx.bufferData(" << toString(target) << ",";
   js_ << res.jsRef() << ".data.slice(" << bufferResourceOffset << ","
@@ -483,7 +483,7 @@ void WClientGLWidget::bufferData(WGLWidget::GLenum target,
 }
 
 void WClientGLWidget::bufferSubData(WGLWidget::GLenum target, unsigned offset,
-				    WGLWidget::ArrayBuffer res)
+                                    WGLWidget::ArrayBuffer res)
 {
   js_ << "ctx.bufferSubData(" << toString(target) << ",";
   js_ << offset << ",";
@@ -492,9 +492,9 @@ void WClientGLWidget::bufferSubData(WGLWidget::GLenum target, unsigned offset,
 }
 
 void WClientGLWidget::bufferSubData(WGLWidget::GLenum target, unsigned offset,
-				    WGLWidget::ArrayBuffer res,
-				    unsigned bufferResourceOffset,
-				    unsigned bufferResourceSize)
+                                    WGLWidget::ArrayBuffer res,
+                                    unsigned bufferResourceOffset,
+                                    unsigned bufferResourceSize)
 {
   js_ << "ctx.bufferSubData(" << toString(target) << ",";
   js_ << offset << ",";
@@ -504,7 +504,7 @@ void WClientGLWidget::bufferSubData(WGLWidget::GLenum target, unsigned offset,
 }
 
 void WClientGLWidget::bufferData(WGLWidget::GLenum target, int size,
-				 WGLWidget::GLenum usage)
+                                 WGLWidget::GLenum usage)
 {
   js_ << "ctx.bufferData(" << toString(target) << ",";
   js_ << size << ",";
@@ -513,9 +513,9 @@ void WClientGLWidget::bufferData(WGLWidget::GLenum target, int size,
 }
 
 void WClientGLWidget::bufferDatafv(WGLWidget::GLenum target,
-				   const FloatBuffer &v,
-				   WGLWidget::GLenum usage,
-				   bool binary)
+                                   const FloatBuffer &v,
+                                   WGLWidget::GLenum usage,
+                                   bool binary)
 {
   if (binary) {
     std::unique_ptr<WMemoryResource> res
@@ -613,8 +613,8 @@ void WClientGLWidget::bufferSubDatafv(WGLWidget::GLenum target, unsigned offset,
 #endif
 
 void WClientGLWidget::bufferSubDataiv(WGLWidget::GLenum target,
-				      unsigned offset, IntBuffer &buffer, 
-				      WGLWidget::GLenum type)
+                                      unsigned offset, IntBuffer &buffer,
+                                      WGLWidget::GLenum type)
 {
   js_ << "ctx.bufferSubData(" << toString(target) << "," << offset << ",";
   renderiv(js_, buffer, type);
@@ -680,10 +680,10 @@ void WClientGLWidget::compileShader(WGLWidget::Shader shader)
 }
 
 void WClientGLWidget::copyTexImage2D(WGLWidget::GLenum target, int level,
-				     WGLWidget::GLenum internalFormat,
-				     int x, int y,
-				     unsigned width, unsigned height,
-				     int border)
+                                     WGLWidget::GLenum internalFormat,
+                                     int x, int y,
+                                     unsigned width, unsigned height,
+                                     int border)
 {
   js_ << "ctx.copyTexImage2D(" << toString(target) << "," << level << ","
     << toString(internalFormat) << "," << x << "," << y << ","
@@ -692,9 +692,9 @@ void WClientGLWidget::copyTexImage2D(WGLWidget::GLenum target, int level,
 }
 
 void WClientGLWidget::copyTexSubImage2D(WGLWidget::GLenum target, int level,
-					int xoffset, int yoffset,
-					int x, int y,
-					unsigned width, unsigned height)
+                                        int xoffset, int yoffset,
+                                        int x, int y,
+                                        unsigned width, unsigned height)
 {
   js_ << "ctx.copyTexSubImage2D(" << toString(target) << "," << level << ","
     << xoffset << "," << yoffset << "," << x << "," << y << ","
@@ -770,7 +770,7 @@ WGLWidget::Texture WClientGLWidget::createTextureAndLoad(const std::string &url)
 
 std::unique_ptr<WPaintDevice>
 WClientGLWidget::createPaintDevice(const WLength& width,
-				   const WLength& height)
+                                   const WLength& height)
 {
   return std::unique_ptr<WPaintDevice>(new WCanvasPaintDevice(width, height));
 }
@@ -850,7 +850,7 @@ void WClientGLWidget::depthRange(double zNear, double zFar)
 }
 
 void WClientGLWidget::detachShader(WGLWidget::Program program,
-				   WGLWidget::Shader shader)
+                                   WGLWidget::Shader shader)
 {
   if ((unsigned)program.getId() >= programs_ ||
       (unsigned)shader.getId() >= shaders_)
@@ -872,7 +872,7 @@ void WClientGLWidget::disableVertexAttribArray(WGLWidget::AttribLocation index)
 }
 
 void WClientGLWidget::drawArrays(WGLWidget::GLenum mode,
-				 int first, unsigned count)
+                                 int first, unsigned count)
 {
   js_ << "ctx.drawArrays(" << toString(mode) << "," << first << "," << count << ");";
   GLDEBUG;
@@ -911,9 +911,9 @@ void WClientGLWidget::flush()
 
 void WClientGLWidget
 ::framebufferRenderbuffer(WGLWidget::GLenum target,
-			  WGLWidget::GLenum attachment,
-			  WGLWidget::GLenum renderbuffertarget,
-			  WGLWidget::Renderbuffer renderbuffer)
+                          WGLWidget::GLenum attachment,
+                          WGLWidget::GLenum renderbuffertarget,
+                          WGLWidget::Renderbuffer renderbuffer)
 {
   js_ << "ctx.framebufferRenderbuffer(" << toString(target) << ","
       << toString(attachment) << "," << toString(renderbuffertarget) << ","
@@ -922,10 +922,10 @@ void WClientGLWidget
 }
 
 void WClientGLWidget::framebufferTexture2D(WGLWidget::GLenum target,
-					   WGLWidget::GLenum attachment,
-					   WGLWidget::GLenum textarget,
-					   WGLWidget::Texture texture,
-					   int level)
+                                           WGLWidget::GLenum attachment,
+                                           WGLWidget::GLenum textarget,
+                                           WGLWidget::Texture texture,
+                                           int level)
 {
   js_ << "ctx.framebufferTexture2D(" << toString(target) << ","
       << toString(attachment) << "," << toString(textarget) << ","
@@ -957,7 +957,7 @@ WGLWidget::AttribLocation WClientGLWidget::getAttribLocation(WGLWidget::Program 
 WGLWidget::UniformLocation WClientGLWidget::getUniformLocation(WGLWidget::Program program, const std::string &location)
 {
   WGLWidget::UniformLocation retval(uniforms_++);
-  js_ << retval.jsRef() << "=ctx.getUniformLocation(" << program.jsRef() 
+  js_ << retval.jsRef() << "=ctx.getUniformLocation(" << program.jsRef()
       << "," << WWebWidget::jsStringLiteral(location) << ");";
   GLDEBUG;
   return retval;
@@ -980,9 +980,9 @@ void WClientGLWidget::lineWidth(double width)
 void WClientGLWidget::linkProgram(WGLWidget::Program program)
 {
   js_ << "ctx.linkProgram(" << program.jsRef() << ");";
-  js_ << "if(!ctx.getProgramParameter(" << program.jsRef() 
+  js_ << "if(!ctx.getProgramParameter(" << program.jsRef()
       << ",ctx.LINK_STATUS)){"
-      << "alert('Could not initialize shaders: ' + ctx.getProgramInfoLog(" 
+      << "alert('Could not initialize shaders: ' + ctx.getProgramInfoLog("
       << program.jsRef() << "));}";
   GLDEBUG;
 }
@@ -1001,8 +1001,8 @@ void WClientGLWidget::polygonOffset(double factor, double units) {
 }
 
 void WClientGLWidget::renderbufferStorage(WGLWidget::GLenum target,
-					  WGLWidget::GLenum internalformat, 
-					  unsigned width, unsigned height)
+                                          WGLWidget::GLenum internalformat,
+                                          unsigned width, unsigned height)
 {
   js_ << "ctx.renderbufferStorage(" << toString(target) << ","
       << toString(internalformat) << "," << width << "," << height << ");";
@@ -1025,23 +1025,23 @@ void WClientGLWidget::scissor(int x, int y, unsigned width, unsigned height)
 }
 
 void WClientGLWidget::shaderSource(WGLWidget::Shader shader,
-				   const std::string &src)
+                                   const std::string &src)
 {
-  js_ << "ctx.shaderSource(" << shader.jsRef() << "," 
+  js_ << "ctx.shaderSource(" << shader.jsRef() << ","
       << WWebWidget::jsStringLiteral(src) << ");";
   GLDEBUG;
 }
 
 void WClientGLWidget::stencilFunc(WGLWidget::GLenum func, int ref,
-				  unsigned mask)
+                                  unsigned mask)
 {
   js_ << "ctx.stencilFunc(" << toString(func) << "," << ref << "," << mask << ");";
   GLDEBUG;
 }
 
 void WClientGLWidget::stencilFuncSeparate(WGLWidget::GLenum face,
-					  WGLWidget::GLenum func, int ref,
-					  unsigned mask)
+                                          WGLWidget::GLenum func, int ref,
+                                          unsigned mask)
 {
   js_ << "ctx.stencilFuncSeparate(" << toString(face) << "," << toString(func)
       << "," << ref << "," << mask << ");";
@@ -1061,7 +1061,7 @@ void WClientGLWidget::stencilMaskSeparate(WGLWidget::GLenum face, unsigned mask)
 }
 
 void WClientGLWidget::stencilOp(WGLWidget::GLenum fail, WGLWidget::GLenum zfail,
-				WGLWidget::GLenum zpass)
+                                WGLWidget::GLenum zpass)
 {
   js_ << "ctx.stencilOp(" << toString(fail) << "," << toString(zfail) << ","
       << toString(zpass) << ");";
@@ -1069,9 +1069,9 @@ void WClientGLWidget::stencilOp(WGLWidget::GLenum fail, WGLWidget::GLenum zfail,
 }
 
 void WClientGLWidget::stencilOpSeparate(WGLWidget::GLenum face,
-					WGLWidget::GLenum fail,
-					WGLWidget::GLenum zfail,
-					WGLWidget::GLenum zpass)
+                                        WGLWidget::GLenum fail,
+                                        WGLWidget::GLenum zfail,
+                                        WGLWidget::GLenum zpass)
 {
   js_ << "ctx.stencilOpSeparate(" << toString(face) << ","
       << toString(fail) << "," << toString(zfail) << ","
@@ -1080,9 +1080,9 @@ void WClientGLWidget::stencilOpSeparate(WGLWidget::GLenum face,
 }
 
 void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
-				 WGLWidget::GLenum internalformat, 
-				 unsigned width, unsigned height, int border,
-				 WGLWidget::GLenum format)
+                                 WGLWidget::GLenum internalformat,
+                                 unsigned width, unsigned height, int border,
+                                 WGLWidget::GLenum format)
 {
   js_ << "ctx.texImage2D(" << toString(target) << "," << level << ","
       << toString(internalformat) << "," << width << "," << height << ","
@@ -1092,10 +1092,10 @@ void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
 }
 
 void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
-				 WGLWidget::GLenum internalformat,
-				 WGLWidget::GLenum format,
-				 WGLWidget::GLenum type,
-				 WImage *image)
+                                 WGLWidget::GLenum internalformat,
+                                 WGLWidget::GLenum format,
+                                 WGLWidget::GLenum type,
+                                 WImage *image)
 {
   js_ << "ctx.texImage2D(" << toString(target) << "," << level << ","
       << toString(internalformat) << "," << toString(format) << "," << toString(type)
@@ -1105,10 +1105,10 @@ void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
 
 
 void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
-				 WGLWidget::GLenum internalformat,
-				 WGLWidget::GLenum format,
-				 WGLWidget::GLenum type,
-				 WVideo *video)
+                                 WGLWidget::GLenum internalformat,
+                                 WGLWidget::GLenum format,
+                                 WGLWidget::GLenum type,
+                                 WVideo *video)
 {
   js_ << "if (" << video->jsMediaRef()<< ")"
     " ctx.texImage2D(" << toString(target) << "," << level << ","
@@ -1119,49 +1119,49 @@ void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
 
 // // >>> Issues with CORS
 // void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
-// 				 WGLWidget::GLenum internalformat,
-// 				 WGLWidget::GLenum format,
-// 				 WGLWidget::GLenum type,
-// 				 WLink *image)
+//                                  WGLWidget::GLenum internalformat,
+//                                  WGLWidget::GLenum format,
+//                                  WGLWidget::GLenum type,
+//                                  WLink *image)
 // {
 //   unsigned imgNb = images_++;
 //   preloadImages_.push_back(PreloadImage(currentlyBoundTexture_.jsRef(),
-// 					image->url(), imgNb));
+//                                         image->url(), imgNb));
 
 //   js_ << "ctx.texImage2D(" << toString(target) << "," << level << ","
-//       << toString(internalformat) << "," << toString(format) 
+//       << toString(internalformat) << "," << toString(format)
 //       << "," << toString(type)
 //       << "," << currentlyBoundTexture_.jsRef() << ".image" << imgNb  << ");";
 //   GLDEBUG;
 // }
 
 void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
-				 WGLWidget::GLenum internalformat,
-				 WGLWidget::GLenum format,
-				 WGLWidget::GLenum type,
-				 std::string image)
+                                 WGLWidget::GLenum internalformat,
+                                 WGLWidget::GLenum format,
+                                 WGLWidget::GLenum type,
+                                 std::string image)
 {
   unsigned imgNb = images_++;
   // note: does not necessarily have to be a png (also tested jpg)
   std::unique_ptr<WFileResource> imgFile(new WFileResource("image/png", image));
   preloadImages_.push_back(PreloadImage(currentlyBoundTexture_.jsRef(),
-					imgFile->url(), imgNb));
+                                        imgFile->url(), imgNb));
 #ifndef WT_TARGET_JAVA
   addChild(std::move(imgFile));
 #endif // WT_TARGET_JAVA
 
   js_ << "ctx.texImage2D(" << toString(target) << "," << level << ","
-      << toString(internalformat) << "," << toString(format) 
+      << toString(internalformat) << "," << toString(format)
       << "," << toString(type)
       << "," << currentlyBoundTexture_.jsRef() << ".image" << imgNb  << ");";
   GLDEBUG;
 }
 
 void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
-				 WGLWidget::GLenum internalformat,
-				 WGLWidget::GLenum format,
-				 WGLWidget::GLenum type,
-				 WPaintDevice *paintdevice)
+                                 WGLWidget::GLenum internalformat,
+                                 WGLWidget::GLenum format,
+                                 WGLWidget::GLenum type,
+                                 WPaintDevice *paintdevice)
 {
   unsigned imgNb = images_++;
   if (dynamic_cast<WCanvasPaintDevice*>(paintdevice) != nullptr) {
@@ -1184,7 +1184,7 @@ void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
     rpd->done();
     std::unique_ptr<WResource> mr = rpdToMemResource(rpd);
     preloadImages_.push_back(PreloadImage(currentlyBoundTexture_.jsRef(),
-					  mr->url(), imgNb));
+                                          mr->url(), imgNb));
 #ifndef WT_TARGET_JAVA
     addChild(std::move(mr));
 #endif // WT_TARGET_JAVA
@@ -1192,7 +1192,7 @@ void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
 #endif
 
   js_ << "ctx.texImage2D(" << toString(target) << "," << level << ","
-      << toString(internalformat) << "," << toString(format) 
+      << toString(internalformat) << "," << toString(format)
       << "," << toString(type)
       << "," << currentlyBoundTexture_.jsRef() << ".image" << imgNb << ");";
   GLDEBUG;
@@ -1205,27 +1205,27 @@ std::unique_ptr<WResource> WClientGLWidget::rpdToMemResource(WRasterImage *rpd)
   rpd->write(ss);
   std::unique_ptr<WMemoryResource> mr(new WMemoryResource("image/png"));
   mr->setData(reinterpret_cast<const unsigned char*>(ss.str().c_str()),
-	      ss.str().size());
+              ss.str().size());
   return std::move(mr);
 }
 #endif
 
 void WClientGLWidget::texImage2D(WGLWidget::GLenum target, int level,
-				 WGLWidget::GLenum internalformat,
-				 WGLWidget::GLenum format,
-				 WGLWidget::GLenum type,
-				 WGLWidget::Texture texture)
+                                 WGLWidget::GLenum internalformat,
+                                 WGLWidget::GLenum format,
+                                 WGLWidget::GLenum type,
+                                 WGLWidget::Texture texture)
 {
   js_ << "ctx.texImage2D(" << toString(target) << "," << level << ","
-      << toString(internalformat) << "," << toString(format) 
+      << toString(internalformat) << "," << toString(format)
       << "," << toString(type)
       << "," << texture.jsRef() << ".image0);";
   GLDEBUG;
 }
 
 void WClientGLWidget::texParameteri(WGLWidget::GLenum target,
-				    WGLWidget::GLenum pname,
-				    WGLWidget::GLenum param)
+                                    WGLWidget::GLenum pname,
+                                    WGLWidget::GLenum param)
 {
   js_ << "ctx.texParameteri(" << toString(target) << "," << toString(pname)
     << "," << toString(param) << ");";
@@ -1233,16 +1233,16 @@ void WClientGLWidget::texParameteri(WGLWidget::GLenum target,
 }
 
 void WClientGLWidget::uniform1f(const WGLWidget::UniformLocation &location,
-				double x)
+                                double x)
 {
   char buf[30];
-  js_ << "ctx.uniform1f(" << location.jsRef() 
+  js_ << "ctx.uniform1f(" << location.jsRef()
       << "," << makeFloat(x, buf) << ");";
   GLDEBUG;
 }
 
 void WClientGLWidget::uniform1fv(const WGLWidget::UniformLocation &location,
-				 const WT_ARRAY float *value)
+                                 const WT_ARRAY float *value)
 {
   js_ << "ctx.uniform1fv(" << location.jsRef() << ",";
   renderfv(js_, value, 1, JsArrayType::Float32Array);
@@ -1251,7 +1251,7 @@ void WClientGLWidget::uniform1fv(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniform1fv(const WGLWidget::UniformLocation &location,
-				 const WGLWidget::JavaScriptVector &v)
+                                 const WGLWidget::JavaScriptVector &v)
 {
   js_ << "ctx.uniform1fv(" << location.jsRef() << ","
       << v.jsRef() << ");";
@@ -1259,7 +1259,7 @@ void WClientGLWidget::uniform1fv(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniform1i(const WGLWidget::UniformLocation &location,
-				int x)
+                                int x)
 {
   char buf[30];
   js_ << "ctx.uniform1i(" << location.jsRef() << ",";
@@ -1268,7 +1268,7 @@ void WClientGLWidget::uniform1i(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniform1iv(const WGLWidget::UniformLocation &location,
-				 const WT_ARRAY int *value)
+                                 const WT_ARRAY int *value)
 {
   js_ << "ctx.uniform1iv(" << location.jsRef() << ",";
   renderiv(js_, value, 1, WGLWidget::INT);
@@ -1277,7 +1277,7 @@ void WClientGLWidget::uniform1iv(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniform2f(const WGLWidget::UniformLocation &location,
-				double x, double y)
+                                double x, double y)
 {
   char buf[30];
   js_ << "ctx.uniform2f(" << location.jsRef() << ",";
@@ -1287,7 +1287,7 @@ void WClientGLWidget::uniform2f(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniform2fv(const WGLWidget::UniformLocation &location,
-				 const WT_ARRAY float *value)
+                                 const WT_ARRAY float *value)
 {
   js_ << "ctx.uniform2fv(" << location.jsRef() << ",";
   renderfv(js_, value, 2, JsArrayType::Float32Array);
@@ -1296,7 +1296,7 @@ void WClientGLWidget::uniform2fv(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniform2fv(const WGLWidget::UniformLocation &location,
-				 const WGLWidget::JavaScriptVector &v)
+                                 const WGLWidget::JavaScriptVector &v)
 {
   js_ << "ctx.uniform2fv(" << location.jsRef() << ","
       << v.jsRef() << ");";
@@ -1304,7 +1304,7 @@ void WClientGLWidget::uniform2fv(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniform2i(const WGLWidget::UniformLocation &location,
-				int x, int y)
+                                int x, int y)
 {
   char buf[30];
   js_ << "ctx.uniform2i(" << location.jsRef() << ",";
@@ -1314,7 +1314,7 @@ void WClientGLWidget::uniform2i(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniform2iv(const WGLWidget::UniformLocation &location,
-				 const WT_ARRAY int *value)
+                                 const WT_ARRAY int *value)
 {
   js_ << "ctx.uniform2iv(" << location.jsRef() << ",";
   renderiv(js_, value, 2, WGLWidget::INT);
@@ -1323,7 +1323,7 @@ void WClientGLWidget::uniform2iv(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniform3f(const WGLWidget::UniformLocation &location,
-				double x, double y, double z)
+                                double x, double y, double z)
 {
   char buf[30];
   js_ << "ctx.uniform3f(" << location.jsRef() << ",";
@@ -1334,7 +1334,7 @@ void WClientGLWidget::uniform3f(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniform3fv(const WGLWidget::UniformLocation &location,
-				 const WT_ARRAY float *value)
+                                 const WT_ARRAY float *value)
 {
   js_ << "ctx.uniform3fv(" << location.jsRef() << ",";
   renderfv(js_, value, 3, JsArrayType::Float32Array);
@@ -1343,7 +1343,7 @@ void WClientGLWidget::uniform3fv(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniform3fv(const WGLWidget::UniformLocation &location,
-				 const WGLWidget::JavaScriptVector &v)
+                                 const WGLWidget::JavaScriptVector &v)
 {
   js_ << "ctx.uniform3fv(" << location.jsRef() << ","
       << v.jsRef() << ");";
@@ -1351,7 +1351,7 @@ void WClientGLWidget::uniform3fv(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniform3i(const WGLWidget::UniformLocation &location,
-				int x, int y, int z)
+                                int x, int y, int z)
 {
   char buf[30];
   js_ << "ctx.uniform3i(" << location.jsRef() << ",";
@@ -1362,7 +1362,7 @@ void WClientGLWidget::uniform3i(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniform3iv(const WGLWidget::UniformLocation &location,
-				 const WT_ARRAY int *value)
+                                 const WT_ARRAY int *value)
 {
   js_ << "ctx.uniform3iv(" << location.jsRef() << ",";
   renderiv(js_, value, 3, WGLWidget::INT);
@@ -1371,7 +1371,7 @@ void WClientGLWidget::uniform3iv(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniform4f(const WGLWidget::UniformLocation &location,
-				double x, double y, double z, double w)
+                                double x, double y, double z, double w)
 {
   char buf[30];
   js_ << "ctx.uniform4f(" << location.jsRef() << ",";
@@ -1383,7 +1383,7 @@ void WClientGLWidget::uniform4f(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniform4fv(const WGLWidget::UniformLocation &location,
-				 const WT_ARRAY float *value)
+                                 const WT_ARRAY float *value)
 {
   js_ << "ctx.uniform4fv(" << location.jsRef() << ",";
   renderfv(js_, value, 4, JsArrayType::Float32Array);
@@ -1392,7 +1392,7 @@ void WClientGLWidget::uniform4fv(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniform4fv(const WGLWidget::UniformLocation &location,
-				 const WGLWidget::JavaScriptVector &v)
+                                 const WGLWidget::JavaScriptVector &v)
 {
   js_ << "ctx.uniform4fv(" << location.jsRef() << ","
       << v.jsRef() << ");";
@@ -1400,7 +1400,7 @@ void WClientGLWidget::uniform4fv(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniform4i(const WGLWidget::UniformLocation &location,
-				int x, int y, int z, int w)
+                                int x, int y, int z, int w)
 {
   char buf[30];
   js_ << "ctx.uniform4i(" << location.jsRef() << ",";
@@ -1410,9 +1410,9 @@ void WClientGLWidget::uniform4i(const WGLWidget::UniformLocation &location,
   js_ << makeInt(w, buf) << ");";
   GLDEBUG;
 }
-  
+
 void WClientGLWidget::uniform4iv(const WGLWidget::UniformLocation &location,
-				 const WT_ARRAY int *value)
+                                 const WT_ARRAY int *value)
 {
   js_ << "ctx.uniform4iv(" << location.jsRef() << ",";
   renderiv(js_, value, 4, WGLWidget::INT);
@@ -1421,8 +1421,8 @@ void WClientGLWidget::uniform4iv(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniformMatrix2fv(const WGLWidget::UniformLocation &location,
-				       bool transpose,
-				       const WT_ARRAY double *value)
+                                       bool transpose,
+                                       const WT_ARRAY double *value)
 {
   js_ << "ctx.uniformMatrix2fv(" << location.jsRef() << ","
       << (transpose?"true":"false") << ",";
@@ -1432,7 +1432,7 @@ void WClientGLWidget::uniformMatrix2fv(const WGLWidget::UniformLocation &locatio
 }
 
 void WClientGLWidget::uniformMatrix2(const WGLWidget::UniformLocation &location,
-				     const WGenericMatrix<double, 2, 2> &m)
+                                     const WGenericMatrix<double, 2, 2> &m)
 {
   js_ << "ctx.uniformMatrix2fv(" << location.jsRef() << ",false,";
   WGenericMatrix<double, 2, 2> t(m.transposed());
@@ -1442,8 +1442,8 @@ void WClientGLWidget::uniformMatrix2(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniformMatrix3fv(const WGLWidget::UniformLocation &location,
-				       bool transpose,
-				       const WT_ARRAY double *value)
+                                       bool transpose,
+                                       const WT_ARRAY double *value)
 {
   js_ << "ctx.uniformMatrix3fv(" << location.jsRef() << ","
       << (transpose?"true":"false") << ",";
@@ -1453,7 +1453,7 @@ void WClientGLWidget::uniformMatrix3fv(const WGLWidget::UniformLocation &locatio
 }
 
 void WClientGLWidget::uniformMatrix3(const WGLWidget::UniformLocation &location,
-				     const WGenericMatrix<double, 3, 3> &m)
+                                     const WGenericMatrix<double, 3, 3> &m)
 {
   js_ << "ctx.uniformMatrix3fv(" << location.jsRef() << ",false,";
   WGenericMatrix<double, 3, 3> t(m.transposed());
@@ -1463,8 +1463,8 @@ void WClientGLWidget::uniformMatrix3(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniformMatrix4fv(const WGLWidget::UniformLocation &location,
-				       bool transpose,
-				       const WT_ARRAY double *value)
+                                       bool transpose,
+                                       const WT_ARRAY double *value)
 {
   js_ << "ctx.uniformMatrix4fv(" << location.jsRef() << ","
       << (transpose?"true":"false") << ",";
@@ -1474,7 +1474,7 @@ void WClientGLWidget::uniformMatrix4fv(const WGLWidget::UniformLocation &locatio
 }
 
 void WClientGLWidget::uniformMatrix4(const WGLWidget::UniformLocation &location,
-				     const WGenericMatrix<double, 4, 4> &m) {
+                                     const WGenericMatrix<double, 4, 4> &m) {
   js_ << "ctx.uniformMatrix4fv(" << location.jsRef() << ",false,";
   js_ << "new Float32Array([";
   char buf[30];
@@ -1489,7 +1489,7 @@ void WClientGLWidget::uniformMatrix4(const WGLWidget::UniformLocation &location,
 }
 
 void WClientGLWidget::uniformMatrix4(const WGLWidget::UniformLocation &location,
-				     const WGLWidget::JavaScriptMatrix4x4 &m)
+                                     const WGLWidget::JavaScriptMatrix4x4 &m)
 {
   js_ << "ctx.uniformMatrix4fv(" << location.jsRef() << ",false,";
   js_ << m.jsRef() << ");";
@@ -1517,7 +1517,7 @@ void WClientGLWidget::vertexAttrib1f(WGLWidget::AttribLocation location, double 
 }
 
 void WClientGLWidget::vertexAttrib2f(WGLWidget::AttribLocation location,
-				     double x, double y)
+                                     double x, double y)
 {
   char buf[30];
   js_ << "ctx.vertexAttrib2f(" << location.jsRef() << ",";
@@ -1527,7 +1527,7 @@ void WClientGLWidget::vertexAttrib2f(WGLWidget::AttribLocation location,
 }
 
 void WClientGLWidget::vertexAttrib3f(WGLWidget::AttribLocation location,
-				     double x, double y, double z)
+                                     double x, double y, double z)
 {
   char buf[30];
   js_ << "ctx.vertexAttrib3f(" << location.jsRef() << ",";
@@ -1538,7 +1538,7 @@ void WClientGLWidget::vertexAttrib3f(WGLWidget::AttribLocation location,
 }
 
 void WClientGLWidget::vertexAttrib4f(WGLWidget::AttribLocation location,
-				     double x, double y, double z, double w)
+                                     double x, double y, double z, double w)
 {
   char buf[30];
   js_ << "ctx.vertexAttrib4f(" << location.jsRef() << ",";
@@ -1550,10 +1550,10 @@ void WClientGLWidget::vertexAttrib4f(WGLWidget::AttribLocation location,
 }
 
 void WClientGLWidget::vertexAttribPointer(WGLWidget::AttribLocation location,
-					  int size,
-					  WGLWidget::GLenum type,
-					  bool normalized,
-					  unsigned stride, unsigned offset)
+                                          int size,
+                                          WGLWidget::GLenum type,
+                                          bool normalized,
+                                          unsigned stride, unsigned offset)
 {
   js_ << "ctx.vertexAttribPointer(" << location.jsRef() << "," << size << "," << toString(type)
     << "," << (normalized?"true":"false") << "," << stride << "," << offset << ");";
@@ -1582,7 +1582,7 @@ void WClientGLWidget::initJavaScriptMatrix4(WGLWidget::JavaScriptMatrix4x4 &mat)
 }
 
 void WClientGLWidget::setJavaScriptMatrix4(WGLWidget::JavaScriptMatrix4x4 &jsm,
-					   const WGenericMatrix<double, 4, 4> &m)
+                                           const WGenericMatrix<double, 4, 4> &m)
 {
   js_ << WT_CLASS ".glMatrix.mat4.set(";
   WGenericMatrix<double, 4, 4> t(m.transposed());
@@ -1618,11 +1618,11 @@ void WClientGLWidget::initJavaScriptVector(WGLWidget::JavaScriptVector &vec)
 }
 
 void WClientGLWidget::setJavaScriptVector(WGLWidget::JavaScriptVector &jsv,
-					  const std::vector<float> &v)
+                                          const std::vector<float> &v)
 {
   if (jsv.length() != v.size())
     throw WException("Trying to set a JavaScriptVector with "
-		     "incompatible length!");
+                     "incompatible length!");
   for (unsigned i = 0; i < jsv.length(); ++i) {
     std::string val;
     if (v[i] == std::numeric_limits<float>::infinity()) {
@@ -1642,9 +1642,9 @@ void WClientGLWidget::setClientSideMouseHandler(const std::string& handlerCode)
 }
 
 void WClientGLWidget::setClientSideLookAtHandler(const WGLWidget::JavaScriptMatrix4x4 &m,
-						 double centerX, double centerY, double centerZ,
-						 double uX, double uY, double uZ,
-						 double pitchRate, double yawRate)
+                                                 double centerX, double centerY, double centerZ,
+                                                 double uX, double uY, double uZ,
+                                                 double pitchRate, double yawRate)
 {
   js_ << "obj.setMouseHandler(new obj.LookAtMouseHandler("
      << m.jsRef()
@@ -1654,7 +1654,7 @@ void WClientGLWidget::setClientSideLookAtHandler(const WGLWidget::JavaScriptMatr
 }
 
 void WClientGLWidget::setClientSideWalkHandler(const WGLWidget::JavaScriptMatrix4x4 &m,
-				double frontStep, double rotStep)
+                                double frontStep, double rotStep)
 {
   js_ << "obj.setMouseHandler(new obj.WalkMouseHandler("
       << m.jsRef() << ","
@@ -1727,13 +1727,13 @@ void WClientGLWidget::render(const std::string& jsRef, WFlags<RenderFlag> flags)
       "{\n"
       """var o = new " WT_CLASS ".WGLWidget(" << wApp->javaScriptClass() << "," << jsRef << ");\n"
 #ifndef WT_TARGET_JAVA
-      """o.discoverContext(function(){" << webglNotAvailable_.createCall({}) 
+      """o.discoverContext(function(){" << webglNotAvailable_.createCall({})
 #else // WT_TARGET_JAVA
-      """o.discoverContext(function(){" << webglNotAvailable_.createCall() 
+      """o.discoverContext(function(){" << webglNotAvailable_.createCall()
 #endif // WT_TARGET_JAVA
-	<< "}, "
-	<< (glInterface_->renderOptions_.test(GLRenderOption::AntiAliasing)
-	    ? "true" : "false") << ");\n";
+        << "}, "
+        << (glInterface_->renderOptions_.test(GLRenderOption::AntiAliasing)
+            ? "true" : "false") << ");\n";
 
     initializeGL(jsRef, tmp);
     tmp << "}\n";
@@ -1791,65 +1791,65 @@ void WClientGLWidget::render(const std::string& jsRef, WFlags<RenderFlag> flags)
 
     if (preloadingSomething)  {
       if (preloadImages_.size() > 0) {
-	tmp <<
-	  "o.preloadingTextures++;"
-	  "new " << wApp->javaScriptClass() << "._p_.ImagePreloader([";
-	for (unsigned i = 0; i < preloadImages_.size(); ++i) {
-	  if (i != 0)
-	    tmp << ',';
-	  tmp << '\'' << wApp->resolveRelativeUrl(preloadImages_[i].url) << '\'';
-	}
-	tmp <<
-	  "],function(images){\n"
-	  "var o=" << glObjJsRef(jsRef) << ";\n"
-	  "var ctx=null;\n"
-	  "if(o) ctx=o.ctx;\n"
-	  "if(ctx == null) return;\n";
-	for (unsigned i = 0; i < preloadImages_.size(); ++i) {
-	  std::string texture = preloadImages_[i].jsRef;
-	  tmp << texture << "=ctx.createTexture();\n"
-	      << texture << ".image" << preloadImages_[i].id
-	      << "=images[" << i << "];\n";
-	}
-	tmp << "o.preloadingTextures--;\n"
-	  << "o.handlePreload();\n"
-	  << "});";
+        tmp <<
+          "o.preloadingTextures++;"
+          "new " << wApp->javaScriptClass() << "._p_.ImagePreloader([";
+        for (unsigned i = 0; i < preloadImages_.size(); ++i) {
+          if (i != 0)
+            tmp << ',';
+          tmp << '\'' << wApp->resolveRelativeUrl(preloadImages_[i].url) << '\'';
+        }
+        tmp <<
+          "],function(images){\n"
+          "var o=" << glObjJsRef(jsRef) << ";\n"
+          "var ctx=null;\n"
+          "if(o) ctx=o.ctx;\n"
+          "if(ctx == null) return;\n";
+        for (unsigned i = 0; i < preloadImages_.size(); ++i) {
+          std::string texture = preloadImages_[i].jsRef;
+          tmp << texture << "=ctx.createTexture();\n"
+              << texture << ".image" << preloadImages_[i].id
+              << "=images[" << i << "];\n";
+        }
+        tmp << "o.preloadingTextures--;\n"
+          << "o.handlePreload();\n"
+          << "});";
 
-	preloadImages_.clear();
+        preloadImages_.clear();
       }
 
       // now check for buffers to preload
       if (preloadArrayBuffers_.size() > 0) {
-	tmp <<
-	  "o.preloadingBuffers++;"
-	  "new " << wApp->javaScriptClass() << "._p_.ArrayBufferPreloader([";
-	for (unsigned i = 0; i < preloadArrayBuffers_.size(); ++i) {
-	  if (i != 0)
-	    tmp << ',';
-	  tmp << '\'' << preloadArrayBuffers_[i].url << '\'';
-	}
-	tmp <<
-	  "],function(bufferResources){\n"
-	  "var o=" << glObjJsRef(jsRef) << ";\n"
-	  "var ctx=null;\n"
-	  " if(o) ctx=o.ctx;\n"
-	  "if(ctx == null) return;\n";
-	for (unsigned i = 0; i < preloadArrayBuffers_.size(); ++i) {
-	  std::string bufferResource = preloadArrayBuffers_[i].jsRef;
-	  // setup datatype
-	  tmp << bufferResource << " = ctx.createBuffer();";
-	  // set the data
-	  tmp << "if (bufferResources[" << i << "]==null){";
-	  tmp << bufferResource << ".data=[];\n";
-	  tmp << "}else{";
-	  tmp << bufferResource << ".data=bufferResources[" << i << "];\n";
-	  tmp << "}";
-	}
-	tmp << "o.preloadingBuffers--;"
-	  << "o.handlePreload();\n"
-	  << "});";
+        tmp <<
+          "o.preloadingBuffers++;"
+          "new " << wApp->javaScriptClass() << "._p_.ArrayBufferPreloader([";
+        for (unsigned i = 0; i < preloadArrayBuffers_.size(); ++i) {
+          if (i != 0)
+            tmp << ',';
+          tmp << '\'' << preloadArrayBuffers_[i].url << '\'';
+        }
+        tmp <<
+          "],function(bufferResources){\n"
+          "var o=" << glObjJsRef(jsRef) << ";\n"
+          "var ctx=null;\n"
+          " if(o) ctx=o.ctx;\n"
+          "if(ctx == null) return;\n";
+        for (unsigned i = 0; i < preloadArrayBuffers_.size(); ++i) {
+          std::string bufferResource = preloadArrayBuffers_[i].jsRef;
+          // setup datatype
+          tmp << bufferResource << " = ctx.createBuffer();";
+          // set the data
+          tmp << "if (bufferResources[" << i << "]==null){";
+          tmp << bufferResource << ".data=[];\n";
+          tmp << "}else{";
+          tmp << bufferResource << ".data=bufferResources[" << i << "];\n";
+          tmp << "}";
+        }
+        tmp << "o.preloadingBuffers--;"
+          << "o.handlePreload();\n"
+          << "});";
 
-	preloadArrayBuffers_.clear();
+        preloadArrayBuffers_.clear();
       }
     } else {
       // No textures or buffers to load - go and paint

@@ -1,37 +1,37 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <messages>
   <message id="calendar.entry.title">
-  	Enter a new appointment for {1}
+    Enter a new appointment for {1}
   </message>
 
   <message id="calendar.entry">
     <div class="entry-dialog">
       <div class="line"><label>Summary: ${summary}</label></div>
       <div class="line">
-	<label>From${start}</label>
-	<label>to${stop}</label>
+        <label>From${start}</label>
+        <label>to${stop}</label>
       </div>
       <div class="line"><div><label>Description:</label></div>
-	<div>${description}</div></div>
+        <div>${description}</div></div>
       <div class="buttons">${ok} ${cancel}</div>
     </div>
   </message>
 
   <message id="calendar.all-entries">
-	<div>
-		<div class="all-entries-dialog-entries">${entries}</div>
-		<div class="all-entries-dialog-button">${close}</div>
-	</div>
+    <div>
+      <div class="all-entries-dialog-entries">${entries}</div>
+      <div class="all-entries-dialog-button">${close}</div>
+    </div>
   </message>
-  
+
   <message id="calendar.entry.ok">Ok</message>
   <message id="calendar.entry.cancel">Cancel</message>
   <message id="calendar.cell.extra">+{1} extra</message>
   <message id="calendar.cell.tooltip">Click the cell to add a new entry.</message>
   <message id="calendar.cell.all-entries.title">
-  	All entries for {1}
+    All entries for {1}
   </message>
   <message id="calendar.cell.all-entries.close">
-  	Close
+    Close
   </message>
 </messages>

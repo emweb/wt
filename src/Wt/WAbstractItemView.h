@@ -154,7 +154,7 @@ public:
    */
   void setItemDelegateForColumn
     (int column, const std::shared_ptr<WAbstractItemDelegate>& delegate);
-  
+
   /*! \brief Returns the delegate that was set for a column.
    *
    * Returns \c 0 if no delegate was set for the column.
@@ -198,7 +198,7 @@ public:
    * The default item delegate is a WItemDelegate.
    */
   void setHeaderItemDelegate(const std::shared_ptr<WAbstractItemDelegate>&
-			     delegate);
+                             delegate);
 
   /*! \brief Returns the header item delegate.
    *
@@ -276,7 +276,7 @@ public:
    * \sa setAlternatingRowColors()
    */
   virtual bool alternatingRowColors() const { return alternatingRowColors_; }
-  
+
   /*! \brief Sorts the data according to a column.
    *
    * Sorts the data according to data in column \p column and sort
@@ -394,8 +394,8 @@ public:
   /*! \brief Sets the selected items
    *
    * Replaces the current selection with \p indexes.
-   * 
-   * When selection operates on rows (SelectionBehavior::Rows), 
+   *
+   * When selection operates on rows (SelectionBehavior::Rows),
    * it is sufficient to pass the first element in a row (column \c 0 )
    * to select the entire row.
    *
@@ -414,7 +414,7 @@ public:
    * \sa setSelectedIndexes(), selectionModel()
    */
   void select(const WModelIndex& index,
-	      SelectionFlag option = SelectionFlag::Select);
+              SelectionFlag option = SelectionFlag::Select);
 
   /*! \brief Returns wheter an item is selected.
    *
@@ -436,7 +436,7 @@ public:
    * the order they appear in the view).
    *
    * When selection operates on rows (SelectionBehavior::Rows),
-   * this method only returns the model index of first column's element of the 
+   * this method only returns the model index of first column's element of the
    * selected rows.
    *
    * This is a convenience method for:
@@ -447,7 +447,7 @@ public:
    * \sa setSelectedIndexes()
    */
   WModelIndexSet selectedIndexes() const;
-  
+
   /*! \brief Enables the selection to be dragged (drag & drop).
    *
    * To enable dragging of the selection, you first need to enable
@@ -457,7 +457,7 @@ public:
    * item's ItemFlag::DragEnabled flag. The selection can be dragged
    * only if all items currently selected can be dragged.
    *
-   * \sa setDropsEnabled() 
+   * \sa setDropsEnabled()
    */
   void setDragEnabled(bool enable);
 
@@ -533,7 +533,7 @@ public:
    *       augmented by 7 pixels for internal padding and a border.
    */
   virtual void setColumnWidth(int column, const WLength& width) = 0;
- 
+
   /*! \brief Returns the column width.
    *
    * \sa setColumnWidth()
@@ -628,7 +628,7 @@ public:
    *       taking into account the column.
    */
   virtual void scrollTo(const WModelIndex& index,
-			ScrollHint hint = ScrollHint::EnsureVisible) = 0;
+                        ScrollHint hint = ScrollHint::EnsureVisible) = 0;
 
   /*! \brief Configures what actions should trigger editing.
    *
@@ -684,13 +684,13 @@ public:
   void closeEditors(bool saveData = true);
 
   /*! \brief Validates the editor for the given index.
-   * 
+   *
    * Validation is done by invoking WAbstractItemDelegate::validate().
    */
   ValidationState validateEditor(const WModelIndex& index);
 
   /*! \brief Validates all editors.
-   * 
+   *
    * \sa validateEditor().
    */
   ValidationState validateEditors();
@@ -700,7 +700,7 @@ public:
    * \sa edit()
    */
   bool isEditing(const WModelIndex& index) const;
-  
+
   /*! \brief Returns whether an editor's state is valid.
    */
   bool isValid(const WModelIndex& index) const;
@@ -874,7 +874,7 @@ public:
    * \sa setRowHeaderCount()
    */
   int rowHeaderCount() const { return rowHeaderCount_; }
-  
+
   /*! \brief Event signal emitted when a keyboard key is pushed down.
    *
    * The keyWentDown signal is the first signal emitted when a key is
@@ -898,7 +898,7 @@ public:
    * \sa keyWentDown()
    */
   EventSignal<WKeyEvent>& keyPressed();
-    
+
   /*! \brief Event signal emitted when a keyboard key is released.
    *
    * This is the counter-part of the keyWentDown() event. Every
@@ -907,7 +907,7 @@ public:
    * \sa keyWentDown()
    */
   EventSignal<WKeyEvent>& keyWentUp();
- 
+
 protected:
   /*! \brief Creates a new item view.
    */
@@ -1034,7 +1034,7 @@ protected:
   virtual void scheduleRerender(RenderState what);
 
   virtual void modelDataChanged(const WModelIndex& topLeft,
-				const WModelIndex& bottomRight) = 0;
+                                const WModelIndex& bottomRight) = 0;
   virtual void modelLayoutAboutToBeChanged();
   virtual void modelLayoutChanged();
   void modelHeaderDataChanged(Orientation orientation, int start, int end);
@@ -1063,7 +1063,7 @@ protected:
    * selection or editing behaviour.
    */
   virtual void handleClick(const WModelIndex& index,
-			   const WMouseEvent& event);
+                           const WMouseEvent& event);
 
   /*! \brief Handles a double click event.
    *
@@ -1074,31 +1074,31 @@ protected:
    * editing behaviour.
    */
   virtual void handleDoubleClick(const WModelIndex& index,
-				 const WMouseEvent& event);
+                                 const WMouseEvent& event);
 
   /*! \brief Handles a mouse down event.
    *
    * This emits the mouseWentDown() signal.
    */
   virtual void handleMouseDown(const WModelIndex& index,
-			       const WMouseEvent& event);
+                               const WMouseEvent& event);
 
   /*! \brief Handles a mouse up event.
    *
    * This emits the mouseWentUp() signal.
    */
   virtual void handleMouseUp(const WModelIndex& index,
-			     const WMouseEvent& event);
+                             const WMouseEvent& event);
 
   /*! \brief Handles a touch select event.
    */
   virtual void handleTouchSelect(const std::vector<WModelIndex>& indices,
-				 const WTouchEvent& event);
+                                 const WTouchEvent& event);
 
   /*! \brief Handles a touch started event.
    */
   virtual void handleTouchStart(const std::vector<WModelIndex>& indices,
-				const WTouchEvent& event);
+                                const WTouchEvent& event);
 
   /*! \brief Handles a touch moved event.
    */
@@ -1108,7 +1108,7 @@ protected:
   /*! \brief Handles a touch ended event.
    */
   virtual void handleTouchEnd(const std::vector<WModelIndex>& indices,
-			      const WTouchEvent& event);
+                              const WTouchEvent& event);
 
   virtual bool internalSelect(const WModelIndex& index, SelectionFlag option);
 
@@ -1123,9 +1123,9 @@ protected:
   void bindObjJS(JSlot& slot, const std::string& jsMethod);
   void connectObjJS(EventSignalBase& s, const std::string& jsMethod);
   bool shiftEditorRows(const WModelIndex& parent, int start, int count,
-		       bool persistWhenShifted);
+                       bool persistWhenShifted);
   bool shiftEditorColumns(const WModelIndex& parent, int start, int count,
-			  bool persistWhenShifted);
+                          bool persistWhenShifted);
   void persistEditor(const WModelIndex& index);
 
 private:
@@ -1162,7 +1162,7 @@ private:
   observing_ptr<WCssTemplateRule> headerHeightRule_;
 
   mutable int nextColumnId_;
-  
+
   bool alternatingRowColors_;
 
   JSlot resizeHandleMDownJS_;
@@ -1199,7 +1199,7 @@ private:
   virtual WText *headerSortIconWidget(int column);
 
   void selectionHandleClick(const WModelIndex& index,
-			    WFlags<KeyboardModifier> modifiers);
+                            WFlags<KeyboardModifier> modifiers);
   void selectionHandleTouch(const std::vector<WModelIndex>& indices, const WTouchEvent& event);
   void extendSelection(const WModelIndex& index);
   void extendSelection(const std::vector<WModelIndex>& index);

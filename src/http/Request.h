@@ -42,7 +42,7 @@ namespace server {
  * taking into account that a string may span several buffer
  * boundaries
  */
-struct buffer_string 
+struct buffer_string
 {
   char *data;
   unsigned int len;
@@ -85,12 +85,12 @@ public:
     buffer_string name;
     buffer_string value;
   };
-  
+
 #ifdef WTHTTP_WITH_ZLIB
   struct PerMessageDeflateState {
-	bool enabled;
-	int client_max_window_bits; // -1 means no context takeover
-	int server_max_window_bits; // -1 means no context takeover
+    bool enabled;
+    int client_max_window_bits; // -1 means no context takeover
+    int server_max_window_bits; // -1 means no context takeover
   };
 #endif
 

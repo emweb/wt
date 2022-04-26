@@ -63,7 +63,7 @@ class SqlStatement;
  *   Dog,
  *   Other
  * };
- * 
+ *
  * std::string petToString(Pet p) {
  *   switch (p) {
  *   case Pet::Cat:
@@ -75,7 +75,7 @@ class SqlStatement;
  *   }
  *   throw std::invalid_argument("Unknown pet type: " + std::to_string(static_cast<int>(p)));
  * }
- * 
+ *
  * Pet petFromString(const std::string &s) {
  *   if (s == "cat")
  *     return Pet::Cat;
@@ -163,7 +163,7 @@ struct sql_value_traits
 #endif // DOXYGEN_ONLY
 
   static void bind(const char *v, SqlStatement *statement, int column,
-		   int size);
+                   int size);
 };
 
 /*! \brief Flags
@@ -194,15 +194,15 @@ public:
   /*! \brief Creates a field description.
    */
   FieldInfo(const std::string& name, const std::type_info *type,
-	    const std::string& sqlType, int flags);
+            const std::string& sqlType, int flags);
 
   /*! \brief Creates a field description.
    */
   FieldInfo(const std::string& name, const std::type_info *type,
-	    const std::string& sqlType,
-	    const std::string& foreignKeyTable,
-	    const std::string& foreignKeyName,
-	    int flags, int fkConstraints);
+            const std::string& sqlType,
+            const std::string& foreignKeyTable,
+            const std::string& foreignKeyName,
+            int flags, int fkConstraints);
 
   /*! \brief Sets a qualifier for the field.
    */
@@ -299,8 +299,8 @@ struct query_result_traits
    * of query.
    */
   static void getFields(Session& session,
-			std::vector<std::string> *aliases,
-			std::vector<FieldInfo>& result);
+                        std::vector<std::string> *aliases,
+                        std::vector<FieldInfo>& result);
 
   /*! \brief Reads a result from an executed query.
    *
@@ -313,7 +313,7 @@ struct query_result_traits
    * of query.
    */
   static Result load(Session& session, SqlStatement& statement,
-		     int& column);
+                     int& column);
 
   /*! \brief Returns result values.
    *

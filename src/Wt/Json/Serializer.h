@@ -23,9 +23,9 @@ class Array;
  * UTF-8 encoded in the output. The output is indented to make it
  * readable. The indentation argument to this function is used in
  * recursive calls and should not be set.
- * 
+ *
  * \throws WException when the trying to serialize a number which is a Nan
- * 
+ *
  * \ingroup json
  */
 std::string WT_API serialize(const Object& obj, int indentation = 1);

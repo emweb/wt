@@ -136,7 +136,7 @@ public:
    * functions, or reimplement updateViewValue() or updateModelValue().
    */
   void setFormWidget(WFormModel::Field field,
-		     std::unique_ptr<WWidget> widget);
+                     std::unique_ptr<WWidget> widget);
 
   /*! \brief Sets the form widget for a given field.
    *
@@ -144,13 +144,13 @@ public:
    * and model for this field.
    */
   void setFormWidget(WFormModel::Field field,
-		     std::unique_ptr<WWidget> widget,
+                     std::unique_ptr<WWidget> widget,
 #ifndef WT_TARGET_JAVA
-		     const std::function<void ()>& updateViewValue,
-		     const std::function<void ()>& updateModelValue
+                     const std::function<void ()>& updateViewValue,
+                     const std::function<void ()>& updateModelValue
 #else // WT_TARGET_JAVA
-		     const Runnable& updateViewValue,
-		     const Runnable& updateModelValue
+                     const Runnable& updateViewValue,
+                     const Runnable& updateModelValue
 #endif // WT_TARGET_JAVA
       );
 
@@ -189,7 +189,7 @@ public:
    * WFormWidget::setValueText().
    */
   virtual void updateViewValue(WFormModel *model, WFormModel::Field field,
-			       WFormWidget *edit);
+                               WFormWidget *edit);
 
   /*! \brief Updates the value in the View.
    *
@@ -198,7 +198,7 @@ public:
    * returns \c false if no such function was configured.
    */
   virtual bool updateViewValue(WFormModel *model, WFormModel::Field field,
-			       WWidget *edit);
+                               WWidget *edit);
 
   /*! \brief Updates the Model.
    *
@@ -221,7 +221,7 @@ public:
    * then calls WFormModel::setValue() with WFormWidget::valueText().
    */
   virtual void updateModelValue(WFormModel *model, WFormModel::Field field,
-				WFormWidget *edit);
+                                WFormWidget *edit);
 
   /*! \brief Updates a value in the Model.
    *
@@ -230,7 +230,7 @@ public:
    * returns \c false if no such function was configured.
    */
   virtual bool updateModelValue(WFormModel *model, WFormModel::Field field,
-				WWidget *edit);
+                                WWidget *edit);
 
 protected:
   /*! \brief Creates a form widget.
@@ -249,10 +249,10 @@ protected:
    *       WFormWidget in %Wt 3.3.1!
    */
   virtual void indicateValidation(WFormModel::Field field,
-				  bool validated,
-				  WText *info,
-				  WWidget *edit,
-				  const WValidator::Result& validation);
+                                  bool validated,
+                                  WText *info,
+                                  WWidget *edit,
+                                  const WValidator::Result& validation);
 private:
   struct FieldData {
     FieldData();

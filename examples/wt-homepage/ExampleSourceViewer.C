@@ -68,8 +68,8 @@ static bool comparePaths(const fs::path& p1, const fs::path& p2)
 }
 
 ExampleSourceViewer::ExampleSourceViewer(const std::string& deployPath,
-					 const std::string& examplesRoot,
-					 const std::string& examplesType)
+                                         const std::string& examplesRoot,
+                                         const std::string& examplesType)
   : deployPath_(deployPath),
     examplesRoot_(examplesRoot),
     examplesType_(examplesType)
@@ -88,8 +88,8 @@ void ExampleSourceViewer::handlePathChange()
     std::string example = app->internalPathNextPart(deployPath_);
 
     if (example.find("..") != std::string::npos
-	|| example.find('/') != std::string::npos
-	|| example.find('\\') != std::string::npos) {
+        || example.find('/') != std::string::npos
+        || example.find('\\') != std::string::npos) {
       app->setInternalPathValid(false);
       setExample("INVALID_DIR", "INVALID");
     } else
@@ -98,7 +98,7 @@ void ExampleSourceViewer::handlePathChange()
 }
 
 void ExampleSourceViewer::setExample(const std::string& exampleDir,
-				     const std::string& example)
+                                     const std::string& example)
 {
   clear();
 
@@ -182,7 +182,7 @@ void ExampleSourceViewer::setExample(const std::string& exampleDir,
 /*
  * Return the companion implementation/header file for a C++ source file.
  */
-static fs::path getCompanion(const fs::path& path) 
+static fs::path getCompanion(const fs::path& path)
 {
   std::string ext = fs::extension(path);
 
@@ -194,8 +194,8 @@ static fs::path getCompanion(const fs::path& path)
     return fs::path();
 }
 
-void ExampleSourceViewer::cppTraverseDir(WStandardItem* parent, 
-					 const fs::path& path)
+void ExampleSourceViewer::cppTraverseDir(WStandardItem* parent,
+                                         const fs::path& path)
 {
   static const char *supportedFiles[] = {
     ".C", ".cpp", ".h", ".css", ".xml", ".png", ".gif", ".csv", ".ico", 0
@@ -211,7 +211,7 @@ void ExampleSourceViewer::cppTraverseDir(WStandardItem* parent,
     std::set<fs::path> paths;
 
     fs::directory_iterator end_itr;
-    for (fs::directory_iterator i(path); i != end_itr; ++i) 
+    for (fs::directory_iterator i(path); i != end_itr; ++i)
       paths.insert(*i);
 
     std::vector<std::unique_ptr<FileItem>> classes, files;
@@ -223,61 +223,61 @@ void ExampleSourceViewer::cppTraverseDir(WStandardItem* parent,
 
       // skip symbolic links and other files
       if (fs::is_symlink(p))
-	continue;
+        continue;
 
       // skip files with an extension we do not want to handle
       if (fs::is_regular(p)) {
-	std::string ext = fs::extension(p);
-	bool supported = false;
-	for (const char **s = supportedFiles; *s != 0; ++s)
-	  if (*s == ext) {
-	    supported = true;
-	    break;
-	  }
-	
-	if (!supported)
-	  continue;
+        std::string ext = fs::extension(p);
+        bool supported = false;
+        for (const char **s = supportedFiles; *s != 0; ++s)
+          if (*s == ext) {
+            supported = true;
+            break;
+          }
+
+        if (!supported)
+          continue;
       }
 
       // see if we have one file of a class (.C, .h)
       fs::path companion = getCompanion(p);
       if (!companion.empty()) {
-	std::set<fs::path>::iterator it_companion = paths.find(companion);
- 
-	  if (it_companion != paths.end()) {
-	    std::string className = stem(p);
-	    escapeText(className);
-	    std::string label = "<i>class</i> " + className;
+        std::set<fs::path>::iterator it_companion = paths.find(companion);
 
-	    std::unique_ptr<FileItem> classItem =
-	      std::make_unique<FileItem>("/icons/cppclass.png", label, std::string());
-	    classItem->setFlags(classItem->flags() | ItemFlag::XHTMLText);
+          if (it_companion != paths.end()) {
+            std::string className = stem(p);
+            escapeText(className);
+            std::string label = "<i>class</i> " + className;
 
-	    auto header
-		= std::make_unique<FileItem>("/icons/document.png", filename(p),
-					    p.string());
-	    auto cpp
-		= std::make_unique<FileItem>("/icons/document.png",
-					 filename(*it_companion),
-					 (*it_companion).string());
-	    classItem->appendRow(std::move(header));
-	    classItem->appendRow(std::move(cpp));
-	  
-	    classes.push_back(std::move(classItem));
-	    paths.erase(it_companion);
-	  } else {
-	    auto file
-		= std::make_unique<FileItem>("/icons/document.png", filename(p),
-					  p.string());
-	    files.push_back(std::move(file));
-	  }
+            std::unique_ptr<FileItem> classItem =
+              std::make_unique<FileItem>("/icons/cppclass.png", label, std::string());
+            classItem->setFlags(classItem->flags() | ItemFlag::XHTMLText);
+
+            auto header
+                = std::make_unique<FileItem>("/icons/document.png", filename(p),
+                                            p.string());
+            auto cpp
+                = std::make_unique<FileItem>("/icons/document.png",
+                                         filename(*it_companion),
+                                         (*it_companion).string());
+            classItem->appendRow(std::move(header));
+            classItem->appendRow(std::move(cpp));
+
+            classes.push_back(std::move(classItem));
+            paths.erase(it_companion);
+          } else {
+            auto file
+                = std::make_unique<FileItem>("/icons/document.png", filename(p),
+                                          p.string());
+            files.push_back(std::move(file));
+          }
       } else if (fs::is_directory(p)) {
-	dirs.push_back(p);
+        dirs.push_back(p);
       } else {
         auto file
             = std::make_unique<FileItem>("/icons/document.png", filename(p),
-				      p.string());
-	files.push_back(std::move(file));
+                                      p.string());
+        files.push_back(std::move(file));
       }
     }
 
@@ -297,8 +297,8 @@ void ExampleSourceViewer::cppTraverseDir(WStandardItem* parent,
 }
 
 void ExampleSourceViewer::javaTraversePackages(WStandardItem *parent,
-					       const fs::path& srcPath,
-					       const std::string packageName)
+                                               const fs::path& srcPath,
+                                               const std::string packageName)
 {
   fs::directory_iterator end_itr;
 
@@ -314,17 +314,17 @@ void ExampleSourceViewer::javaTraversePackages(WStandardItem *parent,
 
       auto file
           = std::make_unique<FileItem>("/icons/javaclass.png", filename(p),
-				    p.string());
+                                    p.string());
       packageItem->appendRow(std::move(file));
     }
   }
 
   for (fs::directory_iterator i(srcPath); i != end_itr; ++i) {
     fs::path p = *i;
-    if (fs::is_directory(p)) {  
+    if (fs::is_directory(p)) {
       std::string pn = packageName;
       if (!pn.empty())
-	pn += ".";
+        pn += ".";
       pn += filename(p);
 
       javaTraversePackages(parent, p, pn);
@@ -332,8 +332,8 @@ void ExampleSourceViewer::javaTraversePackages(WStandardItem *parent,
   }
 }
 
-void ExampleSourceViewer::javaTraverseDir(WStandardItem* parent, 
-					  const fs::path& path)
+void ExampleSourceViewer::javaTraverseDir(WStandardItem* parent,
+                                          const fs::path& path)
 {
   auto dir
       = std::make_unique<FileItem>("/icons/yellow-folder-open.png",
@@ -351,12 +351,12 @@ void ExampleSourceViewer::javaTraverseDir(WStandardItem* parent,
       if (filename(p) == "src") {
         auto dir
             = std::make_unique<FileItem>("/icons/package-folder-open.png",
-				     filename(p), "");
-	FileItem *dirPtr = dir.get();
-	parent->appendRow(std::move(dir));
-	javaTraversePackages(dirPtr, p, "");
+                                     filename(p), "");
+        FileItem *dirPtr = dir.get();
+        parent->appendRow(std::move(dir));
+        javaTraversePackages(dirPtr, p, "");
       } else
-	dirs.push_back(p);
+        dirs.push_back(p);
     } else {
       files.push_back(p);
     }

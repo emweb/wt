@@ -13,7 +13,7 @@
 namespace Wt {
 
 class WMemoryResource;
-  
+
 /*! \class WFileDropWidget Wt/WFileDropWidget.h Wt/WFileDropWidget.h
  *  \brief A widget that allows dropping files for upload.
  *
@@ -21,7 +21,7 @@ class WMemoryResource;
  * whenever one or more files are dropped. The filename, type and size of
  * these files is immediately available through the WFileDropWidget::File
  * interface.
- * 
+ *
  * The file upload is done sequentially. All files before the currentIndex()
  * have either finished, failed or have been cancelled.
  *
@@ -61,7 +61,7 @@ public:
 
     /*! \brief Returns true if the upload is finished.
      *
-     * When this method returns true, the uploaded file is available on the 
+     * When this method returns true, the uploaded file is available on the
      * server.
      *
      * \sa uploadedFile()
@@ -77,7 +77,7 @@ public:
 
     /*! \brief This signal is triggered when the upload is finished.
      *
-     * This is also signalled using the WFileDropWidget 
+     * This is also signalled using the WFileDropWidget
      * \link WFileDropWidget::uploaded uploaded() \endlink signal.
      */
     Signal<>& uploaded() { return uploaded_; }
@@ -94,9 +94,9 @@ public:
     void cancel();
     bool cancelled() const;
     void emitDataReceived(::uint64_t current, ::uint64_t total,
-			  bool filterSupported);
+                          bool filterSupported);
     void setIsFiltered(bool filtered);
-    
+
   private:
     int id_;
     std::string clientFileName_;
@@ -128,7 +128,7 @@ public:
 
   /*! \brief Returns the vector of uploads managed by this widget.
    *
-   * The files in this vector are handled sequentially by the widget. All 
+   * The files in this vector are handled sequentially by the widget. All
    * WFileDropWidget::File objects in this vector have either finished or
    * failed if they are before the currentIndex(), depending on the return
    * value of WFileDropWidget::File::uploadFinished(). The other files are
@@ -167,8 +167,8 @@ public:
   /*! \brief When set to false, the widget no longer accepts any files.
    */
   void setAcceptDrops(bool enable);
-  
-  /*! \brief Set the style class that is applied when a file is hovered over 
+
+  /*! \brief Set the style class that is applied when a file is hovered over
    * the widget.
    *
    * \deprecated Override the css rule '.Wt-filedropzone.Wt-dropzone-hover' instead.
@@ -177,7 +177,7 @@ public:
 
   /*! \brief Sets input accept attributes
    *
-   * The accept attribute may be specified to provide user agents with a 
+   * The accept attribute may be specified to provide user agents with a
    * hint of what file types will be accepted. Use html input accept attributes
    * as input.
    * This only affects the popup that is shown when users click on the widget.
@@ -208,7 +208,7 @@ public:
   /*! \brief Allow dropping the files anywhere on the page
    *
    * If enabled, a drop anywhere on the page will be forwarded to this widget.
-   * 
+   *
    * \sa setDropIndicationEnabled()
    */
   void setGlobalDropEnabled(bool enable);
@@ -229,7 +229,7 @@ public:
 
   /*! \brief The signal triggers when the upload of a file is about to begin.
    *
-   * After this signal is triggered, the upload automatically starts. The 
+   * After this signal is triggered, the upload automatically starts. The
    * upload can still fail if the file is too large or if there is a network
    * error.
    */
@@ -298,13 +298,13 @@ private:
   JSignal<int> uploadFinished_;
   JSignal<> doneSending_;
   JSignal<> jsFilterNotSupported_;
-  
+
   Signal<std::vector<File*> > dropEvent_;
   Signal<File*> uploadStart_;
   Signal<File*> uploaded_;
   Signal< File*, ::uint64_t > tooLarge_;
   Signal<File*> uploadFailed_;
-  
+
   std::vector<std::unique_ptr<File> > uploads_;
 
   static const int BIT_HOVERSTYLE_CHANGED  = 0;
@@ -317,7 +317,7 @@ private:
 
   friend class WFileDropUploadResource;
 };
-  
+
 }
 
 #endif

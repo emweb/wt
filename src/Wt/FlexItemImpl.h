@@ -23,8 +23,8 @@ public:
   virtual int minimumWidth() const override;
 
   DomElement *createDomElement(DomElement *parent,
-			       bool fitWidth, bool fitHeight,
-			       WApplication *app) override;
+                               bool fitWidth, bool fitHeight,
+                               WApplication *app) override;
 
 private:
   WWidgetItem *item_;

@@ -28,38 +28,38 @@ namespace Wt {
   LOGGER("FileUtils");
 
   namespace FileUtils {
-    std::vector<unsigned char> fileHeader(const std::string &fileName, 
-					  unsigned size)
+    std::vector<unsigned char> fileHeader(const std::string &fileName,
+                                          unsigned size)
     {
       std::vector<unsigned char> header;
 
       std::ifstream file;
       file.open(fileName.c_str(), std::ios::binary | std::ios::in);
-      
+
       if (file.good()) {
-	file.seekg(0, std::ios::beg);
-	
-	header.resize(size);
-	file.read((char*)&header[0], size);
-	file.close();
-	
-	return header;
+        file.seekg(0, std::ios::beg);
+
+        header.resize(size);
+        file.read((char*)&header[0], size);
+        file.close();
+
+        return header;
       } else {
-	return header;
+        return header;
       }
     }
 
-    unsigned long long size(const std::string &file) 
+    unsigned long long size(const std::string &file)
     {
 #ifndef WT_HAVE_POSIX_FILEIO
       return (unsigned long long) boost::filesystem::file_size(file);
 #else //WT_HAVE_POSIX_FILEIO
       struct stat sb;
       if (stat(file.c_str(), &sb) == -1) {
-	std::string error 
-	  = "size: stat failed for file \"" + file + "\"";
-	LOG_ERROR(error);
-	throw WException(error);
+        std::string error
+          = "size: stat failed for file \"" + file + "\"";
+        LOG_ERROR(error);
+        throw WException(error);
       }
       return (unsigned long long)sb.st_size;
 #endif //WT_HAVE_POSIX_FILEIO
@@ -75,23 +75,23 @@ namespace Wt {
                      std::istreambuf_iterator<char>());
     }
 
-    time_t lastWriteTime(const std::string &file) 
+    time_t lastWriteTime(const std::string &file)
     {
 #ifndef WT_HAVE_POSIX_FILEIO
       return (unsigned long long)boost::filesystem::last_write_time(file);
 #else //WT_HAVE_POSIX_FILEIO
       struct stat sb;
       if (stat(file.c_str(), &sb) == -1) {
-	std::string error 
-	  = "lastWriteTime: stat failed for file \"" + file + "\"";
-	LOG_ERROR(error);
-	throw WException(error);
+        std::string error
+          = "lastWriteTime: stat failed for file \"" + file + "\"";
+        LOG_ERROR(error);
+        throw WException(error);
       }
       return (unsigned long long)sb.st_mtime;
 #endif //WT_HAVE_POSIX_FILEIO
     }
 
-    bool exists(const std::string &file) 
+    bool exists(const std::string &file)
     {
 #ifndef WT_HAVE_POSIX_FILEIO
       boost::filesystem::path path(file);
@@ -102,7 +102,7 @@ namespace Wt {
 #endif //WT_HAVE_POSIX_FILEIO
     }
 
-    bool isDirectory(const std::string &file) 
+    bool isDirectory(const std::string &file)
     {
 #ifndef WT_HAVE_POSIX_FILEIO
       boost::filesystem::path path(file);
@@ -111,43 +111,43 @@ namespace Wt {
       struct stat sb;
       stat(file.c_str(), &sb);
       if (stat(file.c_str(), &sb) == -1) {
-	std::string error 
-	  = "isDirectory: stat failed for file \"" + file + "\"";
-	LOG_ERROR(error);
-	throw WException(error);
+        std::string error
+          = "isDirectory: stat failed for file \"" + file + "\"";
+        LOG_ERROR(error);
+        throw WException(error);
       }
       return S_ISDIR(sb.st_mode);
 #endif //WT_HAVE_POSIX_FILEIO
     }
 
-    void listFiles(const std::string &directory, 
-		   std::vector<std::string> &files) 
+    void listFiles(const std::string &directory,
+                   std::vector<std::string> &files)
     {
 #ifndef WT_HAVE_POSIX_FILEIO
       boost::filesystem::path path(directory);
       boost::filesystem::directory_iterator end_itr;
 
       if (!boost::filesystem::is_directory(path)) {
-	std::string error 
-	  = "listFiles: \"" + directory + "\" is not a directory";
-	LOG_ERROR(error);
-	throw WException(error);
+        std::string error
+          = "listFiles: \"" + directory + "\" is not a directory";
+        LOG_ERROR(error);
+        throw WException(error);
       }
-      
+
       for (boost::filesystem::directory_iterator i(path); i != end_itr; ++i) {
-	std::string f = (*i).path().string();
-	files.push_back(f);
+        std::string f = (*i).path().string();
+        files.push_back(f);
       }
 #else //WT_HAVE_POSIX_FILEIO
       DIR *dp;
       struct dirent *dirp;
       if((dp = opendir(directory.c_str())) == NULL) {
-	std::string error 
-	   = "listFiles: opendir failed for file \"" + directory + "\"";
-	LOG_ERROR(error);
-	throw WException(error);
+        std::string error
+           = "listFiles: opendir failed for file \"" + directory + "\"";
+        LOG_ERROR(error);
+        throw WException(error);
       }
-      
+
       while ((dirp = readdir(dp)) != NULL)
         files.push_back(dirp->d_name);
 
@@ -158,42 +158,42 @@ namespace Wt {
     std::string getTempDir()
     {
       std::string tempDir;
-      
+
       char *wtTmpDir = std::getenv("WT_TMP_DIR");
       if (wtTmpDir)
       tempDir = wtTmpDir;
       else {
 #ifdef WT_WIN32
-	char winTmpDir[MAX_PATH];
-	if(GetTempPathA(sizeof(winTmpDir), winTmpDir) != 0)
-	  tempDir = winTmpDir;
+        char winTmpDir[MAX_PATH];
+        if(GetTempPathA(sizeof(winTmpDir), winTmpDir) != 0)
+          tempDir = winTmpDir;
 #else
-	tempDir = "/tmp";
+        tempDir = "/tmp";
 #endif
       }
-      
+
       return tempDir;
     }
-    
+
     extern std::string createTempFileName()
     {
       std::string tempDir = getTempDir();
-      
+
 #ifdef WT_WIN32
       char tmpName[MAX_PATH];
-      
-      if(tempDir == "" 
-	 || GetTempFileNameA(tempDir.c_str(), "wt-", 0, tmpName) == 0)
-	return "";
-      
+
+      if(tempDir == ""
+         || GetTempFileNameA(tempDir.c_str(), "wt-", 0, tmpName) == 0)
+        return "";
+
       return tmpName;
 #else
       char* spool = new char[20 + tempDir.size()];
       strcpy(spool, (tempDir + "/wtXXXXXX").c_str());
-      
+
       int i = mkstemp(spool);
       close(i);
-      
+
       std::string returnSpool = spool;
       delete [] spool;
       return returnSpool;
@@ -210,25 +210,25 @@ namespace Wt {
 
       std::size_t pos = file.rfind(separator);
       if (pos != std::string::npos)
-	return file.substr(pos + 1);
+        return file.substr(pos + 1);
       else
-	return file;
+        return file;
     }
 
     void appendFile(const std::string &srcFile,
-		    const std::string &targetFile)
+                    const std::string &targetFile)
     {
       std::ifstream ss(srcFile.c_str(),
-		       std::ios::in | std::ios::binary);
+                       std::ios::in | std::ios::binary);
       std::ofstream ts(targetFile.c_str(),
-		       std::ios::out | std::ios::binary | std::ios::app);
-      
+                       std::ios::out | std::ios::binary | std::ios::app);
+
       const int LEN = 4096;
       char buffer[LEN];
       while (!ss.eof()) {
-	ss.read(buffer, LEN);
-	ts.write(buffer, ss.gcount());
-      } 
+        ss.read(buffer, LEN);
+        ts.write(buffer, ss.gcount());
+      }
     }
 
   }

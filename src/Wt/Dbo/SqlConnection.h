@@ -91,25 +91,25 @@ public:
    *       not when a connection is \link clone() cloned\endlink.
    */
   virtual void executeSqlStateful(const std::string& sql);
-  
+
   /*! \brief Starts a transaction
    *
-   * This function starts a transaction. 
+   * This function starts a transaction.
    */
   virtual void startTransaction() = 0;
-  
+
   /*! \brief Commits a transaction
    *
    * This function commits a transaction.
    */
   virtual void commitTransaction() = 0;
-  
+
   /*! \brief Rolls back a transaction
    *
    * This function rolls back a transaction.
    */
   virtual void rollbackTransaction() = 0;
-  
+
   /*! \brief Returns the statement with the given id.
    *
    * Returns \c nullptr if no such statement was already added.
@@ -123,7 +123,7 @@ public:
    * Saves the statement for future reuse using getStatement()
    */
   virtual void saveStatement(const std::string& id,
-			     std::unique_ptr<SqlStatement> statement);
+                             std::unique_ptr<SqlStatement> statement);
 
   /*! \brief Prepares a statement.
    *
@@ -168,9 +168,9 @@ public:
    * The table's name and primary key are passed as arguments to this function
    * and can be used to construct an SQL sequence that is unique for the table.
    */
-  virtual std::vector<std::string> 
+  virtual std::vector<std::string>
     autoincrementCreateSequenceSql(const std::string &table,
-				   const std::string &id) const = 0;
+                                   const std::string &id) const = 0;
 
   /*! \brief Returns the SQL statement(s) required to drop an id sequence.
    *
@@ -178,9 +178,9 @@ public:
    * The table's name and primary key are passed as arguments to this function
    * and can be used to construct an SQL sequence that is unique for the table.
    */
-  virtual std::vector<std::string> 
+  virtual std::vector<std::string>
     autoincrementDropSequenceSql(const std::string &table,
-				 const std::string &id) const = 0;
+                                 const std::string &id) const = 0;
 
   /*! \brief Returns the 'autoincrement' SQL type.
    *
@@ -310,7 +310,7 @@ protected:
 
   std::vector<SqlStatement *> getStatements() const;
   const std::vector<std::string>& getStatefulSql() const { return statefulSql_; }
-  
+
 private:
   typedef std::multimap<std::string, std::unique_ptr<SqlStatement>> StatementMap;
 

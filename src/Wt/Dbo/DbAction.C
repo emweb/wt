@@ -46,9 +46,9 @@ bool InitSchema::getsValue() const { return false; }
 bool InitSchema::setsValue() const { return false; }
 bool InitSchema::isSchema() const { return true; }
 
-DropSchema::DropSchema(Session& session, 
-		       Impl::MappingInfo& mapping,
-		       std::set<std::string>& tablesDropped)
+DropSchema::DropSchema(Session& session,
+                       Impl::MappingInfo& mapping,
+                       std::set<std::string>& tablesDropped)
   : session_(session),
     mapping_(mapping),
     tablesDropped_(tablesDropped)
@@ -65,11 +65,11 @@ void DropSchema::drop(const std::string& table)
 
   if (table == mapping_.tableName && mapping_.surrogateIdFieldName) {
       std::vector<std::string> sql = session_.connection(false)
-	->autoincrementDropSequenceSql(Impl::quoteSchemaDot(table),
-				       mapping_.surrogateIdFieldName);
-      
+        ->autoincrementDropSequenceSql(Impl::quoteSchemaDot(table),
+                                       mapping_.surrogateIdFieldName);
+
       for (unsigned i = 0; i < sql.size(); i++)
-	session_.connection(true)->executeSql(sql[i]);
+        session_.connection(true)->executeSql(sql[i]);
   }
 
   session_.connection(true)
@@ -104,7 +104,7 @@ bool DboAction::setsValue() const { return false; }
 bool DboAction::isSchema() const { return false; }
 
 LoadBaseAction::LoadBaseAction(MetaDboBase& dbo, Impl::MappingInfo& mapping,
-			       SqlStatement *statement, int& column)
+                               SqlStatement *statement, int& column)
   : DboAction(dbo, mapping),
     statement_(statement),
     column_(column)
@@ -122,7 +122,7 @@ void LoadBaseAction::start()
 bool LoadBaseAction::setsValue() const { return true; }
 
 SaveBaseAction::SaveBaseAction(Session *session, SqlStatement *statement,
-			       int column)
+                               int column)
   : DboAction(session),
     statement_(statement),
     column_(column),
@@ -133,7 +133,7 @@ SaveBaseAction::SaveBaseAction(Session *session, SqlStatement *statement,
 }
 
 SaveBaseAction::SaveBaseAction(MetaDboBase& dbo, Impl::MappingInfo& mapping,
-			       SqlStatement *statement, int column)
+                               SqlStatement *statement, int column)
   : DboAction(dbo, mapping),
     statement_(statement),
     column_(column),
@@ -178,9 +178,9 @@ void SaveBaseAction::startSetsPass()
 bool SaveBaseAction::getsValue() const { return true; }
 
 TransactionDoneAction::TransactionDoneAction(MetaDboBase& dbo,
-					     Session& session,
-					     Impl::MappingInfo& mapping,
-					     bool success)
+                                             Session& session,
+                                             Impl::MappingInfo& mapping,
+                                             bool success)
   : DboAction(dbo, mapping),
     session_(session),
     success_(success)
@@ -189,7 +189,7 @@ TransactionDoneAction::TransactionDoneAction(MetaDboBase& dbo,
 bool TransactionDoneAction::getsValue() const { return true; }
 
 SessionAddAction::SessionAddAction(MetaDboBase& dbo,
-				   Impl::MappingInfo& mapping)
+                                   Impl::MappingInfo& mapping)
   : DboAction(dbo, mapping)
 { }
 
@@ -198,8 +198,8 @@ bool SessionAddAction::setsValue() const { return false; }
 bool SessionAddAction::isSchema() const { return false; }
 
 SetReciproceAction::SetReciproceAction(Session *session,
-				       const std::string& joinName,
-				       MetaDboBase *value)
+                                       const std::string& joinName,
+                                       MetaDboBase *value)
   : session_(session),
     joinName_(joinName),
     value_(value)

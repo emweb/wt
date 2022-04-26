@@ -19,7 +19,7 @@ navigation->setResponsive(true);
 // WBootstrap5Theme applies no color scheme by default, so we have to add them here.
 navigation->addStyleClass("navbar-light bg-light");
 navigation->setTitle("Corpy Inc.",
-		     "https://www.google.com/search?q=corpy+inc");
+                     "https://www.google.com/search?q=corpy+inc");
 
 Wt::WStackedWidget *contentsStack = container->addNew<Wt::WStackedWidget>();
 contentsStack->addStyleClass("contents");

@@ -20,7 +20,7 @@ WTextArea::WTextArea()
     rows_(5),
     contentChanged_(false),
     attributesChanged_(false)
-{ 
+{
   setInline(true);
   setFormObject(true);
 }
@@ -31,7 +31,7 @@ WTextArea::WTextArea(const WT_USTRING& text)
     rows_(5),
     contentChanged_(false),
     attributesChanged_(false)
-{ 
+{
   setInline(true);
   setFormObject(true);
 }
@@ -88,7 +88,7 @@ void WTextArea::propagateRenderOk(bool deep)
 {
   attributesChanged_ = false;
   contentChanged_ = false;
-  
+
   WFormWidget::propagateRenderOk(deep);
 }
 
@@ -162,7 +162,7 @@ int WTextArea::selectionStart() const
 
   if (app->focus() == id()) {
     if (app->selectionStart() != -1
-	&& app->selectionEnd() != app->selectionStart()) {
+        && app->selectionEnd() != app->selectionStart()) {
       return app->selectionStart();
     } else
       return -1;
@@ -176,7 +176,7 @@ WT_USTRING WTextArea::selectedText() const
     WApplication *app = WApplication::instance();
 
     std::string result = UTF8Substr(text().toUTF8(), app->selectionStart(),
-				    app->selectionEnd() - app->selectionStart());
+                                    app->selectionEnd() - app->selectionStart());
 #ifdef WT_TARGET_JAVA
     return result;
 #else

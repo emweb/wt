@@ -27,7 +27,7 @@ void XSSSanitize(xml_node<> *x_node)
     std::string const name(x_attr->name(), x_attr->name_size());
     std::string const value(x_attr->value(), x_attr->value_size());
     if (Wt::XSS::isBadAttribute(x_attr->name())
-	|| Wt::XSS::isBadAttributeValue(x_attr->name(), x_attr->value())) {
+        || Wt::XSS::isBadAttributeValue(x_attr->name(), x_attr->value())) {
       LOG_SECURE("discarding invalid attribute: " << name << ": " << value);
       x_node->remove_attribute(x_attr);
     }

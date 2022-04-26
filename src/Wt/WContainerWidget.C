@@ -81,16 +81,16 @@ void WContainerWidget::setLayout(std::unique_ptr<WLayout> layout)
 }
 
 void WContainerWidget::childResized(WWidget *child,
-				    WFlags<Orientation> directions)
+                                    WFlags<Orientation> directions)
 {
 #ifndef WT_NO_LAYOUT
   if (layout_) {
     WWidgetItem *item = layout_->findWidgetItem(child);
     if (item) {
       if (dynamic_cast<StdLayoutImpl *>(item->parentLayout()->impl())
-	  ->itemResized(item)) {
-	flags_.set(BIT_LAYOUT_NEEDS_UPDATE);
-	repaint();
+          ->itemResized(item)) {
+        flags_.set(BIT_LAYOUT_NEEDS_UPDATE);
+        repaint();
       }
     }
   } else
@@ -99,7 +99,7 @@ void WContainerWidget::childResized(WWidget *child,
 }
 
 void WContainerWidget::parentResized(WWidget *parent,
-				     WFlags<Orientation> directions)
+                                     WFlags<Orientation> directions)
 {
 #ifndef WT_NO_LAYOUT
   if (layout_) {
@@ -118,7 +118,7 @@ void WContainerWidget::addWidget(std::unique_ptr<WWidget> widget)
 }
 
 void WContainerWidget::insertBefore(std::unique_ptr<WWidget> widget,
-				    WWidget *before)
+                                    WWidget *before)
 {
   int index = indexOf(before);
 
@@ -139,7 +139,7 @@ void WContainerWidget::insertWidget(int index, std::unique_ptr<WWidget> widget)
 
     // A TD/TH node cannot be stubbed
     if (domElementType() != DomElementType::TD &&
-	domElementType() != DomElementType::TH)
+        domElementType() != DomElementType::TH)
       setLoadLaterWhenInvisible(true);
   }
 
@@ -300,7 +300,7 @@ void WContainerWidget::setPadding(const WLength& length, WFlags<Side> sides)
 }
 
 void WContainerWidget::setOverflow(Overflow value,
-				   WFlags<Orientation> orientation)
+                                   WFlags<Orientation> orientation)
 {
   if (!overflow_) {
     overflow_ = new Overflow[2];
@@ -311,7 +311,7 @@ void WContainerWidget::setOverflow(Overflow value,
     overflow_[0] = value;
   if (orientation.test(Orientation::Vertical))
     overflow_[1] = value;
-  
+
   // Could be a workaround for IE, but sometimes causes other problems:
   // if (value == OverflowScroll || value == OverflowAuto)
   //   setPositionScheme(PositionScheme::Relative);
@@ -349,13 +349,13 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
   if (flags_.test(BIT_CONTENT_ALIGNMENT_CHANGED) || all) {
     AlignmentFlag hAlign = contentAlignment_ & AlignHorizontalMask;
 
-    bool ltr = WApplication::instance()->layoutDirection() 
+    bool ltr = WApplication::instance()->layoutDirection()
       == LayoutDirection::LeftToRight;
 
     switch (hAlign) {
     case AlignmentFlag::Left:
       if (flags_.test(BIT_CONTENT_ALIGNMENT_CHANGED))
-	element.setProperty(Property::StyleTextAlign, ltr ? "left" : "right");
+        element.setProperty(Property::StyleTextAlign, ltr ? "left" : "right");
       break;
     case AlignmentFlag::Right:
       element.setProperty(Property::StyleTextAlign, ltr ? "right" : "left");
@@ -367,7 +367,7 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
 #ifndef WT_NO_LAYOUT
       if (!layout_)
 #endif // WT_NO_LAYOUT
-	element.setProperty(Property::StyleTextAlign, "justify");
+        element.setProperty(Property::StyleTextAlign, "justify");
       break;
     default:
       break;
@@ -377,21 +377,21 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
       AlignmentFlag vAlign = contentAlignment_ & AlignVerticalMask;
       switch (vAlign) {
       case AlignmentFlag::Top:
-	if (flags_.test(BIT_CONTENT_ALIGNMENT_CHANGED))
-	  element.setProperty(Property::StyleVerticalAlign, "top");
-	break;
+        if (flags_.test(BIT_CONTENT_ALIGNMENT_CHANGED))
+          element.setProperty(Property::StyleVerticalAlign, "top");
+        break;
       case AlignmentFlag::Middle:
-	element.setProperty(Property::StyleVerticalAlign, "middle");
-	break;
+        element.setProperty(Property::StyleVerticalAlign, "middle");
+        break;
       case AlignmentFlag::Bottom:
-	element.setProperty(Property::StyleVerticalAlign, "bottom");
+        element.setProperty(Property::StyleVerticalAlign, "bottom");
       default:
-	break;
+        break;
       }
     }
   }
 
-  if (flags_.test(BIT_ADJUST_CHILDREN_ALIGN) || 
+  if (flags_.test(BIT_ADJUST_CHILDREN_ALIGN) ||
       flags_.test(BIT_CONTENT_ALIGNMENT_CHANGED) || all) {
     /*
      * Welcome to CSS hell.
@@ -406,16 +406,16 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
       WWidget *child = children_[i];
 
       if (!child->isInline()) {
-	AlignmentFlag ha = contentAlignment_ & AlignHorizontalMask;
-	if (ha == AlignmentFlag::Center) {
-	  if (!child->margin(Side::Left).isAuto())
-	    child->setMargin(WLength::Auto, Side::Left);
-	  if (!child->margin(Side::Right).isAuto())
-	    child->setMargin(WLength::Auto, Side::Right);
-	} else if (ha == AlignmentFlag::Right) {
-	  if (!child->margin(Side::Left).isAuto())
-	    child->setMargin(WLength::Auto, Side::Left);
-	}
+        AlignmentFlag ha = contentAlignment_ & AlignHorizontalMask;
+        if (ha == AlignmentFlag::Center) {
+          if (!child->margin(Side::Left).isAuto())
+            child->setMargin(WLength::Auto, Side::Left);
+          if (!child->margin(Side::Right).isAuto())
+            child->setMargin(WLength::Auto, Side::Right);
+        } else if (ha == AlignmentFlag::Right) {
+          if (!child->margin(Side::Left).isAuto())
+            child->setMargin(WLength::Auto, Side::Left);
+        }
       }
     }
 
@@ -425,18 +425,18 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
 
   if (flags_.test(BIT_PADDINGS_CHANGED)
       || (all && padding_ &&
-	  !(   padding_[0].isAuto() && padding_[1].isAuto()
-	    && padding_[2].isAuto() && padding_[3].isAuto()))) {
+          !(   padding_[0].isAuto() && padding_[1].isAuto()
+            && padding_[2].isAuto() && padding_[3].isAuto()))) {
 
     if ((padding_[0] == padding_[1]) && (padding_[0] == padding_[2])
-	&& (padding_[0] == padding_[3]))
+        && (padding_[0] == padding_[3]))
       element.setProperty(Property::StylePadding, padding_[0].cssText());
     else {
       WStringStream s;
       for (unsigned i = 0; i < 4; ++i) {
-	if (i != 0)
-	  s << ' ';
-	s << (padding_[i].isAuto() ? "0" : padding_[i].cssText());
+        if (i != 0)
+          s << ' ';
+        s << (padding_[i].isAuto() ? "0" : padding_[i].cssText());
       }
       element.setProperty(Property::StylePadding, s.str());
     }
@@ -449,28 +449,28 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
   if (flags_.test(BIT_OVERFLOW_CHANGED) ||
       (all && overflow_ &&
        !(overflow_[0] == Overflow::Visible &&
-	 overflow_[1] == Overflow::Visible))) {
+         overflow_[1] == Overflow::Visible))) {
     static const char *cssText[] = { "visible", "auto", "hidden", "scroll" };
 
-    element.setProperty(Property::StyleOverflowX, 
-			cssText[static_cast<unsigned int>(overflow_[0])]);
+    element.setProperty(Property::StyleOverflowX,
+                        cssText[static_cast<unsigned int>(overflow_[0])]);
     element.setProperty(Property::StyleOverflowY,
-			cssText[static_cast<unsigned int>(overflow_[1])]);
+                        cssText[static_cast<unsigned int>(overflow_[1])]);
     // enable form object to retrieve scroll state
     setFormObject(true);
-    
+
     //declare javascript function Wt.encodeValue()
     this->doJavaScript(this->jsRef()
-	+ ".wtEncodeValue = function() {"
-	+ "return " + this->jsRef() + ".scrollTop"
-	+ " + ';' + " + this->jsRef() + ".scrollLeft;"
-	+ "};");
+        + ".wtEncodeValue = function() {"
+        + "return " + this->jsRef() + ".scrollTop"
+        + " + ';' + " + this->jsRef() + ".scrollLeft;"
+        + "};");
 
     flags_.reset(BIT_OVERFLOW_CHANGED);
 
     /* If a container widget has overflow, then, if ever something
      * inside it has position scheme relative/absolute, it will not
-     * scroll properly unless every element up to the container and including 
+     * scroll properly unless every element up to the container and including
      * the container itself has overflow: relative.
      *
      * The following fixes the common case:
@@ -478,10 +478,10 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
      */
     WApplication *app = WApplication::instance();
     if (app->environment().agentIsIE()
-	&& (overflow_[0] == Overflow::Auto || 
-	    overflow_[0] == Overflow::Scroll))
+        && (overflow_[0] == Overflow::Auto ||
+            overflow_[0] == Overflow::Scroll))
       if (positionScheme() == PositionScheme::Static)
-	element.setProperty(Property::StylePosition, "relative");
+        element.setProperty(Property::StylePosition, "relative");
   }
 }
 
@@ -551,7 +551,7 @@ DomElementType WContainerWidget::domElementType() const
 }
 
 void WContainerWidget::getDomChanges(std::vector<DomElement *>& result,
-				     WApplication *app)
+                                     WApplication *app)
 {
   DomElement *e = DomElement::getForUpdate(this, domElementType());
 
@@ -580,7 +580,7 @@ DomElement *WContainerWidget::createDomElement(WApplication *app)
 }
 
 DomElement *WContainerWidget::createDomElement(WApplication *app,
-					       bool addChildren)
+                                               bool addChildren)
 {
   addedChildren_.reset();
 
@@ -601,7 +601,7 @@ void WContainerWidget::createDomChildren(DomElement& parent, WApplication *app)
     bool fitHeight = true;
 
     DomElement *c = layoutImpl()->createDomElement(&parent,
-						   fitWidth, fitHeight, app);
+                                                   fitWidth, fitHeight, app);
 
     if (c != &parent)
       parent.addChild(c);
@@ -625,35 +625,35 @@ void WContainerWidget::updateDomChildren(DomElement& parent, WApplication *app)
 
     if (addedChildren_) {
       for (;;) {
-	std::vector<int> orderedInserts;
-	std::vector<WWidget *>& ac = *addedChildren_;
+        std::vector<int> orderedInserts;
+        std::vector<WWidget *>& ac = *addedChildren_;
 
-	for (unsigned i = 0; i < ac.size(); ++i)
-	  orderedInserts.push_back(indexOf(ac[i]));
+        for (unsigned i = 0; i < ac.size(); ++i)
+          orderedInserts.push_back(indexOf(ac[i]));
 
-	Utils::sort(orderedInserts);
+        Utils::sort(orderedInserts);
 
-	int addedCount = addedChildren_->size();
-	int totalCount = children_.size();
-	int insertCount = 0;
+        int addedCount = addedChildren_->size();
+        int totalCount = children_.size();
+        int insertCount = 0;
 
-	addedChildren_.reset();
+        addedChildren_.reset();
 
-	for (unsigned i = 0; i < orderedInserts.size(); ++i) {
-	  int pos = orderedInserts[i];
-	
-	  DomElement *c = (children_)[pos]->createSDomElement(app);
+        for (unsigned i = 0; i < orderedInserts.size(); ++i) {
+          int pos = orderedInserts[i];
 
-	  if (pos + (addedCount - insertCount) == totalCount)
-	    parent.addChild(c);
-	  else
-	    parent.insertChildAt(c, pos + firstChildIndex());
+          DomElement *c = (children_)[pos]->createSDomElement(app);
 
-	  ++insertCount;
-	}
+          if (pos + (addedCount - insertCount) == totalCount)
+            parent.addChild(c);
+          else
+            parent.insertChildAt(c, pos + firstChildIndex());
 
-	if (!addedChildren_ || addedChildren_->empty())
-	  break;
+          ++insertCount;
+        }
+
+        if (!addedChildren_ || addedChildren_->empty())
+          break;
       }
 
       addedChildren_.reset();
@@ -683,7 +683,7 @@ void WContainerWidget::layoutChanged(bool rerender)
 }
 
 void WContainerWidget::rootAsJavaScript(WApplication *app, WStringStream& out,
-					bool all)
+                                        bool all)
 {
   std::vector<WWidget *> *toAdd = all ? &children_ : addedChildren_.get();
 
@@ -694,13 +694,13 @@ void WContainerWidget::rootAsJavaScript(WApplication *app, WStringStream& out,
       app->streamBeforeLoadJavaScript(out, false);
 
       c->callMethod("omousemove=function(e) {"
-		    "if (!e) e = window.event;"
-		    "return " + app->javaScriptClass()
-		    + "._p_.dragDrag(event); }");
+                    "if (!e) e = window.event;"
+                    "return " + app->javaScriptClass()
+                    + "._p_.dragDrag(event); }");
       c->callMethod("mouseup=function(e) {"
-		    "if (!e) e = window.event;"
-		    "return " + app->javaScriptClass()
-		  + "._p_.dragEnd(event);}");
+                    "if (!e) e = window.event;"
+                    "return " + app->javaScriptClass()
+                  + "._p_.dragEnd(event);}");
       c->callMethod("dragstart=function(){return false;}");
       c->asJavaScript(out);
       delete c;
@@ -721,7 +721,7 @@ void WContainerWidget::setGlobalUnfocused(bool b)
   globalUnfocused_ = b;
 }
 
-bool WContainerWidget::isGlobalUnfocussed() const 
+bool WContainerWidget::isGlobalUnfocussed() const
 {
   return globalUnfocused_;
 }
@@ -738,11 +738,11 @@ void WContainerWidget::setFormData(const FormData& formData)
         scrollLeft_ = (int)Utils::stod(attributes[1]);
 
       }catch (const std::exception& e) {
-	throw WException("WContainerWidget: error parsing: " + formData.values[0] + ": " + e.what());
+        throw WException("WContainerWidget: error parsing: " + formData.values[0] + ": " + e.what());
       }
-    } else 
+    } else
       throw WException("WContainerWidget: error parsing: " + formData.values[0]);
-	  }
+  }
 
 }
 

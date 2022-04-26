@@ -49,7 +49,7 @@ namespace {
     Wt::WApplication *app = Wt::WApplication::instance();
     double dpiScale = doScale ? app->environment().dpiScale() : 1.0;
     return static_cast<int>(dpiScale * ( (Z * a) - Z/2 + 0.5 ));
-  }  
+  }
 
   bool fequal(double d1, double d2) {
     return std::fabs(d1 - d2) < 1E-5;
@@ -72,7 +72,7 @@ namespace Wt {
 LOGGER("WVmlImage");
 
 WVmlImage::WVmlImage(const WLength& width, const WLength& height,
-		     bool paintUpdate)
+                     bool paintUpdate)
   : width_(width),
     height_(height),
     painter_(nullptr),
@@ -95,7 +95,7 @@ WFlags<PaintDeviceFeatureFlag> WVmlImage::features() const
 }
 
 void WVmlImage::init()
-{ 
+{
   currentBrush_ = painter()->brush();
   currentPen_ = painter()->pen();
   currentShadow_ = painter()->shadow();
@@ -112,9 +112,9 @@ void WVmlImage::done()
 
 void WVmlImage::setChanged(WFlags<PainterChangeFlag> flags)
 {
-  if (!(flags & (PainterChangeFlag::Pen | 
-	       PainterChangeFlag::Brush | 
-	       PainterChangeFlag::Shadow)).empty())
+  if (!(flags & (PainterChangeFlag::Pen |
+               PainterChangeFlag::Brush |
+               PainterChangeFlag::Shadow)).empty())
     penBrushShadowChanged_ = true;
 
   if (flags.test(PainterChangeFlag::Clipping))
@@ -137,7 +137,7 @@ void WVmlImage::drawArc(const WRectF& rect, double startAngle, double spanAngle)
 }
 
 void WVmlImage::drawImage(const WRectF& rect, const std::string& imageUri,
-			  int imgWidth, int imgHeight, const WRectF& sourceRect)
+                          int imgWidth, int imgHeight, const WRectF& sourceRect)
 {
   finishPaths();
   processClipping();
@@ -151,7 +151,7 @@ void WVmlImage::drawImage(const WRectF& rect, const std::string& imageUri,
   WPointF tl = t.map(rect.topLeft());
 
   rendered_ << "<v:group style=\"width:" << Z * width().value() << "px;height:"
-	    << Z * height().value() << "px;";
+            << Z * height().value() << "px;";
 
   double cx = 1, cy = 1;
 
@@ -162,20 +162,20 @@ void WVmlImage::drawImage(const WRectF& rect, const std::string& imageUri,
     // FIXME: figure out padding ?
 
     rendered_ << "filter:progid:DXImageTransform.Microsoft.Matrix(M11='"
-	      << t.m11() / cx << "',M12='" << t.m21() / cy << "',M21='"
-	      << t.m12() / cx << "',M22='" << t.m22() / cy << "',Dx='"
-	      << tl.x() << "',Dy='" << tl.y() << "',sizingmethod='clip');";
+              << t.m11() / cx << "',M12='" << t.m21() / cy << "',M21='"
+              << t.m12() / cx << "',M22='" << t.m22() / cy << "',Dx='"
+              << tl.x() << "',Dy='" << tl.y() << "',sizingmethod='clip');";
   } else
     rendered_ << "top:" << Z * tl.y() << "px;left:" << Z * tl.x() << "px;";
 
   rendered_ << "\"><v:image src=\"" << imgUri
-	    << "\" style=\"width:" << Z * rect.width() * cx
-	    << "px;height:" << Z * rect.height() * cy
-	    << "px\" cropleft=\"" << sourceRect.x() / imgWidth
-	    << "\" croptop=\"" << sourceRect.y() / imgHeight
-	    << "\" cropright=\"" << (imgWidth - sourceRect.right())/imgWidth
-	    << "\" cropbottom=\"" << (imgHeight - sourceRect.bottom())/imgHeight
-	    << "\"/></v:group>";
+            << "\" style=\"width:" << Z * rect.width() * cx
+            << "px;height:" << Z * rect.height() * cy
+            << "px\" cropleft=\"" << sourceRect.x() / imgWidth
+            << "\" croptop=\"" << sourceRect.y() / imgHeight
+            << "\" cropright=\"" << (imgWidth - sourceRect.right())/imgWidth
+            << "\" cropbottom=\"" << (imgHeight - sourceRect.bottom())/imgHeight
+            << "\"/></v:group>";
 }
 
 void WVmlImage::drawRect(const WRectF& rectangle)
@@ -190,8 +190,8 @@ void WVmlImage::drawPath(const WPainterPath& path)
 
   if (penBrushShadowChanged_)
     if ((currentPen_ != painter()->pen())
-	|| (currentBrush_ != painter()->brush())
-	|| (currentShadow_ != painter()->shadow()))
+        || (currentBrush_ != painter()->brush())
+        || (currentShadow_ != painter()->shadow()))
       finishPaths();
 
   if (clippingChanged_) {
@@ -207,8 +207,8 @@ void WVmlImage::drawPath(const WPainterPath& path)
   if (!activePaths_.empty())
     for (unsigned i = 0; i < activePaths_.size(); ++i) {
       if (!activePaths_[i].bbox.intersects(bbox)) {
-	thisPath = i;
-	break;
+        thisPath = i;
+        break;
       }
     }
 
@@ -225,8 +225,8 @@ void WVmlImage::drawPath(const WPainterPath& path)
 
   if (thisPath == -1) {
     tmp << "<v:shape style=\"width:" << (int)(Z * currentRect_.width())
-	<< "px;height:" << (int)(Z * currentRect_.height())
-	<< "px;\" path=\"m0,0l0,0";
+        << "px;height:" << (int)(Z * currentRect_.height())
+        << "px;\" path=\"m0,0l0,0";
 
     activePaths_.push_back(ActivePath());
     thisPath = activePaths_.size() - 1;
@@ -240,7 +240,7 @@ void WVmlImage::drawPath(const WPainterPath& path)
     const WRectF& bbox = activePaths_[thisPath].bbox;
 
     tmp << "m" << myzround(bbox.left()) << "," << myzround(bbox.top())
-	<< "l" << myzround(bbox.right()) << "," << myzround(bbox.bottom());
+        << "l" << myzround(bbox.right()) << "," << myzround(bbox.bottom());
   }
 #endif // DEBUG_BBOX
 
@@ -256,7 +256,7 @@ void WVmlImage::drawPath(const WPainterPath& path)
      * but this is common after a closeSubPath()
      */
     if ((i == segments.size() - 1)
-	&& (s.type() == MoveTo))
+        && (s.type() == MoveTo))
       break;
 
     double x = s.x();
@@ -274,9 +274,9 @@ void WVmlImage::drawPath(const WPainterPath& path)
       WPointF c = transform.map(WPointF(cx, cy));
 
       WPointF p1(rx * std::cos(theta1) + cx,
-		 ry * std::sin(theta1) + cy);
+                 ry * std::sin(theta1) + cy);
       WPointF p2(rx * std::cos(theta1 + deltaTheta) + cx,
-		 ry * std::sin(theta1 + deltaTheta) + cy);
+                 ry * std::sin(theta1 + deltaTheta) + cy);
 
       // XXX: VML can only have ellipses with axes parallel to the X/Y
       //      axis. So this will fail if there is a rotation + unequal
@@ -291,57 +291,57 @@ void WVmlImage::drawPath(const WPainterPath& path)
       p2 = transform.map(p2);
 
       if (deltaTheta < 0)
-	tmp << "at";
+        tmp << "at";
       else
-	tmp << "wa";
+        tmp << "wa";
       tmp <<        myzround(a.x()) << "," << myzround(a.y())
-	  << "," << myzround(b.x()) << "," << myzround(b.y())
-	  << "," << myzround(p1.x()) << "," << myzround(p1.y())
-	  << "," << myzround(p2.x()) << "," << myzround(p2.y());
+          << "," << myzround(b.x()) << "," << myzround(b.y())
+          << "," << myzround(p1.x()) << "," << myzround(p1.y())
+          << "," << myzround(p2.x()) << "," << myzround(p2.y());
     } else {
       switch (s.type()) {
       case MoveTo:
-	tmp << "m";
-	break;
+        tmp << "m";
+        break;
       case LineTo:
-	tmp << "l";
-	break;
+        tmp << "l";
+        break;
       case CubicC1:
-	tmp << "c";
-	break;
+        tmp << "c";
+        break;
       case CubicC2:
       case CubicEnd:
-	tmp << ",";
-	break;
+        tmp << ",";
+        break;
       case QuadC: {
-	/*
-	 * VML's quadratic bezier don't seem to work as advertized ?
-	 */
-	WPointF current = path.positionAtSegment(i);
-	const double cpx = s.x();
-	const double cpy = s.y();
-	const double xend = segments[i+1].x();
-	const double yend = segments[i+1].y();
-      
-	const double cp1x = current.x() + 2.0/3.0*(cpx - current.x());
-	const double cp1y = current.y() + 2.0/3.0*(cpy - current.y());
-	const double cp2x = cp1x + (xend - current.x())/3.0;
-	const double cp2y = cp1y + (yend - current.y())/3.0;
+        /*
+         * VML's quadratic bezier don't seem to work as advertized ?
+         */
+        WPointF current = path.positionAtSegment(i);
+        const double cpx = s.x();
+        const double cpy = s.y();
+        const double xend = segments[i+1].x();
+        const double yend = segments[i+1].y();
 
-	WPointF cp1(cp1x, cp1y);
+        const double cp1x = current.x() + 2.0/3.0*(cpx - current.x());
+        const double cp1y = current.y() + 2.0/3.0*(cpy - current.y());
+        const double cp2x = cp1x + (xend - current.x())/3.0;
+        const double cp2y = cp1y + (yend - current.y())/3.0;
+
+        WPointF cp1(cp1x, cp1y);
         cp1 = transform.map(cp1);
 
-	tmp << "c" << myzround(cp1.x()) << "," << myzround(cp1.y()) << ",";
-	x = cp2x;
-	y = cp2y;
+        tmp << "c" << myzround(cp1.x()) << "," << myzround(cp1.y()) << ",";
+        x = cp2x;
+        y = cp2y;
 
-	break;
+        break;
       }
       case QuadEnd:
-	tmp << ",";
-	break;
+        tmp << ",";
+        break;
       default:
-	assert(false);
+        assert(false);
       }
 
       WPointF p(x, y);
@@ -363,14 +363,14 @@ std::string WVmlImage::createShadowFilter() const
 
   double r = std::sqrt(2 * currentShadow_.blur());
   filter << "left: " << myzround(currentShadow_.offsetX() - r/2 - 1) << "px;";
-  filter << "top: " << myzround(currentShadow_.offsetY() - r/2 - 1) 
-	 << "px;z-index:-10;";
+  filter << "top: " << myzround(currentShadow_.offsetY() - r/2 - 1)
+         << "px;z-index:-10;";
   filter << "filter:progid:DXImageTransform.Microsoft.Blur(makeShadow=1,";
   filter << "pixelradius="
-	 << Utils::round_css_str(r, 2, buf);
+         << Utils::round_css_str(r, 2, buf);
   filter << ",shadowOpacity="
-	 << Utils::round_css_str(currentShadow_.color().alpha()/255., 2, buf)
-	 << ");";
+         << Utils::round_css_str(currentShadow_.color().alpha()/255., 2, buf)
+         << ");";
 
   return filter.str();
 }
@@ -383,24 +383,24 @@ void WVmlImage::finishPaths()
      * blurring it using a filter
      */
     if (!(painter()->renderHints() & RenderHint::LowQualityShadows)
-	&& !currentShadow_.none()) {
+        && !currentShadow_.none()) {
       const std::string& path = activePaths_[i].path;
       std::size_t pos = path.find("style=\"") + 7;
 
       rendered_ << path.substr(0, pos)
-		<< createShadowFilter()
-		<< path.substr(pos)
-		<< "e\">"
-		<< strokeElement(currentPen_)
-		<< fillElement(currentBrush_)
-		<< "</v:shape>";
+                << createShadowFilter()
+                << path.substr(pos)
+                << "e\">"
+                << strokeElement(currentPen_)
+                << fillElement(currentBrush_)
+                << "</v:shape>";
     }
     rendered_ << activePaths_[i].path
-	      << "e\">"
-	      << strokeElement(currentPen_)
-	      << fillElement(currentBrush_)
-	      << shadowElement(currentShadow_)
-	      << "</v:shape>";
+              << "e\">"
+              << strokeElement(currentPen_)
+              << fillElement(currentBrush_)
+              << shadowElement(currentShadow_)
+              << "</v:shape>";
   }
 
   activePaths_.clear();
@@ -418,16 +418,16 @@ void WVmlImage::drawLine(double x1, double y1, double x2, double y2)
   painter()->setBrush(oldBrush);
 }
 
-void WVmlImage::drawText(const WRectF& rect, 
-			 WFlags<AlignmentFlag> flags, TextFlag textFlag,
-			 const WString& text, const WPointF *clipPoint)
+void WVmlImage::drawText(const WRectF& rect,
+                         WFlags<AlignmentFlag> flags, TextFlag textFlag,
+                         const WString& text, const WPointF *clipPoint)
 {
   if (textFlag == TextFlag::WordWrap)
     throw WException("WVmlImage::drawText(): TextFlag::WordWrap is not supported");
 
   if (clipPoint && painter() && !painter()->clipPath().isEmpty()) {
     if (!painter()->clipPathTransform().map(painter()->clipPath())
-	  .isPointInPath(painter()->worldTransform().map(*clipPoint)))
+          .isPointInPath(painter()->worldTransform().map(*clipPoint)))
       return;
   }
 
@@ -456,13 +456,13 @@ void WVmlImage::drawText(const WRectF& rect,
   if (verticalAlign != AlignmentFlag::Top) {
     t = DomElement::createNew(DomElement::DIV);
 
-    if (verticalAlign == AlignmentFlag::Middle) {      
+    if (verticalAlign == AlignmentFlag::Middle) {
       i = DomElement::createNew(DomElement::DIV);
       i->setProperty(Property::StylePosition, "absolute");
       i->setProperty(Property::StyleTop, "50%");
 
       t->setProperty(Property::StylePosition, "relative");
-      t->setProperty(Property::StyleTop, "-50%");      
+      t->setProperty(Property::StyleTop, "-50%");
     } else if (verticalAlign == AlignmentFlag::Bottom) {
       t->setProperty(Property::StylePosition, "absolute");
       t->setProperty(Property::StyleWidth, "100%");
@@ -471,7 +471,7 @@ void WVmlImage::drawText(const WRectF& rect,
   }
 
   t->setProperty(Property::InnerHTML,
-		 WWebWidget::escapeText(text, true).toUTF8());
+                 WWebWidget::escapeText(text, true).toUTF8());
 
   WFont f = painter()->font();
   f.updateDomElement(*t, false, true);
@@ -517,15 +517,15 @@ void WVmlImage::drawText(const WRectF& rect,
 
   EscapeOStream render;
   render << "<v:shape style=\"width:" << (int)(Z * currentRect_.width())
-	 << "px;height:" << (int)(Z * currentRect_.height())
-	 << "px;\"><v:path textpathok=\"True\" v=\"m"
-	 << myzround(rect.left(), false) << ',' << myzround(y, false) << 'l'
-	 << myzround(rect.right(), false) << ',' << myzround(y, false)
-	 << "m0,0l0,0e\"/><v:fill on=\"True\" "
-	 << colorAttributes(painter()->pen().color())
-	 << "/><v:stroke on=\"False\"/>"
-	 << skewElement(painter()->combinedTransform())
-	 << "<v:textpath on=\"True\" string=\"";
+         << "px;height:" << (int)(Z * currentRect_.height())
+         << "px;\"><v:path textpathok=\"True\" v=\"m"
+         << myzround(rect.left(), false) << ',' << myzround(y, false) << 'l'
+         << myzround(rect.right(), false) << ',' << myzround(y, false)
+         << "m0,0l0,0e\"/><v:fill on=\"True\" "
+         << colorAttributes(painter()->pen().color())
+         << "/><v:stroke on=\"False\"/>"
+         << skewElement(painter()->combinedTransform())
+         << "<v:textpath on=\"True\" string=\"";
 
   render.pushEscape(EscapeOStream::HtmlAttribute);
   render << text.toUTF8();
@@ -562,8 +562,8 @@ void WVmlImage::drawText(const WRectF& rect,
     std::string result = render.str();
     std::size_t pos = result.find("style=\"") + 7;
     rendered_ << result.substr(0, pos)
-	      << createShadowFilter()
-	      << result.substr(pos);
+              << createShadowFilter()
+              << result.substr(pos);
   }
 
   rendered_ << render.str();
@@ -571,7 +571,7 @@ void WVmlImage::drawText(const WRectF& rect,
 }
 
 WTextItem WVmlImage::measureText(const WString& text, double maxWidth,
-				 bool wordWrap)
+                                 bool wordWrap)
 {
   if (!fontMetrics_)
     fontMetrics_ = new ServerSideFontMetrics();
@@ -629,7 +629,7 @@ std::string WVmlImage::skewElement(const WTransform& t) const
 
     /*
      * Note adding negative t.m11() and t.m22() seems to correct a
-     * slight discrepancy in the paint example -- not sure if it is 
+     * slight discrepancy in the paint example -- not sure if it is
      * a good general rule though !
      * The vertical correction is another weird thing ?
      */
@@ -650,9 +650,9 @@ std::string WVmlImage::shadowElement(const WShadow& shadow) const
     WStringStream result;
 
     result << "<v:shadow on=\"true\" offset=\""
-	   << Utils::round_js_str(shadow.offsetX(), 3, buf) << "px,";
+           << Utils::round_js_str(shadow.offsetX(), 3, buf) << "px,";
     result << Utils::round_js_str(shadow.offsetY(), 3, buf) << "px\" "
-	   << colorAttributes(shadow.color()) << "/>";
+           << colorAttributes(shadow.color()) << "/>";
 
     return result.str();
   } else
@@ -733,39 +733,39 @@ void WVmlImage::processClipping()
     if (painter()->hasClipping()) {
       WRectF rect(0, 0, 0, 0);
       if (painter()->clipPath().asRect(rect)) {
-	WTransform t = painter()->clipPathTransform();
+        WTransform t = painter()->clipPathTransform();
 
-	WPointF tl = t.map(rect.topLeft());
-	WPointF tr = t.map(rect.topRight());
-	WPointF bl = t.map(rect.bottomLeft());
-	WPointF br = t.map(rect.bottomRight());
+        WPointF tl = t.map(rect.topLeft());
+        WPointF tr = t.map(rect.topRight());
+        WPointF bl = t.map(rect.bottomLeft());
+        WPointF br = t.map(rect.bottomRight());
 
-	double tlx = 0, tly = 0, brx = 0, bry = 0;
-	bool ok = false;
-	if (fequal(tl.y(), tr.y())) {
-	  tlx = std::min(tl.x(), tr.x());
-	  brx = std::max(tl.x(), tr.x());
-	  tly = std::min(tl.y(), bl.y());
-	  bry = std::max(tl.y(), br.y());
+        double tlx = 0, tly = 0, brx = 0, bry = 0;
+        bool ok = false;
+        if (fequal(tl.y(), tr.y())) {
+          tlx = std::min(tl.x(), tr.x());
+          brx = std::max(tl.x(), tr.x());
+          tly = std::min(tl.y(), bl.y());
+          bry = std::max(tl.y(), br.y());
 
-	  ok = true;
-	} else if (fequal(tl.x(), tr.x())) {
-	  tlx = std::min(tl.x(), bl.x());
-	  brx = std::max(tl.x(), bl.x());
-	  tly = std::min(tl.y(), tr.y());
-	  bry = std::max(tl.y(), tr.y());
+          ok = true;
+        } else if (fequal(tl.x(), tr.x())) {
+          tlx = std::min(tl.x(), bl.x());
+          brx = std::max(tl.x(), bl.x());
+          tly = std::min(tl.y(), tr.y());
+          bry = std::max(tl.y(), tr.y());
 
-	  ok = true;
-	}
+          ok = true;
+        }
 
-	if (ok) {
-	  stopClip();
-	  startClip(WRectF(tlx, tly, brx - tlx, bry - tly));
-	} else
-	  LOG_WARN("VML only supports rectangle clipping "
-		   << "with rectangles aligned to the window");
+        if (ok) {
+          stopClip();
+          startClip(WRectF(tlx, tly, brx - tlx, bry - tly));
+        } else
+          LOG_WARN("VML only supports rectangle clipping "
+                   << "with rectangles aligned to the window");
       } else
-	LOG_WARN("VML only supports rectangle clipping");
+        LOG_WARN("VML only supports rectangle clipping");
     } else {
       stopClip();
       startClip(WRectF(0, 0, width().value(), height().value()));
@@ -794,16 +794,16 @@ std::string WVmlImage::rendered()
 void WVmlImage::startClip(const WRectF& rect)
 {
   rendered_ << "<div style=\"position:absolute;left:"
-	    << rect.left() << "px;top:" << rect.top() << "px;width:"
-	    << rect.width() << "px;height:" << rect.height() 
-	    << "px;overflow:hidden;\""
-	    << " onselectstart=\"return false;\">"
-	    << "<v:group style=\"position:absolute;left:0px;top:0px;width:"
-	    << rect.width() << "px;height:" 
-	    << rect.height() << "px\" coordorigin=\""
-	    << 0.5 * rect.left() * Z 
-	    << "," << 0.5 * rect.top() * Z << "\" coordsize=\""
-	    << rect.width() * Z << "," << rect.height() * Z << "\">";
+            << rect.left() << "px;top:" << rect.top() << "px;width:"
+            << rect.width() << "px;height:" << rect.height()
+            << "px;overflow:hidden;\""
+            << " onselectstart=\"return false;\">"
+            << "<v:group style=\"position:absolute;left:0px;top:0px;width:"
+            << rect.width() << "px;height:"
+            << rect.height() << "px\" coordorigin=\""
+            << 0.5 * rect.left() * Z
+            << "," << 0.5 * rect.top() * Z << "\" coordsize=\""
+            << rect.width() * Z << "," << rect.height() * Z << "\">";
 
   currentRect_ = rect;
 }

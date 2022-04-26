@@ -81,7 +81,7 @@ Configuration::~Configuration()
 }
 
 void Configuration::createOptions(po::options_description& options,
-			          po::options_description &visibleOptions)
+                                  po::options_description &visibleOptions)
 {
   po::options_description general("General options");
   general.add_options()
@@ -332,7 +332,7 @@ void Configuration::readOptions(const po::variables_map& vm)
 #ifndef WTHTTP_WITH_ZLIB
   if(compression_) {
     std::cout << "Option no-compression is implied because wthttp was built "
-	      << "without zlib support.\n";
+              << "without zlib support.\n";
     compression_ = false;
   }
 #endif
@@ -350,8 +350,8 @@ void Configuration::readOptions(const po::variables_map& vm)
 
     if (parts.size() > 1) {
       if (parts.size() != 2)
-	throw Wt::WServer::Exception("Document root (--docroot) should be "
-				     "of format path[;./p1[,p2[,...]]]");
+        throw Wt::WServer::Exception("Document root (--docroot) should be "
+                                     "of format path[;./p1[,p2[,...]]]");
       boost::split(staticPaths_, parts[1], boost::is_any_of(","));
       staticPaths_.erase(std::remove(staticPaths_.begin(), staticPaths_.end(), ""), staticPaths_.end());
       defaultStatic_ = false;
@@ -371,7 +371,7 @@ void Configuration::readOptions(const po::variables_map& vm)
     errRoot_ = docRoot_;
     if (!errRoot_.empty()) {
       if (errRoot_[errRoot_.length()-1] != '/')
-	errRoot_+= '/';
+        errRoot_+= '/';
     }
     errRoot_ += "error/";
   }
@@ -392,25 +392,25 @@ void Configuration::readOptions(const po::variables_map& vm)
 
   if (vm.count("https-listen") || vm.count("https-address")) {
     checkPath(vm, "ssl-certificate", "SSL Certificate chain file",
-	      sslCertificateChainFile_, RegularFile);
+              sslCertificateChainFile_, RegularFile);
     checkPath(vm, "ssl-private-key", "SSL Private key file",
-	      sslPrivateKeyFile_, RegularFile | Private);
+              sslPrivateKeyFile_, RegularFile | Private);
     checkPath(vm, "ssl-tmp-dh", "SSL Temporary Diffie-Hellman file",
-	      sslTmpDHFile_, RegularFile);
+              sslTmpDHFile_, RegularFile);
   }
 
   if (sslClientVerification_ != "none") {
 
     checkPath(vm, "ssl-ca-certificates",
-	      "Client authentication SSL CA certificates file",
-	      sslCaCertificates_, RegularFile);
+              "Client authentication SSL CA certificates file",
+              sslCaCertificates_, RegularFile);
 
-    if (sslClientVerification_ != "optional" && 
-	sslClientVerification_ != "once" && 
-	sslClientVerification_ != "required") {
+    if (sslClientVerification_ != "optional" &&
+        sslClientVerification_ != "once" &&
+        sslClientVerification_ != "required") {
       throw Wt::WServer::Exception(
-	      "ssl-client-verification must be \"none\", \"optional\", \"once\" or "
-	      "\"required\"");
+              "ssl-client-verification must be \"none\", \"optional\", \"once\" or "
+              "\"required\"");
     }
   }
 
@@ -421,7 +421,7 @@ void Configuration::readOptions(const po::variables_map& vm)
     throw Wt::WServer::Exception
       ("Specify http-listen, https-listen, http-address and/or https-address "
        "to run a HTTP and/or HTTPS server.");
-  } 
+  }
 }
 
 Wt::WLogEntry Configuration::log(const std::string& type) const
@@ -449,10 +449,10 @@ static inline bool S_ISDIR(unsigned short mode)
 #endif
 
 void Configuration::checkPath(const po::variables_map& vm,
-			      std::string varName,
-			      std::string varDescription,
-			      std::string& result,
-			      int options)
+                              std::string varName,
+                              std::string varDescription,
+                              std::string& result,
+                              int options)
 {
   if (vm.count(varName)) {
     result = vm[varName].as<std::string>();
@@ -460,41 +460,41 @@ void Configuration::checkPath(const po::variables_map& vm,
     checkPath(result, varDescription, options);
   } else {
     throw Wt::WServer::Exception(varDescription + " (--" + varName
-				 + ") was not set.");
+                                 + ") was not set.");
   }
 }
 
 void Configuration::checkPath(std::string& result,
-			      std::string varDescription,
-			      int options)
+                              std::string varDescription,
+                              int options)
 {
   struct stat t;
   if (stat(result.c_str(), &t) != 0) {
     std::perror("stat");
     throw Wt::WServer::Exception(varDescription
-				 + " (\"" + result + "\") not valid.");
+                                 + " (\"" + result + "\") not valid.");
   } else {
     if (options & Directory) {
       while (result[result.length()-1] == '/')
-	result = result.substr(0, result.length() - 1);
+        result = result.substr(0, result.length() - 1);
 
       if (!S_ISDIR(t.st_mode)) {
-	throw Wt::WServer::Exception(varDescription + " (\"" + result
-				     + "\") must be a directory.");
+        throw Wt::WServer::Exception(varDescription + " (\"" + result
+                                     + "\") must be a directory.");
       }
     }
 
     if (options & RegularFile) {
       if (!S_ISREG(t.st_mode)) {
-	throw Wt::WServer::Exception(varDescription + " (\"" + result
-				     + "\") must be a regular file.");
+        throw Wt::WServer::Exception(varDescription + " (\"" + result
+                                     + "\") must be a regular file.");
       }
     }
 #ifndef WT_WIN32
     if (options & Private) {
       if (t.st_mode & (S_IRWXG | S_IRWXO)) {
-	throw Wt::WServer::Exception(varDescription + " (\"" + result
-			    + "\") must be unreadable for group and others.");
+        throw Wt::WServer::Exception(varDescription + " (\"" + result
+                            + "\") must be unreadable for group and others.");
       }
     }
 #endif

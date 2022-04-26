@@ -147,7 +147,7 @@ WPieChart::createLegendItemWidget(int index, WFlags<LabelOption> options)
 {
   std::unique_ptr<WContainerWidget> legendItem(new WContainerWidget());
   legendItem->setPadding(4);
-  
+
   auto colorText = legendItem->addWidget(std::make_unique<WText>());
   colorText->setPadding(10, WFlags<Side>(Side::Left) | Side::Right);
   colorText->decorationStyle().setBackgroundColor(brush(index).color());
@@ -161,7 +161,7 @@ WPieChart::createLegendItemWidget(int index, WFlags<LabelOption> options)
     for (int i = 0; i < model()->rowCount(); ++i) {
       double v = model()->data(i, dataColumn_);
       if (!Utils::isNaN(v))
-	total += v;
+        total += v;
     }
 
   double value = model()->data(index, dataColumn_);
@@ -186,7 +186,7 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
     for (int i = 0; i < model()->rowCount(); ++i) {
       double v = model()->data(i, dataColumn_);
       if (!Utils::isNaN(v))
-	total += v;
+        total += v;
     }
 
   if (!painter.isActive())
@@ -201,13 +201,13 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
   rect.setY(rect.y() + plotAreaPadding(Side::Top));
   rect.setWidth(rect.width() - plotAreaPadding(Side::Left) - plotAreaPadding(Side::Right));
   rect.setHeight(rect.height() - plotAreaPadding(Side::Top)
-		 - plotAreaPadding(Side::Bottom));
+                 - plotAreaPadding(Side::Bottom));
 
   double side = std::min(rect.width(), rect.height());
 
   painter.save();
   painter.translate(rect.left() + (rect.width() - side)/2,
-		    rect.top() + (rect.height() - side)/2);
+                    rect.top() + (rect.height() - side)/2);
 
   if (!title().empty())
     painter.translate(0, 15);
@@ -232,68 +232,68 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
       double currentAngle = startAngle_;
 
       for (int i = 0; i < model()->rowCount(); ++i) {
-	double v = model()->data(i, dataColumn_);
-	if (Utils::isNaN(v))
-	  continue;
+        double v = model()->data(i, dataColumn_);
+        if (Utils::isNaN(v))
+          continue;
 
-	double spanAngle = -v / total * 360;
-	double midAngle = currentAngle + spanAngle / 2.0;
-	double endAngle = currentAngle + spanAngle;
-	if (endAngle < 0)
-	  endAngle += 360;
-	if (midAngle < 0)
-	  midAngle += 360;
+        double spanAngle = -v / total * 360;
+        double midAngle = currentAngle + spanAngle / 2.0;
+        double endAngle = currentAngle + spanAngle;
+        if (endAngle < 0)
+          endAngle += 360;
+        if (midAngle < 0)
+          midAngle += 360;
 
-	double width = 200;
-	double height = 30;
-	double left;
-	double top;
+        double width = 200;
+        double height = 30;
+        double left;
+        double top;
 
-	double f;
-	if (labelOptions_.test(LabelOption::Outside))
-	  f = pie_[i].explode + 1.1;
-	else
-	  f = pie_[i].explode + 0.7;
+        double f;
+        if (labelOptions_.test(LabelOption::Outside))
+          f = pie_[i].explode + 1.1;
+        else
+          f = pie_[i].explode + 0.7;
 
-	double px = cx + f * r * std::cos(-midAngle / 180.0 * M_PI);
-	double py = cy + f * r * std::sin(-midAngle / 180.0 * M_PI)
-	  * (h > 0 ? 0.5 : 1);
+        double px = cx + f * r * std::cos(-midAngle / 180.0 * M_PI);
+        double py = cy + f * r * std::sin(-midAngle / 180.0 * M_PI)
+          * (h > 0 ? 0.5 : 1);
 
-	WFlags<AlignmentFlag> alignment;
+        WFlags<AlignmentFlag> alignment;
 
-	WColor c = painter.pen().color();
-	if (labelOptions_.test(LabelOption::Outside)) {
-	  if (midAngle < 90) {
-	    left = px;
-	    top = py - height;
-	    alignment = WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Bottom;
-	  } else if (midAngle < 180) {
-	    left = px - width;
-	    top = py - height;
-	    alignment = WFlags<AlignmentFlag>(AlignmentFlag::Right) | AlignmentFlag::Bottom;
-	  } else if (midAngle < 270) {
-	    left = px - width;
-	    top = py + h/2;
-	    alignment = WFlags<AlignmentFlag>(AlignmentFlag::Right) | AlignmentFlag::Top;
-	  } else {
-	    left = px;
-	    top = py + h/2;
-	    alignment = WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Top;
-	  }
-	} else {
-	  left = px - width/2;
-	  top = py - height/2;
-	  alignment = WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Middle;
-	  c = palette()->fontColor(i);
-	}
+        WColor c = painter.pen().color();
+        if (labelOptions_.test(LabelOption::Outside)) {
+          if (midAngle < 90) {
+            left = px;
+            top = py - height;
+            alignment = WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Bottom;
+          } else if (midAngle < 180) {
+            left = px - width;
+            top = py - height;
+            alignment = WFlags<AlignmentFlag>(AlignmentFlag::Right) | AlignmentFlag::Bottom;
+          } else if (midAngle < 270) {
+            left = px - width;
+            top = py + h/2;
+            alignment = WFlags<AlignmentFlag>(AlignmentFlag::Right) | AlignmentFlag::Top;
+          } else {
+            left = px;
+            top = py + h/2;
+            alignment = WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Top;
+          }
+        } else {
+          left = px - width/2;
+          top = py - height/2;
+          alignment = WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Middle;
+          c = palette()->fontColor(i);
+        }
 
   if ((v / total * 100) >= avoidLabelRendering_) {
     painter.setPen(WPen(c));
     drawLabel(&painter, WRectF(left, top, width, height),
              alignment, labelText(i, v, total, labelOptions_), i);
-	}
+        }
 
-	currentAngle = endAngle;
+        currentAngle = endAngle;
       }
     }
   }
@@ -302,7 +302,7 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
     WFont oldFont = painter.font();
     painter.setFont(titleFont());
     painter.drawText(cx - 50, cy - r, 100, 50,
-		     WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, title());
+                     WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, title());
     painter.setFont(oldFont);
   }
 
@@ -367,8 +367,8 @@ void WPieChart::drawLabel(WPainter* painter, const WRectF& rect,
   painter->drawText(rect, alignmentFlags, text);
 }
 
-WString WPieChart::labelText(int index, double v, double total, 
-			     WFlags<LabelOption> options) const
+WString WPieChart::labelText(int index, double v, double total,
+                             WFlags<LabelOption> options) const
 {
   WString text;
 
@@ -393,7 +393,7 @@ WString WPieChart::labelText(int index, double v, double total,
 #ifdef WT_TARGET_JAVA
       buf =
 #endif // WT_TARGET_JAVA
-	std::sprintf(buf, format.c_str(), u);
+        std::sprintf(buf, format.c_str(), u);
       label = buf;
     }
 
@@ -411,7 +411,7 @@ void WPieChart::setShadow(WPainter& painter) const
 }
 
 void WPieChart::drawPie(WPainter& painter, double cx, double cy,
-			double r, double h, double total) const
+                        double r, double h, double total) const
 {
   /*
    * Draw sides where applicable
@@ -419,16 +419,16 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
   if (h > 0) {
     if (total == 0) {
       if (shadow_)
-	setShadow(painter);
+        setShadow(painter);
       drawOuter(painter, cx, cy, r, 0, -180, h);
       if (shadow_)
-	painter.setShadow(WShadow());
+        painter.setShadow(WShadow());
     } else {
       if (shadow_) {
-	setShadow(painter);
-	painter.setBrush(WBrush(StandardColor::Black));
-	drawSlices(painter, cx, cy + h, r, total, true);
-	painter.setShadow(WShadow());
+        setShadow(painter);
+        painter.setBrush(WBrush(StandardColor::Black));
+        drawSlices(painter, cx, cy + h, r, total, true);
+        painter.setShadow(WShadow());
       }
 
       /*
@@ -449,128 +449,128 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
 
       double currentAngle = startAngle_;
       for (int i = 0; i < model()->rowCount(); ++i) {
-	startAngles[i] = currentAngle;
+        startAngles[i] = currentAngle;
 
-	double v = model()->data(i, dataColumn_);
-	if (Utils::isNaN(v))
-	  continue;
+        double v = model()->data(i, dataColumn_);
+        if (Utils::isNaN(v))
+          continue;
 
-	double spanAngle = -v / total * 360;
-	midAngles[i] = currentAngle + spanAngle / 2.0;
+        double spanAngle = -v / total * 360;
+        midAngles[i] = currentAngle + spanAngle / 2.0;
 
-	double endAngle = currentAngle + spanAngle;
+        double endAngle = currentAngle + spanAngle;
 
-	double to90 = currentAngle - 90;
-	if (to90 < 0)
-	  to90 += 360;
+        double to90 = currentAngle - 90;
+        if (to90 < 0)
+          to90 += 360;
 
-	if (spanAngle <= -to90)
-	  index90 = i;
+        if (spanAngle <= -to90)
+          index90 = i;
 
-	if (endAngle < 0)
-	  endAngle += 360;	
+        if (endAngle < 0)
+          endAngle += 360;
 
-	currentAngle = endAngle;
+        currentAngle = endAngle;
       }
 
       /*
        * Draw clock wise side
        */
       for (int j = 0; j < model()->rowCount(); ++j) {
-	int i = (index90 + j) % model()->rowCount();
+        int i = (index90 + j) % model()->rowCount();
 
-	double v = model()->data(i, dataColumn_);
-	if (Utils::isNaN(v))
-	  continue;
+        double v = model()->data(i, dataColumn_);
+        if (Utils::isNaN(v))
+          continue;
 
-	double midAngle = midAngles[i];
-	double endAngle = startAngles[(i + 1) % model()->rowCount()];
+        double midAngle = midAngles[i];
+        double endAngle = startAngles[(i + 1) % model()->rowCount()];
 
-	int n = nextIndex(i);
+        int n = nextIndex(i);
 
-	bool visible = (endAngle <= 90) || (endAngle >= 270);
+        bool visible = (endAngle <= 90) || (endAngle >= 270);
 
-	bool drawS2 = visible
-	  && ((pie_[i].explode > 0.0) || (pie_[n].explode > 0.0));
+        bool drawS2 = visible
+          && ((pie_[i].explode > 0.0) || (pie_[n].explode > 0.0));
 
-	if (drawS2) {
-	  double pcx = cx + r * pie_[i].explode * std::cos(-midAngle / 180.0 * M_PI);
-	  double pcy = cy + r * pie_[i].explode * std::sin(-midAngle / 180.0 * M_PI);
+        if (drawS2) {
+          double pcx = cx + r * pie_[i].explode * std::cos(-midAngle / 180.0 * M_PI);
+          double pcy = cy + r * pie_[i].explode * std::sin(-midAngle / 180.0 * M_PI);
 
-	  painter.setBrush(darken(brush(i)));
+          painter.setBrush(darken(brush(i)));
 
-	  drawSide(painter, pcx, pcy, r, endAngle, h);
-	}
+          drawSide(painter, pcx, pcy, r, endAngle, h);
+        }
 
-	if (!visible)
-	  break;
+        if (!visible)
+          break;
       }
 
       /*
        * Draw counter-clock wise side
        */
       for (int j = model()->rowCount(); j > 0; --j) {
-	int i = (index90 + j) % model()->rowCount();
+        int i = (index90 + j) % model()->rowCount();
 
-	double v = model()->data(i, dataColumn_);
-	if (Utils::isNaN(v))
-	  continue;
+        double v = model()->data(i, dataColumn_);
+        if (Utils::isNaN(v))
+          continue;
 
-	double startAngle = startAngles[i];
-	double midAngle = midAngles[i];
+        double startAngle = startAngles[i];
+        double midAngle = midAngles[i];
 
-	int p = prevIndex(i);
+        int p = prevIndex(i);
 
-	bool visible = (startAngle >= 90) && (startAngle <= 270);
+        bool visible = (startAngle >= 90) && (startAngle <= 270);
 
-	bool drawS1 = visible
-	  && ((pie_[i].explode > 0.0) || (pie_[p].explode > 0.0));
+        bool drawS1 = visible
+          && ((pie_[i].explode > 0.0) || (pie_[p].explode > 0.0));
 
-	if (drawS1) {
-	  double pcx = cx + r * pie_[i].explode * std::cos(-midAngle / 180.0 * M_PI);
-	  double pcy = cy + r * pie_[i].explode * std::sin(-midAngle / 180.0 * M_PI);
+        if (drawS1) {
+          double pcx = cx + r * pie_[i].explode * std::cos(-midAngle / 180.0 * M_PI);
+          double pcy = cy + r * pie_[i].explode * std::sin(-midAngle / 180.0 * M_PI);
 
-	  painter.setBrush(darken(brush(i)));
-	  drawSide(painter, pcx, pcy, r, startAngle, h);
-	}
+          painter.setBrush(darken(brush(i)));
+          drawSide(painter, pcx, pcy, r, startAngle, h);
+        }
 
-	if (!visible)
-	  break;
+        if (!visible)
+          break;
       }
 
       /*
        * LabelOption::Outside
        */
       for (int j = 0; j < model()->rowCount(); ++j) {
-	int i = (index90 + j) % model()->rowCount();
+        int i = (index90 + j) % model()->rowCount();
 
-	double v = model()->data(i, dataColumn_);
-	if (Utils::isNaN(v))
-	  continue;
+        double v = model()->data(i, dataColumn_);
+        if (Utils::isNaN(v))
+          continue;
 
-	double startAngle = startAngles[i];
-	double midAngle = midAngles[i];
-	double endAngle = startAngles[(i + 1) % model()->rowCount()];
+        double startAngle = startAngles[i];
+        double midAngle = midAngles[i];
+        double endAngle = startAngles[(i + 1) % model()->rowCount()];
 
-	double spanAngle = endAngle - startAngle;
+        double spanAngle = endAngle - startAngle;
 
-	if (spanAngle > 0)
-	  spanAngle -= 360;
+        if (spanAngle > 0)
+          spanAngle -= 360;
 
-	bool drawBorder = startAngle > 180 || endAngle > 180
-	  || spanAngle < -180 || model()->rowCount() == 1;
+        bool drawBorder = startAngle > 180 || endAngle > 180
+          || spanAngle < -180 || model()->rowCount() == 1;
 
-	if (drawBorder) {
-	  painter.setBrush(darken(brush(i)));
+        if (drawBorder) {
+          painter.setBrush(darken(brush(i)));
 
-	  double pcx = cx + r * pie_[i].explode * std::cos(-midAngle / 180.0 * M_PI);
-	  double pcy = cy + r * pie_[i].explode * std::sin(-midAngle / 180.0 * M_PI);
+          double pcx = cx + r * pie_[i].explode * std::cos(-midAngle / 180.0 * M_PI);
+          double pcy = cy + r * pie_[i].explode * std::sin(-midAngle / 180.0 * M_PI);
 
-	  double a1 = (startAngle < 180 ? 360 : startAngle);
-	  double a2 = (endAngle < 180 ? 180 : endAngle);
+          double a1 = (startAngle < 180 ? 360 : startAngle);
+          double a2 = (endAngle < 180 ? 180 : endAngle);
 
-	  drawOuter(painter, pcx, pcy, r, a1, a2, h);
-	}
+          drawOuter(painter, pcx, pcy, r, a1, a2, h);
+        }
       }
     }
   }
@@ -585,8 +585,8 @@ void WPieChart::drawPie(WPainter& painter, double cx, double cy,
 }
 
 void WPieChart::drawSlices(WPainter& painter,
-			   double cx, double cy, double r, double total,
-			   bool shadow) const
+                           double cx, double cy, double r, double total,
+                           bool shadow) const
 {
   double currentAngle = startAngle_;
 
@@ -606,8 +606,8 @@ void WPieChart::drawSlices(WPainter& painter,
 
     if (v/total != 1.0)
       painter.drawPie(pcx - r, pcy - r, r*2, r*2,
-		      static_cast<int>(currentAngle * 16),
-		      static_cast<int>(spanAngle * 16));
+                      static_cast<int>(currentAngle * 16),
+                      static_cast<int>(spanAngle * 16));
     else
       painter.drawEllipse(pcx - r, pcy - r, r*2, r*2);
 
@@ -620,32 +620,32 @@ void WPieChart::drawSlices(WPainter& painter,
       if (!toolTip.empty() || link) {
         const int SEGMENT_ANGLE = 20;
 
-	std::unique_ptr<WPolygonArea> area(new WPolygonArea());
-	WTransform t = painter.worldTransform();
+        std::unique_ptr<WPolygonArea> area(new WPolygonArea());
+        WTransform t = painter.worldTransform();
 
-	area->addPoint(t.map(WPointF(pcx, pcy)));
+        area->addPoint(t.map(WPointF(pcx, pcy)));
 
-	double sa = std::fabs(spanAngle);
+        double sa = std::fabs(spanAngle);
 
-	for (double d = 0; d < sa; d += SEGMENT_ANGLE) {
-	  double a;
-	  if (spanAngle < 0)
-	    a = currentAngle - d;
-	  else
-	    a = currentAngle + d;
-	  area->addPoint(t.map(WPointF(pcx + r * std::cos(-a / 180.0 * M_PI),
-				       pcy + r * std::sin(-a / 180.0 * M_PI))));
-	}
+        for (double d = 0; d < sa; d += SEGMENT_ANGLE) {
+          double a;
+          if (spanAngle < 0)
+            a = currentAngle - d;
+          else
+            a = currentAngle + d;
+          area->addPoint(t.map(WPointF(pcx + r * std::cos(-a / 180.0 * M_PI),
+                                       pcy + r * std::sin(-a / 180.0 * M_PI))));
+        }
 
-	double a = currentAngle + spanAngle;
-	area->addPoint(t.map(WPointF(pcx + r * std::cos(-a / 180.0 * M_PI),
-				     pcy + r * std::sin(-a / 180.0 * M_PI))));
+        double a = currentAngle + spanAngle;
+        area->addPoint(t.map(WPointF(pcx + r * std::cos(-a / 180.0 * M_PI),
+                                     pcy + r * std::sin(-a / 180.0 * M_PI))));
 
         area->setToolTip(toolTip);
         if (link)
           area->setLink(*link);
 
-	addDataPointArea(i, dataColumn_, std::move(area));
+        addDataPointArea(i, dataColumn_, std::move(area));
       }
     }
 
@@ -658,7 +658,7 @@ void WPieChart::drawSlices(WPainter& painter,
 }
 
 void WPieChart::addDataPointArea(int row, int column,
-				 std::unique_ptr<WAbstractArea> area) const
+                                 std::unique_ptr<WAbstractArea> area) const
 {
   (const_cast<WPieChart *>(this))->addArea(std::move(area));
 }
@@ -676,7 +676,7 @@ WBrush WPieChart::darken(const WBrush& brush)
 }
 
 void WPieChart::drawSide(WPainter& painter, double pcx, double pcy, double r,
-			 double angle, double h) const
+                         double angle, double h) const
 {
   WPainterPath path;
   path.arcMoveTo(pcx - r, pcy - r, 2 * r, 2 * r, angle);
@@ -689,7 +689,7 @@ void WPieChart::drawSide(WPainter& painter, double pcx, double pcy, double r,
 }
 
 void WPieChart::drawOuter(WPainter& painter, double pcx, double pcy, double r,
-			  double a1, double a2, double h) const
+                          double a1, double a2, double h) const
 {
   WPainterPath path;
   path.arcMoveTo(pcx - r, pcy - r, 2 * r, 2 * r, a1);

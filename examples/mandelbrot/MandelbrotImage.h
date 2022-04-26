@@ -20,9 +20,9 @@ class MandelbrotImage : public WVirtualImage
 {
 public:
   MandelbrotImage(int width, int height,
-		  int64_t virtualWidth, int64_t virtualHeight,
-		  double bx1, double by1,
-		  double bx2, double by2);
+                  int64_t virtualWidth, int64_t virtualHeight,
+                  double bx1, double by1,
+                  double bx2, double by2);
 
   void zoomIn();
   void zoomOut();

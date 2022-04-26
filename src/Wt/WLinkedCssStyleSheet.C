@@ -11,7 +11,7 @@
 namespace Wt {
 
 WLinkedCssStyleSheet::WLinkedCssStyleSheet(const WLink& link,
-					   const std::string& media)
+                                           const std::string& media)
   : link_(link),
     media_(media)
 { }

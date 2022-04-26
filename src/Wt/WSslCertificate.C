@@ -77,18 +77,18 @@ namespace Wt {
 LOGGER("WSslCertificate");
 
 WSslCertificate::WSslCertificate(const std::vector<DnAttribute> &subjectDn,
-	   const std::vector<DnAttribute> &issuerDn,
-	   const Wt::WDateTime &validityStart,
-	   const Wt::WDateTime &validityEnd,
-	   const std::string &pemCert):
+           const std::vector<DnAttribute> &issuerDn,
+           const Wt::WDateTime &validityStart,
+           const Wt::WDateTime &validityEnd,
+           const std::string &pemCert):
   subjectDn_(subjectDn),
   issuerDn_(issuerDn),
   validityStart_(validityStart),
   validityEnd_(validityEnd),
   pemCert_(pemCert)
 {
-  LOG_DEBUG("WSslCertificate fields: " 
-	    <<  gdb());
+  LOG_DEBUG("WSslCertificate fields: "
+            <<  gdb());
 }
 
 std::string WSslCertificate::DnAttribute::shortName() const
@@ -139,7 +139,7 @@ std::string WSslCertificate::issuerDnString() const
   return attributesToString(issuerDn());
 }
 
-std::string WSslCertificate::subjectDnString() const 
+std::string WSslCertificate::subjectDnString() const
 {
   return attributesToString(subjectDn());
 }
@@ -155,11 +155,11 @@ std::string WSslCertificate::pemToDer(const std::string &pem)
   if (endPos == std::string::npos)
     throw Wt::WException("WSslCertificate::pemToDer() illegal PEM format");
 
-  int npos = pem.size() 
+  int npos = pem.size()
     - (startPos + strlen(PEM_HEADER))
     - (pem.size() - endPos);
   std::string cert = pem.substr(startPos + pem_header_len, npos);
-  
+
   std::string cert_base64;
   cert_base64.reserve(cert.size());
   int x=0;
@@ -172,20 +172,20 @@ std::string WSslCertificate::pemToDer(const std::string &pem)
   }
 
   std::string der = Utils::base64Decode(cert_base64);
-  
-  return der; 
+
+  return der;
 }
 
 std::string WSslCertificate::gdb() const
 {
   Wt::WStringStream ss;
-  ss 
+  ss
     << "subject DN: " << subjectDnString() << '\n'
     << "issuer DN: " << issuerDnString() << '\n'
     << "validity start: " << validityStart_.toString().toUTF8() << '\n'
     << "validity end: " << validityEnd_.toString().toUTF8() << '\n'
     << "client cert: " << pemCert_ << '\n';
- 
+
   return ss.str();
 }
 

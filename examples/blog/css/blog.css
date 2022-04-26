@@ -1,128 +1,128 @@
 .login-box {
-    margin-bottom: -10px;
-    height: 25px;
+  margin-bottom: -10px;
+  height: 25px;
 }
 
 .user-menu {
 }
 
 .login-menu {
-    float: right;
-    white-space: nowrap;
+  float: right;
+  white-space: nowrap;
 }
 
 .Wt-auth-logged-in {
-    display: inline;
+  display: inline;
 }
 
 .link {
-    text-decoration: underline;
-    cursor: pointer; cursor: hand;
+  text-decoration: underline;
+  cursor: pointer; cursor: hand;
 }
 
 .invalid {
-    background-color: #EE9999;
+  background-color: #EE9999;
 }
 
 .comment-icon {
-    float: left;
-    margin-top: 3px;
-    width: 20px;
-    height: 20px;
-    background-image: url(comment.png);
-    background-repeat: no-repeat;
+  float: left;
+  margin-top: 3px;
+  width: 20px;
+  height: 20px;
+  background-image: url(comment.png);
+  background-repeat: no-repeat;
 }
 
 .comment-edit-icon {
-    float: left;
-    margin-top: 3px;
-    width: 20px;
-    height: 20px;
-    background-image: url(comment_edit.png);
-    background-repeat: no-repeat;
+  float: left;
+  margin-top: 3px;
+  width: 20px;
+  height: 20px;
+  background-image: url(comment_edit.png);
+  background-repeat: no-repeat;
 }
 
 .comment-info {
-    color: rgb(136,136,136);
+  color: rgb(136,136,136);
 }
 
 .poster {
-    color: rgb(51, 102, 53);
-    font-weight: bold;
+  color: rgb(51, 102, 53);
+  font-weight: bold;
 }
 
 .author-panel {
-    margin-top: 10px;
-    border: 1px #528B12 dashed;
-    padding: 5px;
+  margin-top: 10px;
+  border: 1px #528B12 dashed;
+  padding: 5px;
 }
 
 .user-editor {
-    margin-top: 10px;
-    border: 1px #528B12 dashed;
-    padding: 5px;
+  margin-top: 10px;
+  border: 1px #528B12 dashed;
+  padding: 5px;
 }
 
 .profile-panel {
-    margin-top: 10px;
-    border: 1px #528B12 dashed;
-    padding: 5px;
+  margin-top: 10px;
+  border: 1px #528B12 dashed;
+  padding: 5px;
 }
 
 .comment-body {
-    overflow: hidden; /* trick that makes alignment work properly */
-    margin-left: 3px;
+  overflow: hidden; /* trick that makes alignment work properly */
+  margin-left: 3px;
 }
 
 .comment-body .vspace {
-    margin: 10px 0px;
+  margin: 10px 0px;
 }
 
 .comment-body pre {
-    line-height: 140%;
-    border: 1px solid silver;
-    background: #f4f4f4;
-    padding: 0.5em;
+  line-height: 140%;
+  border: 1px solid silver;
+  background: #f4f4f4;
+  padding: 0.5em;
 }
 
 .comment-edit {
-    width: 400px;
+  width: 400px;
 }
 
 .comment-edit textarea {
-    width: 396px;
+  width: 396px;
 }
 
 .comment-links {
-    margin-bottom: 3px;
+  margin-bottom: 3px;
 }
 
 .blogpost-edit {
-    width: 500px;
-    margin: 10x;
+  width: 500px;
+  margin: 10x;
 }
 
 .blogpost-edit div {
-    margin: 5px 0px;
+  margin: 5px 0px;
 }
 .blogpost-edit input {
-    width: 450px;
+  width: 450px;
 }
 
 .blogpost-edit textarea {
-    width: 496px;
-    height: 150px;
+  width: 496px;
+  height: 150px;
 }
 
 .archive-month-title {
-    color: #528B12;
-    display: block;
-    font-size: 1.3em;
-    line-height: 1.8;
-    margin-top: 15px;
-    font-weight: bold;
+  color: #528B12;
+  display: block;
+  font-size: 1.3em;
+  line-height: 1.8;
+  margin-top: 15px;
+  font-weight: bold;
 }
 
 .asciidoc .subtitle {
-	font-size: 1.4em;
+  font-size: 1.4em;
 }

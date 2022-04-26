@@ -1,41 +1,41 @@
 <server>
     <application-settings location="*">
-	<properties>
-	    <!-- You can use the following properties to configure SMTP settings -->
-	    <!-- The host to identify as (defaults to localhost if not specified) -->
-	    <property name="smtp-self-host">localhost</property>
-	    <!-- The SMTP host to connect to (defaults to localhost if not specified) -->
-	    <property name="smtp-host">localhost</property>
-	    <!-- The SMTP port to connect to (defaults to 25 if not specified) -->
-	    <property name="smtp-port">25</property>
+        <properties>
+            <!-- You can use the following properties to configure SMTP settings -->
+            <!-- The host to identify as (defaults to localhost if not specified) -->
+            <property name="smtp-self-host">localhost</property>
+            <!-- The SMTP host to connect to (defaults to localhost if not specified) -->
+            <property name="smtp-host">localhost</property>
+            <!-- The SMTP port to connect to (defaults to 25 if not specified) -->
+            <property name="smtp-port">25</property>
 
-	    <!-- You need to register at Google for this to work, and enter
+            <!-- You need to register at Google for this to work, and enter
                  there the same values as you do here. -->
             <!--
-	    <property name="google-oauth2-redirect-endpoint">
-		http://localhost:8080/google-oauth2callback
-	    </property>
-	    <property name="google-oauth2-client-id">
-		00000000000.apps.googleusercontent.com
-	    </property>
-	    <property name="google-oauth2-client-secret">
-		abcdefghijk-123456789xyz
-	    </property>
+            <property name="google-oauth2-redirect-endpoint">
+                http://localhost:8080/google-oauth2callback
+            </property>
+            <property name="google-oauth2-client-id">
+                00000000000.apps.googleusercontent.com
+            </property>
+            <property name="google-oauth2-client-secret">
+                abcdefghijk-123456789xyz
+            </property>
             -->
 
-	    <!-- You need to register at Facebook for this to work, and enter
-		 there the same values as you do here. -->
-	    <!--
-	    <property name="facebook-oauth2-redirect-endpoint">
-		http://localhost:8080/facebook-oauth2callback
-	    </property>
-	    <property name="facebook-oauth2-app-id">
+            <!-- You need to register at Facebook for this to work, and enter
+                 there the same values as you do here. -->
+            <!--
+            <property name="facebook-oauth2-redirect-endpoint">
+                http://localhost:8080/facebook-oauth2callback
+            </property>
+            <property name="facebook-oauth2-app-id">
                 000000000000000
-	    </property>
-	    <property name="facebook-oauth2-app-secret">
-		0123456789abcdef0123456789abcdef
-	    </property>
-	    -->
-	</properties>
+            </property>
+            <property name="facebook-oauth2-app-secret">
+                0123456789abcdef0123456789abcdef
+            </property>
+            -->
+        </properties>
     </application-settings>
 </server>

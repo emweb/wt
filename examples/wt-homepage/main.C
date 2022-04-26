@@ -27,8 +27,8 @@ int main(int argc, char **argv)
       = BlogSession::createConnectionPool(server.appRoot() + "blog.db");
 
     BlogRSSFeed rssFeed(*blogDb, "Wt and JWt blog",
-			"http://www.webtoolkit.eu/wt/blog",
-			"We care about our webtoolkits.");
+                        "http://www.webtoolkit.eu/wt/blog",
+                        "We care about our webtoolkits.");
 
     server.addResource(&rssFeed, "/wt/blog/feed/");
 

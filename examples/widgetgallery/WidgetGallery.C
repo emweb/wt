@@ -31,8 +31,8 @@ WidgetGallery::WidgetGallery()
   contentsStack_ = bindNew<Wt::WStackedWidget>("contents");
 
   Wt::WAnimation animation(Wt::AnimationEffect::Fade,
-			   Wt::TimingFunction::Linear,
-			   200);
+                           Wt::TimingFunction::Linear,
+                           200);
   contentsStack_->setTransitionAnimation(animation, true);
 
   /*
@@ -69,7 +69,7 @@ WidgetGallery::WidgetGallery()
 }
 
 Wt::WMenuItem *WidgetGallery::addToMenu(Wt::WMenu *menu,
-					const Wt::WString& name,
+                                        const Wt::WString& name,
                                         std::unique_ptr<Topic> topicPtr)
 {
 #ifndef WT_TARGET_JAVA

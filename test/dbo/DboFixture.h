@@ -106,11 +106,11 @@ struct DboFixtureBase
     }
 
     connection = std::unique_ptr<dbo::SqlConnection>(
-	new dbo::backend::MSSQLServer(
-	"Driver={ODBC Driver 17 for SQL Server};"
-	"Server=db;"
-	"UID=sa;"
-	"PWD={hereIsMyPassword_1234};"));
+      new dbo::backend::MSSQLServer(
+        "Driver={ODBC Driver 17 for SQL Server};"
+        "Server=db;"
+        "UID=sa;"
+        "PWD={hereIsMyPassword_1234};"));
 #endif // MSSQLSERVER
 
     if (showQueries)

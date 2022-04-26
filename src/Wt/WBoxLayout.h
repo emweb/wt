@@ -212,7 +212,7 @@ public:
   /*! \briefs Adds a nested layout to the layout, returning a raw pointer.
    *
    * This is implemented as:
-   * 
+   *
    * \code
    * Layout *result = layout.get();
    * addLayout(std::unique_ptr<WLayout>(std::move(layout)), stretch, alignment);
@@ -265,7 +265,7 @@ public:
    * \sa insertLayout(), addWidget(WWidget *, int, WFlags<AlignmentFlag>)
    */
   void insertWidget(int index, std::unique_ptr<WWidget> widget, int stretch = 0,
-		    WFlags<AlignmentFlag> alignment = None);
+                    WFlags<AlignmentFlag> alignment = None);
 
   /*! \brief Inserts a widget in the layout, returning a raw pointer.
    *
@@ -279,7 +279,7 @@ public:
 #ifndef WT_TARGET_JAVA
   template <typename Widget>
     Widget *insertWidget(int index, std::unique_ptr<Widget> widget, int stretch = 0,
-			 WFlags<AlignmentFlag> alignment = None)
+                         WFlags<AlignmentFlag> alignment = None)
   {
     Widget *result = widget.get();
     insertWidget(index, std::unique_ptr<WWidget>(std::move(widget)), stretch, alignment);
@@ -298,7 +298,7 @@ public:
    * \sa insertWidget(), addLayout()
    */
   void insertLayout(int index, std::unique_ptr<WLayout> layout, int stretch = 0,
-		    WFlags<AlignmentFlag> alignment = None);
+                    WFlags<AlignmentFlag> alignment = None);
 
   /*! \briefs Inserts a nested layout in the layout, returning a raw pointer.
    *
@@ -312,7 +312,7 @@ public:
 #ifndef WT_TARGET_JAVA
   template <typename Layout>
     Layout *insertLayout(int index, std::unique_ptr<Layout> layout, int stretch = 0,
-	                 WFlags<AlignmentFlag> alignment = None)
+                         WFlags<AlignmentFlag> alignment = None)
   {
     Layout *result = layout.get();
     insertLayout(index, std::unique_ptr<WLayout>(std::move(layout)), stretch, alignment);
@@ -371,7 +371,7 @@ public:
    * it would be given by the layout manager.
    */
   void setResizable(int index, bool enabled = true,
-		    const WLength& initialSize = WLength::Auto);
+                    const WLength& initialSize = WLength::Auto);
 
   /*! \brief Returns whether the user may drag a particular border.
    *
@@ -387,7 +387,7 @@ public:
 
 protected:
   void insertItem(int index, std::unique_ptr<WLayoutItem> item, int stretch,
-		  WFlags<AlignmentFlag> alignment);
+                  WFlags<AlignmentFlag> alignment);
 
   virtual void updateImplementation() override;
 

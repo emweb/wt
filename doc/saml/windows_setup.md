@@ -235,7 +235,7 @@ Fixing up log4shib path:
 ```xml
   <PropertyGroup Label="Log4ShibGeneral">
     <!-- Just for now -->
-	<LOG4SHIB_FILE_VERSION Condition="'$(LOG4SHIB_FILE_VERSION)' == ''">2_0</LOG4SHIB_FILE_VERSION>
+    <LOG4SHIB_FILE_VERSION Condition="'$(LOG4SHIB_FILE_VERSION)' == ''">2_0</LOG4SHIB_FILE_VERSION>
     <Log4ShibVersion Condition="'$(LOG4SHIB_MM_VERSION)' == ''">2.0.0</Log4ShibVersion>
     <Log4ShibVersion Condition="'$(LOG4SHIB_MM_VERSION)' != ''">$(LOG4SHIB_MM_VERSION)</Log4ShibVersion>
   </PropertyGroup>

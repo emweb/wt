@@ -126,13 +126,13 @@ std::string eraseWord(const std::string& s, const std::string& w)
   while ((p = s.find(w, pos)) != std::string::npos) {
     std::string::size_type e = p + w.length();
     if ((p == 0          || s[p-1] == ' ') &&
-	(e == s.length() || s[e] == ' ')) {
+        (e == s.length() || s[e] == ' ')) {
       std::string ss = s;
       ss.erase(ss.begin() + p, ss.begin() + e);
       if (p > 1)
-	ss.erase(ss.begin() + (p - 1));
+        ss.erase(ss.begin() + (p - 1));
       else if (e < ss.length())
-	ss.erase(ss.begin() + p);
+        ss.erase(ss.begin() + p);
 
       return ss;
     }
@@ -255,8 +255,8 @@ namespace {
 
     static int floatfield(T t) {
       return (t != 0.0) && ((t < 0.001) || (t > 1E8)) ?
-	karma::real_policies<T>::fmtflags::scientific :
-	karma::real_policies<T>::fmtflags::fixed;
+        karma::real_policies<T>::fmtflags::scientific :
+        karma::real_policies<T>::fmtflags::fixed;
     }
 
     // 7 significant numbers; about float precision
@@ -333,20 +333,20 @@ char *round_css_str(double d, int digits, char *buf)
     int shift = digits + 1 - len;
     for (int i = digits + 1; i >= 0; --i) {
       if (i >= shift)
-	num[i] = num[i - shift];
+        num[i] = num[i - shift];
       else
-	num[i] = '0';
+        num[i] = '0';
     }
     len = digits + 1;
   }
-  
+
   int dotPos = (std::max)(len - digits, 0);
 
   for (int i = digits + 1; i >= 0; --i)
     num[dotPos + i + 1] = num[dotPos + i];
 
   num[dotPos] = '.';
-  
+
   return buf;
 }
 
@@ -364,7 +364,7 @@ std::string urlEncode(const std::string& url, const std::string& allowed)
 }
 
 std::string dataUrlDecode(const std::string& url,
-			  std::vector<unsigned char> &data)
+                          std::vector<unsigned char> &data)
 {
   return std::string();
 }
@@ -385,11 +385,11 @@ void inplaceUrlDecode(std::string &text)
       int hval = std::strtol(h.c_str(), &e, 16);
 
       if (*e == 0) {
-	text[j++] = (char)hval;
-	i += 2;
+        text[j++] = (char)hval;
+        i += 2;
       } else {
-	// not a proper %XX with XX hexadecimal format
-	text[j++] = c;
+        // not a proper %XX with XX hexadecimal format
+        text[j++] = c;
       }
     } else
       text[j++] = c;
@@ -405,17 +405,17 @@ std::string EncodeHttpHeaderField(const std::string &fieldname,
   return fieldname + "*=UTF-8''" + urlEncode(fieldValue.toUTF8());
 }
 
-std::string readFile(const std::string& fname) 
+std::string readFile(const std::string& fname)
 {
   std::ifstream f(fname.c_str(), std::ios::in | std::ios::binary);
-  
+
   if (!f)
     throw WException("Could not load " + fname);
-  
+
   f.seekg(0, std::ios::end);
   int length = f.tellg();
   f.seekg(0, std::ios::beg);
-  
+
   std::unique_ptr<char[]> ftext(new char[length + 1]);
   f.read(ftext.get(), length);
   ftext[length] = 0;

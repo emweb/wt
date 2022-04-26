@@ -27,7 +27,7 @@ class WTable;
  *
  * \sa WTable, WTableRow
  */
-class WT_API WTableColumn : public WObject 
+class WT_API WTableColumn : public WObject
 {
 public:
   /*! \brief Creates a new table column.

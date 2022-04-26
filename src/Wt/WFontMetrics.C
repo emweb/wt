@@ -9,7 +9,7 @@
 namespace Wt {
 
 WFontMetrics::WFontMetrics(const WFont& font, double leading, double ascent,
-			   double descent)
+                           double descent)
   : font_(font),
     leading_(leading),
     ascent_(ascent),

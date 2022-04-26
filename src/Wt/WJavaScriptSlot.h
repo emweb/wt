@@ -167,13 +167,13 @@ public:
    * \sa setJavaScript()
    */
   void exec(const std::string& object = "null",
-	    const std::string& event = "null",
-	    const std::string& arg1 = "null",
-	    const std::string& arg2 = "null",
-	    const std::string& arg3 = "null",
-	    const std::string& arg4 = "null",
-	    const std::string& arg5 = "null",
-	    const std::string& arg6 = "null");
+            const std::string& event = "null",
+            const std::string& arg1 = "null",
+            const std::string& arg2 = "null",
+            const std::string& arg3 = "null",
+            const std::string& arg4 = "null",
+            const std::string& arg5 = "null",
+            const std::string& arg6 = "null");
 
   /*! \brief Returns a JavaScript statement that executes the slot.
    *
@@ -185,13 +185,13 @@ public:
    * \sa exec()
    */
    std::string execJs(const std::string& object = "null",
-		      const std::string& event = "null",
-		      const std::string& arg1 = "null",
-		      const std::string& arg2 = "null",
-		      const std::string& arg3 = "null",
-		      const std::string& arg4 = "null",
-		      const std::string& arg5 = "null",
-		      const std::string& arg6 = "null");
+                      const std::string& event = "null",
+                      const std::string& arg1 = "null",
+                      const std::string& arg2 = "null",
+                      const std::string& arg3 = "null",
+                      const std::string& arg4 = "null",
+                      const std::string& arg5 = "null",
+                      const std::string& arg6 = "null");
 
    /*! \brief Returns the number of extra arguments this %JSlot takes.
     */

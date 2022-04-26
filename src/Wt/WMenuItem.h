@@ -43,7 +43,7 @@ public:
    * customized using setPathComponent().
    */
   WMenuItem(const WString& label, std::unique_ptr<WWidget> contents = nullptr,
-	    ContentLoading policy = ContentLoading::Lazy);
+            ContentLoading policy = ContentLoading::Lazy);
 
   /*
    * The icon is displayed left to the text.
@@ -51,8 +51,8 @@ public:
    * \note The icon should have a width of 16 pixels.
    */
   WMenuItem(const std::string& iconPath, const WString& label,
-	    std::unique_ptr<WWidget> contents = nullptr,
-	    ContentLoading policy = ContentLoading::Lazy);
+            std::unique_ptr<WWidget> contents = nullptr,
+            ContentLoading policy = ContentLoading::Lazy);
 
   /* !\brief Destructor.
    *
@@ -290,7 +290,7 @@ public:
    * transmitted prior to first rendering.
    */
   void setContents(std::unique_ptr<WWidget> contents,
-		   ContentLoading policy = ContentLoading::Lazy);
+                   ContentLoading policy = ContentLoading::Lazy);
 
   /*! \brief Returns the contents widget for this item.
    *
@@ -383,7 +383,7 @@ private:
   bool closeable_;
 
   void create(const std::string& iconPath, const WString& text,
-	      std::unique_ptr<WWidget> contents, ContentLoading policy);
+              std::unique_ptr<WWidget> contents, ContentLoading policy);
   void purgeContents();
   void updateInternalPath();
   bool contentsLoaded() const;

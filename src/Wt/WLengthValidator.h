@@ -66,7 +66,7 @@ public:
 
   /*! \brief Sets the maximum length.
    *
-   * The default value is the maximum integer value. 
+   * The default value is the maximum integer value.
    */
   void setMaximumLength(int maximum);
 

@@ -73,7 +73,7 @@ bool WRectF::operator==(const WRectF& rhs) const
 {
   if (!sameBindingAs(rhs)) return false;
 
-  return 
+  return
        x_ == rhs.x_
     && y_ == rhs.y_
     && width_ == rhs.width_
@@ -210,7 +210,7 @@ WRectF WRectF::normalized() const
   WRectF result(x, y, w, h);
   if (isJavaScriptBound()) {
     result.assignBinding(*this,
-	WT_CLASS ".gfxUtils.rect_normalized(" + jsRef() + ')');
+        WT_CLASS ".gfxUtils.rect_normalized(" + jsRef() + ')');
   }
   return result;
 }
@@ -236,10 +236,10 @@ void WRectF::assignFromJSON(const Json::Value &value)
     const Json::Array &ar = static_cast<Json::Array&>(value);
 #endif
     if (ar.size() == 4 &&
-	!ar[0].toNumber().isNull() &&
-	!ar[1].toNumber().isNull() &&
-	!ar[2].toNumber().isNull() &&
-	!ar[3].toNumber().isNull()) {
+        !ar[0].toNumber().isNull() &&
+        !ar[1].toNumber().isNull() &&
+        !ar[2].toNumber().isNull() &&
+        !ar[3].toNumber().isNull()) {
       x_ = ar[0].toNumber().orIfNull(x_);
       y_ = ar[1].toNumber().orIfNull(y_);
       width_ = ar[2].toNumber().orIfNull(width_);

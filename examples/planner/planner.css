@@ -1,112 +1,112 @@
 .Wt-domRoot {
-	position: static;
+  position: static;
 }
 
 .entry-dialog {
-	font-family: Arial,Sans-serif;
-	font-weight: bold;
-	padding: 3px;
+  font-family: Arial,Sans-serif;
+  font-weight: bold;
+  padding: 3px;
 }
 
 .entry-dialog textarea {
-	width: 250px;
+  width: 250px;
 }
 
 .entry-dialog .line {
-        margin: 3px 0px;
+  margin: 3px 0px;
 }
 
 .entry-dialog .line input {
-        margin: 0px 3px;
+  margin: 0px 3px;
 }
 
 .entry-dialog .buttons {
-	text-align: center;
-	padding-top: 5px;
+  text-align: center;
+  padding-top: 5px;
 }
 
 .entry-dialog button {
-	margin: 0px 5px;
-	padding: 0px 5px;
+  margin: 0px 5px;
+  padding: 0px 5px;
 }
 
 .all-entries-dialog-entries {
-	text-align: left;
-	padding: 5px;
+  text-align: left;
+  padding: 5px;
 }
 
 .all-entries-dialog-entries span {
-	display: block;
+  display: block;
 }
 
 .all-entries-dialog-button {
-	text-align: center;	
-	padding: 5px;
+  text-align: center;
+  padding: 5px;
 }
 
 .login {
-	position:absolute;
-	top: 50%;
-	left: 50%;
-	margin-top: -3em; 
-	margin-left: -4em;
-	width: 250px;
+  position:absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -3em; 
+  margin-left: -4em;
+  width: 250px;
 }
 
 .login label {
-	font-weight: bold;
-	padding-right: 5px;
+  font-weight: bold;
+  padding-right: 5px;
 }
 
 .captcha {
-	font-style: italic;
-	font-size: small;
-	padding-top: 10px;
-	width: 200px;
-	margin: 5px auto;
+  font-style: italic;
+  font-size: small;
+  padding-top: 10px;
+  width: 200px;
+  margin: 5px auto;
 }
 
 .captcha canvas {
-	background: #F3F9FF;
+  background: #F3F9FF;
 }
 
 .calendar {
-	width: 750px;
-	margin: 50px auto;
+  width: 750px;
+  margin: 50px auto;
 }
 
 .cell {
-	white-space: nowrap;
-	font-size: 10pt;
-	text-align: left;
-        overflow: hidden;
-        text-overflow: ellipsis;    
+  white-space: nowrap;
+  font-size: 10pt;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;    
 }
 
 .cell span {
-	display: block;
+  display: block;
 }
 
 .cell-header {
-	font-weight: bold;
-	background-color: #C3D9FF;
-	color: black;
-        padding: 0px 3px;
+  font-weight: bold;
+  background-color: #C3D9FF;
+  color: black;
+  padding: 0px 3px;
 }
 
 .cell-extra {
-	color: blue;
-	text-decoration: underline;
-	text-align: center;
+  color: blue;
+  text-decoration: underline;
+  text-align: center;
 }
 
 /* This is needed for IE6 */
 body {
-	height: 100%;
+  height: 100%;
 }
 
 /* This is needed for IE8 */
 html {
-	height: 100%;
+  height: 100%;
 }
 

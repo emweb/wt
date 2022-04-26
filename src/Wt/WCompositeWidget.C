@@ -301,7 +301,7 @@ WT_USTRING WCompositeWidget::styleClass() const
 }
 
 void WCompositeWidget::addStyleClass(const WT_USTRING& styleClass,
-				     bool force)
+                                     bool force)
 {
   impl_->addStyleClass(styleClass, force);
 }
@@ -312,7 +312,7 @@ void WCompositeWidget::addStyleClass(const char *styleClass, bool force)
 }
 
 void WCompositeWidget::removeStyleClass(const WT_USTRING& styleClass,
-					bool force)
+                                        bool force)
 {
   impl_->removeStyleClass(styleClass, force);
 }
@@ -328,11 +328,11 @@ bool WCompositeWidget::hasStyleClass(const WT_USTRING& styleClass) const
 }
 
 void WCompositeWidget::setVerticalAlignment(AlignmentFlag alignment,
-					    const WLength& length)
+                                            const WLength& length)
 {
   if (AlignHorizontalMask.test(alignment)) {
     LOG_ERROR("setVerticalAlignment(): alignment "
-	      << static_cast<unsigned int>(alignment) << "is not vertical");
+              << static_cast<unsigned int>(alignment) << "is not vertical");
   }
   impl_->setVerticalAlignment(alignment, length);
 }
@@ -398,7 +398,7 @@ bool WCompositeWidget::needsToBeRendered() const
 }
 
 void WCompositeWidget::setAttributeValue(const std::string& name,
-					 const WT_USTRING& value)
+                                         const WT_USTRING& value)
 {
   impl_->setAttributeValue(name, value);
 }
@@ -409,7 +409,7 @@ WT_USTRING WCompositeWidget::attributeValue(const std::string& name) const
 }
 
 void WCompositeWidget::setJavaScriptMember(const std::string& name,
-					   const std::string& value)
+                                           const std::string& value)
 {
   impl_->setJavaScriptMember(name, value);
 }
@@ -420,7 +420,7 @@ std::string WCompositeWidget::javaScriptMember(const std::string& name) const
 }
 
 void WCompositeWidget::callJavaScriptMember(const std::string& name,
-					    const std::string& args)
+                                            const std::string& args)
 {
   impl_->callJavaScriptMember(name, args);
 }
@@ -492,11 +492,11 @@ std::unique_ptr<WWidget> WCompositeWidget::takeImplementation()
 }
 
 void WCompositeWidget::getSDomChanges(std::vector<DomElement *>& result,
-				      WApplication *app)
+                                      WApplication *app)
 {
   if (needsToBeRendered())
     render(impl_->isRendered() || !WWebWidget::canOptimizeUpdates()
-	   ? RenderFlag::Update : RenderFlag::Full);
+           ? RenderFlag::Update : RenderFlag::Full);
 
   impl_->getSDomChanges(result, app);
 }

@@ -29,28 +29,28 @@ WPolygonArea::WPolygonArea(const std::vector<WPointF>& points)
 void WPolygonArea::addPoint(int x, int y)
 {
   points_.push_back(WPointF(x, y));
-  
+
   repaint();
 }
 
 void WPolygonArea::addPoint(double x, double y)
 {
   points_.push_back(WPointF(x, y));
-  
+
   repaint();
 }
 
 void WPolygonArea::addPoint(const WPoint& point)
 {
   points_.push_back(WPointF(point.x(), point.y()));
-  
+
   repaint();
 }
 
 void WPolygonArea::addPoint(const WPointF& point)
 {
   points_.push_back(point);
-               
+
   repaint();
 }
 
@@ -59,7 +59,7 @@ void WPolygonArea::setPoints(const std::vector<WPoint>& points)
   points_.clear();
   for (unsigned i = 0; i < points.size(); ++i)
     addPoint(points[i]);
-  
+
   repaint();
 }
 

@@ -125,23 +125,23 @@ std::unique_ptr<WWidget> WtHome::examples()
   // The call ->setPathComponent() is to use "/examples/" instead of
   // "/examples/hello_world" as internal path
   examplesMenu_->addTab(wrapView(&WtHome::helloWorldExample),
-			tr("hello-world"))->setPathComponent("");
+                        tr("hello-world"))->setPathComponent("");
   examplesMenu_->addTab(wrapView(&WtHome::widgetGalleryExample),
-			tr("widget-gallery"));
+                        tr("widget-gallery"));
   examplesMenu_->addTab(wrapView(&WtHome::chartExample),
-  			tr("charts"));
+                          tr("charts"));
   examplesMenu_->addTab(wrapView(&WtHome::homepageExample),
-			tr("wt-homepage"));
+                        tr("wt-homepage"));
   examplesMenu_->addTab(wrapView(&WtHome::treeviewExample),
-			tr("treeview"));
+                        tr("treeview"));
   examplesMenu_->addTab(wrapView(&WtHome::gitExample),
-			tr("git"));
+                        tr("git"));
   examplesMenu_->addTab(wrapView(&WtHome::chatExample),
-			tr("chat"));
+                        tr("chat"));
   examplesMenu_->addTab(wrapView(&WtHome::composerExample),
-			tr("mail-composer"));
+                        tr("mail-composer"));
   examplesMenu_->addTab(wrapView(&WtHome::hangmanExample),
-			tr("hangman"));
+                        tr("hangman"));
 
   // Enable internal paths for the example menu
   examplesMenu_->setInternalPathEnabled("/examples");

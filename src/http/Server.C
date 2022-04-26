@@ -89,10 +89,10 @@ namespace {
                         Wt::AsioWrapper::error_code errc) {
     Wt::AsioWrapper::system_error e{errc};
     std::stringstream ss;
-    ss << "Error occurred when binding to " 
-       << ep.address().to_string() 
+    ss << "Error occurred when binding to "
+       << ep.address().to_string()
        << ":"
-       << ep.port() 
+       << ep.port()
        << std::endl
        << e.what();
     return ss.str();
@@ -244,15 +244,15 @@ void Server::start()
 
     ssl_context_.use_certificate_chain_file(config_.sslCertificateChainFile());
     ssl_context_.use_private_key_file(config_.sslPrivateKeyFile(),
-				      asio::ssl::context::pem);
+                                      asio::ssl::context::pem);
     ssl_context_.use_tmp_dh_file(config_.sslTmpDHFile());
-    
+
     SSL_CTX *native_ctx = nativeContext(ssl_context_);
-    
+
 #if defined(SSL_CTX_set_ecdh_auto)
       SSL_CTX_set_ecdh_auto(native_ctx, 1);
 #endif
-    
+
     if (!config_.sslCipherList().empty()) {
       if (!SSL_CTX_set_cipher_list(native_ctx, config_.sslCipherList().c_str())) {
         throw Wt::WServer::Exception(
@@ -260,7 +260,7 @@ void Server::start()
           + config_.sslCipherList());
       }
     }
-    
+
     if (config_.sslPreferServerCiphers()) {
       SSL_CTX_set_options(native_ctx, SSL_OP_CIPHER_SERVER_PREFERENCE);
     }
@@ -528,9 +528,9 @@ void Server::startConnect()
 {
   parentSocket_->async_connect
     (asio::ip::tcp::endpoint(asio::ip::address_v4::loopback(),
-			     config_.parentPort()),
+                             config_.parentPort()),
      std::bind(&Server::handleConnected, this,
-	       std::placeholders::_1));
+               std::placeholders::_1));
 }
 
 void Server
@@ -548,7 +548,7 @@ void Server
                                         buf, std::placeholders::_1));
   } else {
     LOG_ERROR_S(&wt_, "child process couldn't connect to parent to "
-		"send listening port: " << err.message());
+                "send listening port: " << err.message());
   }
 }
 
@@ -558,7 +558,7 @@ void Server
 {
   if (err) {
     LOG_ERROR_S(&wt_, "child process couldn't send message to parent: "
-		<< err.message());
+                << err.message());
     closeParentConnection();
   }
 }
@@ -603,7 +603,7 @@ void Server::handleResume()
     ssl_listeners_[i].acceptor.close();
   ssl_listeners_.clear();
 #endif // HTTP_WITH_SSL
-  
+
   start();
 }
 
@@ -682,14 +682,14 @@ void Server::expireSessions(Wt::AsioWrapper::error_code ec)
   if (!ec) {
     bool haveMoreSessions = wt_.expireSessions();
     if (!haveMoreSessions &&
-	wt_.configuration().sessionPolicy() == Wt::Configuration::DedicatedProcess &&
-	config_.parentPort() != -1)
+        wt_.configuration().sessionPolicy() == Wt::Configuration::DedicatedProcess &&
+        config_.parentPort() != -1)
       wt_.scheduleStop();
     else {
       expireSessionsTimer_.expires_from_now
         (std::chrono::seconds(SESSION_EXPIRE_INTERVAL));
       expireSessionsTimer_.async_wait
-	(std::bind(&Server::expireSessions, this, std::placeholders::_1));
+        (std::bind(&Server::expireSessions, this, std::placeholders::_1));
     }
   } else if (ec != asio::error::operation_aborted) {
     LOG_ERROR_S(&wt_, "session expiration timer got an error: " << ec.message());

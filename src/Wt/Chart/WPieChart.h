@@ -57,7 +57,7 @@ W_DECLARE_OPERATORS_FOR_FLAGS(LabelOption)
  *
  * Styling through CSS is not applicable.
  *
- * \image html ChartWPieChart-1.png "Example of a pie chart" 
+ * \image html ChartWPieChart-1.png "Example of a pie chart"
  *
  * \sa WCartesianChart
  *
@@ -89,7 +89,7 @@ public:
 
   /*! \brief Sets the model column that holds the data.
    *
-   * \if cpp 
+   * \if cpp
    * The data column should contain data that can be converted to
    * a number, but should not necessarily be of a number type, see
    * also asNumber(const boost::any&).
@@ -238,19 +238,19 @@ public:
   void setLabelFormat(const WString& format);
 
   /*! \brief Returns the label format string.
-   * 
+   *
    * \sa setLabelFormat()
    */
   WString labelFormat() const;
 
   /*! \brief Creates a widget which renders the a legend item.
-   * 
+   *
    * Depending on the passed LabelOption flags, the legend item widget,
    * will contain a text (with or without the percentage) and/or a span with
    * the segment's color.
    */
   std::unique_ptr<WWidget> createLegendItemWidget(int index,
-						  WFlags<LabelOption> options);
+                                                  WFlags<LabelOption> options);
 
   /*! \brief Adds a data point area (used for displaying e.g. tooltips).
    *
@@ -352,13 +352,13 @@ protected:
 
 private:
   void drawPie(WPainter& painter, double cx, double cy, double r, double h,
-	       double total) const;
+               double total) const;
   void drawSlices(WPainter& painter, double cx, double cy, double r,
-		  double total, bool ignoreBrush) const;
+                  double total, bool ignoreBrush) const;
   void drawSide(WPainter& painter, double pcx, double pcy, double r,
-		double angle, double h) const;
+                double angle, double h) const;
   void drawOuter(WPainter& painter, double pcx, double pcy, double r,
-		 double a1, double a2, double h) const;
+                 double a1, double a2, double h) const;
 
   void setShadow(WPainter& painter) const;
 
@@ -367,8 +367,8 @@ private:
 
   static WBrush darken(const WBrush& brush);
 
-  WString labelText(int index, double v, double total, 
-		    WFlags<LabelOption> options) const;
+  WString labelText(int index, double v, double total,
+                    WFlags<LabelOption> options) const;
 };
 
   }

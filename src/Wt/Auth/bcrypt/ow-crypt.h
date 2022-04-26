@@ -25,14 +25,14 @@
 extern char *wt_crypt(__const char *key, __const char *setting);
 extern char *wt_crypt_r(__const char *key, __const char *setting, void *data);
 extern char *wt_crypt_rn(__const char *key, __const char *setting,
-	void *data, int size);
+        void *data, int size);
 extern char *wt_crypt_ra(__const char *key, __const char *setting,
-	void **data, int *size);
+        void **data, int *size);
 extern char *wt_crypt_gensalt(__const char *prefix, unsigned long count,
-	__const char *input, int size);
+        __const char *input, int size);
 extern char *wt_crypt_gensalt_rn(__const char *prefix, unsigned long count,
-	__const char *input, int size, char *output, int output_size);
+        __const char *input, int size, char *output, int output_size);
 extern char *wt_crypt_gensalt_ra(__const char *prefix, unsigned long count,
-	__const char *input, int size);
+        __const char *input, int size);
 
 #endif

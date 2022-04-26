@@ -133,7 +133,7 @@ void WLayout::itemAdded(WLayoutItem *item)
 }
 
 void WLayout::itemRemoved(WLayoutItem *item)
-{  
+{
   if (impl_)
     impl_->itemRemoved(item);
 
@@ -158,7 +158,7 @@ WWidgetItem *WLayout::findWidgetItem(WWidget *widget)
       WWidgetItem *result = item->findWidgetItem(widget);
 
       if (result)
-	return result;
+        return result;
     }
   }
 

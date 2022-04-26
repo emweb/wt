@@ -84,8 +84,8 @@ const std::string StdWidgetItemImpl::id() const
 }
 
 DomElement *StdWidgetItemImpl::createDomElement(DomElement *parent,
-						bool fitWidth, bool fitHeight,
-						WApplication *app)
+                                                bool fitWidth, bool fitHeight,
+                                                WApplication *app)
 {
   WWidget *w = item_->widget();
 
@@ -103,7 +103,7 @@ DomElement *StdWidgetItemImpl::createDomElement(DomElement *parent,
   }
 
   // FIXME IE9 does border-box perhaps ?
-  if (!app->environment().agentIsIElt(9) && 
+  if (!app->environment().agentIsIElt(9) &&
       w->javaScriptMember(WWidget::WT_RESIZE_JS).empty() &&
       d->type() != DomElementType::TABLE /* buggy in Chrome, see #1856 */ &&
       app->theme()->canBorderBoxElement(*d))

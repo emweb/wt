@@ -49,7 +49,7 @@ class BlogImpl : public Wt::WContainerWidget
 {
 public:
   BlogImpl(const std::string& basePath, dbo::SqlConnectionPool& connectionPool,
-	   const std::string& rssFeedUrl, BlogView *blogView)
+           const std::string& rssFeedUrl, BlogView *blogView)
     : basePath_(basePath),
       rssFeedUrl_(rssFeedUrl),
       session_(connectionPool),
@@ -88,7 +88,7 @@ public:
     auto registerLink = std::make_unique<Wt::WText>(tr("Wt.Auth.register"));
     registerLink->setStyleClass("link");
     registerLink->clicked().connect(loginWidget_,
-				    &BlogLoginWidget::registerNewUser);
+                                    &BlogLoginWidget::registerNewUser);
 
     auto archiveLink
         = std::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath, basePath_ + "all"),
@@ -150,7 +150,7 @@ private:
     loginStatus_->resolveWidget("login")->hide();
     loginStatus_->resolveWidget("login-link")->show();
     loginStatus_->resolveWidget("register-link")->show();
-    
+
     refresh();
     panel_->hide();
   }
@@ -184,9 +184,9 @@ private:
       loginStatus_->bindEmpty("userlist-link");
       loginStatus_->bindEmpty("author-panel-link");
     }
- 
+
     loginStatus_->bindWidget("profile-link", std::move(profileLink));
- 
+
     bindPanelTemplates();
   }
 
@@ -204,18 +204,18 @@ private:
 
       authorPanel_->bindString("user", session_.user()->name);
       authorPanel_->bindInt("unpublished-count",
-			    (int)session_.user()->allPosts(Post::Unpublished)
-			    .size());
+                            (int)session_.user()->allPosts(Post::Unpublished)
+                            .size());
       authorPanel_->bindInt("published-count",
-			    (int)session_.user()->allPosts(Post::Published)
-			    .size());
+                            (int)session_.user()->allPosts(Post::Published)
+                            .size());
       authorPanel_->bindWidget("new-post", std::move(newPost));
       authorPanel_->bindWidget("unpublished-posts", std::move(unpublishedPosts));
     }
 
     t.commit();
   }
- 
+
   void editUsers() {
     panel_->show();
 
@@ -259,30 +259,30 @@ private:
       items_->clear();
 
       if (users_) {
-	users_ = 0;
+        users_ = 0;
       }
 
       if (path.empty())
-	showPosts(session_.find<Post>
-		  ("where state = ? "
-		   "order by date desc "
-		   "limit 10").bind(Post::Published), items_);
+        showPosts(session_.find<Post>
+                  ("where state = ? "
+                   "order by date desc "
+                   "limit 10").bind(Post::Published), items_);
 
       else if (path == "author") {
-	std::string author = app->internalPathNextPart(basePath_ + path + '/');
-	dbo::ptr<User> user = findUser(author);
+        std::string author = app->internalPathNextPart(basePath_ + path + '/');
+        dbo::ptr<User> user = findUser(author);
 
-	if (user)
-	  showPosts(user);
-	else
-	  showError(tr("blog-no-author").arg(author));
+        if (user)
+          showPosts(user);
+        else
+          showError(tr("blog-no-author").arg(author));
       } else if (path == "edituser") {
-	editUser(app->internalPathNextPart(basePath_ + path + '/'));
+        editUser(app->internalPathNextPart(basePath_ + path + '/'));
       } else if (path == "all") {
-	showArchive(items_);
+        showArchive(items_);
       } else {
-	std::string remainder = app->internalPath().substr(basePath_.length());
-	showPostsByDateTopic(remainder, items_);
+        std::string remainder = app->internalPath().substr(basePath_.length());
+        showPostsByDateTopic(remainder, items_);
       }
 
       t.commit();
@@ -340,7 +340,7 @@ private:
   dbo::ptr<User> findUser(const std::string& name) {
     return session_.find<User>("where name = ?").bind(name);
   }
-  
+
   bool yearMonthDiffer(const Wt::WDateTime& dt1, const Wt::WDateTime& dt2) {
     return dt1.date().year() != dt2.date().year()
       || dt1.date().month() != dt2.date().month();
@@ -348,7 +348,7 @@ private:
 
   void showArchive(WContainerWidget *parent) {
     static const char* dateFormat = "MMMM yyyy";
-    
+
     parent->addWidget(std::make_unique<Wt::WText>(tr("archive-title")));
 
     Posts posts = session_.find<Post>("order by date desc");
@@ -356,27 +356,27 @@ private:
     Wt::WDateTime formerDate;
     for (auto post : posts) {
       if (post->state != Post::Published)
-	continue;
+        continue;
 
-      if (formerDate.isNull() 
+      if (formerDate.isNull()
           || yearMonthDiffer(formerDate, post->date)) {
         Wt::WText *title
           = parent->addWidget(std::make_unique<Wt::WText>(post->date.date().toString(dateFormat)));
-	title->setStyleClass("archive-month-title");
+        title->setStyleClass("archive-month-title");
       }
-      
+
       Wt::WAnchor *a = parent->addWidget(std::make_unique<Wt::WAnchor>(
                                        Wt::WLink(Wt::LinkType::InternalPath,
                                        basePath_ + post->permaLink()),
                                        post->title));
       a->setInline(false);
-      
+
       formerDate = post->date;
     }
   }
 
   void showPostsByDateTopic(const std::string& path,
-			    WContainerWidget *parent) {
+                            WContainerWidget *parent) {
     std::vector<std::string> parts;
     boost::split(parts, path, boost::is_any_of("/"));
 
@@ -420,8 +420,8 @@ private:
       for (auto post : posts)
         if (post->titleToUrl() == title) {
           showPost(post, PostView::Detail, parent);
-	  return;
-	}
+          return;
+        }
 
       showError(tr("blog-no-post"));
     } else {
@@ -460,7 +460,7 @@ private:
   }
 
   void showPost(const dbo::ptr<Post> post, PostView::RenderType type,
-		WContainerWidget *parent) {
+                WContainerWidget *parent) {
     parent->addWidget(std::make_unique<PostView>(session_, basePath_, post, type));
   }
 

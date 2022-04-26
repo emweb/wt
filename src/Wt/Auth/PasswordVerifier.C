@@ -55,7 +55,7 @@ PasswordHash PasswordVerifier::hashPassword(const WString& password) const
 }
 
 bool PasswordVerifier::verify(const WString& password,
-			      const PasswordHash& hash) const
+                              const PasswordHash& hash) const
 {
   for (unsigned i = 0; i < hashFunctions_.size(); ++i) {
     const HashFunction& f = *hashFunctions_[i];

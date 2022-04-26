@@ -139,7 +139,7 @@ public:
    *        LengthUnit::ViewportMax), a percentage of the font size is used.
    */
   double toPixels(double fontSize = 16.0) const;
-  
+
 private:
   bool auto_;
   LengthUnit unit_;

@@ -67,7 +67,7 @@ bool WFont::operator!=(const WFont& other) const
 }
 
 void WFont::setFamily(FontFamily genericFamily,
-		      const WString& specificFamilies)
+                      const WString& specificFamilies)
 {
   genericFamily_ = genericFamily;
   specificFamilies_ = specificFamilies;
@@ -149,18 +149,18 @@ FontSize WFont::size(double mediumSize) const
       return FontSize::Medium;
     else if (pixels > mediumSize) {
       if (pixels < 1.2 * 1.19 * mediumSize)
-	return FontSize::Large;
+        return FontSize::Large;
       else if (pixels < 1.2 * 1.2 * 1.19 * mediumSize)
-	return FontSize::XLarge;
+        return FontSize::XLarge;
       else
-	return FontSize::XXLarge;
+        return FontSize::XXLarge;
     } else {
       if (pixels > mediumSize / 1.2 / 1.19)
-	return FontSize::Small;
+        return FontSize::Small;
       else if (pixels > mediumSize / 1.2 / 1.2 / 1.19)
-	return FontSize::XSmall;
+        return FontSize::XSmall;
       else
-	return FontSize::XXSmall;
+        return FontSize::XXSmall;
     }
   }
 }
@@ -183,7 +183,7 @@ WLength WFont::sizeLength(double mediumSize) const
   case FontSize::XLarge:
     return WLength(mediumSize * 1.2 * 1.2);
   case FontSize::XXLarge:
-    return WLength(mediumSize * 1.2 * 1.2 * 1.2);    
+    return WLength(mediumSize * 1.2 * 1.2 * 1.2);
   case FontSize::Smaller:
     return WLength(1 / 1.2, LengthUnit::FontEm);
   case FontSize::Larger:

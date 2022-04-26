@@ -19,9 +19,9 @@ public:
   CalendarCell();
 
   void update(const dbo::ptr<UserAccount>& user, const WDate& date);
-  
+
   WDate date() {return date_; }
-  dbo::ptr<UserAccount> user() { return user_; }  
+  dbo::ptr<UserAccount> user() { return user_; }
 
 private:
   WDate date_;

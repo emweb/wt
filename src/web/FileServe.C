@@ -76,64 +76,64 @@ void FileServe::streamUntil(WStringStream& out, const std::string& until)
 
     if (readingVar) {
       if (std::strncmp(s, "_$_", 3) == 0) {
-	if (currentVar[0] == '$') {
-	  std::size_t _pos = currentVar.find('_');
-	  std::string fname = currentVar.substr(1, _pos - 1);
+        if (currentVar[0] == '$') {
+          std::size_t _pos = currentVar.find('_');
+          std::string fname = currentVar.substr(1, _pos - 1);
 
-	  currentPos_ += 2; // skip ()
+          currentPos_ += 2; // skip ()
 
-	  if (fname == "endif") {
-	    if (noMatchConditions)
-	      --noMatchConditions;
-	  } else {
-	    std::string farg = currentVar.substr(_pos + 1);
+          if (fname == "endif") {
+            if (noMatchConditions)
+              --noMatchConditions;
+          } else {
+            std::string farg = currentVar.substr(_pos + 1);
 
-	    std::map<std::string, bool>::const_iterator
-	      i = conditions_.find(farg);
+            std::map<std::string, bool>::const_iterator
+              i = conditions_.find(farg);
 
-	    if (i == conditions_.end())
-	      throw WException("Internal error: could not find condition: "
-			       + farg);
-	    bool c = i->second;
+            if (i == conditions_.end())
+              throw WException("Internal error: could not find condition: "
+                               + farg);
+            bool c = i->second;
 
-	    if (fname == "if")
-	      ;
-	    else if (fname == "ifnot")
-	      c = !c;
+            if (fname == "if")
+              ;
+            else if (fname == "ifnot")
+              c = !c;
 
-	    if (!c || noMatchConditions)
-	      ++noMatchConditions;
-	  }
-	} else {
-	  if (currentVar == until) {
-	    currentPos_ += 3;
-	    return;
-	  }
+            if (!c || noMatchConditions)
+              ++noMatchConditions;
+          }
+        } else {
+          if (currentVar == until) {
+            currentPos_ += 3;
+            return;
+          }
 
-	  std::map<std::string, std::string>::const_iterator i
-	    = vars_.find(currentVar);
+          std::map<std::string, std::string>::const_iterator i
+            = vars_.find(currentVar);
 
-	  if (i == vars_.end())
-	    throw WException("Internal error: could not find variable: "
-			     + currentVar);
+          if (i == vars_.end())
+            throw WException("Internal error: could not find variable: "
+                             + currentVar);
 
-	  if (!noMatchConditions)
-	    out << i->second;
-	}
+          if (!noMatchConditions)
+            out << i->second;
+        }
 
-	readingVar = false;
-	start = currentPos_ + 3;
-	currentPos_ += 2;
+        readingVar = false;
+        start = currentPos_ + 3;
+        currentPos_ += 2;
       } else
-	currentVar.push_back(*s);
+        currentVar.push_back(*s);
     } else {
       if (std::strncmp(s, "_$_", 3) == 0) {
-	if (!noMatchConditions && (currentPos_ - start > 0))
-	  out.append(template_ + start, currentPos_ - start);
+        if (!noMatchConditions && (currentPos_ - start > 0))
+          out.append(template_ + start, currentPos_ - start);
 
-	currentPos_ += 2;
-	readingVar = true;
-	currentVar.clear();
+        currentPos_ += 2;
+        readingVar = true;
+        currentVar.clear();
       }
     }
   }

@@ -39,7 +39,7 @@ WColor::WColor(const WString& name)
     blue_(-1),
     alpha_(255),
     name_(name)
-{ 
+{
   WColor c = Wt::Color::parseCssColor(name.toUTF8());
   this->setRgb(c.red(), c.green(), c.blue(), c.alpha());
   // setRgb() erases name_
@@ -73,11 +73,11 @@ WColor::WColor(StandardColor name)
 bool WColor::operator==(const WColor& other) const
 {
   return ((default_ == other.default_)
-	  && (red_ == other.red_)
-	  && (green_ == other.green_)
-	  && (blue_ == other.blue_)
-	  && (alpha_ == other.alpha_)
-	  && (name_ == other.name_));
+          && (red_ == other.red_)
+          && (green_ == other.green_)
+          && (blue_ == other.blue_)
+          && (alpha_ == other.alpha_)
+          && (name_ == other.name_));
 }
 
 bool WColor::operator!=(const WColor& other) const
@@ -152,12 +152,12 @@ const std::string WColor::cssText(bool withAlpha) const
 #endif
 
       if (alpha_ != 255 && withAlpha) {
-	s << "rgba(" << red_
-	  << ',' << green_
-	  << ',' << blue_
-	  << ',' << Utils::round_css_str(alpha_ / 255., 2, buf) << ')';
-      }	else
-	s << "rgb(" << red_ << ',' << green_ << ',' << blue_ << ')';
+        s << "rgba(" << red_
+          << ',' << green_
+          << ',' << blue_
+          << ',' << Utils::round_css_str(alpha_ / 255., 2, buf) << ')';
+      }        else
+        s << "rgb(" << red_ << ',' << green_ << ',' << blue_ << ')';
 
       return s.c_str();
     }

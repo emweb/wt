@@ -176,8 +176,8 @@ void AttachmentEdit::remove()
 void AttachmentEdit::fileTooLarge(::int64_t size)
 {
   error_->setText(tr("msg.file-too-large")
-		  .arg(size / 1024)
-		  .arg(WApplication::instance()->maximumRequestSize() / 1024));
+                  .arg(size / 1024)
+                  .arg(WApplication::instance()->maximumRequestSize() / 1024));
   uploadFailed_ = true;
 
   /*
@@ -195,9 +195,9 @@ std::vector<Attachment> AttachmentEdit::attachments()
       Http::UploadedFile& f = uploadInfo_[i]->info_;
       f.stealSpoolFile();
       result.push_back(Attachment
-		       (WString(f.clientFileName()),
-			WString(f.contentType()),
-			f.spoolFileName()));
+                       (WString(f.clientFileName()),
+                        WString(f.contentType()),
+                        f.spoolFileName()));
     }
   }
 

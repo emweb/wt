@@ -32,7 +32,7 @@ namespace {
       return 360.0;
     else if (d < -360.0)
       return -360.0;
-    else 
+    else
       return d;
   }
 
@@ -47,7 +47,7 @@ int WSvgImage::nextClipId_ = 0;
 int WSvgImage::nextGradientId_ = 0;
 
 WSvgImage::WSvgImage(const WLength& width, const WLength& height,
-		     bool paintUpdate)
+                     bool paintUpdate)
   : width_(width),
     height_(height),
     painter_(nullptr),
@@ -81,7 +81,7 @@ WFlags<PaintDeviceFeatureFlag> WSvgImage::features() const
 }
 
 void WSvgImage::init()
-{ 
+{
   currentBrush_ = painter()->brush();
   currentPen_ = painter()->pen();
   currentFont_ = painter()->font();
@@ -109,17 +109,17 @@ void WSvgImage::drawArc(const WRectF& rect, double startAngle, double spanAngle)
     makeNewGroup();
 
     shapes_ << "<" SVG "ellipse "
-	    << " cx=\""<< Utils::round_js_str(rect.center().x(), 3, buf);
+            << " cx=\""<< Utils::round_js_str(rect.center().x(), 3, buf);
     shapes_ << "\" cy=\"" << Utils::round_js_str(rect.center().y(), 3, buf);
     shapes_ << "\" rx=\"" << Utils::round_js_str(rect.width() / 2, 3, buf);
     shapes_ << "\" ry=\"" << Utils::round_js_str(rect.height() / 2, 3, buf)
-	    << "\" />";
+            << "\" />";
   } else {
     WPainterPath path;
 
     path.arcMoveTo(rect.x(), rect.y(), rect.width(), rect.height(), startAngle);
     path.arcTo(rect.x(), rect.y(), rect.width(), rect.height(), startAngle,
-	       spanAngle);
+               spanAngle);
 
     drawPath(path);
   }
@@ -141,16 +141,16 @@ void WSvgImage::makeNewGroup()
   if (!newGroup_)
     return;
 
-  bool brushChanged = 
+  bool brushChanged =
     changeFlags_.test(PainterChangeFlag::Brush) &&
     (currentBrush_ != painter()->brush());
 
   bool penChanged =
-    changeFlags_.test(PainterChangeFlag::Hints) || 
-    (changeFlags_.test(PainterChangeFlag::Pen) && 
+    changeFlags_.test(PainterChangeFlag::Hints) ||
+    (changeFlags_.test(PainterChangeFlag::Pen) &&
      (currentPen_ != painter()->pen()));
-  bool fontChanged = 
-    changeFlags_.test(PainterChangeFlag::Font) && 
+  bool fontChanged =
+    changeFlags_.test(PainterChangeFlag::Font) &&
     (currentFont_ != painter()->font());
   bool shadowChanged = false;
 
@@ -169,48 +169,48 @@ void WSvgImage::makeNewGroup()
       WTransform f = painter()->combinedTransform();
 
       if (busyWithPath_) {
-	if (fequal(f.m11(), currentTransform_.m11()) &&
-	    fequal(f.m12(), currentTransform_.m12()) &&
-	    fequal(f.m21(), currentTransform_.m21()) &&
-	    fequal(f.m22(), currentTransform_.m22())) {
+        if (fequal(f.m11(), currentTransform_.m11()) &&
+            fequal(f.m12(), currentTransform_.m12()) &&
+            fequal(f.m21(), currentTransform_.m21()) &&
+            fequal(f.m22(), currentTransform_.m22())) {
 
-	  /*
-	   * Invert scale/rotate to compute the delta needed
-	   * before applying these transformations to get the
-	   * same as the global translation.
-	   */
-	  double det = f.m11() * f.m22() - f.m12() * f.m21();
-	  double a11 = f.m22() / det;
-	  double a12 = -f.m12() / det;
-	  double a21 = -f.m21() / det;
-	  double a22 = f.m11() / det;
+          /*
+           * Invert scale/rotate to compute the delta needed
+           * before applying these transformations to get the
+           * same as the global translation.
+           */
+          double det = f.m11() * f.m22() - f.m12() * f.m21();
+          double a11 = f.m22() / det;
+          double a12 = -f.m12() / det;
+          double a21 = -f.m21() / det;
+          double a22 = f.m11() / det;
 
-	  double fdx = f.dx() * a11 + f.dy() * a21;
-	  double fdy = f.dx() * a12 + f.dy() * a22;
+          double fdx = f.dx() * a11 + f.dy() * a21;
+          double fdy = f.dx() * a12 + f.dy() * a22;
 
-	  const WTransform& g = currentTransform_;
+          const WTransform& g = currentTransform_;
 
-	  double gdx = g.dx() * a11 + g.dy() * a21;
-	  double gdy = g.dx() * a12 + g.dy() * a22;
+          double gdx = g.dx() * a11 + g.dy() * a21;
+          double gdy = g.dx() * a12 + g.dy() * a22;
 
-	  double dx = fdx - gdx;
-	  double dy = fdy - gdy;
+          double dx = fdx - gdx;
+          double dy = fdy - gdy;
 
-	  pathTranslation_.setX(dx);
-	  pathTranslation_.setY(dy);
+          pathTranslation_.setX(dx);
+          pathTranslation_.setY(dy);
 
-	  changeFlags_ = None;
+          changeFlags_ = None;
 
-	  return;
-	}
+          return;
+        }
       } else {
-	if (!fontChanged && currentTransform_ == f) {
-	  newGroup_ = false;
+        if (!fontChanged && currentTransform_ == f) {
+          newGroup_ = false;
 
-	  changeFlags_ = None;
+          changeFlags_ = None;
 
-	  return;
-	}
+          return;
+        }
       }
     }
   }
@@ -230,7 +230,7 @@ void WSvgImage::makeNewGroup()
     if (painter()->hasClipping()) {
       currentClipId_ = nextClipId_++;
       shapes_ << "<" SVG "defs><" SVG "clipPath id=\"clip"
-	      << currentClipId_ << "\">";
+              << currentClipId_ << "\">";
 
       drawPlainPath(shapes_, painter()->clipPath());
 
@@ -239,14 +239,14 @@ void WSvgImage::makeNewGroup()
 
       const WTransform& t = painter()->clipPathTransform();
       if (!t.isIdentity()) {
-	shapes_ << " transform=\"matrix("
-		<<        Utils::round_js_str(t.m11(), 3, buf);
-	shapes_ << ' ' << Utils::round_js_str(t.m12(), 3, buf);
-	shapes_ << ' ' << Utils::round_js_str(t.m21(), 3, buf);
-	shapes_ << ' ' << Utils::round_js_str(t.m22(), 3, buf);
-	shapes_ << ' ' << Utils::round_js_str(t.m31(), 3, buf);
-	shapes_ << ' ' << Utils::round_js_str(t.m32(), 3, buf)
-		<< ")\"";
+        shapes_ << " transform=\"matrix("
+                <<        Utils::round_js_str(t.m11(), 3, buf);
+        shapes_ << ' ' << Utils::round_js_str(t.m12(), 3, buf);
+        shapes_ << ' ' << Utils::round_js_str(t.m21(), 3, buf);
+        shapes_ << ' ' << Utils::round_js_str(t.m22(), 3, buf);
+        shapes_ << ' ' << Utils::round_js_str(t.m31(), 3, buf);
+        shapes_ << ' ' << Utils::round_js_str(t.m32(), 3, buf)
+                << ")\"";
       }
       shapes_ << "/></" SVG "clipPath></" SVG "defs>";
     }
@@ -255,13 +255,13 @@ void WSvgImage::makeNewGroup()
 
     if (shadowChanged) {
       if (!painter()->shadow().none()) {
-	if (painter()->shadow() != currentShadow_) {
-	  currentShadow_ = painter()->shadow();
-	  currentShadowId_ = createShadowFilter(shapes_);
-	} else
-	  currentShadowId_ = nextShadowId_;
+        if (painter()->shadow() != currentShadow_) {
+          currentShadow_ = painter()->shadow();
+          currentShadowId_ = createShadowFilter(shapes_);
+        } else
+          currentShadowId_ = nextShadowId_;
       } else
-	currentShadowId_ = -1;
+        currentShadowId_ = -1;
     }
 
     shapes_ << "<" SVG "g";
@@ -302,21 +302,21 @@ void WSvgImage::makeNewGroup()
   }
 
   shapes_ << "<" SVG "g style=\""
-	  << fillStyle_ << strokeStyle_ << fontStyle_ << '"';
+          << fillStyle_ << strokeStyle_ << fontStyle_ << '"';
 
   if (!currentTransform_.isIdentity()) {
     shapes_ << " transform=\"matrix("
-	    << Utils::round_js_str(currentTransform_.m11(), 3, buf);
+            << Utils::round_js_str(currentTransform_.m11(), 3, buf);
     shapes_ << ' ' << Utils::round_js_str(currentTransform_.m12(), 3, buf);
     shapes_ << ' ' << Utils::round_js_str(currentTransform_.m21(), 3, buf);
     shapes_ << ' ' << Utils::round_js_str(currentTransform_.m22(), 3, buf);
     shapes_ << ' ' << Utils::round_js_str(currentTransform_.m31(), 3, buf);
     shapes_ << ' ' << Utils::round_js_str(currentTransform_.m32(), 3, buf)
-	    << ")\"";
+            << ")\"";
   }
 
   shapes_ << '>';
-  
+
   changeFlags_ = None;
 }
 
@@ -361,16 +361,16 @@ void WSvgImage::defineGradient(const WGradient& gradient, int id)
   if (linear) {
     shapes_ << "<linearGradient gradientUnits=\"userSpaceOnUse\" ";
     shapes_ << "x1=\"" << gradient.linearGradientVector().x1() << "\" "
-	    << "y1=\"" << gradient.linearGradientVector().y1() << "\" "
-	    << "x2=\"" << gradient.linearGradientVector().x2() << "\" "
-	    << "y2=\"" << gradient.linearGradientVector().y2() << "\" ";
+            << "y1=\"" << gradient.linearGradientVector().y1() << "\" "
+            << "x2=\"" << gradient.linearGradientVector().x2() << "\" "
+            << "y2=\"" << gradient.linearGradientVector().y2() << "\" ";
   } else {
     shapes_ << "<radialGradient gradientUnits=\"userSpaceOnUse\" ";
     shapes_ << "cx=\"" << gradient.radialCenterPoint().x() << "\" "
-	    << "cy=\"" << gradient.radialCenterPoint().y() << "\" "
-	    << "r=\"" << gradient.radialRadius() << "\" "
-	    << "fx=\"" << gradient.radialFocalPoint().x() << "\" "
-	    << "fy=\"" << gradient.radialFocalPoint().y() << "\" ";
+            << "cy=\"" << gradient.radialCenterPoint().y() << "\" "
+            << "r=\"" << gradient.radialRadius() << "\" "
+            << "fx=\"" << gradient.radialFocalPoint().x() << "\" "
+            << "fy=\"" << gradient.radialFocalPoint().y() << "\" ";
   }
 
   shapes_ << "id=\"gradient" << id << "\">";
@@ -379,16 +379,16 @@ void WSvgImage::defineGradient(const WGradient& gradient, int id)
   for (unsigned i = 0; i < gradient.colorstops().size(); i++) {
     shapes_ << "<stop ";
     std::string offset = std::to_string((int)(gradient.colorstops()[i]
-					      .position()*100));
+                                              .position()*100));
     offset += '%';
     shapes_ << "offset=\"" << offset << "\" ";
     shapes_ << "stop-color=\"" <<
       gradient.colorstops()[i].color().cssText(false)
-	    << "\" ";
+            << "\" ";
     shapes_ << "stop-opacity=\"" <<
       Utils::round_css_str(gradient.colorstops()[i].color().alpha() / 255.,
-			   3, buf)
-	    << "\" ";
+                           3, buf)
+            << "\" ";
     shapes_ << "/>";
   }
 
@@ -428,7 +428,7 @@ void WSvgImage::drawPlainPath(WStringStream& out, const WPainterPath& path)
       const double ry = segments[i+1].y();
       const double theta1 = -WTransform::degreesToRadians(segments[i+2].x());
       const double deltaTheta
-	= -WTransform::degreesToRadians(adjust360(segments[i+2].y()));
+        = -WTransform::degreesToRadians(adjust360(segments[i+2].y()));
 
       i += 2;
 
@@ -448,8 +448,8 @@ void WSvgImage::drawPlainPath(WStringStream& out, const WPainterPath& path)
       const int fs = (deltaTheta > 0 ? 1 : 0);
 
       if (!fequal(current.x(), x1) || !fequal(current.y(), y1)) {
-	out << 'L' << Utils::round_js_str(x1 + pathTranslation_.x(), 3, buf);
-	out << ',' << Utils::round_js_str(y1 + pathTranslation_.y(), 3, buf);
+        out << 'L' << Utils::round_js_str(x1 + pathTranslation_.x(), 3, buf);
+        out << ',' << Utils::round_js_str(y1 + pathTranslation_.y(), 3, buf);
       }
 
       out << 'A' << Utils::round_js_str(rx, 3, buf);
@@ -466,26 +466,26 @@ void WSvgImage::drawPlainPath(WStringStream& out, const WPainterPath& path)
     } else {
       switch (s.type()) {
       case MoveTo:
-	out << 'M';
-	break;
+        out << 'M';
+        break;
       case LineTo:
-	out << 'L';
-	break;
+        out << 'L';
+        break;
       case CubicC1:
-	out << 'C';
-	break;
+        out << 'C';
+        break;
       case CubicC2:
       case CubicEnd:
-	out << ' ';
-	break;
+        out << ' ';
+        break;
       case QuadC:
-	out << 'Q';
-	break;
+        out << 'Q';
+        break;
       case QuadEnd:
-	out << ' ';
-	break;
+        out << ' ';
+        break;
       default:
-	assert(false);
+        assert(false);
       }
 
       out << Utils::round_js_str(s.x() + pathTranslation_.x(), 3, buf);
@@ -529,8 +529,8 @@ void WSvgImage::drawPath(const WPainterPath& path)
 }
 
 void WSvgImage::drawImage(const WRectF& rect, const std::string& imgUri,
-			  int imgWidth, int imgHeight,
-			  const WRectF& srect)
+                          int imgWidth, int imgHeight,
+                          const WRectF& srect)
 {
   finishPath();
   makeNewGroup();
@@ -549,9 +549,9 @@ void WSvgImage::drawImage(const WRectF& rect, const std::string& imgUri,
   if (drect.width() != srect.width()
       || drect.height() != srect.height()) {
     shapes_ << "<" SVG "g transform=\"matrix("
-	    << Utils::round_js_str(drect.width() / srect.width(), 3, buf);
-    shapes_ << " 0 0 " 
-	    << Utils::round_js_str(drect.height() / srect.height(), 3, buf);
+            << Utils::round_js_str(drect.width() / srect.width(), 3, buf);
+    shapes_ << " 0 0 "
+            << Utils::round_js_str(drect.height() / srect.height(), 3, buf);
     shapes_ << ' ' << Utils::round_js_str(drect.x(), 3, buf);
     shapes_ << ' ' << Utils::round_js_str(drect.y(), 3, buf) << ")\">";
 
@@ -607,15 +607,15 @@ void WSvgImage::drawLine(double x1, double y1, double x2, double y2)
   drawPath(path);
 }
 
-void WSvgImage::drawText(const WRectF& rect, 
-			 WFlags<AlignmentFlag> flags,
-			 TextFlag textFlag,
-			 const WString& text,
-			 const WPointF *clipPoint)
+void WSvgImage::drawText(const WRectF& rect,
+                         WFlags<AlignmentFlag> flags,
+                         TextFlag textFlag,
+                         const WString& text,
+                         const WPointF *clipPoint)
 {
   if (clipPoint && painter() && !painter()->clipPath().isEmpty()) {
     if (!painter()->clipPathTransform().map(painter()->clipPath())
-	  .isPointInPath(painter()->worldTransform().map(*clipPoint)))
+          .isPointInPath(painter()->worldTransform().map(*clipPoint)))
       return;
   }
 
@@ -631,9 +631,9 @@ void WSvgImage::drawText(const WRectF& rect,
       || painter()->brush().style() == BrushStyle::None) {
     const WColor& color = painter()->pen().color();
     style << "fill:" + color.cssText(false) << ';'
-	  << "fill-opacity:" 
-	  << Utils::round_css_str(color.alpha() / 255., 3, buf)
-	  << ';';
+          << "fill-opacity:"
+          << Utils::round_css_str(color.alpha() / 255., 3, buf)
+          << ';';
   }
   style << '"';
 
@@ -659,19 +659,19 @@ void WSvgImage::drawText(const WRectF& rect,
     }
 
     shapes_ << "<" SVG "flowRoot " << style.str() << ">\n"
-	    << "  <" SVG "flowRegion>\n"
-	    << "    <" SVG "rect"
-	    <<            " width=\"" << rect.width() << "\""
-	    <<            " height=\"" << rect.height() << "\""
-	    <<            " x=\"" << rect.x() << "\""
-	    <<            " y=\"" << rect.y() << "\""
-	    << "    />\n"
-	    << "  </" SVG "flowRegion>\n"
-	    << "  <" SVG "flowPara"
-	    <<              " text-align=\"" << hAlign << "\">\n"
-	    << " " << WWebWidget::escapeText(text, false).toUTF8() << "\n"
-	    << "  </" SVG "flowPara>\n"
-	    << "</" SVG "flowRoot>\n";
+            << "  <" SVG "flowRegion>\n"
+            << "    <" SVG "rect"
+            <<            " width=\"" << rect.width() << "\""
+            <<            " height=\"" << rect.height() << "\""
+            <<            " x=\"" << rect.x() << "\""
+            <<            " y=\"" << rect.y() << "\""
+            << "    />\n"
+            << "  </" SVG "flowRegion>\n"
+            << "  <" SVG "flowPara"
+            <<              " text-align=\"" << hAlign << "\">\n"
+            << " " << WWebWidget::escapeText(text, false).toUTF8() << "\n"
+            << "  </" SVG "flowPara>\n"
+            << "</" SVG "flowRoot>\n";
   } else {
     shapes_ << "<" SVG "text " << style.str();
 
@@ -681,11 +681,11 @@ void WSvgImage::drawText(const WRectF& rect,
       break;
     case AlignmentFlag::Right:
       shapes_ << " x=" << quote(rect.right())
-	      << " text-anchor=\"end\"";
+              << " text-anchor=\"end\"";
       break;
     case AlignmentFlag::Center:
       shapes_ << " x=" << quote(rect.center().x())
-	      << " text-anchor=\"middle\"";
+              << " text-anchor=\"middle\"";
       break;
     default:
       break;
@@ -698,22 +698,22 @@ void WSvgImage::drawText(const WRectF& rect,
     switch (verticalAlign) {
     case AlignmentFlag::AlignSide::Side::Top:
       shapes_ << " y=" << quote(rect.top())
-	      << " dominant-baseline=\"text-before-edge\"";
+              << " dominant-baseline=\"text-before-edge\"";
       break;
     case AlignmentFlag::AlignBottom:
       shapes_ << " y=" << quote(rect.bottom())
-	      << " dominant-baseline=\"text-after-edge\"";
+              << " dominant-baseline=\"text-after-edge\"";
       break;
     case AlignmentFlag::Middle:
       shapes_ << " y=" << quote(rect.center().y())
-	      << " dominant-baseline=\"middle\"";
+              << " dominant-baseline=\"middle\"";
       break;
     default:
       break;
     }
 
-    shapes << ">" << WWebWidget::escapeText(text, false).toUTF8() 
-	   << "</" SVG "text>";
+    shapes << ">" << WWebWidget::escapeText(text, false).toUTF8()
+           << "</" SVG "text>";
 
 #else
 
@@ -737,14 +737,14 @@ void WSvgImage::drawText(const WRectF& rect,
 
   shapes_ << " y=" << quote(y);
 
-  shapes_ << ">" << WWebWidget::escapeText(text, false).toUTF8() 
-	  << "</" SVG "text>";
+  shapes_ << ">" << WWebWidget::escapeText(text, false).toUTF8()
+          << "</" SVG "text>";
 #endif
   }
 }
 
 WTextItem WSvgImage::measureText(const WString& text, double maxWidth,
-				 bool wordWrap)
+                                 bool wordWrap)
 {
   if (!fontMetrics_)
     fontMetrics_ = new ServerSideFontMetrics();
@@ -785,16 +785,16 @@ std::string WSvgImage::fillStyle() const
       const WColor& color = painter()->brush().color();
       result += "fill:" + color.cssText(false) + ";";
       if (color.alpha() != 255) {
-	result += "fill-opacity:";
-	result += Utils::round_css_str(color.alpha() / 255., 3, buf);
-	result += ';';
+        result += "fill-opacity:";
+        result += Utils::round_css_str(color.alpha() / 255., 3, buf);
+        result += ';';
       }
 
       break;
     }
   case BrushStyle::Gradient:
     if (!currentBrush_.gradient().isEmpty()) {
-      result += "fill:"; 
+      result += "fill:";
       result += "url(#gradient";
       result += std::to_string(currentFillGradientId_);
       result += ");";
@@ -832,13 +832,13 @@ std::string WSvgImage::strokeStyle() const
 
     if (!pen.gradient().isEmpty()) {
       result << "stroke:url(#gradient"
-	     << std::to_string(currentStrokeGradientId_)
-	     << ");";
+             << std::to_string(currentStrokeGradientId_)
+             << ");";
     } else {
       result << "stroke:" << color.cssText(false) << ';';
       if (color.alpha() != 255)
-	result << "stroke-opacity:"
-	       << Utils::round_css_str(color.alpha() / 255., 2, buf) << ';';
+        result << "stroke-opacity:"
+               << Utils::round_css_str(color.alpha() / 255., 2, buf) << ';';
     }
 
     WLength w = painter()->normalizedPenWidth(pen.width(), true);
@@ -901,7 +901,7 @@ std::string WSvgImage::rendered()
 }
 
 void WSvgImage::handleRequest(const Http::Request& request,
-			      Http::Response& response)
+                              Http::Response& response)
 {
   response.setMimeType("image/svg+xml");
 
@@ -921,16 +921,16 @@ void WSvgImage::streamResourceData(std::ostream& stream)
   if (paintUpdate_)
     stream << "<" SVG "g xmlns=\"http://www.w3.org/2000/svg\""
       " xmlns:xlink=\"http://www.w3.org/1999/xlink\"><" SVG "g><" SVG "g>"
-	   << shapes_.str()
-	   << "</" SVG "g></" SVG "g></" SVG "g>";
+           << shapes_.str()
+           << "</" SVG "g></" SVG "g></" SVG "g>";
   else
     stream << "<" SVG "svg xmlns=\"http://www.w3.org/2000/svg\""
       " xmlns:xlink=\"http://www.w3.org/1999/xlink\""
       " version=\"1.1\" baseProfile=\"full\""
       " width=\"" << width().cssText() << "\""
       " height=\"" << height().cssText() << "\">"
-	   << "<" SVG "g><" SVG "g>" << shapes_.str()
-	   << "</" SVG "g></" SVG "g></" SVG "svg>";
+           << "<" SVG "g><" SVG "g>" << shapes_.str()
+           << "</" SVG "g></" SVG "g></" SVG "svg>";
 }
 
 }

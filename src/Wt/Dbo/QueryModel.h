@@ -118,8 +118,8 @@ public:
    * \sa fields()
    */
   int addColumn(const std::string& field,
-		const WString& header,
-		WFlags<ItemFlag> flags = ItemFlag::Selectable);
+                const WString& header,
+                WFlags<ItemFlag> flags = ItemFlag::Selectable);
 
   /*! \brief Adds a column.
    *
@@ -129,7 +129,7 @@ public:
    * \sa setHeaderData()
    */
   int addColumn(const std::string& field,
-		WFlags<ItemFlag> flags = ItemFlag::Selectable);
+                WFlags<ItemFlag> flags = ItemFlag::Selectable);
 
   /*! \brief Sets column item flags.
    *
@@ -275,7 +275,7 @@ public:
    * define your own data presentation using the underlying \p Result by
    * specializing data() and accessing data from resultRow().
    */
-  virtual cpp17::any data(const WModelIndex& index, 
+  virtual cpp17::any data(const WModelIndex& index,
                           ItemDataRole role = ItemDataRole::Display)
     const override;
 
@@ -287,7 +287,7 @@ public:
    * \sa setCachedResult()
    */
   virtual bool setData(const WModelIndex& index,
-		       const cpp17::any& value,
+                       const cpp17::any& value,
                        ItemDataRole role = ItemDataRole::Edit) override;
 
   /*! \brief Sorts the model according to a particular column.
@@ -297,8 +297,8 @@ public:
    *
    * \sa createOrderBy()
    */
-  virtual void sort(int column, 
-		    SortOrder order = SortOrder::Ascending) override;
+  virtual void sort(int column,
+                    SortOrder order = SortOrder::Ascending) override;
 
   /*! \brief Create specialized orderBy clause for sort
    *
@@ -321,14 +321,14 @@ public:
    * underlying database.
    */
   virtual bool insertRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex()) override;
+                          const WModelIndex& parent = WModelIndex()) override;
 
   /*! \brief Removes one or more rows.
    *
    * For each removed row, the result is removed from the underlying database.
    */
   virtual bool removeRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex()) override;
+                          const WModelIndex& parent = WModelIndex()) override;
 
   using WAbstractTableModel::setHeaderData;
 
@@ -338,7 +338,7 @@ public:
    * are supported (orientation == Wt::Orientation::Horizontal).
    */
   virtual bool setHeaderData(int column, Orientation orientation,
-			     const cpp17::any& value,
+                             const cpp17::any& value,
                              ItemDataRole role = ItemDataRole::Edit) override;
 
   /*! \brief Returns header data.
@@ -346,7 +346,7 @@ public:
    * \sa setHeaderData()
    */
   virtual cpp17::any headerData(int section,
-			     Orientation orientation = Orientation::Horizontal,
+                             Orientation orientation = Orientation::Horizontal,
                              ItemDataRole role = ItemDataRole::Display) const override;
 
   virtual void *toRawIndex(const WModelIndex& index) const override;

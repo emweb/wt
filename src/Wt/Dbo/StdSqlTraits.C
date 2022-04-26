@@ -23,15 +23,15 @@ std::string sql_value_traits<std::string>::type(SqlConnection *conn, int size)
 }
 
 void sql_value_traits<std::string>::bind(const std::string& v,
-					 SqlStatement *statement, int column,
-					 int size)
+                                         SqlStatement *statement, int column,
+                                         int size)
 {
   statement->bind(column, v);
 }
 
 bool sql_value_traits<std::string>::read(std::string& v,
-					 SqlStatement *statement, int column,
-					 int size)
+                                         SqlStatement *statement, int column,
+                                         int size)
 {
   if (!statement->getResult(column, &v, size)) {
     v.clear();
@@ -41,7 +41,7 @@ bool sql_value_traits<std::string>::read(std::string& v,
 }
 
   /*
-   * long long 
+   * long long
    */
 
 std::string sql_value_traits<long long>::type(SqlConnection *conn, int size)
@@ -50,15 +50,15 @@ std::string sql_value_traits<long long>::type(SqlConnection *conn, int size)
 }
 
 void sql_value_traits<long long>::bind(long long v,
-				       SqlStatement *statement, int column,
-				       int size)
+                                       SqlStatement *statement, int column,
+                                       int size)
 {
   statement->bind(column, v);
 }
 
 bool sql_value_traits<long long>::read(long long& v,
-				       SqlStatement *statement, int column,
-				       int size)
+                                       SqlStatement *statement, int column,
+                                       int size)
 {
   return statement->getResult(column, &v);
 }
@@ -77,8 +77,8 @@ std::string sql_value_traits<long>::type(SqlConnection *conn, int size)
 }
 
 void sql_value_traits<long>::bind(long v,
-				  SqlStatement *statement, int column,
-				  int size)
+                                  SqlStatement *statement, int column,
+                                  int size)
 {
   if (sizeof(long) == 4)
     statement->bind(column, (int)v);
@@ -87,8 +87,8 @@ void sql_value_traits<long>::bind(long v,
 }
 
 bool sql_value_traits<long>::read(long& v,
-				  SqlStatement *statement, int column,
-				  int size)
+                                  SqlStatement *statement, int column,
+                                  int size)
 {
   if (sizeof(long) == 4) {
     int v2;
@@ -113,13 +113,13 @@ const char *sql_value_traits<int>::type(SqlConnection *conn, int size)
 }
 
 void sql_value_traits<int>::bind(int v, SqlStatement *statement, int column,
-				 int size)
+                                 int size)
 {
   statement->bind(column, v);
 }
 
 bool sql_value_traits<int>::read(int& v, SqlStatement *statement, int column,
-				 int size)
+                                 int size)
 {
   return statement->getResult(column, &v);
 }
@@ -129,19 +129,19 @@ bool sql_value_traits<int>::read(int& v, SqlStatement *statement, int column,
    */
 
 const char *sql_value_traits<short>::type(SqlConnection *conn,
-					  int size)
+                                          int size)
 {
   return "smallint not null";
 }
 
 void sql_value_traits<short>::bind(short v, SqlStatement *statement, int column,
-				   int size)
+                                   int size)
 {
   statement->bind(column, v);
 }
 
 bool sql_value_traits<short>::read(short& v, SqlStatement *statement,
-				   int column, int size)
+                                   int column, int size)
 {
   return statement->getResult(column, &v);
 }
@@ -156,13 +156,13 @@ std::string sql_value_traits<bool>::type(SqlConnection *conn, int size)
 }
 
 void sql_value_traits<bool>::bind(bool v, SqlStatement *statement, int column,
-				  int size)
+                                  int size)
 {
   statement->bind(column, v ? 1 : 0);
 }
 
 bool sql_value_traits<bool>::read(bool& v, SqlStatement *statement, int column,
-				  int size)
+                                  int size)
 {
   int intValue;
   bool result = statement->getResult(column, &intValue);
@@ -182,13 +182,13 @@ const char *sql_value_traits<float>::type(SqlConnection *conn, int size)
 }
 
 void sql_value_traits<float>::bind(float v, SqlStatement *statement,
-				   int column, int size)
+                                   int column, int size)
 {
   statement->bind(column, v);
 }
 
 bool sql_value_traits<float>::read(float& v, SqlStatement *statement,
-				   int column, int size)
+                                   int column, int size)
 {
   return statement->getResult(column, &v);
 }
@@ -203,13 +203,13 @@ const char *sql_value_traits<double>::type(SqlConnection *conn, int size)
 }
 
 void sql_value_traits<double>::bind(double v, SqlStatement *statement,
-				    int column, int size)
+                                    int column, int size)
 {
   statement->bind(column, v);
 }
 
 bool sql_value_traits<double>::read(double& v, SqlStatement *statement,
-				    int column, int size)
+                                    int column, int size)
 {
   return statement->getResult(column, &v);
 }

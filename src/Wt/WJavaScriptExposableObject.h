@@ -73,10 +73,10 @@ public:
    * according to jsValue().
    *
    * \warning This reference is intended as read-only. Attempts
-   *	      to modify it may have unintended consequences.
-   *	      If you want a JavaScript reference that is modifiable,
-   *	      use the \link WJavaScriptHandle::jsRef() jsRef of the
-   *	      handle\endlink instead.
+   *          to modify it may have unintended consequences.
+   *          If you want a JavaScript reference that is modifiable,
+   *          use the \link WJavaScriptHandle::jsRef() jsRef of the
+   *          handle\endlink instead.
    */
   std::string jsRef() const;
 

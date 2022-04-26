@@ -19,7 +19,7 @@
   <message id="msg.uploading">Uploading attachments...</message>
   <message id="msg.attachment.failed">Error: empty or oversized attachments?</message>
   <message id="example.info">
-    <p>This is an example application of 
+    <p>This is an example application of
       <a href="http://www.webtoolkit.eu/wt">Wt</a>, a C++ toolkit for
       developping web applications.</p>
     <p>The benefit of Wt's widget approach to web development is the

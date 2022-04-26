@@ -215,9 +215,9 @@ private:
   char *buf_;
   int buf_i_;
 
-  int buf_len() const 
+  int buf_len() const
     { return buf_ == static_buf_ ? static_cast<int>(S_LEN)
-	: static_cast<int>(D_LEN); }
+        : static_cast<int>(D_LEN); }
 
   std::vector<std::pair<char *, int> > bufs_;
 

@@ -3,7 +3,7 @@
  *
  * All rights reserved.
  */
-// 
+//
 // connection.cpp
 // ~~~~~~~~~~~~~~
 //
@@ -74,11 +74,11 @@ asio::ip::tcp::socket::native_type Connection::native()
 #endif
 
 void Connection::finishReply()
-{ 
+{
   if (!request_.uri.empty()) {
     LOG_DEBUG("last request: " << request_.method.str()
-	      << " " << request_.uri.str()
-	      << " (ws:" << request_.webSocketVersion << ")");
+              << " " << request_.uri.str()
+              << " (ws:" << request_.webSocketVersion << ")");
   }
 }
 
@@ -119,24 +119,24 @@ void Connection::setReadTimeout(int seconds)
 {
   if (seconds != 0) {
     LOG_DEBUG(native() << " setting read timeout (ws: "
-	      << request_.webSocketVersion << ")");
+              << request_.webSocketVersion << ")");
     state_ |= Reading;
 
     readTimer_.expires_from_now(asio_timer_seconds(seconds));
     readTimer_.async_wait(std::bind(&Connection::timeout, shared_from_this(),
-				    std::placeholders::_1));
+                                    std::placeholders::_1));
   }
 }
 
 void Connection::setWriteTimeout(int seconds)
 {
   LOG_DEBUG(native() << " setting write timeout (ws: "
-	    << request_.webSocketVersion << ")");
+            << request_.webSocketVersion << ")");
   state_ |= Writing;
 
   writeTimer_.expires_from_now(asio_timer_seconds(seconds));
   writeTimer_.async_wait(std::bind(&Connection::timeout, shared_from_this(),
-				   std::placeholders::_1));
+                                   std::placeholders::_1));
 }
 
 void Connection::cancelReadTimer()
@@ -176,12 +176,12 @@ void Connection::handleReadRequest0()
 #ifdef DEBUG
   try {
     LOG_DEBUG(socket().native_handle() << "incoming request: "
-	      << socket().remote_endpoint().port() << " (avail= "
-	      << (rcv_buffer_size_ - (rcv_remaining_ - buffer.data())) << "): "
-	      << std::string(rcv_remaining_,
-			     std::min((unsigned long)(buffer.data()
-				      - rcv_remaining_ + rcv_buffer_size_),
-				      (long unsigned)1000)));
+              << socket().remote_endpoint().port() << " (avail= "
+              << (rcv_buffer_size_ - (rcv_remaining_ - buffer.data())) << "): "
+              << std::string(rcv_remaining_,
+                             std::min((unsigned long)(buffer.data()
+                                      - rcv_remaining_ + rcv_buffer_size_),
+                                      (long unsigned)1000)));
   } catch (...) {
   }
 #endif // DEBUG
@@ -189,14 +189,14 @@ void Connection::handleReadRequest0()
   boost::tribool result;
   boost::tie(result, rcv_remaining_)
     = request_parser_.parse(request_,
-			    &*rcv_remaining_, buffer.data() + rcv_buffer_size_);
+                            &*rcv_remaining_, buffer.data() + rcv_buffer_size_);
 
   if (result) {
     Reply::status_type status = request_parser_.validate(request_);
     // FIXME: Let the reply decide whether we're doing websockets, move this logic to WtReply
     bool doWebSockets = server_->controller()->configuration().webSockets() &&
-			(server_->controller()->configuration().sessionPolicy() != Wt::Configuration::DedicatedProcess ||
-			 server_->configuration().parentPort() != -1);
+                        (server_->controller()->configuration().sessionPolicy() != Wt::Configuration::DedicatedProcess ||
+                         server_->configuration().parentPort() != -1);
 
     if (doWebSockets)
       request_.enableWebSocket();
@@ -207,23 +207,23 @@ void Connection::handleReadRequest0()
       sendStockReply(status);
     else {
       if (request_.webSocketVersion >= 0) {
-	// replace 'http' with 'ws'
-	request_.urlScheme[0] = 'w';
-	request_.urlScheme[1] = 's';
-	strncpy(request_.urlScheme + 2, urlScheme() + 4, 7);
-	request_.urlScheme[9] = 0;
+        // replace 'http' with 'ws'
+        request_.urlScheme[0] = 'w';
+        request_.urlScheme[1] = 's';
+        strncpy(request_.urlScheme + 2, urlScheme() + 4, 7);
+        request_.urlScheme[9] = 0;
       } else
         strncpy(request_.urlScheme, urlScheme(), 9);
 
       ReplyPtr reply;
       try {
-	reply = request_handler_.handleRequest
-	  (request_, lastWtReply_, lastProxyReply_, lastStaticReply_);
-	reply->setConnection(shared_from_this());
+        reply = request_handler_.handleRequest
+          (request_, lastWtReply_, lastProxyReply_, lastStaticReply_);
+        reply->setConnection(shared_from_this());
       } catch (Wt::AsioWrapper::system_error& e) {
-	LOG_ERROR("Error in handleRequest0(): " << e.what());
-	handleError(e.code());
-	return;
+        LOG_ERROR("Error in handleRequest0(): " << e.what());
+        handleError(e.code());
+        return;
       }
 
       rcv_body_buffer_ = false;
@@ -233,10 +233,10 @@ void Connection::handleReadRequest0()
     sendStockReply(StockReply::bad_request);
   } else {
     rcv_buffers_.push_back(Buffer());
-    startAsyncReadRequest(rcv_buffers_.back(), 
-			  request_parser_.initialState()
-			  ? KEEPALIVE_TIMEOUT 
-			  : CONNECTION_TIMEOUT);
+    startAsyncReadRequest(rcv_buffers_.back(),
+                          request_parser_.initialState()
+                          ? KEEPALIVE_TIMEOUT
+                          : CONNECTION_TIMEOUT);
   }
 }
 
@@ -252,7 +252,7 @@ void Connection::sendStockReply(StockReply::status_type status)
 }
 
 void Connection::handleReadRequest(const Wt::AsioWrapper::error_code& e,
-				   std::size_t bytes_transferred)
+                                   std::size_t bytes_transferred)
 {
   LOG_DEBUG(native() << ": handleReadRequest(): " << e.message());
 
@@ -263,7 +263,7 @@ void Connection::handleReadRequest(const Wt::AsioWrapper::error_code& e,
     rcv_buffer_size_ = bytes_transferred;
     handleReadRequest0();
   } else if (e != asio::error::operation_aborted &&
-	     e != asio::error::bad_descriptor) {
+             e != asio::error::bad_descriptor) {
     handleError(e);
   }
 }
@@ -305,7 +305,7 @@ void Connection::handleReadBody(ReplyPtr reply)
 
   RequestParser::ParseResult result = request_parser_
     .parseBody(request_, reply, rcv_remaining_,
-	       rcv_buffers_.back().data() + rcv_buffer_size_);
+               rcv_buffers_.back().data() + rcv_buffer_size_);
 
   if (request_.type != Request::WebSocket)
     waitingResponse_ = false;
@@ -336,14 +336,14 @@ bool Connection::readAvailable()
 }
 
 void Connection::detectDisconnect(ReplyPtr reply,
-				  const std::function<void()>& callback)
+                                  const std::function<void()>& callback)
 {
   server_->service()
     .post(strand_.wrap(std::bind(&Connection::asyncDetectDisconnect, this, reply, callback)));
 }
 
 void Connection::asyncDetectDisconnect(ReplyPtr reply,
-				       const std::function<void()>& callback)
+                                       const std::function<void()>& callback)
 {
   if (disconnectCallback_)
     return; // We're already detecting the disconnect
@@ -359,7 +359,7 @@ void Connection::asyncDetectDisconnect(ReplyPtr reply,
 
 void Connection::handleReadBody0(ReplyPtr reply,
                                  const Wt::AsioWrapper::error_code& e,
-				 std::size_t bytes_transferred)
+                                 std::size_t bytes_transferred)
 {
   LOG_DEBUG(native() << ": handleReadBody0(): " << e.message());
 
@@ -370,8 +370,8 @@ void Connection::handleReadBody0(ReplyPtr reply,
       f();
     } else if (!e) {
       LOG_ERROR(native()
-		<< ": handleReadBody(): while waiting for disconnect, "
-		"received unexpected data, closing");
+                << ": handleReadBody(): while waiting for disconnect, "
+                "received unexpected data, closing");
       close();
     }
 
@@ -385,7 +385,7 @@ void Connection::handleReadBody0(ReplyPtr reply,
     rcv_buffer_size_ = bytes_transferred;
     handleReadBody(reply);
   } else if (e != asio::error::operation_aborted
-	     && e != asio::error::bad_descriptor) {
+             && e != asio::error::bad_descriptor) {
     reply->consumeData(rcv_remaining_, rcv_remaining_, Request::Error);
     handleError(e);
   }
@@ -423,7 +423,7 @@ void Connection::startWriteResponse(ReplyPtr reply)
 #endif
 
   LOG_DEBUG(native() << " sending: " << s << "(buffers: "
-	    << buffers.size() << ")");
+            << buffers.size() << ")");
 
   if (!buffers.empty()) {
     startAsyncWriteResponse(reply, buffers, BODY_TIMEOUT);
@@ -436,7 +436,7 @@ void Connection::startWriteResponse(ReplyPtr reply)
 void Connection::handleWriteResponse(ReplyPtr reply)
 {
   LOG_DEBUG(native() << ": handleWriteResponse() " <<
-	    haveResponse_ << " " << responseDone_);
+            haveResponse_ << " " << responseDone_);
   if (haveResponse_)
     startWriteResponse(reply);
   else {
@@ -448,19 +448,19 @@ void Connection::handleWriteResponse(ReplyPtr reply)
       reply->logReply(request_handler_.logger());
 
       if (reply->closeConnection())
-	ConnectionManager_.stop(shared_from_this());
+        ConnectionManager_.stop(shared_from_this());
       else {
-	request_parser_.reset();
-	request_.reset();
-	responseDone_ = false;
+        request_parser_.reset();
+        request_.reset();
+        responseDone_ = false;
 
-	while (rcv_buffers_.size() > 1)
-	  rcv_buffers_.pop_front();
+        while (rcv_buffers_.size() > 1)
+          rcv_buffers_.pop_front();
 
-	if (rcv_remaining_ < rcv_buffers_.back().data() + rcv_buffer_size_)
-	  handleReadRequest0();
-	else
-	  startAsyncReadRequest(rcv_buffers_.back(), KEEPALIVE_TIMEOUT);
+        if (rcv_remaining_ < rcv_buffers_.back().data() + rcv_buffer_size_)
+          handleReadRequest0();
+        else
+          startAsyncReadRequest(rcv_buffers_.back(), KEEPALIVE_TIMEOUT);
       }
     }
   }
@@ -468,10 +468,10 @@ void Connection::handleWriteResponse(ReplyPtr reply)
 
 void Connection::handleWriteResponse0(ReplyPtr reply,
                                       const Wt::AsioWrapper::error_code& e,
-				      std::size_t bytes_transferred)
+                                      std::size_t bytes_transferred)
 {
   LOG_DEBUG(native() << ": handleWriteResponse0(): "
-	    << bytes_transferred << " ; " << e.message());
+            << bytes_transferred << " ; " << e.message());
 
   cancelWriteTimer();
 

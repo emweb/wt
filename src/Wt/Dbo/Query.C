@@ -45,8 +45,8 @@ ParameterBase::~ParameterBase()
 { }
 
 void addGroupBy(std::string& result, const std::string& groupBy,
-		const std::vector<FieldInfo>& fields)
-{		      
+                const std::vector<FieldInfo>& fields)
+{
   std::vector<std::string> groupByFields;
   boost::split(groupByFields, groupBy, boost::is_any_of(","));
 
@@ -56,9 +56,9 @@ void addGroupBy(std::string& result, const std::string& groupBy,
     std::string g;
     for (unsigned j = 0; j < fields.size(); ++j)
       if (fields[j].qualifier() == groupByFields[i]) {
-	if (!g.empty())
-	  g += ", ";
-	g += fields[j].sql();
+        if (!g.empty())
+          g += ", ";
+        g += fields[j].sql();
       }
 
     if (!g.empty())
@@ -74,7 +74,7 @@ void addGroupBy(std::string& result, const std::string& groupBy,
 }
 
 std::string addLimitQuery(const std::string& sql, const std::string &orderBy, int limit, int offset,
-			  LimitQuery limitQueryMethod)
+                          LimitQuery limitQueryMethod)
 {
   std::string result = sql;
 
@@ -100,7 +100,7 @@ std::string addLimitQuery(const std::string& sql, const std::string &orderBy, in
       result = " select * from ( " + result + " ) where rownum <= ?";
     else if (limit != -1 && offset != -1)
       result = " select * from ( select row_.*, rownum rownum2 from ( " +
-	result + " ) row_ where rownum <= ?) where rownum2 > ?";
+        result + " ) row_ where rownum <= ?) where rownum2 > ?";
 
   case LimitQuery::OffsetFetch:
     if (offset != -1 || limit != -1) {
@@ -121,7 +121,7 @@ std::string addLimitQuery(const std::string& sql, const std::string &orderBy, in
       result += " offset 0 rows";
 
     break;
-  
+
   case LimitQuery::NotSupported:
     break;
   }
@@ -129,14 +129,14 @@ std::string addLimitQuery(const std::string& sql, const std::string &orderBy, in
   return result;
 }
 std::string completeQuerySelectSql(const std::string& sql,
-				   const std::string& join,
-				   const std::string& where,
-				   const std::string& groupBy,
-				   const std::string& having,
-				   const std::string& orderBy,
-				   int limit, int offset,
-				   const std::vector<FieldInfo>& fields,
-				   LimitQuery limitQueryMethod)
+                                   const std::string& join,
+                                   const std::string& where,
+                                   const std::string& groupBy,
+                                   const std::string& having,
+                                   const std::string& orderBy,
+                                   int limit, int offset,
+                                   const std::vector<FieldInfo>& fields,
+                                   LimitQuery limitQueryMethod)
 {
   std::string result = sql + join;
 
@@ -156,14 +156,14 @@ std::string completeQuerySelectSql(const std::string& sql,
 }
 
 std::string createQuerySelectSql(const std::string& from,
-				 const std::string& join,
-				 const std::string& where,
-				 const std::string& groupBy,
-				 const std::string& having,
-				 const std::string& orderBy,
-				 int limit, int offset,
-				 const std::vector<FieldInfo>& fields,
-				 LimitQuery limitQueryMethod)
+                                 const std::string& join,
+                                 const std::string& where,
+                                 const std::string& groupBy,
+                                 const std::string& having,
+                                 const std::string& orderBy,
+                                 int limit, int offset,
+                                 const std::vector<FieldInfo>& fields,
+                                 LimitQuery limitQueryMethod)
 {
   std::string result = "select " + selectColumns(fields) + ' ' + from + join;
 
@@ -183,7 +183,7 @@ std::string createQuerySelectSql(const std::string& from,
 }
 
 std::string createQueryCountSql(const std::string& query,
-				bool requireSubqueryAlias)
+                                bool requireSubqueryAlias)
 {
   if (requireSubqueryAlias)
     return "select count(1) from (" + query + ") dbocount";
@@ -192,8 +192,8 @@ std::string createQueryCountSql(const std::string& query,
 }
 
 void substituteFields(const SelectFieldList& list,
-		      const std::vector<FieldInfo>& fs,
-		      std::string& sql,
+                      const std::vector<FieldInfo>& fs,
+                      std::string& sql,
                       int& offset)
 {
   for (unsigned i = 0, j = 0; j < list.size(); ++j) {
@@ -201,17 +201,17 @@ void substituteFields(const SelectFieldList& list,
       std::string dboFields;
 
       for (;;) {
-	if (!dboFields.empty())
-	  dboFields += ", ";
+        if (!dboFields.empty())
+          dboFields += ", ";
 
-	dboFields += fs[i].sql();
+        dboFields += fs[i].sql();
         dboFields += " as col" + std::to_string(i);
 
-	++i;
-	if (i >= fs.size()
-	    || fs[i].qualifier().empty()
-	    || fs[i].isFirstDboField())
-	  break;
+        ++i;
+        if (i >= fs.size()
+            || fs[i].qualifier().empty()
+            || fs[i].isFirstDboField())
+          break;
       }
 
       int start = list[j].begin + offset;

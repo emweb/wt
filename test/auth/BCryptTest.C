@@ -35,5 +35,5 @@ BOOST_AUTO_TEST_CASE( bcrypt_test )
   double ms = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000;
 
   std::cerr << "verify() took: " << ms
-	    << "ms" << std::endl;
+            << "ms" << std::endl;
 }

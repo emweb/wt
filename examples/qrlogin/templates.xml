@@ -6,44 +6,44 @@
       <p>${tr:Wt.Auth.login-form-info}</p>
 
       <div style="margin: 10px 10px 30px">
-	This Wt example shows how the authentication system can be
-	extended to support other authentication methods, like for
-	example delegating the authentication to a mobile phone using
-	a QR code.
+        This Wt example shows how the authentication system can be
+        extended to support other authentication methods, like for
+        example delegating the authentication to a mobile phone using
+        a QR code.
       </div>
 
       <div class="Wt-fields">
         <label for="${id:user-name}">${user-name-label}
           ${user-name-info class="Wt-info"}
-	</label>
-	${user-name}
+        </label>
+        ${user-name}
 
-	<label for="${id:password}">${tr:Wt.Auth.password}
+        <label for="${id:password}">${tr:Wt.Auth.password}
           ${password-info class="Wt-info"}
-	</label>
-	${password}
+        </label>
+        ${password}
 
-	<label for="${id:remember-me}">${tr:Wt.Auth.remember-me}
-	  <span class="Wt-info">${remember-me-info}</span>
-	</label>
-	${remember-me}
+        <label for="${id:remember-me}">${tr:Wt.Auth.remember-me}
+          <span class="Wt-info">${remember-me-info}</span>
+        </label>
+        ${remember-me}
       </div>
 
       ${<if:oauth>}
 
         <div class="Wt-col-right">
-	  <h3>Or use:</h3>
-	  ${icons}
-	</div>
+          <h3>Or use:</h3>
+          ${icons}
+        </div>
 
       ${</if:oauth>}
 
       <div class="Wt-buttons">
-	${login}
+        ${login}
       </div>
 
       <div class="Wt-buttons">
-	${lost-password} ${sep} ${register} | ${qrauth}
+        ${lost-password} ${sep} ${register} | ${qrauth}
       </div>
     </div>
   </message>

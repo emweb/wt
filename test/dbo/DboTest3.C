@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( dbo3_test2 )
    */
   tupe = session.query<tupel>(std::string(
           "SELECT SUM(\"intC\") as sc, \"doubleC\" FROM \"") +
-			      FuncTest::TableName() + "\"").limit(1);
+          FuncTest::TableName() + "\"").limit(1);
 
   BOOST_REQUIRE(std::get<0>(tupe) == 6);
 #endif

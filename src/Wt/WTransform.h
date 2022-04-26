@@ -25,7 +25,7 @@ class WRectF;
  * m21  m22   0
  * dx   dy    1
  * \endcode
- * 
+ *
  * In this representation, dx() (= m31()) and dy() (= m32()) represent
  * the translation components, and m<i>xy</i> represent a 2D matrix
  * that contains the scale, rotation (and skew) components.
@@ -36,13 +36,13 @@ class WRectF;
  *
  * There are also 2 methods to decompose an arbitrary matrix into
  * elementary operations:
- * - decomposeTranslateRotateScaleSkew() 
+ * - decomposeTranslateRotateScaleSkew()
  * decomposes into a <i>T</i> &#x2218; <i>R</i> &#x2218; <i>Sxx</i>
  * &#x2218; <i>Sxy</i>
  * - decomposeTranslateRotateScaleRotate()
  * decomposes into a <i>T</i> &#x2218; <i>R1</i> &#x2218; <i>Sxx</i>
  * &#x2218; <i>R2</i>
- * 
+ *
  * with <i>T</i> a translation, <i>R</i> a rotation, <i>Sxx</i> a scale, and <i>Sxy</i> a skew component.
  *
  * <h3>JavaScript exposability</h3>
@@ -57,8 +57,8 @@ class WRectF;
  * \endcode
  *
  * As an exception to the general rule that \link isJavaScriptBound() JavaScript bound\endlink objects
- *	 should not be modified, %WTransform does support many modifications. These modifications will then
- *	 accumulate in the JavaScript representation of the transform.
+ * should not be modified, %WTransform does support many modifications. These modifications will then
+ * accumulate in the JavaScript representation of the transform.
  *
  * \ingroup painting
  */
@@ -76,7 +76,7 @@ public:
    * Creates a matrix from the specified parameters.
    */
   WTransform(double m11, double m12, double m21, double m22,
-	     double dx, double dy);
+             double dx, double dy);
 
   /*! \brief Copy constructor.
    */
@@ -119,7 +119,7 @@ public:
    * \note This is always false if the transform is \link isJavaScriptBound() JavaScript bound\endlink.
    */
   bool isIdentity() const;
-  
+
   /*! \brief Returns the horizontal scaling factor.
    */
   double m11() const { return m_[M11]; }
@@ -177,8 +177,8 @@ public:
    * Returns the transformed point.
    *
    * \note If this transform or the given point
-   *	   \link isJavaScriptBound() are JavaScript bound\endlink,
-   * 	   the resulting point will also be JavaScript bound.
+   *           \link isJavaScriptBound() are JavaScript bound\endlink,
+   *            the resulting point will also be JavaScript bound.
    *
    * \sa map(double x, double y, double *tx, double *ty) const
    */
@@ -200,8 +200,8 @@ public:
    * only rotates.
    *
    * \note If this transform or the given rectangle
-   *	   \link isJavaScriptBound() are JavaScript bound\endlink,
-   * 	   the resulting rectangle will also be JavaScript bound.
+   *           \link isJavaScriptBound() are JavaScript bound\endlink,
+   *            the resulting rectangle will also be JavaScript bound.
    */
   WRectF map(const WRectF& rect) const;
 
@@ -211,8 +211,8 @@ public:
    * the transformation. The radius of arcs will be unaffected.
    *
    * \note If this transform or the given path
-   *	   \link isJavaScriptBound() are JavaScript bound\endlink,
-   * 	   the resulting path will also be JavaScript bound.
+   *           \link isJavaScriptBound() are JavaScript bound\endlink,
+   *            the resulting path will also be JavaScript bound.
    */
   WPainterPath map(const WPainterPath& path) const;
 
@@ -263,14 +263,14 @@ public:
    * Translates the current transformation.
    */
   WTransform& translate(double dx, double dy);
-  
+
   /*! \brief Translates the transformation.
    *
    * Translates the current transformation.
    *
    * \note If this transform or the given point
-   *	   \link isJavaScriptBound() are JavaScript bound\endlink,
-   * 	   the resulting transform will also be JavaScript bound.
+   *           \link isJavaScriptBound() are JavaScript bound\endlink,
+   *            the resulting transform will also be JavaScript bound.
    */
   WTransform& translate(const WPointF& p);
 

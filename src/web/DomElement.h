@@ -29,68 +29,68 @@ typedef EscapeOStream EStream;
  * This is an internal API, subject to change.
  */
 enum class Property { InnerHTML, AddedInnerHTML,
-		Value, Disabled,
-		Checked, Selected, SelectedIndex,
-		Multiple, Target, Download, Indeterminate,
-		Src,
-		ColSpan, RowSpan, ReadOnly,
-		TabIndex, Label,
-		Class,
-                Placeholder,
-                Style,
-		StyleWidthExpression,
-		StylePosition,
-		StyleZIndex, StyleFloat, StyleClear,
-		StyleWidth, StyleHeight,
-		StyleLineHeight,
-		StyleMinWidth, StyleMinHeight,
-		StyleMaxWidth, StyleMaxHeight,
-		StyleLeft, StyleRight,
-		StyleTop, StyleBottom,
-		StyleVerticalAlign, StyleTextAlign,
-		StylePadding,
-		StylePaddingTop, StylePaddingRight,
-		StylePaddingBottom, StylePaddingLeft,
-                StyleMargin,
-		StyleMarginTop, StyleMarginRight,
-		StyleMarginBottom, StyleMarginLeft,
-		StyleCursor, 
-		StyleBorderTop, StyleBorderRight,
-		StyleBorderBottom, StyleBorderLeft,
-		StyleBorderColorTop, StyleBorderColorRight,
-		StyleBorderColorBottom, StyleBorderColorLeft,
-		StyleBorderWidthTop, StyleBorderWidthRight,
-		StyleBorderWidthBottom, StyleBorderWidthLeft,
-		StyleColor,
-		StyleOverflowX,
-		StyleOverflowY,
-		StyleOpacity,
-		StyleFontFamily,
-		StyleFontStyle,
-		StyleFontVariant,
-		StyleFontWeight,
-		StyleFontSize,
-		StyleBackgroundColor,
-		StyleBackgroundImage,
-		StyleBackgroundRepeat,
-		StyleBackgroundAttachment,
-		StyleBackgroundPosition,
-		StyleTextDecoration, StyleWhiteSpace,
-		StyleTableLayout, StyleBorderSpacing,
-		StyleBorderCollapse,
-		StylePageBreakBefore, StylePageBreakAfter,
-		StyleZoom,
-		StyleVisibility, StyleDisplay,
+                      Value, Disabled,
+                      Checked, Selected, SelectedIndex,
+                      Multiple, Target, Download, Indeterminate,
+                      Src,
+                      ColSpan, RowSpan, ReadOnly,
+                      TabIndex, Label,
+                      Class,
+                      Placeholder,
+                      Style,
+                      StyleWidthExpression,
+                      StylePosition,
+                      StyleZIndex, StyleFloat, StyleClear,
+                      StyleWidth, StyleHeight,
+                      StyleLineHeight,
+                      StyleMinWidth, StyleMinHeight,
+                      StyleMaxWidth, StyleMaxHeight,
+                      StyleLeft, StyleRight,
+                      StyleTop, StyleBottom,
+                      StyleVerticalAlign, StyleTextAlign,
+                      StylePadding,
+                      StylePaddingTop, StylePaddingRight,
+                      StylePaddingBottom, StylePaddingLeft,
+                      StyleMargin,
+                      StyleMarginTop, StyleMarginRight,
+                      StyleMarginBottom, StyleMarginLeft,
+                      StyleCursor,
+                      StyleBorderTop, StyleBorderRight,
+                      StyleBorderBottom, StyleBorderLeft,
+                      StyleBorderColorTop, StyleBorderColorRight,
+                      StyleBorderColorBottom, StyleBorderColorLeft,
+                      StyleBorderWidthTop, StyleBorderWidthRight,
+                      StyleBorderWidthBottom, StyleBorderWidthLeft,
+                      StyleColor,
+                      StyleOverflowX,
+                      StyleOverflowY,
+                      StyleOpacity,
+                      StyleFontFamily,
+                      StyleFontStyle,
+                      StyleFontVariant,
+                      StyleFontWeight,
+                      StyleFontSize,
+                      StyleBackgroundColor,
+                      StyleBackgroundImage,
+                      StyleBackgroundRepeat,
+                      StyleBackgroundAttachment,
+                      StyleBackgroundPosition,
+                      StyleTextDecoration, StyleWhiteSpace,
+                      StyleTableLayout, StyleBorderSpacing,
+                      StyleBorderCollapse,
+                      StylePageBreakBefore, StylePageBreakAfter,
+                      StyleZoom,
+                      StyleVisibility, StyleDisplay,
 
-		/* CSS 3 */
-		StyleBoxSizing,
-		StyleFlex,
-		StyleFlexFlow,
-		StyleAlignSelf,
-		StyleJustifyContent,
+                      /* CSS 3 */
+                      StyleBoxSizing,
+                      StyleFlex,
+                      StyleFlexFlow,
+                      StyleAlignSelf,
+                      StyleJustifyContent,
 
-		/* Keep as last, e.g. for bitset sizing. Otherwise, unused. */
-		LastPlusOne };
+                      /* Keep as last, e.g. for bitset sizing. Otherwise, unused. */
+                      LastPlusOne };
 
 /*! \class DomElement web/DomElement web/DomElement
  *  \brief Class to represent a client-side DOM element (proxy).
@@ -136,7 +136,7 @@ public:
    */
   ~DomElement();
 
-  /*! \brief set dom element custom tag name 
+  /*! \brief set dom element custom tag name
    */
   void setDomElementTagName(const std::string& name);
 
@@ -155,7 +155,7 @@ public:
   /*! \brief Returns the mode.
    */
   Mode mode() const { return mode_; }
-  
+
   /*! \brief Sets the element type.
    */
   void setType(DomElementType type);
@@ -278,9 +278,9 @@ public:
    * JavaScript code and a server-side signal to emit.
    */
   void setEvent(const char *eventName,
-		const std::string& jsCode,
-		const std::string& signalName,
-		bool isExposed = false);
+                const std::string& jsCode,
+                const std::string& signalName,
+                bool isExposed = false);
 
   /*! \brief Sets an event handler.
    *
@@ -292,7 +292,7 @@ public:
    */
   void addEvent(const char *eventName, const std::string& jsCode);
 
-  /*! \brief A data-structure for an aggregated event handler. */ 
+  /*! \brief A data-structure for an aggregated event handler. */
   struct EventAction
   {
     std::string jsCondition;
@@ -301,12 +301,12 @@ public:
     bool        exposed;
 
     EventAction(const std::string& jsCondition, const std::string& jsCode,
-		const std::string& updateCmd, bool exposed);
+                const std::string& updateCmd, bool exposed);
   };
 
   /*! \brief Sets an aggregated event handler. */
   void setEvent(const char * eventName,
-		const std::vector<EventAction>& actions);
+                const std::vector<EventAction>& actions);
 
   /*! \brief Sets the DOM element id.
    */
@@ -332,7 +332,7 @@ public:
   /*! \brief Calls JavaScript (related to the DOM element).
    */
   void callJavaScript(const std::string& javascript,
-		      bool evenWhenDeleted = false);
+                      bool evenWhenDeleted = false);
 
   /*! \brief Returns the id.
    */
@@ -413,12 +413,12 @@ public:
    * javaScript as a by-product.
    */
   void asHTML(EStream& out, EStream& javaScript,
-	      TimeoutList& timeouts, bool openingTagOnly = false) const;
+              TimeoutList& timeouts, bool openingTagOnly = false) const;
 
   /*! \brief Creates the JavaScript statements for timer rendering.
    */
   static void createTimeoutJs(WStringStream& out, const TimeoutList& timeouts,
-			      WApplication *app);
+                              WApplication *app);
 
   /*! \brief Returns the default display property for this element.
    *
@@ -443,18 +443,18 @@ public:
    * It uses pre-computed mixing rules for escaping of the string.
    */
   static void fastJsStringLiteral(EStream& outRaw,
-				  const EStream& outEscaped,
-				  const std::string& s);
+                                  const EStream& outEscaped,
+                                  const std::string& s);
 
   /*! \brief Utility that renders a string as JavaScript literal.
    */
   static void jsStringLiteral(EStream& out, const std::string& s,
-			      char delimiter);
+                              char delimiter);
 
   /*! \brief Utility that renders a string as JavaScript literal.
    */
   static void jsStringLiteral(WStringStream& out, const std::string& s,
-			      char delimiter);
+                              char delimiter);
 
   /*! \brief Utility for rapid rendering of HTML attribute values.
    *
@@ -462,8 +462,8 @@ public:
    * value.
    */
   static void fastHtmlAttributeValue(EStream& outRaw,
-				     const EStream& outEscaped,
-				     const std::string& s);
+                                     const EStream& outEscaped,
+                                     const std::string& s);
 
   /*! \brief Utility that renders a string as HTML attribute.
    */
@@ -508,12 +508,12 @@ public:
    * instead of generic insertAt() or appendChild() functions.
    */
   std::string addToParent(WStringStream& out, const std::string& parentVar,
-			  int pos, WApplication *app);
+                          int pos, WApplication *app);
 
   /*! \brief Renders the element as JavaScript, and inserts it in the DOM.
    */
   void createElement(WStringStream& out, WApplication *app,
-		     const std::string& domInsertJS);
+                     const std::string& domInsertJS);
 
   /*! \brief Allocates a JavaScript variable.
    */
@@ -543,20 +543,20 @@ private:
   void setJavaScriptProperties(EStream& out, WApplication *app) const;
   void setJavaScriptAttributes(EStream& out) const;
   void setJavaScriptEvent(EStream& out, const char *eventName,
-			  const EventHandler& handler, WApplication *app) const;
+                          const EventHandler& handler, WApplication *app) const;
   void createElement(EStream& out, WApplication *app,
-		     const std::string& domInsertJS);
+                     const std::string& domInsertJS);
   std::string addToParent(EStream& out, const std::string& parentVar,
-			  int pos, WApplication *app);
+                          int pos, WApplication *app);
   std::string createAsJavaScript(EStream& out,
-				 const std::string& parentVar, int pos,
-				 WApplication *app);
+                                 const std::string& parentVar, int pos,
+                                 WApplication *app);
   void renderInnerHtmlJS(EStream& out, WApplication *app) const;
   void renderDeferredJavaScript(EStream& out) const;
 
   Mode         mode_;
   bool         wasEmpty_;
-  int	       removeAllChildren_;
+  int          removeAllChildren_;
   bool         hideWithDisplay_;
   bool         minMaxSizeProperties_;
   bool         unstubbed_;

@@ -41,7 +41,7 @@ void WTemplateFormView::init()
 }
 
 void WTemplateFormView::setFormWidget(WFormModel::Field field,
-				      std::unique_ptr<Wt::WWidget> formWidget)
+                                      std::unique_ptr<Wt::WWidget> formWidget)
 {
   fields_[field] = FieldData();
   fields_[field].formWidget = formWidget.get();
@@ -51,11 +51,11 @@ void WTemplateFormView::setFormWidget(WFormModel::Field field,
 void WTemplateFormView
 ::setFormWidget(WFormModel::Field field, std::unique_ptr<WWidget> formWidget,
 #ifndef WT_TARGET_JAVA
-		const std::function<void()>& updateViewValue,
-		const std::function<void()>& updateModelValue
+                const std::function<void()>& updateViewValue,
+                const std::function<void()>& updateModelValue
 #else // WT_TARGET_JAVA
-		const Runnable& updateViewValue,
-		const Runnable& updateModelValue
+                const Runnable& updateViewValue,
+                const Runnable& updateModelValue
 #endif // WT_TARGET_JAVA
     )
 {
@@ -79,8 +79,8 @@ std::unique_ptr<WWidget> WTemplateFormView
 }
 
 void WTemplateFormView::updateViewValue(WFormModel *model,
-					WFormModel::Field field,
-					WFormWidget *edit)
+                                        WFormModel::Field field,
+                                        WFormWidget *edit)
 {
   if (updateViewValue(model, field, (WWidget *)edit))
     return;
@@ -97,8 +97,8 @@ void WTemplateFormView::updateViewValue(WFormModel *model,
 }
 
 bool WTemplateFormView::updateViewValue(WFormModel *model,
-					WFormModel::Field field,
-					WWidget *edit)
+                                        WFormModel::Field field,
+                                        WWidget *edit)
 {
   FieldMap::const_iterator fi = fields_.find(field);
 
@@ -114,10 +114,10 @@ bool WTemplateFormView::updateViewValue(WFormModel *model,
   }
 
   return false;
-} 
+}
 
 void WTemplateFormView::updateViewField(WFormModel *model,
-					WFormModel::Field field)
+                                        WFormModel::Field field)
 {
   const std::string var = field;
 
@@ -128,9 +128,9 @@ void WTemplateFormView::updateViewField(WFormModel *model,
       std::unique_ptr<WWidget> nw = createFormWidget(field);
       edit = nw.get();
       if (!edit) {
-	LOG_ERROR("updateViewField: createFormWidget('"
-		  << field << "') returned 0");
-	return;
+        LOG_ERROR("updateViewField: createFormWidget('"
+                  << field << "') returned 0");
+        return;
       }
       bindWidget(var, std::move(nw));
     }
@@ -138,8 +138,8 @@ void WTemplateFormView::updateViewField(WFormModel *model,
     WFormWidget *fedit = dynamic_cast<WFormWidget *>(edit);
     if (fedit) {
       if (fedit->validator() != model->validator(field) &&
-	  model->validator(field))
-	fedit->setValidator(model->validator(field));
+          model->validator(field))
+        fedit->setValidator(model->validator(field));
       updateViewValue(model, field, fedit);
     } else
       updateViewValue(model, field, edit);
@@ -155,20 +155,20 @@ void WTemplateFormView::updateViewField(WFormModel *model,
     const WValidator::Result& v = model->validation(field);
     info->setText(v.message());
     indicateValidation(field, model->isValidated(field),
-		       info, edit, v);
+                       info, edit, v);
     edit->setDisabled(model->isReadOnly(field));
   } else {
     setCondition("if:" + var, false);
     bindEmpty(var);
-    bindEmpty(var + "-info");    
+    bindEmpty(var + "-info");
   }
 }
 
 void WTemplateFormView::indicateValidation(WFormModel::Field field,
-					   bool validated,
-					   WText *info,
-					   WWidget *edit,
-					   const WValidator::Result& validation)
+                                           bool validated,
+                                           WText *info,
+                                           WWidget *edit,
+                                           const WValidator::Result& validation)
 {
   info->setText(validation.message());
 
@@ -176,9 +176,9 @@ void WTemplateFormView::indicateValidation(WFormModel::Field field,
     WApplication::instance()->theme()
       ->applyValidationStyle(edit, validation, ValidationAllStyles);
 
-    info->toggleStyleClass("Wt-error", 
-			   validation.state() != ValidationState::Valid,
-			   true);
+    info->toggleStyleClass("Wt-error",
+                           validation.state() != ValidationState::Valid,
+                           true);
   } else {
     WApplication::instance()->theme()
       ->applyValidationStyle(edit, validation, None);
@@ -188,7 +188,7 @@ void WTemplateFormView::indicateValidation(WFormModel::Field field,
 }
 
 void WTemplateFormView::updateModelField(WFormModel *model,
-					 WFormModel::Field field)
+                                         WFormModel::Field field)
 {
   WWidget *edit = resolveWidget(field);
   WFormWidget *fedit = dynamic_cast<WFormWidget *>(edit);
@@ -199,8 +199,8 @@ void WTemplateFormView::updateModelField(WFormModel *model,
 }
 
 void WTemplateFormView::updateModelValue(WFormModel *model,
-					 WFormModel::Field field,
-					 WFormWidget *edit)
+                                         WFormModel::Field field,
+                                         WFormWidget *edit)
 {
   if (updateModelValue(model, field, (WWidget *)edit))
     return;
@@ -213,8 +213,8 @@ void WTemplateFormView::updateModelValue(WFormModel *model,
 }
 
 bool WTemplateFormView::updateModelValue(WFormModel *model,
-					 WFormModel::Field field,
-					 WWidget *edit)
+                                         WFormModel::Field field,
+                                         WWidget *edit)
 {
   FieldMap::const_iterator fi = fields_.find(field);
 
@@ -228,7 +228,7 @@ bool WTemplateFormView::updateModelValue(WFormModel *model,
       return true;
     }
   }
-   
+
   return false;
 }
 

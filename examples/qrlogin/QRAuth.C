@@ -54,7 +54,7 @@ public:
   void authEvent() {
     if (session_.login().loggedIn())
       log("notice") << "User " << session_.login().user().id()
-			<< " logged in.";
+                        << " logged in.";
     else
       log("notice") << "User logged out.";
   }

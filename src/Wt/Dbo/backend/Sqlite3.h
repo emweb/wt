@@ -108,15 +108,15 @@ public:
   virtual void rollbackTransaction() override;
 
   virtual std::unique_ptr<SqlStatement> prepareStatement(const std::string& sql) override;
-  
+
   /** @name Methods that return dialect information
    */
   //@{
   virtual std::string autoincrementSql() const override;
-  virtual std::vector<std::string> 
+  virtual std::vector<std::string>
     autoincrementCreateSequenceSql(const std::string &table,
                                    const std::string &id) const override;
-  virtual std::vector<std::string> 
+  virtual std::vector<std::string>
     autoincrementDropSequenceSql(const std::string &table,
                                  const std::string &id) const override;
   virtual std::string autoincrementType() const override;

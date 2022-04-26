@@ -57,7 +57,7 @@ void WMeasurePaintDevice::expandBounds(const WRectF& bounds)
 }
 
 void WMeasurePaintDevice::drawArc(const WRectF& rect, double startAngle,
-				  double spanAngle)
+                                  double spanAngle)
 {
   WPainterPath p;
 
@@ -71,9 +71,9 @@ void WMeasurePaintDevice::drawArc(const WRectF& rect, double startAngle,
 }
 
 void WMeasurePaintDevice::drawImage(const WRectF& rect,
-				    const std::string& imageUri,
-				    int imgWidth, int imgHeight,
-				    const WRectF& sourceRect)
+                                    const std::string& imageUri,
+                                    int imgWidth, int imgHeight,
+                                    const WRectF& sourceRect)
 {
   expandBounds(rect);
 }
@@ -97,13 +97,13 @@ void WMeasurePaintDevice::drawLine(double x1, double y1, double x2, double y2)
 }
 
 void WMeasurePaintDevice::drawText(const WRectF& rect,
-				   WFlags<AlignmentFlag> flags,
-				   TextFlag textFlag, const WString& text,
-				   const WPointF *clipPoint)
+                                   WFlags<AlignmentFlag> flags,
+                                   TextFlag textFlag, const WString& text,
+                                   const WPointF *clipPoint)
 {
   if (clipPoint && painter() && !painter()->clipPath().isEmpty()) {
     if (!painter()->clipPathTransform().map(painter()->clipPath())
-	  .isPointInPath(painter()->worldTransform().map(*clipPoint)))
+          .isPointInPath(painter()->worldTransform().map(*clipPoint)))
       return;
   }
 
@@ -114,7 +114,7 @@ void WMeasurePaintDevice::drawText(const WRectF& rect,
 
   for (;;) {
     WTextItem t = measureText(line, rect.width(),
-			      textFlag == TextFlag::WordWrap ? true : false);
+                              textFlag == TextFlag::WordWrap ? true : false);
 
     h += fm.height();
     w = std::max(w, t.width());
@@ -123,7 +123,7 @@ void WMeasurePaintDevice::drawText(const WRectF& rect,
       break;
     else
       line = WString
-	::fromUTF8(line.toUTF8().substr(t.text().toUTF8().length()));
+        ::fromUTF8(line.toUTF8().substr(t.text().toUTF8().length()));
   }
 
   AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
@@ -155,7 +155,7 @@ void WMeasurePaintDevice::drawText(const WRectF& rect,
 }
 
 WTextItem WMeasurePaintDevice::measureText(const WString& text, double maxWidth,
-					   bool wordWrap)
+                                           bool wordWrap)
 {
   return device_->measureText(text, maxWidth, wordWrap);
 }

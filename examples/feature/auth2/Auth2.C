@@ -43,7 +43,7 @@ public:
   void authEvent() {
     if (session_.login().loggedIn()) {
       log("notice") << "User " << session_.login().user().id()
-			<< " logged in.";
+                        << " logged in.";
       Dbo::Transaction t(session_);
       dbo::ptr<User> user = session_.user();
       log("notice") << "(Favourite pet: " << user->favouritePet << ")";

@@ -28,10 +28,10 @@ class WT_API Message
 public:
   /*! \class Header
    *  \brief An HTTP message header.
-   * 
+   *
    * An HTTP message header is a name/value pair, as defined by RFC 822.
    */
-  class WT_API Header 
+  class WT_API Header
   {
   public:
     /*! \brief Default constructor.

@@ -65,7 +65,7 @@ void WSound::setLoops(int number)
 }
 
 void WSound::play()
-{  
+{
   if (manager_)
     manager_->play(this, loops_);
 }

@@ -16,25 +16,25 @@ WT_DECLARE_WT_MEMBER
    this.applyEmptyText = function() {
      if (WT.hasFocus(el)) {
        if ($(el).hasClass(emptyTextStyle)) {
-	 if (!WT.isIE && el.oldtype) {
-	   el.type = el.oldtype;
-	 }
-	 $(el).removeClass(emptyTextStyle);
-	 el.value = '';
+         if (!WT.isIE && el.oldtype) {
+           el.type = el.oldtype;
+         }
+         $(el).removeClass(emptyTextStyle);
+         el.value = '';
        }
      } else {
        if (el.value == '') {
-	 if (el.type == 'password') {
-	   if (!WT.isIE) {
-	     el.oldtype = 'password';
-	     el.type = 'text';
-	   } else
-	     return;
-	 }
-	 $(el).addClass(emptyTextStyle);
-	 el.value = emptyText;
+         if (el.type == 'password') {
+           if (!WT.isIE) {
+             el.oldtype = 'password';
+             el.type = 'text';
+           } else
+             return;
+         }
+         $(el).addClass(emptyTextStyle);
+         el.value = emptyText;
        } else {
-	 $(el).removeClass(emptyTextStyle);
+         $(el).removeClass(emptyTextStyle);
        }
      }
    };

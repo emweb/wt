@@ -40,10 +40,10 @@ void WProgressBar::setValue(double value)
   value_ = value;
 
   valueChanged_.emit(value_);
-  
+
   if (value_ == max_)
     progressCompleted_.emit();
-  
+
   changed_ = true;
   repaint();
 }

@@ -36,7 +36,7 @@ class WText;
  * processed the messabebox. Since this uses the WDialog::exec(), it
  * suffers from the same scalability issues as well as
  * limitations. See documentation of WDialog for more details.
- * 
+ *
  * \if cpp
  * Example code (using the exec() method, not recommended):
  * \code
@@ -48,7 +48,7 @@ class WText;
  *
  * This will show a message box that looks like this:
  *
- * <TABLE border="0" align="center"> <TR> <TD> 
+ * <TABLE border="0" align="center"> <TR> <TD>
  * \image html WMessageBox-default-1.png "Example of a WMessageBox (default)"
  * </TD> <TD>
  * \image html WMessageBox-polished-1.png "Example of a WMessageBox (polished)"
@@ -81,7 +81,7 @@ public:
    *         buttons.
    */
   WMessageBox(const WString& caption, const WString& text, Icon icon,
-	      WFlags<StandardButton> buttons);
+              WFlags<StandardButton> buttons);
 
   /*! \brief Sets the text for the message box.
    */
@@ -212,22 +212,22 @@ public:
    * recommended since it uses WDialog::exec(). See documentation of
    * WDialog for detailed information.
    *
-   * \if java 
-   * <i>This functionality is only available on Servlet 3.0 compatible 
+   * \if java
+   * <i>This functionality is only available on Servlet 3.0 compatible
    * servlet containers.</i>
    * \endif
    */
   static StandardButton show(const WString& caption,
-			     const WString& text,
-			     WFlags<StandardButton> buttons,
-			     const WAnimation& animation = WAnimation());
+                             const WString& text,
+                             WFlags<StandardButton> buttons,
+                             const WAnimation& animation = WAnimation());
 
   /*! \brief %Signal emitted when a button is clicked.
    */
   Signal<StandardButton>& buttonClicked() { return buttonClicked_; }
 
   virtual void setHidden(bool hidden,
-			 const WAnimation& animation = WAnimation()) override;
+                         const WAnimation& animation = WAnimation()) override;
 
 private:
   struct Button {

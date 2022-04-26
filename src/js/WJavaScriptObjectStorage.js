@@ -18,20 +18,20 @@ WT_DECLARE_WT_MEMBER
     function deepCopy(v) {
       if (jQuery.isArray(v)) {
         var res = [];
-	var i;
-	for (i = 0; i < v.length; ++i) {
-	  res.push(deepCopy(v[i]));
-	}
-	return res;
+        var i;
+        for (i = 0; i < v.length; ++i) {
+          res.push(deepCopy(v[i]));
+        }
+        return res;
       } else if (jQuery.isPlainObject(v)) {
         var res = {};
-	var key;
-	for (key in v) {
-	  if (v.hasOwnProperty(key)) {
-	    res[key] = deepCopy(v[key]);
-	  }
-	}
-	return res;
+        var key;
+        for (key in v) {
+          if (v.hasOwnProperty(key)) {
+            res[key] = deepCopy(v[key]);
+          }
+        }
+        return res;
       } else {
         return v;
       }
@@ -43,30 +43,30 @@ WT_DECLARE_WT_MEMBER
         return true;
       if (jQuery.isArray(a) && jQuery.isArray(b)) {
         if (a.length !== b.length)
-	  return false;
+          return false;
         var i;
-	for (i = 0; i < a.length; ++i) {
-	  if (!isEqual(a[i], b[i]))
-	    return false;
-	}
-	return true;
+        for (i = 0; i < a.length; ++i) {
+          if (!isEqual(a[i], b[i]))
+            return false;
+        }
+        return true;
       } else if (jQuery.isPlainObject(a) && jQuery.isPlainObject(b)) {
-	 var key;
-	 for (key in a) {
-	   if (a.hasOwnProperty(key)) {
-	     if (!b.hasOwnProperty(key))
-	       return false;
-	     if (!isEqual(a[key], b[key]))
-	       return false;
-	   }
-	 }
-	 for (key in b) {
-	   if (b.hasOwnProperty(key)) {
-	     if (!a.hasOwnProperty(key))
-	       return false;
-	   }
-	 }
-	 return true;
+         var key;
+         for (key in a) {
+           if (a.hasOwnProperty(key)) {
+             if (!b.hasOwnProperty(key))
+               return false;
+             if (!isEqual(a[key], b[key]))
+               return false;
+           }
+         }
+         for (key in b) {
+           if (b.hasOwnProperty(key)) {
+             if (!a.hasOwnProperty(key))
+               return false;
+           }
+         }
+         return true;
       } else {
         return false;
       }
@@ -81,7 +81,7 @@ WT_DECLARE_WT_MEMBER
     this.jsValues = [];
     this.setJsValue = function(index, value) {
       if (!isPainterPath(value))
-	oldValues[index] = deepCopy(value);
+        oldValues[index] = deepCopy(value);
       self.jsValues[index] = value;
     };
 
@@ -91,10 +91,10 @@ WT_DECLARE_WT_MEMBER
       var i;
       for (i = 0; i < self.jsValues.length; ++i) {
         value = self.jsValues[i];
-	if (!isPainterPath(value) &&
-	    !isEqual(value, oldValues[i])) {
-	  res[i] = value;
-	}
+        if (!isPainterPath(value) &&
+            !isEqual(value, oldValues[i])) {
+          res[i] = value;
+        }
       }
       return JSON.stringify(res);
     }

@@ -78,7 +78,7 @@ SqlStatement *SqlConnection::getStatement(const std::string& id)
 }
 
 void SqlConnection::saveStatement(const std::string& id,
-				  std::unique_ptr<SqlStatement> statement)
+                                  std::unique_ptr<SqlStatement> statement)
 {
   statementCache_.emplace(id, std::move(statement));
 }
@@ -94,7 +94,7 @@ std::string SqlConnection::property(const std::string& name) const
 }
 
 void SqlConnection::setProperty(const std::string& name,
-				const std::string& value)
+                                const std::string& value)
 {
   properties_[name] = value;
 }
@@ -176,6 +176,6 @@ std::vector<SqlStatement *> SqlConnection::getStatements() const
 
   return result;
 }
-  
+
   }
 }

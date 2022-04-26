@@ -49,7 +49,7 @@ FIND_PATH(POSTGRES_INCLUDE libpq-fe.h
     /usr/include/postgresql
     /usr/local/include
     /usr/local/include/postgresql
-    /opt/local/include	
+    /opt/local/include
     /opt/local/include/postgresql
 )
 

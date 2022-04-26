@@ -57,7 +57,7 @@ namespace Signals {
 
    To respond to user-interactivity events, or in general to communicate
    events from one widget to any other, %Wt uses a signal/slot system.
-  
+
    A slot is any method of any descendant of WObject. To connect a
    signal with a slot, the only requirement is that the method
    signature of the slot must be compatible with the signal
@@ -68,16 +68,16 @@ namespace Signals {
    these functions can be used as slots, or, if you have done extra
    work to optimize the implementation of these methods as client-side
    JavaScript code (see below).
-  
+
    A signal may be created by adding a \link Signal Signal<X,
    ...>\endlink object to your class. You may specify up to 6
    arguments which may be of arbitrary types that are <i>Copyable</i>,
    that may be passed through the signal to connected slots.
-  
+
    The library defines several user-event signals on various widgets,
    and it is easy and convenient to add signals and slots to widget
    classes to communicate events and trigger callbacks.
-  
+
    Event signals (\link EventSignal EventSignal<E>\endlink)
    are signals that may be triggered internally by the library to
    respond to user interactivity events.  The abstract base classes
@@ -127,7 +127,7 @@ public:
    * arguments (and may thus ignore signal arguments).
    */
   virtual Wt::Signals::connection connect(WObject *target,
-					  WObject::Method method) = 0;
+                                          WObject::Method method) = 0;
 
   /*! \brief Connects to a slot.
    *
@@ -224,8 +224,8 @@ private:
 template <class... A>
 #else // WT_CNOR
 template <typename A1 = NoClass, typename A2 = NoClass,
-	  typename A3 = NoClass, typename A4 = NoClass,
-	  typename A5 = NoClass, typename A6 = NoClass>
+          typename A3 = NoClass, typename A4 = NoClass,
+          typename A5 = NoClass, typename A6 = NoClass>
 #endif // WT_CNOR
 class Signal : public SignalBase
 {
@@ -235,7 +235,7 @@ public:
   Signal();
 
   virtual Wt::Signals::connection connect(WObject *target,
-					  WObject::Method method) override;
+                                          WObject::Method method) override;
 
   /*! \brief Connects to a function.
    *
@@ -252,7 +252,7 @@ public:
    */
   template <class F> Wt::Signals::connection connect(F function);
   template <class F> Wt::Signals::connection connect(const WObject *target,
-						     F function);
+                                                     F function);
 
   /*! \brief Connects a slot.
    *
@@ -282,39 +282,39 @@ public:
     Wt::Signals::connection connect(T *target, void (V::*method)(A1, A2));
   template<class T, class V>
     Wt::Signals::connection connect(T *target, void (V::*method)(const A1&,
-								    A2));
+                                                                    A2));
   template<class T, class V>
     Wt::Signals::connection connect(T *target, void (V::*method)(A1,
-								    const A2&));
+                                                                    const A2&));
   template<class T, class V>
     Wt::Signals::connection connect(T *target, void (V::*method)(const A1&,
-								    const A2&));
+                                                                    const A2&));
   template<class T, class V>
     Wt::Signals::connection connect(T *target,
-				       void (V::*method)(A1,A2,A3));
+                                       void (V::*method)(A1,A2,A3));
 
   template<class T, class V>
     Wt::Signals::connection connect(T *target, void (V::*method)(const A1&,
-								    A2,A3));
+                                                                    A2,A3));
 
   template<class T, class V>
     Wt::Signals::connection connect(T *target, void (V::*method)(const A1&,
-								    const A2&,
-								    A3));
+                                                                    const A2&,
+                                                                    A3));
 
   template<class T, class V>
     Wt::Signals::connection connect(T *target, void (V::*method)(const A1&,
-								    const A2&,
-								    const A3&));
+                                                                    const A2&,
+                                                                    const A3&));
   template<class T, class V>
     Wt::Signals::connection connect(T *target,
-				       void (V::*method)(A1,A2,A3,A4));
+                                       void (V::*method)(A1,A2,A3,A4));
   template<class T, class V>
     Wt::Signals::connection connect(T *target,
-				       void (V::*method)(A1,A2,A3,A4,A5));
+                                       void (V::*method)(A1,A2,A3,A4,A5));
   template<class T, class V>
     Wt::Signals::connection connect(T *target,
-				       void (V::*method)(A1,A2,A3,A4,A5,A6));
+                                       void (V::*method)(A1,A2,A3,A4,A5,A6));
 #endif // WT_CNOR
 
   /*! \brief Emits the signal.
@@ -329,8 +329,8 @@ public:
   void emit(A... args) const;
 #else // WT_CNOR
   void emit(A1 a1 = NoClass::none, A2 a2 = NoClass::none,
-	    A3 a3 = NoClass::none, A4 a4 = NoClass::none,
-	    A5 a5 = NoClass::none, A6 a6 = NoClass::none) const;
+            A3 a3 = NoClass::none, A4 a4 = NoClass::none,
+            A5 a5 = NoClass::none, A6 a6 = NoClass::none) const;
 #endif // WT_CNOR
 
   /*! \brief Emits the signal.
@@ -343,8 +343,8 @@ public:
   void operator()(A... args) const;
 #else // WT_CNOR
   void operator()(A1 a1 = NoClass::none, A2 a2 = NoClass::none,
-		  A3 a3 = NoClass::none, A4 a4 = NoClass::none,
-		  A5 a5 = NoClass::none, A6 a6 = NoClass::none) const;
+                  A3 a3 = NoClass::none, A4 a4 = NoClass::none,
+                  A5 a5 = NoClass::none, A6 a6 = NoClass::none) const;
 #endif // WT_CNOR
 
   virtual bool isConnected() const override;
@@ -369,7 +369,7 @@ public:
     Wt::Signals::connection connect(T *target, void (V::*method)());
   template <class F> Wt::Signals::connection connect(F function);
   template <class F> Wt::Signals::connection connect(const WObject *target,
-						     F function);
+                                                     F function);
 };
 
 #endif // WT_CNOR
@@ -439,25 +439,25 @@ public:
 
 #ifndef WT_CNOR
   const std::string createUserEventCall(const std::string& jsObject,
-					const std::string& jsEvent,
-					const std::string& eventName,
-					std::initializer_list<std::string> args)
+                                        const std::string& jsEvent,
+                                        const std::string& eventName,
+                                        std::initializer_list<std::string> args)
     const;
 #else // WT_CNOR
   const std::string createUserEventCall(const std::string& jsObject,
-					const std::string& jsEvent,
-					const std::string& eventName,
-					const std::string& arg1,
-					const std::string& arg2,
-					const std::string& arg3,
-					const std::string& arg4,
-					const std::string& arg5,
-					const std::string& arg6) const;
+                                        const std::string& jsEvent,
+                                        const std::string& eventName,
+                                        const std::string& arg1,
+                                        const std::string& arg2,
+                                        const std::string& arg3,
+                                        const std::string& arg4,
+                                        const std::string& arg5,
+                                        const std::string& arg6) const;
 #endif // WT_CNOR
 
-  Wt::Signals::connection connectStateless(WObject::Method method, 
-					   WObject *target,
-					   WStatelessSlot *slot);
+  Wt::Signals::connection connectStateless(WObject::Method method,
+                                           WObject *target,
+                                           WStatelessSlot *slot);
   using SignalBase::connect;
   void connect(JSlot& slot);
   void connect(const std::string& function);
@@ -474,7 +474,7 @@ protected:
     bool ok() const;
 
     StatelessConnection(const Wt::Signals::connection& c,
-			WObject *target, WStatelessSlot *slot);
+                        WObject *target, WStatelessSlot *slot);
   };
 
   static const int BIT_NEED_UPDATE = 0;
@@ -581,7 +581,7 @@ public:
    */
   template <class F> Wt::Signals::connection connect(F function);
   template <class F> Wt::Signals::connection connect(const WObject *target,
-						     F function);
+                                                     F function);
 
   /*! \brief Connects a slot that takes no arguments.
    *
@@ -616,7 +616,7 @@ public:
    */
   template<class T, class V>
     Wt::Signals::connection connect(T *target,
-				    void (V::*method)(const E&));
+                                    void (V::*method)(const E&));
 
   /*! \brief Connects a JavaScript function.
    *
@@ -669,7 +669,7 @@ public:
   void operator()(E e) const;
 
   virtual Wt::Signals::connection connect(WObject *target,
-					  WObject::Method method) override;
+                                          WObject::Method method) override;
 
 #ifdef WT_CNOR
   void senderRepaint();
@@ -699,7 +699,7 @@ public:
 
   template <class F> Wt::Signals::connection connect(F function);
   template <class F> Wt::Signals::connection connect(const WObject *target,
-						     F function);
+                                                     F function);
   void connect(const std::string& function);
   void connect(JSlot& slot);
   template<class T, class V>
@@ -715,7 +715,7 @@ public:
 
 template <class T, class V>
 Wt::Signals::connection SignalBase::connect(T *target,
-					    void (V::*method)())
+                                            void (V::*method)())
 {
   WObject *o = dynamic_cast<WObject *>(dynamic_cast<V *>(target));
   assert(o);
@@ -728,7 +728,7 @@ Signal<A...>::Signal()
 
 template <class... A>
 Wt::Signals::connection Signal<A...>::connect(WObject *target,
-					      WObject::Method method)
+                                              WObject::Method method)
 {
   return impl_.connect(std::bind(method, target), target);
 }
@@ -743,7 +743,7 @@ Wt::Signals::connection Signal<A...>::connect(F function)
 template <class... A>
 template <class F>
 Wt::Signals::connection Signal<A...>::connect(const WObject *target,
-					      F function)
+                                              F function)
 {
   return Signals::Impl::connectFunction<F, A...>(impl_, std::move(function), target);
 }
@@ -816,7 +816,7 @@ Wt::Signals::connection EventSignal<E>::connect(F function)
 template <typename E>
 template <class F>
 Wt::Signals::connection EventSignal<E>::connect(const WObject *target,
-						F function)
+                                                F function)
 {
   exposeSignal();
   return Signals::Impl::connectFunction<F, E>(dynamic_, std::move(function), target);
@@ -825,7 +825,7 @@ Wt::Signals::connection EventSignal<E>::connect(const WObject *target,
 template <typename E>
 template <class T, class V>
 Wt::Signals::connection EventSignal<E>::connect(T *target,
-						void (V::*method)())
+                                                void (V::*method)())
 {
   exposeSignal();
   WObject *o = dynamic_cast<WObject *>(dynamic_cast<V *>(target));
@@ -843,24 +843,24 @@ Wt::Signals::connection EventSignal<E>::connect(T *target,
 template <typename E>
 template <class T, class V>
 Wt::Signals::connection EventSignal<E>::connect(T *target,
-						void (V::*method)(E))
+                                                void (V::*method)(E))
 {
   exposeSignal();
   assert(dynamic_cast<V *>(target));
   return dynamic_.connect(std::bind(method, target, std::placeholders::_1),
-			  target);
+                          target);
 }
 
 template <typename E>
 template <class T, class V>
 Wt::Signals::connection EventSignal<E>::connect(T *target,
-						void (V::*method)(const E&))
+                                                void (V::*method)(const E&))
 {
   exposeSignal();
   assert(dynamic_cast<V *>(target));
 
   return dynamic_.connect(std::bind(method, target, std::placeholders::_1),
-			  target);
+                          target);
 }
 
 template <typename E>

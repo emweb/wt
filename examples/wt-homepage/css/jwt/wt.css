@@ -91,7 +91,7 @@ h3 {
     color: #FFFFFF;
     height:52px;
     display:block;
-}		
+}
 
 h3 span {
     display: block;
@@ -267,7 +267,7 @@ div#main_page{
     margin-left:64px;
     margin-right:5px;
     padding-bottom:30px;
-    position:relative;	
+    position:relative;
     float:left;
     width:63%;
     min-width:380px;
@@ -309,7 +309,7 @@ div#footer_menu  {
 
 .clearall{
     clear: both;
-}	
+}
 
 .blog-header {
     color: #CF6900;

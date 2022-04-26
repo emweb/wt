@@ -8,7 +8,7 @@
         ${tr:Wt.Auth.{1}}
       </label>
       <div class="col-sm-5">
-	${{1}}
+        ${{1}}
       </div>
       <div class="help-block col-sm-5">
         ${{1}-info}
@@ -26,7 +26,7 @@
         ${{2}}
       </label>
       <div class="col-sm-5">
-	${{1}}
+        ${{1}}
       </div>
       <div class="help-block col-sm-5">
         ${{1}-info}
@@ -44,7 +44,7 @@
         ${{2}}
       </label>
       <div class="col-sm-5">
-	${{1}}
+        ${{1}}
       </div>
       <div class="help-block col-sm-5">
         ${{1}-info} ${{3} class="btn-link"}
@@ -58,8 +58,8 @@
     <div>
       ${collapse-button}
       <div class="navbar-header">
-	${expand-button}
-	${title-link}
+        ${expand-button}
+        ${title-link}
       </div>
       ${contents}
     </div>

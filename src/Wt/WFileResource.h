@@ -98,7 +98,7 @@ public:
    * \endif
    */
   virtual void handleRequest(const Http::Request& request,
-			     Http::Response& response) override;
+                             Http::Response& response) override;
 
 private:
   std::string fileName_;

@@ -13,7 +13,7 @@
 
 using namespace Wt;
 
-class JWtHome : public Home 
+class JWtHome : public Home
 {
 public:
   JWtHome(const WEnvironment& env, Dbo::SqlConnectionPool& blogDb);

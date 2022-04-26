@@ -45,7 +45,7 @@ void WWidgetItem::setParentWidget(WWidget *parent)
 
     if (widget_->parent()) {
       if (widget_->parent() != pc)
-	throw WException("Cannot move a WWidgetItem to another container");
+        throw WException("Cannot move a WWidgetItem to another container");
     } else
       pc->widgetAdded(widget_.get());
 

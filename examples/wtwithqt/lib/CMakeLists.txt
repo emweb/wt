@@ -1,7 +1,7 @@
 IF (BUILD_WTWITHQT4)
 
 QT4_GENERATE_MOC (${CMAKE_CURRENT_SOURCE_DIR}/DispatchThread.h
-		  ${CMAKE_CURRENT_BINARY_DIR}/moccedDispatchThread.C)
+                  ${CMAKE_CURRENT_BINARY_DIR}/moccedDispatchThread.C)
 
 ADD_LIBRARY(wtwithqt STATIC
   WQApplication.C

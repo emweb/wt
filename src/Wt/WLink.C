@@ -21,7 +21,7 @@ namespace Wt {
 WLink::WLink()
   : type_(LinkType::Url),
     target_(LinkTarget::Self)
-{ 
+{
 #ifdef WT_TARGET_JAVA
   setUrl("");
 #endif
@@ -29,13 +29,13 @@ WLink::WLink()
 
 WLink::WLink(const char *url)
   : target_(LinkTarget::Self)
-{ 
+{
   setUrl(url);
 }
 
 WLink::WLink(const std::string& url)
   : target_(LinkTarget::Self)
-{ 
+{
   setUrl(url);
 }
 
@@ -161,22 +161,22 @@ std::string WLink::resolveUrl(WApplication *app) const
 }
 
 JSlot *WLink::manageInternalPathChange(WApplication *app,
-				       WInteractWidget *widget,
-				       JSlot *slot) const
+                                       WInteractWidget *widget,
+                                       JSlot *slot) const
 {
   if (type_ == LinkType::InternalPath) {
     if (app->environment().ajax()) {
       if (!slot) {
-	slot = new JSlot();
-	widget->clicked().connect(*slot);
-	widget->clicked().preventDefaultAction();
+        slot = new JSlot();
+        widget->clicked().connect(*slot);
+        widget->clicked().preventDefaultAction();
       }
 
       slot->setJavaScript
-	("function(){" +
-	 app->javaScriptClass() + "._p_.setHash("
-	 + WWebWidget::jsStringLiteral(internalPath()) + ",true);"
-	 "}");
+        ("function(){" +
+         app->javaScriptClass() + "._p_.setHash("
+         + WWebWidget::jsStringLiteral(internalPath()) + ",true);"
+         "}");
 
 #ifdef WT_TARGET_JAVA
       widget->clicked().senderRepaint();

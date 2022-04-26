@@ -49,13 +49,13 @@ namespace Wt {
  * \elseif java
  * \code
  * WGroupBox box = new WGroupBox("In-flight options");
- *		 
+ *
  * WCheckBox w1 = new WCheckBox("Vegetarian diet", box);
  * box.addWidget(new WBreak());
  * WCheckBox w2 = new WCheckBox("WIFI access", box);
  * box.addWidget(new WBreak());
  * WCheckBox w3 = new WCheckBox("AC plug", box);
- *		 
+ *
  * w1.setChecked(false);
  * w2.setChecked(true);
  * w3.setChecked(true);
@@ -97,7 +97,7 @@ public:
    */
   void setTristate(bool tristate = true);
 
-  /*! \brief enable or disable cycling throught partial state 
+  /*! \brief enable or disable cycling throught partial state
    *
    * \sa isPartialStateSelectable()
    */

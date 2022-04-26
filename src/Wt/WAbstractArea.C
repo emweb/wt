@@ -22,7 +22,7 @@ namespace Wt {
     {
     public:
       AreaWidget(WAbstractArea *facade)
-	: facade_(facade)
+        : facade_(facade)
       { }
 
       ~AreaWidget()
@@ -36,22 +36,22 @@ namespace Wt {
     protected:
       virtual void updateDom(DomElement& element, bool all) override
       {
-	bool needsUrlResolution = facade_->updateDom(element, all);
+        bool needsUrlResolution = facade_->updateDom(element, all);
 
-	WInteractWidget::updateDom(element, all);
+        WInteractWidget::updateDom(element, all);
 
-	if (!element.getProperty(Property::StyleCursor).empty()
-	    && !wApp->environment().agentIsGecko()
-	    && element.getAttribute("href").empty())
-	  element.setAttribute("href", "javascript:void(0);");
+        if (!element.getProperty(Property::StyleCursor).empty()
+            && !wApp->environment().agentIsGecko()
+            && element.getAttribute("href").empty())
+          element.setAttribute("href", "javascript:void(0);");
 
-	if (needsUrlResolution)
-	  WAnchor::renderUrlResolution(this, element, all);
+        if (needsUrlResolution)
+          WAnchor::renderUrlResolution(this, element, all);
       }
 
       virtual DomElementType domElementType() const override
       {
-	return DomElementType::AREA;
+        return DomElementType::AREA;
       }
 
       friend class Wt::WAbstractArea;

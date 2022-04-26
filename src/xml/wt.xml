@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <messages nplurals="2"
-	  plural="n == 1 ? 0 : 1">
+          plural="n == 1 ? 0 : 1">
   <message id="Wt.QuittedMessage">
     The application has stopped running, would you like to restart?
   </message>
@@ -175,31 +175,31 @@
     </div>
     <div class="jp-interface">
       <div class="jp-progress">
-	${progress-bar}
+        ${progress-bar}
       </div>
       ${current-time}
       ${duration}
       <div class="jp-controls-holder">
-	<ul class="jp-controls">
-	  <li>${play-btn}</li>
-	  <li>${pause-btn}</li>
-	  <li>${stop-btn}</li>
-	  <li>${mute-btn}</li>
-	  <li>${unmute-btn}</li>
-	  <li>${volume-max-btn}</li>
-	</ul>
-	${volume-bar}
-	<ul class="jp-toggles">
-	  <li>${full-screen-btn}</li>
-	  <li>${restore-screen-btn}</li>
-	  <li>${repeat-btn}</li>
-	  <li>${repeat-off-btn}</li>
-	</ul>
+        <ul class="jp-controls">
+          <li>${play-btn}</li>
+          <li>${pause-btn}</li>
+          <li>${stop-btn}</li>
+          <li>${mute-btn}</li>
+          <li>${unmute-btn}</li>
+          <li>${volume-max-btn}</li>
+        </ul>
+        ${volume-bar}
+        <ul class="jp-toggles">
+          <li>${full-screen-btn}</li>
+          <li>${restore-screen-btn}</li>
+          <li>${repeat-btn}</li>
+          <li>${repeat-off-btn}</li>
+        </ul>
       </div>
       <div class="jp-title" style="display: ${title-display}">
-	<ul>
-	  <li>${title}</li>
-	</ul>
+        <ul>
+          <li>${title}</li>
+        </ul>
       </div>
     </div>
   </message>
@@ -207,29 +207,29 @@
   <message id="Wt.WMediaPlayer.defaultgui-audio">
     <div class="jp-interface">
       <ul class="jp-controls">
-	<li>${play-btn}</li>
-	<li>${pause-btn}</li>
-	<li>${stop-btn}</li>
-	<li>${mute-btn}</li>
-	<li>${unmute-btn}</li>
-	<li>${volume-max-btn}</li>
+        <li>${play-btn}</li>
+        <li>${pause-btn}</li>
+        <li>${stop-btn}</li>
+        <li>${mute-btn}</li>
+        <li>${unmute-btn}</li>
+        <li>${volume-max-btn}</li>
       </ul>
       <div class="jp-progress">
-	${progress-bar}
+        ${progress-bar}
       </div>
       ${volume-bar}
       <div class="jp-time-holder">
-	${current-time}
-	${duration}
-	<ul class="jp-toggles">
-	  <li>${repeat-btn}</li>
-	  <li>${repeat-off-btn}</li>
-	</ul>
+        ${current-time}
+        ${duration}
+        <ul class="jp-toggles">
+          <li>${repeat-btn}</li>
+          <li>${repeat-off-btn}</li>
+        </ul>
       </div>
     </div>
     <div class="jp-title" style="display: ${title-display}">
       <ul>
-	<li>${title}</li>
+        <li>${title}</li>
       </ul>
     </div>
   </message>
@@ -237,10 +237,10 @@
   <message id="Wt.WNavigationBar.template">
     <div class="navbar-inner">
       <div class="container">
-	${collapse-button}
-	${expand-button}
-	${title-link}
-	${contents}
+        ${collapse-button}
+        ${expand-button}
+        ${title-link}
+        ${contents}
       </div>
     </div>
   </message>

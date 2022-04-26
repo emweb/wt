@@ -39,12 +39,12 @@ std::unique_ptr<WWidget> EventsDemo::wKeyEvent()
   l->setTextSize(50);
   l->keyWentUp().connect(this, &EventsDemo::showKeyWentUp);
   l->keyWentDown().connect(this, &EventsDemo::showKeyWentDown);
-  
+
   result->addWidget(std::move(addText(tr("events-WKeyEvent-2"))));
   l = result->addWidget(std::make_unique<WLineEdit>());
   l->setTextSize(50);
   l->keyPressed().connect(this, &EventsDemo::showKeyPressed);
-  
+
   result->addWidget(std::move(addText(tr("events-WKeyEvent-3"))));
   l = result->addWidget(std::make_unique<WLineEdit>());
   l->setTextSize(50);

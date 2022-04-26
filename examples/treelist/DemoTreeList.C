@@ -22,12 +22,12 @@ DemoTreeList::DemoTreeList()
 {
   addWidget
     (std::make_unique<WText>("<h2>Wt Tree List example</h2>"
-	       "<p>This is a simple demo of a treelist, implemented using"
-	       " <a href='http://witty.sourceforge.net/'>Wt</a>.</p>"
-	       "<p>The leafs of the tree contain the source code of the "
-	       "tree-list in the classes <b>TreeNode</b> and "
-	       "<b>IconPair</b>, as well as the implementation of this "
-	       "demo itself in the class <b>DemoTreeList</b>.</p>"));
+               "<p>This is a simple demo of a treelist, implemented using"
+               " <a href='http://witty.sourceforge.net/'>Wt</a>.</p>"
+               "<p>The leafs of the tree contain the source code of the "
+               "tree-list in the classes <b>TreeNode</b> and "
+               "<b>IconPair</b>, as well as the implementation of this "
+               "demo itself in the class <b>DemoTreeList</b>.</p>"));
 
   auto tree = makeTreeFolder("Examples");
   tree_ = addWidget(std::move(tree));
@@ -50,7 +50,7 @@ DemoTreeList::DemoTreeList()
    */
   addWidget
     (std::make_unique<WText>("<p>Use the following buttons to change the tree "
-	       "contents:</p>"));
+               "contents:</p>"));
 
   addFolderButton_
       = this->addWidget(std::make_unique<WPushButton>("Add folder"));
@@ -63,39 +63,39 @@ DemoTreeList::DemoTreeList()
 
   addWidget
     (std::make_unique<WText>("<p>Remarks:"
-	       "<ul>"
-	       "<li><p>This is not the instantiation of a pre-defined "
-	       "tree list component, but the full implementation of such "
-	       "a component, in about 350 lines of C++ code !</p> "
-	       "<p>In comparison, the <a href='http://myfaces.apache.org'> "
-	       "Apache MyFaces</a> JSF implementation of tree2, with similar "
-	       "functionality, uses about 2400 lines of Java, and 140 lines "
-	       "of JavaScript code.</p></li>"
-	       "<li><p>Once loaded, the tree list does not require any "
-	       "interaction with the server for handling the click events on "
-	       "the <img src='icons/nav-plus-line-middle.gif' /> and "
-	       "<img src='icons/nav-minus-line-middle.gif' /> icons, "
-	       "because these events have been connected to slots using "
-	       "STATIC connections. Such connections are converted to the "
-	       "appropriate JavaScript code that is inserted into the page. "
-	       "Still, the events are signaled to the server to update the "
-	       "application state.</p></li>"
-	       "<li><p>In contrast, the buttons for manipulating the tree "
-	       "contents use DYNAMIC connections, and thus the update "
-	       "is computed at server-side, and communicated back to the "
-	       "browser (by default using AJAX).</p></li>"
-	       "<li><p>When loading a page, only visible widgets (that are not "
-	       "<b>setHidden(true)</b>) are transmitted. "
-	       "The remaining widgets are loaded in the background after "
-	       "rendering the page. "
-	       "As a result the application is loaded as fast as possible.</p>"
-	       "</li>"
-	       "<li><p>The browser reload button is supported and behaves as "
-	       "expected: the page is reloaded from the server. Again, "
-	       "only visible widgets are transmitted immediately.</p> "
-	       "<p>(For the curious, this is the way to see the actual "
-	       "HTML/JavaScript code !)</p></li>"
-	       "</ul></p>"));
+               "<ul>"
+               "<li><p>This is not the instantiation of a pre-defined "
+               "tree list component, but the full implementation of such "
+               "a component, in about 350 lines of C++ code !</p> "
+               "<p>In comparison, the <a href='http://myfaces.apache.org'> "
+               "Apache MyFaces</a> JSF implementation of tree2, with similar "
+               "functionality, uses about 2400 lines of Java, and 140 lines "
+               "of JavaScript code.</p></li>"
+               "<li><p>Once loaded, the tree list does not require any "
+               "interaction with the server for handling the click events on "
+               "the <img src='icons/nav-plus-line-middle.gif' /> and "
+               "<img src='icons/nav-minus-line-middle.gif' /> icons, "
+               "because these events have been connected to slots using "
+               "STATIC connections. Such connections are converted to the "
+               "appropriate JavaScript code that is inserted into the page. "
+               "Still, the events are signaled to the server to update the "
+               "application state.</p></li>"
+               "<li><p>In contrast, the buttons for manipulating the tree "
+               "contents use DYNAMIC connections, and thus the update "
+               "is computed at server-side, and communicated back to the "
+               "browser (by default using AJAX).</p></li>"
+               "<li><p>When loading a page, only visible widgets (that are not "
+               "<b>setHidden(true)</b>) are transmitted. "
+               "The remaining widgets are loaded in the background after "
+               "rendering the page. "
+               "As a result the application is loaded as fast as possible.</p>"
+               "</li>"
+               "<li><p>The browser reload button is supported and behaves as "
+               "expected: the page is reloaded from the server. Again, "
+               "only visible widgets are transmitted immediately.</p> "
+               "<p>(For the curious, this is the way to see the actual "
+               "HTML/JavaScript code !)</p></li>"
+               "</ul></p>"));
 }
 
 void DemoTreeList::addFolder()
@@ -126,8 +126,8 @@ TreeNode *DemoTreeList::makeTreeFolder(const std::string name, TreeNode *parent)
 {
   auto labelIcon = std::make_unique<IconPair>(
                    "icons/yellow-folder-closed.png",
-		   "icons/yellow-folder-open.png",
-		   false);
+                   "icons/yellow-folder-open.png",
+                   false);
 
   auto node =
       std::make_unique<TreeNode>(name, TextFormat::Plain, std::move(labelIcon));
@@ -150,11 +150,11 @@ std::unique_ptr<TreeNode> DemoTreeList::makeTreeFolder(const std::string name)
 }
 
 TreeNode *DemoTreeList::makeTreeFile(const std::string name,
-				      TreeNode *parent)
+                                      TreeNode *parent)
 {
   auto labelIcon
     = std::make_unique<IconPair>("icons/document.png", "icons/yellow-folder-open.png",
-		   false);
+                   false);
 
   auto node = std::make_unique<TreeNode>(name, TextFormat::XHTML, std::move(labelIcon));
   auto node_ = node.get();
@@ -194,7 +194,7 @@ std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
    * ... or if you speak CSS fluently, you can add verbatim rules.
    */
   app->styleSheet().addRule(".treenodechildcount",
-			    "color:blue; font-family:Helvetica,serif;");
+                            "color:blue; font-family:Helvetica,serif;");
 
   return app;
 }

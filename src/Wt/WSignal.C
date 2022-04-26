@@ -23,7 +23,7 @@ SignalBase::~SignalBase()
 { }
 
 EventSignalBase::EventSignalBase(const char *name, WObject *owner,
-				 bool autoLearn)
+                                 bool autoLearn)
   : name_(name), owner_(owner), id_(nextId_++)
 {
   if (!name_)
@@ -69,7 +69,7 @@ bool EventSignalBase::needsUpdate(bool all) const
 {
   return (!all && flags_.test(BIT_NEED_UPDATE))
     || (all &&
-	(isConnected() || defaultActionPrevented() || propagationPrevented()));
+        (isConnected() || defaultActionPrevented() || propagationPrevented()));
 }
 
 void EventSignalBase::updateOk()
@@ -100,9 +100,9 @@ const std::string EventSignalBase::encodeCmd() const
 
 const std::string
 EventSignalBase::createUserEventCall(const std::string& jsObject,
-				     const std::string& jsEvent,
-				     const std::string& eventName,
-				     std::initializer_list<std::string> args)
+                                     const std::string& jsEvent,
+                                     const std::string& eventName,
+                                     std::initializer_list<std::string> args)
   const
 {
   /*
@@ -135,11 +135,11 @@ EventSignalBase::createUserEventCall(const std::string& jsObject,
     senderId = senderId.substr(0, senderId.length() - eventName.length() - 1);
 
     result << app->javaScriptClass() << ".emit('"
-	   << senderId;
+           << senderId;
 
     if (!jsObject.empty())
       result << "', { name:'" << eventName << "', eventObject:" << jsObject
-	     << ", event:" << jsEvent << "}";
+             << ", event:" << jsEvent << "}";
     else
       result << "','" << eventName << "'";
 
@@ -159,7 +159,7 @@ const std::string EventSignalBase::javaScript() const
   for (unsigned i = 0; i < connections_.size(); ++i) {
     if (connections_[i].ok()) {
       if (connections_[i].slot->learned())
-	result += connections_[i].slot->javaScript();
+        result += connections_[i].slot->javaScript();
     }
   }
 
@@ -258,15 +258,15 @@ EventSignalBase::~EventSignalBase()
   for (unsigned i = 0; i < connections_.size(); ++i) {
     if (connections_[i].ok())
       if (!connections_[i].slot->removeConnection(this))
-	delete connections_[i].slot;
+        delete connections_[i].slot;
   }
 }
 
 #ifndef WT_CNOR
 Wt::Signals::connection
 EventSignalBase::connectStateless(WObject::Method method,
-				  WObject *target,
-				  WStatelessSlot *slot)
+                                  WObject *target,
+                                  WStatelessSlot *slot)
 {
   Wt::Signals::connection c
     = dummy_.connect(std::bind(method, target), target);
@@ -317,7 +317,7 @@ bool EventSignalBase::isConnected() const
   if (!result) {
     for (unsigned i = 0; i < connections_.size(); ++i) {
       if (connections_[i].target == nullptr)
-	return true;
+        return true;
     }
   }
 
@@ -393,8 +393,8 @@ void EventSignalBase::processPreLearnStateless(SlotLearnerInterface *learner)
     StatelessConnection& c = copy[i];
 
     if (c.ok()
-	&& !c.slot->learned()
-	&& c.slot->type() == WStatelessSlot::SlotType::PreLearnStateless) {
+        && !c.slot->learned()
+        && c.slot->type() == WStatelessSlot::SlotType::PreLearnStateless) {
       learner->learn(c.slot);
     }
   }
@@ -410,8 +410,8 @@ void EventSignalBase::processAutoLearnStateless(SlotLearnerInterface *learner)
     StatelessConnection& c = copy[i];
 
     if (c.ok()
-	&& !c.slot->learned()
-	&& c.slot->type() == WStatelessSlot::SlotType::AutoLearnStateless) {
+        && !c.slot->learned()
+        && c.slot->type() == WStatelessSlot::SlotType::AutoLearnStateless) {
       learner->learn(c.slot);
       changed = true;
     }

@@ -27,7 +27,7 @@ public:
      * Stub for the drink info
      */
     aboutDrink_ = root()->addWidget(std::make_unique<WText>(""));
-    
+
     internalPathChanged().connect(this, &TreeViewApplication::handlePathChange);
 
     this->handlePathChange();
@@ -51,7 +51,7 @@ std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
   app->messageResourceBundle().use(WApplication::appRoot() + "drinks");
   app->styleSheet().addRule("button", "margin: 2px");
   app->useStyleSheet("treeview.css");
-  
+
   return std::move(app);
 }
 

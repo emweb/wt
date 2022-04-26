@@ -24,14 +24,14 @@ class UserAccount
 public:
   WString name;
   dbo::collection< dbo::ptr<Entry> > entries;
-  
+
   UserAccount();
   UserAccount(const WString& name);
 
   dbo::collection< dbo::ptr<Entry> >
     entriesInRange(const WDate& from, const WDate& until) const;
 
-  static dbo::ptr<UserAccount> login(dbo::Session& session, 
+  static dbo::ptr<UserAccount> login(dbo::Session& session,
                                      const WString& user);
   template<class Action>
   void persist(Action& a)

@@ -44,7 +44,7 @@ unsigned char fromHex(char b)
     return b - '0';
   else if (b <= 'F')
     return (b - 'A') + 0x0A;
-  else 
+  else
     return (b - 'a') + 0x0A;
 }
 
@@ -108,9 +108,9 @@ std::string sha1(const std::string& text)
 std::string base64Encode(const std::string& data, bool crlf)
 {
   std::vector<char> v;
-  
+
   // base64 encoded value will be 4/3 larger than original value
-  v.reserve((std::size_t)(data.size() * 1.35)); 
+  v.reserve((std::size_t)(data.size() * 1.35));
 
   base64::encode(data.begin(), data.end(), std::back_inserter(v), crlf);
 
@@ -120,7 +120,7 @@ std::string base64Encode(const std::string& data, bool crlf)
 std::string base64Decode(const std::string& data)
 {
   std::vector<char> v;
-  
+
   // decoded value will be 3/4 smaller than encoded value
   v.reserve((std::size_t)(data.size() * 0.8));
 
@@ -152,9 +152,9 @@ std::string hexDecode(const std::string& data)
 std::string htmlEncode(const std::string& text, WFlags<HtmlEncodingFlag> flags)
 {
   std::string result = text;
-  WWebWidget::escapeText(result, 
-			 (flags.test(HtmlEncodingFlag::EncodeNewLines)) ? 
-			 true : false);
+  WWebWidget::escapeText(result,
+                         (flags.test(HtmlEncodingFlag::EncodeNewLines)) ?
+                         true : false);
   return result;
 }
 
@@ -183,11 +183,11 @@ std::string urlDecode(const std::string &text)
       int hval = std::strtol(h.c_str(), &e, 16);
 
       if (*e == 0) {
-	result << (char)hval;
-	i += 2;
+        result << (char)hval;
+        i += 2;
       } else
-	// not a proper %XX with XX hexadecimal format
-	result << c;
+        // not a proper %XX with XX hexadecimal format
+        result << c;
     } else
       result << c;
   }
@@ -208,7 +208,7 @@ std::string guessImageMimeType(const std::string& file)
 {
   return Wt::ImageUtils::identifyMimeType(file);
 }
-  
+
 
 std::string createDataUrl(std::vector<unsigned char>& data, std::string mimeType){
   std::string url = "data:"+mimeType+";"+"base64,";

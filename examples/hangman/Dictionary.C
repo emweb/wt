@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2011 Emweb bv, Herent, Belgium
  *
  * See the LICENSE file for terms of use.
@@ -21,7 +21,7 @@ std::wstring RandomWord(Dictionary dictionary)
    } else { // english is default
      dict.open((WApplication::appRoot() + "dict.txt").c_str());
    }
-      
+
    std::string retval;
    int numwords = 0;
    while(dict) {
@@ -40,8 +40,8 @@ std::wstring RandomWord(Dictionary dictionary)
    getline(dict, retval);
    for(unsigned int i = 0; i < retval.size(); ++i)
       if(retval[i] < 'A' || retval[i] > 'Z')
-	 std::cout << "word " << retval 
-		   << " contains illegal data at pos " << i << std::endl;
+         std::cout << "word " << retval
+                   << " contains illegal data at pos " << i << std::endl;
 
    return widen(retval);
 }

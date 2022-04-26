@@ -35,7 +35,7 @@ class WString;
  *
  * It is possible to reimplement this class and specialize the methods
  * for data acess (setData() and data()), or provide custom sorting
- * functionality by reimplementing 
+ * functionality by reimplementing
  * \if cpp
  * operator<().
  * \elseif java
@@ -326,11 +326,11 @@ public:
    *
    * Inserts a single column of \p items at column
    * \p column. If necessary, the row count is increased.
-   * 
+   *
    * \sa WStandardItem::insertRow()
    */
   void insertColumn(int column,
-		    std::vector<std::unique_ptr<WStandardItem> > items);
+                    std::vector<std::unique_ptr<WStandardItem> > items);
 
   /*! \brief Add a single row of items.
    *
@@ -350,7 +350,7 @@ public:
    *
    * Inserts a single row of <i>items</i> at row \p row. If
    * necessary, the column count is increased.
-   * 
+   *
    * \sa insertColumn()
    */
   void insertRow(int row, std::vector<std::unique_ptr<WStandardItem> > items);
@@ -358,7 +358,7 @@ public:
   /*! \brief Inserts a number of empty columns.
    *
    * Inserts <i>count</i> empty columns at position \p column.
-   * 
+   *
    * \sa insertRows()
    */
   void insertColumns(int column, int count);
@@ -366,7 +366,7 @@ public:
   /*! \brief Inserts a number of empty rows.
    *
    * Inserts <i>count</i> empty rows at position \p row.
-   * 
+   *
    * \sa insertColumns()
    */
   void insertRows(int row, int count);
@@ -380,7 +380,7 @@ public:
    * \code
    * insertRow(rowCount(), std::move(item));
    * \endcode
-   * 
+   *
    * \sa insertRow(int, std::unique_ptr<WStandardItem>)
    */
   void appendRow(std::unique_ptr<WStandardItem> item);
@@ -398,13 +398,13 @@ public:
    * insertRow(row, std::move(r));
    * \endcode
    * \elseif java
-   * \code 
+   * \code
    * List<WStandardItem> r;
    * r.add(item);
    * insertRow(row, r);
    * \endcode
    * \endif
-   * 
+   *
    * \sa insertRow(int, const std::vector<WStandardItem *>&)
    */
   void insertRow(int row, std::unique_ptr<WStandardItem> item);
@@ -418,7 +418,7 @@ public:
    * \code
    * insertRows(rowCount(), std::move(items));
    * \endcode
-   * 
+   *
    * \sa insertRows(int, const std::vector<WStandardItem *>&)
    */
   void appendRows(std::vector<std::unique_ptr<WStandardItem> > items);
@@ -435,11 +435,11 @@ public:
    *   insertRow(row + i, std::move(items[i]));
    * \endcode
    * \endif
-   * 
+   *
    * \sa insertRow(int, std::unique_ptr<WStandardItem>)
    */
   void insertRows(int row,
-		  std::vector<std::unique_ptr<WStandardItem> > items);
+                  std::vector<std::unique_ptr<WStandardItem> > items);
 
   /*! \brief Sets a child item.
    *
@@ -451,7 +451,7 @@ public:
    * \sa child().
    */
   void setChild(int row, int column,
-		std::unique_ptr<WStandardItem> item);
+                std::unique_ptr<WStandardItem> item);
 
   /*! \brief Sets a child item.
    *
@@ -611,7 +611,7 @@ public:
    * WStandardItemModel::layoutChanged signals are emitted before and
    * after the operation so that you get a chance to invalidate or
    * update model indexes.
-   * 
+   *
    * \if cpp
    * \sa operator<(), WStandardItemModel::setSortRole()
    * \elseif java

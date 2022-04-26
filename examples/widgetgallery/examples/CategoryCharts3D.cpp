@@ -25,14 +25,14 @@ chart->setRenderOptions(GLRenderOption::ClientSide| GLRenderOption::AntiAliasing
 
 WCssDecorationStyle style;
 style.setBorder(WBorder(BorderStyle::Solid, BorderWidth::Medium,
-			    WColor(StandardColor::Black)));
+                            WColor(StandardColor::Black)));
 chart->setDecorationStyle(style);
 
 chart->resize(800, 600);
 chart->setTitle("Fish consumption in western Europe");
 chart->axis(Chart::Axis::Z3D).setTitle("Consumption (pcs/year)");
 chart->setLegendStyle(WFont(), WPen(),
-		      WBrush(WColor(StandardColor::LightGray)));
+                      WBrush(WColor(StandardColor::LightGray)));
 chart->setLegendEnabled(true);
 chart->setGridEnabled(Chart::Plane::XZ, Chart::Axis::Z3D, true);
 chart->setGridEnabled(Chart::Plane::YZ, Chart::Axis::Z3D, true);
@@ -46,8 +46,8 @@ for (int i=0; i < model->rowCount(); i++) {
     for (int j=0; j < model->columnCount(); j++) {
         if (asString(model->data(0, j)) == WString("codfish") &&
             asString(model->data(i, 0)) == WString("Belgium"))
-	    model->setData(i, j,
-			   WColor(StandardColor::Cyan), ItemDataRole::MarkerBrushColor);
+            model->setData(i, j,
+                           WColor(StandardColor::Cyan), ItemDataRole::MarkerBrushColor);
     }
 }
 

@@ -21,7 +21,7 @@ WModelIndex WAbstractTableModel::parent(const WModelIndex& index) const
 }
 
 WModelIndex WAbstractTableModel::index(int row, int column,
-				       const WModelIndex& parent) const
+                                       const WModelIndex& parent) const
 {
   return createIndex(row, column, (void*)nullptr);
 }

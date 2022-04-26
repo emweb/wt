@@ -29,11 +29,11 @@ void WItemSelectionModel::setSelectionBehavior(SelectionBehavior behavior)
 bool WItemSelectionModel::isSelected(const WModelIndex& index) const
 {
   if (selectionBehavior_ == SelectionBehavior::Rows) {
-    for (std::set<WModelIndex>::const_iterator it = selection_.begin() ; 
+    for (std::set<WModelIndex>::const_iterator it = selection_.begin() ;
          it != selection_.end(); ++it ) {
       WModelIndex mi = *it;
       if (mi.row() == index.row() && mi.parent() == index.parent())
-	return true;
+        return true;
     }
     return false;
   } else {
@@ -59,10 +59,10 @@ std::string WItemSelectionModel::mimeType()
       std::string currentMimeType = asString(mimeTypeData).toUTF8();
 
       if (!currentMimeType.empty()) {
-	if (retval.empty())
-	  retval = currentMimeType;
-	else if (currentMimeType != retval)
-	  return model_->mimeType();
+        if (retval.empty())
+          retval = currentMimeType;
+        else if (currentMimeType != retval)
+          return model_->mimeType();
       }
     }
   }

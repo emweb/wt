@@ -61,9 +61,9 @@ WT_BOSTREAM& Response::out()
 {
   if (!headersCommitted_) {
     if (response_ &&
-	!continuation_ &&
-	(resource_->dispositionType() != ContentDisposition::None
-	 || !resource_->suggestedFileName().empty())) {
+        !continuation_ &&
+        (resource_->dispositionType() != ContentDisposition::None
+         || !resource_->suggestedFileName().empty())) {
       WStringStream cdp;
 
       switch (resource_->dispositionType()) {
@@ -79,41 +79,41 @@ WT_BOSTREAM& Response::out()
       const WString& fileName = resource_->suggestedFileName();
 
       if (!fileName.empty()) {
-	if (resource_->dispositionType() == ContentDisposition::None) {
-	  // backward compatibility-ish with older Wt versions
-	  cdp.clear();
-	  cdp << "attachment";
-	}
+        if (resource_->dispositionType() == ContentDisposition::None) {
+          // backward compatibility-ish with older Wt versions
+          cdp.clear();
+          cdp << "attachment";
+        }
 
-	// Browser incompatibility hell: internatianalized filename suggestions
-	// First filename is for browsers that don't support RFC 5987
-	// Second filename is for browsers that do support RFC 5987
-	cdp << ';';
+        // Browser incompatibility hell: internatianalized filename suggestions
+        // First filename is for browsers that don't support RFC 5987
+        // Second filename is for browsers that do support RFC 5987
+        cdp << ';';
 
-	// We cannot query wApp here, because wApp doesn't exist for
-	// static resources.
-	const char *ua = response_->userAgent();
-	bool isIE = ua && strstr(ua, "MSIE") != nullptr;
-	bool isChrome = ua && strstr(ua, "Chrome") != nullptr;
+        // We cannot query wApp here, because wApp doesn't exist for
+        // static resources.
+        const char *ua = response_->userAgent();
+        bool isIE = ua && strstr(ua, "MSIE") != nullptr;
+        bool isChrome = ua && strstr(ua, "Chrome") != nullptr;
 
-	if (isIE || isChrome) {
-	  // filename="foo-%c3%a4-%e2%82%ac.html"
-	  // Note: IE never converts %20 back to space, so avoid escaping
-	  // IE wil also not url decode the filename if the file has no ASCII
-	  // extension (e.g. .txt)
-	  cdp << "filename=\""
-	      << Utils::urlEncode(fileName.toUTF8(), " ")
-	      << "\";";
-	} else {
-	  // Binary UTF-8 sequence: for FF3, Safari, Chrome, Chrome9
-	  cdp << "filename=\"" << fileName.toUTF8() << "\";";
-	}
-	// Next will be picked by RFC 5987 in favour of the
-	// one without specified encoding (Chrome9, 
-	cdp << Utils::EncodeHttpHeaderField("filename", fileName);
-	addHeader("Content-Disposition", cdp.str());
+        if (isIE || isChrome) {
+          // filename="foo-%c3%a4-%e2%82%ac.html"
+          // Note: IE never converts %20 back to space, so avoid escaping
+          // IE wil also not url decode the filename if the file has no ASCII
+          // extension (e.g. .txt)
+          cdp << "filename=\""
+              << Utils::urlEncode(fileName.toUTF8(), " ")
+              << "\";";
+        } else {
+          // Binary UTF-8 sequence: for FF3, Safari, Chrome, Chrome9
+          cdp << "filename=\"" << fileName.toUTF8() << "\";";
+        }
+        // Next will be picked by RFC 5987 in favour of the
+        // one without specified encoding (Chrome9,
+        cdp << Utils::EncodeHttpHeaderField("filename", fileName);
+        addHeader("Content-Disposition", cdp.str());
       } else {
-	addHeader("Content-Disposition", cdp.str());
+        addHeader("Content-Disposition", cdp.str());
       }
     }
 
@@ -127,7 +127,7 @@ WT_BOSTREAM& Response::out()
 }
 
 Response::Response(WResource *resource, WebResponse *response,
-		   ResponseContinuationPtr continuation)
+                   ResponseContinuationPtr continuation)
   : resource_(resource),
     response_(response),
     continuation_(continuation),

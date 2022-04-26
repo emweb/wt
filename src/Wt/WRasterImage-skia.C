@@ -60,7 +60,7 @@ namespace {
   inline SkColor fromWColor(const Wt::WColor &color)
   {
     return SkColorSetARGB(color.alpha(),
-			  color.red(), color.green(), color.blue());
+                          color.red(), color.green(), color.blue());
   }
 }
 
@@ -89,7 +89,7 @@ public:
 };
 
 WRasterImage::WRasterImage(const std::string& type,
-			   const WLength& width, const WLength& height)
+                           const WLength& width, const WLength& height)
   : width_(width),
     height_(height),
     painter_(0),
@@ -98,7 +98,7 @@ WRasterImage::WRasterImage(const std::string& type,
   impl_->type_ = type;
   impl_->w_ = static_cast<unsigned long>(width.toPixels());
   impl_->h_ = static_cast<unsigned long>(height.toPixels());
-  
+
   if (!impl_->w_ || !impl_->h_) {
     impl_->bitmap_ = 0;
     return;
@@ -123,9 +123,9 @@ WRasterImage::WRasterImage(const std::string& type,
   impl_->textPaint_.setTextEncoding(SkPaint::kUTF8_TextEncoding);
   impl_->strokePaint_.setStyle(SkPaint::kStroke_Style);
   impl_->fillPaint_.setStyle(SkPaint::kFill_Style);
-  
+
 }
-  
+
 void WRasterImage::clear()
 {
   impl_->canvas_->clear(0);
@@ -137,13 +137,13 @@ WRasterImage::~WRasterImage()
 }
 
 void WRasterImage::addFontCollection(const std::string& directory,
-				     bool recursive)
+                                     bool recursive)
 {
 #if 0
   fontSupport_->addFontCollection(directory, recursive);
 #endif
 }
-  
+
 WFlags<PaintDeviceFeatureFlag> WRasterImage::features() const
 {
   return HasFontMetrics;
@@ -169,14 +169,14 @@ void WRasterImage::Impl::applyTransform(const WTransform& t)
 {
   SkMatrix sm;
   sm.setAll(SkDoubleToScalar(t.m11()),
-	    SkDoubleToScalar(t.m12()),
-	    SkDoubleToScalar(t.dx()),
-	    SkDoubleToScalar(t.m21()),
-	    SkDoubleToScalar(t.m22()),
-	    SkDoubleToScalar(t.dy()),
-	    0,
-	    0,
-	    SkDoubleToScalar(1.0));
+            SkDoubleToScalar(t.m12()),
+            SkDoubleToScalar(t.dx()),
+            SkDoubleToScalar(t.m21()),
+            SkDoubleToScalar(t.m22()),
+            SkDoubleToScalar(t.dy()),
+            0,
+            0,
+            SkDoubleToScalar(1.0));
   canvas_->concat(sm);
 }
 
@@ -184,13 +184,13 @@ void WRasterImage::Impl::setTransform(const WTransform& t)
 {
   /*
   std::cout << "WRasterImage::setTransform "
-	    << t.m11() << ", "
-	    << t.m12() << ", "
-	    << t.m21() << ", "
-	    << t.m22() << ", "
-	    << t.dx() << ", "
-	    << t.dy() << ", "
-	    << std::endl;
+            << t.m11() << ", "
+            << t.m12() << ", "
+            << t.m21() << ", "
+            << t.m22() << ", "
+            << t.dx() << ", "
+            << t.dy() << ", "
+            << std::endl;
   */
   canvas_->resetMatrix();
   applyTransform(t);
@@ -199,7 +199,7 @@ void WRasterImage::Impl::setTransform(const WTransform& t)
 void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 {
   if (flags & Clipping) {
-    
+
     if (painter()->hasClipping()) {
       impl_->setTransform(painter()->clipPathTransform());
       SkPath clipPath;
@@ -242,93 +242,93 @@ void WRasterImage::setChanged(WFlags<ChangeFlag> flags)
 
       switch (pen.capStyle()) {
       case PenCapStyle::Flat:
-	impl_->strokePaint_.setStrokeCap(SkPaint::kButt_Cap);
-	break;
+        impl_->strokePaint_.setStrokeCap(SkPaint::kButt_Cap);
+        break;
       case PenCapStyle::Square:
-	impl_->strokePaint_.setStrokeCap(SkPaint::kSquare_Cap);
-	break;
+        impl_->strokePaint_.setStrokeCap(SkPaint::kSquare_Cap);
+        break;
       case PenCapStyle::Round:
-	impl_->strokePaint_.setStrokeCap(SkPaint::kRound_Cap);
-	break;
+        impl_->strokePaint_.setStrokeCap(SkPaint::kRound_Cap);
+        break;
       }
 
       switch (pen.joinStyle()) {
       case PenJoinStyle::Miter:
-	impl_->strokePaint_.setStrokeJoin(SkPaint::kMiter_Join);
-	break;
+        impl_->strokePaint_.setStrokeJoin(SkPaint::kMiter_Join);
+        break;
       case PenJoinStyle::Bevel:
-	impl_->strokePaint_.setStrokeJoin(SkPaint::kBevel_Join);
-	break;
+        impl_->strokePaint_.setStrokeJoin(SkPaint::kBevel_Join);
+        break;
       case PenJoinStyle::Round:
-	impl_->strokePaint_.setStrokeJoin(SkPaint::kRound_Join);
-	break;
+        impl_->strokePaint_.setStrokeJoin(SkPaint::kRound_Join);
+        break;
       }
 
 #ifdef WT_SKIA_OLD
       SkPathEffect *pe = impl_->strokePaint_.setPathEffect(0);
       if (pe)
-	pe->unref();
+        pe->unref();
 #else
       impl_->strokePaint_.setPathEffect(0);
 #endif
       switch (pen.style()) {
       case PenStyle::None:
-	break;
+        break;
       case PenStyle::SolidLine:
-	break;
+        break;
       case PenStyle::DashLine: {
-	const SkScalar dasharray[] = { SkIntToScalar(4), SkIntToScalar(2) };
+        const SkScalar dasharray[] = { SkIntToScalar(4), SkIntToScalar(2) };
 #ifdef WT_SKIA_OLD
-	impl_->strokePaint_.setPathEffect(new SkDashPathEffect(dasharray, 2,
-							false))->unref();
+        impl_->strokePaint_.setPathEffect(new SkDashPathEffect(dasharray, 2,
+                                                        false))->unref();
 #else
-	impl_->strokePaint_.setPathEffect(
-		SkDashPathEffect::Make(dasharray, 2, 0));
+        impl_->strokePaint_.setPathEffect(
+                SkDashPathEffect::Make(dasharray, 2, 0));
 #endif
-	break;
+        break;
       }
       case PenStyle::DotLine: {
-	const SkScalar dasharray[] = { SkIntToScalar(1), SkIntToScalar(2) };
+        const SkScalar dasharray[] = { SkIntToScalar(1), SkIntToScalar(2) };
 #ifdef WT_SKIA_OLD
-	impl_->strokePaint_.setPathEffect(new SkDashPathEffect(dasharray, 2,
-							false))->unref();
+        impl_->strokePaint_.setPathEffect(new SkDashPathEffect(dasharray, 2,
+                                                        false))->unref();
 #else
-	impl_->strokePaint_.setPathEffect(
-		SkDashPathEffect::Make(dasharray, 2, 0));
+        impl_->strokePaint_.setPathEffect(
+                SkDashPathEffect::Make(dasharray, 2, 0));
 #endif
-	break;
+        break;
       }
       case PenStyle::DashDotLine: {
-	const SkScalar dasharray[] = {
-	  SkIntToScalar(4),
-	  SkIntToScalar(2),
-	  SkIntToScalar(1),
-	  SkIntToScalar(2)
-	};
+        const SkScalar dasharray[] = {
+          SkIntToScalar(4),
+          SkIntToScalar(2),
+          SkIntToScalar(1),
+          SkIntToScalar(2)
+        };
 #ifdef WT_SKIA_OLD
-	impl_->strokePaint_.setPathEffect(new SkDashPathEffect(dasharray, 4,
-							false))->unref();
+        impl_->strokePaint_.setPathEffect(new SkDashPathEffect(dasharray, 4,
+                                                        false))->unref();
 #else
 impl_->strokePaint_.setPathEffect(
-	SkDashPathEffect::Make(dasharray, 4, 0));
+        SkDashPathEffect::Make(dasharray, 4, 0));
 #endif
 break;
       }
       case PenStyle::DashDotDotLine: {
-	const SkScalar dasharray[] = {
-	  SkIntToScalar(4),
-	  SkIntToScalar(2),
-	  SkIntToScalar(1),
-	  SkIntToScalar(2),
-	  SkIntToScalar(1),
-	  SkIntToScalar(2)
-	};
+        const SkScalar dasharray[] = {
+          SkIntToScalar(4),
+          SkIntToScalar(2),
+          SkIntToScalar(1),
+          SkIntToScalar(2),
+          SkIntToScalar(1),
+          SkIntToScalar(2)
+        };
 #ifdef WT_SKIA_OLD
-	impl_->strokePaint_.setPathEffect(new SkDashPathEffect(dasharray, 6,
-							false))->unref();
+        impl_->strokePaint_.setPathEffect(new SkDashPathEffect(dasharray, 6,
+                                                        false))->unref();
 #else
 impl_->strokePaint_.setPathEffect(
-	SkDashPathEffect::Make(dasharray, 6, 0));
+        SkDashPathEffect::Make(dasharray, 6, 0));
 #endif
 break;
       }
@@ -371,22 +371,22 @@ break;
     if (font.style() != FontStyle::Normal)
       style |= SkTypeface::kItalic;
     if (font.weight() == FontWeight::Bold ||
-	font.weight() == FontWeight::Bolder)
+        font.weight() == FontWeight::Bolder)
       style |= SkTypeface::kBold;
 
     impl_->textPaint_.setTypeface(SkTypeface::CreateFromName(base,
-				    (SkTypeface::Style)style))->unref();
+                                    (SkTypeface::Style)style))->unref();
     impl_->textPaint_.setTextSize(SkIntToScalar(font.sizeLength(12).toPixels()));
   }
 }
 
 void WRasterImage::drawArc(const WRectF& rect,
-			   double startAngle, double spanAngle)
+                           double startAngle, double spanAngle)
 {
   SkRect r = SkRect::MakeLTRB(SkDoubleToScalar(rect.left()),
-			      SkDoubleToScalar(rect.top()),
-			      SkDoubleToScalar(rect.right()),
-			      SkDoubleToScalar(rect.bottom()));
+                              SkDoubleToScalar(rect.top()),
+                              SkDoubleToScalar(rect.right()),
+                              SkDoubleToScalar(rect.bottom()));
   if (painter()->brush().style() != BrushStyle::None) {
     impl_->canvas_->drawArc(r,
       SkDoubleToScalar(-startAngle),
@@ -402,8 +402,8 @@ void WRasterImage::drawArc(const WRectF& rect,
 }
 
 void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
-			     int imgWidth, int imgHeight,
-			     const WRectF& srect)
+                             int imgWidth, int imgHeight,
+                             const WRectF& srect)
 {
 #ifdef WT_SKIA_OLD
   SkBitmap bitmap;
@@ -412,18 +412,18 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
     DataUri uri(imgUri);
     success =
       SkImageDecoder::DecodeMemory(&uri.data[0], uri.data.size(),
-				   &bitmap,
-				   SkBitmap::kARGB_8888_Config,
-				   SkImageDecoder::kDecodePixels_Mode, 0);
+                                   &bitmap,
+                                   SkBitmap::kARGB_8888_Config,
+                                   SkImageDecoder::kDecodePixels_Mode, 0);
     if (!success)
       throw WException("WRasterImage: could not decode data URL (mime type "
-		       + uri.mimeType);
+                       + uri.mimeType);
   } else {
     success =
       SkImageDecoder::DecodeFile(imgUri.c_str(),
-				 &bitmap,
-				 SkBitmap::kARGB_8888_Config,
-				SkImageDecoder::kDecodePixels_Mode, 0);
+                                 &bitmap,
+                                 SkBitmap::kARGB_8888_Config,
+                                SkImageDecoder::kDecodePixels_Mode, 0);
     if (!success)
       throw WException("WRasterImage: could not load file " + imgUri);
   }
@@ -436,7 +436,7 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
     codec = SkCodec::NewFromData(data.get());
     if (!codec) {
       throw WException("WRasterImage: could not interprete data URL (mime type "
-	+ uri.mimeType);
+        + uri.mimeType);
     }
   } else {
     SkAutoTDelete<SkStream> stream = SkStream::NewFromFile(imgUri.c_str());
@@ -481,7 +481,7 @@ void WRasterImage::drawPath(const WPainterPath& path)
   if (!path.isEmpty()) {
     SkPath p;
     impl_->drawPlainPath(p, path);
-    
+
     if (painter()->brush().style() != BrushStyle::None) {
       impl_->canvas_->drawPath(p, impl_->fillPaint_);
     }
@@ -495,7 +495,7 @@ void WRasterImage::setPixel(int x, int y, const WColor& c)
 {
   if (painter_)
     throw WException("WRasterImage::setPixel(): cannot be used while a "
-		     "painter is active");
+                     "painter is active");
   uint8_t* addr = (uint8_t *)impl_->bitmap_->getAddr(x, y);
   addr[0] = c.blue();
   addr[1] = c.green();
@@ -522,7 +522,7 @@ void WRasterImage::getPixels(void *data)
   }
 }
 
-WColor WRasterImage::getPixel(int x, int y) 
+WColor WRasterImage::getPixel(int x, int y)
 {
   impl_->canvas_->flush();
   SkColor c = impl_->bitmap_->getColor(x, y);
@@ -571,15 +571,15 @@ void WRasterImage::Impl::drawPlainPath(SkPath &p, const WPainterPath& path)
       const double startAngle = segments[i+2].x();
       const double sweepAngle = segments[i+2].y();
       SkRect rect = SkRect::MakeXYWH(SkDoubleToScalar(x - width),
-				     SkDoubleToScalar(y - height),
-				     SkDoubleToScalar(width * 2.0),
-				     SkDoubleToScalar(height * 2.0));
-      if (sweepAngle != 360) 
-	p.arcTo(rect,
-		SkDoubleToScalar(-startAngle), SkDoubleToScalar(-sweepAngle),
-		false);
+                                     SkDoubleToScalar(y - height),
+                                     SkDoubleToScalar(width * 2.0),
+                                     SkDoubleToScalar(height * 2.0));
+      if (sweepAngle != 360)
+        p.arcTo(rect,
+                SkDoubleToScalar(-startAngle), SkDoubleToScalar(-sweepAngle),
+                false);
       else
-	p.addOval(rect, SkPath::kCCW_Direction);
+        p.addOval(rect, SkPath::kCCW_Direction);
 
       i += 2;
       break;
@@ -592,7 +592,7 @@ void WRasterImage::Impl::drawPlainPath(SkPath &p, const WPainterPath& path)
       const double y1 = s.y();
       const double x2 = segments[i+1].x();
       const double y2 = segments[i+1].y();
-      
+
       p.quadTo(SkDoubleToScalar(x1), SkDoubleToScalar(y1),
               SkDoubleToScalar(x2), SkDoubleToScalar(y2));
 
@@ -606,22 +606,22 @@ void WRasterImage::Impl::drawPlainPath(SkPath &p, const WPainterPath& path)
   }
 }
 
-void WRasterImage::drawText(const WRectF& rect, 
-			    WFlags<AlignmentFlag> flags,
-			    TextFlag textFlag,
-			    const WString& text,
-			    const WPointF *clipPoint)
+void WRasterImage::drawText(const WRectF& rect,
+                            WFlags<AlignmentFlag> flags,
+                            TextFlag textFlag,
+                            const WString& text,
+                            const WPointF *clipPoint)
 {
 #if 0
   SkRect r = SkRect::MakeLTRB(SkDoubleToScalar(rect.left()),
-			      SkDoubleToScalar(rect.top()),
-			      SkDoubleToScalar(rect.right()),
-			      SkDoubleToScalar(rect.bottom()));
+                              SkDoubleToScalar(rect.top()),
+                              SkDoubleToScalar(rect.right()),
+                              SkDoubleToScalar(rect.bottom()));
   canvas_->drawRect(r, strokePaint_);
 #endif
   if (clipPoint && painter() && !painter()->clipPath().isEmpty()) {
     if (!painter()->clipPathTransform().map(painter()->clipPath())
-	  .isPointInPath(painter()->worldTransform().map(*clipPoint)))
+          .isPointInPath(painter()->worldTransform().map(*clipPoint)))
       return;
   }
 
@@ -629,16 +629,16 @@ void WRasterImage::drawText(const WRectF& rect,
 
   AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
   AlignmentFlag verticalAlign = flags & AlignVerticalMask;
-  
+
   const WTransform& t = painter()->combinedTransform();
-  
+
   WPointF p;
-  
+
   struct SkPaint::FontMetrics metrics;
   impl_->textPaint_.getFontMetrics(&metrics);
   double ascent = SkScalarToFloat(metrics.fAscent);
   double descent = SkScalarToFloat(metrics.fDescent);
-  
+
   switch (verticalAlign) {
   case AlignmentFlag::Top:
     p = rect.topLeft();
@@ -656,7 +656,7 @@ void WRasterImage::drawText(const WRectF& rect,
   default:
     break;
   }
-  
+
   switch (horizontalAlign) {
   case AlignmentFlag::Left:
     impl_->textPaint_.setTextAlign(SkPaint::kLeft_Align);
@@ -673,14 +673,14 @@ void WRasterImage::drawText(const WRectF& rect,
   default:
     break;
   }
-  
+
   impl_->canvas_->drawText(txt.c_str(), txt.size(),
-		    SkDoubleToScalar(p.x()), SkDoubleToScalar(p.y()),
-		    impl_->textPaint_);
+                    SkDoubleToScalar(p.x()), SkDoubleToScalar(p.y()),
+                    impl_->textPaint_);
 }
 
 WTextItem WRasterImage::measureText(const WString& text, double maxWidth,
-				    bool wordWrap)
+                                    bool wordWrap)
 {
   SkScalar w =
     impl_->textPaint_.measureText(text.toUTF8().c_str(), text.toUTF8().size());
@@ -724,7 +724,7 @@ private:
 };
 
 void WRasterImage::handleRequest(const Http::Request& request,
-				 Http::Response& response)
+                                 Http::Response& response)
 {
   response.setMimeType("image/" + impl_->type_);
 

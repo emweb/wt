@@ -68,7 +68,7 @@ WString WChart3DImplementation::categoryLabel(int u, Axis axis) const
   WAbstractGridData *first = dynamic_cast<WAbstractGridData*>(chart_->dataSeries()[0]);
   if (!first) {
     throw WException("WChart3DImplementation: "
-		     "can only count the categories in WAbstractGridData");
+                     "can only count the categories in WAbstractGridData");
   }
 
   return first->axisLabel(u, axis);
@@ -77,7 +77,7 @@ WString WChart3DImplementation::categoryLabel(int u, Axis axis) const
 WAbstractChartImplementation::RenderRange WChart3DImplementation::computeRenderRange(Axis axis, int xAxis, int yAxis, AxisScale scale) const
 {
   WAbstractChartImplementation::RenderRange range;
-  
+
   const std::vector<WAbstractDataSeries3D*> series = chart_->dataSeries();
   if (series.size() == 0) {
     range.minimum = 0;
@@ -96,10 +96,10 @@ WAbstractChartImplementation::RenderRange WChart3DImplementation::computeRenderR
       double seriesMin = series[i]->minimum(axis);
       double seriesMax = series[i]->maximum(axis);
       if (seriesMin < min) {
-	min = seriesMin;
+        min = seriesMin;
       }
       if (seriesMax > max) {
-	max = seriesMax;
+        max = seriesMax;
       }
     }
     range.minimum = min;
@@ -108,9 +108,9 @@ WAbstractChartImplementation::RenderRange WChart3DImplementation::computeRenderR
   case ChartType::Category:
     for (unsigned k = 0; k < series.size(); k++) {
       griddata = dynamic_cast<WAbstractGridData*>(series[k]);
-      if ( griddata == 0 
-	   || griddata->type() != Series3DType::Bar) {
-	throw WException("WChart3DImplementation: not all data is categorical");
+      if ( griddata == 0
+           || griddata->type() != Series3DType::Bar) {
+        throw WException("WChart3DImplementation: not all data is categorical");
       }
     }
     xDim = dynamic_cast<WAbstractGridData*>(series[0])->nbXPoints();
@@ -119,16 +119,16 @@ WAbstractChartImplementation::RenderRange WChart3DImplementation::computeRenderR
 
     for (int i=0; i < xDim; i++) {
       for (int j=0; j < yDim; j++) {
-	for (unsigned k = 0; k < series.size(); k++) {
-	  if (series[k]->isHidden())
-	    continue;
-	  griddata = dynamic_cast<WAbstractGridData*>(series[k]);
-	  stackedBarsHeight += Wt::asNumber(griddata->data(i,j));
-	}
-	if (stackedBarsHeight > max) {
-	  max = stackedBarsHeight;
-	}
-	stackedBarsHeight = 0;
+        for (unsigned k = 0; k < series.size(); k++) {
+          if (series[k]->isHidden())
+            continue;
+          griddata = dynamic_cast<WAbstractGridData*>(series[k]);
+          stackedBarsHeight += Wt::asNumber(griddata->data(i,j));
+        }
+        if (stackedBarsHeight > max) {
+          max = stackedBarsHeight;
+        }
+        stackedBarsHeight = 0;
       }
     }
     if (max == std::numeric_limits<double>::min()) {

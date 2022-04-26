@@ -25,7 +25,7 @@ class WMouseEvent;
  *
  * The %WVirtualImage may provide interactive navigation using the
  * mouse, by reacting to dragging of the mouse on the image.
- * 
+ *
  * The %WVirtualImage renders pieces in and bordering the current
  * viewport. In this way, provided the individual pieces load
  * sufficiently fast, the user has effectively the impression of
@@ -42,7 +42,7 @@ class WMouseEvent;
  * The total image dimensions are (0, 0) to (imageWidth, imageHeight)
  * for a finite image, and become unbounded (including negative numbers)
  * for each dimension which is Infinite.
- * 
+ *
  * <h3>CSS</h3>
  *
  * Styling through CSS is not applicable.
@@ -65,8 +65,8 @@ public:
    * item. The default is 256 by 256.
    */
   WVirtualImage(int viewPortWidth, int viewPortHeight,
-		::int64_t imageWidth, ::int64_t imageHeight,
-		int gridImageSize = 256);
+                ::int64_t imageWidth, ::int64_t imageHeight,
+                int gridImageSize = 256);
 
   /*! \brief Destructor.
    */
@@ -217,7 +217,7 @@ private:
 
   struct Rect {
     ::int64_t x1, y1, x2, y2;
-    
+
     Rect(::int64_t x1_, ::int64_t y1_, ::int64_t x2_, ::int64_t y2_)
       : x1(x1_), y1(y1_), x2(x2_), y2(y2_) { }
   };

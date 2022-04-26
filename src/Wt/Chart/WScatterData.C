@@ -84,45 +84,45 @@ void WScatterData::updateGL()
     vertexPosBuffer_ = chart_->createBuffer();
     chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexPosBuffer_);
     chart_->bufferDatafv(WGLWidget::ARRAY_BUFFER,
-			 simplePtsArray,
-			 WGLWidget::STATIC_DRAW,
-			 true);
+                         simplePtsArray,
+                         WGLWidget::STATIC_DRAW,
+                         true);
     vertexBufferSize_ = simplePtsArray.size();
-    
+
     // sizes of simple points
     vertexSizeBuffer_ = chart_->createBuffer();
     chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexSizeBuffer_);
     chart_->bufferDatafv(WGLWidget::ARRAY_BUFFER,
-			 simplePtsSize,
-			 WGLWidget::STATIC_DRAW,
-			 true);
+                         simplePtsSize,
+                         WGLWidget::STATIC_DRAW,
+                         true);
   }
-  
+
   if (coloredPtsArray.size() != 0) {
     // pos of colored points
     vertexPosBuffer2_ = chart_->createBuffer();
     chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexPosBuffer2_);
     chart_->bufferDatafv(WGLWidget::ARRAY_BUFFER,
-			 coloredPtsArray,
-			 WGLWidget::STATIC_DRAW,
-			 true);
+                         coloredPtsArray,
+                         WGLWidget::STATIC_DRAW,
+                         true);
     vertexBuffer2Size_ = coloredPtsArray.size();
-    
+
     // size of colored points
     vertexSizeBuffer2_ = chart_->createBuffer();
     chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexSizeBuffer2_);
     chart_->bufferDatafv(WGLWidget::ARRAY_BUFFER,
-			 coloredPtsSize,
-			 WGLWidget::STATIC_DRAW,
-			 true);
-    
+                         coloredPtsSize,
+                         WGLWidget::STATIC_DRAW,
+                         true);
+
     // color of colored points
     vertexColorBuffer2_ = chart_->createBuffer();
     chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexColorBuffer2_);
     chart_->bufferDatafv(WGLWidget::ARRAY_BUFFER,
-			 coloredPtsColor,
-			 WGLWidget::STATIC_DRAW,
-			 true);
+                         coloredPtsColor,
+                         WGLWidget::STATIC_DRAW,
+                         true);
   }
 
   if (droplinesEnabled_) {
@@ -132,9 +132,9 @@ void WScatterData::updateGL()
     lineVertBuffer_ = chart_->createBuffer();
     chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, lineVertBuffer_);
     chart_->bufferDatafv(WGLWidget::ARRAY_BUFFER,
-			 dropLineVerts,
-			 WGLWidget::STATIC_DRAW,
-			 true);
+                         dropLineVerts,
+                         WGLWidget::STATIC_DRAW,
+                         true);
     lineVertBufferSize_ = dropLineVerts.size();
   }
 
@@ -166,10 +166,10 @@ void WScatterData::updateGL()
   chart_->useProgram(shaderProgram_);
   float text_min, text_max;
   if (colormap_ != nullptr) {
-    text_min = (float)chart_->toPlotCubeCoords(colormap_->minimum(), 
-					       Axis::Z3D);
-    text_max = (float)chart_->toPlotCubeCoords(colormap_->maximum(), 
-					       Axis::Z3D);
+    text_min = (float)chart_->toPlotCubeCoords(colormap_->minimum(),
+                                               Axis::Z3D);
+    text_max = (float)chart_->toPlotCubeCoords(colormap_->maximum(),
+                                               Axis::Z3D);
     chart_->uniform1f(offsetUniform_, text_min);
     chart_->uniform1f(scaleFactorUniform_, 1.0/(text_max - text_min));
   } else {
@@ -280,7 +280,7 @@ int WScatterData::countSimpleData() const
   } else {
     for (int i=0; i < N; i++) {
       if (!cpp17::any_has_value(model_->data(i,ZSeriesColumn_, ItemDataRole::MarkerBrushColor))) {
-	result++;
+        result++;
       }
     }
   }
@@ -290,10 +290,10 @@ int WScatterData::countSimpleData() const
 }
 
 void WScatterData::dataFromModel(FloatBuffer& simplePtsArray,
-				 FloatBuffer& simplePtsSize,
-				 FloatBuffer& coloredPtsArray,
-				 FloatBuffer& coloredPtsSize,
-				 FloatBuffer& coloredPtsColor)
+                                 FloatBuffer& simplePtsSize,
+                                 FloatBuffer& coloredPtsArray,
+                                 FloatBuffer& coloredPtsSize,
+                                 FloatBuffer& coloredPtsColor)
 {
   int N = model_->rowCount();
 
@@ -303,73 +303,73 @@ void WScatterData::dataFromModel(FloatBuffer& simplePtsArray,
   double yMax = chart_->axis(Axis::Y3D).maximum();
   double zMin = chart_->axis(Axis::Z3D).minimum();
   double zMax = chart_->axis(Axis::Z3D).maximum();
-  
+
   for (int i=0; i < N; i++) {
     if (colorColumn_ == -1 && !cpp17::any_has_value(model_->data(i,ZSeriesColumn_, ItemDataRole::MarkerBrushColor))) {
       simplePtsArray.push_back
-	((float)((Wt::asNumber(model_->data(i,XSeriesColumn_)) - xMin) / 
-		 (xMax - xMin)));
+        ((float)((Wt::asNumber(model_->data(i,XSeriesColumn_)) - xMin) /
+                 (xMax - xMin)));
       simplePtsArray.push_back
-	((float)((Wt::asNumber(model_->data(i,YSeriesColumn_)) - yMin) /
-		 (yMax - yMin)));
+        ((float)((Wt::asNumber(model_->data(i,YSeriesColumn_)) - yMin) /
+                 (yMax - yMin)));
       simplePtsArray.push_back
-	((float)((Wt::asNumber(model_->data(i,ZSeriesColumn_)) - zMin) /
-		 (zMax - zMin)));
+        ((float)((Wt::asNumber(model_->data(i,ZSeriesColumn_)) - zMin) /
+                 (zMax - zMin)));
     } else if (colorColumn_ == -1) {
       coloredPtsArray.push_back
-	((float)((Wt::asNumber(model_->data(i,XSeriesColumn_)) - xMin) /
-		 (xMax - xMin)));
+        ((float)((Wt::asNumber(model_->data(i,XSeriesColumn_)) - xMin) /
+                 (xMax - xMin)));
       coloredPtsArray.push_back
-	((float)((Wt::asNumber(model_->data(i,YSeriesColumn_)) - yMin) /
-		 (yMax - yMin)));
+        ((float)((Wt::asNumber(model_->data(i,YSeriesColumn_)) - yMin) /
+                 (yMax - yMin)));
       coloredPtsArray.push_back
-	((float)((Wt::asNumber(model_->data(i,ZSeriesColumn_)) - zMin) /
-		 (zMax - zMin)));
+        ((float)((Wt::asNumber(model_->data(i,ZSeriesColumn_)) - zMin) /
+                 (zMax - zMin)));
       WColor color = cpp17::any_cast<WColor>
-	(model_->data(i,ZSeriesColumn_, ItemDataRole::MarkerBrushColor));
+        (model_->data(i,ZSeriesColumn_, ItemDataRole::MarkerBrushColor));
       coloredPtsColor.push_back((float)color.red());
       coloredPtsColor.push_back((float)color.green());
       coloredPtsColor.push_back((float)color.blue());
       coloredPtsColor.push_back((float)color.alpha());
     } else {
       coloredPtsArray.push_back
-	((float)((Wt::asNumber(model_->data(i,XSeriesColumn_)) - xMin) /
-		 (xMax - xMin)));
+        ((float)((Wt::asNumber(model_->data(i,XSeriesColumn_)) - xMin) /
+                 (xMax - xMin)));
       coloredPtsArray.push_back
-	((float)((Wt::asNumber(model_->data(i,YSeriesColumn_)) - yMin) /
-		 (yMax - yMin)));
+        ((float)((Wt::asNumber(model_->data(i,YSeriesColumn_)) - yMin) /
+                 (yMax - yMin)));
       coloredPtsArray.push_back
-	((float)((Wt::asNumber(model_->data(i,ZSeriesColumn_)) - zMin) /
-		 (zMax - zMin)));
+        ((float)((Wt::asNumber(model_->data(i,ZSeriesColumn_)) - zMin) /
+                 (zMax - zMin)));
       WColor color = cpp17::any_cast<WColor>
-	(model_->data(i,colorColumn_, asColorRole_));
+        (model_->data(i,colorColumn_, asColorRole_));
       coloredPtsColor.push_back((float)color.red());
       coloredPtsColor.push_back((float)color.green());
       coloredPtsColor.push_back((float)color.blue());
       coloredPtsColor.push_back((float)color.alpha());
     }
 
-    FloatBuffer& sizeArrayAlias = 
-      (colorColumn_ == -1 && 
+    FloatBuffer& sizeArrayAlias =
+      (colorColumn_ == -1 &&
        !cpp17::any_has_value(model_->data(i, ZSeriesColumn_, ItemDataRole::MarkerBrushColor)))
       ? simplePtsSize : coloredPtsSize;
     if (sizeColumn_ == -1 &&
-	!cpp17::any_has_value(model_->data(i, ZSeriesColumn_, 
-		     ItemDataRole::MarkerScaleFactor))) {
+        !cpp17::any_has_value(model_->data(i, ZSeriesColumn_,
+                     ItemDataRole::MarkerScaleFactor))) {
       sizeArrayAlias.push_back((float)pointSize_);
     } else if (sizeColumn_ == -1) {
       sizeArrayAlias.push_back
-	((float)(Wt::asNumber(model_->data(i, ZSeriesColumn_, 
-					   ItemDataRole::MarkerScaleFactor))));
+        ((float)(Wt::asNumber(model_->data(i, ZSeriesColumn_,
+                                           ItemDataRole::MarkerScaleFactor))));
     } else {
       sizeArrayAlias.push_back
-	((float)(Wt::asNumber(model_->data(i,sizeColumn_, asSizeRole_))));
+        ((float)(Wt::asNumber(model_->data(i,sizeColumn_, asSizeRole_))));
     }
   }
 }
 
 void WScatterData::dropLineVertices(FloatBuffer& dataPoints,
-				    FloatBuffer& verticesOUT)
+                                    FloatBuffer& verticesOUT)
 {
   int size = dataPoints.size();
   int index;
@@ -521,14 +521,14 @@ void WScatterData::paintGL() const
 
   loadPointSpriteTexture(pointSpriteTexture_);
   chart_->texParameteri(WGLWidget::TEXTURE_2D,
-			WGLWidget::TEXTURE_MAG_FILTER, WGLWidget::NEAREST);
+                        WGLWidget::TEXTURE_MAG_FILTER, WGLWidget::NEAREST);
   chart_->texParameteri(WGLWidget::TEXTURE_2D,
-			WGLWidget::TEXTURE_MIN_FILTER, WGLWidget::NEAREST);
+                        WGLWidget::TEXTURE_MIN_FILTER, WGLWidget::NEAREST);
   chart_->texParameteri(WGLWidget::TEXTURE_2D,
-			WGLWidget::TEXTURE_WRAP_S,WGLWidget::CLAMP_TO_EDGE);
+                        WGLWidget::TEXTURE_WRAP_S,WGLWidget::CLAMP_TO_EDGE);
   chart_->texParameteri(WGLWidget::TEXTURE_2D,
-			WGLWidget::TEXTURE_WRAP_T,WGLWidget::CLAMP_TO_EDGE);
-  
+                        WGLWidget::TEXTURE_WRAP_T,WGLWidget::CLAMP_TO_EDGE);
+
   chart_->disable(WGLWidget::CULL_FACE);
   chart_->enable(WGLWidget::DEPTH_TEST);
 
@@ -539,19 +539,19 @@ void WScatterData::paintGL() const
 
     chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexPosBuffer_);
     chart_->vertexAttribPointer(posAttr_,
-				3,
-				WGLWidget::FLOAT,
-				false,
-				0,
-				0);
+                                3,
+                                WGLWidget::FLOAT,
+                                false,
+                                0,
+                                0);
     chart_->enableVertexAttribArray(posAttr_);
     chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexSizeBuffer_);
     chart_->vertexAttribPointer(sizeAttr_,
-				1,
-				WGLWidget::FLOAT,
-				false,
-				0,
-				0);
+                                1,
+                                WGLWidget::FLOAT,
+                                false,
+                                0,
+                                0);
     chart_->enableVertexAttribArray(sizeAttr_);
 
     chart_->activeTexture(WGLWidget::TEXTURE0);
@@ -565,8 +565,8 @@ void WScatterData::paintGL() const
     chart_->uniform1f(vpHeightUniform_, chart_->height().value());
 
     chart_->drawArrays(WGLWidget::POINTS,
-		       0,
-		       vertexBufferSize_/3);
+                       0,
+                       vertexBufferSize_/3);
     chart_->disableVertexAttribArray(posAttr_);
     chart_->disableVertexAttribArray(sizeAttr_);
   }
@@ -578,27 +578,27 @@ void WScatterData::paintGL() const
 
     chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexPosBuffer2_);
     chart_->vertexAttribPointer(posAttr2_,
-				3,
-				WGLWidget::FLOAT,
-				false,
-				0,
-				0);
+                                3,
+                                WGLWidget::FLOAT,
+                                false,
+                                0,
+                                0);
     chart_->enableVertexAttribArray(posAttr2_);
     chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexSizeBuffer2_);
     chart_->vertexAttribPointer(sizeAttr2_,
-				1,
-				WGLWidget::FLOAT,
-				false,
-				0,
-				0);
+                                1,
+                                WGLWidget::FLOAT,
+                                false,
+                                0,
+                                0);
     chart_->enableVertexAttribArray(sizeAttr2_);
     chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, vertexColorBuffer2_);
     chart_->vertexAttribPointer(colorAttr2_,
-				4,
-				WGLWidget::FLOAT,
-				false,
-				0,
-				0);
+                                4,
+                                WGLWidget::FLOAT,
+                                false,
+                                0,
+                                0);
     chart_->enableVertexAttribArray(colorAttr2_);
 
     chart_->activeTexture(WGLWidget::TEXTURE0);
@@ -608,8 +608,8 @@ void WScatterData::paintGL() const
     chart_->uniform1f(vpHeightUniform2_, chart_->height().value());
 
     chart_->drawArrays(WGLWidget::POINTS,
-		       0,
-		       vertexBuffer2Size_/3);
+                       0,
+                       vertexBuffer2Size_/3);
     chart_->disableVertexAttribArray(posAttr2_);
     chart_->disableVertexAttribArray(sizeAttr2_);
     chart_->disableVertexAttribArray(colorAttr2_);
@@ -619,28 +619,28 @@ void WScatterData::paintGL() const
     chart_->useProgram(linesProgram_);
     chart_->uniformMatrix4(cMatrixUniform3_, chart_->jsMatrix());
     chart_->uniform4f(lineColorUniform_,
-		      (float)droplinesPen_.color().red(),
-		      (float)droplinesPen_.color().green(),
-		      (float)droplinesPen_.color().blue(),
-		      (float)droplinesPen_.color().alpha());
+                      (float)droplinesPen_.color().red(),
+                      (float)droplinesPen_.color().green(),
+                      (float)droplinesPen_.color().blue(),
+                      (float)droplinesPen_.color().alpha());
 
     chart_->bindBuffer(WGLWidget::ARRAY_BUFFER, lineVertBuffer_);
     chart_->vertexAttribPointer(posAttrLines_,
-				3,
-				WGLWidget::FLOAT,
-				false,
-				0,
-				0);
+                                3,
+                                WGLWidget::FLOAT,
+                                false,
+                                0,
+                                0);
     chart_->enableVertexAttribArray(posAttrLines_);
-    chart_->lineWidth(droplinesPen_.width().value() == 0 ? 
-		      1.0 : 
-		      droplinesPen_.width().value());
+    chart_->lineWidth(droplinesPen_.width().value() == 0 ?
+                      1.0 :
+                      droplinesPen_.width().value());
     chart_->drawArrays(WGLWidget::LINES,
-		       0,
-		       lineVertBufferSize_/3);
+                       0,
+                       lineVertBufferSize_/3);
     chart_->disableVertexAttribArray(posAttrLines_);
   }
-  
+
   chart_->enable(WGLWidget::CULL_FACE);
   chart_->disable(WGLWidget::DEPTH_TEST);
 }

@@ -54,11 +54,11 @@ WT_DECLARE_WT_MEMBER
 
        if (mediaEl) {
          return '' + mediaEl.volume + ';'
-	   + mediaEl.currentTime + ';'
-	   + (mediaEl.readyState >= 1 ? mediaEl.duration : 0) + ';'
-	   + (mediaEl.paused ? '1' : '0') + ';'
-	   + (mediaEl.ended ? ' 1' : '0') + ';'
-	   + mediaEl.readyState;
+           + mediaEl.currentTime + ';'
+           + (mediaEl.readyState >= 1 ? mediaEl.duration : 0) + ';'
+           + (mediaEl.paused ? '1' : '0') + ';'
+           + (mediaEl.ended ? ' 1' : '0') + ';'
+           + mediaEl.readyState;
        }
      }
 

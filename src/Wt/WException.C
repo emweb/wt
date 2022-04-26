@@ -26,7 +26,7 @@ std::string backtrace() {
   unw_init_local(&cursor, &context);
 
   std::stringstream ss;
-  
+
   // Unwind frames one by one, going up the frame stack.
   while (unw_step(&cursor) > 0) {
     unw_word_t offset, pc;
@@ -36,7 +36,7 @@ std::string backtrace() {
     }
 
     ss << "0x" << std::hex << pc;
-    
+
     char sym[256];
     if (unw_get_proc_name(&cursor, sym, sizeof(sym), &offset) == 0) {
       char* nameptr = sym;
@@ -47,7 +47,7 @@ std::string backtrace() {
       }
 
       ss << " (" << nameptr << "+0x" << std::hex << offset << ")" << std::endl;
-      
+
       std::free(demangled);
     } else {
       ss << " -- error: unable to obtain symbol name for this frame" << std::endl;
@@ -77,7 +77,7 @@ WException::WException(const std::string& what)
 { }
 
 WException::WException(const std::string& what,
-		       const std::exception& wrapped)
+                       const std::exception& wrapped)
 #ifdef WT_WITH_UNWIND
   : what_(what + " at\n" + backtrace() + "Caused by: " + wrapped.what())
 #else

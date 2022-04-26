@@ -122,12 +122,12 @@ public:
           Wt::WTime t = Wt::WTime(0, 0, 0)
                   .addSecs(info.offset.count());
 
-	std::string result = locality(id) + " (GMT" + 
-	  t.toString("+hh:mm").toUTF8() + ")";
+        std::string result = locality(id) + " (GMT" +
+          t.toString("+hh:mm").toUTF8() + ")";
 
-	return result;
+        return result;
       } else
-	return locality(id);
+        return locality(id);
     }
     case Wt::ItemDataRole::Level:
       return id.substr(0, id.find('/'));
@@ -145,7 +145,7 @@ public:
     if (orientation == Wt::Orientation::Horizontal) {
       switch (role.value()) {
       case Wt::ItemDataRole::Display:
-	return std::string("locality");
+        return std::string("locality");
       default:
         return Wt::cpp17::any();
       }
@@ -227,7 +227,7 @@ public:
 
     auto info = l.timeZone()->get_info(std::chrono::system_clock::now());
     std::ostringstream os;
-    os << info.abbrev << " " 
+    os << info.abbrev << " "
        << Wt::WTime(0, 0 ,0).addSecs(info.offset.count()).toString("+hh:mm").toUTF8();
 
     info_->bindString("time-zone", os.str());

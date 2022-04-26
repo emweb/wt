@@ -147,7 +147,7 @@ void WFormDelegate<bool, void>::updateViewValue(Wt::WFormModel *model, Wt::WForm
       try {
         value = Wt::cpp17::any_cast<bool>(v);
       } catch (std::exception& e) {
-	LOG_ERROR("Could not convert value to bool: " << e.what());
+        LOG_ERROR("Could not convert value to bool: " << e.what());
       }
     }
 

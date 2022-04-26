@@ -19,8 +19,8 @@ namespace Wt {
  * option may be selected.
  *
  * %WComboBox is an MVC view class, using a simple string list model
- * by default. The model may be populated using 
- * addItem(const WString&) or 
+ * by default. The model may be populated using
+ * addItem(const WString&) or
  * insertItem(int, const WString&) and the contents can
  * be cleared through clear(). These methods manipulate the underlying
  * model().
@@ -49,7 +49,7 @@ namespace Wt {
  * combo->setCurrentIndex(2); // Johnny Depp
  * combo->activated().connect(this, &MyWidget::comboChanged);
  * \endcode
- * \endif 
+ * \endif
  *
  * %WComboBox is an \link WWidget::setInline(bool) inline \endlink widget.
  *
@@ -168,8 +168,8 @@ public:
   /*! \brief Returns the index of the first item that matches a text.
    */
   int findText(const WString& text,
-	       WFlags<MatchFlag> flags 
-	       = MatchFlag::Exactly | MatchFlag::CaseSensitive) const;
+               WFlags<MatchFlag> flags
+               = MatchFlag::Exactly | MatchFlag::CaseSensitive) const;
 
   /*! \brief Returns the selection mode.
    *
@@ -178,7 +178,7 @@ public:
    *
    * \sa WSelectionBox::setSelectionMode()
    */
-  virtual SelectionMode selectionMode() const { 
+  virtual SelectionMode selectionMode() const {
     return SelectionMode::Single;
   }
 

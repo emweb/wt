@@ -25,7 +25,7 @@ namespace Wt {
       - OptionsModel
         a WAbstractItemModel: column 0 has entries with data of two roles:
         - ItemDataRole::Edit: the primary key
-	- ItemDataRole::Display: the value to display
+        - ItemDataRole::Display: the value to display
       - Validator
         a WValidator: used to validate the data
 
@@ -33,7 +33,7 @@ namespace Wt {
 
     addColumn(const ResultValueFunction& function,
               const std::string& editField = "",
-	      WAbstractItemModel *editOptions = 0);
+              WAbstractItemModel *editOptions = 0);
 
     Let WItemDelegate support better editing:
      - if validator is a WDateValidator, then display a date picker

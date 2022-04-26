@@ -56,9 +56,9 @@ WLayoutItem *WBorderLayout::itemAt(int index) const
     WLayoutItem *it = itemAtPosition((LayoutPosition)i).item_.get();
     if (it) {
       if (j == index)
-	return it;
+        return it;
       else
-	++j;
+        ++j;
     }
   }
 
@@ -105,7 +105,7 @@ const Impl::Grid::Item& WBorderLayout::itemAtPosition(LayoutPosition position)
 }
 
 void WBorderLayout::addWidget(std::unique_ptr<WWidget> w,
-			      LayoutPosition position)
+                              LayoutPosition position)
 {
   add(std::unique_ptr<WLayoutItem>(new WWidgetItem(std::move(w))), position);
 }
@@ -113,7 +113,7 @@ void WBorderLayout::addWidget(std::unique_ptr<WWidget> w,
 WWidget *WBorderLayout::widgetAt(LayoutPosition position) const
 {
   WWidgetItem *item = dynamic_cast<WWidgetItem *>(itemAt(position));
-  
+
   if (item)
     return item->widget();
   else
@@ -126,13 +126,13 @@ void WBorderLayout::iterateWidgets(const HandleWidgetMethod& method) const
     for (unsigned c = 0; c < grid_.columns_.size(); ++c) {
       WLayoutItem *item = grid_.items_[r][c].item_.get();
       if (item)
-	item->iterateWidgets(method);
+        item->iterateWidgets(method);
     }
   }
 }
 
 void WBorderLayout::add(std::unique_ptr<WLayoutItem> item,
-			LayoutPosition position)
+                        LayoutPosition position)
 {
   auto& it = itemAtPosition(position);
   if (it.item_) {
@@ -185,7 +185,7 @@ void WBorderLayout::setParentWidget(WWidget *parent)
 
   if (parent)
     setImpl(std::unique_ptr<WLayoutImpl>
-	    (new StdGridLayoutImpl2(this, grid_)));
+            (new StdGridLayoutImpl2(this, grid_)));
 }
 
 }

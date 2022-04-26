@@ -87,14 +87,14 @@ WLogEntry& WLogEntry::operator<< (const std::string& s)
       impl_->line_ << ss;
     } else {
       if (!s.empty()) {
-	startField();
-	impl_->line_ << s;
+        startField();
+        impl_->line_ << s;
       }
     }
 
     if ((impl_->customLogger_ ||
          impl_->field_ == (int)impl_->logger_->fields().size() - 1)
-	&& impl_->scope_.empty())
+        && impl_->scope_.empty())
       impl_->scope_ = s;
   }
 
@@ -142,7 +142,7 @@ WLogEntry& WLogEntry::operator<< (double v)
 }
 
 WLogEntry::WLogEntry(const WLogger& logger, const std::string& type,
-		     bool mute)
+                     bool mute)
 {
   if (!mute)
     impl_.reset(new Impl(logger, type));
@@ -247,7 +247,7 @@ WLogger::WLogger()
 }
 
 WLogger::~WLogger()
-{ 
+{
   if (ownStream_)
     delete o_;
 }
@@ -278,15 +278,15 @@ void WLogger::setFile(const std::string& path)
     ofs = new std::ofstream(path.c_str(), std::ios_base::out | std::ios_base::ate | std::ios_base::app);
   }
 #else
-  ofs = new std::ofstream(path.c_str(), 
-			  std::ios_base::out | std::ios_base::ate | std::ios_base::app);
+  ofs = new std::ofstream(path.c_str(),
+                          std::ios_base::out | std::ios_base::ate | std::ios_base::app);
   if (!ofs->is_open()) {
     // maybe a special file (pipe, /dev/null) that does not support ate?
     delete ofs;
     ofs = new std::ofstream(path.c_str(), std::ios_base::out);
   }
 #endif
-  
+
   if (ofs->is_open()) {
     LOG_INFO("Opened log file (" << path << ").");
     o_ = ofs;
@@ -312,7 +312,7 @@ WLogEntry WLogger::entry(const std::string& type) const
 }
 
 void WLogger::addLine(const std::string& type,
-		      const std::string& scope, const WStringStream& s) const
+                      const std::string& scope, const WStringStream& s) const
 {
   if (logging(type, scope))
     if (o_)
@@ -325,7 +325,7 @@ void WLogger::configure(const std::string& config)
 
   Wt::Utils::SplitVector rules;
   boost::split(rules, config, boost::algorithm::is_space(),
-	       boost::algorithm::token_compress_on);
+               boost::algorithm::token_compress_on);
 
   for (unsigned i = 0; i < rules.size(); ++i) {
     Wt::Utils::SplitVector type_scope;
@@ -363,9 +363,9 @@ bool WLogger::logging(const char *type) const
   for (unsigned i = 0; i < rules_.size(); ++i)
     if (rules_[i].type == "*" || rules_[i].type == type) {
       if (rules_[i].scope == "*")
-	result = rules_[i].include;
+        result = rules_[i].include;
       else if (rules_[i].include)
-	result = true;
+        result = true;
     }
 
   return result;
@@ -378,13 +378,13 @@ bool WLogger::logging(const std::string& type, const std::string& scope) const
   for (unsigned i = 0; i < rules_.size(); ++i)
     if (rules_[i].type == "*" || rules_[i].type == type)
       if (rules_[i].scope == "*" || rules_[i].scope == scope)
-	result = rules_[i].include;
+        result = rules_[i].include;
 
   return result;
 }
 
 WLogger& logInstance()
-{ 
+{
 #ifdef WT_DBO_LOGGER
   return defaultLogger;
 #else // WT_DBO_LOGGER

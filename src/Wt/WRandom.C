@@ -29,7 +29,7 @@ constexpr Int1 int_pow(Int1 n, Int2 exp)
 }
 
 namespace Wt {
-  
+
 unsigned int WRandom::get()
 {
   return rnd()();

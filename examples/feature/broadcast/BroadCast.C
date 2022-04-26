@@ -58,8 +58,8 @@ public:
 
     for (unsigned i = 0; i < connections_.size(); ++i) {
       if (connections_[i].client == client) {
-	connections_.erase(connections_.begin() + i);
-	return;
+        connections_.erase(connections_.begin() + i);
+        return;
       }
     }
 
@@ -77,8 +77,8 @@ private:
     Connection(const std::string& id, Client *c,
                const std::function<void()>& f)
       : sessionId(id),
-	client(c),
-	function(f)
+        client(c),
+        function(f)
     { }
 
     std::string sessionId;
@@ -149,8 +149,8 @@ void Server::run()
 
       /* This is where we notify all connected clients. */
       for (unsigned i = 0; i < connections_.size(); ++i) {
-	Connection& c = connections_[i];
-	WServer::instance()->post(c.sessionId, c.function);
+        Connection& c = connections_[i];
+        WServer::instance()->post(c.sessionId, c.function);
       }
     }
   }

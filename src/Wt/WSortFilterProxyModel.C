@@ -13,7 +13,7 @@ namespace Wt {
 #ifndef DOXYGEN_ONLY
 #ifndef WT_TARGET_JAVA
 bool WSortFilterProxyModel::Compare::operator()(int sourceRow1,
-						int sourceRow2) const
+                                                int sourceRow2) const
 {
   if (model->sortOrder_ == SortOrder::Ascending)
     return lessThan(sourceRow1, sourceRow2);
@@ -29,11 +29,11 @@ bool WSortFilterProxyModel::Compare::lessThan(int sourceRow1, int sourceRow2)
 
   WModelIndex lhs
     = model->sourceModel()->index(sourceRow1, model->sortKeyColumn_,
-				  item->sourceIndex_);
+                                  item->sourceIndex_);
 
   WModelIndex rhs
     = model->sourceModel()->index(sourceRow2, model->sortKeyColumn_,
-				  item->sourceIndex_);
+                                  item->sourceIndex_);
 
   return model->lessThan(lhs, rhs);
 }
@@ -49,11 +49,11 @@ int WSortFilterProxyModel::Compare::compare(int sourceRow1, int sourceRow2)
 
   WModelIndex lhs
     = model->sourceModel()->index(sourceRow1, model->sortKeyColumn_,
-				  item->sourceIndex_);
+                                  item->sourceIndex_);
 
   WModelIndex rhs
     = model->sourceModel()->index(sourceRow2, model->sortKeyColumn_,
-				  item->sourceIndex_);
+                                  item->sourceIndex_);
 
   return factor * model->compare(lhs, rhs);
 }
@@ -197,7 +197,7 @@ WModelIndex WSortFilterProxyModel::mapFromSource(const WModelIndex& sourceIndex)
     int row = item->sourceRowMap_[sourceIndex.row()];
     if (row != -1)
       return createIndex(row, sourceIndex.column(),
-			 static_cast<void *>(item));
+                         static_cast<void *>(item));
     else
       return WModelIndex();
   } else
@@ -210,14 +210,14 @@ WModelIndex WSortFilterProxyModel::mapToSource(const WModelIndex& proxyIndex)
   if (proxyIndex.isValid()) {
     Item *parentItem = parentItemFromIndex(proxyIndex);
     return sourceModel()->index(parentItem->proxyRowMap_[proxyIndex.row()],
-				proxyIndex.column(),
-				parentItem->sourceIndex_);
+                                proxyIndex.column(),
+                                parentItem->sourceIndex_);
   } else
     return WModelIndex();
 }
 
 WModelIndex WSortFilterProxyModel::index(int row, int column,
-					 const WModelIndex& parent) const
+                                         const WModelIndex& parent) const
 {
   Item *item = itemFromIndex(parent);
 
@@ -248,7 +248,7 @@ WSortFilterProxyModel::itemFromIndex(const WModelIndex& index) const
 
     WModelIndex sourceIndex
       = sourceModel()->index(parentItem->proxyRowMap_[index.row()],
-			     index.column(), parentItem->sourceIndex_);
+                             index.column(), parentItem->sourceIndex_);
     return itemFromSourceIndex(sourceIndex);
   } else
     return itemFromSourceIndex(WModelIndex());
@@ -324,17 +324,17 @@ int WSortFilterProxyModel::mappedInsertionPoint(int sourceRow, Item *item) const
     return -1;
   else
     return Utils::insertion_point(item->proxyRowMap_ , sourceRow,
-				  Compare(this, item));
+                                  Compare(this, item));
 }
 
 bool WSortFilterProxyModel::filterAcceptRow(int sourceRow,
-					    const WModelIndex& sourceParent)
+                                            const WModelIndex& sourceParent)
   const
 {
   if (regex_) {
     WString s = asString(sourceModel()
-			 ->index(sourceRow, filterKeyColumn_, sourceParent)
-			 .data(filterRole_));
+                         ->index(sourceRow, filterKeyColumn_, sourceParent)
+                         .data(filterRole_));
     bool result = std::regex_match(s.toUTF8(), *regex_);
 
     return result;
@@ -344,7 +344,7 @@ bool WSortFilterProxyModel::filterAcceptRow(int sourceRow,
 
 #ifndef WT_TARGET_JAVA
 bool WSortFilterProxyModel::lessThan(const WModelIndex& lhs,
-				     const WModelIndex& rhs) const
+                                     const WModelIndex& rhs) const
 {
   return WSortFilterProxyModel::compare(lhs, rhs) < 0;
 }
@@ -352,7 +352,7 @@ bool WSortFilterProxyModel::lessThan(const WModelIndex& lhs,
 
 
 int WSortFilterProxyModel::compare(const WModelIndex& lhs,
-				   const WModelIndex& rhs) const
+                                   const WModelIndex& rhs) const
 {
   return Wt::Impl::compare(lhs.data(sortRole_), rhs.data(sortRole_));
 }
@@ -388,7 +388,7 @@ cpp17::any WSortFilterProxyModel::headerData(int section,
 }
 
 WFlags<HeaderFlag> WSortFilterProxyModel::headerFlags(int section,
-						      Orientation orientation)
+                                                      Orientation orientation)
   const
 {
   if (orientation == Orientation::Vertical)
@@ -404,20 +404,20 @@ void WSortFilterProxyModel::sourceColumnsAboutToBeInserted
 }
 
 void WSortFilterProxyModel::sourceColumnsInserted(const WModelIndex& parent,
-						  int start, int end)
+                                                  int start, int end)
 {
   endInsertColumns();
 }
 
 void WSortFilterProxyModel::sourceColumnsAboutToBeRemoved
   (const WModelIndex& parent, int start, int end)
-{ 
+{
   beginRemoveColumns(mapFromSource(parent), start, end);
 }
 
 void WSortFilterProxyModel::sourceColumnsRemoved(const WModelIndex& parent,
-						 int start, int end)
-{ 
+                                                 int start, int end)
+{
   endRemoveColumns();
 }
 
@@ -445,7 +445,7 @@ void WSortFilterProxyModel::sourceRowsAboutToBeInserted
 }
 
 void WSortFilterProxyModel::sourceRowsInserted(const WModelIndex& parent,
-					       int start, int end)
+                                               int start, int end)
 {
   startShiftModelIndexes(parent, end + 1, (end - start + 1), mappedIndexes_);
 
@@ -477,7 +477,7 @@ void WSortFilterProxyModel::sourceRowsInserted(const WModelIndex& parent,
     if (newMappedRow != -1) {
       beginInsertRows(pparent, newMappedRow, newMappedRow);
       item->proxyRowMap_.insert
-	(item->proxyRowMap_.begin() + newMappedRow, row);
+        (item->proxyRowMap_.begin() + newMappedRow, row);
       rebuildSourceRowMap(item); // insertion may have shifted some
       endInsertRows();
     } else
@@ -511,7 +511,7 @@ void WSortFilterProxyModel::sourceRowsAboutToBeRemoved
 }
 
 void WSortFilterProxyModel::sourceRowsRemoved(const WModelIndex& parent,
-					      int start, int end)
+                                              int start, int end)
 {
   int count = end - start + 1;
   endShiftModelIndexes(parent, start, -count, mappedIndexes_);
@@ -529,22 +529,22 @@ void WSortFilterProxyModel::sourceRowsRemoved(const WModelIndex& parent,
   }
 
   item->sourceRowMap_.erase(item->sourceRowMap_.begin() + start,
-			    item->sourceRowMap_.begin() + start + count);
+                            item->sourceRowMap_.begin() + start + count);
 }
 
 void WSortFilterProxyModel::sourceDataChanged(const WModelIndex& topLeft,
-					      const WModelIndex& bottomRight)
+                                              const WModelIndex& bottomRight)
 {
   if (!topLeft.isValid() || !bottomRight.isValid())
     return;
 
   bool refilter
-    = dynamic_ && (filterKeyColumn_ >= topLeft.column() 
-		   && filterKeyColumn_ <= bottomRight.column());
+    = dynamic_ && (filterKeyColumn_ >= topLeft.column()
+                   && filterKeyColumn_ <= bottomRight.column());
 
   bool resort
-    = dynamic_ && (sortKeyColumn_ >= topLeft.column() 
-		   && sortKeyColumn_ <= bottomRight.column());
+    = dynamic_ && (sortKeyColumn_ >= topLeft.column()
+                   && sortKeyColumn_ <= bottomRight.column());
 
   WModelIndex parent = mapFromSource(topLeft.parent());
   // distinguish between invalid parent being root item or being filtered out
@@ -559,59 +559,59 @@ void WSortFilterProxyModel::sourceDataChanged(const WModelIndex& topLeft,
     if (refilter || resort) {
       // Determine new insertion point: erase it temporarily for this
       if (oldMappedRow != -1)
-	item->proxyRowMap_.erase(item->proxyRowMap_.begin() + oldMappedRow);
+        item->proxyRowMap_.erase(item->proxyRowMap_.begin() + oldMappedRow);
       int newMappedRow = mappedInsertionPoint(row, item);
       if (oldMappedRow != -1)
-	item->proxyRowMap_.insert(item->proxyRowMap_.begin() + oldMappedRow, row);
+        item->proxyRowMap_.insert(item->proxyRowMap_.begin() + oldMappedRow, row);
 
       if (newMappedRow != oldMappedRow) {
-	if (oldMappedRow != -1) {
-	  beginRemoveRows(parent, oldMappedRow, oldMappedRow);
-	  item->proxyRowMap_.erase
-	    (item->proxyRowMap_.begin() + oldMappedRow);
-	  rebuildSourceRowMap(item);
-	  endRemoveRows();
-	}
+        if (oldMappedRow != -1) {
+          beginRemoveRows(parent, oldMappedRow, oldMappedRow);
+          item->proxyRowMap_.erase
+            (item->proxyRowMap_.begin() + oldMappedRow);
+          rebuildSourceRowMap(item);
+          endRemoveRows();
+        }
 
-	if (newMappedRow != -1) {
-	  beginInsertRows(parent, newMappedRow, newMappedRow);
-	  item->proxyRowMap_.insert
-	    (item->proxyRowMap_.begin() + newMappedRow, row);
-	  rebuildSourceRowMap(item);
-	  endInsertRows();
-	}
+        if (newMappedRow != -1) {
+          beginInsertRows(parent, newMappedRow, newMappedRow);
+          item->proxyRowMap_.insert
+            (item->proxyRowMap_.begin() + newMappedRow, row);
+          rebuildSourceRowMap(item);
+          endInsertRows();
+        }
 
-	propagateDataChange = false;
+        propagateDataChange = false;
       }
     }
 
     if (propagateDataChange) {
       WModelIndex l = sourceModel()->index(row, topLeft.column(),
-					   topLeft.parent());
+                                           topLeft.parent());
       WModelIndex r = sourceModel()->index(row, bottomRight.column(),
-					   topLeft.parent());
+                                           topLeft.parent());
 
       dataChanged().emit(mapFromSource(l), mapFromSource(r));
     }
   }
 }
 
-void WSortFilterProxyModel::sourceHeaderDataChanged(Orientation orientation, 
-						    int start, int end)
+void WSortFilterProxyModel::sourceHeaderDataChanged(Orientation orientation,
+                                                    int start, int end)
 {
   if (orientation == Orientation::Vertical) {
     Item *item = itemFromIndex(WModelIndex());
     for (int row = start; row <= end; ++row) {
       int mappedRow = item->sourceRowMap_[row];
       if (mappedRow != -1)
-	headerDataChanged().emit(orientation, mappedRow, mappedRow);
+        headerDataChanged().emit(orientation, mappedRow, mappedRow);
     }
   } else
     headerDataChanged().emit(orientation, start, end);
 }
 
 void WSortFilterProxyModel::sourceLayoutAboutToBeChanged()
-{ 
+{
   layoutAboutToBeChanged().emit();
   resetMappings();
 }
@@ -628,7 +628,7 @@ void WSortFilterProxyModel::sourceModelReset()
 }
 
 bool WSortFilterProxyModel::insertRows(int row, int count,
-				       const WModelIndex& parent)
+                                       const WModelIndex& parent)
 {
   int sourceRow;
 
@@ -657,7 +657,7 @@ bool WSortFilterProxyModel::insertRows(int row, int count,
 }
 
 bool WSortFilterProxyModel::removeRows(int row, int count,
-				       const WModelIndex& parent)
+                                       const WModelIndex& parent)
 {
   for (int i = 0; i < count; ++i) {
     int sourceRow = mapToSource(index(row, 0, parent)).row();

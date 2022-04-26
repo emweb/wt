@@ -85,21 +85,21 @@ namespace Wt {
  * popup.addItem("Item 5");
  * popup.addItem("Item 6");
  * popup.addSeparator();
- *		 
+ *
  * WPopupMenu subMenu = new WPopupMenu();
  * subMenu.addItem("Sub Item 1");
  * subMenu.addItem("Sub Item 2");
  * popup.addMenu("Item 7", subMenu);
- *		 
+ *
  * WMenuItem item = popup.exec(event);
- *		 
+ *
  * if (item != null) {
  *  // ... do associated action.
  * }
  * \endcode
  * \endif
  *
- * A snapshot of the WPopupMenu: 
+ * A snapshot of the WPopupMenu:
  * \image html WPopupMenu-default-1.png "WPopupMenu example (default)"
  * \image html WPopupMenu-polished-1.png "WPopupMenu example (polished)"
  *
@@ -144,8 +144,8 @@ public:
    *
    * \sa positionAt(), popup(const WPointF&)
    */
-  void popup(WWidget *location, 
-	     Orientation orientation = Orientation::Vertical);
+  void popup(WWidget *location,
+             Orientation orientation = Orientation::Vertical);
 
   /*! \brief Executes the the popup at a position.
    *
@@ -173,8 +173,8 @@ public:
    *
    * \sa positionAt(), popup(const WPointF&)
    */
-  WMenuItem *exec(WWidget *location, 
-		  Orientation orientation = Orientation::Vertical);
+  WMenuItem *exec(WWidget *location,
+                  Orientation orientation = Orientation::Vertical);
 
   /*! \brief Returns the last triggered menu item.
    *

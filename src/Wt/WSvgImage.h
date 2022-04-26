@@ -56,7 +56,7 @@ public:
    * image, instead of a full SVG image.
    */
   WSvgImage(const WLength& width, const WLength& height,
-	    bool paintUpdate = false);
+            bool paintUpdate = false);
 
   /*! \brief Destructor.
    */
@@ -67,18 +67,18 @@ public:
   virtual void drawArc(const WRectF& rect, double startAngle, double spanAngle)
     override;
   virtual void drawImage(const WRectF& rect, const std::string& imgUri,
-			 int imgWidth, int imgHeight, const WRectF& sourceRect)
+                         int imgWidth, int imgHeight, const WRectF& sourceRect)
     override;
   virtual void drawLine(double x1, double y1, double x2, double y2) override;
   virtual void drawRect(const WRectF& rectangle) override;
   virtual void drawPath(const WPainterPath& path) override;
-  virtual void drawText(const WRectF& rect, 
-			WFlags<AlignmentFlag> alignmentFlags,
-			TextFlag textFlag,
-			const WString& text,
-			const WPointF *clipPoint) override;
+  virtual void drawText(const WRectF& rect,
+                        WFlags<AlignmentFlag> alignmentFlags,
+                        TextFlag textFlag,
+                        const WString& text,
+                        const WPointF *clipPoint) override;
   virtual WTextItem measureText(const WString& text, double maxWidth = -1,
-				bool wordWrap = false) override;
+                                bool wordWrap = false) override;
   virtual WFontMetrics fontMetrics() override;
   virtual void init() override;
   virtual void done() override;
@@ -90,7 +90,7 @@ public:
   virtual WLength height() const override { return height_; }
 
   virtual void handleRequest(const Http::Request& request,
-			     Http::Response& response) override;
+                             Http::Response& response) override;
 
 protected:
   virtual WPainter *painter() const override { return painter_; }

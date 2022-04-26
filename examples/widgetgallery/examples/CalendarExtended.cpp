@@ -18,14 +18,14 @@ c2->selectionChanged().connect([=] {
     std::set<Wt::WDate> selection = c2->selection();
 
     for (auto &date : c2->selection()) {
-	if (!selected.empty())
-	    selected += ", ";
+        if (!selected.empty())
+            selected += ", ";
 
         selected += date.toString("dd/MM/yyyy");
     }
 
     out->setText(Wt::WString("<p>You selected the following dates: {1}</p>")
-		 .arg(selected));
+                 .arg(selected));
 });
 
 SAMPLE_END(return std::move(container))

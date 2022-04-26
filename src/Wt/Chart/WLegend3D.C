@@ -14,8 +14,8 @@ namespace Wt {
 
 void WLegend3D
 ::renderLegend(WPainter* painter,
-	       const std::vector<std::unique_ptr<WAbstractDataSeries3D> >
-	       & dataseries)
+               const std::vector<std::unique_ptr<WAbstractDataSeries3D> >
+               & dataseries)
 {
   if (!legendEnabled_)
     return;
@@ -41,15 +41,15 @@ void WLegend3D
   if (nbItems % legendColumns_)
     nbRows++;
   painter->drawRect(0, 0,
-		    legendColumns_*legendColumnWidth_.value() + 2*boxPadding,
-		    nbRows*lineHeight + 2*boxPadding);
+                    legendColumns_*legendColumnWidth_.value() + 2*boxPadding,
+                    nbRows*lineHeight + 2*boxPadding);
   painter->translate(boxPadding, boxPadding);
 
   int count = 0;
   for (unsigned i = 0; i < dataseries.size(); i++) {
     WAbstractDataSeries3D *series = dataseries[i].get();
     if (!series->isLegendEnabled() ||
-	series->isHidden())
+        series->isHidden())
       continue;
 
     count++;
@@ -57,20 +57,20 @@ void WLegend3D
     if (series->colorMap() == 0) { // if chartpalette
       WColor seriesColor = series->chartpaletteColor();
       painter->fillRect(0, offset, labelWidth, textHeight,
-			WBrush(seriesColor));
+                        WBrush(seriesColor));
     } else { // else colormap
       series->colorMap()->createStrip(painter, WRectF(0, offset, labelWidth, textHeight));
     }
 
     // draw label
     painter->drawText( labelWidth + 10, 0, 100, lineHeight,
-		       WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Middle,
-		       series->title() );
+                       WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Middle,
+                       series->title() );
 
     // offset painter
     if (count == legendColumns_) {
       painter->translate(-(legendColumns_-1)*legendColumnWidth_.value(),
-			 lineHeight);
+                         lineHeight);
       count = 0;
     } else {
       painter->translate(legendColumnWidth_.value(), 0);
@@ -86,7 +86,7 @@ int WLegend3D::width()
 }
 
 int WLegend3D::height(const std::vector<std::unique_ptr<WAbstractDataSeries3D> >
-		      &dataseries)
+                      &dataseries)
 {
   int nbItems = 0;
   for (unsigned i = 0; i < dataseries.size(); i++) {

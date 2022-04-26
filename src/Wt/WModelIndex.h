@@ -498,7 +498,7 @@ private:
 
   WModelIndex(int row, int column, const WAbstractItemModel *model, void *ptr);
   WModelIndex(int row, int column, const WAbstractItemModel *model,
-	      ::uint64_t id);
+              ::uint64_t id);
 
   friend class WAbstractItemModel;
 

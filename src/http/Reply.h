@@ -106,16 +106,16 @@ public:
    * Returns true if ready to read more.
    */
   virtual bool consumeData(const char *begin,
-			   const char *end,
-			   Request::State state) = 0;
+                           const char *end,
+                           Request::State state) = 0;
 
   /*
    * Returns false on failure (should abort reading more)
    */
   virtual bool consumeWebSocketMessage(ws_opcode opcode,
-				       const char* begin,
-				       const char* end,
-				       Request::State state);
+                                       const char* begin,
+                                       const char* end,
+                                       Request::State state);
 
   void setConnection(ConnectionPtr connection);
   bool nextWrappedContentBuffers(std::vector<asio::const_buffer>& result);
@@ -185,7 +185,7 @@ private:
 
 
   bool encodeNextContentBuffer(std::vector<asio::const_buffer>& result,
-			       int& originalSize, int& encodedSize);
+                               int& originalSize, int& encodedSize);
 #ifdef WTHTTP_WITH_ZLIB
   void initGzip();
   bool gzipBusy_;

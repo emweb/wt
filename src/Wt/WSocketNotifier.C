@@ -34,11 +34,11 @@ void WSocketNotifier::setEnabled(bool enabled)
 
     if (!beingNotified_) {
       WebController *controller
-	= WApplication::instance()->session()->controller();
+        = WApplication::instance()->session()->controller();
       if (enabled_)
         controller->addSocketNotifier(this);
       else
-	controller->removeSocketNotifier(this);
+        controller->removeSocketNotifier(this);
     }
   }
 }

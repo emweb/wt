@@ -230,10 +230,10 @@ public:
       impl_->rt_->GetTags(&tag1, &tag2);
       if (tagId == 1) {
         impl_->rt_->SetTags(val, tag2);
-	oldTag_ = tag1;
+        oldTag_ = tag1;
       } else if (tagId == 2) {
-	impl_->rt_->SetTags(tag2, val);
-	oldTag_ = tag2;
+        impl_->rt_->SetTags(tag2, val);
+        oldTag_ = tag2;
       }
     }
 
@@ -244,7 +244,7 @@ public:
       if (tagId_ == 1) {
         impl_->rt_->SetTags(oldTag_, tag2);
       } else {
-	impl_->rt_->SetTags(tag1, oldTag_);
+        impl_->rt_->SetTags(tag1, oldTag_);
       }
     }
 
@@ -264,7 +264,7 @@ public:
 #endif // DEBUG_D2D
 
 WRasterImage::WRasterImage(const std::string& type,
-			   const WLength& width, const WLength& height)
+                           const WLength& width, const WLength& height)
   : WResource(),
     width_(width),
     height_(height),
@@ -299,12 +299,12 @@ WRasterImage::WRasterImage(const std::string& type,
 
   if (SUCCEEDED(hr))
     hr = CoCreateInstance(CLSID_WICImagingFactory, 0, CLSCTX_INPROC_SERVER,
-			  IID_IWICImagingFactory, (void**)&impl_->wicFactory_);
+                          IID_IWICImagingFactory, (void**)&impl_->wicFactory_);
 
   if (SUCCEEDED(hr))
     hr = impl_->wicFactory_->CreateBitmap(impl_->w_, impl_->h_,
-					  format,
-					  WICBitmapCacheOnLoad, &impl_->bitmap_);
+                                          format,
+                                          WICBitmapCacheOnLoad, &impl_->bitmap_);
 
   struct D2D1_RENDER_TARGET_PROPERTIES rtp;
   rtp.type = D2D1_RENDER_TARGET_TYPE_DEFAULT; // HW if available, else SW (not for WIC, so always SW)
@@ -323,7 +323,7 @@ WRasterImage::WRasterImage(const std::string& type,
 
   if (SUCCEEDED(hr))
     hr = impl_->rt_->CreateSolidColorBrush(D2D1::ColorF(0, 0, 0, 0),
-					   &impl_->strokeBrush_);
+                                           &impl_->strokeBrush_);
 
   if (SUCCEEDED(hr))
     hr = impl_->factory_->CreateStrokeStyle(
@@ -372,7 +372,7 @@ WRasterImage::~WRasterImage()
 }
 
 void WRasterImage::addFontCollection(const std::string& directory,
-				     bool recursive)
+                                     bool recursive)
 {
   impl_->fontSupport_->addFontCollection(directory, recursive);
 }
@@ -500,26 +500,26 @@ void WRasterImage::setChanged(WFlags<PainterChangeFlag> flags)
 
       switch (pen.capStyle()) {
       case PenCapStyle::Flat:
-	strokeProperties.startCap = strokeProperties.endCap = strokeProperties.dashCap = D2D1_CAP_STYLE_FLAT;
-	break;
+        strokeProperties.startCap = strokeProperties.endCap = strokeProperties.dashCap = D2D1_CAP_STYLE_FLAT;
+        break;
       case PenCapStyle::Square:
-	strokeProperties.startCap = strokeProperties.endCap = strokeProperties.dashCap = D2D1_CAP_STYLE_SQUARE;
-	break;
+        strokeProperties.startCap = strokeProperties.endCap = strokeProperties.dashCap = D2D1_CAP_STYLE_SQUARE;
+        break;
       case PenCapStyle::Round:
-	strokeProperties.startCap = strokeProperties.endCap = strokeProperties.dashCap = D2D1_CAP_STYLE_ROUND;
-	break;
+        strokeProperties.startCap = strokeProperties.endCap = strokeProperties.dashCap = D2D1_CAP_STYLE_ROUND;
+        break;
       }
 
       switch (pen.joinStyle()) {
       case PenJoinStyle::Miter:
-	strokeProperties.lineJoin = D2D1_LINE_JOIN_MITER;
-	break;
+        strokeProperties.lineJoin = D2D1_LINE_JOIN_MITER;
+        break;
       case PenJoinStyle::Bevel:
-	strokeProperties.lineJoin = D2D1_LINE_JOIN_BEVEL;
-	break;
+        strokeProperties.lineJoin = D2D1_LINE_JOIN_BEVEL;
+        break;
       case PenJoinStyle::Round:
-	strokeProperties.lineJoin = D2D1_LINE_JOIN_ROUND;
-	break;
+        strokeProperties.lineJoin = D2D1_LINE_JOIN_ROUND;
+        break;
       }
 
       float dashes[20];
@@ -527,41 +527,41 @@ void WRasterImage::setChanged(WFlags<PainterChangeFlag> flags)
 
       switch (pen.style()) {
       case PenStyle::None:
-	break;
+        break;
       case PenStyle::SolidLine:
-	break;
+        break;
       case PenStyle::DashLine: {
-	const float dasharray[] = {4, 2};
-	memcpy(dashes, dasharray, sizeof(dasharray));
-	numdashes = sizeof(dasharray) / sizeof(dasharray[0]);
-	break;
+        const float dasharray[] = {4, 2};
+        memcpy(dashes, dasharray, sizeof(dasharray));
+        numdashes = sizeof(dasharray) / sizeof(dasharray[0]);
+        break;
       }
       case PenStyle::DotLine: {
-	const float dasharray[] = {1, 2};
-	memcpy(dashes, dasharray, sizeof(dasharray));
-	numdashes = sizeof(dasharray) / sizeof(dasharray[0]);
-	break;
+        const float dasharray[] = {1, 2};
+        memcpy(dashes, dasharray, sizeof(dasharray));
+        numdashes = sizeof(dasharray) / sizeof(dasharray[0]);
+        break;
       }
       case PenStyle::DashDotLine: {
-	const float dasharray[] = {4, 2, 1, 2};
-	memcpy(dashes, dasharray, sizeof(dasharray));
-	numdashes = sizeof(dasharray) / sizeof(dasharray[0]);
-	break;
+        const float dasharray[] = {4, 2, 1, 2};
+        memcpy(dashes, dasharray, sizeof(dasharray));
+        numdashes = sizeof(dasharray) / sizeof(dasharray[0]);
+        break;
       }
       case PenStyle::DashDotDotLine: {
-	const float dasharray[] = {4, 2, 1, 2, 1, 2};
-	memcpy(dashes, dasharray, sizeof(dasharray));
-	numdashes = sizeof(dasharray) / sizeof(dasharray[0]);
-	break;
+        const float dasharray[] = {4, 2, 1, 2, 1, 2};
+        memcpy(dashes, dasharray, sizeof(dasharray));
+        numdashes = sizeof(dasharray) / sizeof(dasharray[0]);
+        break;
       }
       }
       
       SafeRelease(impl_->stroke_);
 
       hr = impl_->factory_->CreateStrokeStyle(
-	strokeProperties,
-	numdashes > 0 ? dashes : NULL, numdashes,
-	&impl_->stroke_
+        strokeProperties,
+        numdashes > 0 ? dashes : NULL, numdashes,
+        &impl_->stroke_
       );
 
     }
@@ -618,7 +618,7 @@ void WRasterImage::setChanged(WFlags<PainterChangeFlag> flags)
 }
 
 void WRasterImage::drawArc(const WRectF& rect,
-			   double startAngle, double spanAngle)
+                           double startAngle, double spanAngle)
 {
   const double cx = rect.center().x();
   const double cy = rect.center().y();
@@ -659,7 +659,7 @@ void WRasterImage::drawArc(const WRectF& rect,
   impl_->factory_->CreatePathGeometry(&path);
   path->Open(&sink);
   sink->BeginFigure(startPoint,
-		    painter()->brush().style() != BrushStyle::None ? D2D1_FIGURE_BEGIN_FILLED : D2D1_FIGURE_BEGIN_HOLLOW);
+                    painter()->brush().style() != BrushStyle::None ? D2D1_FIGURE_BEGIN_FILLED : D2D1_FIGURE_BEGIN_HOLLOW);
   sink->AddArc(arc1);
   sink->AddArc(arc2);
   sink->EndFigure(D2D1_FIGURE_END_OPEN);
@@ -677,8 +677,8 @@ void WRasterImage::drawArc(const WRectF& rect,
 }
 
 void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
-			     int imgWidth, int imgHeight,
-			     const WRectF& srect)
+                             int imgWidth, int imgHeight,
+                             const WRectF& srect)
 {
   ID2D1Bitmap *bitmap = NULL;
   IWICBitmapDecoder *decoder = NULL;
@@ -756,7 +756,7 @@ void WRasterImage::drawLine(double x1, double y1, double x2, double y2)
                                      static_cast<FLOAT>(y1)),
                        D2D1::Point2F(static_cast<FLOAT>(x2),
                                      static_cast<FLOAT>(y2)),
-		       impl_->strokeBrush_, impl_->lineWidth_, impl_->stroke_);
+                       impl_->strokeBrush_, impl_->lineWidth_, impl_->stroke_);
 }
 
 void WRasterImage::drawRect(const WRectF& rect)
@@ -785,7 +785,7 @@ void WRasterImage::setPixel(int x, int y, const WColor& c)
 {
   if (painter_)
     throw WException("WRasterImage::setPixel(): cannot be used while a "
-		     "painter is active");
+                     "painter is active");
   WICRect rect = { x, y, 1, 1 };
   IWICBitmapLock *lock = NULL;
   HRESULT hr = S_OK;
@@ -843,14 +843,14 @@ void WRasterImage::Impl::drawPlainPath(ID2D1PathGeometry *p, const WPainterPath&
 
     if (s.type() != SegmentType::MoveTo && !started) {
       sink->BeginFigure(startPoint,
-			filled ? D2D1_FIGURE_BEGIN_FILLED : D2D1_FIGURE_BEGIN_HOLLOW);
+                        filled ? D2D1_FIGURE_BEGIN_FILLED : D2D1_FIGURE_BEGIN_HOLLOW);
       started = true;
     }
     switch (s.type()) {
     case SegmentType::MoveTo:
       if (started) {
-	sink->EndFigure(D2D1_FIGURE_END_OPEN);
-	started = false;
+        sink->EndFigure(D2D1_FIGURE_END_OPEN);
+        started = false;
       }
       startPoint = D2D1::Point2F(static_cast<FLOAT>(s.x()), static_cast<FLOAT>(s.y()));
       break;
@@ -885,28 +885,28 @@ void WRasterImage::Impl::drawPlainPath(ID2D1PathGeometry *p, const WPainterPath&
       const double endAngle = startAngle + sweepAngle;
       const double midAngle = startAngle + sweepAngle / 2.0;
       D2D1_POINT_2F startPoint = D2D1::Point2F(
-	static_cast<FLOAT>(cos(-startAngle) * rx + cx),
-	static_cast<FLOAT>(sin(-startAngle) * ry + cy));
+        static_cast<FLOAT>(cos(-startAngle) * rx + cx),
+        static_cast<FLOAT>(sin(-startAngle) * ry + cy));
       D2D1_POINT_2F midPoint = D2D1::Point2F(
         static_cast<FLOAT>(cos(-midAngle) * rx + cx),
-	static_cast<FLOAT>(sin(-midAngle) * ry + cy));
+        static_cast<FLOAT>(sin(-midAngle) * ry + cy));
       D2D1_POINT_2F endPoint = D2D1::Point2F(
-	static_cast<FLOAT>(cos(-endAngle) * rx + cx),
-	static_cast<FLOAT>(sin(-endAngle) * ry + cy));
+        static_cast<FLOAT>(cos(-endAngle) * rx + cx),
+        static_cast<FLOAT>(sin(-endAngle) * ry + cy));
 
       if (!fequal(startPoint.x, current.x()) || !fequal(startPoint.y, current.y()))
-	sink->AddLine(startPoint);
+        sink->AddLine(startPoint);
 
       sink->AddArc(D2D1::ArcSegment(midPoint,
-				    D2D1::SizeF(static_cast<FLOAT>(rx), static_cast<FLOAT>(ry)),
-				    0.f,
-				    sweepAngle > 0 ? D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE : D2D1_SWEEP_DIRECTION_CLOCKWISE,
-				    D2D1_ARC_SIZE_SMALL));
+                                    D2D1::SizeF(static_cast<FLOAT>(rx), static_cast<FLOAT>(ry)),
+                                    0.f,
+                                    sweepAngle > 0 ? D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE : D2D1_SWEEP_DIRECTION_CLOCKWISE,
+                                    D2D1_ARC_SIZE_SMALL));
       sink->AddArc(D2D1::ArcSegment(endPoint,
-				    D2D1::SizeF(static_cast<FLOAT>(rx), static_cast<FLOAT>(ry)),
-				    0.f,
-				    sweepAngle > 0 ? D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE : D2D1_SWEEP_DIRECTION_CLOCKWISE,
-				    D2D1_ARC_SIZE_SMALL));
+                                    D2D1::SizeF(static_cast<FLOAT>(rx), static_cast<FLOAT>(ry)),
+                                    0.f,
+                                    sweepAngle > 0 ? D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE : D2D1_SWEEP_DIRECTION_CLOCKWISE,
+                                    D2D1_ARC_SIZE_SMALL));
 
       i += 2;
       break;
@@ -940,14 +940,14 @@ void WRasterImage::Impl::drawPlainPath(ID2D1PathGeometry *p, const WPainterPath&
 }
 
 void WRasterImage::drawText(const WRectF& rect, 
-			    WFlags<AlignmentFlag> flags,
-			    TextFlag textFlag,
-			    const WString& text,
-			    const WPointF *clipPoint)
+                            WFlags<AlignmentFlag> flags,
+                            TextFlag textFlag,
+                            const WString& text,
+                            const WPointF *clipPoint)
 {
   if (clipPoint && painter() && !painter()->clipPath().isEmpty()) {
     if (!painter()->clipPathTransform().map(painter()->clipPath())
-	  .isPointInPath(painter()->worldTransform().map(*clipPoint)))
+          .isPointInPath(painter()->worldTransform().map(*clipPoint)))
       return;
   }
 
@@ -1005,7 +1005,7 @@ void WRasterImage::drawText(const WRectF& rect,
 }
 
 WTextItem WRasterImage::measureText(const WString& text, double maxWidth,
-				    bool wordWrap)
+                                    bool wordWrap)
 {
   return impl_->fontSupport_->measureText(painter()->font(), text, maxWidth, wordWrap);
 }
@@ -1027,8 +1027,8 @@ class IStreamToOStream : public IStream
   virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void ** ppvObject)
   {
     if (iid == __uuidof(IUnknown)
-	|| iid == __uuidof(IStream)
-	|| iid == __uuidof(ISequentialStream)) {
+        || iid == __uuidof(IStream)
+        || iid == __uuidof(ISequentialStream)) {
       *ppvObject = static_cast<IStream*>(this);
       AddRef();
       return S_OK;
@@ -1068,7 +1068,7 @@ class IStreamToOStream : public IStream
   }
 
   virtual HRESULT STDMETHODCALLTYPE CopyTo(IStream*, ULARGE_INTEGER, ULARGE_INTEGER*,
-					   ULARGE_INTEGER*)
+                                           ULARGE_INTEGER*)
   {
     return E_NOTIMPL;
   }
@@ -1099,7 +1099,7 @@ class IStreamToOStream : public IStream
   }
 
   virtual HRESULT STDMETHODCALLTYPE Seek(LARGE_INTEGER liDistanceToMove, DWORD dwOrigin,
-					 ULARGE_INTEGER* lpNewFilePointer)
+                                         ULARGE_INTEGER* lpNewFilePointer)
   {
     return E_NOTIMPL;
   }
@@ -1115,7 +1115,7 @@ private:
 };
 
 void WRasterImage::handleRequest(const Http::Request& request,
-				 Http::Response& response)
+                                 Http::Response& response)
 {
   response.setMimeType("image/" + impl_->type_);
 

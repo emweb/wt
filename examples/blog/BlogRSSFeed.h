@@ -15,9 +15,9 @@ class BlogRSSFeed : public Wt::WResource
 {
 public:
   BlogRSSFeed(Wt::Dbo::SqlConnectionPool& connectionPool,
-	      const std::string& title,
-	      const std::string& url,
-	      const std::string& description);
+              const std::string& title,
+              const std::string& url,
+              const std::string& description);
   virtual ~BlogRSSFeed();
 
 protected:

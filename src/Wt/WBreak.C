@@ -8,7 +8,7 @@
 namespace Wt {
 
 WBreak::WBreak()
-{ 
+{
   setInline(false);
 }
 

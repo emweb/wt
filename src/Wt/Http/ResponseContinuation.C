@@ -42,8 +42,8 @@ void ResponseContinuation::haveMoreData()
       waiting_ = false;
       if (readyToContinue_) {
         readyToContinue_ = false;
-	resource = resource_;
-	resource_ = nullptr;
+        resource = resource_;
+        resource_ = nullptr;
       }
     }
   }
@@ -79,8 +79,8 @@ void ResponseContinuation::readyToContinue(WebWriteEvent event)
       resource_ = nullptr;
     } else {
       response_->detectDisconnect
-	(std::bind(&Http::ResponseContinuation::handleDisconnect,
-		   shared_from_this()));
+        (std::bind(&Http::ResponseContinuation::handleDisconnect,
+                   shared_from_this()));
     }
   }
 
@@ -89,8 +89,8 @@ void ResponseContinuation::readyToContinue(WebWriteEvent event)
 }
 
 ResponseContinuation::ResponseContinuation(WResource *resource,
-					   WebResponse *response)
-  : 
+                                           WebResponse *response)
+  :
 #ifdef WT_THREADED
     mutex_(resource->mutex_),
 #endif
@@ -112,7 +112,7 @@ void ResponseContinuation::cancel(bool resourceIsBeingDeleted)
 
     if (resourceIsBeingDeleted) {
       if (!resource_)
-	return;
+        return;
     } else if (!useLock.use(resource_))
       return;
 

@@ -43,13 +43,13 @@ button->clicked().connect([=] {
         out->setText("You should enter two dates!");
     else {
         int days = de1->date().daysTo(de2->date()) + 1;
-	if (days == 1)
-	    out->setText("It's fine to take holiday just for one day!");
-	else if (days > 1) 
-	    out->setText(Wt::WString("So, you want to take holiday for a period of "
-				     "{1} days?").arg(days));
-	else
-	    out->setText("Invalid period!");
+        if (days == 1)
+            out->setText("It's fine to take holiday just for one day!");
+        else if (days > 1)
+            out->setText(Wt::WString("So, you want to take holiday for a period of "
+                                     "{1} days?").arg(days));
+        else
+            out->setText("Invalid period!");
     }
 });
 

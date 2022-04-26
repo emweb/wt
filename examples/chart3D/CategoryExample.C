@@ -41,7 +41,7 @@ CategoryExample::CategoryExample()
 //  chart_->setLegendStyle(style);
 
   chart_->resize(600, 600);
-  
+
   // **** Dataset
   isotopeModel_ = readCsvFile(Wt::WApplication::appRoot() + "isotope_decay.csv");
   // add some color-roles
@@ -55,7 +55,7 @@ CategoryExample::CategoryExample()
   auto isotopes_ = new Wt::Chart::WGridData(isotopeModel_);
   series_.push_back(isotopes_);
   isotopes_->setType(Wt::Chart::Series3DType::Bar);
-  
+
   // **** Dataset
   planeModel_ = readCsvFile(Wt::WApplication::appRoot() + "hor_plane.csv");
   auto horPlane_ = new Wt::Chart::WGridData(planeModel_);
@@ -90,7 +90,7 @@ CategoryExample::CategoryExample()
   auto xPlaneFuncColor_ = new Wt::Chart::WEquidistantGridData(xPlaneModelColor_,0,1,0,1);
   series_.push_back(xPlaneFuncColor_);
   xPlaneFuncColor_->setType(Wt::Chart::Series3DType::Bar);
-  
+
   // Data configuration widget
   std::unique_ptr<DataConfig> dataconfig(std::make_unique<DataConfig>(chart_));
   dataconfig->addDataToCollection("Isotope data (10x10) with ColorRoles", isotopes_);
@@ -99,7 +99,7 @@ CategoryExample::CategoryExample()
   // dataconfig->addDataToCollection("tilted plane y (20x20)", yPlaneFunc_);
   // dataconfig->addDataToCollection("tilted plane x (20x20)", xPlaneFunc_);
   // dataconfig->addDataToCollection("tilted plane x (20x20) with ColorRoles", xPlaneFuncColor_);
-  
+
   Wt::WTabWidget *configuration_ = this->addWidget(std::make_unique<Wt::WTabWidget>());
   configuration_->addTab(std::make_unique<ChartSettings>(chart_), "General Chart Settings", Wt::ContentLoading::Eager);
   configuration_->addTab(std::move(dataconfig), "Data selection and configuration", Wt::ContentLoading::Eager);

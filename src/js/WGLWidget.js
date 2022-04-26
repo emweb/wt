@@ -54,14 +54,14 @@ WT_DECLARE_WT_MEMBER
 
    if (canvas.addEventListener) {
      canvas.addEventListener("webglcontextlost",
-	 function(event) {
-	   event.preventDefault();
-	   self.initialized = false;
-	 }, false);
+         function(event) {
+           event.preventDefault();
+           self.initialized = false;
+         }, false);
      canvas.addEventListener("webglcontextrestored",
-	 function(event) {
-	   APP.emit(canvas, 'contextRestored');
-	 }, false);
+         function(event) {
+           APP.emit(canvas, 'contextRestored');
+         }, false);
    }
 
    var mouseHandler = null;
@@ -95,15 +95,15 @@ WT_DECLARE_WT_MEMBER
 
      this.mouseUp = function(o, event) {
        if (dragPreviousXY !== null)
-	 dragPreviousXY = null;
+         dragPreviousXY = null;
      };
 
      this.mouseDrag = function(o, event) {
        if (dragPreviousXY === null)
-	 return;
+         return;
        var c = WT.pageCoordinates(event);
        if (WT.buttons === 1) {
-	 rotate(c);
+         rotate(c);
        }
      };
 
@@ -140,8 +140,8 @@ WT_DECLARE_WT_MEMBER
        mat4.translate(r, lookAtCenter);
        var dPitch = dy * lookAtPitchRate;
        if (Math.abs(prevPitch + dPitch) >= Math.PI / 2) {
-	 var sign = prevPitch > 0 ? 1 : -1;
-	 dPitch = sign * Math.PI / 2 - prevPitch;
+         var sign = prevPitch > 0 ? 1 : -1;
+         dPitch = sign * Math.PI / 2 - prevPitch;
        }
        mat4.rotate(r, dPitch, s);
        mat4.rotate(r, dx * lookAtYawRate, lookAtUpDir);
@@ -160,15 +160,15 @@ WT_DECLARE_WT_MEMBER
        doubleTouch = event.touches.length === 2 ? true : false;
 
        if (singleTouch) {
-	 WT.capture(null);
-	 WT.capture(canvas);
-	 dragPreviousXY = WT.pageCoordinates(event.touches[0]);
+         WT.capture(null);
+         WT.capture(canvas);
+         dragPreviousXY = WT.pageCoordinates(event.touches[0]);
        } else if (doubleTouch) {
-	 var c0 = WT.pageCoordinates(event.touches[0]);
-	 var c1 = WT.pageCoordinates(event.touches[1]);
-	 pinchWidth = Math.sqrt( (c0.x-c1.x)*(c0.x-c1.x) + (c0.y-c1.y)*(c0.y-c1.y) );
+         var c0 = WT.pageCoordinates(event.touches[0]);
+         var c1 = WT.pageCoordinates(event.touches[1]);
+         pinchWidth = Math.sqrt( (c0.x-c1.x)*(c0.x-c1.x) + (c0.y-c1.y)*(c0.y-c1.y) );
        } else {
-	 return;
+         return;
        }
        event.preventDefault();
      };
@@ -179,36 +179,36 @@ WT_DECLARE_WT_MEMBER
        doubleTouch = event.touches.length === 2 ? true : false;
 
        if (noTouch)
-	 thisHandler.mouseUp(null, null);
+         thisHandler.mouseUp(null, null);
        if (singleTouch || doubleTouch)
-	 thisHandler.touchStart(o, event);
+         thisHandler.touchStart(o, event);
      };
 
      this.touchMoved = function(o, event) {
        if ( (!singleTouch) && (!doubleTouch) )
-	 return;
+         return;
 
        event.preventDefault();
        if (singleTouch) {
-	 if (dragPreviousXY === null)
-	    return;
-	 var c = WT.pageCoordinates(event);
-	 rotate(c);
+         if (dragPreviousXY === null)
+            return;
+         var c = WT.pageCoordinates(event);
+         rotate(c);
        }
        if (doubleTouch) {
-	 var c0 = WT.pageCoordinates(event.touches[0]);
-	 var c1 = WT.pageCoordinates(event.touches[1]);
-	 var d = Math.sqrt( (c0.x-c1.x)*(c0.x-c1.x) + (c0.y-c1.y)*(c0.y-c1.y) );
-	 var scale = d / pinchWidth;
-	 if (Math.abs(scale-1) < 0.05) {
-	   return;
-	 } else if (scale > 1) {
-	   scale = 1;
-	 } else {
-	   scale = -1;
-	 }
-	 pinchWidth = d;
-	 zoom(scale);
+         var c0 = WT.pageCoordinates(event.touches[0]);
+         var c1 = WT.pageCoordinates(event.touches[1]);
+         var d = Math.sqrt( (c0.x-c1.x)*(c0.x-c1.x) + (c0.y-c1.y)*(c0.y-c1.y) );
+         var scale = d / pinchWidth;
+         if (Math.abs(scale-1) < 0.05) {
+           return;
+         } else if (scale > 1) {
+           scale = 1;
+         } else {
+           scale = -1;
+         }
+         pinchWidth = d;
+         zoom(scale);
        }
      };
    };
@@ -230,12 +230,12 @@ WT_DECLARE_WT_MEMBER
 
      this.mouseUp = function(o, event) {
        if (dragPreviousXY !== null)
-	 dragPreviousXY = null;
+         dragPreviousXY = null;
      };
 
      this.mouseDrag = function(o, event) {
        if (dragPreviousXY === null)
-	   return;
+           return;
        var c = WT.pageCoordinates(event);
        walk(c);
      };
@@ -318,16 +318,16 @@ WT_DECLARE_WT_MEMBER
      var obj = canvas.wtObj;
      var str = '';
      for (var index in obj.jsValues) {
-	if (obj.jsValues.hasOwnProperty(index)) {
-	  str += index + ':';
-	  for (var i=0; i < obj.jsValues[index].length; i++) {
-	    str += obj.jsValues[index][i];
-	    if (i !== obj.jsValues[index].length - 1) {
-	      str += ',';
-	    } else {
-	      str += ';';
-	    }
-	  }
+        if (obj.jsValues.hasOwnProperty(index)) {
+          str += index + ':';
+          for (var i=0; i < obj.jsValues[index].length; i++) {
+            str += obj.jsValues[index][i];
+            if (i !== obj.jsValues[index].length - 1) {
+              str += ',';
+            } else {
+              str += ';';
+            }
+          }
         }
      }
      return str;

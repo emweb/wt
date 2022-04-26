@@ -291,7 +291,7 @@ private:
   collection< ptr<MutC> > collection_;
 
   void setRelationData(MetaDboBase *dbo, const std::string *sql,
-		       Impl::SetInfo *info);
+                       Impl::SetInfo *info);
 
   friend class DboAction;
   friend class SaveBaseAction;

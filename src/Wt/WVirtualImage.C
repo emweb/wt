@@ -30,8 +30,8 @@ const ::int64_t WVirtualImage::Infinite
   = std::numeric_limits< ::int64_t >::max();
 
 WVirtualImage::WVirtualImage(int viewPortWidth, int viewPortHeight,
-			     ::int64_t imageWidth, ::int64_t imageHeight,
-			     int gridImageSize)
+                             ::int64_t imageWidth, ::int64_t imageHeight,
+                             int gridImageSize)
   : gridImageSize_(gridImageSize),
     viewPortWidth_(viewPortWidth),
     viewPortHeight_(viewPortHeight),
@@ -48,7 +48,7 @@ WVirtualImage::WVirtualImage(int viewPortWidth, int viewPortHeight,
   WContainerWidget *scrollArea
     = impl_->addWidget(std::make_unique<WContainerWidget>());
   scrollArea->resize(WLength(100, LengthUnit::Percentage),
-		     WLength(100, LengthUnit::Percentage));
+                     WLength(100, LengthUnit::Percentage));
   scrollArea->setPositionScheme(PositionScheme::Absolute);
   scrollArea->setOverflow(Overflow::Hidden);
 
@@ -95,7 +95,7 @@ WVirtualImage::~WVirtualImage()
 void WVirtualImage::mouseUp(const WMouseEvent& e)
 {
   internalScrollTo(currentX_ - e.dragDelta().x, currentY_ - e.dragDelta().y,
-		   !WApplication::instance()->environment().ajax());
+                   !WApplication::instance()->environment().ajax());
 }
 
 void WVirtualImage::redrawAll()
@@ -120,7 +120,7 @@ void WVirtualImage::scrollTo(::int64_t newX, ::int64_t newY)
 }
 
 void WVirtualImage::internalScrollTo(::int64_t newX, ::int64_t newY,
-				     bool moveViewPort)
+                                     bool moveViewPort)
 {
   if (imageWidth_ != Infinite)
     newX = clamp(newX, 0, imageWidth_ - viewPortWidth_);
@@ -162,7 +162,7 @@ void WVirtualImage::generateGridItems(::int64_t newX, ::int64_t newY)
    * The coordinates of the two extreme corners of the new rendered
    * neighbourhood
    */
-  Rect newNb = neighbourhood(newX, newY, viewPortWidth_, viewPortHeight_);  
+  Rect newNb = neighbourhood(newX, newY, viewPortWidth_, viewPortHeight_);
 
   ::int64_t i1 = newNb.x1 / gridImageSize_;
   ::int64_t j1 = newNb.y1 / gridImageSize_;
@@ -172,34 +172,34 @@ void WVirtualImage::generateGridItems(::int64_t newX, ::int64_t newY)
   for (int invisible = 0; invisible < 2; ++invisible) {
     for (::int64_t i = i1; i < i2; ++i)
       for (::int64_t j = j1; j < j2; ++j) {
-	::int64_t key = gridKey(i, j);
+        ::int64_t key = gridKey(i, j);
 
-	GridMap::iterator it = grid_.find(key);
-	if (it == grid_.end()) {
-	  bool v = visible(i, j);
-	  if ((v && !invisible) || (!v && invisible)) {
-	    ::int64_t brx = i * gridImageSize_ + gridImageSize_;
-	    ::int64_t bry = j * gridImageSize_ + gridImageSize_;
-	    brx = std::min(brx, imageWidth_);
-	    bry = std::min(bry, imageHeight_);
+        GridMap::iterator it = grid_.find(key);
+        if (it == grid_.end()) {
+          bool v = visible(i, j);
+          if ((v && !invisible) || (!v && invisible)) {
+            ::int64_t brx = i * gridImageSize_ + gridImageSize_;
+            ::int64_t bry = j * gridImageSize_ + gridImageSize_;
+            brx = std::min(brx, imageWidth_);
+            bry = std::min(bry, imageHeight_);
 
             const int width = static_cast<int>(brx - i * gridImageSize_);
             const int height = static_cast<int>(bry - j * gridImageSize_);
             if (width > 0 && height > 0) {
-	      std::unique_ptr<WImage> img
-	        = createImage(i * gridImageSize_, j * gridImageSize_, width, height);
+              std::unique_ptr<WImage> img
+                = createImage(i * gridImageSize_, j * gridImageSize_, width, height);
 
               img->mouseWentDown().preventDefaultAction(true);
-	      img->setPositionScheme(PositionScheme::Absolute);
-	      img->setOffsets((double)i * gridImageSize_, Side::Left);
-	      img->setOffsets((double)j * gridImageSize_, Side::Top);
+              img->setPositionScheme(PositionScheme::Absolute);
+              img->setOffsets((double)i * gridImageSize_, Side::Left);
+              img->setOffsets((double)j * gridImageSize_, Side::Top);
 
-	      grid_[key] = img.get();
+              grid_[key] = img.get();
 
-	      contents_->addWidget(std::move(img));
+              contents_->addWidget(std::move(img));
             }
-	  }
-	}
+          }
+        }
       }
   }
 
@@ -222,8 +222,8 @@ bool WVirtualImage::visible(::int64_t i, ::int64_t j) const
   ::int64_t y2 = y1 + gridImageSize_;
 
   return ((x2 >= currentX_) && (y2 >= currentY_)
-	  && (x1 <= currentX_ + viewPortWidth_)
-	  && (y1 <= currentY_ + viewPortHeight_));
+          && (x1 <= currentX_ + viewPortWidth_)
+          && (y1 <= currentY_ + viewPortHeight_));
 }
 
 void WVirtualImage::decodeKey(::int64_t key, Coordinate& coordinate)
@@ -234,8 +234,8 @@ void WVirtualImage::decodeKey(::int64_t key, Coordinate& coordinate)
 
 void WVirtualImage::cleanGrid()
 {
-  Rect cleanNb = neighbourhood(currentX_, currentY_, 
-			       viewPortWidth_ * 3, viewPortHeight_ * 3);
+  Rect cleanNb = neighbourhood(currentX_, currentY_,
+                               viewPortWidth_ * 3, viewPortHeight_ * 3);
 
   ::int64_t i1 = cleanNb.x1 / gridImageSize_;
   ::int64_t j1 = cleanNb.y1 / gridImageSize_;
@@ -246,8 +246,8 @@ void WVirtualImage::cleanGrid()
     Coordinate coordinate;
     decodeKey(it->first, coordinate);
 
-    if (coordinate.i < i1 || coordinate.i > i2 || 
-	coordinate.j < j1 || coordinate.j > j2) {
+    if (coordinate.i < i1 || coordinate.i > i2 ||
+        coordinate.j < j1 || coordinate.j > j2) {
       it->second->removeFromParent();
       Utils::eraseAndNext(grid_, it);
     } else
@@ -256,7 +256,7 @@ void WVirtualImage::cleanGrid()
 }
 
 WVirtualImage::Rect WVirtualImage::neighbourhood(::int64_t x, ::int64_t y,
-						 int marginX, int marginY)
+                                                 int marginX, int marginY)
 {
   ::int64_t x1 = x - marginX;
 
@@ -268,7 +268,7 @@ WVirtualImage::Rect WVirtualImage::neighbourhood(::int64_t x, ::int64_t y,
   ::int64_t x2 = x + viewPortWidth_ + marginX;
   if (imageWidth_ != Infinite)
     x2 = std::min(imageWidth_, x2);
-  
+
   ::int64_t y2 = std::min(imageHeight_, y + viewPortHeight_ + marginY);
 
   return Rect(x1, y1, x2, y2);

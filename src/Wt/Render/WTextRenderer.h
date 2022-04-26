@@ -53,7 +53,7 @@ struct LayoutBox;
  *
  * Some of the main limitations are:
  * - only "display: inline" or "display: block" elements are supported.
- *   "display: none" and "display: inline-block" are not (yet) recognized. 
+ *   "display: none" and "display: inline-block" are not (yet) recognized.
  * - only colors defined in terms of RGB values are supported: CSS named colors
  *   (e.g. 'blue') are not allowed.
  * - Bidi (Right-to-Left) text rendering is not supported
@@ -70,7 +70,7 @@ struct LayoutBox;
  *
  * \ingroup render
  */
-class WT_API WTextRenderer 
+class WT_API WTextRenderer
 {
 public:
   /*! \class Node

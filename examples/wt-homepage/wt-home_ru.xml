@@ -3,60 +3,60 @@
   <message id="template">
     <div id="top_wrapper">
       <div id="top_content">
-	${languages}
-	<div id="top_wt">
-	  <a href="//www.emweb.be/">
-	    <img src="/css/wt/emweb_powered.jpg" alt="Emweb" height="22" />
-	  </a>
-	</div>
+        ${languages}
+        <div id="top_wt">
+          <a href="//www.emweb.be/">
+            <img src="/css/wt/emweb_powered.jpg" alt="Emweb" height="22" />
+          </a>
+        </div>
       </div>
     </div>
 
     <div id="banner_wrapper">
       <div id="banner_content">
-	<div id="banner_end">
-	  <div id="banner">
-	    <!-- <a href="#">Wt</a> -->
-	  </div>
-	</div>
+        <div id="banner_end">
+          <div id="banner">
+            <!-- <a href="#">Wt</a> -->
+          </div>
+        </div>
       </div>
     </div>
 
     <div id="main_wrapper" class="home">
       <div id="main_content">
-	<div id="main_menu">
-	  ${menu}
-	  ${sidebar}
-	</div>
-	${contents}
+        <div id="main_menu">
+          ${menu}
+          ${sidebar}
+        </div>
+        ${contents}
 
-	<div class="clearall"></div>
+        <div class="clearall"></div>
       </div>
     </div>
 
     <div id="footer_wrapper">
       <div id="footer_content">
-	<div id="footer_copyright"> 
-	  <a href="//www.emweb.be/">
-	    <img src="/css/wt/emweb_large.jpg" height="25" width="101"
-		 alt="Emweb.be" title="emweb.be"/></a>
-	  Решения для систем на базе web<br/>
-	  <a href="//www.emweb.be/">www.emweb.be</a>
-	</div>
+        <div id="footer_copyright">
+          <a href="//www.emweb.be/">
+            <img src="/css/wt/emweb_large.jpg" height="25" width="101"
+                 alt="Emweb.be" title="emweb.be"/></a>
+          Решения для систем на базе web<br/>
+          <a href="//www.emweb.be/">www.emweb.be</a>
+        </div>
 
-	<div id="footer_menu"> 
-	  <a href="//www.webtoolkit.eu/wt">Главная</a>
-	  | <a href="//www.emweb.be/contact">Контакты</a>
+        <div id="footer_menu">
+          <a href="//www.webtoolkit.eu/wt">Главная</a>
+          | <a href="//www.emweb.be/contact">Контакты</a>
 
-	</div>
+        </div>
 
-	<div id="chat"></div>
-	<script src="//www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat" type="text/javascript"></script>
+        <div id="chat"></div>
+        <script src="//www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat" type="text/javascript"></script>
 
-	<div class="clearall"></div>
+        <div class="clearall"></div>
       </div>
       <script type="text/javascript">
-	    /*<![CDATA[*/
+            /*<![CDATA[*/
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -181,7 +181,7 @@ CGI, SVG/VML/Canvas и Ajax. Безопасность и кросс-браузе
 обеспечивается Wt. Например, когда это возможно, Wt максимально задействует
 JavaScript, Ajax и даже WebSockets, хотя, в то же время, Wt-приложения
 корректно функционируют и без JavaScript. Сначала Wt запускает
-простое приложение HTML/CGI, и затем прогрессивно расширяет его до 
+простое приложение HTML/CGI, и затем прогрессивно расширяет его до
 Ajax-приложения, если это оказывается возможным. Wt также обеспечивает
 встроенную по умолчанию безопасность.</p>
 
@@ -283,7 +283,7 @@ Ajax-приложения, если это оказывается возможн
   <li>Возможность подключения произвольного кода JavaScript (например, для
     обработки событий только на стороне клиента), и <i>эмитирования</i> из
     этого кода сигналов C++.</li>
-  <li>Drag&amp;Drop API.</li> 
+  <li>Drag&amp;Drop API.</li>
   <li>Повременные события и инициируемые сервером обновления
   ("server push").</li>
   <li>Использует простой HTML CGI, Ajax или WebSockets.</li>
@@ -700,7 +700,7 @@ target="_blank">модели элементов</a>.</p>
       Класс <i>ContactSuggestions</i> осуществляет авто-подстановку
       адресов в поля To: Cc: и Bcc:. Виджет наследует
       класс <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSuggestionPopup.html"
-	     target="_blank">WSuggestionPopup</a>.
+             target="_blank">WSuggestionPopup</a>.
     </li>
     <li>
       Виджет <i>AttachmentEdit</i> использует <a
@@ -937,7 +937,7 @@ Wt::Dbo) для разработки приложений, используя с
 </table>
 
   </message>
-  
+
   <message id="home.download.packages">
     <h4><span>Доступные для загрузки пакеты</span></h4>
   </message>
@@ -1008,7 +1008,7 @@ Wt::Dbo) для разработки приложений, используя с
     библиотека C++ boost</a>: boost-1.36 или новее. <br />
 
     Необходимы следующие библиотеки boost (которые представлены не только
-    заголовочными файлами): 
+    заголовочными файлами):
       <tt>boost_date_time</tt>, <tt>boost_regex</tt>,
       <tt>boost_program_options</tt>, <tt>boost_signals</tt>,
       <tt>boost_system</tt>, и, необязательно, (но настоятельно рекомендуется)
@@ -1061,7 +1061,7 @@ Wt дополнительными возможностями:
       mod_fastcgi-2.4.x.<br />В качестве альтернативы Вы можете
       использовать <a href="http://httpd.apache.org/download.cgi#mod_fcgid">mod_fcgid</a>:
       mod_fcgid-2.3.5.
-   </li> 
+   </li>
  </ul>
 
  <h5>Для встроенного httpd (wthttpd):</h5>
@@ -1276,7 +1276,7 @@ JWt прямо из Clojure</a>, документируя опыты в своё
 
 Альберт Сервера ай Арени (Albert Cervera i Areny) экспериментирует с
 использованеим JWt из <b>Jython</b>, -
-ещё один язык, работающий с JVM. Он изложил как создать и запустить 
+ещё один язык, работающий с JVM. Он изложил как создать и запустить
 программу "Hello World!" на Jython <a href="http://www.nan-tic.com/en/from-pyqt-to-jythonjwt-setting-up-the-environment">в этой статье блога</a>.
 </div>
 
@@ -1289,7 +1289,7 @@ JWt прямо из Clojure</a>, документируя опыты в своё
 
   </message>
   <message id="home.documentation">
- 
+
 <h3><span>Документация</span></h3>
 
 <h4>Сборка и инсталляция</h4>
@@ -1328,7 +1328,7 @@ href="//www.webtoolkit.eu/wt/doc/tutorial/wt-sdj.xhtml">здесь</a> или
 <a href="//www.webtoolkit.eu/wt/doc/tutorial/wt-sdj.pdf">PDF версию</a>.</li>
 
 <li>Виктор Венкман (Victor Venkman) написал
-<a href="http://www.codeguru.com/cpp/i-n/internet/browsercontrol/article.php/c15275/">прекрасное введение в Wt</a>, 
+<a href="http://www.codeguru.com/cpp/i-n/internet/browsercontrol/article.php/c15275/">прекрасное введение в Wt</a>,
 <a href="#/examples/">примера "Здавствуй, мир!"</a>.</li>
 
 </ul>
@@ -1362,7 +1362,7 @@ target="_blank">здесь (в новом окне)</a>.</p>
 
       <p>
         Смотрите ниже исходный код всех примеров, включенных в
-	<a href="#/">Wt</a>.
+        <a href="#/">Wt</a>.
       </p>
     </div>
   </message>
@@ -1375,7 +1375,7 @@ target="_blank">здесь (в новом окне)</a>.</p>
 
       <p>
         Смотрите ниже исходный код примера Wt
-	<a href="#/examples/">Здравствуй, мир!</a>.
+        <a href="#/examples/">Здравствуй, мир!</a>.
       </p>
     </div>
   </message>
@@ -1388,7 +1388,7 @@ target="_blank">здесь (в новом окне)</a>.</p>
 
       <p>
     Смотрите ниже исходный код примера Wt
-	<a href="#/examples/">Виселица</a>.
+        <a href="#/examples/">Виселица</a>.
       </p>
     </div>
   </message>
@@ -1400,8 +1400,8 @@ target="_blank">здесь (в новом окне)</a>.</p>
       <h2>Исходный код примера <i>Диаграммы</i></h2>
 
       <p>
-	Смотрите ниже исходный код примера Wt
-	<a href="#/examples/charts">Диаграммы</a>.
+        Смотрите ниже исходный код примера Wt
+        <a href="#/examples/charts">Диаграммы</a>.
       </p>
     </div>
   </message>
@@ -1413,8 +1413,8 @@ target="_blank">здесь (в новом окне)</a>.</p>
       <h2>Исходный код примера <i>Treeview</i></h2>
 
       <p>
-	Смотрите ниже исходный код примера Wt <a href="#/examples/treeview">
-	  Treeview</a>.
+        Смотрите ниже исходный код примера Wt <a href="#/examples/treeview">
+          Treeview</a>.
       </p>
     </div>
   </message>
@@ -1426,21 +1426,21 @@ target="_blank">здесь (в новом окне)</a>.</p>
       <h2>Исходный код примера <i>Почтовый редактор</i></h2>
 
       <p>
-	Смотрите ниже исходный код примера Wt
-	<a href="#/examples/composer">Почтовый редактор</a>.
+        Смотрите ниже исходный код примера Wt
+        <a href="#/examples/composer">Почтовый редактор</a>.
       </p>
     </div>
   </message>
 
   <message id="srcview.title.composer">Пример: Почтовый редактор</message>
-  
+
   <message id="srcview.title.CPP.wt-homepage">
     <div class="srcviewtitle">
       <h2>Исходный код примера <i>Домашняя страница Wt</i></h2>
 
       <p>
-	Смотрите ниже исходный код примера Wt
-	<a href="#/examples/wt-homepage">Домашняя страница</a>.
+        Смотрите ниже исходный код примера Wt
+        <a href="#/examples/wt-homepage">Домашняя страница</a>.
       </p>
     </div>
   </message>
@@ -1452,8 +1452,8 @@ target="_blank">здесь (в новом окне)</a>.</p>
       <h2>Исходный код примера <i>Обозреватель Git</i></h2>
 
       <p>
-	Смотрите ниже исходный код примера Wt 
-	<a href="#/examples/gitmodel">Обозреватель Git</a>.
+        Смотрите ниже исходный код примера Wt
+        <a href="#/examples/gitmodel">Обозреватель Git</a>.
       </p>
     </div>
   </message>
@@ -1465,8 +1465,8 @@ target="_blank">здесь (в новом окне)</a>.</p>
       <h2>Исходный код примера <i>Чат</i></h2>
 
       <p>
-	Смотрите ниже исходный код примера Wt
-	<a href="#/examples/simplechat">Чат</a>.
+        Смотрите ниже исходный код примера Wt
+        <a href="#/examples/simplechat">Чат</a>.
       </p>
     </div>
   </message>
@@ -1478,8 +1478,8 @@ target="_blank">здесь (в новом окне)</a>.</p>
       <h2>Исходный код примера <i>Галерея виджетов</i></h2>
 
       <p>
-	Смотрите ниже исходный код примера Wt
-	<a href="#/examples/widgetgallery">Галерея виджетов</a>.
+        Смотрите ниже исходный код примера Wt
+        <a href="#/examples/widgetgallery">Галерея виджетов</a>.
       </p>
     </div>
   </message>

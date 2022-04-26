@@ -363,7 +363,7 @@ WT_DECLARE_WT_MEMBER_BIG
 
     var crosshair = null;
 
-    var paintEnabled = true; 
+    var paintEnabled = true;
     var dragPreviousXY = null;
     var dragCurrentXAxis = -1;
     var dragCurrentYAxis = -1;

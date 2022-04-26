@@ -22,7 +22,7 @@ public:
   MyCaptcha(const int width, const int height);
 
   Signal<>& completed() { return completed_; }
-  
+
 private:
   Signal<>        completed_;
   ShapesWidget   *shapesWidget_;

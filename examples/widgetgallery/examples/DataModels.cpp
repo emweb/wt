@@ -21,7 +21,7 @@ Wt::cpp17::any SombreroData::data(const Wt::WModelIndex& index, Wt::ItemDataRole
       return 0.0;
     return yStart_ + (index.column()-1)*delta_y;
   }
-  
+
   double delta_x = (xEnd_ - xStart_)/(rowCount()-2);
   if (index.column() == 0) { // give back x-abscis
     if (index.row() == 0)
@@ -32,7 +32,7 @@ Wt::cpp17::any SombreroData::data(const Wt::WModelIndex& index, Wt::ItemDataRole
   double x, y;
   y = yStart_ + (index.column()-1)*delta_y;
   x = xStart_ + (index.row()-1)*delta_x;
-  return 4*std::sin(std::sqrt(std::pow(x,2) + std::pow(y,2))) 
+  return 4*std::sin(std::sqrt(std::pow(x,2) + std::pow(y,2)))
     / (std::sqrt (std::pow(x,2) + std::pow(y,2)));
 }
 

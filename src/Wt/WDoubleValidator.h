@@ -128,7 +128,7 @@ public:
    * \sa setInvalidTooLargeText(const WString&)
    */
   WString invalidTooLargeText() const;
-  
+
   /*! \brief If true the validator will ignore trailing spaces
    *
    * \sa ignoreTrailingSpaces()

@@ -170,13 +170,13 @@ void WStringStream::append(const char *s, int length)
 
     if (length > buf_len()) {
       if (sink_) {
-	sink_->write(s, length);
-	return;
+        sink_->write(s, length);
+        return;
       } else {
-	char *buf = new char[length];
-	std::memcpy(buf, s, length);
-	bufs_.push_back(std::make_pair(buf, length));
-	return;
+        char *buf = new char[length];
+        std::memcpy(buf, s, length);
+        bufs_.push_back(std::make_pair(buf, length));
+        return;
       }
     }
   }

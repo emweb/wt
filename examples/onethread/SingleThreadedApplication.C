@@ -40,7 +40,7 @@ void SingleThreadedApplication::notify(const WEvent& event)
     done_ = false;
     log("debug") << "STA" << ": starting thread";
     appThread_ = std::thread(std::bind(&SingleThreadedApplication::run,
-					   this));
+                                           this));
     waitDone();
   }
 

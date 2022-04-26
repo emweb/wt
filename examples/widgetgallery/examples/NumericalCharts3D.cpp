@@ -50,7 +50,7 @@ dataset1->setSurfaceMeshEnabled(true);
 auto colormap =
     std::make_shared<Chart::WStandardColorMap>(dataset1->minimum(Chart::Axis::Z3D),
                                      dataset1->maximum(Chart::Axis::Z3D),
-				     true);
+                                     true);
 dataset1->setColorMap(colormap);
 
 // make second dataset (WEquidistantGridData)

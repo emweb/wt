@@ -33,8 +33,8 @@ public:
   virtual void update() override;
 
   virtual DomElement *createDomElement(DomElement *parent,
-				       bool fitWidth, bool fitHeight,
-				       WApplication *app) override;
+                                       bool fitWidth, bool fitHeight,
+                                       WApplication *app) override;
 
   // Does not really belong here, but who cares ?
   static const char* childrenResizeJS();
@@ -56,8 +56,8 @@ private:
   static int pixelSize(const WLength& size);
 
   void streamConfig(WStringStream& js,
-		    const std::vector<Impl::Grid::Section>& sections,
-		    bool rows, WApplication *app);
+                    const std::vector<Impl::Grid::Section>& sections,
+                    bool rows, WApplication *app);
   void streamConfig(WStringStream& js, WApplication *app);
   DomElement *createElement(WLayoutItem *item, WApplication *app);
 };

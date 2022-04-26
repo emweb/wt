@@ -165,8 +165,8 @@ class WT_API WCssTextRule : public WCssRule
 public:
   /*! \brief Creates a CSS rule with a given selector and declarations.
    */
-  WCssTextRule(const std::string& selector, 
-	       const WT_USTRING& declarations);
+  WCssTextRule(const std::string& selector,
+               const WT_USTRING& declarations);
 
   virtual std::string declarations() override;
 
@@ -215,19 +215,19 @@ public:
    * \sa isDefined()
    */
   WCssTextRule *addRule(const std::string& selector,
-			const WT_USTRING& declarations,
-			const std::string& ruleName = std::string());
+                        const WT_USTRING& declarations,
+                        const std::string& ruleName = std::string());
 
 #ifndef WT_TARGET_JAVA
   /* Interprets as UTF-8 */
   WCssTextRule *addRule(const std::string& selector,
-			const std::string& declarations,
-			const std::string& ruleName = std::string());
+                        const std::string& declarations,
+                        const std::string& ruleName = std::string());
 
   /* Interprets as UTF-8 */
   WCssTextRule *addRule(const std::string& selector,
-			const char *declarations,
-			const std::string& ruleName = std::string());
+                        const char *declarations,
+                        const std::string& ruleName = std::string());
 #endif
 
   /*! \brief Adds a CSS rule.
@@ -241,8 +241,8 @@ public:
    * \sa isDefined()
    */
   WCssTemplateRule *addRule(const std::string& selector,
-			    const WCssDecorationStyle& style,
-			    const std::string& ruleName = std::string());
+                            const WCssDecorationStyle& style,
+                            const std::string& ruleName = std::string());
 
   /*! \brief Adds a CSS rule.
    *
@@ -253,7 +253,7 @@ public:
    * \sa isDefined()
    */
   WCssRule *addRule(std::unique_ptr<WCssRule> rule,
-		    const std::string& ruleName = std::string());
+                    const std::string& ruleName = std::string());
 
   template <typename Rule>
   Rule *addRule(std::unique_ptr<Rule> rule)

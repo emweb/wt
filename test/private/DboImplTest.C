@@ -15,7 +15,7 @@ namespace dbo = Wt::Dbo;
 namespace {
 
 void parseSql(const std::string& sql,  int listsCount,
-	      int fieldsCount)
+              int fieldsCount)
 {
   dbo::Impl::SelectFieldLists result;
 
@@ -29,7 +29,7 @@ void parseSql(const std::string& sql,  int listsCount,
     for (unsigned j = 0; j < result[i].size(); ++j) {
       dbo::Impl::SelectField& f = result[i][j];
       std::cerr << "Field: '" << sql.substr(f.begin, f.end - f.begin)
-		<< "'" << std::endl;
+                << "'" << std::endl;
     }
   }
 
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE( DboImplTest_test1 )
   parseSql("select 'Barts'', car', bike from depot", 1, 2);
 
   parseSql("SELECT cast(round(number, 2) as text) AS column_number FROM table",
-	   1, 1);
+           1, 1);
 
   parseSql
     (SQL
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( DboImplTest_test1 )
        SELECT region 
        FROM regional_sales 
        WHERE total_sales > (SELECT SUM(total_sales)/10 FROM 
-			    regional_sales)
+                            regional_sales)
       )
       SELECT region,
              product,

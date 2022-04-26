@@ -95,7 +95,7 @@ Json::Object OidcUserInfoEndpoint::generateUserInfo(const User& user, const std:
       = claimMap_.find(*s);
     if (it == claimMap_.end())
       continue;
-    
+
     const std::set<std::string>& c = it->second;
     for (std::set<std::string>::iterator s2 = c.begin(); s2 != c.end(); ++s2)
       claims.insert(*s2);

@@ -809,10 +809,10 @@ void FontSupport::drawText(const WFont &f,
 }
 
 void FontSupport::drawText(const WFont& f,
-		           const WRectF& rect,
-		           const WTransform& transform,
-		           Bitmap& bitmap,
-		           WFlags<AlignmentFlag> alignmentFlags, const WString& text)
+                           const WRectF& rect,
+                           const WTransform& transform,
+                           Bitmap& bitmap,
+                           WFlags<AlignmentFlag> alignmentFlags, const WString& text)
 { }
 
 bool FontSupport::busy() const

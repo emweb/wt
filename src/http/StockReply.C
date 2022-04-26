@@ -258,10 +258,10 @@ void buildOriginalURL(Request &req, std::string &url)
   if (url.empty()) {
     url = "http://";
     for (Request::HeaderList::const_iterator i = req.headers.begin();
-	 i != req.headers.end(); ++i) {
+         i != req.headers.end(); ++i) {
       if (i->name == "Host") {
-	url += i->value.str();
-	break;
+        url += i->value.str();
+        break;
       }
     }
     url += req.uri.str();
@@ -271,18 +271,18 @@ void buildOriginalURL(Request &req, std::string &url)
 } // namespace stock_replies
 
 StockReply::StockReply(Request& request,
-		       status_type status,
-		       const Configuration& configuration)
+                       status_type status,
+                       const Configuration& configuration)
   : Reply(request, configuration),
     transmitted_(false)
-{ 
+{
   setStatus(status);
 }
 
 StockReply::StockReply(Request& request,
-		       status_type status,
-		       std::string extraContent,
-		       const Configuration& configuration)
+                       status_type status,
+                       std::string extraContent,
+                       const Configuration& configuration)
   : Reply(request, configuration),
     content_(extraContent),
     transmitted_(false)
@@ -296,8 +296,8 @@ void StockReply::reset(const Wt::EntryPoint *ep)
 }
 
 bool StockReply::consumeData(const char *begin,
-			     const char *end,
-			     Request::State state)
+                             const char *end,
+                             Request::State state)
 {
   if (state != Request::Partial)
     send();
@@ -312,7 +312,7 @@ std::string StockReply::contentType()
 ::int64_t StockReply::contentLength()
 {
   std::string full_path(configuration().errRoot()
-			+ stock_replies::toName(status()));
+                        + stock_replies::toName(status()));
   std::string original_url;
   std::string content = "";
   std::string line;
@@ -335,8 +335,8 @@ std::string StockReply::contentType()
       clen = original_url.length();
 
       do {
-	line.replace(index,sizeof("<-- ORIGINAL URL -->")-1, original_url);
-	index += clen;
+        line.replace(index,sizeof("<-- ORIGINAL URL -->")-1, original_url);
+        index += clen;
       } while((index = line.find("<-- ORIGINAL URL -->", index) != line.npos));
 
     }
@@ -345,17 +345,17 @@ std::string StockReply::contentType()
 
     if (index != line.npos) {
       if (original_url.empty())
-	stock_replies::buildOriginalURL(request_, original_url);
+        stock_replies::buildOriginalURL(request_, original_url);
 
       std::string escapedUrl = Wt::Utils::urlEncode(original_url);
       clen = escapedUrl.length();
 
       do {
-	line.replace(index,sizeof("<-- ORIGINAL URL ESCAPED -->") - 1,
-		     escapedUrl);
-	index += clen;
+        line.replace(index,sizeof("<-- ORIGINAL URL ESCAPED -->") - 1,
+                     escapedUrl);
+        index += clen;
       } while((index = line.find("<-- ORIGINAL URL ESCAPED -->", index)
-	       != line.npos));
+               != line.npos));
     }
     content += line + "\r\n";
   }

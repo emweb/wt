@@ -6,8 +6,8 @@
 class SombreroData : public Wt::WAbstractTableModel {
 public:
   SombreroData(int nbXPts, int nbYPts,
-	       double xStart, double xEnd,
-	       double yStart, double yEnd);
+               double xStart, double xEnd,
+               double yStart, double yEnd);
 
   virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
   virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
@@ -22,7 +22,7 @@ public:
                                 Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
   void update(double xStart, double xEnd, double yStart, double yEnd,
-	      int nbXPts, int nbYPts) {
+              int nbXPts, int nbYPts) {
     nbXPts_ = nbXPts;
     nbYPts_ = nbYPts;
     xStart_ = xStart;
@@ -30,7 +30,7 @@ public:
     yStart_ = yStart;
     yEnd_ = yEnd;
   }
-  
+
 private:
   int nbXPts_, nbYPts_;
   double xStart_, xEnd_, yStart_, yEnd_;
@@ -39,10 +39,10 @@ private:
 class PlaneData : public Wt::WAbstractTableModel {
 public:
   PlaneData(int nbXPts, int nbYPts,
-	    double xStart, double xDelta,
-	    double yStart, double yDelta,
-	    bool Yvariation,
-	    double colorRoleBound, double sizeRoleBound);
+            double xStart, double xDelta,
+            double yStart, double yDelta,
+            bool Yvariation,
+            double colorRoleBound, double sizeRoleBound);
 
   virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
   virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
@@ -58,7 +58,7 @@ public:
                                 Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
   void update(double xStart, double xDelta, double yStart, double yDelta,
-	      int nbXPts, int nbYPts) {
+              int nbXPts, int nbYPts) {
     nbXPts_ = nbXPts;
     nbYPts_ = nbYPts;
     xStart_ = xStart;
@@ -66,7 +66,7 @@ public:
     yStart_ = yStart;
     yDelta_ = yDelta;
   }
-  
+
 private:
   int nbXPts_, nbYPts_;
   double xStart_, xDelta_, yStart_, yDelta_;
@@ -99,8 +99,8 @@ private:
 class Parabola : public Wt::WAbstractTableModel {
 public:
   Parabola(double xMin, double deltaX, double yMin, double deltaY,
-	   double factor, double minimum,
-	   bool withColorRoles, double colorRoleBoundary);
+           double factor, double minimum,
+           bool withColorRoles, double colorRoleBoundary);
 
   virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
   virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;

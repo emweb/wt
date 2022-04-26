@@ -81,7 +81,7 @@ public:
 };
 
 WLocalDateTime::WLocalDateTime(const std::chrono::system_clock::time_point& dt,
-			       const cpp20::date::time_zone *zone, const WT_USTRING& format)
+                               const cpp20::date::time_zone *zone, const WT_USTRING& format)
   : datetime_(dt),
     format_(format),
     zone_(zone),
@@ -96,7 +96,7 @@ WLocalDateTime::WLocalDateTime(const std::chrono::system_clock::time_point& dt,
 
 WLocalDateTime::WLocalDateTime(const std::chrono::system_clock::time_point& dt,
                                const std::shared_ptr<OffsetZone>& zone,
-			       const WT_USTRING& format)
+                               const WT_USTRING& format)
   : datetime_(dt),
     format_(format),
     zone_(nullptr),
@@ -119,13 +119,13 @@ WLocalDateTime::WLocalDateTime(const WLocale& locale)
  * Todo, add overload which indicates DST
  */
 WLocalDateTime::WLocalDateTime(const WDate& date, const WTime& time,
-			       const WLocale& locale)
+                               const WLocale& locale)
   : datetime_(std::chrono::system_clock::time_point()),
     format_(locale.dateTimeFormat()),
     zone_(locale.timeZone()),
     valid_(false),
     null_(false)
-{ 
+{
   setDateTime(date, time);
 }
 
@@ -185,7 +185,7 @@ void WLocalDateTime::setInvalid()
 }
 
 void WLocalDateTime::setDateTime(const WDate& date, const WTime& time,
-				 bool dst)
+                                 bool dst)
 {
   null_ = false;
   valid_ = true;
@@ -310,7 +310,7 @@ WT_USTRING WLocalDateTime::toString(const WT_USTRING& format) const
 }
 
 WLocalDateTime WLocalDateTime::fromString(const WT_USTRING& s,
-					  const WLocale& locale)
+                                          const WLocale& locale)
 {
   WDateTime t = WDateTime::fromString(s, locale.dateTimeFormat());
 
@@ -341,7 +341,7 @@ WLocalDateTime WLocalDateTime::currentServerDateTime()
   ::localtime_r(&t, &tm);
   // tm_gmtoff is not part of the POSIX standard, but Linux, Mac OS X and the BSDs provide it
   return currentTime(date::floor<std::chrono::minutes>(std::chrono::seconds{tm.tm_gmtoff}),
-		     WLocale::currentLocale().dateTimeFormat());
+                     WLocale::currentLocale().dateTimeFormat());
 #else
   TIME_ZONE_INFORMATION tzi{};
   DWORD tz_result = ::GetTimeZoneInformation(&tzi);
@@ -351,7 +351,7 @@ WLocalDateTime WLocalDateTime::currentServerDateTime()
   }
   bool dst = tz_result == TIME_ZONE_ID_DAYLIGHT;
   return currentTime(std::chrono::minutes{- tzi.Bias - (dst ? tzi.DaylightBias : 0)},
-		     WLocale::currentLocale().dateTimeFormat());
+                     WLocale::currentLocale().dateTimeFormat());
 #endif
 }
 

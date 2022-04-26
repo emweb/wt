@@ -20,7 +20,7 @@ namespace Wt {
 
 /*! \class WSslInfo Wt/WSslInfo.h Wt/WSslInfo.h.C
  *  \brief Provides SSL information about the current session.
- *  
+ *
  * This class provides an interface to the SSL information related
  * to the current session. This class is returned by
  * WEnvironment::sslInfo().
@@ -51,13 +51,13 @@ public:
    * and is therefore not public API.
    */
   WSslInfo(const WSslCertificate &clientCertificate,
-	   const std::vector<WSslCertificate> &clientCertificateChain,
-	   WValidator::Result clientVerificationResult);
+           const std::vector<WSslCertificate> &clientCertificateChain,
+           WValidator::Result clientVerificationResult);
 
   /*! \brief Returns the certificate used by the client for authentication.
    */
   const WSslCertificate &clientCertificate() const {
-    return clientCertificate_; 
+    return clientCertificate_;
   }
 
   /*! \brief Returns the certificate chain used for client authentication.
@@ -75,16 +75,16 @@ public:
    * this task is entirely up to the web server, and this class merely
    * reports the validation status reported by the webserver.
    */
-  WValidator::Result clientVerificationResult() const { 
-    return clientVerificationResult_; 
+  WValidator::Result clientVerificationResult() const {
+    return clientVerificationResult_;
   }
-  
+
 private:
   WSslCertificate              clientCertificate_;
   std::vector<WSslCertificate> clientCertificateChain_;
   WValidator::Result           clientVerificationResult_;
 
-  std::string gdb() const;  
+  std::string gdb() const;
 };
 
 }

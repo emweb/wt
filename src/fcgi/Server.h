@@ -27,7 +27,7 @@ class Server
 {
 public:
   static bool bindUDStoStdin(const std::string& socketPath,
-			     Wt::WServer& server);
+                             Wt::WServer& server);
 
   Server(WServer& wt,
          const std::string &applicationName,
@@ -59,10 +59,10 @@ private:
   void execChild(bool debug, const std::string& extraArg);
 
   int  connectToSession(const std::string& sessionId,
-			const std::string& socketPath,
-			int maxTries);
+                        const std::string& socketPath,
+                        int maxTries);
   bool getSessionFromQueryString(const std::string& uri,
-				 std::string& sessionId);
+                                 std::string& sessionId);
   void checkConfig();
   bool writeToSocket(int socket, const unsigned char *buf, int bufsize);
 

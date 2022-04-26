@@ -13,8 +13,8 @@ Identity::Identity()
 { }
 
 Identity::Identity(const std::string& provider,
-		   const std::string& id, const WT_USTRING& name,
-		   const std::string& email, bool emailVerified)
+                   const std::string& id, const WT_USTRING& name,
+                   const std::string& email, bool emailVerified)
   : provider_(provider),
     id_(id),
     email_(email),

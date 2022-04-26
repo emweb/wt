@@ -21,14 +21,14 @@ namespace Wt {
  * The current selection may be set and read using setCurrentIndex()
  * and currentIndex(), for \link Wt::SelectionMode::Single
  * SelectionMode::Single\endlink mode, or setSelectedIndexes() and
- * selectedIndexes() for Wt::SelectionMode::Extended mode. 
+ * selectedIndexes() for Wt::SelectionMode::Extended mode.
  * The activated() and sactivated()
  * signals are not emited in the Wt::SelectionMode::Extended mode, use the
  * changed() signal.
  *
  * %WSelectionBox is an MVC view class, using a simple string list
- * model by default. The model may be populated using WComboBox::addItem() 
- * or WComboBox::insertItem() and the contents can 
+ * model by default. The model may be populated using WComboBox::addItem()
+ * or WComboBox::insertItem() and the contents can
  * be cleared through clear(). These methods manipulate the underlying
  * model().
  *

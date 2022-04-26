@@ -53,29 +53,29 @@ enum class ChartUpdates {
 /*! \class WCartesian3DChart
  *  \brief A 3D Cartesian chart
  *
- * The chart consists of a plotcube, which is always open on the front, and 
- * adapts to the data which is shown on the chart. The plotcube has three axes 
- * of type WAxis. Each of these can be manually configured as in the 2D case. 
- * The chart can be either a \ref ChartType::Scatter or a \ref ChartType::Category. This influences 
- * how the data is positioned in relation to the x/y-axis. Gridlines can also 
- * be drawn on each of the plotcube-planes. The chart has a mouse-handler which 
- * allows rotation of the chart around the center of the plotcube. Zooming in 
+ * The chart consists of a plotcube, which is always open on the front, and
+ * adapts to the data which is shown on the chart. The plotcube has three axes
+ * of type WAxis. Each of these can be manually configured as in the 2D case.
+ * The chart can be either a \ref ChartType::Scatter or a \ref ChartType::Category. This influences
+ * how the data is positioned in relation to the x/y-axis. Gridlines can also
+ * be drawn on each of the plotcube-planes. The chart has a mouse-handler which
+ * allows rotation of the chart around the center of the plotcube. Zooming in
  * and out is possible by scrolling.
  *
- * Data that can be shown on the chart derives from WAbstractDataSeries3D. 
- * Multiple dataseries can be added to the chart using addDataSeries(). The 
- * color of the dataseries is by default determined by the colors of the 
- * WChartPalette. This way a separate color is assigned to each new dataseries. 
- * All rendering logic of the data is contained in the dataseries-classes and 
- * further styling is often possible there. For example, a WAbstractColorMap 
- * can be added to a dataseries, which will assign a color to datapoints based 
- * on their z-value. More information on this is found in the documentation of 
+ * Data that can be shown on the chart derives from WAbstractDataSeries3D.
+ * Multiple dataseries can be added to the chart using addDataSeries(). The
+ * color of the dataseries is by default determined by the colors of the
+ * WChartPalette. This way a separate color is assigned to each new dataseries.
+ * All rendering logic of the data is contained in the dataseries-classes and
+ * further styling is often possible there. For example, a WAbstractColorMap
+ * can be added to a dataseries, which will assign a color to datapoints based
+ * on their z-value. More information on this is found in the documentation of
  * WAbstractDataSeries3D.
- * 
- * It is possible to assign a title to the chart. A legend can also be shown 
- * that lists the titles of all dataseries (unless disabled in the dataseries 
- * itself). The legend position and style can be configured. In addition to 
- * title and legend, a colormap-legend is shown for every dataseries which has 
+ *
+ * It is possible to assign a title to the chart. A legend can also be shown
+ * that lists the titles of all dataseries (unless disabled in the dataseries
+ * itself). The legend position and style can be configured. In addition to
+ * title and legend, a colormap-legend is shown for every dataseries which has
  * a colormap enabled and indicates that it should be displayed on the chart.
  *
  * \image html Chart3DCombo.png "A scatterplot on the left, a category-chart on the right."
@@ -130,14 +130,14 @@ public:
   /*! \brief Add a dataseries to the chart
    *
    * If the chart is of type ChartType::Scatter only numerical dataseries should
-   * be added and if it is of type ChartType::Category only categorical dataseries 
-   * should be added. If multiple categorical datasets are added, the 
+   * be added and if it is of type ChartType::Category only categorical dataseries
+   * should be added. If multiple categorical datasets are added, the
    * axis-labels of the first dataseries will be used on the chart.
-   * 
+   *
    * \sa removeDataSeries()
    */
   void addDataSeries(std::unique_ptr<WAbstractDataSeries3D> dataseries);
-  
+
   /*! \brief Removes a dataseries from a chart.
    *
    * \sa addDataSeries()
@@ -167,7 +167,7 @@ public:
 
   /*! \brief Enable/disable gridlines.
    *
-   * Enables or disables gridlines in the given plane, along the given axis. 
+   * Enables or disables gridlines in the given plane, along the given axis.
    * All gridlines are by default disabled.
    */
   void setGridEnabled(Plane plane, Axis axis, bool enabled = true);
@@ -237,12 +237,12 @@ public:
    *
    * The default pen for drawing cubelines is a StandardColor::Black pen of width 0.
    *
-   * Note: Only width and color of the pen are used, all other styling is 
+   * Note: Only width and color of the pen are used, all other styling is
    * ignored.
    */
   void setCubeLinesPen(const WPen & pen);
 
-  /*! \brief Returns a reference to the pen used for drawing the edges of 
+  /*! \brief Returns a reference to the pen used for drawing the edges of
    * the plotcube.
    *
    * The width and color of the pen are used when drawing the edges of the
@@ -254,7 +254,7 @@ public:
 
   /*! \brief Sets the type of this chart.
    *
-   * Sets the type of this chart to either ChartType::Scatter (for drawing numerical 
+   * Sets the type of this chart to either ChartType::Scatter (for drawing numerical
    * data) or to ChartType::Category (for drawing categorical data).
    */
   void setType(ChartType type);
@@ -264,11 +264,11 @@ public:
    * \sa setType()
    */
   ChartType type() const { return chartType_; }
- 
+
   /*! \brief Sets the palette for this chart.
-   * 
+   *
    * Ownership of the WChartPalette is transferred to the chart.
-   * 
+   *
    * The given palette determines which color subsequent dataseries will have.
    * If a dataseries has a colormap set, then the palette is not used for this
    * data.
@@ -283,7 +283,7 @@ public:
 
   /*! \brief Sets the background color for this chart.
    *
-   * This sets the GL-clearcolor. The default is transparant, which will cause 
+   * This sets the GL-clearcolor. The default is transparant, which will cause
    * the background to have the color set in css.
    */
   void setBackground(const WColor &background);
@@ -293,7 +293,7 @@ public:
    * \sa setBackground()
    */
   const WColor& background() const { return background_; }
-  
+
   /*! \brief Sets the title that is put on the chart.
    *
    * The title is always put at the top of the chart and in the center.
@@ -370,7 +370,7 @@ public:
    * \sa setLegendEnabled()
    */
   void setLegendStyle(const WFont &font, const WPen &border,
-		      const WBrush &background);
+                      const WBrush &background);
 
   /*! \brief Returns the legend side.
    *
@@ -416,14 +416,14 @@ public:
 
   /*! \brief Configures the number of columns and columnwidth of the legend.
    *
-   * The default value is a single column, 100 pixels wide. 
+   * The default value is a single column, 100 pixels wide.
    */
   void setLegendColumns(int columns, const WLength &columnWidth);
 
   /*! \brief Initializes the chart layout.
    *
    * This method must be called before any methods relating to the layout of
-   * the chart are called (eg. calling minimum() or maximum() on one of the 
+   * the chart are called (eg. calling minimum() or maximum() on one of the
    * axes). The method is also automatically called when the chart is rendered.
    */
   void initLayout();
@@ -436,20 +436,20 @@ public:
    * (0.5, 0.5, 0.5). The camera can be most easily position with the lookAt
    * method of WMatrix4x4. A common use-case when manipulating the matrix is to
    * translate the center to the origin and then rotate.
-   * 
+   *
    * \if cpp
    * For example:
    * \code{.cpp}
    *   ...
-   * 
+   *
    *   WMatrix4x4 camera;
    *   camera.lookAt(0.5, 0.5, z,     // camera position
    *                 0.5, 0.5, 0.5,   // center of the scene
    *                 0, 1, 0);        // up direction
    *   camera.translate(0.5, 0.5, 0.5);
-   * 
+   *
    *   ... // some rotations
-   * 
+   *
    *   camera.translate(-0.5, -0.5, -0.5);
    * \endcode
    * \endif
@@ -529,7 +529,7 @@ private:
   void renderClippingLines(WAbstractGridData *data);
 
   void paintHorizAxisTextures(WPaintDevice *paintDevice,
-			      bool labelAngleMirrored = false);
+                              bool labelAngleMirrored = false);
   void paintVertAxisTextures(WPaintDevice *paintDevice);
   void paintGridLines(WPaintDevice *paintDevice, Plane plane);
   void loadCubeTextures();
@@ -541,7 +541,7 @@ private:
   void initLegend();
 
   void paintPeripheralTexture(const Buffer& pos, const Buffer& texCo,
-			      const Texture& texture);
+                              const Texture& texture);
 
   WMatrix4x4 worldTransform_;
   bool isViewSet_;
@@ -552,7 +552,7 @@ private:
   bool XYGridEnabled_[2], XZGridEnabled_[2], YZGridEnabled_[2];
   WPen cubeLinesPen_;
   WPen gridLinesPen_;
-  
+
   WColor background_;
   std::shared_ptr<WChartPalette> chartPalette_;
   WString title_;

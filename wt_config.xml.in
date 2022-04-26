@@ -25,87 +25,87 @@
     <application-settings location="*">
 
         <!-- Session management. -->
-	<session-management>
+        <session-management>
             <!-- Every session runs within a dedicated process.
 
-	       This mode guarantees kernel-level session privacy, but as every
-	       session requires a separate process, it is also an easy target
-	       for DoS attacks if not shielded by access control.
+               This mode guarantees kernel-level session privacy, but as every
+               session requires a separate process, it is also an easy target
+               for DoS attacks if not shielded by access control.
 
-	       Note: currently only supported by the wtfcgi and wthttp
-	       connectors.
+               Note: currently only supported by the wtfcgi and wthttp
+               connectors.
 
-	       max-num-sessions determines the maximum number of sessions
+               max-num-sessions determines the maximum number of sessions
 
-	       num-session-threads determines the number of threads for every
-	       session process. If not specified, the number of threads for every
-	       session process is the same as the number of threads for the parent
-	       process.
+               num-session-threads determines the number of threads for every
+               session process. If not specified, the number of threads for every
+               session process is the same as the number of threads for the parent
+               process.
               -->
 
-	    <!--
-	       <dedicated-process>
-		 <max-num-sessions>100</max-num-sessions>
-		 <num-session-threads>10</num-session-threads>
-	       </dedicated-process>
-	    -->
+            <!--
+               <dedicated-process>
+                 <max-num-sessions>100</max-num-sessions>
+                 <num-session-threads>10</num-session-threads>
+               </dedicated-process>
+            -->
 
-	    <!-- Multiple sessions within one process.
+            <!-- Multiple sessions within one process.
 
-	       This mode spawns a number of processes, and sessions are
-	       allocated randomly to one of these processes (you should not
-	       use this for dynamic FCGI servers, but only in conjunction
-	       with a fixed number of static FCGI servers.
+               This mode spawns a number of processes, and sessions are
+               allocated randomly to one of these processes (you should not
+               use this for dynamic FCGI servers, but only in conjunction
+               with a fixed number of static FCGI servers.
 
-	       This requires careful programming, as memory corruption in one
-	       session will kill all of the sessions in the same process. You
-	       should debug extensively using valgrind. Also, it is your
-	       responsibility to keep session state not interfering and
-	       separated.
+               This requires careful programming, as memory corruption in one
+               session will kill all of the sessions in the same process. You
+               should debug extensively using valgrind. Also, it is your
+               responsibility to keep session state not interfering and
+               separated.
 
-	       On the other hand, sessions are inexpensive, and this mode
-	       suffers far less from DoS attacks than dedicated-process mode.
-	       Use it for non-critical and well-debugged web applications.
+               On the other hand, sessions are inexpensive, and this mode
+               suffers far less from DoS attacks than dedicated-process mode.
+               Use it for non-critical and well-debugged web applications.
 
-	       Note: the wthttp connector will ignore the num-processes
-	       setting and use only process.
+               Note: the wthttp connector will ignore the num-processes
+               setting and use only process.
               -->
-	    <shared-process>
-	        <num-processes>1</num-processes>
-	    </shared-process>
+            <shared-process>
+                <num-processes>1</num-processes>
+            </shared-process>
 
-	    <!-- Session tracking strategy.
+            <!-- Session tracking strategy.
 
-	       Possible values:
-		 Auto: cookies if available, otherwise URL rewriting
-		 URL:  only URL rewriting
-		 Combined: uses URL rewriting, with a multi-session cookie to
-			   prevent stealing of sessions through the URL. Will
-			   not fall back to URL rewriting if cookies are not
-			   available. This is the most secure strategy.
+               Possible values:
+                 Auto: cookies if available, otherwise URL rewriting
+                 URL:  only URL rewriting
+                 Combined: uses URL rewriting, with a multi-session cookie to
+                           prevent stealing of sessions through the URL. Will
+                           not fall back to URL rewriting if cookies are not
+                           available. This is the most secure strategy.
 
                It is recommended to stick to URL rewriting or Combined for session
-	       tracking as this is more secure (it avoids the risk of attacks
-	       like CSRF or BREACH), and also provides proper support for
-	       concurrent sessions in a single browser.
-	      -->
-	    <tracking>URL</tracking>
+               tracking as this is more secure (it avoids the risk of attacks
+               like CSRF or BREACH), and also provides proper support for
+               concurrent sessions in a single browser.
+              -->
+            <tracking>URL</tracking>
 
-	    <!-- How reload should be handled.
+            <!-- How reload should be handled.
 
-	       When reload should (or rather, may) spawn a new session, then
-	       even in the case cookies are not used for session management,
-	       the URL will not be cluttered with a sessionid.
-	       However, WApplication::refresh() will never be called.
-	      -->
-	    <reload-is-new-session>true</reload-is-new-session>
+               When reload should (or rather, may) spawn a new session, then
+               even in the case cookies are not used for session management,
+               the URL will not be cluttered with a sessionid.
+               However, WApplication::refresh() will never be called.
+              -->
+            <reload-is-new-session>true</reload-is-new-session>
 
-	    <!-- Session timeout (seconds).
+            <!-- Session timeout (seconds).
 
-	       When a session remains inactive for this amount of time, it is
-	       cleaned up.
-	      -->
-	    <timeout>600</timeout>
+               When a session remains inactive for this amount of time, it is
+               cleaned up.
+              -->
+            <timeout>600</timeout>
 
             <!-- Idle timeout (seconds).
 
@@ -122,7 +122,7 @@
                -->
             <!--<idle-timeout>900</idle-timeout>-->
 
-	    <!-- Server push timeout (seconds).
+            <!-- Server push timeout (seconds).
 
                When using server-initiated updates, the client uses
                long-polling requests. Proxies (including reverse
@@ -130,46 +130,46 @@
                requests; the client therefore cancels the request
                periodically and issues a new one. This timeout sets
                the frequency.
-	      -->
-	    <server-push-timeout>50</server-push-timeout>
-	</session-management>
+              -->
+            <server-push-timeout>50</server-push-timeout>
+        </session-management>
 
-	<!-- Settings that apply only to the FastCGI connector.
+        <!-- Settings that apply only to the FastCGI connector.
 
-	   To configure the wthttp connector, use command line options, or
-	   configure default options in /etc/wt/wthttpd
-	  -->
-	<connector-fcgi>
-	    <!-- Valgrind path
+           To configure the wthttp connector, use command line options, or
+           configure default options in /etc/wt/wthttpd
+          -->
+        <connector-fcgi>
+            <!-- Valgrind path
 
                If debugging is enabled and this path is not empty, then valgrind
-	       will be started for every shared process, or for every session
-	       which has ?debug appended to the command line.
+               will be started for every shared process, or for every session
+               which has ?debug appended to the command line.
 
-	       The variable is slighly misnamed. Not only a path can be set,
-	       but also options, like for example:
+               The variable is slighly misnamed. Not only a path can be set,
+               but also options, like for example:
 
                  /usr/bin/valgrind - -leak-check=full
              -->
-	    <valgrind-path></valgrind-path>
+            <valgrind-path></valgrind-path>
 
-	    <!-- Run directory
+            <!-- Run directory
 
                Path used by Wt to do session management.
-	      -->
-	    <run-directory>${RUNDIR}</run-directory>
+              -->
+            <run-directory>${RUNDIR}</run-directory>
 
-	</connector-fcgi>
+        </connector-fcgi>
 
-	<!-- Settings that apply only to the MS IIS ISAPI connector.
+        <!-- Settings that apply only to the MS IIS ISAPI connector.
 
-	   To configure the wthttp connector, use command line options, or
-	   configure default options in /etc/wt/wthttpd
-	  -->
-	<connector-isapi>
+           To configure the wthttp connector, use command line options, or
+           configure default options in /etc/wt/wthttpd
+          -->
+        <connector-isapi>
 
-	    <!-- Maximum Request Size spooled in memory (KiB)
-        
+            <!-- Maximum Request Size spooled in memory (KiB)
+
                Normally, Wt keeps incoming requests (POST data) in memory.
                However, malicious users could send a big POST and as such
                use up all memory of your HTTP server. With this parameter,
@@ -181,85 +181,85 @@
 
                The default value is 128K, which is more than enough for
                any interactive Wt event.
-	      -->
-	    <max-memory-request-size>128</max-memory-request-size>
-	</connector-isapi>
+              -->
+            <max-memory-request-size>128</max-memory-request-size>
+        </connector-isapi>
 
         <!-- Javascript debug options
 
-	     Values:
-	     - naked: JavaScript errors are not caught at all
-	     - false: JavaScript errors are caught and a simple error message
-	              is printed to indicate that something is terribly wrong
-	     - stack: equivalent to 'false'
-	     - true: JavaScript errors are rethrown after server-side logging
+             Values:
+             - naked: JavaScript errors are not caught at all
+             - false: JavaScript errors are caught and a simple error message
+                      is printed to indicate that something is terribly wrong
+             - stack: equivalent to 'false'
+             - true: JavaScript errors are rethrown after server-side logging
 
              Unless the value is 'naked',
-	     WApplication::handleJavaScriptError() is called which by
-	     default logs the error and terminates the session.
-	  -->
-	<debug>false</debug>
+             WApplication::handleJavaScriptError() is called which by
+             default logs the error and terminates the session.
+          -->
+        <debug>false</debug>
 
-	<!-- Log file
+        <!-- Log file
 
-	   When the log file is empty, or omitted, logging is done to
-	   stderr. This may end up in the web server error log file
-	   (e.g. for apache + fastcgi module), or on stderr (e.g. for
-	   the built-in httpd).
+           When the log file is empty, or omitted, logging is done to
+           stderr. This may end up in the web server error log file
+           (e.g. for apache + fastcgi module), or on stderr (e.g. for
+           the built-in httpd).
          -->
-	<log-file></log-file>
+        <log-file></log-file>
 
-	<!-- Logger configuration
+        <!-- Logger configuration
 
-	   This configures the logger. With the default configuration,
-	   everything except for debugging messages are logged.
+           This configures the logger. With the default configuration,
+           everything except for debugging messages are logged.
 
-	   The configuration is a string that defines rules for
-	   enabling or disabling certain logging. It is a white-space
-	   delimited list of rules, and each rule is of the form:
+           The configuration is a string that defines rules for
+           enabling or disabling certain logging. It is a white-space
+           delimited list of rules, and each rule is of the form:
 
-	     [-]level : enables (or disables) logging of messages of
-	     the given level; '*' is a wild-card that matches all
-	     levels
+             [-]level : enables (or disables) logging of messages of
+             the given level; '*' is a wild-card that matches all
+             levels
 
-	     [-]level:scope : enables (or disables) logging of
-	     messages of the given level and scope; '*' is a wild-card
-	     that matches all levels or scopes.  The default
-	     configuration is "* -debug", i.e. by default everything
-	     is logged, except for "debug" messages.
+             [-]level:scope : enables (or disables) logging of
+             messages of the given level and scope; '*' is a wild-card
+             that matches all levels or scopes.  The default
+             configuration is "* -debug", i.e. by default everything
+             is logged, except for "debug" messages.
 
-	   Some other examples:
+           Some other examples:
 
-	     "* -debug debug:wthttp": logs everything, including
-	     debugging messages of scope "wthttp", but no other
-	     debugging messages.
+             "* -debug debug:wthttp": logs everything, including
+             debugging messages of scope "wthttp", but no other
+             debugging messages.
 
-	     "* -info -debug": disables logging of info messages
-	     in addition to debugging messages.
+             "* -info -debug": disables logging of info messages
+             in addition to debugging messages.
 
-	   Note debugging messages are only emitted when debugging
-	   has been enabled while building Wt.
-	  -->
-	<log-config>* -debug</log-config>
+           Note debugging messages are only emitted when debugging
+           has been enabled while building Wt.
+          -->
+        <log-config>* -debug</log-config>
 
-	<!-- Maximum HTTP request size (KiB)
+        <!-- Maximum HTTP request size (KiB)
 
            Maximum size of an incoming POST request. This value must be
            increased when the user is allowed to upload files.
          -->
-	<max-request-size>128</max-request-size>
+        <max-request-size>128</max-request-size>
 
-	<!-- Maximum form data (KiB)
-	     
-	   Maximum size of the data in a POST request of type
-	   'application/x-www-form-urlencoded' (used for Wt form-field values)
-	   Note that the maximum size is also limited by the value of
-	   'max-request-size'.
-	-->
-	<max-formdata-size>5120</max-formdata-size>
+        <!-- Maximum form data (KiB)
+
+           Maximum size of the data in a POST request of type
+           'application/x-www-form-urlencoded' (used for Wt form-field values)
+           Note that the maximum size is also limited by the value of
+           'max-request-size'.
+        -->
+        <max-formdata-size>5120</max-formdata-size>
 
         <!--- Maximum number of pending events
-            
+
             Client-side events (user-interaction, WTimer, custom js signals) are
             queued if the server did not yet respond to a previous update.
             This allows you to configure the maximum number of events in the queue.
@@ -304,10 +304,10 @@
               -->
         <num-threads>10</num-threads>
 
-	<!-- Session id length (number of characters) -->
-	<session-id-length>16</session-id-length>
+        <!-- Session id length (number of characters) -->
+        <session-id-length>16</session-id-length>
 
-	<!-- DoS prevention: limit plain HTML sessions
+        <!-- DoS prevention: limit plain HTML sessions
 
            This is a simple measure which avoids Denial-of-Service
            attacks on plain HTML sessions, which are easy to mount in
@@ -318,16 +318,16 @@
            of your sessions will be Ajax sessions, and only a tiny
            fraction (e.g. less than 5%) will be plain HTML
            sessions. This ratio is only enforced when more than 20 sessions
-	   have been created.
+           have been created.
 
            The default is 1 (= 100%), which means that 100% of all sessions
            may be plain HTML sessions, effectively disabling this feature. If
            you set it to 0.5 for example, that means that 50% of all sessions
            may be plain HTML sessions.
-	  -->
-	<plain-ajax-sessions-ratio-limit>1</plain-ajax-sessions-ratio-limit>
+          -->
+        <plain-ajax-sessions-ratio-limit>1</plain-ajax-sessions-ratio-limit>
 
-	<!-- DoS prevention: adds a puzzle to validate Ajax sessions
+        <!-- DoS prevention: adds a puzzle to validate Ajax sessions
 
            This is a simple measure which avoids Denial-of-Service
            attacks on Ajax sessions.
@@ -335,80 +335,80 @@
            When enabled, a puzzle needs to be solved in the first Ajax
            request which eliminates agents that do not build a proper
            DOM tree.
-	  -->
-	<ajax-puzzle>false</ajax-puzzle>
+          -->
+        <ajax-puzzle>false</ajax-puzzle>
 
-	<!-- Do strict serialization of events.
+        <!-- Do strict serialization of events.
 
-	   By default events are queued at the client-side, and
-	   transmitted to the server so that at any time only one
-	   request/response is pending. This scheme has a quality that
-	   resembles TCP: on a low-latency link you allow the
-	   transmission of many smaller requests, while on a high
-	   latency link, events will be propagated less often, but in
-	   batches.
+           By default events are queued at the client-side, and
+           transmitted to the server so that at any time only one
+           request/response is pending. This scheme has a quality that
+           resembles TCP: on a low-latency link you allow the
+           transmission of many smaller requests, while on a high
+           latency link, events will be propagated less often, but in
+           batches.
 
-	   In any case, this scheme does not drop events, no matter
-	   how quickly they are generated.
+           In any case, this scheme does not drop events, no matter
+           how quickly they are generated.
 
-	   In rare cases, the scheme may result in unwanted behaviour,
-	   because the client-side is allowed to be slighly out of
-	   sync at the time an event is recorded with the server-side
-	   (and more so on high-latency links). The drastic
-	   alternative is to discard events while a response is
-	   pending, and can be configured by setting this option to
-	   true.
-	  -->
-	<strict-event-serialization>false</strict-event-serialization>
+           In rare cases, the scheme may result in unwanted behaviour,
+           because the client-side is allowed to be slighly out of
+           sync at the time an event is recorded with the server-side
+           (and more so on high-latency links). The drastic
+           alternative is to discard events while a response is
+           pending, and can be configured by setting this option to
+           true.
+          -->
+        <strict-event-serialization>false</strict-event-serialization>
 
-	<!-- Enables web socket.
+        <!-- Enables web socket.
 
-	   By default Ajax and long polling are used to communicate
-	   between server and browser.
+           By default Ajax and long polling are used to communicate
+           between server and browser.
 
            By enabling web socket support, if the browser supports
            WebSockets, then WebSocket is the protocol used for
            communication between client and server. WebSockets are
            currently only supported by the built-in httpd Connector,
-	   which acts as both an HTTP and WebSocket server. The WebSocket
-	   protocol is intentionally not compatible with HTTP, through 
-	   a special hand-shake mechanism, and requires
+           which acts as both an HTTP and WebSocket server. The WebSocket
+           protocol is intentionally not compatible with HTTP, through
+           a special hand-shake mechanism, and requires
            that all (reverse) proxy servers also have explicit support
            for this protocol.
-	  -->
-	<web-sockets>false</web-sockets>
+          -->
+        <web-sockets>false</web-sockets>
 
-	<!-- Enables the detection of webgl-capabilites.
+        <!-- Enables the detection of webgl-capabilites.
 
-	     When this is enabled, the browser will try to create a
-	     webgl-context when loading to verify that it is possible. This
+             When this is enabled, the browser will try to create a
+             webgl-context when loading to verify that it is possible. This
              is necessary when using WGLWidget.
 
-	     This can take up some load time. When your application does not
-	     use WGLWidget, this option can be set to false. It will improve
+             This can take up some load time. When your application does not
+             use WGLWidget, this option can be set to false. It will improve
              the initial loading time of the web application.
-	-->
-	<webgl-detection>true</webgl-detection>
+        -->
+        <webgl-detection>true</webgl-detection>
 
-	<!-- Redirect message shown for browsers without JavaScript support
+        <!-- Redirect message shown for browsers without JavaScript support
 
-	   By default, Wt will use an automatic redirect to start the
-	   application when the browser does not support
-	   JavaScript. However, browsers are not required to follow
-	   the redirection, and in some situations (when using XHTML),
-	   such automatic redirection is not supported.
+           By default, Wt will use an automatic redirect to start the
+           application when the browser does not support
+           JavaScript. However, browsers are not required to follow
+           the redirection, and in some situations (when using XHTML),
+           such automatic redirection is not supported.
 
-	   This configures the text that is shown in the anchor which
-	   the user may click to be redirected to a basic HTML version
-	   of your application.
+           This configures the text that is shown in the anchor which
+           the user may click to be redirected to a basic HTML version
+           of your application.
           -->
-	<redirect-message>Load basic HTML</redirect-message>
+        <redirect-message>Load basic HTML</redirect-message>
 
-	<!-- Whether we are sitting behind a reverse proxy 
+        <!-- Whether we are sitting behind a reverse proxy
 
-	   When deployed behind a reverse proxy (such as Apache or Squid),
-	   the server location is not read from the "Host" header,
-	   but from the X-Forwarded-For header, if present.
+           When deployed behind a reverse proxy (such as Apache or Squid),
+           the server location is not read from the "Host" header,
+           but from the X-Forwarded-For header, if present.
 
            This option is required to make e.g. clientAddress() return the
            correct address.
@@ -416,7 +416,7 @@
            Deprecated: use trusted-proxy-config instead. If this option is
            set to true, Wt will take the first non-local IP address from the
            Client-IP and X-Forwarded-For headers to determine the clientAddress().
-	  -->
+          -->
         <!--<behind-reverse-proxy>false</behind-reverse-proxy>-->
 
         <!-- The following configuration options can be used when Wt is behind a reverse proxy.
@@ -460,66 +460,66 @@
           </trusted-proxies>
         </trusted-proxy-config>
 
-	<!-- Whether inline CSS is allowed.
+        <!-- Whether inline CSS is allowed.
 
            Some Wt widgets will insert CSS rules in the the inline
            stylesheet when first used. This can be disabled using this
-	   configuration option.
+           configuration option.
 
            Note: some widgets, such as WTreeView and WTableView,
            dynamically manipulate rules in this stylesheet, and will
            no longer work properly when inline-css is disabled.
-	  -->
-	<inline-css>true</inline-css>
-
-	<!-- The timeout before showing the loading indicator.
-
-	   The value is specified in ms.
           -->
-	<indicator-timeout>500</indicator-timeout>
+        <inline-css>true</inline-css>
 
-	<!-- The timeout for processing a double click event.
+        <!-- The timeout before showing the loading indicator.
 
-	   The value is specified in ms.
+           The value is specified in ms.
           -->
-	<double-click-timeout>200</double-click-timeout>
+        <indicator-timeout>500</indicator-timeout>
 
-	<!-- Ajax user agent list
+        <!-- The timeout for processing a double click event.
+
+           The value is specified in ms.
+          -->
+        <double-click-timeout>200</double-click-timeout>
+
+        <!-- Ajax user agent list
 
            Wt considers three types of sessions:
-	   - Ajax sessions: use Ajax and JavaScript
-	   - plain HTML sessions: use plain old server GETs and POSTs
-	   - bots: have clean internal paths and no persistent sessions
+           - Ajax sessions: use Ajax and JavaScript
+           - plain HTML sessions: use plain old server GETs and POSTs
+           - bots: have clean internal paths and no persistent sessions
 
            By default, Wt does a browser detection to distinguish between
-	   the first two: if a browser supports JavaScript (and has it
-	   enabled), and has an Ajax DOM API, then Ajax sessions are chosen,
-	   otherwise plain HTML sessions.
+           the first two: if a browser supports JavaScript (and has it
+           enabled), and has an Ajax DOM API, then Ajax sessions are chosen,
+           otherwise plain HTML sessions.
 
            Here, you may indicate which user agents should or should
            not receive an Ajax session regardless of what they report as
-	   capabilities.
+           capabilities.
 
            Possible values for 'mode' or "white-list" or "black-list". A
-	   white-list will only treat the listed agents as supporting Ajax,
-	   all other agents will be served plain HTML sessions. A black-list
-	   will always server plain HTML sessions to listed agents and
-	   otherwise rely on browser capability detection.
+           white-list will only treat the listed agents as supporting Ajax,
+           all other agents will be served plain HTML sessions. A black-list
+           will always server plain HTML sessions to listed agents and
+           otherwise rely on browser capability detection.
 
            Each <user-agent> is a regular expression.
-	  -->
-	<user-agents type="ajax" mode="black-list">
-	  <!-- <user-agent>.*Crappy browser.*</user-agent> -->
-	</user-agents>
+          -->
+        <user-agents type="ajax" mode="black-list">
+          <!-- <user-agent>.*Crappy browser.*</user-agent> -->
+        </user-agents>
 
-	<!-- Bot user agent list
+        <!-- Bot user agent list
 
            Here, you can specify user agents that should be should be
            treated as bots.
 
            Each <user-agent> is a regular expression.
-	  -->
-	<user-agents type="bot">
+          -->
+        <user-agents type="bot">
             <user-agent>.*Googlebot.*</user-agent>
             <user-agent>.*msnbot.*</user-agent>
             <user-agent>.*Slurp.*</user-agent>
@@ -534,183 +534,183 @@
             <user-agent>.*Ezooms.*</user-agent>
             <user-agent>.*Sogou web spider.*</user-agent>
             <user-agent>.*AhrefsBot.*</user-agent>
-	</user-agents>
+        </user-agents>
 
-	<!-- Configures different rendering engines for certain browsers.
+        <!-- Configures different rendering engines for certain browsers.
 
            Currently this is only used to select IE7 compatible rendering
-	   engine for IE8, which solves problems of unreliable and slow
-	   rendering performance for VML which Microsoft broke in IE8.
+           engine for IE8, which solves problems of unreliable and slow
+           rendering performance for VML which Microsoft broke in IE8.
 
            Before 3.3.0, the default value was IE8=IE7, but since 3.3.0
-	   this has been changed to an empty string (i.e. let IE8 use the
-	   standard IE8 rendering engine) to take advantage of IE8's
-	   improved CSS support. If you make heavy use of VML, you may need
-	   to revert to IE8=IE7.
-	  -->
-	<UA-Compatible></UA-Compatible>
+           this has been changed to an empty string (i.e. let IE8 use the
+           standard IE8 rendering engine) to take advantage of IE8's
+           improved CSS support. If you make heavy use of VML, you may need
+           to revert to IE8=IE7.
+          -->
+        <UA-Compatible></UA-Compatible>
 
-	<!-- Configures whether the progressive bootstrap method is used.
+        <!-- Configures whether the progressive bootstrap method is used.
 
-	   The default bootstrap method first senses whether there is Ajax
-	   support, and only then creates the application.
+           The default bootstrap method first senses whether there is Ajax
+           support, and only then creates the application.
 
-	   The progressive bootstrap method first renders a plain HTML
-	   version and later upgrades to an Ajax version.
+           The progressive bootstrap method first renders a plain HTML
+           version and later upgrades to an Ajax version.
 
            (Not to be confused with the Twitter Bootstrap theme)
-	  -->
-	<progressive-bootstrap>false</progressive-bootstrap>
+          -->
+        <progressive-bootstrap>false</progressive-bootstrap>
 
-	<!-- Set session-ID cookie
+        <!-- Set session-ID cookie
 
-	   In its default (and recommended) configuration, Wt does not
-	   rely on cookies for session tracking.
+           In its default (and recommended) configuration, Wt does not
+           rely on cookies for session tracking.
 
-	   Wt has several mechanisms in place to prevent session ID stealing:
-	   - for an Ajax session, the session ID is not shown in the URL,
+           Wt has several mechanisms in place to prevent session ID stealing:
+           - for an Ajax session, the session ID is not shown in the URL,
              avoiding session ID stealing through a referer attack.
-	   - in case the session ID is present in the URL (e.g. for a plain
-	     HTML session), Wt will redirect links to images or external
-	     anchors through an intermediate page that censors the session ID
+           - in case the session ID is present in the URL (e.g. for a plain
+             HTML session), Wt will redirect links to images or external
+             anchors through an intermediate page that censors the session ID
 
-	   In case of the loss of a session ID, the impact is minimized:
-	   - a full page refresh is not supported if the client IP address
-	     changes or the user-agent changes
+           In case of the loss of a session ID, the impact is minimized:
+           - a full page refresh is not supported if the client IP address
+             changes or the user-agent changes
            - an Ajax update is protected by other state which is not exposed
-	     in the URL
+             in the URL
 
-	   To still enable a full page refresh when the client IP address
-	   changes, an additional cookie may be set which is used only
-	   for this purpose, and can be enabled using this setting.
-	  -->
-	<session-id-cookie>false</session-id-cookie>
+           To still enable a full page refresh when the client IP address
+           changes, an additional cookie may be set which is used only
+           for this purpose, and can be enabled using this setting.
+          -->
+        <session-id-cookie>false</session-id-cookie>
 
-	<!-- Configure cookie checks
+        <!-- Configure cookie checks
 
          By default, Wt will test for cookie support using JavaScript.
-	 Because cookie manipulation from JavaScript is a common security
-	 risk vector, some prefer to disable these checks.
+         Because cookie manipulation from JavaScript is a common security
+         risk vector, some prefer to disable these checks.
 
-	 -->
-	<cookie-checks>true</cookie-checks>
+         -->
+        <cookie-checks>true</cookie-checks>
 
-	<!-- Configure meta headers
+        <!-- Configure meta headers
 
          The user-agent allows optional filtering based on the
          user-agent, using a regular expression. You can have multiple
          set-meta-headers definitions.
 
-	 Deprecated: use <head-matter> instead.
+         Deprecated: use <head-matter> instead.
 
-	<meta-headers user-agent=".*MSIE.*">
-	  <meta name="robots" content="noindex" />
-	</meta-headers>
-	 -->
+        <meta-headers user-agent=".*MSIE.*">
+          <meta name="robots" content="noindex" />
+        </meta-headers>
+         -->
 
-	<!-- Configure <head> matter
+        <!-- Configure <head> matter
 
-	  The user-agent allows optional filtering based on the
-	  user-agent, using a regular expression. You can have multiple
-	  head-matter definitions.
+          The user-agent allows optional filtering based on the
+          user-agent, using a regular expression. You can have multiple
+          head-matter definitions.
 
-	  All contents will be inserted into the <head> tag
-	  verbatim. This could be useful for setting <meta> tags or
-	  <link> tags that are global for the entire application.
-	-->
-	<head-matter user-agent=".*MSIE.*">
-	  <meta name="robots" content="noindex" />
-	</head-matter>
+          All contents will be inserted into the <head> tag
+          verbatim. This could be useful for setting <meta> tags or
+          <link> tags that are global for the entire application.
+        -->
+        <head-matter user-agent=".*MSIE.*">
+          <meta name="robots" content="noindex" />
+        </head-matter>
 
-	<!-- Configure allowed origins for CORS (only for WidgetSet entry points)
+        <!-- Configure allowed origins for CORS (only for WidgetSet entry points)
 
-	 Since Wt 3.3.8, cross-origin requests are disallowed by default.
+         Since Wt 3.3.8, cross-origin requests are disallowed by default.
 
-	 <allowed-origins> allows to selectively allow cross-origin requests
-	 for WidgetSet entry points (cross-origin requests are always disallowed
-	 for normal applications).
+         <allowed-origins> allows to selectively allow cross-origin requests
+         for WidgetSet entry points (cross-origin requests are always disallowed
+         for normal applications).
 
-	 Use <allowed-origins> to determine which origins should be allowed.
-	 Wt will only allow requests with an Origin header if it is an exact
-	 match for one of the origins in the list.
+         Use <allowed-origins> to determine which origins should be allowed.
+         Wt will only allow requests with an Origin header if it is an exact
+         match for one of the origins in the list.
 
-	 "null" can be included in the list of allowed origins. In that case,
-	 Wt responds with "Access-Control-Allow-Origin: *".
+         "null" can be included in the list of allowed origins. In that case,
+         Wt responds with "Access-Control-Allow-Origin: *".
 
-	 If <allowed-origins> is omitted or empty, no origins are allowed.
+         If <allowed-origins> is omitted or empty, no origins are allowed.
 
-	 If <allowed-origins> contains * (the asterisk character),
-	 all origins are allowed.
-	  -->
-	<allowed-origins>
-	  <!-- Leave empty to disallow all origins. -->
+         If <allowed-origins> contains * (the asterisk character),
+         all origins are allowed.
+          -->
+        <allowed-origins>
+          <!-- Leave empty to disallow all origins. -->
 
-	  <!-- To allow any origin: -->
-	  <!-- * -->
+          <!-- To allow any origin: -->
+          <!-- * -->
 
-	  <!-- To allow only http://example.com and http://example.org: -->
-	  <!-- http://example.com,http://example.org -->
-	</allowed-origins>
+          <!-- To allow only http://example.com and http://example.org: -->
+          <!-- http://example.com,http://example.org -->
+        </allowed-origins>
 
-	<!-- Runtime Properties
-     
+        <!-- Runtime Properties
+
            These properties may be used to adapt applications to their
-	   deployment environment. Typical use is for paths to resources
-	   that may or may not be shared between several applications.
-	  -->
-	<properties>
-	    <!-- baseURL property
+           deployment environment. Typical use is for paths to resources
+           that may or may not be shared between several applications.
+          -->
+        <properties>
+            <!-- baseURL property
 
-	       The absolute URL at which the application is deployed
-	       (known to the user). This is needed only in two scenarios.
+               The absolute URL at which the application is deployed
+               (known to the user). This is needed only in two scenarios.
 
-	       a) use of relative URLs in included XHTML
+               a) use of relative URLs in included XHTML
 
-	       When you use relative URLs for images, etc... in
-	       literal XHTML fragments (e.g. in WTemplate), which need
-	       to resolve against the deployment path of the
-	       application. This will not work as expected in the
-	       presence of an internal application path.  This URL is
-	       set as base URL in the HTML, against which relative
-	       URLs are resolved so that these work correctly
-	       regardless of the internal path. It is also used
-	       explicitly in any URL generated by the library.
+               When you use relative URLs for images, etc... in
+               literal XHTML fragments (e.g. in WTemplate), which need
+               to resolve against the deployment path of the
+               application. This will not work as expected in the
+               presence of an internal application path.  This URL is
+               set as base URL in the HTML, against which relative
+               URLs are resolved so that these work correctly
+               regardless of the internal path. It is also used
+               explicitly in any URL generated by the library.
 
-	       b) widgetset mode deployments
+               b) widgetset mode deployments
 
-	       Another situation in which you need to define the baseURL is
-	       when deploying a widgetset mode application behind a reverse
-	       proxy. A widgetset mode application uses only absolute URLs
-	       because it may be hosted in a web page from an entirely
-	       different domain.
+               Another situation in which you need to define the baseURL is
+               when deploying a widgetset mode application behind a reverse
+               proxy. A widgetset mode application uses only absolute URLs
+               because it may be hosted in a web page from an entirely
+               different domain.
 
-	       By default, no baseURL is specified, in which case Wt will
-	       avoid using absolute URLs. Relative URLs passed in API calls
-	       will be "fixed" so that they resolve against the location of the
-	       application deploy path, even in the presence of an
-	       internal path.
-	      -->
-	    <!-- <property name="baseURL">"http://mysite.com/app</property> -->
+               By default, no baseURL is specified, in which case Wt will
+               avoid using absolute URLs. Relative URLs passed in API calls
+               will be "fixed" so that they resolve against the location of the
+               application deploy path, even in the presence of an
+               internal path.
+              -->
+            <!-- <property name="baseURL">"http://mysite.com/app</property> -->
 
             <!-- resourcesURL property
 
-	       The URL at which the resources/ folder is deployed that
-	       comes distributed with Wt and contains auxiliary files
-	       used to primarily for styles and themes.
+               The URL at which the resources/ folder is deployed that
+               comes distributed with Wt and contains auxiliary files
+               used to primarily for styles and themes.
 
-	       The default value is 'resources/'
+               The default value is 'resources/'
               -->
-	    <property name="resourcesURL">resources/</property>
+            <property name="resourcesURL">resources/</property>
 
-	    <!-- favicon property
+            <!-- favicon property
 
-	       By default, a browser will try to fetch a /favicon.ico icon
-	       from the root of your web server which is used as an icon
-	       for your application. You can specify an alternative location
-	       by setting this property, or for an individual application
-	       entry point by passing a location to WServer::addEntryPoint().
-	      -->
-	    <!-- <property name="favicon">images/favicon.ico</property> -->
+               By default, a browser will try to fetch a /favicon.ico icon
+               from the root of your web server which is used as an icon
+               for your application. You can specify an alternative location
+               by setting this property, or for an individual application
+               entry point by passing a location to WServer::addEntryPoint().
+              -->
+            <!-- <property name="favicon">images/favicon.ico</property> -->
 
             <!-- leafletJSURL and leafletCSSURL properties
 
@@ -821,7 +821,7 @@
             <!-- <property name="tinyMCEVersion">3</property> -->
             <!-- <property name="tinyMCEURL"></property> -->
             <!-- <property name="tinyMCEBaseURL">resources/tiny_mce</property> -->
-	</properties>
+        </properties>
 
     </application-settings>
 

@@ -175,14 +175,14 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime )
 
   BOOST_REQUIRE(wdt.toString() == "Thu Oct 1 12:11:31 2009");
   BOOST_REQUIRE(wdt.toString("ddd MMM d HH:mm:ss:zzz yyyy")
-		== "Thu Oct 1 12:11:31:499 2009");
+                == "Thu Oct 1 12:11:31:499 2009");
   BOOST_REQUIRE(wdt.time().msec() == 499);
 
   Wt::WDateTime wdt2 = wdt.addMSecs(1600);
   BOOST_REQUIRE(wdt.toString("ddd MMM d HH:mm:ss:zzz yyyy")
-		== "Thu Oct 1 12:11:31:499 2009");
+                == "Thu Oct 1 12:11:31:499 2009");
   BOOST_REQUIRE(wdt2.toString("ddd MMM d HH:mm:ss:zzz yyyy")
-		== "Thu Oct 1 12:11:33:099 2009");
+                == "Thu Oct 1 12:11:33:099 2009");
 
   Wt::WDateTime wdt3 = wdt.addSecs(50);
   BOOST_REQUIRE(wdt.toString("ddd MMM d HH:mm:ss:zzz yyyy")
@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime )
                 == "Thu Oct 1 12:11:31:499 2015");
 
   Wt::WDateTime d = Wt::WDateTime::fromString("2000-06-14 13:05:12",
-					      "yyyy-MM-dd hh:mm:ss");
+                                              "yyyy-MM-dd hh:mm:ss");
 
   BOOST_REQUIRE(d.date().year() == 2000);
   BOOST_REQUIRE(d.date().month() == 6);
@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime )
   BOOST_REQUIRE(d.time().second() == 12);
 
   d = Wt::WDateTime::fromString("2000-06-14 13:05:12",
-				"yyyy-MM-dd HH:mm:ss");
+                                "yyyy-MM-dd HH:mm:ss");
 
   BOOST_REQUIRE(d.date().year() == 2000);
   BOOST_REQUIRE(d.date().month() == 6);
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime )
   BOOST_REQUIRE(d.time().second() == 12);
 
   d = Wt::WDateTime::fromString("2000-06-14 1:05:12 AM",
-				"yyyy-MM-dd h:mm:ss AP");
+                                "yyyy-MM-dd h:mm:ss AP");
 
   BOOST_REQUIRE(d.date().year() == 2000);
   BOOST_REQUIRE(d.date().month() == 6);
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime )
   BOOST_REQUIRE(d.time().second() == 12);
 
   d = Wt::WDateTime::fromString("2000-06-14 1:05:12 pm",
-				"yyyy-MM-dd h:mm:ss ap");
+                                "yyyy-MM-dd h:mm:ss ap");
 
   BOOST_REQUIRE(d.date().year() == 2000);
   BOOST_REQUIRE(d.date().month() == 6);
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime )
   BOOST_REQUIRE(d.time().second() == 12);
 
   d = Wt::WDateTime::fromString("2000-06-14 1:05:12 PM",
-				"yyyy-MM-dd h:mm:ss a");
+                                "yyyy-MM-dd h:mm:ss a");
 
   BOOST_REQUIRE(d.date().year() == 2000);
   BOOST_REQUIRE(d.date().month() == 6);
@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime )
   BOOST_REQUIRE(d.time().second() == 12);
 
   d = Wt::WDateTime::fromString("2000-06-14 1:05:12 AM",
-				"yyyy-MM-dd h:mm:ss a");
+                                "yyyy-MM-dd h:mm:ss a");
 
   BOOST_REQUIRE(d.date().year() == 2000);
   BOOST_REQUIRE(d.date().month() == 6);
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime )
   BOOST_REQUIRE(d.time().second() == 12);
 
   d = Wt::WDateTime::fromString("2000-06-14 1:05:12",
-				"yyyy-MM-dd h:mm:ss");
+                                "yyyy-MM-dd h:mm:ss");
 
   BOOST_REQUIRE(d.date().year() == 2000);
   BOOST_REQUIRE(d.date().month() == 6);
@@ -279,7 +279,7 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime )
   BOOST_REQUIRE(d.time().second() == 12);
 
   d = Wt::WDateTime::fromString("2000-06-14 13:05:12",
-				"yyyy-MM-dd h:mm:ss");
+                                "yyyy-MM-dd h:mm:ss");
 
   BOOST_REQUIRE(d.date().year() == 2000);
   BOOST_REQUIRE(d.date().month() == 6);
@@ -291,11 +291,11 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime )
   BOOST_REQUIRE(Wt::WDateTime::fromString(d.toString()) == d);
 
   BOOST_REQUIRE(d.toString("ddd, MMM dd, yyyy; hh:mm:ss ap")
-		== "Wed, Jun 14, 2000; 01:05:12 pm");
+                == "Wed, Jun 14, 2000; 01:05:12 pm");
   BOOST_REQUIRE(d.toString("ddd, MMM dd, yyyy; hh:mm:ss 'a'")
-		== "Wed, Jun 14, 2000; 13:05:12 a");
+                == "Wed, Jun 14, 2000; 13:05:12 a");
   BOOST_REQUIRE(d.toString("ddd, MMM dd, yyyy; hh:mm:ss")
-		== "Wed, Jun 14, 2000; 13:05:12");
+                == "Wed, Jun 14, 2000; 13:05:12");
 }
 
 BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime2 )
@@ -309,7 +309,7 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime2 )
 BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime3 )
 {
   Wt::WDateTime wdt = Wt::WDateTime::fromString("2000-06-14 13:05:12:invalid",
-					        "yyyy-MM-dd hh:mm:ss");
+                                                "yyyy-MM-dd hh:mm:ss");
 
   BOOST_REQUIRE(!wdt.isValid());
   /*
@@ -320,7 +320,7 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime3 )
   BOOST_REQUIRE(!wdt.isNull());
 
   wdt = Wt::WDateTime::fromString("2000-06-14-invalid 13:05:12",
-			          "yyyy-MM-dd hh:mm:ss");
+                                  "yyyy-MM-dd hh:mm:ss");
   BOOST_REQUIRE(!wdt.isValid());
   BOOST_REQUIRE(!wdt.isNull());
 }
@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime4 )
 {
   Wt::WDateTime d
     = Wt::WDateTime::fromString("Sat, 24 Nov 2018 06:44:33 GMT",
-				"ddd, dd MMM yyyy hh:mm:ss 'GMT'");
+                                "ddd, dd MMM yyyy hh:mm:ss 'GMT'");
 
   BOOST_REQUIRE(d.date().year() == 2018);
   BOOST_REQUIRE(d.date().month() == 11);

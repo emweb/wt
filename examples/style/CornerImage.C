@@ -25,7 +25,7 @@ public:
   }
 
   virtual void handleRequest(const Http::Request& request,
-			     Http::Response& response) {
+                             Http::Response& response) {
     WRasterImage device("png", img_->radius(), img_->radius());
     paint(&device, img_);
 
@@ -44,20 +44,20 @@ public:
     double cx, cy;
 
     if (img->corner() == Corner::TopLeft ||
-	img->corner() == Corner::TopRight)
+        img->corner() == Corner::TopRight)
       cy = img->radius() + 0.5;
     else
       cy = -0.5;
 
     if (img->corner() == Corner::TopLeft ||
-	img->corner() == Corner::BottomLeft)
+        img->corner() == Corner::BottomLeft)
       cx = img->radius() + 0.5;
     else
       cx = -0.5;
 
     painter.setBrush(img->foreground());
     painter.drawEllipse(cx - img->radius() - 0.5, cy - img->radius() - 0.5,
-			2 * img->radius(), 2 * img->radius());    
+                        2 * img->radius(), 2 * img->radius());
   }
 private:
   CornerImage *img_;

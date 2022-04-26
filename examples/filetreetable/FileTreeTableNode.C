@@ -65,7 +65,7 @@ void FileTreeTableNode::populate()
 
     for (boost::filesystem::directory_iterator i(path_); i != end_itr; ++i)
       try {
-	paths.insert(*i);
+        paths.insert(*i);
       } catch (boost::filesystem::filesystem_error& e) {
         std::cerr << e.what() << std::endl;
       }

@@ -119,7 +119,7 @@ enum class RenderMethod {
  * };
  * \endcode
  * \endif
- * 
+ *
  * <h3>CSS</h3>
  *
  * Styling through CSS is not applicable.
@@ -236,10 +236,10 @@ public:
    * if you want to add interaction or animation to your WPaintedWidget.
    *
    * \note This feature is currently only supported if the
-   *	   \link getMethod() method\endlink is HtmlCanvas.
-   *	   This will not cause a server roundtrip. Instead, the
-   *	   resulting JavaScript of paintEvent() will be re-executed
-   *	   on the client side.
+   *       \link getMethod() method\endlink is HtmlCanvas.
+   *       This will not cause a server roundtrip. Instead, the
+   *       resulting JavaScript of paintEvent() will be re-executed
+   *       on the client side.
    *
    * \sa objJsRef()
    */
@@ -262,17 +262,17 @@ protected:
   WJavaScriptHandle<WPen> createJSPen();
 
   /*! \brief Create a WPainterPath that is accessible from JavaScript,
-   *	     associated with this %WPaintedWidget
+   *         associated with this %WPaintedWidget
    */
   WJavaScriptHandle<WPainterPath> createJSPainterPath();
 
   /*! \brief Create a WRectF that is accessible from JavaScript,
-   *	     associated with this %WPaintedWidget
+   *         associated with this %WPaintedWidget
    */
   WJavaScriptHandle<WRectF> createJSRect();
 
   /*! \brief Create a WPointF that is accessible from JavaScript,
-   *	     associated with this %WPaintedWidget
+   *         associated with this %WPaintedWidget
    */
   WJavaScriptHandle<WPointF> createJSPoint();
 
@@ -306,7 +306,7 @@ protected:
   virtual void updateDom(DomElement& element, bool all) override;
   virtual DomElement *createDomElement(WApplication *app) override;
   virtual void getDomChanges(std::vector<DomElement *>& result,
-			     WApplication *app) override;
+                             WApplication *app) override;
   virtual void propagateRenderOk(bool deep) override;
   virtual void enableAjax() override;
   virtual void render(WFlags<RenderFlag> flags) override;
@@ -324,8 +324,8 @@ protected:
    * \endcode
    *
    * \note The \link getMethod() method\endlink should be HtmlCanvas and
-   *	   there has to be at least one WJavaScriptHandle associated with
-   *	   this WPaintedWidget in order for this reference to be valid.
+   *       there has to be at least one WJavaScriptHandle associated with
+   *       this WPaintedWidget in order for this reference to be valid.
    */
   std::string objJsRef() const;
 

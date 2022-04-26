@@ -20,7 +20,7 @@
 #include "Wt/WPainterPath.h"
 #include "Wt/WPaintDevice.h"
 #include "Wt/WRectF.h"
-#include "Wt/WStringStream.h" 
+#include "Wt/WStringStream.h"
 #include "Wt/WTransform.h"
 #include "Wt/WWebWidget.h"
 
@@ -48,9 +48,9 @@ namespace {
   }
 
   static double calcYOffset(int lineNb,
-			    int nbLines,
-			    double lineHeight,
-			    WFlags<AlignmentFlag> verticalAlign)
+                            int nbLines,
+                            double lineHeight,
+                            WFlags<AlignmentFlag> verticalAlign)
   {
     if (verticalAlign == AlignmentFlag::Middle) {
       return - ((nbLines - 1) * lineHeight / 2.0) + lineNb * lineHeight;
@@ -163,7 +163,7 @@ WPainter::Image::Image(const std::string& url, const std::string& fileName)
     WPoint size = Wt::ImageUtils::getSize(uri.data);
     if (size.x() == 0 || size.y() == 0)
       throw WException("data url: (" + uri.mimeType
-		       + "): could not determine image size");
+                       + "): could not determine image size");
 
     width_ = size.x();
     height_ = size.y();
@@ -172,7 +172,7 @@ WPainter::Image::Image(const std::string& url, const std::string& fileName)
 
     if (size.x() == 0 || size.y() == 0)
       throw WException("'" + fileName
-		       + "': could not determine image size");
+                       + "': could not determine image size");
 
     width_ = size.x();
     height_ = size.y();
@@ -231,7 +231,7 @@ bool WPainter::begin(WPaintDevice *device)
   device_->init();
 
   viewPort_ = WRectF(0, 0, device_->width().value(), device_->height().value());
-  
+
   window_ = viewPort_;
 
   recalculateViewTransform();
@@ -302,7 +302,7 @@ void WPainter::drawArc(const WRectF& rectangle, int startAngle, int spanAngle)
 }
 
 void WPainter::drawArc(double x, double y, double width, double height,
-		       int startAngle, int spanAngle)
+                       int startAngle, int spanAngle)
 {
   drawArc(WRectF(x, y, width, height), startAngle, spanAngle);
 }
@@ -328,7 +328,7 @@ void WPainter::drawChord(const WRectF& rectangle, int startAngle, int spanAngle)
 }
 
 void WPainter::drawChord(double x, double y, double width, double height,
-			 int startAngle, int spanAngle)
+                         int startAngle, int spanAngle)
 {
   drawChord(WRectF(x, y, width, height), startAngle, spanAngle);
 }
@@ -346,15 +346,15 @@ void WPainter::drawEllipse(double x, double y, double width, double height)
 void WPainter::drawImage(const WPointF& point, const Image& image)
 {
   drawImage(WRectF(point.x(), point.y(), image.width(), image.height()),
-	    image, WRectF(0, 0, image.width(), image.height()));
+            image, WRectF(0, 0, image.width(), image.height()));
 }
 
 void WPainter::drawImage(const WPointF& point, const Image& image,
-			 const WRectF& sourceRect)
+                         const WRectF& sourceRect)
 {
   drawImage(WRectF(point.x(), point.y(),
-		   sourceRect.width(), sourceRect.height()),
-	    image, sourceRect);
+                   sourceRect.width(), sourceRect.height()),
+            image, sourceRect);
 }
 
 void WPainter::drawImage(const WRectF& rect, const Image& image)
@@ -363,15 +363,15 @@ void WPainter::drawImage(const WRectF& rect, const Image& image)
 }
 
 void WPainter::drawImage(const WRectF& rect, const Image& image,
-			 const WRectF& sourceRect)
+                         const WRectF& sourceRect)
 {
   device_->drawImage(rect.normalized(), image.uri(),
-		     image.width(), image.height(),
-		     sourceRect.normalized());
+                     image.width(), image.height(),
+                     sourceRect.normalized());
 }
 
 void WPainter::drawImage(double x, double y, const Image& image,
-			 double sx, double sy, double sw, double sh)
+                         double sx, double sy, double sw, double sh)
 {
   if (sw <= 0)
     sw = image.width() - sx;
@@ -379,8 +379,8 @@ void WPainter::drawImage(double x, double y, const Image& image,
     sh = image.height() - sy;
 
   device_->drawImage(WRectF(x, y, sw, sh),
-		     image.uri(), image.width(), image.height(),
-		     WRectF(sx, sy, sw, sh));
+                     image.uri(), image.width(), image.height(),
+                     WRectF(sx, sy, sw, sh));
 }
 
 void WPainter::drawLine(const WLineF& line)
@@ -428,8 +428,8 @@ void WPainter::drawPath(const WPainterPath& path)
 }
 
 void WPainter::drawStencilAlongPath(const WPainterPath &stencil,
-				    const WPainterPath &path,
-				    bool softClipping)
+                                    const WPainterPath &path,
+                                    bool softClipping)
 {
   WCanvasPaintDevice *cDevice = dynamic_cast<WCanvasPaintDevice*>(device_);
   if (cDevice) {
@@ -438,16 +438,16 @@ void WPainter::drawStencilAlongPath(const WPainterPath &stencil,
     for (std::size_t i = 0; i < path.segments().size(); ++i) {
       const WPainterPath::Segment &seg = path.segments()[i];
       if (softClipping && !clipPath().isEmpty() &&
-	  !clipPathTransform().map(clipPath())
-	    .isPointInPath(worldTransform().map(WPointF(seg.x(),seg.y())))) {
-	continue;
+          !clipPathTransform().map(clipPath())
+            .isPointInPath(worldTransform().map(WPointF(seg.x(),seg.y())))) {
+        continue;
       }
       if (seg.type() == LineTo ||
-	  seg.type() == MoveTo ||
-	  seg.type() == CubicEnd ||
-	  seg.type() == QuadEnd) {
-	WPointF p = WPointF(seg.x(), seg.y());
-	drawPath((WTransform().translate(p)).map(stencil));
+          seg.type() == MoveTo ||
+          seg.type() == CubicEnd ||
+          seg.type() == QuadEnd) {
+        WPointF p = WPointF(seg.x(), seg.y());
+        drawPath((WTransform().translate(p)).map(stencil));
       }
     }
   }
@@ -462,7 +462,7 @@ void WPainter::drawPie(const WRectF& rectangle, int startAngle, int spanAngle)
 
   WPainterPath path(WPointF(0.0, 0.0));
   path.arcTo(0.0, 0.0, rectangle.width() / 2.0,
-	     startAngle / 16., spanAngle / 16.);
+             startAngle / 16., spanAngle / 16.);
   path.closeSubPath();
 
   drawPath(path);
@@ -471,13 +471,13 @@ void WPainter::drawPie(const WRectF& rectangle, int startAngle, int spanAngle)
 }
 
 void WPainter::drawPie(double x, double y, double width, double height,
-		       int startAngle, int spanAngle)
+                       int startAngle, int spanAngle)
 {
   drawPie(WRectF(x, y, width, height), startAngle, spanAngle);
 }
 
 void WPainter::drawPoint(double x, double y)
-{ 
+{
   drawLine(x - 0.05, y - 0.05, x + 0.05, y + 0.05);
 }
 
@@ -493,7 +493,7 @@ void WPainter::drawPoints(const WT_ARRAY WPointF *points, int pointCount)
 }
 
 void WPainter::drawPolygon(const WT_ARRAY WPointF *points, int pointCount
-			   /*, FillRule fillRule */)
+                           /*, FillRule fillRule */)
 {
   if (pointCount < 2)
     return;
@@ -549,7 +549,7 @@ void WPainter::drawRects(const std::vector<WRectF>& rectangles)
 }
 
 void WPainter::drawText(const WRectF& rectangle, WFlags<AlignmentFlag> flags,
-			const WString& text)
+                        const WString& text)
 {
   if (!(flags & AlignVerticalMask))
     flags |= AlignmentFlag::Top;
@@ -557,14 +557,14 @@ void WPainter::drawText(const WRectF& rectangle, WFlags<AlignmentFlag> flags,
     flags |= AlignmentFlag::Left;
 
   device_->drawText(rectangle.normalized(), flags, TextFlag::SingleLine,
-		    text, nullptr);
+                    text, nullptr);
 }
 
-void WPainter::drawText(const WRectF& rectangle, 
-			WFlags<AlignmentFlag> alignmentFlags,
-			TextFlag textFlag,
-			const WString& text,
-			const WPointF *clipPoint)
+void WPainter::drawText(const WRectF& rectangle,
+                        WFlags<AlignmentFlag> alignmentFlags,
+                        TextFlag textFlag,
+                        const WString& text,
+                        const WPointF *clipPoint)
 {
   if (textFlag == TextFlag::SingleLine) {
     if (!(alignmentFlags & AlignVerticalMask))
@@ -573,7 +573,7 @@ void WPainter::drawText(const WRectF& rectangle,
       alignmentFlags |= AlignmentFlag::Left;
 
     device_->drawText(rectangle.normalized(), alignmentFlags,
-		      TextFlag::SingleLine, text, clipPoint);
+                      TextFlag::SingleLine, text, clipPoint);
   } else {
     if (!(alignmentFlags & AlignVerticalMask))
       alignmentFlags |= AlignmentFlag::Top;
@@ -581,8 +581,8 @@ void WPainter::drawText(const WRectF& rectangle,
       alignmentFlags |= AlignmentFlag::Left;
 
     if (device_->features().test(PaintDeviceFeatureFlag::WordWrap))
-      device_->drawText(rectangle.normalized(), alignmentFlags, textFlag, 
-			text, clipPoint);
+      device_->drawText(rectangle.normalized(), alignmentFlags, textFlag,
+                        text, clipPoint);
     else if (device_->features().test(PaintDeviceFeatureFlag::FontMetrics)) {
 #ifndef WT_TARGET_JAVA
       MultiLineTextRenderer renderer(*this, rectangle);
@@ -598,10 +598,10 @@ void WPainter::drawText(const WRectF& rectangle,
        */
       WStringStream s;
       s << "<table style=\"width:" << (int)rectangle.width() << "px;\""
-	          "cellspacing=\"0\"><tr>"
-	     "<td style=\"padding:0px;height:" << (int)rectangle.height() <<
-	                 "px;color:" << pen().color().cssText() 
-	              << ";text-align:";
+                  "cellspacing=\"0\"><tr>"
+             "<td style=\"padding:0px;height:" << (int)rectangle.height() <<
+                         "px;color:" << pen().color().cssText()
+                      << ";text-align:";
 
       switch (horizontalAlign) {
       case AlignmentFlag::Left: s << "left"; break;
@@ -622,8 +622,8 @@ void WPainter::drawText(const WRectF& rectangle,
       s << ";" << font().cssText(false);
 
       s << "\">"
-	 << WWebWidget::escapeText(text, true).toUTF8() 
-	 << "</td></tr></table>";
+         << WWebWidget::escapeText(text, true).toUTF8()
+         << "</td></tr></table>";
 
       save();
 
@@ -632,8 +632,8 @@ void WPainter::drawText(const WRectF& rectangle,
        * them ...
        */
       WPainterPath p;
-      p.addRect(rectangle.x() + 1, rectangle.y() + 1, 
-		rectangle.width() - 2, rectangle.height() - 2);
+      p.addRect(rectangle.x() + 1, rectangle.y() + 1,
+                rectangle.width() - 2, rectangle.height() - 2);
       setClipPath(p);
       setClipping(true);
       renderer.render(WString::fromUTF8(s.str()));
@@ -641,31 +641,31 @@ void WPainter::drawText(const WRectF& rectangle,
 #endif // WT_TARGET_JAVA
     } else
       throw WException("WPainter::drawText(): device does not support "
-		       "WordWrap or FontMetrics");
+                       "WordWrap or FontMetrics");
   }
 }
 
-void WPainter::drawText(double x, double y, double width, double height, 
-			WFlags<AlignmentFlag> alignmentFlags,
-			TextFlag textFlag,
-			const WString& text)
+void WPainter::drawText(double x, double y, double width, double height,
+                        WFlags<AlignmentFlag> alignmentFlags,
+                        TextFlag textFlag,
+                        const WString& text)
 {
   drawText(WRectF(x, y, width, height), alignmentFlags, textFlag, text);
 }
 
 void WPainter::drawText(double x, double y, double width, double height,
-			WFlags<AlignmentFlag> flags, const WString& text)
+                        WFlags<AlignmentFlag> flags, const WString& text)
 {
   drawText(WRectF(x, y, width, height), flags, text);
 }
 
 void WPainter::drawTextOnPath(const WRectF &rect,
-			      WFlags<AlignmentFlag> alignmentFlags,
-			      const std::vector<WString> &text,
-			      const WTransform &transform,
-			      const WPainterPath &path,
-			      double angle, double lineHeight,
-			      bool softClipping)
+                              WFlags<AlignmentFlag> alignmentFlags,
+                              const std::vector<WString> &text,
+                              const WTransform &transform,
+                              const WPainterPath &path,
+                              double angle, double lineHeight,
+                              bool softClipping)
 {
   if (!(alignmentFlags & AlignVerticalMask))
     alignmentFlags |= AlignmentFlag::Top;
@@ -678,25 +678,25 @@ void WPainter::drawTextOnPath(const WRectF &rect,
     WPainterPath tpath = transform.map(path);
     for (std::size_t i = 0; i < path.segments().size(); ++i) {
       if (i >= text.size())
-	break;
+        break;
       const WPainterPath::Segment &seg = path.segments()[i];
       const WPainterPath::Segment &tseg = tpath.segments()[i];
       std::vector<WString> splitText = splitLabel(text[i]);
       if (seg.type() == MoveTo ||
-	  seg.type() == LineTo ||
-	  seg.type() == QuadEnd ||
-	  seg.type() == CubicEnd) {
-	save();
-	setClipping(false);
-	translate(tseg.x(), tseg.y());
-	rotate(-angle);
-	for (std::size_t j = 0; j < splitText.size(); ++j) {
-	  double yOffset = calcYOffset(j, splitText.size(), lineHeight, alignmentFlags & AlignVerticalMask);
-	  WPointF p(tseg.x(), tseg.y());
-	  drawText(WRectF(rect.left(), rect.top() + yOffset, rect.width(), rect.height()),
-			      alignmentFlags, TextFlag::SingleLine, splitText[j], softClipping ? &p : 0);
-	}
-	restore();
+          seg.type() == LineTo ||
+          seg.type() == QuadEnd ||
+          seg.type() == CubicEnd) {
+        save();
+        setClipping(false);
+        translate(tseg.x(), tseg.y());
+        rotate(-angle);
+        for (std::size_t j = 0; j < splitText.size(); ++j) {
+          double yOffset = calcYOffset(j, splitText.size(), lineHeight, alignmentFlags & AlignVerticalMask);
+          WPointF p(tseg.x(), tseg.y());
+          drawText(WRectF(rect.left(), rect.top() + yOffset, rect.width(), rect.height()),
+                              alignmentFlags, TextFlag::SingleLine, splitText[j], softClipping ? &p : 0);
+        }
+        restore();
       }
     }
   }
@@ -731,7 +731,7 @@ void WPainter::fillRect(const WRectF& rectangle, const WBrush& b)
 }
 
 void WPainter::fillRect(double x, double y, double width, double height,
-			const WBrush& brush)
+                        const WBrush& brush)
 {
   fillRect(WRectF(x, y, width, height), brush);
 }
@@ -856,13 +856,13 @@ void WPainter::setWindow(double x, double y, double width, double height)
 
 void WPainter::recalculateViewTransform()
 {
-  viewTransform_ = WTransform(); 
+  viewTransform_ = WTransform();
 
   double scaleX = viewPort_.width() / window_.width();
   double scaleY = viewPort_.height() / window_.height();
 
   viewTransform_.translate(viewPort_.x() - window_.x() * scaleX,
-			   viewPort_.y() - window_.y() * scaleY);
+                           viewPort_.y() - window_.y() * scaleY);
   viewTransform_.scale(scaleX, scaleY);
 
   if (device_)
@@ -898,7 +898,7 @@ void WPainter::setClipPath(const WPainterPath& clipPath)
 }
 
 WLength WPainter::normalizedPenWidth(const WLength& penWidth,
-				     bool correctCosmetic) const
+                                     bool correctCosmetic) const
 {
   double w = penWidth.value();
 

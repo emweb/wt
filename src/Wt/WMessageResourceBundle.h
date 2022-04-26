@@ -88,7 +88,7 @@ class WMessageResources;
  *
  * As an example, consider an XML resource file describing Polish translations,
  * which enlists all plural cases of the noun 'plik' (<i>file</i> in Polish).
- * The noun is used this way: 
+ * The noun is used this way:
  * - 1 plik
  * - 2,3,4 pliki
  * - 5-21 pliko'w
@@ -97,7 +97,7 @@ class WMessageResources;
  *
  * \verbatim
 <?xml version="1.0" encoding="UTF-8"?>
-  <messages nplurals="3" 
+  <messages nplurals="3"
             plural="n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2">
 
     <message id="file">
@@ -158,8 +158,8 @@ public:
 
   virtual LocalizedString resolveKey(const WLocale& locale, const std::string& key) override;
   virtual LocalizedString resolvePluralKey(const WLocale& locale,
-				const std::string& key,
-				::uint64_t amount) override;
+                                const std::string& key,
+                                ::uint64_t amount) override;
 
 private:
   std::vector<std::unique_ptr<WMessageResources> > messageResources_;

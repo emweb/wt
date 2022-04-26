@@ -32,7 +32,7 @@ enum class UserAgent {
   IE9 = 1004,                 //!< Internet Explorer 9
   IE10 = 1005,                //!< Internet Explorer 10
   IE11 = 1006,                //!< Internet Explorer 11
-  Edge = 1100,		      //!< Edge
+  Edge = 1100,                //!< Edge
   Opera = 3000,               //!< Opera
   Opera10 = 3010,             //!< Opera 10 or later
   WebKit = 4000,              //!< WebKit
@@ -68,7 +68,7 @@ enum class HtmlContentType {
   XHTML1, //!< XHTML1.x
   HTML4,  //!< HTML4
   HTML5   //!< HTML5
-}; 
+};
 
 class WSslInfo;
 class WAbstractServer;
@@ -88,7 +88,7 @@ class WebSession;
  * \code
  * const WEnvironment& env = WApplication::instance()->environment();
  *
- * // read an application startup argument 
+ * // read an application startup argument
  * // (passed as argument in the URL or POST'ed to the application).
  * if (!env.getParameterValues("login").empty()) {
  *   std::string login = env.getParameterValues("login")[0];
@@ -107,14 +107,14 @@ class WebSession;
  * \elseif java
  * \code
  * WEnvironment env = WApplication.instance().environment();
- *	 
- * // read an application startup argument 
+ *
+ * // read an application startup argument
  * // (passed as argument in the URL or POST'ed to the application).
  * if (!env.getParameterValues("login").isEmpty()) {
  * String login = env.getParameterValues("login").get(0);
  * //...
  * }
- *	 
+ *
  * // Check for JavaScript/AJAX availability before using JavaScript-only
  * // widgets
  *  WTextArea textEdit;
@@ -139,7 +139,7 @@ public:
 #ifdef WT_TARGET_JAVA
   /*! \brief %Wt's JavaScript scope.
    */
-  static std::string javaScriptWtScope() { return WT_CLASS; } 
+  static std::string javaScriptWtScope() { return WT_CLASS; }
 #endif //WT_TARGET_JAVA
 
   /*! \brief Parameters passed to the application.
@@ -221,7 +221,7 @@ public:
 
   /*! \brief Returns a header value.
    *
-   * Returns a header value, or an empty string if the header was 
+   * Returns a header value, or an empty string if the header was
    * present.
    */
   const std::string headerValue(const std::string& field) const;
@@ -424,7 +424,7 @@ public:
    * This is taken to be the first public address that is given in the
    * Client-IP header, or in the X-Forwarded-For header (in case the
    * client is behind a proxy). If none of these headers is present,
-   * the remote socket IP address is used. 
+   * the remote socket IP address is used.
    */
   const std::string& clientAddress() const { return clientAddress_; }
 
@@ -433,7 +433,7 @@ public:
    * This is the internal path with which the application was started.
    *
    * For an application deployed at <tt>"/stuff/app.wt"</tt>, the following
-   * two URLs are considered equivalent, and indicate an internal path 
+   * two URLs are considered equivalent, and indicate an internal path
    * <tt>"/this/there"</tt>:
    * \code
    * http://www.mydomain.com/stuff/app.wt/this/there
@@ -513,7 +513,7 @@ public:
     return static_cast<unsigned int>(agent_) >=
       static_cast<unsigned int>(UserAgent::IEMobile) &&
       static_cast<unsigned int>(agent_) <
-	static_cast<unsigned int>(UserAgent::Opera);
+        static_cast<unsigned int>(UserAgent::Opera);
   }
 
   /*! \brief Returns whether the user agent is an older version of IE
@@ -525,7 +525,7 @@ public:
   bool agentIsIElt(int version) const {
     if (agentIsIE())
       return static_cast<unsigned int>(agent_) <
-	static_cast<unsigned int>(UserAgent::IEMobile) + (version - 5);
+        static_cast<unsigned int>(UserAgent::IEMobile) + (version - 5);
     else
       return false;
   }
@@ -548,7 +548,7 @@ public:
     return static_cast<unsigned int>(agent_) >=
       static_cast<unsigned int>(UserAgent::Opera) &&
       static_cast<unsigned int>(agent_) <
-	static_cast<unsigned int>(UserAgent::Safari);
+        static_cast<unsigned int>(UserAgent::Safari);
   }
 
   /*! \brief Returns whether the user agent is WebKit-based.
@@ -559,10 +559,10 @@ public:
    * \sa agent()
    */
   bool agentIsWebKit() const {
-    return static_cast<unsigned int>(agent_) >= 
-      static_cast<unsigned int>(UserAgent::WebKit) && 
-      static_cast<unsigned int>(agent_) < 
-	static_cast<unsigned int>(UserAgent::Konqueror);
+    return static_cast<unsigned int>(agent_) >=
+      static_cast<unsigned int>(UserAgent::WebKit) &&
+      static_cast<unsigned int>(agent_) <
+        static_cast<unsigned int>(UserAgent::Konqueror);
   }
 
    /*! \brief Returns whether the user agent is Mobile WebKit-based.
@@ -573,10 +573,10 @@ public:
    * \sa agent()
    */
   bool agentIsMobileWebKit() const {
-    return static_cast<unsigned int>(agent_) >= 
-      static_cast<unsigned int>(UserAgent::MobileWebKit) &&  
-      static_cast<unsigned int>(agent_) < 
-	static_cast<unsigned int>(UserAgent::Konqueror);
+    return static_cast<unsigned int>(agent_) >=
+      static_cast<unsigned int>(UserAgent::MobileWebKit) &&
+      static_cast<unsigned int>(agent_) <
+        static_cast<unsigned int>(UserAgent::Konqueror);
   }
 
   /*! \brief Returns whether the user agent is Safari.
@@ -584,10 +584,10 @@ public:
    * \sa agent()
    */
   bool agentIsSafari() const {
-    return static_cast<unsigned int>(agent_) >= 
-      static_cast<unsigned int>(UserAgent::Safari) &&  
-      static_cast<unsigned int>(agent_) < 
-	static_cast<unsigned int>(UserAgent::Chrome0);
+    return static_cast<unsigned int>(agent_) >=
+      static_cast<unsigned int>(UserAgent::Safari) &&
+      static_cast<unsigned int>(agent_) <
+        static_cast<unsigned int>(UserAgent::Chrome0);
   }
 
   /*! \brief Returns whether the user agent is Chrome.
@@ -595,12 +595,12 @@ public:
    * \sa agent()
    */
   bool agentIsChrome() const {
-    return static_cast<unsigned int>(agent_) >= 
-      static_cast<unsigned int>(UserAgent::Chrome0) &&  
-      static_cast<unsigned int>(agent_) < 
-	static_cast<unsigned int>(UserAgent::Konqueror);
+    return static_cast<unsigned int>(agent_) >=
+      static_cast<unsigned int>(UserAgent::Chrome0) &&
+      static_cast<unsigned int>(agent_) <
+        static_cast<unsigned int>(UserAgent::Konqueror);
   }
-  
+
   /*! \brief Returns whether the user agent is Gecko-based.
    *
    * Gecko-based browsers include Firefox.
@@ -608,10 +608,10 @@ public:
    * \sa agent()
    */
   bool agentIsGecko() const {
-    return static_cast<unsigned int>(agent_) >= 
-      static_cast<unsigned int>(UserAgent::Gecko) &&  
-      static_cast<unsigned int>(agent_) < 
-	static_cast<unsigned int>(UserAgent::BotAgent);
+    return static_cast<unsigned int>(agent_) >=
+      static_cast<unsigned int>(UserAgent::Gecko) &&
+      static_cast<unsigned int>(agent_) <
+        static_cast<unsigned int>(UserAgent::BotAgent);
   }
 
 #ifndef WT_TARGET_JAVA
@@ -662,8 +662,8 @@ public:
    * This may be the case for older non-HTML5 browsers which do not support
    * HTML5 History APIs.
    */
-  bool internalPathUsingFragments() const { 
-    return internalPathUsingFragments_; 
+  bool internalPathUsingFragments() const {
+    return internalPathUsingFragments_;
   }
 
   /*! \brief Returns whether this agent supports CSS3 animations.
@@ -717,7 +717,7 @@ protected:
 
   void setUserAgent(const std::string& agent);
   void setInternalPath(const std::string& path);
- 
+
 private:
   WEnvironment(WebSession *session);
 
@@ -728,7 +728,7 @@ private:
 
   bool agentSupportsAjax() const;
   static void parseCookies(const std::string& cookie,
-			   std::map<std::string, std::string>& result);
+                           std::map<std::string, std::string>& result);
 
   friend class WebController;
   friend class WebRenderer;

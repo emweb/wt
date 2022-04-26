@@ -30,7 +30,7 @@ public:
 
   virtual void resolveString(const std::string& varName,
                              const std::vector<Wt::WString>& args,
-			     std::ostream& result);
+                             std::ostream& result);
 
 protected:
   virtual void renderTemplate(std::ostream& result);

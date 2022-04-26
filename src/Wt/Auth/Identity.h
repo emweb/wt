@@ -28,7 +28,7 @@ namespace Wt {
  *
  * \ingroup auth
  */
-class WT_API Identity 
+class WT_API Identity
 {
 public:
   /*! \brief Default constructor.
@@ -40,8 +40,8 @@ public:
   /*! \brief Constructor.
    */
   Identity(const std::string& provider,
-	   const std::string& id, const WT_USTRING& name,
-	   const std::string& email, bool emailVerified);
+           const std::string& id, const WT_USTRING& name,
+           const std::string& email, bool emailVerified);
 
   /*! \brief Returns whether the identity is valid.
    *

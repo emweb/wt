@@ -38,17 +38,17 @@ WT_DECLARE_WT_MEMBER
 
    var coordinates = computePopupPos(width, height);
    var w = window.open(url, "",
-	       "width=" + width + ",height=" + height +
-	       ",status=yes,location=yes,resizable=yes,scrollbars=yes" +
-	       ",left=" + coordinates.x + ",top=" + coordinates.y);
+               "width=" + width + ",height=" + height +
+               ",status=yes,location=yes,resizable=yes,scrollbars=yes" +
+               ",left=" + coordinates.x + ",top=" + coordinates.y);
    w.opener = window;
 
    if (onclose) {
      var timer = setInterval(function() {
-	 if (w.closed) {
-	   clearInterval(timer);
-	   onclose(w);
-	 }
+         if (w.closed) {
+           clearInterval(timer);
+           onclose(w);
+         }
        }, 500);
    }
  });

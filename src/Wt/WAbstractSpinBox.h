@@ -118,7 +118,7 @@ private:
 
   void defineJavaScript();
   void connectJavaScript(Wt::EventSignalBase& s,
-			 const std::string& methodName);
+                         const std::string& methodName);
   void setup();
   bool parseValue(const WT_USTRING& text);
 

@@ -134,7 +134,7 @@ public:
    * \sa setInternalPath().
    */
   WT_USTRING internalPath() const;
-  
+
   /*! \brief Sets the location where the linked content should be
    *         displayed.
    *
@@ -177,7 +177,7 @@ private:
   LinkTarget  target_;
 
   JSlot *manageInternalPathChange(WApplication *app, WInteractWidget *widget,
-				  JSlot *slot) const;
+                                  JSlot *slot) const;
 
   friend class WAnchor;
   friend class WAbstractArea;

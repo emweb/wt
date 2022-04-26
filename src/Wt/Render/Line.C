@@ -52,7 +52,7 @@ void Line::reflow(Block *lineFloat)
 }
 
 void Line::moveToNextPage(BlockList& floats, double minX, double maxX,
-			  const WTextRenderer& renderer)
+                          const WTextRenderer& renderer)
 {
   for (unsigned i = 0; i < blocks_.size(); ++i) {
     Block *b = blocks_[i];
@@ -86,21 +86,21 @@ void Line::moveToNextPage(BlockList& floats, double minX, double maxX,
 
     if (b->isFloat()) {
       b->layoutFloat(y_, page_, floats, x_, height_, minX, maxX,
-		     false, renderer);
+                     false, renderer);
       reflow(b);
     } else {
       for (unsigned j = 0; j < b->inlineLayout.size(); ++j) {
-	InlineBox& ib = b->inlineLayout[j];
+        InlineBox& ib = b->inlineLayout[j];
 
-	if (ib.y == oldY && ib.page == page_ - 1) {
-	  if (ib.x != LEFT_MARGIN_X) {
-	    ib.x = x_;
-	    x_ += ib.width;
-	  }
+        if (ib.y == oldY && ib.page == page_ - 1) {
+          if (ib.x != LEFT_MARGIN_X) {
+            ib.x = x_;
+            x_ += ib.width;
+          }
 
-	  ib.page = page_;
-	  ib.y = y_;
-	}
+          ib.page = page_;
+          ib.y = y_;
+        }
       }
     }
 
@@ -128,8 +128,8 @@ void Line::adjustHeight(double height, double baseline, double minLineHeight)
 }
 
 void Line::finish(AlignmentFlag textAlign,
-		  BlockList& floats, double minX, double maxX,
-		  const WTextRenderer& renderer)
+                  BlockList& floats, double minX, double maxX,
+                  const WTextRenderer& renderer)
 {
   /*
    * First right-trim right most text.
@@ -139,33 +139,33 @@ void Line::finish(AlignmentFlag textAlign,
 
     if (!b->isFloat()) {
       if (b->type() != DomElementType::LI && b->isText()) {
-	bool done = false;
+        bool done = false;
 
-	for (unsigned j = 0; j < b->inlineLayout.size(); ++j) {
-	  InlineBox& ib = b->inlineLayout[b->inlineLayout.size() - 1 - j];
+        for (unsigned j = 0; j < b->inlineLayout.size(); ++j) {
+          InlineBox& ib = b->inlineLayout[b->inlineLayout.size() - 1 - j];
 
-	  if (ib.utf8Count > 0) {
-	    char lastChar = b->text()[ib.utf8Pos + ib.utf8Count - 1];
-	    if (Block::isWhitespace(lastChar)) {
-	      --ib.utf8Count;
-	      ib.width -= ib.whitespaceWidth;
-	    }
+          if (ib.utf8Count > 0) {
+            char lastChar = b->text()[ib.utf8Pos + ib.utf8Count - 1];
+            if (Block::isWhitespace(lastChar)) {
+              --ib.utf8Count;
+              ib.width -= ib.whitespaceWidth;
+            }
 
-	    done = true;
-	    break;
-	  }
-	}
+            done = true;
+            break;
+          }
+        }
 
-	if (done)
-	  break;
+        if (done)
+          break;
       } else
-	break;
+        break;
     }
   }
 
   Range rangeX(minX, maxX);
   Block::adjustAvailableWidth(y_, page_, floats, rangeX);
-  
+
   /* Compute total width and total whitespace width */
   double whitespace = 0;
   double content = 0;
@@ -177,41 +177,41 @@ void Line::finish(AlignmentFlag textAlign,
 
     if (b->isFloat())
       b->layoutFloat(y_ + height_, page_, floats,
-		     minX, 0, minX, maxX, false, renderer);
+                     minX, 0, minX, maxX, false, renderer);
     else {
       for (unsigned j = 0; j < b->inlineLayout.size(); ++j) {
-	InlineBox& ib = b->inlineLayout[j];
+        InlineBox& ib = b->inlineLayout[j];
 
-	if (ib.y == y_ && ib.page == page_) {
-	  std::string va = b->cssProperty(Property::StyleVerticalAlign);
+        if (ib.y == y_ && ib.page == page_) {
+          std::string va = b->cssProperty(Property::StyleVerticalAlign);
 
-	  if (va == "top")
-	    ib.y = y_;
-	  else if (va == "bottom")
-	    ib.y = y_ + height_ - ib.height;
-	  else
-	    ib.y += baseline_ - ib.baseline;
+          if (va == "top")
+            ib.y = y_;
+          else if (va == "bottom")
+            ib.y = y_ + height_ - ib.height;
+          else
+            ib.y += baseline_ - ib.baseline;
 
-	  if (ib.x != LEFT_MARGIN_X) {
-	    boxes.push_back(&ib);
+          if (ib.x != LEFT_MARGIN_X) {
+            boxes.push_back(&ib);
 
-	    content += ib.width;
-	    ib.whitespaceCount = 0;
+            content += ib.width;
+            ib.whitespaceCount = 0;
 
-	    if (b->isText()) {
-	      for (int k = 0; k < ib.utf8Count; ++k) {
-		if (Block::isWhitespace(b->text()[ib.utf8Pos + k]))
-		  ++ib.whitespaceCount;
-	      }
+            if (b->isText()) {
+              for (int k = 0; k < ib.utf8Count; ++k) {
+                if (Block::isWhitespace(b->text()[ib.utf8Pos + k]))
+                  ++ib.whitespaceCount;
+              }
 
-	      content -= ib.whitespaceWidth * ib.whitespaceCount;
-	      whitespace += ib.whitespaceWidth * ib.whitespaceCount;
-	    }
-	  } else {
-	    /* Positioned in the margin */
-	    ib.x = rangeX.start - ib.width;
-	  }
-	}
+              content -= ib.whitespaceWidth * ib.whitespaceCount;
+              whitespace += ib.whitespaceWidth * ib.whitespaceCount;
+            }
+          } else {
+            /* Positioned in the margin */
+            ib.x = rangeX.start - ib.width;
+          }
+        }
       }
     }
   }
@@ -232,7 +232,7 @@ void Line::finish(AlignmentFlag textAlign,
       double remaining = rangeX.end - rangeX.start - content;
 
       if (whitespace > 0)
-	spaceFactor = remaining / whitespace;
+        spaceFactor = remaining / whitespace;
     }
     break;
   default:

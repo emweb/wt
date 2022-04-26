@@ -240,7 +240,7 @@ public:
    * \sa setHandleWidth()
    */
   int handleWidth() const { return handleWidth_; }
-  
+
   /*! \brief %Signal emitted when input was captured.
    *
    * The signal is only emitted when keyboard input (arrow keys)
@@ -256,7 +256,7 @@ public:
 
 protected:
   static const char *INPUT_SIGNAL;
-  
+
   /*! \brief Paints a slider ticks (for a non-native widget)
    *
    * The default implementation draws ticks taking into account the

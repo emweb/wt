@@ -27,15 +27,15 @@ AllEntriesDialog::AllEntriesDialog(const WString& title, CalendarCell* cell)
 
   typedef dbo::collection< dbo::ptr<Entry> > Entries;
 
-  Entries entries = 
+  Entries entries =
     cell->user()->entriesInRange(cell->date(), cell->date().addDays(1));
 
   WString format = EntryDialog::timeFormat;
   for (auto& entry : entries) {
     container->addWidget(std::make_unique<WText>(entry->start.toString(format) +
-			    "-" + 
-			    entry->stop.toString(format) +
-			    ": " + entry->summary));
+                            "-" +
+                            entry->stop.toString(format) +
+                            ": " + entry->summary));
   }
 
   transaction.commit();

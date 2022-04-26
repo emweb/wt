@@ -8,9 +8,9 @@
   </message>
   <message id="fatalerror.title">
     Fatal error
-  </message> 
+  </message>
   <message id="fatalerror.body">
     <p>A fatal error occurred and the application was terminated.</p>
     <p>Reason:<pre>{1}</pre></p>
-  </message> 
+  </message>
 </messages>

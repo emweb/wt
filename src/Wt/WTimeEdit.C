@@ -181,7 +181,7 @@ void WTimeEdit::defineJavaScript()
   LOAD_JAVASCRIPT(app, "js/WTimeEdit.js", "WTimeEdit", wtjs1);
   std::string jsObj = "new " WT_CLASS ".WTimeEdit("
                       + app->javaScriptClass() + "," + jsRef() + ","
-		      + jsStringLiteral(popup_->id()) + ");";
+                      + jsStringLiteral(popup_->id()) + ");";
   setJavaScriptMember(" WTimeEdit", jsObj);
 #ifdef WT_CNOR
   EventSignalBase& b = mouseMoved();
@@ -253,6 +253,6 @@ bool WTimeEdit::wrapAroundEnabled() const
 {
   return timePicker_->wrapAroundEnabled();
 }
-  
+
 
 }

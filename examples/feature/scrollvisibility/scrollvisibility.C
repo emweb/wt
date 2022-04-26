@@ -34,8 +34,8 @@ ScrollApplication::ScrollApplication(const WEnvironment &env)
 
   root()->addWidget(std::make_unique<WText>("<h1>Wt scroll visibility example</h1>"));
   root()->addWidget(std::make_unique<WText>("This example illustrates the use of <tt>scrollVisibilityChanged()</tt> "
-			      "to trigger the loading of more content. Scroll down to the bottom "
-			      "and more text will appear."));
+                              "to trigger the loading of more content. Scroll down to the bottom "
+                              "and more text will appear."));
 
   for (int i = 0; i < 100; ++i) {
     root()->addWidget(std::make_unique<WText>(WString("<br/>WText widget {1}").arg(i_)));

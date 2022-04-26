@@ -64,18 +64,18 @@ void FolderView::dropEvent(const WDropEvent& event,
       WModelIndexSet toChange = selection->selectedIndexes();
 
       for (WModelIndexSet::reverse_iterator i = toChange.rbegin();
-	   i != toChange.rend(); ++i) {
-	WModelIndex index = *i;
+           i != toChange.rend(); ++i) {
+        WModelIndex index = *i;
 
-	/*
-	 * Copy target folder to file. Since we are using a
-	 * dynamic WSortFilterProxyModel that filters on folder, this
-	 * will also result in the removal of the file from the
-	 * current view.
-	 */
+        /*
+         * Copy target folder to file. Since we are using a
+         * dynamic WSortFilterProxyModel that filters on folder, this
+         * will also result in the removal of the file from the
+         * current view.
+         */
         std::map<ItemDataRole, cpp17::any> data = model()->itemData(target);
-	data[ItemDataRole::Decoration] = index.data(ItemDataRole::Decoration);
-	sourceModel->setItemData(index, data);
+        data[ItemDataRole::Decoration] = index.data(ItemDataRole::Decoration);
+        sourceModel->setItemData(index, data);
       }
     }
   }

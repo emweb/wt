@@ -16,15 +16,15 @@
 using namespace Wt;
 
 std::string TreeNode::imageLine_[] = { "icons/line-middle.gif",
-				       "icons/line-last.gif" };
+                                       "icons/line-last.gif" };
 std::string TreeNode::imagePlus_[] = { "icons/nav-plus-line-middle.gif",
-				       "icons/nav-plus-line-last.gif" };
+                                       "icons/nav-plus-line-last.gif" };
 std::string TreeNode::imageMin_[] = { "icons/nav-minus-line-middle.gif",
-				      "icons/nav-minus-line-last.gif" };
+                                      "icons/nav-minus-line-last.gif" };
 
 TreeNode::TreeNode(const std::string labelText,
-		   TextFormat labelFormat,
-		   std::unique_ptr<IconPair> labelIcon)
+                   TextFormat labelFormat,
+                   std::unique_ptr<IconPair> labelIcon)
   : parentNode_(nullptr),
     labelIcon_(labelIcon.get())
 {
@@ -148,7 +148,7 @@ void TreeNode::undoCollapse()
     expandIcon_->setState(1);
     expandedContent_->show();
     if (labelIcon_)
-      labelIcon_->setState(1);    
+      labelIcon_->setState(1);
   }
 }
 

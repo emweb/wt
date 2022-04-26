@@ -24,7 +24,7 @@ TopicTemplate::TopicTemplate(const char *trKey)
   setCondition("if:cpp", false);
   setCondition("if:java", true);
   bindString("doc-url", "//www.webtoolkit.eu/"
-	     "jwt/latest/doc/javadoc/eu/webtoolkit/jwt/");
+             "jwt/latest/doc/javadoc/eu/webtoolkit/jwt/");
 #endif
 }
 
@@ -55,8 +55,8 @@ std::string TopicTemplate::docUrl(const std::string& className)
 }
 
 void TopicTemplate::resolveString(const std::string& varName,
-				  const std::vector<Wt::WString>& args,
-				  std::ostream& result)
+                                  const std::vector<Wt::WString>& args,
+                                  std::ostream& result)
 {
   if (varName == "doc-link") {
     std::string className = args[0].toUTF8();
@@ -64,11 +64,11 @@ void TopicTemplate::resolveString(const std::string& varName,
 #ifndef WT_TARGET_JAVA
     boost::replace_all(className, "-", "::");
 #else
-    boost::replace_all(className, "Render-", "render.");    
+    boost::replace_all(className, "Render-", "render.");
 #endif
 
     result << "<a href=\"" << docUrl(className)
-	   << "\" target=\"_blank\">";
+           << "\" target=\"_blank\">";
 
 #ifdef WT_TARGET_JAVA
     boost::replace_all(className, "render.", "");
@@ -78,9 +78,9 @@ void TopicTemplate::resolveString(const std::string& varName,
   } else if (varName == "src") {
     std::string exampleName = args[0].toUTF8();
     result << "<fieldset class=\"src\">"
-	   << "<legend>source</legend>"
+           << "<legend>source</legend>"
            << tr("src-" + exampleName).toXhtmlUTF8()
-	   << "</fieldset>";
+           << "</fieldset>";
   } else
     WTemplate::resolveString(varName, args, result);
 }

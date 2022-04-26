@@ -24,7 +24,7 @@ class ChatEvent;
 /*! \brief A self-contained chat widget.
  */
 class SimpleChatWidget : public Wt::WContainerWidget,
-			 public SimpleChatServer::Client
+                         public SimpleChatServer::Client
 {
 public:
   /*! \brief Create a chat widget that will connect to the given server.
@@ -59,8 +59,8 @@ public:
 
 protected:
   virtual void createLayout(std::unique_ptr<Wt::WWidget> messages, std::unique_ptr<Wt::WWidget> userList,
-			    std::unique_ptr<Wt::WWidget> messageEdit,
-			    std::unique_ptr<Wt::WWidget> sendButton, std::unique_ptr<Wt::WWidget> logoutButton);
+                            std::unique_ptr<Wt::WWidget> messageEdit,
+                            std::unique_ptr<Wt::WWidget> sendButton, std::unique_ptr<Wt::WWidget> logoutButton);
 
   virtual void updateUsers();
   virtual void newMessage();

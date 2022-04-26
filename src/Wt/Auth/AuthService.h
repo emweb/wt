@@ -72,7 +72,7 @@ enum class IdentityPolicy {
    *
    * This may be useful for sites which do not have any social
    * character, but instead render a service to individual users.
-   */ 
+   */
   Optional
 };
 
@@ -104,7 +104,7 @@ enum class EmailTokenState {
 
 /*! \brief Enumeration that describes an auth token validation state.
  */
-enum class AuthTokenState { 
+enum class AuthTokenState {
   Invalid, //!< The presented auth token could be used to identify a user.
   Valid    //!< The presented auth token was invalid
 };
@@ -177,8 +177,8 @@ public:
    * Creates an authentication token result.
    */
   AuthTokenResult(AuthTokenState state, const User& user = User(),
-		  const std::string& newToken = std::string(),
-		  int newTokenValidity = -1);
+                  const std::string& newToken = std::string(),
+                  int newTokenValidity = -1);
 
   /*! \brief Returns the result.
    */
@@ -227,8 +227,8 @@ private:
  * Like all <b>service classes</b>, this class holds only
  * configuration state. Thus, once configured, it can be safely shared
  * between multiple sessions since its state (the configuration) is
- * read-only. 
- * \if cpp 
+ * read-only.
+ * \if cpp
  * A "const AuthService" object is thus thread-safe.
  * \endif
  *
@@ -297,7 +297,7 @@ public:
    * address as the one indicated by the identity.
    */
   virtual User identifyUser(const Identity& identity,
-			    AbstractUserDatabase& users) const;
+                            AbstractUserDatabase& users) const;
 
   /** @name Authentication token support
    */
@@ -324,8 +324,8 @@ public:
    * \sa setTokenHashFunction(), setAuthTokenValidity()
    */
   void setAuthTokensEnabled(bool enabled,
-			    const std::string& cookieName = "wtauth",
-			    const std::string& cookieDomain = std::string());
+                            const std::string& cookieName = "wtauth",
+                            const std::string& cookieDomain = std::string());
 
   /*! \brief Returns whether authentication tokens are enabled.
    *
@@ -415,7 +415,7 @@ public:
    * \sa AbstractUserDatabase::updateAuthToken()
    */
   virtual AuthTokenResult processAuthToken(const std::string& token,
-					   AbstractUserDatabase& users) const;
+                                           AbstractUserDatabase& users) const;
 
   /*! \brief Configures the duration for an authenticaton to remain valid.
    *
@@ -495,7 +495,7 @@ public:
    * \sa processEmailToken()
    */
   virtual void verifyEmailAddress(const User& user,
-				  const std::string& emailAddress) const;
+                                  const std::string& emailAddress) const;
 
 
   /*! \brief Implements lost password functionality.
@@ -511,7 +511,7 @@ public:
    * \sa processEmailToken()
    */
   virtual void lostPassword(const std::string& emailAddress,
-			    AbstractUserDatabase& users) const;
+                            AbstractUserDatabase& users) const;
 
   /*! \brief Processes an email token.
    *
@@ -532,7 +532,7 @@ public:
    * \sa lostPassword()
    */
   virtual EmailTokenResult processEmailToken(const std::string& token,
-					     AbstractUserDatabase& users) const;
+                                             AbstractUserDatabase& users) const;
 
   /*! \brief Configures the duration for an email token to remain valid.
    *
@@ -563,7 +563,7 @@ public:
    * default client settings.
    * \elseif java
    * Then it uses the JavaMail API to send the message, the SMTP settings
-   * are configured using the smtp.host and smpt.port JWt configuration 
+   * are configured using the smtp.host and smpt.port JWt configuration
    * variables (see {javadoclink Configuration#setProperties(HashMap properties)}).
    * \endif
    */
@@ -574,7 +574,7 @@ protected:
   /*! \brief Sends a confirmation email to the user to verify his email address.
    *
    * Sends a confirmation email to the given address.
-   * 
+   *
    * The email content is provided by the following string keys:
    *  - subject: tr("Wt.auth.verification-mail.subject")
    *  - body: tr("Wt.auth.verification-mail.body") with {1} a place holder for
@@ -583,8 +583,8 @@ protected:
    *    holders.
    */
   virtual void sendConfirmMail(const std::string& address,
-			       const User& user,
-			       const std::string& token) const;
+                               const User& user,
+                               const std::string& token) const;
 
   /*! \brief Sends an email to the user to enter a new password.
    *
@@ -600,8 +600,8 @@ protected:
    *    it passes user.identity() and token as arguments.
    */
   virtual void sendLostPasswordMail(const std::string& address,
-				    const User& user,
-				    const std::string& token) const;
+                                    const User& user,
+                                    const std::string& token) const;
 
   virtual std::string createRedirectUrl(const std::string& token) const;
 

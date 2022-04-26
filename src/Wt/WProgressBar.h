@@ -86,8 +86,8 @@ public:
   void setFormat(const WString& format);
 
   /*! \brief Returns the progress format string.
-   *  
-   * \sa setFormat() 
+   *
+   * \sa setFormat()
    */
   const WString& format() const { return format_; }
 
@@ -148,7 +148,7 @@ private:
 
   Signal<double> valueChanged_;
   Signal<> progressCompleted_;
-  
+
   double percentage() const;
 };
 

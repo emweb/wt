@@ -29,7 +29,7 @@ class WebSession;
 
 /*! \class UploadedFile Wt/Http/Request.h Wt/Http/Request.h
  *  \brief Details about a file uploaded with a request to a resource.
- * 
+ *
  * \if cpp
  * \sa Request::uploadedFiles()
  * \endif
@@ -41,10 +41,10 @@ class WebSession;
 class WT_API UploadedFile {
 public:
   UploadedFile();
-  
+
   UploadedFile(const std::string& spoolFileName,
-	       const std::string& clientFileName,
-	       const std::string& contentType);
+               const std::string& clientFileName,
+               const std::string& contentType);
 
   /*! \brief Return the spool file name.
    *
@@ -107,7 +107,7 @@ typedef std::string ParameterValues[];
 typedef std::map<std::string, ParameterValues> ParameterMap;
 
 extern const std::string *get(const ParameterMap& map,
-			      const std::string& name);
+                              const std::string& name);
 
 /*! \brief A file parameter map.
  *
@@ -271,7 +271,7 @@ public:
    *
    * Returns the path at which this request was received (excluding internal
    * path information): it is the path at which the application or resource
-   * is deployed. 
+   * is deployed.
    *
    * \sa pathInfo()
    */
@@ -337,7 +337,7 @@ public:
    * This is taken to be the first public address that is given in the
    * Client-IP header, or in the X-Forwarded-For header (in case the
    * client is behind a proxy). If none of these headers is present,
-   * the remote socket IP address is used. 
+   * the remote socket IP address is used.
    */
   std::string clientAddress() const;
 
@@ -375,7 +375,7 @@ public:
 
 #ifndef WT_TARGET_JAVA
   /*! \brief Returns all headers.
-   * 
+   *
    * \note Use headerValue() if you need to know the value of certain known headers.
    *       This method is not written to be efficient, but can be useful for debugging.
    */
@@ -454,13 +454,13 @@ public:
 #endif // WT_TARGET_JAVA
 
   static ByteRangeSpecifier getRanges(const std::string &header,
-				      ::int64_t filesize);
+                                      ::int64_t filesize);
 
   static void parseFormUrlEncoded(const std::string& s,
-				  ParameterMap& parameters);
+                                  ParameterMap& parameters);
 
   static void parseCookies(const std::string& cookie,
-			   std::map<std::string, std::string>& result);
+                           std::map<std::string, std::string>& result);
 
 private:
   const WebRequest *request_;

@@ -20,7 +20,7 @@ namespace Wt {
 class WStatelessSlotImpl : public WStatelessSlot {
 public:
   WStatelessSlotImpl(WObject *target, WObjectMethod method,
-		     const std::string& javaScript) :
+                     const std::string& javaScript) :
     WStatelessSlot(target, method, javaScript) { }
 };
 
@@ -72,9 +72,9 @@ void JSlot::create()
     WApplication *app = WApplication::instance();
     if (app) {
       ss << WApplication::instance()->javaScriptClass() << "."
-	 << jsFunctionName() << "(o,e";
+         << jsFunctionName() << "(o,e";
       for (int i = 1; i <= nbArgs_; ++i) {
-	ss << ",a" << i;
+        ss << ",a" << i;
       }
       ss << ");";
     }
@@ -119,13 +119,13 @@ WStatelessSlot* JSlot::slotimp()
 }
 
 std::string JSlot::execJs(const std::string& object,
-			  const std::string& event,
-			  const std::string& arg1,
-			  const std::string& arg2,
-			  const std::string& arg3,
-			  const std::string& arg4,
-			  const std::string& arg5,
-			  const std::string& arg6)
+                          const std::string& event,
+                          const std::string& arg1,
+                          const std::string& arg2,
+                          const std::string& arg3,
+                          const std::string& arg4,
+                          const std::string& arg5,
+                          const std::string& arg6)
 {
   std::stringstream result;
   result << "{var o=" << object;
@@ -134,23 +134,23 @@ std::string JSlot::execJs(const std::string& object,
     result << ",a" << (i+1) << "=";
     switch (i) {
       case 0:
-	result << arg1;
-	break;
+        result << arg1;
+        break;
       case 1:
-	result << arg2;
-	break;
+        result << arg2;
+        break;
       case 2:
-	result << arg3;
-	break;
+        result << arg3;
+        break;
       case 3:
-	result << arg4;
-	break;
+        result << arg4;
+        break;
       case 4:
-	result << arg5;
-	break;
+        result << arg5;
+        break;
       case 5:
-	result << arg6;
-	break;
+        result << arg6;
+        break;
     }
   }
   result << ";" << imp_->javaScript() + "}";
@@ -158,13 +158,13 @@ std::string JSlot::execJs(const std::string& object,
 }
 
 void JSlot::exec(const std::string& object,
-		 const std::string& event,
-		 const std::string& arg1,
-		 const std::string& arg2,
-		 const std::string& arg3,
-		 const std::string& arg4,
-		 const std::string& arg5,
-		 const std::string& arg6)
+                 const std::string& event,
+                 const std::string& arg1,
+                 const std::string& arg2,
+                 const std::string& arg3,
+                 const std::string& arg4,
+                 const std::string& arg5,
+                 const std::string& arg6)
 {
   WApplication::instance()->doJavaScript(execJs(object, event, arg1, arg2, arg3, arg4, arg5, arg6));
 }

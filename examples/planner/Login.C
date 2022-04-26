@@ -12,7 +12,7 @@ Login::Login()
   : WContainerWidget()
 {
   setStyleClass("login");
-		 
+
   WLabel* userNameL =
       this->addWidget(std::make_unique<WLabel>(tr("login.userName")));
   userNameEdit_ = this->addWidget(std::make_unique<WLineEdit>());
@@ -21,7 +21,7 @@ Login::Login()
   userNameL->setBuddy(userNameEdit_);
 
   userNameEdit_->enterPressed().connect(this, &Login::userNameEnterPressed);
-  
+
   loginButton_ =
       this->addWidget(std::make_unique<WPushButton>(tr("login.loginButton")));
   loginButton_->hide();

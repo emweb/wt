@@ -19,22 +19,22 @@ MandelbrotExample::MandelbrotExample()
   : WContainerWidget()
 {
   this->addWidget(std::make_unique<WText>("<div style=\"height:1px; width: 1px;\"/>"
-	    "<h2>Wt Mandelbrot example</h2>"
-	    "<p>The image below is a WVirtualImage that renders the "
-	    "classic Mandelbrot fractal.</p>"
-	    "<p>It is drawn as a grid of many smaller images, "
-	    "computed on the fly, as you scroll around "
-	    "through the virtual image. You can scroll the image using the "
-	    "buttons, or by dragging the mouse.</p>"));
+            "<h2>Wt Mandelbrot example</h2>"
+            "<p>The image below is a WVirtualImage that renders the "
+            "classic Mandelbrot fractal.</p>"
+            "<p>It is drawn as a grid of many smaller images, "
+            "computed on the fly, as you scroll around "
+            "through the virtual image. You can scroll the image using the "
+            "buttons, or by dragging the mouse.</p>"));
 
   WTable *layout = this->addWidget(std::make_unique<WTable>());
 
   auto mandelbrotPtr = std::make_unique<MandelbrotImage>(400, 400,
-				    3000, 3000,
-				    -2,
-				    -1.5,
-				    1,
-				    1.5);
+                                    3000, 3000,
+                                    -2,
+                                    -1.5,
+                                    1,
+                                    1.5);
   mandelbrot_ = mandelbrotPtr.get();
 
   layout->elementAt(0, 0)->addWidget(std::move(mandelbrotPtr));
@@ -119,7 +119,7 @@ std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
   app->root()->addWidget(std::move(mandelbrot));
 
   app->styleSheet().addRule("html, body",
-			    "border: 0px; margin: 0px; height: 100%;");
+                            "border: 0px; margin: 0px; height: 100%;");
   return app;
 }
 

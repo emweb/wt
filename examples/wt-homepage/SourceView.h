@@ -37,7 +37,7 @@ public:
   SourceView(ItemDataRole fileNameRole,
              ItemDataRole contentRole,
              ItemDataRole filePathRole);
- 
+
   /*! \brief Destructor
    */
   virtual ~SourceView();
@@ -55,7 +55,7 @@ public:
    * WViewWidget deletes this widget after every rendering step.
    */
   virtual std::unique_ptr<WWidget> renderView();
-  
+
 private:
   /// The index that is currently displayed.
   WModelIndex index_;
@@ -67,7 +67,7 @@ private:
 
   std::shared_ptr<WMemoryResource> imageResource_;
 
-private: 
+private:
   std::string imageExtension(const std::string& fileName);
 };
 

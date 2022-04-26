@@ -119,7 +119,7 @@ private:
   bool headersCommitted_;
 
   Response(WResource *resource, WebResponse *response,
-	   ResponseContinuationPtr continuation);
+           ResponseContinuationPtr continuation);
   Response(WResource *resource, WT_BOSTREAM& out);
 
   friend class Wt::WResource;

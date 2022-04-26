@@ -32,7 +32,7 @@ bool isEpsilonMore(double x, double limit) {
   return x - EPSILON > limit;
 }
 
-double pangoUnitsToDouble(const int u) 
+double pangoUnitsToDouble(const int u)
 {
   return ((double)u) / PANGO_SCALE;
 }
@@ -107,7 +107,7 @@ FontSupport::FontSupport(WPaintDevice *paintDevice, EnabledFontFormats enabledFo
     pangoFontMap = pango_ft2_font_map_new();
 
     pango_ft2_font_map_set_default_substitute(PANGO_FT2_FONT_MAP(pangoFontMap),
-	addTrueTypePattern, NULL, NULL);
+                                              addTrueTypePattern, NULL, NULL);
   }
 
 #if PANGO_VERSION_MAJOR > 1 || PANGO_VERSION_MINOR > 21
@@ -223,7 +223,7 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& f) const
 }
 
 void FontSupport::addFontCollection(const std::string& directory,
-				    bool recursive)
+                                    bool recursive)
 {
 }
 
@@ -254,9 +254,9 @@ std::string FontSupport::fontPath(PangoFont *font)
 }
 
 GList *FontSupport::layoutText(const WFont& font,
-			       const std::string& utf8,
-			       std::vector<PangoGlyphString *>& glyphs,
-			       int& width)
+                               const std::string& utf8,
+                               std::vector<PangoGlyphString *>& glyphs,
+                               int& width)
 {
   PANGO_LOCK;
 
@@ -285,9 +285,9 @@ GList *FontSupport::layoutText(const WFont& font,
       currentFont_ = analysis->font;
 
       WTextItem textItem
-	= device_->measureText(WString::fromUTF8(utf8.substr(item->offset,
-							     item->length)),
-			       -1, false);
+        = device_->measureText(WString::fromUTF8(utf8.substr(item->offset,
+                                                             item->length)),
+                               -1, false);
 
       width += pangoUnitsFromDouble(textItem.width());
 
@@ -302,7 +302,7 @@ GList *FontSupport::layoutText(const WFont& font,
 }
 
 void FontSupport::drawText(const WFont& font, const WRectF& rect,
-			   WFlags<AlignmentFlag> flags, const WString& text)
+                           WFlags<AlignmentFlag> flags, const WString& text)
 {
   PANGO_LOCK;
 
@@ -353,9 +353,9 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
                                               item->length));
 
     device_->drawText(WRectF(x, rect.y(),
-			     1000, rect.height()),
-		      AlignmentFlag::Left | vAlign, TextFlag::SingleLine,
-		      s, nullptr);
+                             1000, rect.height()),
+                      AlignmentFlag::Left | vAlign, TextFlag::SingleLine,
+                      s, nullptr);
 
     WTextItem textItem = device_->measureText(s, -1, false);
 
@@ -381,7 +381,7 @@ WFontMetrics FontSupport::fontMetrics(const WFont& font)
 
   double ascent
     = pangoUnitsToDouble(pango_font_metrics_get_ascent(metrics));
-  double descent 
+  double descent
     = pangoUnitsToDouble(pango_font_metrics_get_descent(metrics));
 
   double leading = (ascent + descent) - font.sizeLength(12).toPixels();
@@ -401,7 +401,7 @@ WFontMetrics FontSupport::fontMetrics(const WFont& font)
 }
 
 WTextItem FontSupport::measureText(const WFont& font, const WString& text,
-				   double maxWidth, bool wordWrap)
+                                   double maxWidth, bool wordWrap)
 {
   PANGO_LOCK;
 
@@ -432,32 +432,32 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
 
     for (int i = 0; i < utflen + 1; ++i) {
       if (i == utflen || attrs[i].is_line_break) {
-	int cend = g_utf8_offset_to_pointer(s, end) - s;
+        int cend = g_utf8_offset_to_pointer(s, end) - s;
 
-	WTextItem ti
-	  = measureText(font, WString::fromUTF8(utf8.substr(measured,
-							    cend - measured)),
-			-1, false);
+        WTextItem ti
+          = measureText(font, WString::fromUTF8(utf8.substr(measured,
+                                                            cend - measured)),
+                        -1, false);
 
-	if (isEpsilonMore(w + ti.width(), maxWidth)) {
-	  nextW = ti.width();
-	  maxWidthReached = true;
-	  break;
-	} else {
-	  measured = cend;
-	  current = g_utf8_offset_to_pointer(s, i) - s;
-	  w += ti.width();
+        if (isEpsilonMore(w + ti.width(), maxWidth)) {
+          nextW = ti.width();
+          maxWidthReached = true;
+          break;
+        } else {
+          measured = cend;
+          current = g_utf8_offset_to_pointer(s, i) - s;
+          w += ti.width();
 
-	  if (i == utflen) {
-	    w += measureText(font, WString::fromUTF8(utf8.substr(measured)),
-			     -1, false).width();
-	    measured = utf8.length();
-	  }
-	}
+          if (i == utflen) {
+            w += measureText(font, WString::fromUTF8(utf8.substr(measured)),
+                             -1, false).width();
+            measured = utf8.length();
+          }
+        }
       }
 
       if (!attrs[i].is_white)
-	end = i + 1;
+        end = i + 1;
     }
 
     delete[] attrs;
@@ -470,7 +470,7 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
        * (for longer stretches of text), so we re-measure it !
        */
       w = measureText(font, WString::fromUTF8(utf8.substr(0, measured)),
-		      -1, false).width();
+                      -1, false).width();
       return WTextItem(text, w);
     }
   } else {
@@ -492,9 +492,9 @@ WTextItem FontSupport::measureText(const WFont& font, const WString& text,
 }
 
 void FontSupport::drawText(const WFont& font, const WRectF& rect,
-			   const WTransform& transform, Bitmap& bitmap,
-			   WFlags<AlignmentFlag> flags,
-			   const WString& text)
+                           const WTransform& transform, Bitmap& bitmap,
+                           WFlags<AlignmentFlag> flags,
+                           const WString& text)
 {
   PANGO_LOCK;
 
@@ -520,7 +520,7 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
    */
   WFont f = font;
   f.setSize(font.sizeLength().toPixels()
-	    / pango_matrix_get_font_scale_factor(&matrix));
+            / pango_matrix_get_font_scale_factor(&matrix));
 
   GList *items = layoutText(f, utf8, glyphs, width);
   pango_context_set_matrix(context_, nullptr);
@@ -551,7 +551,7 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
 
   double ascent
     = pangoUnitsToDouble(pango_font_metrics_get_ascent(metrics));
-  double descent 
+  double descent
     = pangoUnitsToDouble(pango_font_metrics_get_descent(metrics));
 
   pango_font_metrics_unref(metrics);
@@ -592,9 +592,9 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
     PangoGlyphString *gl = glyphs[i++];
 
     pango_ft2_render_transformed(&bmp, &matrix,
-				 analysis->font, gl,
-				 pangoUnitsFromDouble(x),
-				 pangoUnitsFromDouble(y));
+                                 analysis->font, gl,
+                                 pangoUnitsFromDouble(x),
+                                 pangoUnitsFromDouble(y));
 
     x += pangoUnitsToDouble(pango_glyph_string_get_width(gl));
 

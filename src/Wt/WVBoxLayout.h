@@ -15,7 +15,7 @@ namespace Wt {
  *  \brief A layout manager which arranges widgets vertically
  *
  * This convenience class creates a vertical box layout, laying contained
- * widgets out from top to bottom. 
+ * widgets out from top to bottom.
  *
  * See WBoxLayout for available member methods and more information.
  *

@@ -36,7 +36,7 @@ enum class InputMaskFlag {
  * and subsequently removes the focus from the line edit.
  *
  * To act upon editing, connect a slot to the keyWentUp() signal because the
- * keyPressed() signal is fired before the line edit has interpreted the 
+ * keyPressed() signal is fired before the line edit has interpreted the
  * keypress to change its text.
  *
  * At all times, the current content may be accessed with the text()
@@ -294,7 +294,7 @@ public:
    * action will be logged.
    */
   void setInputMask(const WT_USTRING &mask = "",
-		    WFlags<InputMaskFlag> flags = None);
+                    WFlags<InputMaskFlag> flags = None);
 
   virtual ValidationState validate() override;
 
@@ -327,7 +327,7 @@ private:
   static const int BIT_AUTOCOMPLETE_CHANGED  = 4;
 
   std::bitset<5> flags_;
-  
+
   static const std::string SKIPPABLE_MASK_CHARS;
 
   bool maskChanged_;
@@ -335,11 +335,11 @@ private:
 #if !defined(WT_TARGET_JAVA)
   std::u32string inputMask_;
   std::u32string raw_;
-  char32_t       spaceChar_;
+  char32_t spaceChar_;
 #else
   std::string inputMask_;
   std::string raw_;
-  char	       spaceChar_;
+  char spaceChar_;
 #endif
   WFlags<InputMaskFlag> inputMaskFlags_;
   std::string  case_;

@@ -37,7 +37,7 @@ namespace Wt {
       }
 
       static const char *surrogateIdField() {
-	return 0;
+        return 0;
       }
     };
 

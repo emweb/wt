@@ -16,7 +16,7 @@ namespace Wt {
 
 /*! \class WJavaScriptHandle Wt/WJavaScriptHandle.h Wt/WJavaScriptHandle.h
  *  \brief A handle to a JavaScript representation of an object.
- * 
+ *
  *  A %WJavaScriptHandle allows to access and modify an object in JavaScript.
  *  This is useful to avoid server roundtrips when frequently updating something,
  *  e.g. to interact with and animate a WPaintedWidget.
@@ -55,16 +55,16 @@ public:
   WJavaScriptHandle(const WJavaScriptHandle &handle) noexcept
     : value_(handle.value_), id_(handle.id_)
   {
-    assert(value_ == nullptr || 
-	   value_->clientBinding_ != nullptr);
+    assert(value_ == nullptr ||
+           value_->clientBinding_ != nullptr);
   }
 
   /*! \brief Copy assignment operator
    */
   WJavaScriptHandle &operator=(const WJavaScriptHandle &handle) noexcept
   {
-    assert(handle.value_ == nullptr || 
-	   handle.value_->clientBinding_ != nullptr);
+    assert(handle.value_ == nullptr ||
+           handle.value_->clientBinding_ != nullptr);
 
     value_ = handle.value_;
     id_ = handle.id_;
@@ -117,7 +117,7 @@ public:
   bool isValid() const noexcept {
     return value_;
   }
-  
+
   /*! \brief Returns the JavaScript representation of the object.
    *
    * You can access and modify the value of this handle through its jsRef().
@@ -160,7 +160,7 @@ public:
   /*! \brief Get the value for this handle.
    *
    * \warning You should not modify this value or any copy of it on the server side,
-   *	      because this will not be synced to the client side. Use setValue() instead.
+   *          because this will not be synced to the client side. Use setValue() instead.
    *
    * \throw WException The handle is \link isValid() invalid\endlink
    */

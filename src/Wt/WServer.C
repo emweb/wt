@@ -38,12 +38,12 @@ WServer::Exception::Exception(const std::string& what)
 { }
 
 void WServer::init(const std::string& wtApplicationPath,
-		   const std::string& configurationFile)
+                   const std::string& configurationFile)
 {
   customLogger_ = nullptr;
 
   application_ = wtApplicationPath;
-  configurationFile_ = configurationFile; 
+  configurationFile_ = configurationFile;
 
   ownsIOService_ = true;
   dedicatedProcessEnabled_ = false;
@@ -129,7 +129,7 @@ void WServer::setConfiguration(const std::string& file)
 }
 
 void WServer::setConfiguration(const std::string& file,
-			       const std::string& application)
+                               const std::string& application)
 {
   if (configuration_)
     LOG_ERROR("setConfigurationFile(): too late, already configured");
@@ -174,7 +174,7 @@ bool WServer::dedicatedSessionProcess() const {
 }
 
 void WServer::initLogger(const std::string& logFile,
-			 const std::string& logConfig)
+                         const std::string& logConfig)
 {
   if (!logConfig.empty())
     logger_.configure(logConfig);
@@ -195,7 +195,7 @@ Configuration& WServer::configuration()
       configurationFile_ = Configuration::locateConfigFile(appRoot_);
 
     configuration_ = new Configuration(application_, appRoot_,
-				       configurationFile_, this);
+                                       configurationFile_, this);
   }
 
   return *configuration_;
@@ -207,15 +207,15 @@ WebController *WServer::controller()
 }
 
 bool WServer::readConfigurationProperty(const std::string& name,
-					std::string& value) const
+                                        std::string& value) const
 {
   WServer *self = const_cast<WServer *>(this);
   return self->configuration().readConfigurationProperty(name, value);
 }
 
 void WServer::post(const std::string& sessionId,
-		   const std::function<void ()>& function,
-		   const std::function<void ()>& fallbackFunction)
+                   const std::function<void ()>& function,
+                   const std::function<void ()>& fallbackFunction)
 {
   schedule(std::chrono::milliseconds{0}, sessionId, function, fallbackFunction);
 }
@@ -232,9 +232,9 @@ void WServer::postAll(const std::function<void ()>& function)
 }
 
 void WServer::schedule(std::chrono::steady_clock::duration duration,
-		       const std::string& sessionId,
-		       const std::function<void ()>& function,
-		       const std::function<void ()>& fallbackFunction)
+                       const std::string& sessionId,
+                       const std::function<void ()>& function,
+                       const std::function<void ()>& fallbackFunction)
 {
   auto event = std::make_shared<ApplicationEvent>(sessionId, function, fallbackFunction);
 
@@ -260,7 +260,7 @@ std::string WServer::prependDefaultPath(const std::string& path)
 }
 
 void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,
-			    const std::string& path, const std::string& favicon)
+                            const std::string& path, const std::string& favicon)
 {
   configuration().addEntryPoint(
         EntryPoint(type, callback, prependDefaultPath(path), favicon));
@@ -274,7 +274,7 @@ void WServer::addResource(WResource *resource, const std::string& path)
     resource->setInternalPath(path);
   else {
     WString error(Wt::utf8("WServer::addResource() error: "
-	                   "a static resource was already deployed on path '{1}'"));
+                           "a static resource was already deployed on path '{1}'"));
     throw WServer::Exception(error.arg(path).toUTF8());
   }
 }
@@ -379,7 +379,7 @@ int WServer::waitForShutdown()
     // Wait for a signal to be raised
     rc= sigwait(&wait_mask, &sig);
 
-    // branch based on return value of sigwait(). 
+    // branch based on return value of sigwait().
     switch (rc) {
       case 0: // rc indicates one of the blocked signals was raised.
 
@@ -387,7 +387,7 @@ int WServer::waitForShutdown()
         switch(sig) {
           case SIGHUP: // SIGHUP means re-read the configuration.
             if (instance())
-	      instance()->configuration().rereadConfiguration();
+              instance()->configuration().rereadConfiguration();
             break;
 
           default: // Any other blocked signal means time to quit.
@@ -396,14 +396,14 @@ int WServer::waitForShutdown()
 
         break;
       case EINTR:
-	// rc indicates an unblocked signal was raised, so we'll go
-	// around again.
+        // rc indicates an unblocked signal was raised, so we'll go
+        // around again.
 
         break;
       default:
-	// report the error and return an obviously illegitimate signal value.
+        // report the error and return an obviously illegitimate signal value.
         throw WServer::Exception(std::string("sigwait() error: ")
-				 + strerror(rc));
+                                 + strerror(rc));
         return -1;
     }
   }

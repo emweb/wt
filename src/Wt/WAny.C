@@ -41,7 +41,7 @@ std::mutex registryMutex_;
 #endif // WT_THREADED
 
 typedef std::map<std::type_index,
-		 std::shared_ptr<AbstractTypeHandler> > TypeRegistryMap;
+                 std::shared_ptr<AbstractTypeHandler> > TypeRegistryMap;
 
 typedef std::chrono::duration<int, std::milli> time_duration;
 
@@ -68,7 +68,7 @@ void unlockTypeRegistry()
 }
 
 AbstractTypeHandler *getRegisteredType(const std::type_info &type,
-				       bool takeLock)
+                                       bool takeLock)
 {
   if (takeLock)
     lockTypeRegistry();
@@ -92,16 +92,16 @@ void registerType(const std::type_info &type, AbstractTypeHandler *handler)
 }
 
 bool matchValue(const cpp17::any& value, const cpp17::any& query,
-		WFlags<MatchFlag> flags)
+                WFlags<MatchFlag> flags)
 {
   WFlags<MatchFlag> f = flags & MatchTypeMask;
 
   if ((f & MatchTypeMask) == MatchFlag::Exactly) {
     if (query.type() == value.type() ||
-	(query.type() == typeid(WString) &&
-	 value.type() == typeid(std::string)) ||
-	(query.type() == typeid(std::string) &&
-	 value.type() == typeid(WString)))
+        (query.type() == typeid(WString) &&
+         value.type() == typeid(std::string)) ||
+        (query.type() == typeid(std::string) &&
+         value.type() == typeid(WString)))
       return asString(query) == asString(value);
     else
       return false;
@@ -112,7 +112,7 @@ bool matchValue(const cpp17::any& value, const cpp17::any& query,
     switch (f.value()) {
     case static_cast<int>(MatchFlag::StringExactly):
       return boost::iequals(value_str, query_str);
-    case static_cast<int>(MatchFlag::StringExactly) | 
+    case static_cast<int>(MatchFlag::StringExactly) |
       static_cast<int>(MatchFlag::CaseSensitive):
       return boost::equals(value_str, query_str);
 
@@ -124,14 +124,14 @@ bool matchValue(const cpp17::any& value, const cpp17::any& query,
 
     case static_cast<int>(MatchFlag::EndsWith):
       return boost::iends_with(value_str, query_str);
-    case static_cast<int>(MatchFlag::EndsWith) | 
+    case static_cast<int>(MatchFlag::EndsWith) |
       static_cast<int>(MatchFlag::CaseSensitive):
       return boost::ends_with(value_str, query_str);
 
     default:
       throw WException("Not yet implemented: WAbstractItemModel::match with "
-		       "MatchFlags = "
-		       + std::to_string(flags.value()));
+                       "MatchFlags = "
+                       + std::to_string(flags.value()));
     }
   }
 }
@@ -146,7 +146,7 @@ std::string asJSLiteral(const cpp17::any& v, TextFormat textFormat)
     bool plainText = false;
     if (textFormat == TextFormat::XHTML) {
       if (s.literal())
-	plainText = !WWebWidget::removeScript(s);
+        plainText = !WWebWidget::removeScript(s);
     } else
       plainText = true;
 
@@ -155,8 +155,8 @@ std::string asJSLiteral(const cpp17::any& v, TextFormat textFormat)
 
     return s.jsStringLiteral();
   } else if (v.type() == typeid(std::string)
-	     || v.type() == typeid(const char *)) {
-    WString s = v.type() == typeid(std::string) 
+             || v.type() == typeid(const char *)) {
+    WString s = v.type() == typeid(std::string)
       ? WString::fromUTF8(cpp17::any_cast<std::string>(v))
       : WString::fromUTF8(cpp17::any_cast<const char *>(v));
 
@@ -263,13 +263,13 @@ cpp17::any updateFromJS(const cpp17::any& v, std::string s)
     return cpp17::any((s == "true" || s == "1") ? true : false);
   else if (v.type() == typeid(WDate))
     return cpp17::any(WDate::fromString(WString::fromUTF8(s),
-					"ddd MMM d yyyy"));
+                                        "ddd MMM d yyyy"));
   else if (v.type() == typeid(WDateTime))
     return cpp17::any(WDateTime::fromString(WString::fromUTF8(s),
-					    "ddd MMM d yyyy HH:mm:ss"));
+                                            "ddd MMM d yyyy HH:mm:ss"));
   else if (v.type() == typeid(WLocalDateTime))
     return cpp17::any(WLocalDateTime::fromString(WString::fromUTF8(s),
-						 "ddd MMM d yyyy HH:mm:ss"));
+                                                 "ddd MMM d yyyy HH:mm:ss"));
 #define ELSE_LEXICAL_ANY(TYPE) \
   else if (v.type() == typeid(TYPE)) \
     return cpp17::any(lexical_cast<TYPE>(s))
@@ -306,53 +306,53 @@ int compare(const cpp17::any& d1, const cpp17::any& d2)
   if (cpp17::any_has_value(d1))
     if (cpp17::any_has_value(d2)) {
       if (d1.type() == d2.type()) {
-	if (d1.type() == typeid(bool))
-	  return static_cast<int>(cpp17::any_cast<bool>(d1))
-	    - static_cast<int>(cpp17::any_cast<bool>(d2));
+        if (d1.type() == typeid(bool))
+          return static_cast<int>(cpp17::any_cast<bool>(d1))
+            - static_cast<int>(cpp17::any_cast<bool>(d2));
 
-#define ELSE_COMPARE_ANY(TYPE)				\
-	else if (d1.type() == typeid(TYPE)) {		\
-	  TYPE v1 = cpp17::any_cast<TYPE>(d1);		\
-	  TYPE v2 = cpp17::any_cast<TYPE>(d2);		\
-	  return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);	\
+#define ELSE_COMPARE_ANY(TYPE)                                \
+        else if (d1.type() == typeid(TYPE)) {                \
+          TYPE v1 = cpp17::any_cast<TYPE>(d1);                \
+          TYPE v2 = cpp17::any_cast<TYPE>(d2);                \
+          return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);        \
         }
 
-	ELSE_COMPARE_ANY(WString)
-	ELSE_COMPARE_ANY(std::string)
-	ELSE_COMPARE_ANY(WDate)
-	ELSE_COMPARE_ANY(WDateTime)
-	ELSE_COMPARE_ANY(WLocalDateTime)
+        ELSE_COMPARE_ANY(WString)
+        ELSE_COMPARE_ANY(std::string)
+        ELSE_COMPARE_ANY(WDate)
+        ELSE_COMPARE_ANY(WDateTime)
+        ELSE_COMPARE_ANY(WLocalDateTime)
     ELSE_COMPARE_ANY(std::chrono::system_clock::time_point)
     ELSE_COMPARE_ANY(time_duration)
-	ELSE_COMPARE_ANY(WTime)
-	ELSE_COMPARE_ANY(short)
-	ELSE_COMPARE_ANY(unsigned short)
-	ELSE_COMPARE_ANY(int)
-	ELSE_COMPARE_ANY(unsigned int)
-	ELSE_COMPARE_ANY(long)
-	ELSE_COMPARE_ANY(unsigned long)
-	ELSE_COMPARE_ANY(::int64_t)
-	ELSE_COMPARE_ANY(::uint64_t)
-	ELSE_COMPARE_ANY(long long)
-	ELSE_COMPARE_ANY(unsigned long long)
-	ELSE_COMPARE_ANY(float)
-	ELSE_COMPARE_ANY(double)
+        ELSE_COMPARE_ANY(WTime)
+        ELSE_COMPARE_ANY(short)
+        ELSE_COMPARE_ANY(unsigned short)
+        ELSE_COMPARE_ANY(int)
+        ELSE_COMPARE_ANY(unsigned int)
+        ELSE_COMPARE_ANY(long)
+        ELSE_COMPARE_ANY(unsigned long)
+        ELSE_COMPARE_ANY(::int64_t)
+        ELSE_COMPARE_ANY(::uint64_t)
+        ELSE_COMPARE_ANY(long long)
+        ELSE_COMPARE_ANY(unsigned long long)
+        ELSE_COMPARE_ANY(float)
+        ELSE_COMPARE_ANY(double)
 
 #undef ELSE_COMPARE_ANY
-	else {
-	  AbstractTypeHandler *handler = getRegisteredType(d1.type(), true);
-	  if (handler)
-	    return handler->compare(d1, d2);
-	  else {
-	    LOG_ERROR("unsupported type '" << d1.type().name() << "'");
-	    return 0;
-	  }
-	}
+        else {
+          AbstractTypeHandler *handler = getRegisteredType(d1.type(), true);
+          if (handler)
+            return handler->compare(d1, d2);
+          else {
+            LOG_ERROR("unsupported type '" << d1.type().name() << "'");
+            return 0;
+          }
+        }
       } else {
-	WString s1 = asString(d1);
-	WString s2 = asString(d2);
+        WString s1 = asString(d1);
+        WString s2 = asString(d2);
 
-	return s1 == s2 ? 0 : (s1 < s2 ? -1 : 1);
+        return s1 == s2 ? 0 : (s1 < s2 ? -1 : 1);
       }
     } else
       return -UNSPECIFIED_RESULT;
@@ -379,22 +379,22 @@ WString asString(const cpp17::any& v, const WT_USTRING& format)
     return WString::tr(cpp17::any_cast<bool>(v) ? "Wt.true" : "Wt.false");
   else if (v.type() == typeid(WDate)) {
     const WDate& d = cpp17::any_cast<WDate>(v);
-    return d.toString(format.empty() ? 
-		      WLocale::currentLocale().dateFormat() :
-		      format);
+    return d.toString(format.empty() ?
+                      WLocale::currentLocale().dateFormat() :
+                      format);
   } else if (v.type() == typeid(WDateTime)) {
     const WDateTime& dt = cpp17::any_cast<WDateTime>(v);
-    return dt.toString(format.empty() ? 
-			   WLocale::currentLocale().dateTimeFormat() : 
-		       format);
+    return dt.toString(format.empty() ?
+                           WLocale::currentLocale().dateTimeFormat() :
+                       format);
   } else if (v.type() == typeid(WLocalDateTime)) {
     const WLocalDateTime& dt = cpp17::any_cast<WLocalDateTime>(v);
     return dt.toString();
   } else if (v.type() == typeid(WTime)) {
     const WTime& t = cpp17::any_cast<WTime>(v);
-    return t.toString(format.empty() ? 
-		WLocale::currentLocale().timeFormat() : 
-		format);
+    return t.toString(format.empty() ?
+                WLocale::currentLocale().timeFormat() :
+                format);
   } else if(v.type() == typeid(std::chrono::system_clock::time_point)){
       const std::chrono::system_clock::time_point& tp
               = cpp17::any_cast<std::chrono::system_clock::time_point>(v);
@@ -408,17 +408,17 @@ WString asString(const cpp17::any& v, const WT_USTRING& format)
 
   }
 
-#define ELSE_LEXICAL_ANY(TYPE, CAST_TYPE)				\
-  else if (v.type() == typeid(TYPE)) {					\
-    if (format.empty())							\
-      return WLocale::currentLocale()					\
-        .toString((CAST_TYPE)cpp17::any_cast<TYPE>(v));			\
-    else {								\
-      char buf[100];							\
-      snprintf(buf, 100, format.toUTF8().c_str(),			\
-	       (CAST_TYPE)cpp17::any_cast<TYPE>(v));			\
-      return WString::fromUTF8(buf);					\
-    }									\
+#define ELSE_LEXICAL_ANY(TYPE, CAST_TYPE)                                \
+  else if (v.type() == typeid(TYPE)) {                                        \
+    if (format.empty())                                                        \
+      return WLocale::currentLocale()                                        \
+        .toString((CAST_TYPE)cpp17::any_cast<TYPE>(v));                        \
+    else {                                                                \
+      char buf[100];                                                        \
+      snprintf(buf, 100, format.toUTF8().c_str(),                        \
+               (CAST_TYPE)cpp17::any_cast<TYPE>(v));                        \
+      return WString::fromUTF8(buf);                                        \
+    }                                                                        \
   }
 
   ELSE_LEXICAL_ANY(short, short)
@@ -436,52 +436,52 @@ WString asString(const cpp17::any& v, const WT_USTRING& format)
   else if (v.type() == typeid(long)) {
     if (sizeof(long) == 4) {
       if (format.empty())
-	return WLocale::currentLocale().toString
-	  ((int)cpp17::any_cast<long>(v));
+        return WLocale::currentLocale().toString
+          ((int)cpp17::any_cast<long>(v));
       else {
-	char buf[100];
-	snprintf(buf, 100, format.toUTF8().c_str(),
-		 (int)cpp17::any_cast<long>(v));
-	return WString::fromUTF8(buf);
+        char buf[100];
+        snprintf(buf, 100, format.toUTF8().c_str(),
+                 (int)cpp17::any_cast<long>(v));
+        return WString::fromUTF8(buf);
       }
     } else {
       if (format.empty())
-	return WLocale::currentLocale()
-	  .toString((::int64_t)cpp17::any_cast<long>(v));
+        return WLocale::currentLocale()
+          .toString((::int64_t)cpp17::any_cast<long>(v));
       else {
-	char buf[100];
-	snprintf(buf, 100, format.toUTF8().c_str(),
-		 (::int64_t)cpp17::any_cast<long>(v));
-	return WString::fromUTF8(buf);
+        char buf[100];
+        snprintf(buf, 100, format.toUTF8().c_str(),
+                 (::int64_t)cpp17::any_cast<long>(v));
+        return WString::fromUTF8(buf);
       }
     }
   } else if (v.type() == typeid(unsigned long)) {
     if (sizeof(long) == 4) {
       if (format.empty())
-	return WLocale::currentLocale().toString
-	  ((unsigned)cpp17::any_cast<unsigned long>(v));
+        return WLocale::currentLocale().toString
+          ((unsigned)cpp17::any_cast<unsigned long>(v));
       else {
-	char buf[100];
-	snprintf(buf, 100, format.toUTF8().c_str(),
-		 (unsigned)cpp17::any_cast<unsigned long>(v));
-	return WString::fromUTF8(buf);
+        char buf[100];
+        snprintf(buf, 100, format.toUTF8().c_str(),
+                 (unsigned)cpp17::any_cast<unsigned long>(v));
+        return WString::fromUTF8(buf);
       }
     } else {
       if (format.empty())
-	return WLocale::currentLocale()
-	  .toString((::uint64_t)cpp17::any_cast<unsigned long>(v));
+        return WLocale::currentLocale()
+          .toString((::uint64_t)cpp17::any_cast<unsigned long>(v));
       else {
-	char buf[100];
-	snprintf(buf, 100, format.toUTF8().c_str(),
-		 (::uint64_t)cpp17::any_cast<unsigned long>(v));
-	return WString::fromUTF8(buf);
+        char buf[100];
+        snprintf(buf, 100, format.toUTF8().c_str(),
+                 (::uint64_t)cpp17::any_cast<unsigned long>(v));
+        return WString::fromUTF8(buf);
       }
     }
   }
 
   else {
     Impl::AbstractTypeHandler *handler = Impl::getRegisteredType(v.type(),
-								 true);
+                                                                 true);
     if (handler)
       return handler->asString(v, format);
     else {
@@ -556,7 +556,7 @@ double asNumber(const cpp17::any& v)
 
   else {
     Impl::AbstractTypeHandler *handler = Impl::getRegisteredType(v.type(),
-								 true);
+                                                                 true);
     if (handler)
       return handler->asNumber(v);
     else {
@@ -567,8 +567,8 @@ double asNumber(const cpp17::any& v)
 }
 
 extern WT_API cpp17::any convertAnyToAny(const cpp17::any& v,
-					 const std::type_info& type,
-					 const WT_USTRING& format)
+                                         const std::type_info& type,
+                                         const WT_USTRING& format)
 {
   if (!cpp17::any_has_value(v))
     return cpp17::any();
@@ -585,22 +585,22 @@ extern WT_API cpp17::any convertAnyToAny(const cpp17::any& v,
     return s.toUTF8().c_str();
   else if (type == typeid(WDate)) {
     return WDate::fromString
-      (s, format.empty() ? 
+      (s, format.empty() ?
        WLocale::currentLocale().dateFormat() :
        format);
   } else if (type == typeid(WDateTime)) {
     return WDateTime::fromString
-      (s, format.empty() ? 
-	   WLocale::currentLocale().dateTimeFormat() : format);
+      (s, format.empty() ?
+           WLocale::currentLocale().dateTimeFormat() : format);
   } else if (type == typeid(WLocalDateTime)) {
     return WLocalDateTime::fromString(s);
   } else if (type == typeid(WTime)) {
     return WTime::fromString
-      (s, format.empty() ? 
-	   WLocale::currentLocale().timeFormat() :  format);
+      (s, format.empty() ?
+           WLocale::currentLocale().timeFormat() :  format);
   } else if (type == typeid(std::chrono::system_clock::time_point)) {
     return WDateTime::fromString
-      (s, format.empty() ? 
+      (s, format.empty() ?
        WLocale::currentLocale().dateTimeFormat() : format).toTimePoint();
   } else if (type == typeid(std::chrono::duration<int, std::milli>)) {
     return WTime::fromString
@@ -614,7 +614,7 @@ extern WT_API cpp17::any convertAnyToAny(const cpp17::any& v,
       return false;
     else
       throw WException(std::string("Source string cannot be "
-				   "converted to a bool value!"));
+                                   "converted to a bool value!"));
   }
 
   else if (type == typeid(short))

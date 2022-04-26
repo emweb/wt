@@ -38,8 +38,8 @@ public:
   // function when done. The bool passed on to the onReady function
   // indicates success.
   void asyncExec(const Configuration &config,
-		 const std::function<void (bool)>& onReady 
-		   = std::function<void (bool)>());
+                 const std::function<void (bool)>& onReady
+                   = std::function<void (bool)>());
 
   // Check whether the process is ready to accept connections
   bool ready() const { return port_ != -1; }
@@ -61,9 +61,9 @@ public:
 
 private:
   void exec(const Configuration& config,
-	    const std::function<void (bool)>& onReady);
+            const std::function<void (bool)>& onReady);
   void acceptHandler(const Wt::AsioWrapper::error_code& err,
-		     const std::function<void (bool)>& onReady);
+                     const std::function<void (bool)>& onReady);
   void read();
   void readHandler(const Wt::AsioWrapper::error_code& err,
                    std::size_t bytes_transferred);
@@ -76,11 +76,11 @@ private:
 
   asio::streambuf          buf_;
 
-  int			   port_;
+  int                      port_;
 
-  std::string		   sessionId_;
+  std::string              sessionId_;
 #ifndef WT_WIN32
-  pid_t			   pid_;
+  pid_t                    pid_;
 #else // WT_WIN32
   PROCESS_INFORMATION      processInfo_;
 #endif // WT_WIN32

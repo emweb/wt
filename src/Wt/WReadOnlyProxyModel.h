@@ -66,7 +66,7 @@ public:
    * Returns the index in the source model.
    */
   virtual WModelIndex index(int row, int column,
-			    const WModelIndex& parent = WModelIndex())
+                            const WModelIndex& parent = WModelIndex())
     const override;
 
   using WAbstractProxyModel::setData;
@@ -108,7 +108,7 @@ public:
    *
    */
   virtual void dropEvent(const WDropEvent& e, DropAction action,
-			 int row, int column, const WModelIndex& parent)
+                         int row, int column, const WModelIndex& parent)
     override;
 };
 

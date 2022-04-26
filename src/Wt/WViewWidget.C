@@ -59,7 +59,7 @@ void WViewWidget::render(WFlags<RenderFlag> flags)
 void WViewWidget::updateDom(DomElement& element, bool all)
 {
   WApplication *app = WApplication::instance();
-  
+
   if (!app->session()->renderer().preLearning()) {
     if (all && !contents_) {
       needContentsUpdate_ = true;
@@ -74,11 +74,11 @@ void WViewWidget::updateDom(DomElement& element, bool all)
       DomElement *e = contents_->createSDomElement(WApplication::instance());
 
       if (!all)
-	element.setWasEmpty(true); // removes previous content
+        element.setWasEmpty(true); // removes previous content
       element.addChild(e);
 
       WApplication::instance()->session()->renderer()
-	.setVisibleOnly(savedVisibleOnly);
+        .setVisibleOnly(savedVisibleOnly);
 
       needContentsUpdate_ = false;
     }

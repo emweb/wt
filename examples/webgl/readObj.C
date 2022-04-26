@@ -18,7 +18,7 @@ void readObj(const std::string &fname,
   std::vector<float> normals;
   std::vector<float> textures;
   std::ifstream f(fname.c_str());
-  
+
   while (f) {
     std::string line;
     getline(f, line);

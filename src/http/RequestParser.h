@@ -61,10 +61,10 @@ public:
   Reply::status_type validate(Request& req);
 
   ParseResult parseBody(Request& req, ReplyPtr reply,
-		 char *& begin, char *end);
+                        char *& begin, char *end);
 
   bool initialState() const;
-  
+
 
 #ifdef WTHTTP_WITH_ZLIB
   bool frameCompressed_;
@@ -92,8 +92,8 @@ private:
   void consumeComplete(char *d);
 
   Request::State parseWebSocketMessage(Request& req, ReplyPtr reply,
-				       char *& begin,
-				       char *end);
+                                       char *& begin,
+                                       char *end);
 
   bool doWebSocketHandshake00(const Request& req);
   std::string doWebSocketHandshake13(const Request& req);

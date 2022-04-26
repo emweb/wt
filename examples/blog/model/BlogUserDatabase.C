@@ -22,7 +22,7 @@ public:
 };
 
 class TransactionImpl : public Wt::Auth::AbstractUserDatabase::Transaction,
-			public dbo::Transaction
+                        public dbo::Transaction
 {
 public:
   TransactionImpl(dbo::Session& session)
@@ -81,7 +81,7 @@ Wt::Auth::PasswordHash BlogUserDatabase::password(const Wt::Auth::User& user) co
   WithUser find(*this, user);
 
   return Wt::Auth::PasswordHash(user_->passwordMethod, user_->passwordSalt,
-			    user_->password);
+                            user_->password);
 }
 
 void BlogUserDatabase::setPassword(const Wt::Auth::User& user,
@@ -106,7 +106,7 @@ void BlogUserDatabase::setStatus(const Wt::Auth::User& user,
 }
 
 void BlogUserDatabase::addIdentity(const Wt::Auth::User& user,
-				   const std::string& provider,
+                                   const std::string& provider,
                                    const Wt::WString& identity)
 {
   WithUser find(*this, user);
@@ -120,7 +120,7 @@ void BlogUserDatabase::addIdentity(const Wt::Auth::User& user,
 }
 
 Wt::WString BlogUserDatabase::identity(const Wt::Auth::User& user,
-				       const std::string& provider) const
+                                       const std::string& provider) const
 {
   WithUser find(*this, user);
 
@@ -133,7 +133,7 @@ Wt::WString BlogUserDatabase::identity(const Wt::Auth::User& user,
 }
 
 void BlogUserDatabase::removeIdentity(const Wt::Auth::User& user,
-				      const std::string& provider)
+                                      const std::string& provider)
 {
   WithUser find(*this, user);
 
@@ -195,8 +195,8 @@ void BlogUserDatabase::addAuthToken(const Wt::Auth::User& user,
 }
 
 int BlogUserDatabase::updateAuthToken(const Wt::Auth::User& user,
-				      const std::string& hash,
-				      const std::string& newHash)
+                                      const std::string& hash,
+                                      const std::string& newHash)
 {
   WithUser find(*this, user);
 
@@ -213,7 +213,7 @@ int BlogUserDatabase::updateAuthToken(const Wt::Auth::User& user,
 }
 
 void BlogUserDatabase::removeAuthToken(const Wt::Auth::User& user,
-				       const std::string& hash)
+                                       const std::string& hash)
 {
   WithUser find(*this, user);
 
@@ -250,7 +250,7 @@ int BlogUserDatabase::failedLoginAttempts(const Wt::Auth::User& user) const
 }
 
 void BlogUserDatabase::setFailedLoginAttempts(const Wt::Auth::User& user,
-					      int count)
+                                              int count)
 {
   WithUser find(*this, user);
 
@@ -266,7 +266,7 @@ Wt::WDateTime BlogUserDatabase::lastLoginAttempt(const Wt::Auth::User& user) con
 
 void BlogUserDatabase::setLastLoginAttempt(const Wt::Auth::User& user,
                                            const Wt::WDateTime& t)
-{ 
+{
   WithUser find(*this, user);
 
   user_.modify()->lastLoginAttempt = t;

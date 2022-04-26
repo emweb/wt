@@ -66,8 +66,8 @@ public:
    * hash.
    */
   virtual bool verify(const std::string& msg,
-		      const std::string& salt,
-		      const std::string& hash) const;
+                      const std::string& salt,
+                      const std::string& hash) const;
 };
 
 /*! \class MD5HashFunction Wt/Auth/HashFunction.h
@@ -88,7 +88,7 @@ public:
   virtual std::string name() const override;
 
   virtual std::string compute(const std::string& msg,
-			      const std::string& salt) const override;
+                              const std::string& salt) const override;
 };
 
 #ifndef WT_TARGET_JAVA
@@ -113,7 +113,7 @@ public:
   virtual std::string name() const override;
 
   virtual std::string compute(const std::string& msg,
-			      const std::string& salt) const override;
+                              const std::string& salt) const override;
 };
 #endif
 
@@ -151,17 +151,17 @@ public:
   virtual std::string name() const override;
 
   virtual std::string compute(const std::string& msg,
-			      const std::string& salt) const override;
+                              const std::string& salt) const override;
 
   virtual bool verify(const std::string& msg,
-		      const std::string& salt,
-		      const std::string& hash) const override;
+                      const std::string& salt,
+                      const std::string& hash) const override;
 
 private:
   int count_;
 };
 
-  } 
+  }
 }
 
 #endif // WT_AUTH_HASH_FUNCTION

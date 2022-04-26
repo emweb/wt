@@ -11,11 +11,11 @@ void handlePathChange(Wt::WText *out)
     Wt::WApplication *app = Wt::WApplication::instance();
 
     if (app->internalPath() == "/navigation/shop")
-	out->setText("<p>Currently shopping.</p>");
+        out->setText("<p>Currently shopping.</p>");
     else if (app->internalPath() == "/navigation/eat")
-	out->setText("<p>Needed some food, eating now!</p>");
+        out->setText("<p>Needed some food, eating now!</p>");
     else
-	out->setText("<p><i>Idle.</i></p>");
+        out->setText("<p><i>Idle.</i></p>");
 }
 
 }
@@ -44,5 +44,5 @@ app->internalPathChanged().connect([=] {
 });
 
 handlePathChange(out);
-        
+
 SAMPLE_END(return std::move(container))

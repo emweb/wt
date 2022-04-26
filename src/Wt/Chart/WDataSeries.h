@@ -59,7 +59,7 @@ enum class CustomFlag {
  * Multiple series of different types may be combined on a single chart.
  *
  * \image html ChartWDataSeries-1.png "Different styles of data series"
- * 
+ *
  * For a category chart, series may be stacked on top of each other.
  * This is controlled by setStacked() for a series, which if enabled,
  * will stack that series on top of the preceding data series. This
@@ -93,7 +93,7 @@ public:
    * \sa WCartesianChart::addSeries()
    */
   WDataSeries(int modelColumn, SeriesType seriesType = SeriesType::Point,
-	      Axis axis = Axis::Y1);
+              Axis axis = Axis::Y1);
 
   /*! \brief Constructs a new data series.
    *
@@ -130,7 +130,7 @@ public:
 
   /*! \brief Returns the bar width.
    *
-   * \sa setBarWidth() 
+   * \sa setBarWidth()
    */
   double barWidth() const;
 
@@ -154,7 +154,7 @@ public:
    *
    * The data column should contain data that can be converted to
    * a number (but should not necessarily be of a number type).
-   * \if java 
+   * \if java
    * See also {javadoclink eu.webtoolkit.jwt.StringUtils#asNumber(Object)}.
    * \endif
    *
@@ -492,7 +492,7 @@ public:
    * rendering, you should call WCartesianChart::initLayout() first.
    *
    * \sa mapToDevice()
-   */ 
+   */
   WPointF mapFromDevice(const WPointF& deviceCoordinates) const;
 
   /*! \brief Maps from model values to device coordinates.
@@ -508,9 +508,9 @@ public:
    * rendering, you should call WCartesianChart::initLayout() first.
    *
    * \sa mapFromDevice()
-   */ 
+   */
   WPointF mapToDevice(const cpp17::any& xValue, const cpp17::any& yValue,
-		      int segment = 0) const;
+                      int segment = 0) const;
 
   /*! \brief Set an offset to draw the data series at.
    *

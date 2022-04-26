@@ -23,7 +23,7 @@ WTableCell *WTableColumn::elementAt(int row)
 
 int WTableColumn::columnNum() const
 {
-  for (unsigned i =0; i < table_->columns_.size(); i++) 
+  for (unsigned i =0; i < table_->columns_.size(); i++)
     if (table_->columns_[i].get() == this)
       return i;
 

@@ -15,7 +15,7 @@ namespace Wt {
 
 /*! \brief The calendar header format.
  */
-enum class CalendarHeaderFormat { 
+enum class CalendarHeaderFormat {
   SingleLetterDayNames,  //!< First letter of a day (e.g. 'M' for Monday)
   ShortDayNames,         //!< First 3 letters of a day (e.g. 'Mon' for Monday)
   LongDayNames           //!< Full day name
@@ -61,10 +61,10 @@ class WTemplate;
  *
  * Here is a snapshot, taken on 19/01/2010 (shown as
  * today), and 14/01/2010 currently selected.
- * <TABLE border="0" align="center"> <TR> <TD> 
- * \image html WCalendar-default-1.png "WCalendar with default look" 
- * </TD> <TD> 
- * \image html WCalendar-polished-1.png "WCalendar with polished look" 
+ * <TABLE border="0" align="center"> <TR> <TD>
+ * \image html WCalendar-default-1.png "WCalendar with default look"
+ * </TD> <TD>
+ * \image html WCalendar-polished-1.png "WCalendar with polished look"
  * </TD> </TR> </TABLE>
  *
  */
@@ -211,7 +211,7 @@ public:
    * You may want to connect to this signal if you want to provide a
    * custom selection handling.
    */
-  Signal<WDate>& clicked() { return clicked_; } 
+  Signal<WDate>& clicked() { return clicked_; }
 
   /*! \brief %Signal emitted when the current month is changed.
    *
@@ -242,7 +242,7 @@ public:
    *
    * \if cpp
    * The default is a null date constructed using WDate().
-   * \elseif java 
+   * \elseif java
    * The default bottom is null.
    * \endif
    */
@@ -256,7 +256,7 @@ public:
    *
    * \if cpp
    * The default is a null date constructed using WDate().
-   * \elseif java 
+   * \elseif java
    * The default top is null.
    * \endif
    */
@@ -270,7 +270,7 @@ public:
 
 protected:
   virtual void render(WFlags<RenderFlag> renderFlags) override;
-  
+
   /*! \brief Creates or updates a widget that renders a cell.
    *
    * The default implementation creates a WText

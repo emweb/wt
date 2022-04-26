@@ -111,7 +111,7 @@ public:
   virtual void setCurrentPage(int page) override;
 
   virtual void scrollTo(const WModelIndex& index,
-			ScrollHint hint = ScrollHint::EnsureVisible) override;
+                        ScrollHint hint = ScrollHint::EnsureVisible) override;
 
   /*! \brief Scrolls the view x px left and y px top.
    */
@@ -120,8 +120,8 @@ public:
   /*! \brief set css overflow
    */
   void setOverflow(Overflow overflow,
-		   WFlags<Orientation> orientation 
-		   = (Orientation::Horizontal | Orientation::Vertical));
+                   WFlags<Orientation> orientation
+                   = (Orientation::Horizontal | Orientation::Vertical));
 
   /*! \brief Sets preloading margin
    *
@@ -149,7 +149,7 @@ public:
   WLength preloadMargin(Side side) const;
 
   virtual void setHidden(bool hidden,
-			 const WAnimation& animation = WAnimation()) override;
+                         const WAnimation& animation = WAnimation()) override;
 
   /*! \brief Returns the model index corresponding to a widget.
    *
@@ -236,12 +236,12 @@ private:
 
   void modelColumnsInserted(const WModelIndex& parent, int start, int end);
   void modelColumnsAboutToBeRemoved(const WModelIndex& parent,
-				    int start, int end);
+                                    int start, int end);
   void modelRowsInserted(const WModelIndex& parent, int start, int end);
   void modelRowsAboutToBeRemoved(const WModelIndex& parent, int start, int end);
   void modelRowsRemoved(const WModelIndex& parent, int start, int end);
   virtual void modelDataChanged(const WModelIndex& topLeft,
-				const WModelIndex& bottomRight) override;
+                                const WModelIndex& bottomRight) override;
 
   virtual void modelLayoutChanged() override;
 
@@ -250,8 +250,8 @@ private:
   int spannerCount(const Side side) const;
   void setSpannerCount(const Side side, const int count);
 
-  void renderTable(const int firstRow, const int lastRow, 
-		   const int firstColumn, const int lastColumn);
+  void renderTable(const int firstRow, const int lastRow,
+                   const int firstColumn, const int lastColumn);
   void addSection(const Side side);
   void removeSection(const Side side);
   int firstRow() const;
@@ -266,7 +266,7 @@ private:
   void adjustToViewport();
   void computeRenderedArea();
 
-  virtual WContainerWidget* headerContainer() override { 
+  virtual WContainerWidget* headerContainer() override {
     return headerContainer_;
   }
 
@@ -275,7 +275,7 @@ private:
   void onViewportChange(int left, int top, int width, int height);
   void onColumnResize();
   void resetGeometry();
-  
+
   void handleSingleClick(bool headerColumns, const WMouseEvent& event);
   void handleDblClick(bool headerColumns, const WMouseEvent& event);
   void handleMouseWentDown(bool headerColumns, const WMouseEvent& event);
@@ -293,7 +293,7 @@ private:
   void handleRootMouseWentUp(int u, const WMouseEvent& event);
 
   void updateItem(const WModelIndex& index,
-		  int renderedRow, int renderedColumn);
+                  int renderedRow, int renderedColumn);
 
   virtual bool internalSelect(const WModelIndex& index, SelectionFlag option)
     override;
@@ -311,11 +311,11 @@ private:
   void updateColumnOffsets();
   void updateModelIndexes();
   void updateModelIndex(const WModelIndex& index,
-			int renderedRow, int renderedColumn);
+                        int renderedRow, int renderedColumn);
 
   void onDropEvent(int renderedRow, int columnId,
-		   std::string sourceId, std::string mimeType,
-		   WMouseEvent event);
+                   std::string sourceId, std::string mimeType,
+                   WMouseEvent event);
   void onRowDropEvent(int renderedRow, int columnId,
                       std::string sourceId, std::string mimeType,
                       std::string side, WMouseEvent event);

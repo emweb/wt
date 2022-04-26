@@ -94,7 +94,7 @@ void WebRequest::log()
 #ifndef BENCH
   if (start_.time_since_epoch().count() > 0) {
     auto end = std::chrono::high_resolution_clock::now();
-    double microseconds 
+    double microseconds
       = std::chrono::duration_cast<std::chrono::microseconds>(end - start_)
       .count();
     LOG_INFO("took " << (microseconds / 1000) << " ms");
@@ -122,7 +122,7 @@ void WebRequest::reset()
 }
 
 void WebRequest::readWebSocketMessage(const ReadCallback& callback)
-{ 
+{
   throw WException("should not get here");
 }
 
@@ -161,10 +161,10 @@ const char *WebRequest::contentType() const
     try {
       ::int64_t len = Utils::stoll(std::string(lenstr));
       if (len < 0) {
-	LOG_ERROR("Bad content-length: " << lenstr);
-	throw WException("Bad content-length");
+        LOG_ERROR("Bad content-length: " << lenstr);
+        throw WException("Bad content-length");
       } else {
-	return len;
+        return len;
       }
     } catch (std::exception& e) {
       LOG_ERROR("Bad content-length: " << lenstr);
@@ -242,28 +242,28 @@ namespace {
     {
       definition(ValueListParser const& self)
       {
-	option 
-	  = ((ch_p('q') | ch_p('Q'))
-	     >> '=' 
-	     >> ureal_p
-	        [
-		  std::bind(&self_t::setQuality, self, std::placeholders::_1)
-		]
-	     )
-	  | (+alpha_p >> '=' >> +alnum_p)
-	  ;
+        option
+          = ((ch_p('q') | ch_p('Q'))
+             >> '='
+             >> ureal_p
+                [
+                  std::bind(&self_t::setQuality, self, std::placeholders::_1)
+                ]
+             )
+          | (+alpha_p >> '=' >> +alnum_p)
+          ;
 
-	value
-	  = lexeme_d[(alpha_p >> +(alnum_p | '-')) | '*']
-	    [
-	       std::bind(&self_t::addValue, self, std::placeholders::_1, std::placeholders:: _2)
-	    ]
-	    >> !( ';' >> option )
-	  ;
+        value
+          = lexeme_d[(alpha_p >> +(alnum_p | '-')) | '*']
+            [
+               std::bind(&self_t::addValue, self, std::placeholders::_1, std::placeholders:: _2)
+            ]
+            >> !( ';' >> option )
+          ;
 
-	valuelist
-	  = !(value  >> *(',' >> value )) >> end_p
-	  ;
+        valuelist
+          = !(value  >> *(',' >> value )) >> end_p
+          ;
       }
 
       rule<ScannerT> option, value, valuelist;
@@ -288,7 +288,7 @@ std::string WebRequest::parsePreferredAcceptValue(const char *str) const
     unsigned best = 0;
     for (unsigned i = 1; i < values.size(); ++i) {
       if (values[i].quality > values[best].quality)
-	best = i;
+        best = i;
     }
 
     if (best < values.size())
@@ -297,7 +297,7 @@ std::string WebRequest::parsePreferredAcceptValue(const char *str) const
       return std::string();
   } else {
     LOG_ERROR("Could not parse 'Accept-Language: " << str
-	      << "', stopped at: '" << info.stop << '\'');
+              << "', stopped at: '" << info.stop << '\'');
     return std::string();
   }
 }
@@ -343,9 +343,9 @@ void WebRequest::emulateAsync(ResponseState state)
      */
     while (!async_->done) {
       if (!asyncCallback_) {
-	delete async_;
-	async_ = nullptr;
-	return;
+        delete async_;
+        async_ = nullptr;
+        return;
       }
 
       WriteCallback fn = asyncCallback_;
@@ -353,7 +353,7 @@ void WebRequest::emulateAsync(ResponseState state)
       fn(WebWriteEvent::Completed);
     }
   }
-    
+
   delete this;
 }
 

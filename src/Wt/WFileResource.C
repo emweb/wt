@@ -21,7 +21,7 @@ WFileResource::WFileResource(const std::string& fileName)
 { }
 
 WFileResource::WFileResource(const std::string& mimeType,
-			     const std::string& fileName)
+                             const std::string& fileName)
   : WStreamResource(mimeType),
     fileName_(fileName)
 { }
@@ -38,7 +38,7 @@ void WFileResource::setFileName(const std::string& fileName)
 }
 
 void WFileResource::handleRequest(const Http::Request& request,
-				  Http::Response& response)
+                                  Http::Response& response)
 {
   std::ifstream r(fileName_.c_str(), std::ios::in | std::ios::binary);
   if (!r) {

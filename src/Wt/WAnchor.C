@@ -44,7 +44,7 @@ WAnchor::WAnchor(const WLink& link, const WString& text)
 }
 
 WAnchor::WAnchor(const WLink& link, std::unique_ptr<WImage> image)
-{ 
+{
   setInline(true);
   setLink(link);
 
@@ -56,7 +56,7 @@ WAnchor::WAnchor(const WLink& link, std::unique_ptr<WImage> image)
 
 void WAnchor::setLink(const WLink& link)
 {
-  if (linkState_.link.type() != LinkType::Resource && 
+  if (linkState_.link.type() != LinkType::Resource &&
       linkState_.link == link)
     return;
 
@@ -178,15 +178,15 @@ void WAnchor::updateDom(DomElement& element, bool all)
   }
 
   if (flags_.test(BIT_TARGET_CHANGED) || all) {
-	renderHTarget(linkState_, element, all);
+        renderHTarget(linkState_, element, all);
 
-	/*
-	 * TODO(Benoit)
-	 * We do that here because of the static method, 
-	 * We should maybe move the code to renderHTarget() 
-	 * and make it non static ?
-	 */
-	flags_.reset(BIT_TARGET_CHANGED);
+        /*
+         * TODO(Benoit)
+         * We do that here because of the static method,
+         * We should maybe move the code to renderHTarget()
+         * and make it non static ?
+         */
+        flags_.reset(BIT_TARGET_CHANGED);
   }
 
   WContainerWidget::updateDom(element, all);
@@ -196,7 +196,7 @@ void WAnchor::updateDom(DomElement& element, bool all)
 }
 
 bool WAnchor::renderHRef(WInteractWidget *widget,
-			 LinkState& linkState, DomElement& element)
+                         LinkState& linkState, DomElement& element)
 {
   WApplication *app = WApplication::instance();
 
@@ -211,8 +211,8 @@ bool WAnchor::renderHRef(WInteractWidget *widget,
      */
     if (linkState.link.target() == LinkTarget::Self) {
       linkState.clickJS
-	= linkState.link.manageInternalPathChange(app, widget,
-						  linkState.clickJS);
+        = linkState.link.manageInternalPathChange(app, widget,
+                                                  linkState.clickJS);
     } else {
       delete linkState.clickJS;
       linkState.clickJS = nullptr;
@@ -250,11 +250,11 @@ void WAnchor::renderHTarget(LinkState& linkState, DomElement& element, bool all)
 }
 
 void WAnchor::renderUrlResolution(WWidget *widget, DomElement& element,
-				  bool all)
+                                  bool all)
 {
   if (all)
     element.setProperty(Property::Class,
-			Utils::addWord(widget->styleClass().toUTF8(), "Wt-rr"));
+                        Utils::addWord(widget->styleClass().toUTF8(), "Wt-rr"));
   else
     element.callJavaScript("$('#" + widget->id() + "').addClass('Wt-rr');");
 }

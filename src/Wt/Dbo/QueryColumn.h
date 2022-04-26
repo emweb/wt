@@ -17,15 +17,15 @@ class WAbstractTableModel;
   namespace Dbo {
 
 // TODO figure out a nice syntax for qualified fields ?
-class QueryColumn 
+class QueryColumn
 {
   QueryColumn(const std::string& field,
-	      const WString& header,
-	      WFlags<ItemFlag> flags);
+              const WString& header,
+              WFlags<ItemFlag> flags);
 
   /*
   QueryColumn(const std::string& field,
-	      WAbstractTableModel *editValuesModel);
+              WAbstractTableModel *editValuesModel);
   */
 
 private:
@@ -46,12 +46,12 @@ private:
  * libwt.so
  */
 inline QueryColumn::QueryColumn(const std::string& field,
-				const WString& header,
-				WFlags<ItemFlag> flags)
+                                const WString& header,
+                                WFlags<ItemFlag> flags)
   : field_(field),
     flags_(flags),
     fieldIdx_(-1)
-{ 
+{
   headerData_[ItemDataRole::Display] = header;
 }
 

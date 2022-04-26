@@ -155,7 +155,7 @@ public:
    * will not work on Internet Explorer.
    */
   void setCursor(std::string cursorImage,
-		 Cursor fallback = Cursor::Arrow);
+                 Cursor fallback = Cursor::Arrow);
 
   /*! \brief Returns the cursor.
    *
@@ -188,7 +188,7 @@ public:
    * \sa keyWentDown()
    */
   EventSignal<WKeyEvent>& keyPressed();
-    
+
   /*! \brief Event signal emitted when a keyboard key is released.
    *
    * This is the counter-part of the keyWentDown() event. Every
@@ -280,7 +280,7 @@ public:
    * \note When JavaScript is disabled, the signal will never fire.
    */
   EventSignal<WMouseEvent>& mouseWentOut();
-    
+
   /*! \brief Event signal emitted when the mouse entered this widget.
    *
    * \note When JavaScript is disabled, the signal will never fire.

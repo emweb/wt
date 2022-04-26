@@ -57,7 +57,7 @@ public:
   {
     for (unsigned i = 0; i < sheets_.size(); ++i) {
       if ((unsigned)j < sheets_[i]->rulesetSize())
-	return sheets_[i]->rulesetAt(j);
+        return sheets_[i]->rulesetAt(j);
       j -= sheets_[i]->rulesetSize();
     }
 
@@ -196,9 +196,9 @@ double WTextRenderer::render(const WString& text, double y)
       CssParser parser;
       std::unique_ptr<Wt::Render::StyleSheet> docStyles = parser.parse(ss.str());
       if (docStyles)
-	styles.use(std::move(docStyles));
+        styles.use(std::move(docStyles));
       else
-	LOG_ERROR("Error parsing style sheet: " << parser.getLastError());
+        LOG_ERROR("Error parsing style sheet: " << parser.getLastError());
     }
 
     docBlock.setStyleSheet(&styles);
@@ -231,31 +231,31 @@ double WTextRenderer::render(const WString& text, double y)
       currentPs.minX = minX;
       currentPs.maxX = maxX;
 
-      collapseMarginBottom 
-	= docBlock.layoutBlock(currentPs, false, *this,
-			       std::numeric_limits<double>::max(),
-			       collapseMarginBottom);
+      collapseMarginBottom
+        = docBlock.layoutBlock(currentPs, false, *this,
+                               std::numeric_limits<double>::max(),
+                               collapseMarginBottom);
 
       if (isEpsilonMore(currentPs.maxX, maxX)) {
-	if (!tooWide) {
-	  LOG_WARN("contents too wide for page. ("
-		   << currentPs.maxX << " > " << maxX << ")");
-	  tooWide = true;
-	}
+        if (!tooWide) {
+          LOG_WARN("contents too wide for page. ("
+                   << currentPs.maxX << " > " << maxX << ")");
+          tooWide = true;
+        }
 
-	maxX = currentPs.maxX;
+        maxX = currentPs.maxX;
       } else {
-	Block::clearFloats(currentPs, maxX - minX);
+        Block::clearFloats(currentPs, maxX - minX);
 
-	break;
+        break;
       }
     }
 
     for (int page = 0; page <= currentPs.page; ++page) {
       if (page != 0) {
-	device_ = startPage(page);
-	painter_ = getPainter(device_);
-	painter_->setFont(defaultFont);
+        device_ = startPage(page);
+        painter_ = getPainter(device_);
+        painter_->setFont(defaultFont);
       }
 
       docBlock.render(*this, *painter_, page);

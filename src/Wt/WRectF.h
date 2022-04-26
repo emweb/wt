@@ -32,7 +32,7 @@ class WPainterPath;
  * \endcode
  *
  * \warning A %WRectF that is JavaScript exposed should be modified only through its \link WJavaScriptHandle handle\endlink.
- *	    Any attempt at modifying it will cause an exception to be thrown.
+ *          Any attempt at modifying it will cause an exception to be thrown.
  *
  * \sa WPaintedWidget::createJSRect()
  *
@@ -45,7 +45,7 @@ public:
    *
    * \if cpp
    * Constructs a \p null rectangle.
-   * 
+   *
    * \sa isNull()
    * \endif
    *
@@ -78,7 +78,7 @@ public:
   WRectF(const WPointF& topLeft, const WPointF& bottomRight);
 
 #ifdef WT_TARGET_JAVA
-  /*! \brief Internal assign method. 
+  /*! \brief Internal assign method.
    */
   WRectF& operator= (const WRectF& rhs);
 #endif // WT_TARGET_JAVA
@@ -102,7 +102,7 @@ public:
    */
   bool isNull() const;
 
-  /*! \brief Determines whether or not this rectangle is empty. 
+  /*! \brief Determines whether or not this rectangle is empty.
    *
    * A rectangle is empty if its width and height are zero.
    *

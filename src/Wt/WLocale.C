@@ -202,13 +202,13 @@ WT_USTRING WLocale::doubleToString(std::string v) const
     else
       return WT_USTRING::fromUTF8(v); // Inf, etc...
   } else {
-    v.replace(dotPos, 1, decimalPoint_); 
+    v.replace(dotPos, 1, decimalPoint_);
     return WT_USTRING::fromUTF8(addGrouping(v, dotPos));
   }
 }
 
 std::string WLocale::addGrouping(const std::string& v, unsigned decimalPoint)
-  const 
+  const
 {
   std::string result;
   result.reserve(v.length() * 2);
@@ -216,8 +216,8 @@ std::string WLocale::addGrouping(const std::string& v, unsigned decimalPoint)
   for (unsigned i = 0; i < decimalPoint; ++i) {
     result.push_back(v[i]);
     if (std::isdigit(v[i]) && /* avoid '-,123,456.99' */
-	i < decimalPoint - 1 && 
-	((decimalPoint - i - 1) % 3 == 0))
+        i < decimalPoint - 1 &&
+        ((decimalPoint - i - 1) % 3 == 0))
       result += groupSeparator_;
   }
 

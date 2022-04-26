@@ -127,7 +127,7 @@ public:
    * \sa setInvalidTooLargeText(const WString&)
    */
   WString invalidTooLargeText() const;
-  
+
   /*! \brief If true the validator will ignore trailing spaces
    *
    * \sa ignoreTrailingSpaces()
@@ -152,7 +152,7 @@ private:
   WString tooSmallText_;
   WString tooLargeText_;
   WString nanText_;
-  
+
   static void loadJavaScript(WApplication *app);
 };
 

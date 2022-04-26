@@ -43,15 +43,15 @@ public:
    * This function starts a session on the specific \p host, \p port,
    * \p path, and optional \p query. These correspond to the different
    * parts of a url:
-   * 
+   *
    * <tt>http://</tt><i>host</i><tt>:</tt><i>port</i>/<i>path</i><tt>?</tt>\p query.
    */
   static void startWtSession(const std::string& host,
-			     const std::string& port,
-			     const std::string& path,
-			     const std::string& query = std::string(),
-			     WFlags<ClientOption> flags
-			       = ClientOption::SupportsAjax);
+                             const std::string& port,
+                             const std::string& path,
+                             const std::string& query = std::string(),
+                             WFlags<ClientOption> flags
+                               = ClientOption::SupportsAjax);
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(WtClient::ClientOption)

@@ -140,7 +140,7 @@ void OAuthTokenEndpoint::handleRequest(const Http::Request &request, Http::Respo
       << " id: " << clientId
       << " client: " << (client.checkValid() ? "valid" : "not valid")
       << " secret: " << (client.verifySecret(clientSecret) ? "correct" : "incorrect")
-	     << " method: " << (client.authMethod() != authMethod ? "no match" : "match")
+      << " method: " << (client.authMethod() != authMethod ? "no match" : "match")
     );
     return;
   }

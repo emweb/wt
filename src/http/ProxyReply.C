@@ -31,8 +31,8 @@ namespace http {
 namespace server {
 
 ProxyReply::ProxyReply(Request& request,
-		       const Configuration& config,
-		       SessionProcessManager& sessionManager)
+                       const Configuration& config,
+                       SessionProcessManager& sessionManager)
   : Reply(request, config),
     sessionManager_(sessionManager),
     out_(&out_buf_),
@@ -105,14 +105,14 @@ void ProxyReply::writeDone(bool success)
        asio::transfer_at_least(1),
        connection()->strand().wrap
        (std::bind(&ProxyReply::handleResponseRead,
-		  std::static_pointer_cast<ProxyReply>(shared_from_this()),
-		  std::placeholders::_1)));
+                  std::static_pointer_cast<ProxyReply>(shared_from_this()),
+                  std::placeholders::_1)));
   }
 }
 
 bool ProxyReply::consumeData(const char *begin,
-			     const char *end,
-			     Request::State state)
+                             const char *end,
+                             Request::State state)
 {
   LOG_DEBUG(this << ": consumeData()");
 
@@ -129,14 +129,14 @@ bool ProxyReply::consumeData(const char *begin,
       LOG_DEBUG(this << ": sending to child");
       // Connection with child already established, send request data
       asio::async_write
-	(*socket_,
-	 asio::buffer(beginRequestBuf_, endRequestBuf_ - beginRequestBuf_),
-	 connection()->strand().wrap
-	 (std::bind
-	  (&ProxyReply::handleDataWritten,
-	   std::static_pointer_cast<ProxyReply>(shared_from_this()),
-	   std::placeholders::_1,
-	   std::placeholders::_2)));
+        (*socket_,
+         asio::buffer(beginRequestBuf_, endRequestBuf_ - beginRequestBuf_),
+         connection()->strand().wrap
+         (std::bind
+          (&ProxyReply::handleDataWritten,
+           std::static_pointer_cast<ProxyReply>(shared_from_this()),
+           std::placeholders::_1,
+           std::placeholders::_2)));
     } else {
       /* Connection with child was closed */
       error(service_unavailable);
@@ -144,7 +144,7 @@ bool ProxyReply::consumeData(const char *begin,
   } else {
     queryParams_.clear();
     Wt::Http::Request::parseFormUrlEncoded(request_.request_query,
-					   queryParams_);
+                                           queryParams_);
 
     // First connect to child process
     std::string sessionId = getSessionId();
@@ -156,45 +156,45 @@ bool ProxyReply::consumeData(const char *begin,
       Wt::Http::ParameterMap::const_iterator wtt = queryParams_.find("wtt");
 
       if (!sessionId.empty() && (wtt == queryParams_.end() || wtt->second[0] != "widgetset")) {
-	/*
-	 * Do not spawn a new process only to indicate that the request
-	 * is illegal. We also handle obvious 'reload' indications here.
-	 */
-	Wt::Http::ParameterMap::const_iterator i = queryParams_.find("request");
+        /*
+         * Do not spawn a new process only to indicate that the request
+         * is illegal. We also handle obvious 'reload' indications here.
+         */
+        Wt::Http::ParameterMap::const_iterator i = queryParams_.find("request");
 
-	if (i != queryParams_.end()) {
-	  if (i->second[0] == "resource" || i->second[0] == "style") {
-	    LOG_INFO("resource request from dead session, not responding.");
-	    error(not_found);
-	    return true;
-	  } else if (i->second[0] == "ws") {
-	    LOG_INFO("websocket request from dead session, not responding.");
-	    error(service_unavailable);
-	    return true;
-	  }
-	} else if (request_.method.icontains("POST") &&
-		   queryParams_.size() == 1) {
-	  sendReload();
+        if (i != queryParams_.end()) {
+          if (i->second[0] == "resource" || i->second[0] == "style") {
+            LOG_INFO("resource request from dead session, not responding.");
+            error(not_found);
+            return true;
+          } else if (i->second[0] == "ws") {
+            LOG_INFO("websocket request from dead session, not responding.");
+            error(service_unavailable);
+            return true;
+          }
+        } else if (request_.method.icontains("POST") &&
+                   queryParams_.size() == 1) {
+          sendReload();
 
-	  return true;
-	}
+          return true;
+        }
       }
 
       if (sessionManager_.tryToIncrementSessionCount()) {
-	fwCertificates_ = true;
-	// Launch new child process
+        fwCertificates_ = true;
+        // Launch new child process
         sessionProcess_ = sessionManager_.createSessionProcess();
 
-	sessionProcess_->asyncExec(
-	    configuration(),
-	    connection()->strand().wrap
-	    (std::bind
-	     (&ProxyReply::connectToChild,
-	      std::static_pointer_cast<ProxyReply>(shared_from_this()),
-	      std::placeholders::_1)));
+        sessionProcess_->asyncExec(
+            configuration(),
+            connection()->strand().wrap
+            (std::bind
+             (&ProxyReply::connectToChild,
+              std::static_pointer_cast<ProxyReply>(shared_from_this()),
+              std::placeholders::_1)));
       } else {
-	LOG_ERROR("maximum amount of sessions reached!");
-	error(service_unavailable);
+        LOG_ERROR("maximum amount of sessions reached!");
+        error(service_unavailable);
       }
     } else {
       connectToChild(true);
@@ -214,8 +214,8 @@ void ProxyReply::connectToChild(bool success)
       (sessionProcess_->endpoint(),
        connection()->strand().wrap
        (std::bind(&ProxyReply::handleChildConnected,
-		  std::static_pointer_cast<ProxyReply>(shared_from_this()),
-		  std::placeholders::_1)));
+                  std::static_pointer_cast<ProxyReply>(shared_from_this()),
+                  std::placeholders::_1)));
   } else {
     error(service_unavailable);
   }
@@ -261,7 +261,7 @@ void ProxyReply::assembleRequestHeaders()
   for (Request::HeaderList::const_iterator it = request_.headers.begin();
        it != request_.headers.end(); ++it) {
     if (it->name.iequals("Connection") || it->name.iequals("Keep-Alive") ||
-	it->name.iequals("TE") || it->name.iequals("Transfer-Encoding")) {
+        it->name.iequals("TE") || it->name.iequals("Transfer-Encoding")) {
       // Remove hop-by-hop header
     } else if (it->name.iequals(SSL_CLIENT_CERTIFICATES_HEADER)) {
       // Remove Wt-specific client certificates header (only we are allowed to send it)
@@ -285,7 +285,7 @@ void ProxyReply::assembleRequestHeaders()
       if (it->value.iequals("websocket")) {
         establishWebSockets = true;
       }
-    } else if (it->name.iequals("X-Forwarded-Proto")) { 
+    } else if (it->name.iequals("X-Forwarded-Proto")) {
       if (trustedProxy) {
         forwardedProto = it->value.str();
       } else {
@@ -347,12 +347,12 @@ void ProxyReply::appendSSLInfo(const Wt::WSslInfo* sslInfo, std::ostream& os) {
   Wt::WSslCertificate clientCert = sslInfo->clientCertificate();
   std::string pem = clientCert.toPem();
 
-  obj["client-certificate"] = Wt::WString(pem); 
+  obj["client-certificate"] = Wt::WString(pem);
 
   Wt::Json::Value arrVal(Wt::Json::Type::Array);
   Wt::Json::Array &sslCertsArr = arrVal;
   for(unsigned int i = 0; i< sslInfo->clientPemCertificateChain().size(); ++i) {
-	sslCertsArr.push_back(Wt::WString(sslInfo->clientPemCertificateChain()[i].toPem()));
+        sslCertsArr.push_back(Wt::WString(sslInfo->clientPemCertificateChain()[i].toPem()));
   }
 
   obj["client-pem-certification-chain"] = arrVal;
@@ -365,7 +365,7 @@ void ProxyReply::appendSSLInfo(const Wt::WSslInfo* sslInfo, std::ostream& os) {
 }
 
 void ProxyReply::handleDataWritten(const Wt::AsioWrapper::error_code &ec,
-				   std::size_t transferred)
+                                   std::size_t transferred)
 {
   if (!ec) {
     if (state_ == Request::Partial) {
@@ -374,12 +374,12 @@ void ProxyReply::handleDataWritten(const Wt::AsioWrapper::error_code &ec,
       receive();
     } else {
       asio::async_read_until
-	(*socket_, responseBuf_, "\r\n",
-	 connection()->strand().wrap
-	 (std::bind
-	  (&ProxyReply::handleStatusRead,
-	   std::static_pointer_cast<ProxyReply>(shared_from_this()),
-	   std::placeholders::_1)));
+        (*socket_, responseBuf_, "\r\n",
+         connection()->strand().wrap
+         (std::bind
+          (&ProxyReply::handleStatusRead,
+           std::static_pointer_cast<ProxyReply>(shared_from_this()),
+           std::placeholders::_1)));
     }
   } else {
     LOG_ERROR("error sending data to child: " << ec.message());
@@ -402,7 +402,7 @@ void ProxyReply::handleStatusRead(const Wt::AsioWrapper::error_code &ec)
     if (!response_stream || http_version.substr(0, 5) != "HTTP/") {
       LOG_ERROR("got malformed response!");
       if (!sendReload())
-	error(internal_server_error);
+        error(internal_server_error);
       return;
     }
 
@@ -410,8 +410,8 @@ void ProxyReply::handleStatusRead(const Wt::AsioWrapper::error_code &ec)
       (*socket_, responseBuf_, "\r\n\r\n",
        connection()->strand().wrap
        (std::bind(&ProxyReply::handleHeadersRead,
-		  std::static_pointer_cast<ProxyReply>(shared_from_this()),
-		  std::placeholders::_1)));
+                  std::static_pointer_cast<ProxyReply>(shared_from_this()),
+                  std::placeholders::_1)));
   } else {
     LOG_ERROR("error reading status line from child process " << sessionProcess_->pid() << ": " << ec.message());
     if (!sendReload())
@@ -441,37 +441,37 @@ void ProxyReply::handleHeadersRead(const Wt::AsioWrapper::error_code &ec)
       std::string name = boost::trim_copy(header.substr(0, i));
       std::string value = boost::trim_copy(header.substr(i+1));
       if (boost::iequals(name, "Content-Type")) {
-	contentType_ = value;
-      } else if (boost::iequals(name, "Content-Length")) { 
-	contentLength_ = Wt::Utils::stoll(value);
+        contentType_ = value;
+      } else if (boost::iequals(name, "Content-Length")) {
+        contentLength_ = Wt::Utils::stoll(value);
       } else if (boost::iequals(name, "Date")) {
-	// Ignore, we're overriding it
+        // Ignore, we're overriding it
       } else if (boost::iequals(name, "Transfer-Encoding") || boost::iequals(name, "Keep-Alive") ||
-	  boost::iequals(name, "TE")) {
-	// Remove hop-by-hop header
+          boost::iequals(name, "TE")) {
+        // Remove hop-by-hop header
       } else if (boost::iequals(name, "Connection")) {
-	// Remove hop-by-hop header
-	if (boost::icontains(value, "Upgrade")) {
-	  webSocketConnection = true;
-	}
+        // Remove hop-by-hop header
+        if (boost::icontains(value, "Upgrade")) {
+          webSocketConnection = true;
+        }
       } else if (boost::iequals(name, "Upgrade")) {
-	// Remove hop-by-hop header
-	if (boost::icontains(value, "websocket")) {
-	  webSocketUpgrade = true;
-	}
+        // Remove hop-by-hop header
+        if (boost::icontains(value, "websocket")) {
+          webSocketUpgrade = true;
+        }
       } else {
-	addHeader(name, value);
+        addHeader(name, value);
       }
 
       if (boost::iequals(name, "Transfer-Encoding") &&
-	  boost::iequals(value, "chunked")) {
-	// NOTE: Wt shouldn't return chunked encoding, because
-	//	 we sent Connection: close.
-	// If decoding is needed, look in Wt::Http::Client
-	LOG_ERROR("unexpected chunked encoding!");
-	if (!sendReload())
-	  error(internal_server_error);
-	return;
+          boost::iequals(value, "chunked")) {
+        // NOTE: Wt shouldn't return chunked encoding, because
+        //         we sent Connection: close.
+        // If decoding is needed, look in Wt::Http::Client
+        LOG_ERROR("unexpected chunked encoding!");
+        if (!sendReload())
+          error(internal_server_error);
+        return;
       }
     }
   }
@@ -502,9 +502,9 @@ void ProxyReply::handleResponseRead(const Wt::AsioWrapper::error_code &ec)
 
     send();
   } else if (ec == asio::error::eof
-	     || ec == asio::error::shut_down
-	     || ec == asio::error::operation_aborted
-	     || ec == asio::error::connection_reset) {
+             || ec == asio::error::shut_down
+             || ec == asio::error::operation_aborted
+             || ec == asio::error::connection_reset) {
     closeClientSocket();
 
     more_ = false;
@@ -514,7 +514,7 @@ void ProxyReply::handleResponseRead(const Wt::AsioWrapper::error_code &ec)
     }
   } else {
     LOG_ERROR("error reading response from child process " << sessionProcess_->pid() << ": " << ec.message());
-    if (!sendReload()) 
+    if (!sendReload())
       error(service_unavailable);
   }
 }
@@ -537,8 +537,8 @@ std::string ProxyReply::getSessionId() const
     if (cookieHeader) {
       std::string cookie = cookieHeader->value.str();
       sessionId = Wt::WebController::sessionFromCookie
-	(cookie.c_str(), request_.request_path,
-	 wtConfiguration.fullSessionIdLength());
+        (cookie.c_str(), request_.request_path,
+         wtConfiguration.fullSessionIdLength());
     }
   }
 
@@ -599,7 +599,7 @@ bool ProxyReply::sendReload()
     std::string origin;
     if(!horigin)
       origin = "*";
-    else 
+    else
       origin = horigin->value.str();
 
     addHeader("Access-Control-Allow-Origin", origin);

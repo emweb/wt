@@ -54,44 +54,44 @@ namespace Wt {
         /*! \brief Creates and opens a %Firebird backend connection.
          */
         Firebird(const std::string& ServerName,
-		 const std::string& DatabaseName, 
-		 const std::string& UserName,
-		 const std::string& UserPassword, 
-		 const std::string& RoleName,
-		 const std::string& CharSet = std::string(), 
-		 const std::string& CreateParams = std::string());
+                 const std::string& DatabaseName,
+                 const std::string& UserName,
+                 const std::string& UserPassword,
+                 const std::string& RoleName,
+                 const std::string& CharSet = std::string(),
+                 const std::string& CreateParams = std::string());
 
-	/*! \brief Creates and opens a %Firebird backend connection.
-	 */
+        /*! \brief Creates and opens a %Firebird backend connection.
+         */
         Firebird(IBPP::Database db);
 
         /*! \brief Copy constructor.
-	 *
-	 * This creates a new backend connection with the same settings
-	 * as another connection.
+         *
+         * This creates a new backend connection with the same settings
+         * as another connection.
          */
         Firebird(const Firebird& other);
-	
+
         /*! \brief Destructor.
          *
          * Closes the connection.
          */
         virtual ~Firebird();
 
-	/*! \brief Tries to connect.
+        /*! \brief Tries to connect.
          *
          * Throws an exception if there was a problem, otherwise
          * returns \c true.
          */
-	bool connect(const std::string& ServerName,
-		     const std::string& DatabaseName, 
-		     const std::string& UserName,
-		     const std::string& UserPassword, 
-		     const std::string& RoleName,
-		     const std::string& CharSet = std::string(), 
-		     const std::string& CreateParams = std::string());
+        bool connect(const std::string& ServerName,
+                     const std::string& DatabaseName,
+                     const std::string& UserName,
+                     const std::string& UserPassword,
+                     const std::string& RoleName,
+                     const std::string& CharSet = std::string(),
+                     const std::string& CreateParams = std::string());
 
-	virtual std::unique_ptr<SqlConnection> clone() const override;
+        virtual std::unique_ptr<SqlConnection> clone() const override;
 
         /*! \brief Returns the underlying connection handle.
          */
@@ -100,7 +100,7 @@ namespace Wt {
         virtual void startTransaction() override;
         virtual void commitTransaction() override;
         virtual void rollbackTransaction() override;
-	
+
         virtual std::unique_ptr<SqlStatement> prepareStatement(const std::string& sql) override;
 
         /** @name Methods that return dialect information
@@ -108,10 +108,10 @@ namespace Wt {
         //!@{
         virtual std::string autoincrementSql() const override;
         virtual std::vector<std::string>
-	  autoincrementCreateSequenceSql(const std::string &table,
+          autoincrementCreateSequenceSql(const std::string &table,
                                          const std::string &id) const override;
-	virtual std::vector<std::string> 
-	  autoincrementDropSequenceSql(const std::string &table,
+        virtual std::vector<std::string>
+          autoincrementDropSequenceSql(const std::string &table,
                                        const std::string &id) const override;
         virtual std::string autoincrementType() const override;
         virtual std::string autoincrementInsertSuffix(const std::string& id) const override;
@@ -122,15 +122,15 @@ namespace Wt {
         virtual LimitQuery limitQueryMethod() const override;
         virtual bool supportAlterTable() const override;
         virtual bool usesRowsFromTo() const override {return false;}
-	//!@}
- 
+        //!@}
+
         virtual void prepareForDropTables() override;
-	
+
       private:
-	Firebird_impl          *impl_;
+        Firebird_impl          *impl_;
         bool                    m_writableTransaction;
 
-	friend class FirebirdStatement;
+        friend class FirebirdStatement;
       };
     }
   }

@@ -25,7 +25,7 @@ QueryModel<Result>::QueryModel()
 
 template <class Result>
 void QueryModel<Result>::setQuery(const Query<Result>& query,
-				  bool keepColumns)
+                                  bool keepColumns)
 {
   queryLimit_ = query.limit();
   queryOffset_ = query.offset();
@@ -64,15 +64,15 @@ void QueryModel<Result>::setBatchSize(int count)
 
 template <class Result>
 int QueryModel<Result>::addColumn(const std::string& field,
-				  const WString& header,
-				  WFlags<ItemFlag> flags)
+                                  const WString& header,
+                                  WFlags<ItemFlag> flags)
 {
-  return addColumn(QueryColumn(field, header, flags));  
+  return addColumn(QueryColumn(field, header, flags));
 }
 
 template <class Result>
 int QueryModel<Result>::addColumn(const std::string& field,
-				  WFlags<ItemFlag> flags)
+                                  WFlags<ItemFlag> flags)
 {
   return addColumn(QueryColumn(field, WString::fromUTF8(field), flags));
 }
@@ -213,7 +213,7 @@ void QueryModel<Result>::invalidateData()
 template <class Result>
 void QueryModel<Result>::dataReloaded()
 {
-  layoutChanged().emit();  
+  layoutChanged().emit();
 }
 
 template <class Result>
@@ -297,12 +297,12 @@ void QueryModel<Result>::cacheRow(int row) const
 
     collection<Result> results = query_.resultList();
     cache_.clear();
-    cache_.insert(cache_.end(), results.begin(), results.end());   
+    cache_.insert(cache_.end(), results.begin(), results.end());
 
     for (unsigned i = 0; i < cache_.size(); ++i) {
       long long id = resultId(cache_[i]);
       if (id != -1)
-	stableIds_[cacheStart_ + i] = id;
+        stableIds_[cacheStart_ + i] = id;
     }
     if (static_cast<int>(cache_.size()) < qLimit
         && qOffset == 0 && cachedRowCount_ == -1)
@@ -345,7 +345,7 @@ int QueryModel<Result>::getFieldIndex(const std::string& field)
       return i;
     if (!fields_[i].qualifier().empty())
       if (fields_[i].qualifier() + "." + fields_[i].name() == field)
-	return i;
+        return i;
   }
 
   throw Exception("QueryModel: could not find field: '" + field + "'");
@@ -401,7 +401,7 @@ void QueryModel<Result>::deleteRow(Result& result)
 
 template <class Result>
 bool QueryModel<Result>::insertRows(int row, int count,
-				    const WModelIndex& parent)
+                                    const WModelIndex& parent)
 {
   if (row != rowCount())
     throw Exception("QueryModel: only supporting row insertion at end");
@@ -417,7 +417,7 @@ bool QueryModel<Result>::insertRows(int row, int count,
      * when insertion is followed by setData() calls.
      */
     if (cacheStart_ != -1
-	&& cacheStart_ + (int)cache_.size() == row + i)
+        && cacheStart_ + (int)cache_.size() == row + i)
       cache_.push_back(r);
   }
 
@@ -430,10 +430,10 @@ bool QueryModel<Result>::insertRows(int row, int count,
 
 template <class Result>
 bool QueryModel<Result>::removeRows(int row, int count,
-				    const WModelIndex& parent)
+                                    const WModelIndex& parent)
 {
   beginRemoveRows(parent, row, row + count - 1);
-  
+
   for (int i = 0; i < count; ++i) {
     deleteRow(resultRow(row));
     cache_.erase(cache_.begin() + (row - cacheStart_));
@@ -448,7 +448,7 @@ bool QueryModel<Result>::removeRows(int row, int count,
 
 template <class Result>
 bool QueryModel<Result>::setHeaderData(int section, Orientation orientation,
-				       const cpp17::any& value,
+                                       const cpp17::any& value,
                                        ItemDataRole role)
 {
   if (orientation == Orientation::Horizontal) {
@@ -462,7 +462,7 @@ bool QueryModel<Result>::setHeaderData(int section, Orientation orientation,
     return true;
   } else
     return WAbstractTableModel::setHeaderData(section, orientation,
-					      value, role);
+                                              value, role);
 }
 
 template <class Result>
@@ -522,7 +522,7 @@ WModelIndex QueryModel<Result>::fromRawIndex(void *rawIndex) const
       const Result& result = resultRow(row);
 
       if (resultId(result) == id)
-	return index(row, 0);
+        return index(row, 0);
     }
   }
 

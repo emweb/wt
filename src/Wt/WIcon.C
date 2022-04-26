@@ -87,7 +87,7 @@ void WIcon::loadIconFont()
 
   std::string fontDir = WApplication::relativeResourcesUrl()
     + "font-awesome/";
-  
+
   app->useStyleSheet(fontDir + "css/font-awesome.min.css");
 }
 

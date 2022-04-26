@@ -50,7 +50,7 @@ struct sql_value_traits<WDateTime, void>
 
   static const char *type(SqlConnection *conn, int size);
   static void bind(const WDateTime& v, SqlStatement *statement, int column,
-		   int size);
+                   int size);
   static bool read(WDateTime& v, SqlStatement *statement, int column, int size);
 };
 
@@ -63,7 +63,7 @@ struct sql_value_traits<WTime, void>
 
   static const char *type(SqlConnection *conn, int size);
   static void bind(const WTime& v, SqlStatement *statement, int column,
-		   int size);
+                   int size);
   static bool read(WTime& v, SqlStatement *statement, int column, int size);
 };
 
@@ -74,7 +74,7 @@ struct sql_value_traits<WString, void>
 
   static std::string type(SqlConnection *conn, int size);
   static void bind(const WString& v, SqlStatement *statement, int column,
-		   int size);
+                   int size);
   static bool read(WString& v, SqlStatement *statement, int column, int size);
 };
 
@@ -85,7 +85,7 @@ struct sql_value_traits<Json::Object, void>
 
   static std::string type(SqlConnection *conn, int size);
   static void bind(const Json::Object& v, SqlStatement *statement, int column,
-		   int size);
+                   int size);
   static bool read(Json::Object& v, SqlStatement *statement, int column, int size);
 };
 
@@ -96,7 +96,7 @@ struct sql_value_traits<Json::Array, void>
 
   static std::string type(SqlConnection *conn, int size);
   static void bind(const Json::Array& v, SqlStatement *statement, int column,
-		   int size);
+                   int size);
   static bool read(Json::Array& v, SqlStatement *statement, int column, int size);
 };
 
@@ -105,7 +105,7 @@ struct sql_value_traits<Json::Array, void>
      */
 
 inline const char *sql_value_traits<WDate, void>::type(SqlConnection *conn,
-						       int /* size */)
+                                                       int /* size */)
 {
   return conn->dateTimeType(SqlDateTimeType::Date);
 }
@@ -138,7 +138,7 @@ inline bool sql_value_traits<WDate, void>
      */
 
 inline const char *sql_value_traits<WTime, void>::type(SqlConnection *conn,
-						       int /* size */)
+                                                       int /* size */)
 {
   return conn->dateTimeType(SqlDateTimeType::Time);
 }
@@ -156,7 +156,7 @@ inline bool sql_value_traits<WTime, void>
 ::read(WTime& v, SqlStatement *statement, int column, int /* size */)
 {
   std::chrono::duration<int, std::milli> t;
- 
+
   if (statement->getResult(column, &t)) {
     int h = -1, m = -1, s = -1, ms = -1;
     Impl::msecsToHMS(t, h, m, s, ms);
@@ -177,7 +177,7 @@ inline bool sql_value_traits<WTime, void>
      */
 
 inline const char *sql_value_traits<WDateTime, void>::type(SqlConnection *conn,
-							   int /* size */)
+                                                           int /* size */)
 {
   return conn->dateTimeType(SqlDateTimeType::DateTime);
 }
@@ -210,7 +210,7 @@ inline bool sql_value_traits<WDateTime, void>
      */
 
 inline std::string sql_value_traits<WString, void>::type(SqlConnection *conn,
-							 int size)
+                                                         int size)
 {
     return conn->textType(size) + " not null";
 }

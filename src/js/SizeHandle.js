@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
  (1, JavaScriptConstructor, "SizeHandle",
    function(WT, orientation, width, height, minDelta, maxDelta,
-	    dragWidgetClass, doneFn, el, parent, event, offsetX, offsetY) {
+            dragWidgetClass, doneFn, el, parent, event, offsetX, offsetY) {
      var handle = document.createElement('div');
      handle.style.position = 'absolute';
      handle.style.zIndex = '100';

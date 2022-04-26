@@ -181,7 +181,7 @@ namespace Wt {
       typedef std::string IdType;
 
       static IdType invalidId() {
-	return std::string();
+        return std::string();
       }
 
       static const char *surrogateIdField() { return 0; }

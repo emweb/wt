@@ -22,8 +22,8 @@ button->clicked().connect([=] {
             new Wt::WMessageBox(
 #endif // WT_TARGET_JAVA
                   "Status",
-	          "<p>Ready to launch the rocket...</p>"
-	          "<p>Launch the rocket immediately?</p>",
+                  "<p>Ready to launch the rocket...</p>"
+                  "<p>Launch the rocket immediately?</p>",
                   Wt::Icon::Information,
 #ifndef WT_TARGET_JAVA
                   Wt::StandardButton::Yes | Wt::StandardButton::No));
@@ -35,9 +35,9 @@ button->clicked().connect([=] {
 
     messageBox->buttonClicked().connect([=] {
         if (messageBox->buttonResult() == Wt::StandardButton::Yes)
-	    out->setText("The rocket is launched!");
-	else
-	    out->setText("The rocket is ready for launch...");
+            out->setText("The rocket is launched!");
+        else
+            out->setText("The rocket is ready for launch...");
 
 #ifndef WT_TARGET_JAVA
         c->removeChild(messageBox);

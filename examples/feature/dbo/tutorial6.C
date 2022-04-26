@@ -52,7 +52,7 @@ namespace Wt {
 
     template <class Action>
     void field(Action& action, Coordinate& coordinate, const std::string& name,
-	       int /*size*/ = -1)
+               int /*size*/ = -1)
     {
       field(action, coordinate.x, name + "_x");
       field(action, coordinate.y, name + "_y");

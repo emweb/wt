@@ -20,7 +20,7 @@ WTable::WTable()
   : rowsAdded_(0),
     headerRowCount_(0),
     headerColumnCount_(0)
-{ 
+{
   setInline(false);
 }
 
@@ -110,7 +110,7 @@ WTableRow* WTable::insertRow(int row, std::unique_ptr<WTableRow> tableRow)
 }
 
 WTableColumn* WTable::insertColumn(int column,
-				   std::unique_ptr<WTableColumn> tableColumn)
+                                   std::unique_ptr<WTableColumn> tableColumn)
 {
   for (unsigned i = 0; i < rows_.size(); ++i)
     rows_[i]->insertColumn(column);
@@ -269,13 +269,13 @@ DomElement *WTable::createDomElement(WApplication *app)
   }
 
   table->addChild(colgroup);
-  
+
   flags_.reset(BIT_COLUMNS_CHANGED);
 
   for (unsigned row = 0; row < (unsigned)rowCount(); ++row)
     for (unsigned col = 0; col < (unsigned)columnCount(); ++col)
       itemAt(row, col)->overSpanned_ = false;
-  
+
   for (unsigned row = 0; row < (unsigned)rowCount(); ++row) {
     DomElement *tr = createRowDomElement(row, withIds, app);
     if (row < static_cast<unsigned>(headerRowCount_))
@@ -320,16 +320,16 @@ DomElement *WTable::createRowDomElement(int row, bool withIds, WApplication *app
        * so we do TH with appendChild, and insertCell(col).
        */
       if (col < headerColumnCount_ || row < headerRowCount_)
-	tr->addChild(td);
+        tr->addChild(td);
       else
-	tr->insertChildAt(td, col - spanCounter);
+        tr->insertChildAt(td, col - spanCounter);
 
       for (int i = 0; i < cell->rowSpan(); ++i)
-	for (int j = 0; j < cell->columnSpan(); ++j)
-	  if (i + j > 0) {
-	    itemAt(row + i, col + j)->overSpanned_ = true;
-	    itemAt(row + i, col + j)->setRendered(false);
-	  }
+        for (int j = 0; j < cell->columnSpan(); ++j)
+          if (i + j > 0) {
+            itemAt(row + i, col + j)->overSpanned_ = true;
+            itemAt(row + i, col + j)->setRendered(false);
+          }
     } else {
       spanCounter++;
     }
@@ -339,7 +339,7 @@ DomElement *WTable::createRowDomElement(int row, bool withIds, WApplication *app
 }
 
 void WTable::getDomChanges(std::vector<DomElement *>& result,
-			   WApplication *app)
+                           WApplication *app)
 {
   DomElement *e = DomElement::getForUpdate(this, domElementType());
 
@@ -348,7 +348,7 @@ void WTable::getDomChanges(std::vector<DomElement *>& result,
     e->replaceWith(newE);
   } else {
     for (std::set<WTableRow *>::iterator i = rowsChanged_.begin();
-	 i != rowsChanged_.end(); ++i) {
+         i != rowsChanged_.end(); ++i) {
       DomElement *e2 = DomElement::getForUpdate(*i, DomElementType::TR);
       (*i)->updateDom(*e2, false);
       result.push_back(e2);
@@ -358,11 +358,11 @@ void WTable::getDomChanges(std::vector<DomElement *>& result,
 
     if (rowsAdded_) {
       DomElement *etb = DomElement::getForUpdate(id() + "tb",
-						 DomElementType::TBODY);
+                                                 DomElementType::TBODY);
       for (unsigned i = 0; i < static_cast<unsigned>(rowsAdded_); ++i) {
         DomElement *tr = createRowDomElement(rowCount() - rowsAdded_ + i,
-					     true, app);
-	etb->addChild(tr);
+                                             true, app);
+        etb->addChild(tr);
       }
 
       result.push_back(etb);
@@ -371,12 +371,12 @@ void WTable::getDomChanges(std::vector<DomElement *>& result,
     }
 
     if (flags_.test(BIT_COLUMNS_CHANGED)) {
-	for (unsigned i = 0; i < columns_.size(); ++i) {
-	  DomElement *e2
-	    = DomElement::getForUpdate(columns_[i].get(), DomElementType::COL);
-	  columns_[i]->updateDom(*e2, false);
-	  result.push_back(e2);
-	}
+        for (unsigned i = 0; i < columns_.size(); ++i) {
+          DomElement *e2
+            = DomElement::getForUpdate(columns_[i].get(), DomElementType::COL);
+          columns_[i]->updateDom(*e2, false);
+          result.push_back(e2);
+        }
 
       flags_.reset(BIT_COLUMNS_CHANGED);
     }

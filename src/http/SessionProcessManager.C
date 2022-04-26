@@ -35,7 +35,7 @@ namespace {
 }
 
 SessionProcessManager::SessionProcessManager(asio::io_service &ioService,
-					     const Wt::Configuration &configuration)
+                                             const Wt::Configuration &configuration)
   : ioService_(ioService),
 #ifdef SIGNAL_SET
     signals_(ioService, SIGCHLD),
@@ -48,12 +48,12 @@ SessionProcessManager::SessionProcessManager(asio::io_service &ioService,
 #ifdef SIGNAL_SET
   signals_.async_wait
     (std::bind(&SessionProcessManager::processDeadChildren, this,
-	       std::placeholders::_1));
+               std::placeholders::_1));
 #else // !SIGNAL_SET
   timer_.expires_from_now(std::chrono::seconds(CHECK_CHILDREN_INTERVAL));
   timer_.async_wait
     (std::bind(&SessionProcessManager::processDeadChildren, this,
-	       std::placeholders::_1));
+               std::placeholders::_1));
 #endif // SIGNAL_SET
 }
 
@@ -111,7 +111,7 @@ std::shared_ptr<SessionProcess> SessionProcessManager::createSessionProcess()
 
 void SessionProcessManager
 ::updateSessionId(std::string sessionId,
-		    const std::shared_ptr<SessionProcess>& process)
+                    const std::shared_ptr<SessionProcess>& process)
 {
 #ifdef WT_THREADED
   std::unique_lock<std::mutex> lock(sessionsMutex_);
@@ -201,7 +201,7 @@ void SessionProcessManager::processDeadChildren(Wt::AsioWrapper::error_code ec)
   for (std::vector<std::string>::iterator it = toErase.begin();
        it != toErase.end(); ++it) {
     LOG_INFO("Child process " << sessions_[*it]->processInfo().dwProcessId << " died, removing session " << *it
-	<< " (#sessions: " << (sessions_.size() - 1) << ")");
+        << " (#sessions: " << (sessions_.size() - 1) << ")");
     sessions_[*it]->stop();
     sessions_.erase(*it);
     -- numSessions_;
@@ -218,23 +218,23 @@ void SessionProcessManager::processDeadChildren(Wt::AsioWrapper::error_code ec)
   }
 
   for (SessionProcessList::iterator it = processesToErase.begin();
-	   it != processesToErase.end(); ++it) {
+           it != processesToErase.end(); ++it) {
     LOG_WARN("Child process " << (*it)->processInfo().dwProcessId << " died before a session could be assigned");
     (*it)->stop();
-	SessionProcessList::iterator it2 = std::find(pendingProcesses_.begin(), pendingProcesses_.end(), *it);
-	pendingProcesses_.erase(it2);
+        SessionProcessList::iterator it2 = std::find(pendingProcesses_.begin(), pendingProcesses_.end(), *it);
+        pendingProcesses_.erase(it2);
     -- numSessions_;
   }
 #endif // WT_WIN32
 #ifdef SIGNAL_SET
   signals_.async_wait
     (std::bind(&SessionProcessManager::processDeadChildren, this,
-	       std::placeholders::_1));
+               std::placeholders::_1));
 #else // !SIGNAL_SET
   timer_.expires_from_now(std::chrono::seconds(CHECK_CHILDREN_INTERVAL));
   timer_.async_wait
     (std::bind(&SessionProcessManager::processDeadChildren, this,
-	       std::placeholders::_1));
+               std::placeholders::_1));
 #endif // SIGNAL_SET
 }
 
@@ -289,7 +289,7 @@ void SessionProcessManager::removeSessionForPid(pid_t cpid)
        it != sessions_.end(); ++it) {
     if(it->second->pid() == cpid) {
       LOG_INFO("Child process " << cpid << " died, removing session " << it->first
-	  << " (#sessions: " << (sessions_.size() - 1) << ")");
+          << " (#sessions: " << (sessions_.size() - 1) << ")");
       it->second->stop();
       sessions_.erase(it);
       -- numSessions_;

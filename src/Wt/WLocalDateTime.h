@@ -73,7 +73,7 @@ public:
    *   the time is day light savings time or not.
    */
   WLocalDateTime(const WDate& date, const WTime& time,
-		 const WLocale& locale = WLocale::currentLocale());
+                 const WLocale& locale = WLocale::currentLocale());
 
   /*! \brief Returns if this datetime is <i>Null</i>.
    *
@@ -178,7 +178,7 @@ public:
    * \sa WLocale::dateTimeFormat()
    */
   static WLocalDateTime fromString(const WT_USTRING& s,
-				   const WLocale& locale = WLocale::currentLocale());
+                                   const WLocale& locale = WLocale::currentLocale());
 
   /*! \brief Reports the current datetime.
    *

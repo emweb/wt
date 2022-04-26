@@ -32,23 +32,23 @@
 
     <div class="customer">
       <div>
-	<span class="label">First name: </span> ${firstName}
+        <span class="label">First name: </span> ${firstName}
       </div>
 
       <div>
-	<span class="label">Last name: </span> ${lastName}
+        <span class="label">Last name: </span> ${lastName}
       </div>
 
       <div>
-	<span class="label">Email: </span> ${email}
+        <span class="label">Email: </span> ${email}
       </div>
 
       <div>
-	<span class="label">Locale: </span> ${locale}
+        <span class="label">Locale: </span> ${locale}
       </div>
 
       <div>
-	<span class="label">Payer ID: </span> ${payerId}
+        <span class="label">Payer ID: </span> ${payerId}
       </div>
     </div>
 
@@ -78,8 +78,8 @@
   <message id="items.header">
     <table class="item-info">
       <tr>
-	<th class="descriptions">Descriptions</th>
-	<th class="amount">Amount</th>
+        <th class="descriptions">Descriptions</th>
+        <th class="amount">Amount</th>
       </tr>
     </table>
   </message>
@@ -87,20 +87,20 @@
   <message id="item.info">
     <table class="item-info">
       <tr>
-	<td class="descriptions"><span class="emph">${name}</span></td>
-	<td class="amount">${totalCost}</td>
+        <td class="descriptions"><span class="emph">${name}</span></td>
+        <td class="amount">${totalCost}</td>
       </tr>
       <tr>
-	<td>Item description: <span class="emph">${description}</span></td>
+        <td>Item description: <span class="emph">${description}</span></td>
       </tr>
       <tr>
-	<td>Item number: ${number}</td>
+        <td>Item number: ${number}</td>
       </tr>
       <tr>
-	<td>Item price: ${unitCost}</td>
+        <td>Item price: ${unitCost}</td>
       </tr>
       <tr>
-	<td>Quantity: ${quantity}</td>
+        <td>Quantity: ${quantity}</td>
       </tr>
     </table>
     <hr class="sep"/>
@@ -113,35 +113,35 @@
 
     <table class="item-info global">
       <tr>
-	<td class="label">Item total:</td>
-	<td class="amount">${itemTotalCost}</td>
+        <td class="label">Item total:</td>
+        <td class="amount">${itemTotalCost}</td>
       </tr>
       <tr>
-	<td class="label">Tax:</td>
-	<td class="amount">${tax}</td>
+        <td class="label">Tax:</td>
+        <td class="amount">${tax}</td>
       </tr>
       <tr>
-	<td class="label">Handling:</td>
-	<td class="amount">${handlingCost}</td>
+        <td class="label">Handling:</td>
+        <td class="amount">${handlingCost}</td>
       </tr>
       <tr>
-	<td class="label">Shipping:</td>
-	<td class="amount">${shippingCost}</td>
+        <td class="label">Shipping:</td>
+        <td class="amount">${shippingCost}</td>
       </tr>
       <tr>
-	<td class="label">Shipping discount:</td>
-	<td class="amount">${shippingDiscount}</td>
+        <td class="label">Shipping discount:</td>
+        <td class="amount">${shippingDiscount}</td>
       </tr>
       <tr>
-	<td class="label">Shipping insurance:</td>
-	<td class="amount">${shippingInsurance}</td>
+        <td class="label">Shipping insurance:</td>
+        <td class="amount">${shippingInsurance}</td>
       </tr>
       <tr>
-	<td class="label">Total cost:</td>
-	<td class="amount">${totalCost}</td>
+        <td class="label">Total cost:</td>
+        <td class="amount">${totalCost}</td>
       </tr>
     </table>
   </message>
 
-  
+
 </messages>

@@ -26,7 +26,7 @@ class Label;
 
 /*! \brief An edit field for an email addressee.
  *
- * This widget is part of the %Wt composer example. 
+ * This widget is part of the %Wt composer example.
  */
 class AddresseeEdit : public WTextArea
 {

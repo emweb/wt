@@ -49,7 +49,7 @@ function(e) {
 
     var iterator =
       d.evaluate(".//" + expr, ancestor,
-		 nsr, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+                 nsr, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
 
     // myConsole.log(ancestor + ": " + expr);
 
@@ -59,7 +59,7 @@ function(e) {
     while (n) {
       // myConsole.log(n.id + "=?" + child.id);
       if (n.id == child.id) 
-	return "[" + i + "]";
+        return "[" + i + "]";
       ++i;
       n = iterator.iterateNext();
     }

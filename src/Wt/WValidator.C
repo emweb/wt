@@ -64,7 +64,7 @@ WValidator::Result WValidator::validate(const WT_USTRING& input) const
       return Result(ValidationState::InvalidEmpty, invalidBlankText());
   }
 
-  return Result(ValidationState::Valid);  
+  return Result(ValidationState::Valid);
 }
 
 WT_USTRING WValidator::format() const

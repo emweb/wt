@@ -15,7 +15,7 @@ class TimeSuggestions : public WSuggestionPopup
 {
  public:
   TimeSuggestions();
-  
+
  private:
   void addSuggestion(const WString& suggestion);
 };

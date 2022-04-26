@@ -39,9 +39,9 @@ WAbstractDataSeries3D::WAbstractDataSeries3D(std::shared_ptr<WAbstractItemModel>
     /* in webGL, the z-direction is out of the screen, in model coordinates
      * it's the vertical direction */
     mvMatrix_(1.0f, 0.0f, 0.0f, 0.0f,
-	      0.0f, 0.0f, 1.0f, 0.0f,
-	      0.0f, 1.0f, 0.0f, 0.0f,
-	      0.0f, 0.0f, 0.0f, 1.0f)
+              0.0f, 0.0f, 1.0f, 0.0f,
+              0.0f, 1.0f, 0.0f, 0.0f,
+              0.0f, 0.0f, 0.0f, 1.0f)
 {
   model_ = model;
 }
@@ -66,29 +66,29 @@ void WAbstractDataSeries3D
     if (model_ && chart_) {
       chart_->updateChart(ChartUpdates::GLContext);
       connections_.push_back
-	(model_->modelReset().connect
-	 (chart_, std::bind(&WCartesian3DChart::updateChart, chart_,
-			    ChartUpdates::GLTextures | ChartUpdates::GLContext)));
+        (model_->modelReset().connect
+         (chart_, std::bind(&WCartesian3DChart::updateChart, chart_,
+                            ChartUpdates::GLTextures | ChartUpdates::GLContext)));
       connections_.push_back
-	(model_->dataChanged().connect
-	 (chart_, std::bind(&WCartesian3DChart::updateChart, chart_,
-			    ChartUpdates::GLTextures | ChartUpdates::GLContext)));
+        (model_->dataChanged().connect
+         (chart_, std::bind(&WCartesian3DChart::updateChart, chart_,
+                            ChartUpdates::GLTextures | ChartUpdates::GLContext)));
       connections_.push_back
-	(model_->rowsInserted().connect
-	 (chart_, std::bind(&WCartesian3DChart::updateChart, chart_,
-			    ChartUpdates::GLTextures | ChartUpdates::GLContext)));
+        (model_->rowsInserted().connect
+         (chart_, std::bind(&WCartesian3DChart::updateChart, chart_,
+                            ChartUpdates::GLTextures | ChartUpdates::GLContext)));
       connections_.push_back
-	(model_->columnsInserted().connect
-	 (chart_, std::bind(&WCartesian3DChart::updateChart, chart_,
-			    ChartUpdates::GLTextures | ChartUpdates::GLContext)));
+        (model_->columnsInserted().connect
+         (chart_, std::bind(&WCartesian3DChart::updateChart, chart_,
+                            ChartUpdates::GLTextures | ChartUpdates::GLContext)));
       connections_.push_back
-	(model_->rowsRemoved().connect
-	 (chart_, std::bind(&WCartesian3DChart::updateChart, chart_,
-			    ChartUpdates::GLTextures | ChartUpdates::GLContext)));
+        (model_->rowsRemoved().connect
+         (chart_, std::bind(&WCartesian3DChart::updateChart, chart_,
+                            ChartUpdates::GLTextures | ChartUpdates::GLContext)));
       connections_.push_back
-	(model_->columnsRemoved().connect
-	 (chart_, std::bind(&WCartesian3DChart::updateChart, chart_,
-			    ChartUpdates::GLTextures | ChartUpdates::GLContext)));
+        (model_->columnsRemoved().connect
+         (chart_, std::bind(&WCartesian3DChart::updateChart, chart_,
+                            ChartUpdates::GLTextures | ChartUpdates::GLContext)));
     }
   }
 }
@@ -176,8 +176,8 @@ WGLWidget::Texture WAbstractDataSeries3D::colorTexture()
   chart_->bindTexture(WGLWidget::TEXTURE_2D, tex);
   chart_->pixelStorei(WGLWidget::UNPACK_FLIP_Y_WEBGL, 1);
   chart_->texImage2D(WGLWidget::TEXTURE_2D, 0,
-		     WGLWidget::RGBA, WGLWidget::RGBA,
-		     WGLWidget::UNSIGNED_BYTE, cpd.get());
+                     WGLWidget::RGBA, WGLWidget::RGBA,
+                     WGLWidget::UNSIGNED_BYTE, cpd.get());
 
   return tex;
 }
@@ -195,8 +195,8 @@ WGLWidget::Texture WAbstractDataSeries3D::pointSpriteTexture()
     painter.drawLine(0,0.5,1,0.5);
     painter.end();
     chart_->texImage2D(WGLWidget::TEXTURE_2D, 0,
-		       WGLWidget::RGBA, WGLWidget::RGBA,
-		       WGLWidget::UNSIGNED_BYTE, cpd.get());
+                       WGLWidget::RGBA, WGLWidget::RGBA,
+                       WGLWidget::UNSIGNED_BYTE, cpd.get());
   }
 
   return tex;
@@ -208,7 +208,7 @@ void WAbstractDataSeries3D
   chart_->bindTexture(WGLWidget::TEXTURE_2D, tex);
   if (!pointSprite_.empty()) {
     chart_->texImage2D(WGLWidget::TEXTURE_2D, 0, WGLWidget::RGBA,
-		       WGLWidget::RGBA, WGLWidget::UNSIGNED_BYTE, pointSprite_);
+                       WGLWidget::RGBA, WGLWidget::UNSIGNED_BYTE, pointSprite_);
   }
 }
 
@@ -244,34 +244,34 @@ void WAbstractDataSeries3D::setChart(WCartesian3DChart *chart)
 
   if (chart_ && model_)
     clearConnections(connections_);
-  
+
   chart_ = chart;
 
   if (chart_ && model_) {
     connections_.push_back
       (model_->modelReset().connect
        (chart_, std::bind(&WCartesian3DChart::updateChart, chart_,
-			  ChartUpdates::GLTextures | ChartUpdates::GLContext)));
+                          ChartUpdates::GLTextures | ChartUpdates::GLContext)));
     connections_.push_back
       (model_->dataChanged().connect
        (chart_, std::bind(&WCartesian3DChart::updateChart, chart_,
-			  ChartUpdates::GLTextures | ChartUpdates::GLContext)));
+                          ChartUpdates::GLTextures | ChartUpdates::GLContext)));
     connections_.push_back
       (model_->rowsInserted().connect
        (chart_, std::bind(&WCartesian3DChart::updateChart, chart_,
-			  ChartUpdates::GLTextures | ChartUpdates::GLContext)));
+                          ChartUpdates::GLTextures | ChartUpdates::GLContext)));
     connections_.push_back
       (model_->columnsInserted().connect
        (chart_, std::bind(&WCartesian3DChart::updateChart, chart_,
-			  ChartUpdates::GLTextures | ChartUpdates::GLContext)));
+                          ChartUpdates::GLTextures | ChartUpdates::GLContext)));
     connections_.push_back
       (model_->rowsRemoved().connect
        (chart_, std::bind(&WCartesian3DChart::updateChart, chart_,
-			  ChartUpdates::GLTextures | ChartUpdates::GLContext)));
+                          ChartUpdates::GLTextures | ChartUpdates::GLContext)));
     connections_.push_back
       (model_->columnsRemoved().connect
        (chart_, std::bind(&WCartesian3DChart::updateChart, chart_,
-			  ChartUpdates::GLTextures | ChartUpdates::GLContext)));
+                          ChartUpdates::GLTextures | ChartUpdates::GLContext)));
   }
 }
 

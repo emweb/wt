@@ -18,7 +18,7 @@ WT_DECLARE_WT_MEMBER
    var self = this, WT = APP.WT, $edit = $(edit);
 
    function isReadOnly() {
-	 return edit.readOnly;
+         return edit.readOnly;
    }
 
    function isPopupVisible() {
@@ -54,7 +54,7 @@ WT_DECLARE_WT_MEMBER
        $edit.addClass(CLASS_HOVER);
      } else {
        if ($edit.hasClass(CLASS_HOVER))
-	 $edit.removeClass(CLASS_HOVER);
+         $edit.removeClass(CLASS_HOVER);
      }
    };
 

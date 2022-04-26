@@ -37,7 +37,7 @@ public:
     ColorStop(double position, const WColor& color)
       : position_(position), color_(color)
     { }
-  
+
     /*! \brief Returns the position.
      */
     double position() const { return position_; }
@@ -94,10 +94,10 @@ public:
   /*! \brief Configures a radial gradient.
    *
    * A radial gradient is described by a center, a radial and a focus
-   * point. All coordinates are user-space coordinates. 
+   * point. All coordinates are user-space coordinates.
    */
   void setRadialGradient(double cx, double cy, double r,
-			 double fx, double fy);
+                         double fx, double fy);
 
   /*! \brief Adds a color stop.
    *

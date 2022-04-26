@@ -23,7 +23,7 @@ private:
   bool menuOpen_;
 
   Wt::WMenuItem *addToMenu(Wt::WMenu *menu,
-			   const Wt::WString& name,
+                           const Wt::WString& name,
                            std::unique_ptr<Topic> topic);
   void toggleMenu();
   void openMenu();

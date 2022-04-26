@@ -14,7 +14,7 @@
 
 namespace Wt {
 
-  namespace Impl { 
+  namespace Impl {
     class AreaWidget;
   }
 
@@ -81,7 +81,7 @@ public:
   WAnchor(const WLink& link);
 
   /*! \brief Creates an anchor for the given link with a text.
-   * 
+   *
    * The \p link may point to a URL, a dynamic resource, or an
    * internal path.
    *
@@ -134,7 +134,7 @@ public:
   /*! \brief Returns the label text.
    *
    * Returns an empty string if no label was set.
-   * 
+   *
    * \sa setText()
    */
   const WString& text() const;
@@ -200,7 +200,7 @@ private:
     ~LinkState();
 
     WLink link;
-    JSlot *clickJS; 
+    JSlot *clickJS;
   };
 
   LinkState linkState_;
@@ -212,11 +212,11 @@ private:
   void resourceChanged();
 
   static bool renderHRef(WInteractWidget *widget,
-			 LinkState& linkState, DomElement& element);
+                         LinkState& linkState, DomElement& element);
   static void renderHTarget(LinkState& linkState, DomElement& element,
-			    bool all);
+                            bool all);
   static void renderUrlResolution(WWidget *widget, DomElement& element,
-				  bool all);
+                                  bool all);
 
 protected:
   virtual void updateDom(DomElement& element, bool all) override;

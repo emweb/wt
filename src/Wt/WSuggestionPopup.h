@@ -82,7 +82,7 @@ enum class PopupTrigger {
  * suggestion is selected.
  *
  * The matcherJS function must have the following JavaScript signature:
- * 
+ *
  * \code
  * function (editElement) {
  *   // fetch the location of cursor and current text in the editElement.
@@ -144,19 +144,19 @@ enum class PopupTrigger {
  * \elseif java
  * \code
  * // options for email address suggestions
- * WSuggestionPopup.Options contactOptions = new WSuggestionPopup.Options(); 
+ * WSuggestionPopup.Options contactOptions = new WSuggestionPopup.Options();
  * contactOptions.highlightBeginTag = "<b>";
  * contactOptions.highlightEndTag = "</b>";
  * contactOptions.listSeparator = ','; //for multiple addresses)
  * contactOptions.whitespace = " \n";
  * contactOptions.wordSeparators = "-., \"@\n;"; //within an address
  * contactOptions.appendReplacedText = ", "; //prepare next email address
- *	
+ *
  * WSuggestionPopup popup = new WSuggestionPopup(contactOptions, this);
- * 
+ *
  * WTextArea textEdit = new WTextArea(this);
  * popup.forEdit(textEdit);
- *		 
+ *
  * // load popup data
  * for (int i = 0; i < contacts.size(); ++i)
  * popup.addSuggestion(contacts.get(i).formatted(), contacts.get(i).formatted());
@@ -172,7 +172,7 @@ enum class PopupTrigger {
  * tree twice.
  *
  * A screenshot of this example:
- * <TABLE border="0" align="center"> <TR> <TD> 
+ * <TABLE border="0" align="center"> <TR> <TD>
  * \image html WSuggestionPopup-default-1.png "An example WSuggestionPopup (default)"
  * </TD> <TD>
  * \image html WSuggestionPopup-polished-1.png "An example WSuggestionPopup (polished)"
@@ -295,7 +295,7 @@ public:
    * \sa removeEdit()
    */
   void forEdit(WFormWidget *edit,
-	       WFlags<PopupTrigger> popupTriggers = PopupTrigger::Editing);
+               WFlags<PopupTrigger> popupTriggers = PopupTrigger::Editing);
 
   /*! \brief Removes the edit field from the list of assisted editors.
    *
@@ -329,7 +329,7 @@ public:
    * \sa clearSuggestions(), setModel()
    */
   void addSuggestion(const WString& suggestionText,
-		     const WString& suggestionValue = WString::Empty);
+                     const WString& suggestionValue = WString::Empty);
 
   /*! \brief Sets the model to be used for the suggestions.
    *
@@ -442,7 +442,7 @@ public:
    *   proxyModel.setFilterRegExp(filter + ".*");
    * }
    * \endcode
-   * \endif 
+   * \endif
    */
   Signal<WT_USTRING>& filterModel() { return filterModel_; }
 
@@ -467,7 +467,7 @@ public:
   void setAutoSelectEnabled(bool enabled);
 
   /*! \brief Returns the last activated index
-   * 
+   *
    * Returns -1 if the popup hasn't been activated yet.
    *
    * \sa activated()
@@ -522,7 +522,7 @@ private:
   void modelRowsInserted(const WModelIndex& parent, int start, int end);
   void modelRowsRemoved(const WModelIndex& parent, int start, int end);
   void modelDataChanged(const WModelIndex& topLeft,
-			const WModelIndex& bottomRight);
+                        const WModelIndex& bottomRight);
   void modelLayoutChanged();
   bool partialResults() const;
 

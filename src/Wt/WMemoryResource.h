@@ -62,7 +62,7 @@ public:
   /*! \brief Creates a new resource with given mime-type and data
    */
   WMemoryResource(const std::string& mimeType,
-		  const std::vector<unsigned char>& data);
+                  const std::vector<unsigned char>& data);
 
   ~WMemoryResource();
 

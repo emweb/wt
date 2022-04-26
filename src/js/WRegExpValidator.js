@@ -14,10 +14,10 @@ WT_DECLARE_WT_MEMBER
 
      this.validate = function(text) {
        if (text.length == 0)
-	 if (mandatory)
-	   return { valid: false, message: blankError };
-	 else
-	   return { valid: true };
+         if (mandatory)
+           return { valid: false, message: blankError };
+         else
+           return { valid: true };
 
        if (r) {
            var result = r.exec(text);

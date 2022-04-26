@@ -36,7 +36,7 @@ class DataSelection : public Wt::WContainerWidget
 {
 public:
   DataSelection(Wt::Chart::WCartesian3DChart *chart);
-  
+
   void addDataToCollection(Wt::WString name, Wt::Chart::WAbstractDataSeries3D *data);
   Wt::Signal<Wt::Chart::WAbstractDataSeries3D*>& selectionChanged() { return selectionChange_; }
 

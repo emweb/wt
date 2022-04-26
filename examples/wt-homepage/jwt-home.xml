@@ -3,61 +3,61 @@
   <message id="template">
     <div id="top_wrapper">
       <div id="top_content">
-	${languages}
-	<div id="top_wt">
-	  <a href="http://www.emweb.be/">
-	    <img src="/css/jwt/emweb_powered.jpg" alt="Emweb" height="22" />
-	  </a>
-	</div>
+        ${languages}
+        <div id="top_wt">
+          <a href="http://www.emweb.be/">
+            <img src="/css/jwt/emweb_powered.jpg" alt="Emweb" height="22" />
+          </a>
+        </div>
       </div>
     </div>
 
     <div id="banner_wrapper">
       <div id="banner_content">
-	<div id="banner_end"> <div id="banner"><a href="#">JWt</a></div> </div>
+        <div id="banner_end"> <div id="banner"><a href="#">JWt</a></div> </div>
       </div>
     </div>
 
     <div id="main_wrapper" class="home">
       <div id="main_content">
-	<div id="main_menu">
-	  ${menu}
-	  ${sidebar}
-	</div>
-	${contents}
+        <div id="main_menu">
+          ${menu}
+          ${sidebar}
+        </div>
+        ${contents}
 
-	<div class="clearall"></div>
+        <div class="clearall"></div>
       </div>
     </div>
 
     <div id="footer_wrapper">
       <div id="footer_content">
-	<div id="footer_copyright"> 
-	  <a href="http://www.emweb.be/">
-	    <img src="/css/jwt/emweb_large.jpg" height="25" width="101"
-		 alt="Emweb.be" title="emweb.be"/></a>
-	  Solutions for web-based systems<br/>
-	  <a href="http://www.emweb.be/">www.emweb.be</a>
-	</div>
+        <div id="footer_copyright">
+          <a href="http://www.emweb.be/">
+            <img src="/css/jwt/emweb_large.jpg" height="25" width="101"
+                 alt="Emweb.be" title="emweb.be"/></a>
+          Solutions for web-based systems<br/>
+          <a href="http://www.emweb.be/">www.emweb.be</a>
+        </div>
 
-	<div id="footer_menu"> 
-	  <a href="http://www.webtoolkit.eu/wt/">Home</a>
-	  | <a href="http://www.emweb.be/?page=contact">Contact</a>
+        <div id="footer_menu">
+          <a href="http://www.webtoolkit.eu/wt/">Home</a>
+          | <a href="http://www.emweb.be/?page=contact">Contact</a>
 
-	</div>
+        </div>
 
-	<div id="chat"></div>
-	<script type="text/javascript">
-	    /*<![CDATA[*/
-	  setTimeout(function() {
-	    loadScript("http://www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat", null);
-	  }, 0);
+        <div id="chat"></div>
+        <script type="text/javascript">
+            /*<![CDATA[*/
+          setTimeout(function() {
+            loadScript("http://www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat", null);
+          }, 0);
             /* ]]> */
-	</script>
-	<div class="clearall"></div>
+        </script>
+        <div class="clearall"></div>
       </div>
       <script type="text/javascript">
-	    /*<![CDATA[*/
+            /*<![CDATA[*/
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -100,7 +100,7 @@ ga('send', 'pageview');
   <message id="home.historical-news">
     <h4><span>Historical News</span></h4>
   </message>
-  
+
   <message id="source-browser-link">
     <a href="{1}">Browse the source code</a>
   </message>
@@ -221,7 +221,7 @@ your favourite scripting language.</p>
 <h4>Event handling</h4>
 
 <ul>
-  <li>Uses an event listener system for server-side event handling, 
+  <li>Uses an event listener system for server-side event handling,
     comparable to Java GUI frameworks (SWT, Swing).</li>
   <li>Listen for keyboard, mouse, focus, scroll or drag&amp;drop events,
     and get event details (such as mouse position, modifier buttons, or
@@ -693,7 +693,7 @@ and eventually developing a small support library.
 <img class="language-icon" src="/icons/jython-logo.png" alt="Jython"></img>
 
 Albert Cervera i Areny is experimenting to use JWt from <b>Jython</b>,
-another language running on the JVM. He documents how to create and run 
+another language running on the JVM. He documents how to create and run
 the "Hello World!" program in Jython in <a href="http://www.nan-tic.com/en/from-pyqt-to-jythonjwt-setting-up-the-environment">this blog post</a>.
 </div>
 
@@ -734,7 +734,7 @@ bindings to Qt and KDE.
   </message>
 
   <message id="home.documentation">
- 
+
 <h3><span>Documentation</span></h3>
 
 <h4>Build and install</h4>
@@ -756,7 +756,7 @@ code base.</p>
 
 <p>There is a <a href="http://www.webtoolkit.eu/jwt/latest/doc/javadoc/"
 target="_blank"> reference manual (in a new window)</a>, generated
-from the source code using javadoc. 
+from the source code using javadoc.
 </p>
 
 <h4>Wiki</h4>
@@ -773,8 +773,8 @@ you may share tips, notes and experiences using JWt.
       <h2>Source code for JWt examples</h2>
 
       <p>
-	Browse below the source code for all examples included in 
-	<a href="http://www.webtoolkit.eu/jwt">JWt</a>.
+        Browse below the source code for all examples included in
+        <a href="http://www.webtoolkit.eu/jwt">JWt</a>.
       </p>
     </div>
   </message>
@@ -786,9 +786,9 @@ you may share tips, notes and experiences using JWt.
       <h2>Source code of the <i>Hello world</i> example</h2>
 
       <p>
-	Browse below the source code for JWt's 
-	<a href="http://www.webtoolkit.eu/jwt/examples/hello_world">
-	  Hello world</a> example.
+        Browse below the source code for JWt's
+        <a href="http://www.webtoolkit.eu/jwt/examples/hello_world">
+          Hello world</a> example.
       </p>
     </div>
   </message>
@@ -800,9 +800,9 @@ you may share tips, notes and experiences using JWt.
       <h2>Source code of the <i>Hello world</i> example</h2>
 
       <p>
-	Browse below the source code for JWt's 
-	<a href="http://www.webtoolkit.eu/jwt/examples/hello_world">
-	  Hello world</a> example.
+        Browse below the source code for JWt's
+        <a href="http://www.webtoolkit.eu/jwt/examples/hello_world">
+          Hello world</a> example.
       </p>
     </div>
   </message>
@@ -814,9 +814,9 @@ you may share tips, notes and experiences using JWt.
       <h2>Source code of the <i>Charts</i> example</h2>
 
       <p>
-	Browse below the source code for JWt's 
-	<a href="http://www.webtoolkit.eu/jwt/examples/charts">
-	  Charts</a> example.
+        Browse below the source code for JWt's
+        <a href="http://www.webtoolkit.eu/jwt/examples/charts">
+          Charts</a> example.
       </p>
     </div>
   </message>
@@ -828,9 +828,9 @@ you may share tips, notes and experiences using JWt.
       <h2>Source code of the <i>Treeview</i> example</h2>
 
       <p>
-	Browse below the source code for JWt's 
-	<a href="http://www.webtoolkit.eu/jwt/examples/treeview">
-	  Treeview</a> example.
+        Browse below the source code for JWt's
+        <a href="http://www.webtoolkit.eu/jwt/examples/treeview">
+          Treeview</a> example.
       </p>
     </div>
   </message>
@@ -842,9 +842,9 @@ you may share tips, notes and experiences using JWt.
       <h2>Source code of the <i>Mail composer</i> example</h2>
 
       <p>
-	Browse below the source code for JWt's 
-	<a href="http://www.webtoolkit.eu/jwt/examples/composer">
-	  Mail composer</a> example.
+        Browse below the source code for JWt's
+        <a href="http://www.webtoolkit.eu/jwt/examples/composer">
+          Mail composer</a> example.
       </p>
     </div>
   </message>
@@ -856,9 +856,9 @@ you may share tips, notes and experiences using JWt.
       <h2>Source code of the <i>Chat</i> example</h2>
 
       <p>
-	Browse below the source code for JWt's 
-	<a href="http://www.webtoolkit.eu/jwt/examples/simplechat">
-	  Chat</a> example.
+        Browse below the source code for JWt's
+        <a href="http://www.webtoolkit.eu/jwt/examples/simplechat">
+          Chat</a> example.
       </p>
     </div>
   </message>
@@ -870,9 +870,9 @@ you may share tips, notes and experiences using JWt.
       <h2>Source code of the <i>Widget gallery</i> example</h2>
 
       <p>
-	Browse below the source code for JWt's 
-	<a href="http://www.webtoolkit.eu/jwt/examples/widget_gallery">
-	  Widget gallery</a> example.
+        Browse below the source code for JWt's
+        <a href="http://www.webtoolkit.eu/jwt/examples/widget_gallery">
+          Widget gallery</a> example.
       </p>
     </div>
   </message>

@@ -21,11 +21,11 @@ namespace Wt {
 /*! \class WAbstractColorMap
  *  \brief Maps numerical values to colors
  *
- * The colormap has functionality to convert a numerical value to a WColor. For 
+ * The colormap has functionality to convert a numerical value to a WColor. For
  * details on how, see the documentation of the implementations.
  *
- * A colormap has a certain numerical range. When a colormap is painted as a 
- * colored strip or as a legend, this range is what will be presented, even if 
+ * A colormap has a certain numerical range. When a colormap is painted as a
+ * colored strip or as a legend, this range is what will be presented, even if
  * the colormap has the ability to convert values outside this range.
  *
  * \ingroup charts
@@ -55,26 +55,26 @@ public:
 
   /*! \brief Paints the colormap as a colored strip.
    *
-   * This paints the colormap from the minimum to the maximum value in the 
-   * provided area (default = fill the entire paintdevice). This is no legend 
+   * This paints the colormap from the minimum to the maximum value in the
+   * provided area (default = fill the entire paintdevice). This is no legend
    * with ticks and labels, only the colors are painted.
    *
    * \sa paintLegend()
    */
   virtual void createStrip(WPainter *painter,
-			   const WRectF& area = WRectF()) const = 0;
+                           const WRectF& area = WRectF()) const = 0;
 
   /*! \brief Paints the colormap as a legend.
    *
-   * The colormap is painted as a legend with ticks and value-labels. The 
-   * parameter area can be used to specify a part of the paintdevice where the 
-   * legend should be drawn. When drawing the legend, the tickspacing, 
+   * The colormap is painted as a legend with ticks and value-labels. The
+   * parameter area can be used to specify a part of the paintdevice where the
+   * legend should be drawn. When drawing the legend, the tickspacing,
    * labelformat and labelfont are taken into account.
    *
    * \sa setTickSpacing(), setFormatString(), setLabelFont()
    */
   virtual void paintLegend(WPainter *painter,
-			   const WRectF& area = WRectF()) const = 0;
+                           const WRectF& area = WRectF()) const = 0;
 
   /*! \brief Returns the minimum of the colormap range.
    */
@@ -86,7 +86,7 @@ public:
 
   /*! \brief Sets the tickspacing for the legend as a number of line-heights.
    *
-   * The tickspacing must be specified as an integer number of line-heigths. 
+   * The tickspacing must be specified as an integer number of line-heigths.
    * For example, the default value of 2 will leave two line-heights between the
    * labels of the ticks.
    *

@@ -27,7 +27,7 @@ namespace {
   public:
     MultiLineTextRenderer(WPainter& painter, const WRectF& rect)
       : painter_(painter),
-	rect_(rect)
+        rect_(rect)
     { }
     
     virtual double pageWidth(int page) const override {
@@ -49,7 +49,7 @@ namespace {
 
     virtual WPaintDevice *startPage(int page) override {
       if (page > 0)
-	assert(false);
+        assert(false);
       
       return painter_.device();
     }
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE( raster_test_dataUriImage )
     bool error = false;
     try {
       std::string uri 
-	= "data:image/tiff;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
+        = "data:image/tiff;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
     
       Wt::WPainter::Image image(uri, 48, 48);
       p.drawImage(Wt::WPointF(0,0), image);
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE( raster_test_dataUriImage )
     bool error = false;
     try {
       std::string uri 
-	= "data:;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
+        = "data:;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
     
       Wt::WPainter::Image image(uri, 48, 48);
       p.drawImage(Wt::WPointF(0,0), image);

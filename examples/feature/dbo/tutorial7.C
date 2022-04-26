@@ -105,7 +105,7 @@ void run()
     dbo::Transaction transaction(session);
 
     dbo::ptr<UserInfo> info = session.find<UserInfo>();
-    
+
     std::cerr << info->user->name << " is a " << info->info << std::endl;
   }
 }

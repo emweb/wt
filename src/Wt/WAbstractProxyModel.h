@@ -69,7 +69,7 @@ public:
    * or column indices, consider the use of WIdentityProxyModel.
    */
   virtual void setSourceModel(const std::shared_ptr<WAbstractItemModel>&
-			      sourceModel);
+                              sourceModel);
 
   /*! \brief Returns the source model.
    *
@@ -88,7 +88,7 @@ public:
    * The default proxy implementation translates the index to the
    * source model, and calls sourceModel()->data() with this index.
    */
-  virtual cpp17::any data(const WModelIndex& index, 
+  virtual cpp17::any data(const WModelIndex& index,
                        ItemDataRole role = ItemDataRole::Display) const override;
 
   /*! \brief Returns the row or column header data.
@@ -103,7 +103,7 @@ public:
    * depends on how the WModelIndex is transformed with mapToSource().
    */
   virtual cpp17::any headerData(int section,
-			     Orientation orientation = Orientation::Horizontal,
+                             Orientation orientation = Orientation::Horizontal,
                              ItemDataRole role = ItemDataRole::Display)
     const override;
 
@@ -147,7 +147,7 @@ public:
    * The default proxy implementation calls sourceModel()->insertColumns(column, count, parent)
    */
   virtual bool insertColumns(int column, int count,
-			     const WModelIndex& parent = WModelIndex())
+                             const WModelIndex& parent = WModelIndex())
     override;
 
   /*! \brief Removes columns.
@@ -155,7 +155,7 @@ public:
    * The default proxy implementation calls sourceModel()->removeColumns(column, count, parent)
    */
   virtual bool removeColumns(int column, int count,
-			     const WModelIndex& parent = WModelIndex())
+                             const WModelIndex& parent = WModelIndex())
     override;
 
   /*! \brief Returns a mime-type for dragging a set of indexes.
@@ -178,7 +178,7 @@ public:
    * dropEvent call to the source model.
    */
   virtual void dropEvent(const WDropEvent& e, DropAction action,
-			 int row, int column, const WModelIndex& parent)
+                         int row, int column, const WModelIndex& parent)
     override;
 
   /*! \brief Converts a model index to a raw pointer that remains valid
@@ -251,9 +251,9 @@ protected:
    * items may possibly be removed and deleted.
    */
   void startShiftModelIndexes(const WModelIndex& sourceParent, int start, int count,
-			      ItemMap& items);
+                              ItemMap& items);
   void endShiftModelIndexes(const WModelIndex& sourceParent, int start, int count,
-			    ItemMap& items);
+                            ItemMap& items);
 
 private:
   std::vector<BaseItem *> itemsToShift_;

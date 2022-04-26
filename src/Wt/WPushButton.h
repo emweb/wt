@@ -19,7 +19,7 @@ namespace Wt {
  *  \brief A widget that represents a push button.
  *
  * To act on a button click, connect a slot to the clicked() signal.
- * 
+ *
  * \if cpp
  * Usage example:
  * \code
@@ -283,7 +283,7 @@ protected:
   virtual DomElementType domElementType() const override;
   virtual void propagateRenderOk(bool deep) override;
   virtual void getDomChanges(std::vector<DomElement *>& result,
-			     WApplication *app) override;
+                             WApplication *app) override;
   virtual void propagateSetEnabled(bool enabled) override;
 
   virtual void enableAjax() override;

@@ -19,30 +19,30 @@ namespace Wt {
 
       template <class C>
       struct Helper {
-	static void skipIfRemoved
-	(typename collection<C>::iterator::shared_impl& it)
-	{ }
+        static void skipIfRemoved
+        (typename collection<C>::iterator::shared_impl& it)
+        { }
       };
 
 
       template <class T>
       struct Helper< ptr<T> >
       {
-	static void skipIfRemoved
-	(typename collection< ptr<T> >::iterator::shared_impl& it)
-	{
-	  if (std::find(it.collection_.manualModeRemovals().begin(),
-			it.collection_.manualModeRemovals().end(),
-			it.current_) != it.collection_.manualModeRemovals().end())
-	    it.fetchNextRow();
-	}
+        static void skipIfRemoved
+        (typename collection< ptr<T> >::iterator::shared_impl& it)
+        {
+          if (std::find(it.collection_.manualModeRemovals().begin(),
+                        it.collection_.manualModeRemovals().end(),
+                        it.current_) != it.collection_.manualModeRemovals().end())
+            it.fetchNextRow();
+        }
       };
     }
 
 template <class C>
 collection<C>::iterator::iterator(const iterator& other)
   : impl_(other.impl_)
-{ 
+{
   if (impl_)
     ++impl_->useCount_;
 }
@@ -140,7 +140,7 @@ typename collection<C>::iterator collection<C>::iterator::operator++ (int)
 template <class C>
 collection<C>::iterator::
 shared_impl::shared_impl(const collection<C>& collection,
-			 SqlStatement *statement)
+                         SqlStatement *statement)
   : collection_(collection),
     statement_(statement),
     useCount_(0),
@@ -204,7 +204,7 @@ collection<C>::iterator::iterator()
 
 template <class C>
 collection<C>::iterator::iterator(const collection<C>& collection,
-				  SqlStatement *statement)
+                                  SqlStatement *statement)
 {
   impl_ = new shared_impl(collection, statement);
   takeImpl();
@@ -291,7 +291,7 @@ collection<C>::const_iterator::const_iterator()
 
 template <class C>
 collection<C>::const_iterator::const_iterator(const collection<C>& collection,
-					      SqlStatement *statement)
+                                              SqlStatement *statement)
   : impl_(collection, statement)
 { }
 
@@ -308,7 +308,7 @@ collection<C>::collection()
 
 template <class C>
 collection<C>::collection(Session *session, SqlStatement *statement,
-			  SqlStatement *countStatement)
+                          SqlStatement *countStatement)
   : session_(session),
     type_(QueryCollection)
 {
@@ -353,9 +353,9 @@ void collection<C>::releaseQuery()
   if (type_ == QueryCollection) {
     if (--data_.query->useCount == 0) {
       if (data_.query->statement)
-	data_.query->statement->done();      
+        data_.query->statement->done();
       if (data_.query->countStatement)
-	data_.query->countStatement->done();
+        data_.query->countStatement->done();
       delete data_.query;
     }
   }
@@ -521,7 +521,7 @@ typename collection<C>::size_type collection<C>::size() const
     int result;
     if (!countStatement->getResult(0, &result))
       throw Exception("collection<C>::size(): null?");
-    
+
     if (countStatement->nextRow())
       throw Exception("collection<C>::size(): multiple results?");
 
@@ -545,7 +545,7 @@ Query<C, DynamicBinding> collection<C>::find() const
 {
   if (type_ != RelationCollection)
     throw Exception("collection<C>::find() "
-		    "only for a many-side relation collection.");
+                    "only for a many-side relation collection.");
 
   if (session_ && data_.relation.sql) {
     const std::string *sql = data_.relation.sql;
@@ -572,13 +572,13 @@ void collection<C>::insert(C c)
 
   if (type_ != RelationCollection || relation.setInfo == nullptr)
     throw Exception("collection<C>::insert() only for a relational "
-		    "collection.");
+                    "collection.");
 
   if (session_->flushMode() == FlushMode::Auto) {
     if (relation.dbo) {
       relation.dbo->setDirty();
       if (relation.dbo->session())
-	relation.dbo->session()->add(c);
+        relation.dbo->session()->add(c);
     }
   } else if (session_->flushMode() == FlushMode::Manual) {
     manualModeInsertions_.push_back(c);
@@ -595,7 +595,7 @@ void collection<C>::insert(C c)
       relation.activity->inserted.insert(c);
   } else {
     SetReciproceAction setPtr(session_, relation.setInfo->joinName,
-			      relation.dbo);
+                              relation.dbo);
     setPtr.visit(*c.modify());
   }
 }
@@ -646,7 +646,7 @@ void collection<C>::clear()
   if (relation.setInfo->type == ManyToMany) {
     if (relation.activity) {
       relation.activity->transactionInserted.clear();
-      relation.activity->transactionErased.clear();      
+      relation.activity->transactionErased.clear();
     }
   }
 
@@ -659,7 +659,7 @@ void collection<C>::clear()
       std::size_t j = Impl::ifind(*sql, " join ");
       std::size_t w = Impl::ifind(*sql, " where ");
       deleteSql = "delete from " + sql->substr(j + 5, o - j - 5)
-	+ sql->substr(w);
+        + sql->substr(w);
     } else {
       std::size_t f = Impl::ifind(*sql, " from ");
       deleteSql = "delete" + sql->substr(f);
@@ -679,27 +679,27 @@ int collection<C>::count(C c) const
 {
   if (!session_)
     throw Exception("collection<C>::count() only for a collection "
-		    "that is bound to a session.");
+                    "that is bound to a session.");
 
   if (session_->flushMode() == FlushMode::Auto)
     session_->flush();
 
   if (type_ != RelationCollection)
     throw Exception("collection<C>::count() only for a relational "
-		    "relation.");
+                    "relation.");
 
   if (!c)
     return 0;
 
   const RelationData& relation = data_.relation;
   Impl::MappingInfo *mapping
-    = session_->getMapping(relation.setInfo->tableName); 
+    = session_->getMapping(relation.setInfo->tableName);
 
   Query<C, DynamicBinding> q = find().where(mapping->idCondition);
   c.obj()->bindId(q.parameters_);
   std::size_t result = q.resultList().size();
 
-  result += 
+  result +=
     std::count(manualModeInsertions_.begin(), manualModeInsertions_.end(), c);
   result -=
     std::count(manualModeRemovals_.begin(), manualModeRemovals_.end(), c);
@@ -716,8 +716,8 @@ void collection<C>::resetActivity()
 
 template <class C>
 void collection<C>::setRelationData(MetaDboBase *dbo,
-				    const std::string *sql,
-				    Impl::SetInfo *setInfo)
+                                    const std::string *sql,
+                                    Impl::SetInfo *setInfo)
 {
   session_ = dbo->session();
 

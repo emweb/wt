@@ -33,7 +33,7 @@ private:
   void saveFile(Wt::WFileDropWidget::File *file);
   void cancelUpload();
   void updateProgressListener();
-  
+
   void showProgress(::uint64_t current, ::uint64_t total);
 };
 

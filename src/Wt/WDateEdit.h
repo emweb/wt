@@ -96,7 +96,7 @@ public:
    * \sa setBottom()
    */
   WDate bottom() const;
-  
+
   /*! \brief Sets the upper limit of the valid date range.
    *
    * This sets the upper limit of the valid date range in the

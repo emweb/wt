@@ -15,89 +15,89 @@ public:
     {
         auto layout = setLayout(std::make_unique<Wt::WHBoxLayout>());
 
-	setHeight(400);
+        setHeight(400);
 
-	map_ = layout->addWidget(std::make_unique<Wt::WGoogleMap>(Wt::GoogleMapsVersion::v3), 1);
+        map_ = layout->addWidget(std::make_unique<Wt::WGoogleMap>(Wt::GoogleMapsVersion::v3), 1);
 
-	map_->setMapTypeControl(Wt::MapTypeControl::Default);
-	map_->enableScrollWheelZoom();
+        map_->setMapTypeControl(Wt::MapTypeControl::Default);
+        map_->enableScrollWheelZoom();
 
-	auto controls = layout->addWidget(std::make_unique<Wt::WTemplate>(
+        auto controls = layout->addWidget(std::make_unique<Wt::WTemplate>(
               tr("graphics-GoogleMap-controls")));
 
-	auto zoomIn = controls->bindWidget("zoom-in", std::make_unique<Wt::WPushButton>("+"));
-	zoomIn->addStyleClass("zoom");
+        auto zoomIn = controls->bindWidget("zoom-in", std::make_unique<Wt::WPushButton>("+"));
+        zoomIn->addStyleClass("zoom");
 
-	zoomIn->clicked().connect([=] {
-	    map_->zoomIn();
-	});
+        zoomIn->clicked().connect([=] {
+            map_->zoomIn();
+        });
 
-	auto zoomOut = controls->bindWidget("zoom-out", std::make_unique<Wt::WPushButton>("-"));
-	zoomOut->addStyleClass("zoom");
+        auto zoomOut = controls->bindWidget("zoom-out", std::make_unique<Wt::WPushButton>("-"));
+        zoomOut->addStyleClass("zoom");
 
         zoomOut->clicked().connect([=] {
             map_->zoomOut();
-	});
+        });
 
-	std::string cityNames[] = { "Brussels", "Lisbon", "Paris" };
+        std::string cityNames[] = { "Brussels", "Lisbon", "Paris" };
         Wt::WGoogleMap::Coordinate cityCoords[] = {
           Wt::WGoogleMap::Coordinate(50.85034,4.35171),
-	  Wt::WGoogleMap::Coordinate(38.703731,-9.135475),
-	  Wt::WGoogleMap::Coordinate(48.877474, 2.312579)
-	};
-	    
-	for (unsigned i = 0; i < 3; ++i) {
-	    auto city = controls->bindWidget(cityNames[i],
+          Wt::WGoogleMap::Coordinate(38.703731,-9.135475),
+          Wt::WGoogleMap::Coordinate(48.877474, 2.312579)
+        };
+
+        for (unsigned i = 0; i < 3; ++i) {
+            auto city = controls->bindWidget(cityNames[i],
                 std::make_unique<Wt::WPushButton>(cityNames[i]));
 
             Wt::WGoogleMap::Coordinate coord = cityCoords[i];
-	    city->clicked().connect([=] {
-		map_->panTo(coord);
-	    });
-	}
+            city->clicked().connect([=] {
+                map_->panTo(coord);
+            });
+        }
 
-	auto reset = controls->bindWidget("emweb", std::make_unique<Wt::WPushButton>("Reset"));
+        auto reset = controls->bindWidget("emweb", std::make_unique<Wt::WPushButton>("Reset"));
 
         reset->clicked().connect([=] {
             this->panToEmWeb();
         });
 
-	auto savePosition = controls->bindWidget("save-position",
+        auto savePosition = controls->bindWidget("save-position",
             std::make_unique<Wt::WPushButton>("Save current position"));
 
         savePosition->clicked().connect([=] {
             this->savePosition();
         });
 
-	returnToPosition_ = controls->bindWidget("return-to-saved-position",
+        returnToPosition_ = controls->bindWidget("return-to-saved-position",
             std::make_unique<Wt::WPushButton>("Return to saved position"));
-	returnToPosition_->setEnabled(false);
+        returnToPosition_->setEnabled(false);
 
-	returnToPosition_->clicked().connect([=] {
+        returnToPosition_->clicked().connect([=] {
             map_->returnToSavedPosition();
         });
 
-	mapTypeModel_ = std::make_shared<Wt::WStringListModel>();
-	addMapTypeControl("No control", Wt::MapTypeControl::None);
-	addMapTypeControl("Default", Wt::MapTypeControl::Default);
-	addMapTypeControl("Menu", Wt::MapTypeControl::Menu);
-	if (map_->apiVersion() == Wt::GoogleMapsVersion::v3)
-	    addMapTypeControl("Horizontal bar",
-			      Wt::MapTypeControl::HorizontalBar);
+        mapTypeModel_ = std::make_shared<Wt::WStringListModel>();
+        addMapTypeControl("No control", Wt::MapTypeControl::None);
+        addMapTypeControl("Default", Wt::MapTypeControl::Default);
+        addMapTypeControl("Menu", Wt::MapTypeControl::Menu);
+        if (map_->apiVersion() == Wt::GoogleMapsVersion::v3)
+            addMapTypeControl("Horizontal bar",
+                              Wt::MapTypeControl::HorizontalBar);
 
-	auto menuControls = controls->bindWidget("control-menu-combo",
+        auto menuControls = controls->bindWidget("control-menu-combo",
             std::make_unique<Wt::WComboBox>());
-	menuControls->setModel(mapTypeModel_);
-	menuControls->setCurrentIndex(1);
+        menuControls->setModel(mapTypeModel_);
+        menuControls->setCurrentIndex(1);
 
         menuControls->activated().connect([=] (int mapType) {
             this->setMapTypeControl(mapType);
         });
 
-	auto draggingCB = controls->bindWidget("dragging-cb",
+        auto draggingCB = controls->bindWidget("dragging-cb",
             std::make_unique<Wt::WCheckBox>("Enable dragging"));
-	draggingCB->setChecked(true);
-	map_->enableDragging();
+        draggingCB->setChecked(true);
+        map_->enableDragging();
 
         draggingCB->checked().connect([=] {
             map_->enableDragging();
@@ -111,11 +111,11 @@ public:
             controls->bindWidget("double-click-zoom-cb",
                 std::make_unique<Wt::WCheckBox>("Enable double click zoom"));
         enableDoubleClickZoomCB->setChecked(false);
-	map_->disableDoubleClickZoom();
+        map_->disableDoubleClickZoom();
 
         enableDoubleClickZoomCB->checked().connect([=] {
             map_->enableDoubleClickZoom();
-	});
+        });
 
         enableDoubleClickZoomCB->unChecked().connect([=] {
             map_->disableDoubleClickZoom();
@@ -125,7 +125,7 @@ public:
             controls->bindWidget("scroll-wheel-zoom-cb",
                 std::make_unique<Wt::WCheckBox>("Enable scroll wheel zoom"));
         enableScrollWheelZoomCB->setChecked(true);
-	map_->enableScrollWheelZoom();
+        map_->enableScrollWheelZoom();
 
         enableScrollWheelZoomCB->checked().connect([=] {
             map_->enableScrollWheelZoom();
@@ -139,12 +139,12 @@ public:
 
         map_->addPolyline(road, Wt::WColor(0, 191, 255));
 
-	//Koen's favourite bar!
-	map_->addMarker(Wt::WGoogleMap::Coordinate(50.885069,4.71958));
+        //Koen's favourite bar!
+        map_->addMarker(Wt::WGoogleMap::Coordinate(50.885069,4.71958));
 
-	map_->setCenter(road[road.size()-1]);
+        map_->setCenter(road[road.size()-1]);
 
-	map_->openInfoWindow(road[0],
+        map_->openInfoWindow(road[0],
            "<p><img src=\"https://www.emweb.be/css/emweb_small.png\" /></p>"
            "<p><strong>Emweb office</strong></p>");
 
@@ -152,7 +152,7 @@ public:
             this->googleMapClicked(c);
         });
 
-	map_->doubleClicked().connect([=] (Wt::WGoogleMap::Coordinate c) {
+        map_->doubleClicked().connect([=] (Wt::WGoogleMap::Coordinate c) {
             this->googleMapDoubleClicked(c);
         });
     }
@@ -169,18 +169,18 @@ private:
 
     void addMapTypeControl(const Wt::WString &description,
                            Wt::MapTypeControl value) {
-	int r = mapTypeModel_->rowCount();
-	mapTypeModel_->insertRow(r);
-	mapTypeModel_->setData(r, 0, description);
-	mapTypeModel_->setData(r, 0, value, Wt::ItemDataRole::User);
+        int r = mapTypeModel_->rowCount();
+        mapTypeModel_->insertRow(r);
+        mapTypeModel_->setData(r, 0, description);
+        mapTypeModel_->setData(r, 0, value, Wt::ItemDataRole::User);
     }
 
     void setMapTypeControl(int row) {
         Wt::cpp17::any mtc = mapTypeModel_->data(row, 0, Wt::ItemDataRole::User);
         map_->setMapTypeControl(Wt::cpp17::any_cast<Wt::MapTypeControl>
-				(mtc));
+                                (mtc));
     }
-    
+
     std::vector<Wt::WGoogleMap::Coordinate> roadDescription() {
       std::vector<Wt::WGoogleMap::Coordinate> result;
       result.push_back(Wt::WGoogleMap::Coordinate(50.9082, 4.66056));
@@ -245,18 +245,18 @@ private:
       result.push_back(Wt::WGoogleMap::Coordinate(50.87814, 4.69766));
       result.push_back(Wt::WGoogleMap::Coordinate(50.87813, 4.69788));
       result.push_back(Wt::WGoogleMap::Coordinate(50.87789, 4.69862));
-      
+
       return result;
     }
 
     void googleMapDoubleClicked(Wt::WGoogleMap::Coordinate c) {
-	std::cerr << "Double clicked at coordinate ("
-		  << c.latitude() << "," << c.longitude() << ")";
+        std::cerr << "Double clicked at coordinate ("
+                  << c.latitude() << "," << c.longitude() << ")";
     }
 
     void googleMapClicked(Wt::WGoogleMap::Coordinate c) {
-	std::cerr << "Clicked at coordinate ("
-		  << c.latitude() << "," << c.longitude() << ")";
+        std::cerr << "Clicked at coordinate ("
+                  << c.latitude() << "," << c.longitude() << ")";
     }
 
 private:

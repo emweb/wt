@@ -14,7 +14,7 @@ WAnimation::WAnimation()
 { }
 
 WAnimation::WAnimation(WFlags<AnimationEffect> effects, TimingFunction timing,
-		       int duration)
+                       int duration)
   : effects_(effects),
     timing_(timing),
     duration_(duration)
@@ -23,14 +23,14 @@ WAnimation::WAnimation(WFlags<AnimationEffect> effects, TimingFunction timing,
 #ifdef WT_TARGET_JAVA
 
 WAnimation::WAnimation(AnimationEffect effect, TimingFunction timing,
-		       int duration)
+                       int duration)
   : effects_(effect),
     timing_(timing),
     duration_(duration)
 { }
 
 WAnimation::WAnimation(AnimationEffect effect1, AnimationEffect effect2,
-		       TimingFunction timing, int duration)
+                       TimingFunction timing, int duration)
   : effects_(effect1 | effect2),
     timing_(timing),
     duration_(duration)

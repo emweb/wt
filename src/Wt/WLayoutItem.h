@@ -66,7 +66,7 @@ private:
   /*! \brief Internal method.
    */
   virtual void setParentWidget(WWidget *parent) = 0;
-  
+
   /*! \brief Internal method.
    */
   virtual void setParentLayout(WLayout *parentLayout) = 0;

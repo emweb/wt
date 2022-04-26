@@ -17,7 +17,7 @@ namespace Wt {
 class WT_API EntryPoint {
 public:
   EntryPoint(EntryPointType type, ApplicationCreator appCallback,
-	     const std::string& path, 
+             const std::string& path,
              const std::string& favicon);
   EntryPoint(WResource *resource, const std::string& path);
   ~EntryPoint();

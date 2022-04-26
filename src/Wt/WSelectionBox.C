@@ -18,7 +18,7 @@ WSelectionBox::WSelectionBox()
   : verticalSize_(5),
     selectionMode_(SelectionMode::Single),
     configChanged_(false)
-{ 
+{
   noSelectionEnabled_ = true;
 }
 
@@ -39,12 +39,12 @@ void WSelectionBox::setSelectionMode(SelectionMode mode)
     if (mode == SelectionMode::Extended) {
       selection_.clear();
       if (currentIndex() != -1)
-	selection_.insert(currentIndex());
+        selection_.insert(currentIndex());
     } else {
       if (selection_.size() == 1)
-	setCurrentIndex(*selection_.begin());
+        setCurrentIndex(*selection_.begin());
       else
-	setCurrentIndex(-1);
+        setCurrentIndex(-1);
       selection_.clear();
     }
   }
@@ -54,7 +54,7 @@ void WSelectionBox::setSelectedIndexes(const std::set<int>& selection)
 {
   if (selectionMode_ != SelectionMode::Extended)
     throw WException("WSelectionBox::setSelectedIndexes() can only be used "
-		     "for an SelectionMode::Extended mode");
+                     "for an SelectionMode::Extended mode");
 
   selection_ = selection;
   selectionChanged_ = true;
@@ -65,7 +65,7 @@ const std::set<int>& WSelectionBox::selectedIndexes() const
 {
   if (selectionMode_ != SelectionMode::Extended)
     throw WException("WSelectionBox::setSelectedIndexes() can only be used "
-		     "for an SelectionMode::Extended mode");
+                     "for an SelectionMode::Extended mode");
 
   return selection_;
 }
@@ -99,10 +99,10 @@ void WSelectionBox::updateDom(DomElement& element, bool all)
 
     if (!all || (selectionMode_ == SelectionMode::Extended)) {
       element.setProperty(Property::Multiple,
-			  selectionMode_ == SelectionMode::Extended
-			  ? "true" : "false");
+                          selectionMode_ == SelectionMode::Extended
+                          ? "true" : "false");
       if (!all)
-	selectionChanged_ = true;
+        selectionChanged_ = true;
     }
 
     configChanged_ = false;
@@ -111,8 +111,8 @@ void WSelectionBox::updateDom(DomElement& element, bool all)
   if (selectionMode_ == SelectionMode::Extended) {
     if (selectionChanged_ && !all) {
       for (int i = 0; i < count(); ++i) {
-	element.callMethod("options[" + std::to_string(i) + "].selected="
-			   + (isSelected(i) ? "true" : "false"));
+        element.callMethod("options[" + std::to_string(i) + "].selected="
+                           + (isSelected(i) ? "true" : "false"));
       }
     }
     selectionChanged_ = false;
@@ -142,12 +142,12 @@ void WSelectionBox::setFormData(const FormData& formData)
     for (int j = 0; j < Utils::size(formData.values); ++j) {
       const std::string& v = formData.values[j];
       if (!v.empty()) {
-	try {
-	  int i = Utils::stoi(v);
-	  selection_.insert(i);
-	} catch (std::exception& e) {
-	  LOG_ERROR("received illegal form value: '" << v << "'");
-	}
+        try {
+          int i = Utils::stoi(v);
+          selection_.insert(i);
+        } catch (std::exception& e) {
+          LOG_ERROR("received illegal form value: '" << v << "'");
+        }
       }
     }
   }

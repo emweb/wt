@@ -37,12 +37,12 @@ public:
 
   void reflow(Block *lineFloat);
   void moveToNextPage(BlockList& floats, double minX, double maxX,
-		      const WTextRenderer& renderer);
+                      const WTextRenderer& renderer);
   void adjustHeight(double height, double baseline,
-		    double minimumLineHeight);
+                    double minimumLineHeight);
   void finish(AlignmentFlag textAlign,
-	      BlockList& floats, double minX, double maxX,
-	      const WTextRenderer& renderer);
+              BlockList& floats, double minX, double maxX,
+              const WTextRenderer& renderer);
 
   void addBlock(Block *b);
 

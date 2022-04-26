@@ -90,7 +90,7 @@ public:
    * StringUtils#asString(Object)}, passing the given format. If the format is
    * an empty string, this corresponds to {javadoclink Object#toString()}.
    *
-   * \endif 
+   * \endif
    *
    * The default value is "".
    */
@@ -129,8 +129,8 @@ public:
    * \sa createEditor(), editState()
    */
   virtual void setModelData(const cpp17::any& editState,
-			    WAbstractItemModel *model,
-			    const WModelIndex& index) const override;
+                            WAbstractItemModel *model,
+                            const WModelIndex& index) const override;
 
   /*! \brief Returns the current edit state.
    *
@@ -194,7 +194,7 @@ public:
    * \sa createEditor()
    */
   virtual void setEditState(WWidget *editor, const WModelIndex& index,
-			    const cpp17::any& value) const
+                            const cpp17::any& value) const
     override;
 
 protected:
@@ -275,7 +275,7 @@ protected:
    */
   virtual std::unique_ptr<WWidget>
     createEditor(const WModelIndex& index,
-		 WFlags<ViewItemRenderFlag> flags) const;
+                 WFlags<ViewItemRenderFlag> flags) const;
 
 private:
   WT_USTRING textFormat_;
@@ -287,7 +287,7 @@ private:
   };
 
   IndexCheckBox *checkBox(WidgetRef& w, const WModelIndex& index,
-			 bool autoCreate, bool update = false, bool triState = false);
+                         bool autoCreate, bool update = false, bool triState = false);
 
   IndexText *textWidget(WidgetRef& w, const WModelIndex& index);
   WImage *iconWidget(WidgetRef& w, const WModelIndex& index, bool autoCreate = false);

@@ -24,7 +24,7 @@ class CategoryExample: public Wt::WContainerWidget
 public:
   CategoryExample();
   ~CategoryExample();
-  
+
 private:
   void setUpData();
 

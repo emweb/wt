@@ -58,7 +58,7 @@ WIOService::~WIOService()
 }
 
 void WIOService::setThreadCount(int count)
-{ 
+{
   impl_->threadCount_ = count;
 }
 
@@ -89,8 +89,8 @@ void WIOService::start()
 
     for (int i = 0; i < impl_->threadCount_; ++i) {
       impl_->threads_.push_back
-	(std::unique_ptr<std::thread>
-	 (new std::thread(std::bind(&WIOService::run, this))));
+        (std::unique_ptr<std::thread>
+         (new std::thread(std::bind(&WIOService::run, this))));
     }
 
 #if !defined(WT_WIN32)
@@ -136,13 +136,13 @@ void WIOService::schedule(std::chrono::steady_clock::duration millis, const std:
     timer->expires_from_now(millis);
     timer->async_wait
       (std::bind(&WIOService::handleTimeout, this, timer, function,
-		 std::placeholders::_1));
+                 std::placeholders::_1));
   }
 }
 
 void WIOService::handleTimeout(const std::shared_ptr<asio::steady_timer>& timer,
-			       const std::function<void ()>& function,
-			       const AsioWrapper::error_code& e)
+                               const std::function<void ()>& function,
+                               const AsioWrapper::error_code& e)
 {
   if (!e)
     function();

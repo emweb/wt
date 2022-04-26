@@ -29,7 +29,7 @@ intervalTimer->setInterval(std::chrono::milliseconds(1000));
 startButton->clicked().connect([=] {
     if (bar->value() < 10) {
         intervalTimer->start();
-	startButton->setText("Resume");
+        startButton->setText("Resume");
     }
 
     startButton->disable();
@@ -58,7 +58,7 @@ intervalTimer->timeout().connect([=] {
     bar->setValue(bar->value() + 1);
     if (bar->value() == 10) {
         stopButton->clicked().emit(Wt::WMouseEvent());
-	startButton->disable();
+        startButton->disable();
     }
 });
 

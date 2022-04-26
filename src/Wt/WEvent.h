@@ -35,15 +35,15 @@ namespace Wt {
     /*! \brief Constructor.
      */
     Touch(long long identifier,
-	  int clientX, int clientY,
-	  int documentX, int documentY,
-	  int screenX, int screenY,
-	  int widgetX, int widgetY);
+          int clientX, int clientY,
+          int documentX, int documentY,
+          int screenX, int screenY,
+          int widgetX, int widgetY);
 
     /*! \brief Returns the touch position relative to the document.
      */
     Coordinates document() const { return Coordinates(documentX_, documentY_); }
-    
+
     /*! \brief Returns the touch position relative to the window.
      *
      * This differs from document() only when scrolling through
@@ -85,7 +85,7 @@ public:
   int screenX, screenY;
   int widgetX, widgetY;
   int dragDX, dragDY;
-  int wheelDelta; 
+  int wheelDelta;
 
   // for key events or mouse event modifiers
   int button;
@@ -131,7 +131,7 @@ public:
 
   /*! \brief Returns the event type.
    */
-  EventType eventType() const; 
+  EventType eventType() const;
 
 private:
   WEvent(const Impl& impl)
@@ -364,12 +364,12 @@ public:
   /*! \brief Constructor.
    */
   WDropEvent(WObject *source, const std::string& mimeType,
-	     const WMouseEvent& mouseEvent);
+             const WMouseEvent& mouseEvent);
 
   /*! \brief Constructor.
    */
   WDropEvent(WObject *source, const std::string& mimeType,
-	     const WTouchEvent& touchEvent);
+             const WTouchEvent& touchEvent);
 
 #ifndef WT_TARGET_JAVA
   WDropEvent(const WDropEvent &other);
@@ -492,19 +492,19 @@ public:
    */
   WTouchEvent();
 
-  /*! \brief Returns a list of \link Touch\endlink objects for every finger 
+  /*! \brief Returns a list of \link Touch\endlink objects for every finger
    *         currently touching the screen.
    */
   const std::vector<Touch>& touches() const
     { return jsEvent_.touches; }
 
-  /*! \brief Returns a list of \link Touch\endlink objects for finger touches 
+  /*! \brief Returns a list of \link Touch\endlink objects for finger touches
    *         that started out within the same widget.
    */
   const std::vector<Touch>& targetTouches() const
     { return jsEvent_.targetTouches; }
 
-  /*! \brief Returns a list of \link Touch\endlink objects for every finger 
+  /*! \brief Returns a list of \link Touch\endlink objects for every finger
    *         involved in the event.
    */
   const std::vector<Touch>& changedTouches() const
@@ -543,7 +543,7 @@ public:
    */
   WGestureEvent();
 
-  /*! \brief Returns the multiplier which the user has pinched or pushed 
+  /*! \brief Returns the multiplier which the user has pinched or pushed
              (relative to 1).
    */
   double scale() const { return jsEvent_.scale; }

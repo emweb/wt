@@ -56,7 +56,7 @@ static const std::string EMPTY_STR;
 using namespace Wt;
 
 bool regexMatchAny(const std::string& agent,
-		   const std::vector<std::string>& regexList) {
+                   const std::vector<std::string>& regexList) {
   WT_USTRING s = WT_USTRING::fromUTF8(agent);
   for (unsigned i = 0; i < regexList.size(); ++i) {
     std::regex expr(regexList[i]);
@@ -76,8 +76,8 @@ xml_node<> *singleChildElement(xml_node<> *element, const char* tagName)
 
     if (next) {
       throw WServer::Exception
-	(std::string("Expected only one child <") + tagName
-	 + "> in <" + element->name() + ">");
+        (std::string("Expected only one child <") + tagName
+         + "> in <" + element->name() + ">");
     }
   }
 
@@ -85,7 +85,7 @@ xml_node<> *singleChildElement(xml_node<> *element, const char* tagName)
 }
 
 bool attributeValue(xml_node<> *element, const char *attributeName,
-		    std::string& result)
+                    std::string& result)
 {
   xml_attribute<> *attr = element->first_attribute(attributeName);
 
@@ -102,14 +102,14 @@ std::string elementValue(xml_node<> *element, const char *elementName)
   for (xml_node<> *e = element->first_node(); e; e = e->next_sibling())
     if (e->type() != node_data && e->type() != node_cdata)
       throw WServer::Exception(std::string("<")
-			       + elementName
-			       + "> should only contain text.");
+                               + elementName
+                               + "> should only contain text.");
 
   return element->value();
 }
 
 std::string singleChildElementValue(xml_node<> *element, const char* tagName,
-				    const std::string& defaultValue)
+                                    const std::string& defaultValue)
 {
   xml_node<> *child = singleChildElement(element, tagName);
 
@@ -130,7 +130,7 @@ void setBoolean(xml_node<> *element, const char *tagName, bool& result)
       result = false;
     else
       throw WServer::Exception("<" + std::string(tagName)
-			       + ">: expecting 'true' or 'false'");
+                               + ">: expecting 'true' or 'false'");
   }
 }
 
@@ -143,20 +143,20 @@ void setInt(xml_node<> *element, const char *tagName, int& result)
       result = Utils::stoi(v);
     } catch (std::exception& e) {
       throw WServer::Exception("<" + std::string(tagName)
-			       + ">: expecting integer value");
+                               + ">: expecting integer value");
     }
   }
 }
 
 std::vector<xml_node<> *> childElements(xml_node<> *element,
-					const char *tagName)
+                                        const char *tagName)
 {
   std::vector<xml_node<> *> result;
 
   for (xml_node<> *r = element->first_node(tagName); r;
        r = r->next_sibling(tagName))
     result.push_back(r);
-  
+
   return result;
 }
 
@@ -187,7 +187,7 @@ namespace Wt {
 LOGGER("config");
 
 HeadMatter::HeadMatter(std::string contents,
-		       std::string userAgent)
+                       std::string userAgent)
   : contents_(contents),
     userAgent_(userAgent)
 { }
@@ -236,9 +236,9 @@ bool Configuration::Network::contains(const AsioWrapper::asio::ip::address &addr
 }
 
 Configuration::Configuration(const std::string& applicationPath,
-			     const std::string& appRoot,
-			     const std::string& configurationFile,
-			     WServer *server)
+                             const std::string& appRoot,
+                             const std::string& configurationFile,
+                             WServer *server)
   : server_(server),
     applicationPath_(applicationPath),
     appRoot_(appRoot),
@@ -338,7 +338,7 @@ int Configuration::maxNumSessions() const
   return maxRequestSize_;
 }
 
-  
+
 ::int64_t Configuration::maxFormDataSize() const
 {
   return maxFormDataSize_;
@@ -530,11 +530,11 @@ bool Configuration::progressiveBoot(const std::string& internalPath) const
     const BootstrapEntry& e = bootstrapConfig_[i];
     if (e.prefix) {
       if (internalPath == e.path ||
-	  boost::starts_with(internalPath, e.path + '/'))
-	result = e.method == Progressive;
+          boost::starts_with(internalPath, e.path + '/'))
+        result = e.method == Progressive;
     } else
       if (internalPath == e.path)
-	result = e.method == Progressive;
+        result = e.method == Progressive;
   }
 
   return result;
@@ -674,7 +674,7 @@ std::string Configuration::locateConfigFile(const std::string& appRoot)
       std::string result = appRoot + "/wt_config.xml";
       std::ifstream s(result.c_str(), std::ios::in | std::ios::binary);
       if (s)
-	return result;
+        return result;
     }
 
     return WT_CONFIG_XML;
@@ -901,7 +901,7 @@ EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
 
 bool Configuration::matchesPath(const std::string &path,
                                 const std::string &prefix,
-				bool matchAfterSlash)
+                                bool matchAfterSlash)
 {
   if (boost::starts_with(path, prefix)) {
     std::size_t prefixLength = prefix.length();
@@ -910,12 +910,12 @@ bool Configuration::matchesPath(const std::string &path,
       char next = path[prefixLength];
 
       if (next == '/')
-	return true;
+        return true;
       else if (matchAfterSlash) {
-	char last = prefix[prefixLength - 1];
+        char last = prefix[prefixLength - 1];
 
-	if (last == '/')
-	  return true;
+        if (last == '/')
+          return true;
       }
     } else
       return true;
@@ -997,8 +997,8 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 
     if (dedicated && shared)
       throw WServer::Exception("<application-settings> requires either "
-			       "<dedicated-process> or <shared-process>, "
-			       "not both");
+                               "<dedicated-process> or <shared-process>, "
+                               "not both");
 
     if (dedicated) {
       sessionPolicy_ = DedicatedProcess;
@@ -1014,14 +1014,14 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 
     if (!tracking.empty()) {
       if (tracking == "Auto")
-	sessionTracking_ = CookiesURL;
+        sessionTracking_ = CookiesURL;
       else if (tracking == "URL")
-	sessionTracking_ = URL;
+        sessionTracking_ = URL;
       else if (tracking == "Combined")
-	sessionTracking_ = Combined;
+        sessionTracking_ = Combined;
       else
-	throw WServer::Exception("<session-tracking>: expecting 'Auto', "
-				 "'URL', or 'Combined'");
+        throw WServer::Exception("<session-tracking>: expecting 'Auto', "
+                                 "'URL', or 'Combined'");
     }
 
     setInt(sess, "timeout", sessionTimeout_);
@@ -1040,7 +1040,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     singleChildElementValue(app, "max-formdata-size", "");
   if (!maxFormDataStr.empty())
     maxFormDataSize_ = Utils::stoll(maxFormDataStr) * 1024;
-  
+
   std::string maxPendingEventsStr =
     singleChildElementValue(app, "max-pending-events", "");
   if (!maxPendingEventsStr.empty())
@@ -1057,7 +1057,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
       errorReporting_ = ServerSideOnly;
     else
       throw WServer::Exception("<debug>: expecting 'true', 'false',"
-			       "'naked', or 'stack'");
+                               "'naked', or 'stack'");
   }
 
   setInt(app, "num-threads", numThreads_);
@@ -1067,9 +1067,9 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     fcgi = app; // backward compatibility
 
   valgrindPath_ = singleChildElementValue(fcgi, "valgrind-path",
-					  valgrindPath_);
+                                          valgrindPath_);
   runDirectory_ = singleChildElementValue(fcgi, "run-directory",
-					  runDirectory_);
+                                          runDirectory_);
 
   xml_node<> *isapi = singleChildElement(app, "connector-isapi");
   if (!isapi)
@@ -1089,7 +1089,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
    * would do such a thing ? */
   connectorSessionIdPrefix_
     = singleChildElementValue(app,"session-id-prefix",
-			      connectorSessionIdPrefix_);
+                              connectorSessionIdPrefix_);
 
   setBoolean(app, "send-xhtml-mime-type", xhtmlMimeType_);
   if (xhtmlMimeType_)
@@ -1142,20 +1142,20 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 
       std::string path;
       if (!attributeValue(entry, "path", path) || path.empty())
-	throw WServer::Exception("<for> requires attribute 'path'");
+        throw WServer::Exception("<for> requires attribute 'path'");
 
       bootstrapConfig_.push_back(BootstrapEntry());
       BootstrapEntry& e = bootstrapConfig_.back();
-      
+
       e.prefix = path[path.length() - 1] == '*';
       e.method = std::string(entry->value()) == "progressive"
-	? Progressive : DetectAjax;
+        ? Progressive : DetectAjax;
       if (e.prefix) {
-	e.path = path.substr(0, path.length() - 1);
-	if (!e.path.empty() && e.path[e.path.length() - 1] == '/')
-	  e.path.erase(e.path.length() - 1);
+        e.path = path.substr(0, path.length() - 1);
+        if (!e.path.empty() && e.path[e.path.length() - 1] == '/')
+          e.path.erase(e.path.length() - 1);
       } else
-	e.path = path;
+        e.path = path;
     }
   }
 
@@ -1192,24 +1192,24 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 
     std::string mode;
     attributeValue(userAgentsList, "mode", mode);
-    
+
     AgentList *list;
     if (type == "ajax") {
       list = &ajaxAgentList_;
       if (mode == "black-list")
-	ajaxAgentWhiteList_ = false;
+        ajaxAgentWhiteList_ = false;
       else if (mode == "white-list")
-	ajaxAgentWhiteList_ = true;
+        ajaxAgentWhiteList_ = true;
       else
-	throw WServer::Exception
-	  ("<user-agents type=\"ajax\" requires attribute 'mode' with value "
-	   "\"white-list\" or \"black-list\"");
+        throw WServer::Exception
+          ("<user-agents type=\"ajax\" requires attribute 'mode' with value "
+           "\"white-list\" or \"black-list\"");
     } else if (type == "bot")
       list = &botList_;
     else
       throw WServer::Exception
-	("<user-agents> requires attribute 'type' with value "
-	 "\"ajax\" or \"bot\"");
+        ("<user-agents> requires attribute 'type' with value "
+         "\"ajax\" or \"bot\"");
 
     std::vector<xml_node<> *> agents
       = childElements(userAgentsList, "user-agent");
@@ -1228,17 +1228,17 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 
       std::string name;
       if (!attributeValue(property, "name", name))
-	throw WServer::Exception("<property> requires attribute 'name'");
+        throw WServer::Exception("<property> requires attribute 'name'");
 
       std::string value = elementValue(property, "property");
 
       if (name == "approot")
-	name = "appRoot";
+        name = "appRoot";
 
       if (name == "appRoot" && !appRoot_.empty())
-	LOG_WARN("ignoring configuration property 'appRoot' ("
-		 << value
-		 << ") because was already set to " << appRoot_);
+        LOG_WARN("ignoring configuration property 'appRoot' ("
+                 << value
+                 << ") because was already set to " << appRoot_);
       else
         properties_[name] = value;
     }
@@ -1255,7 +1255,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     std::vector<xml_node<> *> metas = childElements(metaHeader, "meta");
     for (unsigned j = 0; j < metas.size(); ++j) {
       xml_node<> *meta = metas[j];
-      
+
       std::string name, property, httpEquiv, content;
       attributeValue(meta, "name", name);
       attributeValue(meta, "http-equiv", httpEquiv);
@@ -1264,16 +1264,16 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 
       MetaHeaderType type;
       if (!name.empty())
-	type = MetaHeaderType::Meta;
+        type = MetaHeaderType::Meta;
       else if (!httpEquiv.empty()) {
-	type = MetaHeaderType::HttpHeader;
-	name = httpEquiv;
+        type = MetaHeaderType::HttpHeader;
+        name = httpEquiv;
       } else if (!property.empty()) {
-	type = MetaHeaderType::Property;
-	name = property;
+        type = MetaHeaderType::Property;
+        name = property;
       } else {
-	throw WServer::Exception
-	  ("<meta> requires attribute 'name', 'property' or 'http-equiv'");
+        throw WServer::Exception
+          ("<meta> requires attribute 'name', 'property' or 'http-equiv'");
       }
 
       metaHeaders_.push_back(MetaHeader(type, name, content, "", userAgent));
@@ -1325,7 +1325,7 @@ void Configuration::readConfiguration(bool silent)
   if (!s) {
     if (configurationFile_ != WT_CONFIG_XML)
       throw WServer::Exception
-	("Error reading '" + configurationFile_ + "': could not open file.");
+        ("Error reading '" + configurationFile_ + "': could not open file.");
     else
       return;
   }
@@ -1364,12 +1364,12 @@ void Configuration::readConfiguration(bool silent)
 
       std::string appLocation;
       if (!attributeValue(app, "location", appLocation))
-	throw WServer::Exception("<application-settings> requires attribute "
-				 "'location'");
+        throw WServer::Exception("<application-settings> requires attribute "
+                                 "'location'");
 
       if (appLocation == "*" || appLocation == applicationPath_) {
-	logFile = singleChildElementValue(app, "log-file", logFile);
-	logConfig = singleChildElementValue(app, "log-config", logConfig);
+        logFile = singleChildElementValue(app, "log-file", logFile);
+        logConfig = singleChildElementValue(app, "log-config", logConfig);
       }
     }
 
@@ -1378,7 +1378,7 @@ void Configuration::readConfiguration(bool silent)
 
     if (!silent)
       LOG_INFO("reading Wt config file: " << configurationFile_
-	       << " (location = '" << applicationPath_ << "')");
+               << " (location = '" << applicationPath_ << "')");
 
     /*
      * Now read application settings.
@@ -1390,18 +1390,18 @@ void Configuration::readConfiguration(bool silent)
       attributeValue(app, "location", appLocation);
 
       if (appLocation == "*" || appLocation == applicationPath_)
-	readApplicationSettings(app);
+        readApplicationSettings(app);
     }
   } catch (std::exception& e) {
     throw WServer::Exception("Error reading: " + configurationFile_ + ": "
-			     + e.what());
+                             + e.what());
   } catch (...) {
     throw WServer::Exception("Exception of unknown type!\n");
   }
 }
 
 bool Configuration::registerSessionId(const std::string& oldId,
-				      const std::string& newId)
+                                      const std::string& newId)
 {
   if (!runDirectory_.empty()) {
 
@@ -1410,23 +1410,23 @@ bool Configuration::registerSessionId(const std::string& oldId,
 
       struct stat finfo;
       if (stat(socketPath.c_str(), &finfo) != -1)
-	return false;
+        return false;
 
       if (oldId.empty()) {
-	if (sessionPolicy_ == SharedProcess) {
-	  std::ofstream f(socketPath.c_str());
-	  f << getpid() << std::endl;
-	  f.flush();
-	}
+        if (sessionPolicy_ == SharedProcess) {
+          std::ofstream f(socketPath.c_str());
+          f << getpid() << std::endl;
+          f.flush();
+        }
       }
     }
 
     if (!oldId.empty()) {
       if (newId.empty())
-	unlink(sessionSocketPath(oldId).c_str());
+        unlink(sessionSocketPath(oldId).c_str());
       else
-	std::rename(sessionSocketPath(oldId).c_str(),
-	            sessionSocketPath(newId).c_str());
+        std::rename(sessionSocketPath(oldId).c_str(),
+                    sessionSocketPath(newId).c_str());
     }
   }
 

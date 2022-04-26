@@ -2,72 +2,72 @@
  * Validators
  */
 .Wt-invalid {
-    background-color: #f7dada;
+  background-color: #f7dada;
 }
 
 .Wt-valid {
-    background-color: #daf7da
+  background-color: #daf7da
 }
 
 /*
  * Effects
  */
 .Wt-animated {
-    -webkit-backface-visibility: hidden; /* avoids flicker on Chrome */
+  -webkit-backface-visibility: hidden; /* avoids flicker on Chrome */
 }
 
 /*
  * Outset
  */
 .Wt-outset {
-    border: 1px solid #888888;
+  border: 1px solid #888888;
 }
 
 /*
  * Wt-disabled
  */
 span.Wt-disabled, fieldset.Wt-disabled legend {
-    color: gray;
+  color: gray;
 }
 
 /*
  * WFormWidget
  */
 .Wt-edit-emptyText {
-    color: gray;
+  color: gray;
 }
 
 /*
  * Silk screen
  */
 .Wt-dialogcover {
-    background: rgb(204, 204, 204); 
-    height: 100%; width: 100%;
-    top: 0px; left: 0px;
-    position: fixed;
+  background: rgb(204, 204, 204); 
+  height: 100%; width: 100%;
+  top: 0px; left: 0px;
+  position: fixed;
 }
 
 .Wt-dialogcover.in {
-    filter: alpha(opacity=50);
-    opacity: 0.5;
+  filter: alpha(opacity=50);
+  opacity: 0.5;
 }
 
 /*
  * WStackedWidget
  */
 .Wt-stack.Wt-animated {
-    overflow: hidden;
-    position: relative;
+  overflow: hidden;
+  position: relative;
 }
 
 /* This improves it on iPad and reduces artifacts on Safari.
 .Wt-animated > * {
-    -webkit-transform: translate3d(0,0,0);
-    -webkit-backface-visibility: hidden;
+  -webkit-transform: translate3d(0,0,0);
+  -webkit-backface-visibility: hidden;
 }
 
 .Wt-animated h3 {
-    -webkit-transform: translate3d(0,0,0);
+  -webkit-transform: translate3d(0,0,0);
 }
 */
 
@@ -75,238 +75,238 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
  * WCalendar
  */
 .Wt-cal {
-    padding: 0px;
+  padding: 0px;
 }
 
 .Wt-cal table {
-    border-left: 1px solid #E0E0E0;
-    border-collapse:separate;
-    background-color: #fff;
-    text-align: center;
-    font-size: 10pt;
-    line-height: 140%;
+  border-left: 1px solid #E0E0E0;
+  border-collapse:separate;
+  background-color: #fff;
+  text-align: center;
+  font-size: 10pt;
+  line-height: 140%;
 }
 
 .Wt-cal table td {
-    text-align: center;
+  text-align: center;
 }
 
 .Wt-cal table.d1 {
-    width: 170px;
+  width: 170px;
 }
 
 .Wt-cal table.d1 td {
-    width: 20px;
+  width: 20px;
 }
 
 .Wt-cal table.d3 {
-    width: 220px;
+  width: 220px;
 }
 
 .Wt-cal table.d3 td {
-    width: 30px;
+  width: 30px;
 }
 
 .Wt-cal table.dlong {
-    width: 560px;
+  width: 560px;
 }
 
 .Wt-cal table.dlong td {
-    width: 80px;
+  width: 80px;
 }
 
 .Wt-cal caption {
-    margin: 0;
-    padding: 0;
-    text-align: center;
-    background: #EEEEEE;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  background: #EEEEEE;
 }
 
 .Wt-cal caption select {
-    cursor: pointer; cursor: hand;
-    margin: 2px 0px;
-    vertical-align: middle;
+  cursor: pointer; cursor: hand;
+  margin: 2px 0px;
+  vertical-align: middle;
 }
 
 .Wt-cal-navbutton {
-    color: #FFFFFF;
-    background-color:#6699CC;
-    cursor: pointer; cursor: hand;
-    margin: 3px;
-    vertical-align: middle;
-    display: block;
+  color: #FFFFFF;
+  background-color:#6699CC;
+  cursor: pointer; cursor: hand;
+  margin: 3px;
+  vertical-align: middle;
+  display: block;
 }
 
 .Wt-cal-year {
-    vertical-align: middle;
+  vertical-align: middle;
 }
 
 .Wt-cal-year span {
-    padding: 2px 2px;
+  padding: 2px 2px;
 }
 
 .Wt-cal-year span:hover {
-    background-color:#FFFFCC;
+  background-color:#FFFFCC;
 }
 
 .Wt-cal th {
-    color: #666666;
-    border: 0px;
-    border-right: 1px solid #E0E0E0;
-    border-bottom: 1px solid #E0E0E0;
-    border-top: 1px solid #E0E0E0;    
-    line-height: 140%;
+  color: #666666;
+  border: 0px;
+  border-right: 1px solid #E0E0E0;
+  border-bottom: 1px solid #E0E0E0;
+  border-top: 1px solid #E0E0E0;    
+  line-height: 140%;
 }
 
 .Wt-cal td {
-    color: #003DB8;
-    border-right: 1px solid #E0E0E0;
-    border-bottom: 1px solid #E0E0E0;
-    cursor: pointer; cursor: hand;
-    text-align: center;
+  color: #003DB8;
+  border-right: 1px solid #E0E0E0;
+  border-bottom: 1px solid #E0E0E0;
+  cursor: pointer; cursor: hand;
+  text-align: center;
 }
 
 .Wt-cal-oom {
-    color: #999999;
-    cursor: default;
-    background-color: transparent;
+  color: #999999;
+  cursor: default;
+  background-color: transparent;
 }
 
 .Wt-cal-oor {
-    color: #999999;
-    cursor: default;
-    background-color: transparent;
+  color: #999999;
+  cursor: default;
+  background-color: transparent;
 }
 
 .Wt-cal-sel {
-    background-color:#FFF19F;
+  background-color:#FFF19F;
 }
 
 .Wt-cal-now {
-    color: black;
-    background: #EEEEEE;
+  color: black;
+  background: #EEEEEE;
 }
 
 /*
  * WDateEdit
  */
 .Wt-dateedit {
-    background-image: url('../../date.gif');
-    background-repeat: no-repeat;
-    background-position: right top;
-    padding-right: 40px;
+  background-image: url('../../date.gif');
+  background-repeat: no-repeat;
+  background-position: right top;
+  padding-right: 40px;
 }
 
 /*
  * WTimeEdit
  */
 .Wt-timeedit {
-    background-image: url('../../icon_clock.gif');
-    background-repeat: no-repeat;
-    background-position: right top;
-    padding-right: 40px;
+  background-image: url('../../icon_clock.gif');
+  background-repeat: no-repeat;
+  background-position: right top;
+  padding-right: 40px;
 }
 
 /*
  * WDatePicker
  */
 .Wt-datepicker {
-    background-color: #EEEEEE;
+  background-color: #EEEEEE;
 }
 
 /*
  * Wt-dateedit
  */
 .Wt-dateedit::-ms-clear {
-    display:none
+  display:none
 }
 
 /*
  * Wt-timeedit
  */
 .Wt-timeedit::-ms-clear {
-    display: none
+  display: none
 }
 
 /*
  * WDialog
  */
 .Wt-dialog {
-    background-color: #EEEEEE;
+  background-color: #EEEEEE;
 }
 
 .Wt-dialog .closeicon {
-    background: transparent url(closeicons-dialog.png) no-repeat scroll right top;
-    width: 13px;
-    height: 13px;
-    background-position: right 0px;
-    cursor: default;
-    vertical-align: center;
-    position: absolute;
-    right: 5px;
-    top: 5px;
+  background: transparent url(closeicons-dialog.png) no-repeat scroll right top;
+  width: 13px;
+  height: 13px;
+  background-position: right 0px;
+  cursor: default;
+  vertical-align: center;
+  position: absolute;
+  right: 5px;
+  top: 5px;
 }
 
 .Wt-dialog .closeicon:hover {
-    background-position: right -13px;
+  background-position: right -13px;
 }
 
 .Wt-dialog .titlebar {
-    background: #888888; color: #FFFFFF;
-    padding: 2px 6px 3px;
+  background: #888888; color: #FFFFFF;
+  padding: 2px 6px 3px;
 }
 
 .Wt-dialog .movable .titlebar {
-    cursor: move;
+  cursor: move;
 }
 
 .Wt-dialog .titlebar h4 {
-    margin: 0px 2px;
-    font-size: 110%;
+  margin: 0px 2px;
+  font-size: 110%;
 }
 
 .Wt-dialog .body, .Wt-dialog .footer {
-    padding: 4px 6px 4px;
+  padding: 4px 6px 4px;
 }
 
 .Wt-dialog .footer {
-    text-align: right;
+  text-align: right;
 }
 
 /*
  * WMenuItem
  */
 .Wt-closeicon {
-    background: transparent url(closeicons-mi.png) no-repeat scroll right top;
-    height: 8px;
-    width: 9px;
-    margin: 0px 5px 0px 2px;
-    padding: 0px;
-    font-size: 0px;
-    cursor: default;
+  background: transparent url(closeicons-mi.png) no-repeat scroll right top;
+  height: 8px;
+  width: 9px;
+  margin: 0px 5px 0px 2px;
+  padding: 0px;
+  font-size: 0px;
+  cursor: default;
 }
 
 .Wt-closeicon:hover {
-    background-position: right -8px;
+  background-position: right -8px;
 }
 
 /* 
  * WMessageBox
  */
 .Wt-dialog .Wt-msgbox-icon {
-    display: block;
-    float: left;
-    margin: 0px 15px -15px;
-    width: 25px;
-    height: 35px;
+  display: block;
+  float: left;
+  margin: 0px 15px -15px;
+  width: 25px;
+  height: 35px;
 }
 
 .Wt-dialog .Wt-msgbox-body {
-    padding: 10px;
+  padding: 10px;
 }
 
 .Wt-dialog .Wt-msgbox-text {
-    overflow: auto;
+  overflow: auto;
 }
 
 /*
@@ -314,31 +314,31 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
  */
 
 .Wt-hrh2, .Wt-vsh2 {
-    cursor: row-resize;
+  cursor: row-resize;
 }
 
 .Wt-vrh2, .Wt-hsh2 {
-    cursor: col-resize;
+  cursor: col-resize;
 }
 
 .Wt-hrh2 {
-    background: url(splitter-v.png) no-repeat 50% 50%;
+  background: url(splitter-v.png) no-repeat 50% 50%;
 }
 
 .Wt-vrh2 {
-    background: url(splitter-h.png) no-repeat 50% 50%;
+  background: url(splitter-h.png) no-repeat 50% 50%;
 }
 
 .Wt-vrh2 {
-    background-color: #CCC;
+  background-color: #CCC;
 }
 
 .Wt-hsh2, .Wt-vsh2 {
-    background-color: #EEE;
+  background-color: #EEE;
 }
 
 .Wt-vrh2:hover, .Wt-hrh2:hover {
-    background-color: #EEE;
+  background-color: #EEE;
 }
 
 /*
@@ -373,19 +373,19 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
  * Icons, check-boxes in WMenuItem
  */
 .Wt-icon {
-    display: inline-block;
-    padding: 0px 8px;
-    margin-right: 8px;
-    background-repeat: no-repeat;
-    background-position: center left;
-    height: 16px;
+  display: inline-block;
+  padding: 0px 8px;
+  margin-right: 8px;
+  background-repeat: no-repeat;
+  background-position: center left;
+  height: 16px;
 }
 
 .Wt-chkbox {
-    display: inline-block;
-    margin-left: 2px;
-    margin-right: 10px;
-    width: 12px;
+  display: inline-block;
+  margin-left: 2px;
+  margin-right: 10px;
+  width: 12px;
 }
 
 
@@ -393,54 +393,54 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
  * WPopupMenu
  */
 .Wt-popupmenu {
-    position: absolute;
-    display: none;
-    background: white;
-    color: black;
-    border: 1px solid #666666;
-    z-index: 200;
-    cursor: default;
-    list-style: none;
-    padding: 0px;
-    margin: 0;
+  position: absolute;
+  display: none;
+  background: white;
+  color: black;
+  border: 1px solid #666666;
+  z-index: 200;
+  cursor: default;
+  list-style: none;
+  padding: 0px;
+  margin: 0;
 }
 
 .Wt-popupmenu li a {
-    display: block;
-    padding: 2px 10px; 
+  display: block;
+  padding: 2px 10px; 
 }
 
 .Wt-popupmenu .Wt-padded {
-    margin-right: 3px;
-    margin-left: 24px;
-    padding-right: 24px;
+  margin-right: 3px;
+  margin-left: 24px;
+  padding-right: 24px;
 }
 
 .Wt-popupmenu .active {
-    background: blue;
-    color: white;
+  background: blue;
+  color: white;
 }
 
 .Wt-popupmenu .Wt-disabled, .Wt-popupmenu .Wt-sectheader.active {
-    color: #AAA;
+  color: #AAA;
 }
- 
+
 .Wt-popupmenu .submenu {
-    background-image: url(../../right-arrow.gif);
-    background-repeat: no-repeat;
-    background-position: right center;
+  background-image: url(../../right-arrow.gif);
+  background-repeat: no-repeat;
+  background-position: right center;
 }
 
 .Wt-popupmenu .Wt-separator {
-    border-top: 1px solid #CCCCCC;
-    border-bottom: 1px solid #DDDDDD;
-    margin: 0px 3px;
-    padding: 0;
+  border-top: 1px solid #CCCCCC;
+  border-bottom: 1px solid #DDDDDD;
+  margin: 0px 3px;
+  padding: 0;
 }
 
 .Wt-popupmenu .Wt-sectheader, .Wt-popupmenu .Wt-sectheader.active {
-    background: transparent;
-    color: #AAA;
+  background: transparent;
+  color: #AAA;
 }
 
 /*
@@ -448,229 +448,229 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
  */
 .Wt-progressbar
 {
-   background: #333;
-   position: relative;
-   border-width: 1px;
-   border-style: solid;
-   border-color: black;
-   overflow: hidden;
-   color: #FFF;
-   font-weight: bold;
-   width: 200px;
-   height: 1em;
-   line-height: 1em;
- }
+  background: #333;
+  position: relative;
+  border-width: 1px;
+  border-style: solid;
+  border-color: black;
+  overflow: hidden;
+  color: #FFF;
+  font-weight: bold;
+  width: 200px;
+  height: 1em;
+  line-height: 1em;
+}
 
 .Wt-progressbar .Wt-pgb-bar
 {
-   position: absolute;
-   left: 0px;
-   top: 0px;
-   height: 100%;
-   background: #292;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  height: 100%;
+  background: #292;
 }
 
 .Wt-progressbar .Wt-pgb-label
 {
-   position: absolute;
-   left: 0px;
-   width: 100%;
-   text-align: center;
-   font-size: 0.8em;
-   top:0.1em;
+  position: absolute;
+  left: 0px;
+  width: 100%;
+  text-align: center;
+  font-size: 0.8em;
+  top:0.1em;
 }
 
 /*
  * WPushButton
  */
 .Wt-btn.Wt-btn-default {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .Wt-btn img {
-    vertical-align: middle;
+  vertical-align: middle;
 }
 
 .Wt-btn.with-label img {
-    padding-right: 10px;
+  padding-right: 10px;
 }
 
 /*
  * WResizable
  */
 .Wt-resizable {
-    background-image: url(../../resizable.png);
-    background-repeat: no-repeat;
-    background-attachment: scroll;
-    background-position: right bottom;
+  background-image: url(../../resizable.png);
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  background-position: right bottom;
 }
 
 /*
  * WSlider
  */
 .Wt-slider-h {
-    background: url(sliderbg-h.png) repeat-x scroll left center;
+  background: url(sliderbg-h.png) repeat-x scroll left center;
 }
 
 .Wt-slider-h .Wt-slider-bg {
-    margin: 0px 5px;
+  margin: 0px 5px;
 }
 
 .Wt-slider-v {
-    background: url(sliderbg-v.png) repeat-y scroll center top;
+  background: url(sliderbg-v.png) repeat-y scroll center top;
 }
 
 .Wt-slider-v .Wt-slider-bg {
-    margin: 5px 0px;
+  margin: 5px 0px;
 }
 
 .Wt-slider-h .handle {
-    cursor: pointer; cursor: hand;
-    background: url(slider-thumb-h.gif) no-repeat scroll center bottom;
+  cursor: pointer; cursor: hand;
+  background: url(slider-thumb-h.gif) no-repeat scroll center bottom;
 }
 
 .Wt-slider-v .handle {
-    cursor: pointer; cursor: hand;
-    background: url(slider-thumb-v.gif) no-repeat scroll right center;
+  cursor: pointer; cursor: hand;
+  background: url(slider-thumb-v.gif) no-repeat scroll right center;
 }
 
 /*
  * WSlider - disabled
  */
 .Wt-slider-v.Wt-disabled .handle {
-    background: url(slider-thumb-v-disabled.gif) no-repeat scroll right center;
+  background: url(slider-thumb-v-disabled.gif) no-repeat scroll right center;
 }
 
 .Wt-slider-h.Wt-disabled {
-    background: url(sliderbg-h-disabled.png) repeat-x scroll left center;
+  background: url(sliderbg-h-disabled.png) repeat-x scroll left center;
 }
 
 .Wt-slider-v.Wt-disabled {
-    background: url(sliderbg-v-disabled.png) repeat-y scroll center top;
+  background: url(sliderbg-v-disabled.png) repeat-y scroll center top;
 }
 
 .Wt-slider-h.Wt-disabled .handle {
-    cursor: auto;
-    background: url(slider-thumb-h-disabled.gif) no-repeat scroll center bottom;
+  cursor: auto;
+  background: url(slider-thumb-h-disabled.gif) no-repeat scroll center bottom;
 }
 
 .Wt-slider-v.Wt-disabled .handle {
-    cursor: auto;
-    background: url(slider-thumb-v-disabled.gif) no-repeat scroll right center;
+  cursor: auto;
+  background: url(slider-thumb-v-disabled.gif) no-repeat scroll right center;
 }
 
 /*
  * WSpinBox
  */
 .Wt-spinbox {
-    background-image: url('spin-buttons.png');
-    background-repeat: no-repeat;
-    background-position: right center;
-    padding-right: 16px;
+  background-image: url('spin-buttons.png');
+  background-repeat: no-repeat;
+  background-position: right center;
+  padding-right: 16px;
 }
 
 .Wt-spinbox::-ms-clear {
-    display: none;
+  display: none;
 }
 
 .Wt-spinbox.up {
-    background-image: url('spin-buttons-up.png');
+  background-image: url('spin-buttons-up.png');
 }
 
 .Wt-spinbox.dn {
-    background-image: url('spin-buttons-dn.png');
+  background-image: url('spin-buttons-dn.png');
 }
 
 /* 
  * WSuggestionPopup
  */
 .Wt-suggest {
-    background-color: #e0ecff;
-    color: #1010cc;
-    border: 1px solid #666666;
-    cursor: default;
-    font-size: smaller;
-    overflow-y: auto;
-    padding: 2px;
-    list-style: none;
-    margin: 0;
+  background-color: #e0ecff;
+  color: #1010cc;
+  border: 1px solid #666666;
+  cursor: default;
+  font-size: smaller;
+  overflow-y: auto;
+  padding: 2px;
+  list-style: none;
+  margin: 0;
 }
 
 .Wt-suggest li {
-    padding: 0px 3px;
+  padding: 0px 3px;
 }
 
 .Wt-suggest .active {
-    background-color: #C3D9FF;
+  background-color: #C3D9FF;
 }
 
 .Wt-suggest-dropdown {
-    background-image: url('dropdown.png');
-    background-repeat: no-repeat;
-    background-position: right center;
+  background-image: url('dropdown.png');
+  background-repeat: no-repeat;
+  background-position: right center;
 }
 
 /*
  * WTabWidget
  */
 .Wt-tabs {
-    margin-bottom: 4px;
-    zoom: 1;
-    width: 100%;
-    margin: 0;
-    padding: 10px 0px 0px;
-    list-style-type: none;
-    list-style-position: outside;
-    background: transparent url(../../tab_b.gif) repeat-x scroll center bottom;
-    overflow: auto;
+  margin-bottom: 4px;
+  zoom: 1;
+  width: 100%;
+  margin: 0;
+  padding: 10px 0px 0px;
+  list-style-type: none;
+  list-style-position: outside;
+  background: transparent url(../../tab_b.gif) repeat-x scroll center bottom;
+  overflow: auto;
 }
 
 .Wt-tabs li {
-    background: transparent url(../../tab_r.gif) no-repeat scroll right top;
-    border-bottom:1px solid #84B0C7;
-    float:left; display:block;
-    cursor:pointer;cursor:hand;
-    font-size: small; font-weight: bold;
+  background: transparent url(../../tab_r.gif) no-repeat scroll right top;
+  border-bottom:1px solid #84B0C7;
+  float:left; display:block;
+  cursor:pointer;cursor:hand;
+  font-size: small; font-weight: bold;
 }
 
 body.Wt-rtl .Wt-tabs a {
-    float:right;
+  float:right;
 }
 
 .Wt-tabs .itemselected {
-    background-position:100% -150px;
+  background-position:100% -150px;
 }
 
 .Wt-tabs a {
-    display: block;
-    background: transparent url(../../tab_l.gif) no-repeat scroll left top;
-    border-bottom: 0px;
-    white-space: nowrap;
-    padding:5px 9px;
-    color:#1A419D;
+  display: block;
+  background: transparent url(../../tab_l.gif) no-repeat scroll left top;
+  border-bottom: 0px;
+  white-space: nowrap;
+  padding:5px 9px;
+  color:#1A419D;
 }
 
 .Wt-tabs .itemselected a {
-    background-position:0% -150px;
+  background-position:0% -150px;
 }
 
 .Wt-tabs .Wt-closable a {
-    margin-right: 13px;
+  margin-right: 13px;
 }
 
 .Wt-tabs .closeicon {
-    background: transparent url(closeicons-tab.png) no-repeat scroll right top;
-    margin: 6px 4px 0px 0px;
-    height: 13px;
-    width: 13px;
-    border: 0px;
-    padding: 0px;
-    cursor: default;
-    float: right;
+  background: transparent url(closeicons-tab.png) no-repeat scroll right top;
+  margin: 6px 4px 0px 0px;
+  height: 13px;
+  width: 13px;
+  border: 0px;
+  padding: 0px;
+  cursor: default;
+  float: right;
 }
 
 .Wt-tabs .closeicon:hover {
-    background-position: right -13px;
+  background-position: right -13px;
 }
 
 .Wt-tabs:after { content: ""; display: block; height: 0; clear: both; }
@@ -680,14 +680,14 @@ body.Wt-rtl .Wt-tabs a {
  * XHTML Tooltips
  */
 .Wt-tooltip {
-    position: absolute;
-    max-width: 700px;
-    background-color: #ffffcc;
-    border: 1px solid black;
-    padding: 1px 2px;
-    font-family: sans-serif;
-    font-size: smaller;
-    z-index: 1000;
+  position: absolute;
+  max-width: 700px;
+  background-color: #ffffcc;
+  border: 1px solid black;
+  padding: 1px 2px;
+  font-family: sans-serif;
+  font-size: smaller;
+  z-index: 1000;
 }
 
 /*
@@ -695,259 +695,259 @@ body.Wt-rtl .Wt-tabs a {
  */
 
 .Wt-tree {
-    font-family: verdana, helvetica, tahoma, sans-serif;
-    font-size: 9pt;
-    cursor: default;
-    white-space: nowrap;
+  font-family: verdana, helvetica, tahoma, sans-serif;
+  font-size: 9pt;
+  cursor: default;
+  white-space: nowrap;
 }
 
 .Wt-tree ul {
-    margin: 0;
-    padding-left: 20px;
-    list-style: none;
+  margin: 0;
+  padding-left: 20px;
+  list-style: none;
 }
 
 body.Wt-rtl .Wt-tree ul {
-    padding-left: 0px;
-    padding-right: 20px;
+  padding-left: 0px;
+  padding-right: 20px;
 }
 
 /* nodes */
 .Wt-tree.Wt-trunk, .Wt-tree .Wt-item.Wt-trunk {
-    background-image: url(../../line-trunk.gif);
-    background-repeat: repeat-y;
+  background-image: url(../../line-trunk.gif);
+  background-repeat: repeat-y;
 }
 
 body.Wt-rtl .Wt-tree.Wt-trunk, body.Wt-rtl .Wt-tree .Wt-item.Wt-trunk {
-    background-position: top right;
+  background-position: top right;
 }
 
 .Wt-tree .Wt-item.Wt-end {
-    background-image: url(../../line-last.gif);
-    background-repeat: no-repeat;
+  background-image: url(../../line-last.gif);
+  background-repeat: no-repeat;
 }
 
 body.Wt-rtl .Wt-tree .Wt-item.Wt-end {
-    background-image: url(../../line-last-rtl.gif);
-    background-position: top right;
+  background-image: url(../../line-last-rtl.gif);
+  background-position: top right;
 }
 
 .Wt-tree div.Wt-root {
-    display: none;
+  display: none;
 }
 
 .Wt-tree ul.Wt-root {
-    padding-left: 0px;
+  padding-left: 0px;
 }
 
 body.Wt-rtl .Wt-tree ul.Wt-root {
-    padding-right: 0px;
+  padding-right: 0px;
 }
 
 .Wt-tree .Wt-ctrl {
-    float: left;
-    display: block;
-    width: 19px;
-    height: 18px;
+  float: left;
+  display: block;
+  width: 19px;
+  height: 18px;
 }
 
 body.Wt-rtl .Wt-tree .Wt-ctrl {
-    float: right;
+  float: right;
 }
 
 .Wt-tree .Wt-noexpand {
-    background-image: url(../../line-middle.gif);
-    background-repeat: no-repeat;
+  background-image: url(../../line-middle.gif);
+  background-repeat: no-repeat;
 }
 
 body.Wt-rtl .Wt-tree .Wt-noexpand {
-    background-image: url(../../line-middle-rtl.gif);
-    background-position: top right;
+  background-image: url(../../line-middle-rtl.gif);
+  background-position: top right;
 }
 
 .Wt-tree .cols-row {
-    float: right;
+  float: right;
 }
 
 body.Wt-rtl .Wt-tree .cols-row {
-    float: left;
+  float: left;
 }
 
 /* selection */
 .Wt-tree .Wt-selected {
-    background-color: #FFFFAA;
+  background-color: #FFFFAA;
 }
 
 /* label */
 .Wt-tree .Wt-label {
-    padding: 0px 2px;
-    line-height: 150%;
+  padding: 0px 2px;
+  line-height: 150%;
 }
 
 .Wt-treetable div.Wt-header {
-    font-family: verdana,helvetica,tahoma,sans-serif;
-    font-size: 9pt;
-    font-weight: bold;
-    cursor: default;
-    background-color: #EEEEEE;
-    white-space: normal;
-    text-overflow: ellipsis;
-    padding: 3px 0px;
+  font-family: verdana,helvetica,tahoma,sans-serif;
+  font-size: 9pt;
+  font-weight: bold;
+  cursor: default;
+  background-color: #EEEEEE;
+  white-space: normal;
+  text-overflow: ellipsis;
+  padding: 3px 0px;
 }
 
 .Wt-sbspacer {
-    float: right;
-    width: 16px;
-    height: 1px;
-    border: 0px;
-    display: none;
+  float: right;
+  width: 16px;
+  height: 1px;
+  border: 0px;
+  display: none;
 }
 
 body.Wt-rtl .Wt-sbspacer {
-    float: left;
+  float: left;
 }
 
 /*
  * WAbstractItemView (WTableView and WTreeView)
  */
 .Wt-itemview .Wt-headerdiv {
-    -moz-user-select: none;
-    -khtml-user-select: none;
-    user-select: none;
-    overflow: hidden;
-    width: 100%;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  user-select: none;
+  overflow: hidden;
+  width: 100%;
 }
 
 .Wt-itemview .Wt-tv-rh {
-    float: right;
-    width: 4px;
-    cursor: col-resize;
+  float: right;
+  width: 4px;
+  cursor: col-resize;
 }
 
 .Wt-itemview .Wt-disabled .Wt-tv-rh {
-    cursor: default;
+  cursor: default;
 }
 
 body.Wt-rtl .Wt-itemview .Wt-tv-rh {
-    float: left;
+  float: left;
 }
 
 .Wt-itemview div.Wt-tv-no-rh {
-    width: 0px;
-    margin-left: 4px;
-    cursor: default;
+  width: 0px;
+  margin-left: 4px;
+  cursor: default;
 }
 
 body.Wt-rtl .Wt-itemview div.Wt-tv-no-rh {
-    margin-left: 0px;
-    margin-right: 4px;
+  margin-left: 0px;
+  margin-right: 4px;
 }
 
 /* sort handles */
 .Wt-itemview .Wt-tv-sh {
-    float: right;
-    width: 16px;
-    height: 16px;
-    padding-bottom: 6px;
-    cursor: pointer;
-    cursor:hand;
+  float: right;
+  width: 16px;
+  height: 16px;
+  padding-bottom: 6px;
+  cursor: pointer;
+  cursor:hand;
 }
 
 .Wt-itemview .Wt-disabled .Wt-tv-sh {
-    background: url(sort-arrow-disabled.gif) no-repeat 0 6px;
-    cursor: default;
+  background: url(sort-arrow-disabled.gif) no-repeat 0 6px;
+  cursor: default;
 }
 
 body.Wt-rtl .Wt-itemview .Wt-tv-sh {
-    float: left;
+  float: left;
 }
 
 .Wt-itemview {
-    font-family: verdana,helvetica,tahoma,sans-serif;
-    font-size: 9pt;
-    cursor: default;
-    white-space: nowrap;
+  font-family: verdana,helvetica,tahoma,sans-serif;
+  font-size: 9pt;
+  cursor: default;
+  white-space: nowrap;
 }
 
 .Wt-itemview .Wt-spacer {
-    background: url(../../loading.png);
+  background: url(../../loading.png);
 }
 
 .Wt-itemview .Wt-headerdiv,
 .Wt-itemview .Wt-headerdiv .Wt-tv-rowc,
 .Wt-itemview th {
-    background-color: #EEEEEE;
+  background-color: #EEEEEE;
 }
 
 .Wt-itemview th, .Wt-itemview th .Wt-tv-br {
-    overflow: hidden;
+  overflow: hidden;
 }
 
 .Wt-itemview .Wt-header .Wt-label {
-    font-weight: bold;
-    text-overflow: ellipsis;
-    overflow: hidden; /* needed for IE only */
-    white-space: nowrap;
-	height: 100%;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  overflow: hidden; /* needed for IE only */
+  white-space: nowrap;
+  height: 100%;
 }
 
 .Wt-itemview .Wt-header .Wt-disabled .Wt-label {
-    color: gray;
+  color: gray;
 }
 
 .Wt-itemview .Wt-header .Wt-wwrap .Wt-label {
-    overflow: visible;
-    white-space: normal;
+  overflow: visible;
+  white-space: normal;
 }
 
 .Wt-itemview .Wt-tv-rh:hover {
-    background-color: #DDDDDD;
+  background-color: #DDDDDD;
 }
 
 .Wt-itemview .Wt-disabled .Wt-tv-rh:hover {
-    background-color: transparent;
+  background-color: transparent;
 }
 
 .Wt-itemview .Wt-tv-sh-none {
-    background: url(sort-arrow-none.gif) no-repeat 0 6px;
+  background: url(sort-arrow-none.gif) no-repeat 0 6px;
 }
 
 .Wt-itemview .Wt-tv-sh-up {
-    background: url(sort-arrow-up.gif) no-repeat 0 6px;
+  background: url(sort-arrow-up.gif) no-repeat 0 6px;
 }
 
 .Wt-itemview .Wt-tv-sh-down {
-    background: url(sort-arrow-down.gif) no-repeat 0 6px;
+  background: url(sort-arrow-down.gif) no-repeat 0 6px;
 }
 
 /* selection */
 .Wt-itemview .Wt-selected {
-    background-color: #FFFFAA;
+  background-color: #FFFFAA;
 }
 
 /* item drag & drop */
 .Wt-itemview .Wt-drop-site {
-    background-color: #EEEEEE;
-    outline: 1px dotted black;
+  background-color: #EEEEEE;
+  outline: 1px dotted black;
 }
 
 .Wt-drop-site-top {
-    box-shadow: 0 2px 0 #000 inset;
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width:100%;
-    height:100%;
-    pointer-events: none;
+  box-shadow: 0 2px 0 #000 inset;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width:100%;
+  height:100%;
+  pointer-events: none;
 }
 .Wt-drop-site-bottom {
-    box-shadow: 0 -2px 0 #000 inset;
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width:100%;
-    height:100%;
-    pointer-events: none;
+  box-shadow: 0 -2px 0 #000 inset;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width:100%;
+  height:100%;
+  pointer-events: none;
 }
 
 
@@ -955,62 +955,62 @@ body.Wt-rtl .Wt-itemview .Wt-tv-sh {
  * WTableView
  */
 body.Wt-ltr .Wt-tableview .Wt-header .Wt-tv-c {
-    padding-left: 6px;
+  padding-left: 6px;
 }
 
 body.Wt-rtl .Wt-tableview .Wt-header .Wt-tv-c {
-    padding-right: 6px;
+  padding-right: 6px;
 }
 
 .Wt-tableview .Wt-tv-contents .Wt-tv-c,
 .Wt-plaintable .Wt-tv-c {
-    padding: 0px 3px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  padding: 0px 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .Wt-tableview .Wt-tv-contents img.icon,
 .Wt-tableview .Wt-plaintable img.icon,
 .Wt-tableview .Wt-tv-contents input.icon,
 .Wt-tableview .Wt-plaintable input.icon {
-    margin: 0px 3px 2px 0px;
-    vertical-align: middle;
+  margin: 0px 3px 2px 0px;
+  vertical-align: middle;
 }
 
 .Wt-tableview .Wt-spacer {
-    position: relative;
-    overflow: hidden;
+  position: relative;
+  overflow: hidden;
 }
 
 /* header */
 
 .Wt-tableview {
-    white-space: nowrap
+  white-space: nowrap
 }
 
 .Wt-tableview th {
-    padding: 0px;
+  padding: 0px;
 }
 
 .Wt-tableview table {
-    background-position: left bottom;
+  background-position: left bottom;
 }
 
 .Wt-tableview .Wt-tv-contents {
-    position: absolute;
+  position: absolute;
 }
 
 /* borders */
 body.Wt-ltr .Wt-tableview .Wt-tv-br,
 body.Wt-ltr .Wt-tableview .Wt-tv-contents .Wt-tv-c,
 body.Wt-ltr .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
-    border-right: 1px solid #FFFFFF;
+  border-right: 1px solid #FFFFFF;
 }
 
 body.Wt-rtl .Wt-tableview .Wt-tv-br,
 body.Wt-rtl .Wt-tableview .Wt-tv-contents .Wt-tv-c,
 body.Wt-rtl .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
-    border-left: 1px solid #FFFFFF;
+  border-left: 1px solid #FFFFFF;
 }
 
 /*
@@ -1019,176 +1019,176 @@ body.Wt-rtl .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
 
 /* Layout styling */
 .Wt-treeview ul {
-    margin: 0px;
-    padding-left: 20px;
-    list-style: none;
+  margin: 0px;
+  padding-left: 20px;
+  list-style: none;
 }
 
 body.Wt-rtl .Wt-treeview ul {
-    padding-right: 20px;
-    padding-left: 0px;
+  padding-right: 20px;
+  padding-left: 0px;
 }
 
 .Wt-treeview ul.Wt-tv-root {
-    padding-left: 0px;
+  padding-left: 0px;
 }
 
 body.Wt-rtl .Wt-treeview ul.Wt-tv-root {
-    padding-right: 0px;
+  padding-right: 0px;
 }
 
 .Wt-treeview .Wt-tv-row {
-    float: right;
-    overflow: hidden;
+  float: right;
+  overflow: hidden;
 }
 
 body.Wt-rtl .Wt-treeview .Wt-tv-row {
-    float: left;
+  float: left;
 }
 
 .Wt-treeview .Wt-tv-row .Wt-tv-c {
-    float: left;
-    display: block;
-    padding: 0px 3px;
-    text-overflow: ellipsis;
-    overflow: hidden;
+  float: left;
+  display: block;
+  padding: 0px 3px;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 body.Wt-rtl .Wt-treeview .Wt-tv-row .Wt-tv-c {
-    float: right;
+  float: right;
 }
 
 .Wt-treeview .Wt-tv-c {
-    padding: 0px 3px;
+  padding: 0px 3px;
 }
 
 .Wt-treeview img.icon, .Wt-treeview input.icon {
-    vertical-align: middle;
+  vertical-align: middle;
 }
 
 .Wt-treeview img.icon,
 .Wt-treeview input.icon {
-    margin: 0px 3px 2px 0px;
+  margin: 0px 3px 2px 0px;
 }
 
 body.Wt-rtl .Wt-treeview img.icon,
 body.Wt-rtl .Wt-treeview input.icon {
-    margin: 0px 0px 2px 3px;
+  margin: 0px 0px 2px 3px;
 }
 
 .Wt-treeview .Wt-header .Wt-tv-c {
-    padding: 0px;
-    margin-left: 7px;
+  padding: 0px;
+  margin-left: 7px;
 }
 
 body.Wt-rtl .Wt-treeview .Wt-header .Wt-tv-c {
-    margin-left: 0px;
-    margin-right: 7px;
+  margin-left: 0px;
+  margin-right: 7px;
 }
- 
+
 body.Wt-ltr .Wt-treeview .Wt-tv-br,               /* header */
 body.Wt-ltr .Wt-treeview li .Wt-tv-row .Wt-tv-c { /* data */
-    margin-right: 0px;
-    border-right: 1px solid white;
+  margin-right: 0px;
+  border-right: 1px solid white;
 }
 
 body.Wt-rtl .Wt-treeview .Wt-tv-br,               /* header */
 body.Wt-rtl .Wt-treeview li .Wt-tv-row .Wt-tv-c { /* data */
-    margin-left: 0px;
-    border-left: 1px solid white;
+  margin-left: 0px;
+  border-left: 1px solid white;
 }
 
 .Wt-treeview .Wt-scroll {
-    overflow: auto;
-    height: 22px;
+  overflow: auto;
+  height: 22px;
 }
 
 .Wt-treeview .Wt-scroll div {
-    height: 1px;
+  height: 1px;
 }
 
 /* nodes */
 .Wt-treeview .Wt-trunk {
-    background-image: url(../../line-trunk.gif);
-    background-repeat: repeat-y;
+  background-image: url(../../line-trunk.gif);
+  background-repeat: repeat-y;
 }
 
 body.Wt-rtl .Wt-treeview .Wt-trunk {
-    background-position: top right;
+  background-position: top right;
 }
 
 .Wt-treeview .Wt-end {
-    background-image: url(../../tv-line-last.gif);
-    background-repeat: no-repeat;
-    background-position: 0 center;
+  background-image: url(../../tv-line-last.gif);
+  background-repeat: no-repeat;
+  background-position: 0 center;
 }
 
 body.Wt-rtl .Wt-treeview .Wt-end {
-    background-image: url(../../tv-line-last-rtl.gif);
-    background-repeat: no-repeat;
-    background-position: right center;
+  background-image: url(../../tv-line-last-rtl.gif);
+  background-repeat: no-repeat;
+  background-position: right center;
 }
 
 .Wt-treeview .Wt-ctrl {
-    float: left;
-    width: 19px;
+  float: left;
+  width: 19px;
 }
 
 body.Wt-rtl .Wt-treeview .Wt-ctrl {
-    float: right;
-    width: 19px;
+  float: right;
+  width: 19px;
 }
 
 .Wt-treeview .Wt-ctrl.expand {
-    background-image: url(nav-plus.gif);
-    background-repeat: no-repeat;
-    background-position: 0 center;
+  background-image: url(nav-plus.gif);
+  background-repeat: no-repeat;
+  background-position: 0 center;
 }
 
 body.Wt-rtl .Wt-treeview .Wt-ctrl.expand {
-    background-image: url(nav-plus-rtl.gif);
+  background-image: url(nav-plus-rtl.gif);
 }
 
 .Wt-treeview .Wt-ctrl.collapse {
-    background-image: url(nav-minus.gif);
-    background-repeat: no-repeat;
-    background-position: 0 center;
+  background-image: url(nav-minus.gif);
+  background-repeat: no-repeat;
+  background-position: 0 center;
 }
 
 body.Wt-rtl .Wt-treeview .Wt-ctrl.collapse {
-    background-image: url(nav-minus-rtl.gif);
+  background-image: url(nav-minus-rtl.gif);
 }
 
 .Wt-treeview .Wt-ctrl.noexpand {
-    background-image: url(../../line-middle.gif);
-    background-repeat: no-repeat;
-    background-position: 0 center;
+  background-image: url(../../line-middle.gif);
+  background-repeat: no-repeat;
+  background-position: 0 center;
 }
 
 body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
-    background-image: url(../../line-middle-rtl.gif);
+  background-image: url(../../line-middle-rtl.gif);
 }
 
 .Wt-treeview .Wt-tv-row .Wt-tv-c {
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 /*
  * WTreeView and WTableView default paging bar
  */
 .Wt-pagingbar {
-    text-align: center;
-    padding: 2px;
-    height: 35px;
-    line-height: 35px;
+  text-align: center;
+  padding: 2px;
+  height: 35px;
+  line-height: 35px;
 }
 
 .Wt-pagingbar span {
-    margin: 0px 4px;
+  margin: 0px 4px;
 }
 
 .Wt-pagingbar button {
-    margin: 0px 4px;
+  margin: 0px 4px;
 }
 
 /*
@@ -1196,44 +1196,44 @@ body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
  */
 
 table.x-grid3-row-table {
-    table-layout: fixed;
+  table-layout: fixed;
 }
 
 .Wt-filedropzone {
-    width: 200px;
-    height: 200px;
-    border: thick dashed grey;
-    background-color: lightgrey;
+  width: 200px;
+  height: 200px;
+  border: thick dashed grey;
+  background-color: lightgrey;
 }
 .Wt-filedropzone.Wt-dropzone-hover {
-    border-color: green;
+  border-color: green;
 }
 
 .Wt-filedropzone.Wt-dropzone-hover * {
-    pointer-events: none;
+  pointer-events: none;
 }
 
 .Wt-fileupload-hidden {
-    display: none !important;
+  display: none !important;
 }
 
 .Wt-filedropzone.Wt-dropzone-dragstyle {
-    position: relative;
-    z-index: 20001;
+  position: relative;
+  z-index: 20001;
 }
 
 .Wt-filedropzone.Wt-dropzone-indication {
-    border-color: green;
+  border-color: green;
 }
 
 .Wt-dropcover {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    height: 100%;
-    z-index: -100;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: -100;
 }
 .Wt-dropcover.Wt-dropzone-dragstyle {
-    z-index: 20000;
+  z-index: 20000;
 }

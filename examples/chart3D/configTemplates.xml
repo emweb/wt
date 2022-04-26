@@ -13,7 +13,7 @@
     <div class="control-group">
       <label class="control-label" for="${id:{1}}">${tr:dataconfig.{1}}</label>
       <div class="controls">
-	${{1}}
+        ${{1}}
       </div>
     </div>
   </message>
@@ -22,26 +22,26 @@
   <div class="row">
     <div class="span5">
       <table class="table table-bordered table-condensed">
-	<tr><td>Title:</td><td>${chartTitle}</td></tr>
-	<tr><td>Enable legend:</td><td>${chartLegend}</td></tr>
-	<tr><td>Legend side:</td><td>${legendside}</td></tr>
-	<tr><td>Legend alignment:</td><td>${legendalignment}</td></tr>
-	<tr><td>Enable gridlines:</td><td>${gridlines}</td></tr>
-	<tr><td>Enable intersection lines:</td><td>${intersectionlines}</td></tr>
-	<tr><td>Intersection line color:</td><td>${intersectionlinecolor}</td></tr>
-	<tr><td>Width:</td><td>${width}</td></tr>
-	<tr><td>Height:</td><td>${height}</td></tr>
-	<tr><td>X-axis title:</td><td>${xTitle}</td></tr>
-	<tr><td>Y-axis title:</td><td>${yTitle}</td></tr>
-	<tr><td>Z-axis title:</td><td>${zTitle}</td></tr>
-	
+        <tr><td>Title:</td><td>${chartTitle}</td></tr>
+        <tr><td>Enable legend:</td><td>${chartLegend}</td></tr>
+        <tr><td>Legend side:</td><td>${legendside}</td></tr>
+        <tr><td>Legend alignment:</td><td>${legendalignment}</td></tr>
+        <tr><td>Enable gridlines:</td><td>${gridlines}</td></tr>
+        <tr><td>Enable intersection lines:</td><td>${intersectionlines}</td></tr>
+        <tr><td>Intersection line color:</td><td>${intersectionlinecolor}</td></tr>
+        <tr><td>Width:</td><td>${width}</td></tr>
+        <tr><td>Height:</td><td>${height}</td></tr>
+        <tr><td>X-axis title:</td><td>${xTitle}</td></tr>
+        <tr><td>Y-axis title:</td><td>${yTitle}</td></tr>
+        <tr><td>Z-axis title:</td><td>${zTitle}</td></tr>
+
       </table>
     </div>
     <div class="span7">
       <table class="table table-bordered table-condensed">
-	<tr><td>X-axis range (${xAuto} auto):</td><td>${xAxisMin}</td><td>${xAxisMax}</td></tr>
-	<tr><td>Y-axis range (${yAuto} auto):</td><td>${yAxisMin}</td><td>${yAxisMax}</td></tr>
-	<tr><td>Z-axis range (${zAuto} auto):</td><td>${zAxisMin}</td><td>${zAxisMax}</td></tr>
+        <tr><td>X-axis range (${xAuto} auto):</td><td>${xAxisMin}</td><td>${xAxisMax}</td></tr>
+        <tr><td>Y-axis range (${yAuto} auto):</td><td>${yAxisMin}</td><td>${yAxisMax}</td></tr>
+        <tr><td>Z-axis range (${zAuto} auto):</td><td>${zAxisMin}</td><td>${zAxisMax}</td></tr>
       </table>
     </div>
   </div>
@@ -59,8 +59,8 @@
   <div class="row">
     <div class="span12">
       <div class="btn-group">
-	${addbutton}
-	${removebutton}
+        ${addbutton}
+        ${removebutton}
       </div>
     </div>
   </div>
@@ -116,7 +116,7 @@
     <tr><td>Colormap:</td><td>${colormap}</td></tr>
     <tr><td>Show colormap:</td><td>${showcolormap}</td></tr>
     <tr><td>Colormap-side:</td><td>${colormapside}</td></tr>
-    
+
     <tr><td>Type:</td><td>${datatype}</td></tr>
     <tr><td>Enable mesh:</td><td>${enablemesh}</td></tr>
     <tr><td>Mesh pen-width:</td><td>${pensize}</td></tr>
@@ -141,7 +141,7 @@
     <tr><td>Colormap:</td><td>${colormap}</td></tr>
     <tr><td>Show colormap:</td><td>${showcolormap}</td></tr>
     <tr><td>Colormap-side:</td><td>${colormapside}</td></tr>
-    
+
     <tr><td>Bar-width (x/y):</td><td>${widthx}</td><td>${widthy}</td></tr>
   </table>
 </message>
@@ -155,7 +155,7 @@
     <tr><td>Colormap:</td><td>${colormap}</td></tr>
     <tr><td>Show colormap:</td><td>${showcolormap}</td></tr>
     <tr><td>Colormap-side:</td><td>${colormapside}</td></tr>
-    
+
     <tr><td>Enable droplines:</td><td>${enabledroplines}</td></tr>
     <tr><td>Droplines pen-width:</td><td>${pensize}</td></tr>
     <tr><td>Droplines pen-color:</td><td>${pencolor}</td></tr>

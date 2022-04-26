@@ -85,7 +85,7 @@ public:
    * The node is initialized to be collapsed.
    */
   WTreeNode(const WString& labelText,
-	    std::unique_ptr<WIconPair> labelIcon = nullptr);
+            std::unique_ptr<WIconPair> labelIcon = nullptr);
 
   /*! \brief Destructor.
    */
@@ -114,7 +114,7 @@ public:
    * Inserts the node \p node at index \p index.
    */
   virtual void insertChildNode(int index,
-			       std::unique_ptr<WTreeNode> node);
+                               std::unique_ptr<WTreeNode> node);
 
   /*! \brief Adds a child node.
    *
@@ -162,7 +162,7 @@ public:
    * This may only be set on the root of a tree, and before adding
    * any children.
    */
-  void setLoadPolicy(ContentLoading loadPolicy);  
+  void setLoadPolicy(ContentLoading loadPolicy);
 
   /*! \brief Returns whether this node is expanded.
    */
@@ -200,16 +200,16 @@ public:
    * By default, node's children have expand/collapse and other lines
    * to display their linkage and offspring.
    *
-   * By setting \p decorated to \c false, you can hide the decorations for the 
+   * By setting \p decorated to \c false, you can hide the decorations for the
    * node's children.
    */
   void setChildrenDecorated(bool decorated);
-  
+
   /*! \brief Sets whether this node is interactive.
-   * 
-   * Interactive nodes can be clicked upon and will populate a list of children 
-   * when clicked. By disabling the interactivity, a node will not react to a 
-   * click event. 
+   *
+   * Interactive nodes can be clicked upon and will populate a list of children
+   * when clicked. By disabling the interactivity, a node will not react to a
+   * click event.
    */
   void setInteractive(bool interactive);
 
@@ -373,7 +373,7 @@ private:
   WIconPair *expandIcon_;
   WText *noExpandIcon_;
   WIconPair *labelIcon_;
-  WText	*labelText_, *childCountLabel_;
+  WText *labelText_, *childCountLabel_;
 
   bool childrenLoaded_, populated_, interactive_;
 

@@ -147,7 +147,7 @@ void run()
 
     // will print '1 post(s) tagged with Cooking.'
     std::cerr << cooking->posts.size() << " post(s) tagged with Cooking."
-	      << std::endl;
+              << std::endl;
   }
 
   {

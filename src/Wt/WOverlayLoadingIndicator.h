@@ -29,7 +29,7 @@ class WText;
  * \endcode
  * \endif
  *
- * \image html WOverlayLoadingIndicator.png "The overlay loading indicator" 
+ * \image html WOverlayLoadingIndicator.png "The overlay loading indicator"
  *
  * \note For this loading indicator to render properly in IE, you need to
  *       reset the "body" margin to 0. Using the inline stylesheet, this could
@@ -89,8 +89,8 @@ public:
    *        \endcode
    */
   WOverlayLoadingIndicator(const WT_USTRING& styleClass = WT_USTRING(),
-			   const WT_USTRING& backgroundStyleClass = WT_USTRING(),
-			   const WT_USTRING& textStyleClass = WT_USTRING());
+                           const WT_USTRING& backgroundStyleClass = WT_USTRING(),
+                           const WT_USTRING& textStyleClass = WT_USTRING());
 
   virtual void setMessage(const WString& text) override;
 

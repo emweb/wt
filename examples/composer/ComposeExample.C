@@ -75,7 +75,7 @@ void ComposeExample::send()
               + contacts[i].email + U">", TextFormat::Plain));
     horiz->addWidget(std::make_unique<WBreak>());
   }
-  
+
   contacts = composer_->bcc();
   if (!contacts.empty())
     horiz = feedback->addWidget(std::make_unique<WContainerWidget>());
@@ -93,7 +93,7 @@ void ComposeExample::send()
     horiz = feedback->addWidget(std::make_unique<WContainerWidget>());
   for (unsigned i = 0; i < attachments.size(); ++i) {
     horiz->addWidget(std::make_unique<WText>(U"Attachment: \""
-	      + attachments[i].fileName
+              + attachments[i].fileName
               + U"\" (" + attachments[i].contentDescription
               + U")", TextFormat::Plain));
 

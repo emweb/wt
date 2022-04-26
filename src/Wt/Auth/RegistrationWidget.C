@@ -33,7 +33,7 @@
 
 namespace Wt {
 
-LOGGER("Auth.RegistrationWidget");	     
+LOGGER("Auth.RegistrationWidget");
 
   namespace Auth {
 
@@ -99,7 +99,7 @@ void RegistrationWidget::update()
 {
   if (model_->passwordAuth())
     bindString("password-description",
-	       tr("Wt.Auth.password-registration"));
+               tr("Wt.Auth.password-registration"));
   else
     bindEmpty("password-description");
 
@@ -138,20 +138,20 @@ void RegistrationWidget::update()
     if (!conditionValue("if:oauth")) {
       setCondition("if:oauth", true);
       if (model_->passwordAuth())
-	bindString("oauth-description", tr("Wt.Auth.or-oauth-registration"));
+        bindString("oauth-description", tr("Wt.Auth.or-oauth-registration"));
       else
-	bindString("oauth-description", tr("Wt.Auth.oauth-registration"));
+        bindString("oauth-description", tr("Wt.Auth.oauth-registration"));
 
-      WContainerWidget *icons = 
-	bindWidget("icons", std::make_unique<WContainerWidget>());
+      WContainerWidget *icons =
+        bindWidget("icons", std::make_unique<WContainerWidget>());
       icons->addStyleClass("Wt-field");
 
       for (unsigned i = 0; i < model_->oAuth().size(); ++i) {
-	const OAuthService *service = model_->oAuth()[i];
+        const OAuthService *service = model_->oAuth()[i];
 
-	OAuthWidget *w
-	  = icons->addWidget(std::make_unique<OAuthWidget>(*service));
-	w->authenticated().connect(this, &RegistrationWidget::oAuthDone);
+        OAuthWidget *w
+          = icons->addWidget(std::make_unique<OAuthWidget>(*service));
+        w->authenticated().connect(this, &RegistrationWidget::oAuthDone);
       }
 
 #ifdef WT_HAS_SAML
@@ -169,7 +169,7 @@ void RegistrationWidget::update()
   if (!created_) {
     WPushButton *okButton =
       bindWidget("ok-button",
-		 std::make_unique<WPushButton>(tr("Wt.Auth.register")));
+                 std::make_unique<WPushButton>(tr("Wt.Auth.register")));
     WPushButton *cancelButton =
       bindWidget("cancel-button",
                  std::make_unique<WPushButton>(tr("Wt.WMessageBox.Cancel")));
@@ -182,12 +182,12 @@ void RegistrationWidget::update()
 }
 
 void RegistrationWidget::oAuthDone(OAuthProcess *oauth,
-				   const Identity& identity)
+                                   const Identity& identity)
 {
   if (identity.isValid()) {
     LOG_SECURE(oauth->service().name() << ": identified: as "
-	       << identity.id() << ", " << identity.name() << ", "
-	       << identity.email());
+               << identity.id() << ", " << identity.name() << ", "
+               << identity.email());
 
     if (!model_->registerIdentified(identity))
       update();
@@ -204,8 +204,8 @@ void RegistrationWidget::samlDone(Saml::Process *saml,
 {
   if (identity.isValid()) {
     LOG_SECURE(saml->service().name() << ": identified: as "
-	       << identity.id() << ", " << identity.name() << ", "
-	       << identity.email());
+               << identity.id() << ", " << identity.name() << ", "
+               << identity.email());
 
     if (!model_->registerIdentified(identity))
       update();
@@ -261,13 +261,13 @@ void RegistrationWidget::doRegister()
     if (user.isValid()) {
       registerUserDetails(user);
       if (!model_->baseAuth()->emailVerificationRequired() || user.unverifiedEmail().empty())
-	model_->loginUser(model_->login(), user);
+        model_->loginUser(model_->login(), user);
       else {
-	if (authWidget_)
-	  authWidget_->displayInfo
-	    (WString::tr("Wt.Auth.confirm-email-first"));
+        if (authWidget_)
+          authWidget_->displayInfo
+            (WString::tr("Wt.Auth.confirm-email-first"));
 
-	close();
+        close();
       }
     } else
       update();
@@ -296,7 +296,7 @@ void RegistrationWidget::confirmIsYou()
       confirmPasswordLogin_.reset(new Login());
       confirmPasswordLogin_->login(model_->existingUser(), LoginState::Weak);
       confirmPasswordLogin_
-	->changed().connect(this, &RegistrationWidget::confirmedIsYou);
+        ->changed().connect(this, &RegistrationWidget::confirmedIsYou);
 
       isYouDialog_ = authWidget_->createPasswordPromptDialog(*confirmPasswordLogin_);
       isYouDialog_->finished().connect

@@ -153,9 +153,9 @@ private:
     if (!approval.error()) {
       switch (approval.outcome()) {
       case Payment::ApprovalOutcome::Accepted:
-	updatePaymentDialog("<p>Payment successful.</p>"
-			    "<p>Fetching payment details...</p>",
-			    false);
+        updatePaymentDialog("<p>Payment successful.</p>"
+                            "<p>Fetching payment details...</p>",
+                            false);
 
         /* expressCheckout_->updateCustomerDetails() :
          * GetExpressCheckoutDetails API call: updates the customer
@@ -173,7 +173,7 @@ private:
 
       case Payment::ApprovalOutcome::Denied:
       case Payment::ApprovalOutcome::Interrupted:
-	cancel();
+        cancel();
 
         break;
       }
@@ -320,18 +320,18 @@ private:
       for (auto item : order.items()) {
         std::unique_ptr<WTemplate> it
             = std::make_unique<WTemplate>(WString::tr("item.info"));
-	it->bindString("name", item.name());
-	it->bindString("description", item.description());
-	it->bindString("number", item.number());
-	it->bindString("quantity",
-		       asString(item.quantity()));
-	it->bindString("unitCost", item.unitCost().toString());
-	it->bindString("totalCost",
-		       (item.unitCost() * item.quantity()).toString());
+        it->bindString("name", item.name());
+        it->bindString("description", item.description());
+        it->bindString("number", item.number());
+        it->bindString("quantity",
+                       asString(item.quantity()));
+        it->bindString("unitCost", item.unitCost().toString());
+        it->bindString("totalCost",
+                       (item.unitCost() * item.quantity()).toString());
 
         items->addWidget(std::move(it));
       }
-      
+
       t->bindWidget("items", std::move(items));
     } else
       t->bindEmpty("items");

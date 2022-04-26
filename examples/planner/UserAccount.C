@@ -21,20 +21,20 @@ UserAccount::UserAccount(const WString& aName)
   : name(aName)
 { }
 
-collection< ptr<Entry> > UserAccount::entriesInRange(const WDate& from, 
-						     const WDate& until) const
+collection< ptr<Entry> > UserAccount::entriesInRange(const WDate& from,
+                                                     const WDate& until) const
 {
   return entries.find()
     .where("start >= ?").bind(WDateTime(from))
     .where("start < ?").bind(WDateTime(until));
 }
 
-ptr<UserAccount> UserAccount::login(Session& session, 
-				    const WString& userName)
+ptr<UserAccount> UserAccount::login(Session& session,
+                                    const WString& userName)
 {
   Transaction transaction(session);
 
-  ptr<UserAccount> ua = 
+  ptr<UserAccount> ua =
     session.find<UserAccount>("where name = ?").bind(userName);
 
   if (!ua) {
@@ -44,7 +44,7 @@ ptr<UserAccount> UserAccount::login(Session& session,
     ua = session.add(std::make_unique<UserAccount>(userName));
   }
 
-  transaction.commit(); 
- 
+  transaction.commit();
+
   return ua;
 }

@@ -26,7 +26,7 @@ LOGGER("WWidget");
 
 WWidget::WWidget()
   : parent_(nullptr)
-{ 
+{
   flags_.set(BIT_NEED_RERENDER);
 }
 
@@ -179,7 +179,7 @@ void WWidget::removeStyleClass(const char *styleClass, bool force)
 }
 
 void WWidget::toggleStyleClass(const WT_USTRING& styleClass, bool add,
-			       bool force)
+                               bool force)
 {
   if (add)
     addStyleClass(styleClass, force);
@@ -199,18 +199,18 @@ void WWidget::hide()
 }
 
 void WWidget::show()
-{ 
+{
   flags_.set(BIT_WAS_HIDDEN, isHidden());
   setHidden(false);
 }
 
 void WWidget::animateShow(const WAnimation& animation)
-{ 
+{
   setHidden(false, animation);
 }
 
 void WWidget::animateHide(const WAnimation& animation)
-{ 
+{
   setHidden(true, animation);
 }
 
@@ -221,7 +221,7 @@ void WWidget::disable()
 }
 
 void WWidget::enable()
-{ 
+{
   flags_.set(BIT_WAS_DISABLED, isDisabled());
   setDisabled(false);
 }
@@ -320,7 +320,7 @@ void WWidget::setFocus()
 }
 
 void WWidget::acceptDrops(const std::string& mimeType,
-			  const WT_USTRING& hoverStyleClass)
+                          const WT_USTRING& hoverStyleClass)
 {
   WWebWidget *thisWebWidget = webWidget();
 
@@ -338,20 +338,20 @@ void WWidget::stopAcceptDrops(const std::string& mimeType)
 }
 
 void WWidget::getDrop(const std::string sourceId, const std::string mimeType,
-		      WMouseEvent event)
+                      WMouseEvent event)
 {
   WDropEvent e(WApplication::instance()->decodeObject(sourceId), mimeType,
-	       event);
+               event);
 
   dropEvent(e);
 }
 
 void WWidget::getDropTouch(const std::string sourceId, const std::string mimeType,
-		      WTouchEvent event)
+                      WTouchEvent event)
 {
   WDropEvent e(WApplication::instance()->decodeObject(sourceId), mimeType,
-	       event);
- 
+               event);
+
   dropEvent(e);
 }
 
@@ -373,7 +373,7 @@ DomElement *WWidget::createSDomElement(WApplication *app)
 }
 
 std::string WWidget::createJavaScript(WStringStream& js,
-				      std::string insertJS)
+                                      std::string insertJS)
 {
   WApplication *app = WApplication::instance();
   DomElement *de = createSDomElement(app);
@@ -420,13 +420,13 @@ void WWidget::positionAt(const WWidget *widget, Orientation orientation)
   if (isHidden())
     show();
 
-  std::string side = (orientation == Orientation::Horizontal 
-		      ? ".Horizontal" : ".Vertical");
+  std::string side = (orientation == Orientation::Horizontal
+                      ? ".Horizontal" : ".Vertical");
 
   doJavaScript(WT_CLASS ".positionAtWidget('"
-	       + id() + "','"
-	       + widget->id() + "',"
-	       WT_CLASS + side + ");");
+               + id() + "','"
+               + widget->id() + "',"
+               WT_CLASS + side + ");");
 }
 
 void WWidget::setLayoutSizeAware(bool aware)
@@ -459,7 +459,7 @@ bool WWidget::layoutSizeAware() const
 }
 
 void WWidget::layoutSizeChanged(int width, int height)
-{ } 
+{ }
 
 bool WWidget::isInLayout() const
 {
@@ -497,8 +497,8 @@ bool WWidget::isExposed(WWidget *w)
 }
 
 WCssTextRule *WWidget::addCssRule(const std::string& selector,
-				  const std::string& declarations,
-				  const std::string& ruleName)
+                                  const std::string& declarations,
+                                  const std::string& ruleName)
 {
   WApplication *app = WApplication::instance();
   std::unique_ptr<WCssTextRule> rule(new WCssTextRule(selector, declarations));
@@ -507,7 +507,7 @@ WCssTextRule *WWidget::addCssRule(const std::string& selector,
   return result;
 }
 
-void WWidget::addJSignal(EventSignalBase* signal) 
+void WWidget::addJSignal(EventSignalBase* signal)
 {
   jsignals_.push_back(signal);
 }

@@ -52,7 +52,7 @@ public:
    * the order they appear in the view).
    *
    * When selection operates on rows (\link Wt::SelectionBehavior::Rows SelectionBehavior::Rows\endlink),
-   * this method only returns the model index of first column's element of the 
+   * this method only returns the model index of first column's element of the
    * selected rows.
    */
   WModelIndexSet selectedIndexes() const { return selection_; }

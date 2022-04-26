@@ -40,7 +40,7 @@ LOGGER("Auth.OidcService");
 
     std::vector<Http::Message::Header> headers;
     headers.push_back(Http::Message::Header("Authorization",
-					    "Bearer " + token.value()));
+                                            "Bearer " + token.value()));
 
     httpClient_->get(service().userInfoEndpoint(), headers);
 
@@ -79,7 +79,7 @@ LOGGER("Auth.OidcService");
       bool ok = Json::parse(response.body(), userInfo, e);
 #else
       try {
-	userInfo = (Json::Object)Json::Parser().parse(response.body());
+        userInfo = (Json::Object)Json::Parser().parse(response.body());
       } catch (Json::ParseError pe) {
       }
       bool ok = userInfo.isNull();
@@ -87,8 +87,8 @@ LOGGER("Auth.OidcService");
 
       if (!ok) {
         LOG_ERROR("could not parse Json: '" << response.body() << "'");
-	setError(ERROR_MSG("badjson"));
-	authenticated().emit(Identity::Invalid);
+        setError(ERROR_MSG("badjson"));
+        authenticated().emit(Identity::Invalid);
       } else {
         authenticated().emit(parseClaims(userInfo));
       }

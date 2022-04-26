@@ -29,7 +29,7 @@ WAbstractToggleButton::WAbstractToggleButton()
 
 WAbstractToggleButton::WAbstractToggleButton(const WString& text)
   : state_(CheckState::Unchecked)
-{ 
+{
   flags_.set(BIT_WORD_WRAP);
   text_.format = TextFormat::Plain;
   text_.text = text;
@@ -46,9 +46,9 @@ WStatelessSlot *WAbstractToggleButton::getStateless(Method method)
   if (method == static_cast<WObject::Method>(setC))
     return implementStateless(setC, &WAbstractToggleButton::undoSetChecked);
   else if (method == static_cast<WObject::Method>
-	   (&WAbstractToggleButton::setUnChecked))
+           (&WAbstractToggleButton::setUnChecked))
     return implementStateless(&WAbstractToggleButton::setUnChecked,
-			      &WAbstractToggleButton::undoSetUnChecked);
+                              &WAbstractToggleButton::undoSetUnChecked);
   else
     return WFormWidget::getStateless(method);
 }
@@ -71,7 +71,7 @@ void WAbstractToggleButton::setText(const WString& text)
 
   if (isRendered() && flags_.test(BIT_NAKED))
     LOG_ERROR("setText() has no effect when already rendered as a naked "
-	      "checkbox (without label)");
+              "checkbox (without label)");
 
   text_.setText(text);
   flags_.reset(BIT_NAKED);
@@ -143,10 +143,10 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 
       span = DomElement::createNew(DomElementType::SPAN);
       span->setName("t" + id());
- 
+
       if (element.type() != DomElementType::LABEL) {
-	label = DomElement::createNew(DomElementType::LABEL);
-	label->setName("l" + id());
+        label = DomElement::createNew(DomElementType::LABEL);
+        label->setName("l" + id());
       }
     } else {
       input = DomElement::getForUpdate("in" + id(), DomElementType::INPUT);
@@ -189,10 +189,10 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
    * kept on the interior element. And also tabindex
    */
   if (&element != input) {
-    if (element.properties().find(Property::Class) != 
-	element.properties().end())
-      input->addPropertyWord(Property::Class, 
-			     element.getProperty(Property::Class));
+    if (element.properties().find(Property::Class) !=
+        element.properties().end())
+      input->addPropertyWord(Property::Class,
+                             element.getProperty(Property::Class));
     element.setProperties(input->properties());
     input->clearProperties();
 
@@ -225,17 +225,17 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 
   if (flags_.test(BIT_STATE_CHANGED) || all) {
     input->setProperty(Wt::Property::Checked,
-		       state_ == CheckState::Unchecked ?
-		       "false" : "true");
+                       state_ == CheckState::Unchecked ?
+                       "false" : "true");
 
     if (supportsIndeterminate(env))
       input->setProperty(Wt::Property::Indeterminate,
-			 state_ == CheckState::PartiallyChecked ?
-			 "true" : "false");
+                         state_ == CheckState::PartiallyChecked ?
+                         "true" : "false");
     else
       input->setProperty(Wt::Property::StyleOpacity,
-			 state_ == CheckState::PartiallyChecked ?
-			 "0.5" : "");
+                         state_ == CheckState::PartiallyChecked ?
+                         "0.5" : "");
 
     flags_.reset(BIT_STATE_CHANGED);
   }
@@ -249,65 +249,65 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
 
     if (check) {
       if (check->isConnected())
-	changeActions.push_back
-	  (DomElement::EventAction(dom + ".checked",
-				   check->javaScript(),
-				   check->encodeCmd(),
-				   check->isExposedSignal()));
+        changeActions.push_back
+          (DomElement::EventAction(dom + ".checked",
+                                   check->javaScript(),
+                                   check->encodeCmd(),
+                                   check->isExposedSignal()));
       check->updateOk();
     }
 
     if (uncheck) {
       if (uncheck->isConnected())
-	changeActions.push_back
-	  (DomElement::EventAction("!" + dom + ".checked",
-				   uncheck->javaScript(),
-				   uncheck->encodeCmd(),
-				   uncheck->isExposedSignal()));
+        changeActions.push_back
+          (DomElement::EventAction("!" + dom + ".checked",
+                                   uncheck->javaScript(),
+                                   uncheck->encodeCmd(),
+                                   uncheck->isExposedSignal()));
       uncheck->updateOk();
     }
 
     if (change) {
       if (change->isConnected())
-	changeActions.push_back
-	  (DomElement::EventAction(std::string(),
-				   change->javaScript(),
-				   change->encodeCmd(),
-				   change->isExposedSignal()));
+        changeActions.push_back
+          (DomElement::EventAction(std::string(),
+                                   change->javaScript(),
+                                   change->encodeCmd(),
+                                   change->isExposedSignal()));
       change->updateOk();
     }
 
     if (!piggyBackChangeOnClick) {
       if (!(all && changeActions.empty()))
-	input->setEvent("change", changeActions);
+        input->setEvent("change", changeActions);
     }
   }
 
   if (needUpdateClickedSignal || all) {
     if (piggyBackChangeOnClick) {
       if (click) {
-	changeActions.push_back
-	  (DomElement::EventAction(std::string(),
-				   click->javaScript(),
-				   click->encodeCmd(),
-				   click->isExposedSignal()));
-	click->updateOk();
+        changeActions.push_back
+          (DomElement::EventAction(std::string(),
+                                   click->javaScript(),
+                                   click->encodeCmd(),
+                                   click->isExposedSignal()));
+        click->updateOk();
       }
 
       if (!(all && changeActions.empty()))
-	input->setEvent(CLICK_SIGNAL, changeActions);
+        input->setEvent(CLICK_SIGNAL, changeActions);
     } else
       if (click)
-	updateSignalConnection(*input, *click, CLICK_SIGNAL, all);
+        updateSignalConnection(*input, *click, CLICK_SIGNAL, all);
   }
 
   if (span) {
     if (all || flags_.test(BIT_TEXT_CHANGED)) {
       span->setProperty(Property::InnerHTML, text_.formattedText());
       if (all || flags_.test(BIT_WORD_WRAP_CHANGED)) {
-	span->setProperty(Property::StyleWhiteSpace, 
-			  flags_.test(BIT_WORD_WRAP) ? "normal" : "nowrap");
-	flags_.reset(BIT_WORD_WRAP_CHANGED);
+        span->setProperty(Property::StyleWhiteSpace,
+                          flags_.test(BIT_WORD_WRAP) ? "normal" : "nowrap");
+        flags_.reset(BIT_WORD_WRAP_CHANGED);
       }
       flags_.reset(BIT_TEXT_CHANGED);
     }
@@ -357,8 +357,8 @@ void WAbstractToggleButton::setFormData(const FormData& formData)
     if (formData.values[0] == "i")
       state_ = CheckState::PartiallyChecked;
     else
-      state_ = formData.values[0] != "0" ? 
-	CheckState::Checked : CheckState::Unchecked;
+      state_ = formData.values[0] != "0" ?
+        CheckState::Checked : CheckState::Unchecked;
   else
     if (isEnabled() && isVisible())
       state_ = CheckState::Unchecked;
@@ -374,11 +374,11 @@ bool WAbstractToggleButton::supportsIndeterminate(const WEnvironment& env)
 {
   return env.javaScript()
     && (env.agentIsIE()
-	|| env.agentIsSafari()
-	|| env.agentIsChrome()
-	|| (env.agentIsGecko() && 
-	    (static_cast<unsigned int>(env.agent()) >=
-	     static_cast<unsigned int>(UserAgent::Firefox3_6))));
+        || env.agentIsSafari()
+        || env.agentIsChrome()
+        || (env.agentIsGecko() &&
+            (static_cast<unsigned int>(env.agent()) >=
+             static_cast<unsigned int>(UserAgent::Firefox3_6))));
 }
 
 std::string WAbstractToggleButton::formName() const

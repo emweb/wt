@@ -18,7 +18,7 @@ namespace {
 
     for (Wt::WModelIndex p = i1; p.isValid(); p = p.parent()) {
       if (p == i2)
-	return true;
+        return true;
     }
 
     return !i2.isValid();
@@ -48,7 +48,7 @@ WBatchEditProxyModel::Item::Item(Item *insertedParent)
 { }
 
 WBatchEditProxyModel::Item::~Item()
-{ 
+{
   for (unsigned i = 0; i < insertedItems_.size(); ++i)
     delete insertedItems_[i];
 }
@@ -144,7 +144,7 @@ WModelIndex WBatchEditProxyModel::mapFromSource(const WModelIndex& sourceIndex)
     if (row >= 0 && column >= 0)
       return createIndex(row, column, static_cast<void *>(parentItem));
     else
-      return WModelIndex();      
+      return WModelIndex();
   } else
     return WModelIndex();
 }
@@ -189,19 +189,19 @@ WModelIndex WBatchEditProxyModel::mapToSource(const WModelIndex& proxyIndex)
 int WBatchEditProxyModel::adjustedProxyRow(Item *item, int sourceRow) const
 {
   return adjustedProxyIndex(sourceRow,
-			    item->insertedRows_, item->removedRows_);
+                            item->insertedRows_, item->removedRows_);
 }
 
 int WBatchEditProxyModel::adjustedProxyColumn(Item *item, int sourceColumn)
   const
 {
   return adjustedProxyIndex(sourceColumn, item->insertedColumns_,
-			    item->removedColumns_);
+                            item->removedColumns_);
 }
 
 int WBatchEditProxyModel::adjustedProxyIndex(int sourceIndex,
-					     const std::vector<int>& ins,
-					     const std::vector<int>& rem) const
+                                             const std::vector<int>& ins,
+                                             const std::vector<int>& rem) const
 {
   /*
    * Cheap and obvious short-cut
@@ -228,7 +228,7 @@ int WBatchEditProxyModel::adjustedProxyIndex(int sourceIndex,
       // if was removed, doesn't matter if it was later re-inserted
       // return -1 - remi index
       if (si == sourceIndex)
-	return -1 - remi;
+        return -1 - remi;
 
       ++remi;
       ++si;
@@ -259,12 +259,12 @@ int WBatchEditProxyModel::adjustedSourceColumn(Item *item, int proxyColumn)
   const
 {
   return adjustedSourceIndex(proxyColumn, item->insertedColumns_,
-			     item->removedColumns_);
+                             item->removedColumns_);
 }
 
 int WBatchEditProxyModel::adjustedSourceIndex(int proxyIndex,
-					      const std::vector<int>& ins,
-					      const std::vector<int>& rem) const
+                                              const std::vector<int>& ins,
+                                              const std::vector<int>& rem) const
 {
   /*
    * Note a row/column can at the same time be removed and inserted !
@@ -317,7 +317,7 @@ int WBatchEditProxyModel::adjustedSourceIndex(int proxyIndex,
 }
 
 WModelIndex WBatchEditProxyModel::index(int row, int column,
-					const WModelIndex& parent) const
+                                        const WModelIndex& parent) const
 {
   Item *item = itemFromIndex(parent);
   return createIndex(row, column, static_cast<void *>(item));
@@ -341,7 +341,7 @@ WBatchEditProxyModel::parentItemFromIndex(const WModelIndex& index) const
 
 WBatchEditProxyModel::Item *
 WBatchEditProxyModel::itemFromIndex(const WModelIndex& index,
-				    bool autoCreate) const
+                                    bool autoCreate) const
 {
   if (index.isValid()) {
     Item *parentItem = parentItemFromIndex(index);
@@ -350,18 +350,18 @@ WBatchEditProxyModel::itemFromIndex(const WModelIndex& index,
     int column = adjustedSourceColumn(parentItem, index.column());
 
     if (row >= 0 && column >= 0) {
-	WModelIndex sourceIndex
-	= sourceModel()->index(row, column, parentItem->sourceIndex_);
+        WModelIndex sourceIndex
+        = sourceModel()->index(row, column, parentItem->sourceIndex_);
       return itemFromSourceIndex(sourceIndex, autoCreate);
     } else {
       if (index.column() == 0)
-	return itemFromInsertedRow(parentItem, index, autoCreate);
+        return itemFromInsertedRow(parentItem, index, autoCreate);
       else
-	if (autoCreate)
-	  throw WException("WBatchEditProxyModel does not support children in "
-			   "column > 0");
-	else
-	  return nullptr;
+        if (autoCreate)
+          throw WException("WBatchEditProxyModel does not support children in "
+                           "column > 0");
+        else
+          return nullptr;
     }
   } else
     return itemFromSourceIndex(WModelIndex(), autoCreate);
@@ -369,7 +369,7 @@ WBatchEditProxyModel::itemFromIndex(const WModelIndex& index,
 
 WBatchEditProxyModel::Item *
 WBatchEditProxyModel::itemFromSourceIndex(const WModelIndex& sourceParent,
-					  bool autoCreate)
+                                          bool autoCreate)
   const
 {
   if (isRemoved(sourceParent))
@@ -389,8 +389,8 @@ WBatchEditProxyModel::itemFromSourceIndex(const WModelIndex& sourceParent,
 
 WBatchEditProxyModel::Item *
 WBatchEditProxyModel::itemFromInsertedRow(Item *parentItem,
-					  const WModelIndex& index,
-					  bool autoCreate) const
+                                          const WModelIndex& index,
+                                          bool autoCreate) const
 {
   int i = Utils::indexOf(parentItem->insertedRows_, index.row());
 
@@ -411,7 +411,7 @@ int WBatchEditProxyModel::columnCount(const WModelIndex& parent) const
       return item->insertedColumns_.size();
     else
       return sourceModel()->columnCount(item->sourceIndex_)
-	+ item->insertedColumns_.size() - item->removedColumns_.size();
+        + item->insertedColumns_.size() - item->removedColumns_.size();
   } else
     return sourceModel()->columnCount(mapToSource(parent));
 }
@@ -425,7 +425,7 @@ int WBatchEditProxyModel::rowCount(const WModelIndex& parent) const
       return item->insertedRows_.size();
     else
       return sourceModel()->rowCount(item->sourceIndex_)
-	+ item->insertedRows_.size() - item->removedRows_.size();
+        + item->insertedRows_.size() - item->removedRows_.size();
   } else
     return sourceModel()->rowCount(mapToSource(parent));
 }
@@ -440,7 +440,7 @@ void WBatchEditProxyModel::sourceColumnsAboutToBeInserted
 }
 
 void WBatchEditProxyModel::sourceColumnsInserted(const WModelIndex& parent,
-						 int start, int end)
+                                                 int start, int end)
 {
   if (isRemoved(parent))
     return;
@@ -455,15 +455,15 @@ void WBatchEditProxyModel::sourceColumnsInserted(const WModelIndex& parent,
 
     if (proxyColumn >= 0) {
       if (!submitting_) {
-	beginInsertColumns(pparent, proxyColumn, proxyColumn);
-	shiftColumns(item, proxyColumn, 1);
-	endInsertColumns();
+        beginInsertColumns(pparent, proxyColumn, proxyColumn);
+        shiftColumns(item, proxyColumn, 1);
+        endInsertColumns();
       } else {
-	// The insert is being submitted. We do not need to shift
-	// anything: the proxy indexes do not change
-	int index = Utils::indexOf(item->insertedColumns_, proxyColumn);
-	assert(index != -1);
-	item->insertedColumns_.erase(item->insertedColumns_.begin() + index);
+        // The insert is being submitted. We do not need to shift
+        // anything: the proxy indexes do not change
+        int index = Utils::indexOf(item->insertedColumns_, proxyColumn);
+        assert(index != -1);
+        item->insertedColumns_.erase(item->insertedColumns_.begin() + index);
       }
     } else {
       // Since removed columns are processed first during submission,
@@ -484,7 +484,7 @@ void WBatchEditProxyModel::sourceColumnsInserted(const WModelIndex& parent,
 
 void WBatchEditProxyModel::sourceColumnsAboutToBeRemoved
   (const WModelIndex& parent, int start, int end)
-{ 
+{
   if (isRemoved(parent))
     return;
 
@@ -512,7 +512,7 @@ void WBatchEditProxyModel::sourceColumnsAboutToBeRemoved
 }
 
 void WBatchEditProxyModel::sourceColumnsRemoved(const WModelIndex& parent,
-						int start, int end)
+                                                int start, int end)
 {
   if (isRemoved(parent))
     return;
@@ -550,7 +550,7 @@ void WBatchEditProxyModel::sourceRowsAboutToBeRemoved
       item->removedRows_.erase(item->removedRows_.begin() + remi);
     }
   }
-  
+
   startShiftModelIndexes(parent, start, -(end - start + 1), mappedIndexes_);
 }
 
@@ -569,11 +569,11 @@ void WBatchEditProxyModel::deleteItemsUnder(Item *item, int row)
 }
 
 void WBatchEditProxyModel::sourceRowsRemoved(const WModelIndex& parent,
-					     int start, int end)
-{ 
+                                             int start, int end)
+{
   if (isRemoved(parent))
     return;
-  
+
   endShiftModelIndexes(parent, start, -(end - start + 1), mappedIndexes_);
 }
 
@@ -582,11 +582,11 @@ void WBatchEditProxyModel::sourceRowsAboutToBeInserted
 { }
 
 void WBatchEditProxyModel::sourceRowsInserted(const WModelIndex& parent,
-					      int start, int end)
+                                              int start, int end)
 {
   if (isRemoved(parent))
     return;
-  
+
   startShiftModelIndexes(parent, start, (end - start + 1), mappedIndexes_);
 
   WModelIndex pparent = mapFromSource(parent);
@@ -599,25 +599,25 @@ void WBatchEditProxyModel::sourceRowsInserted(const WModelIndex& parent,
 
     if (proxyRow >= 0) {
       if (!submitting_) {
-	beginInsertRows(pparent, proxyRow, proxyRow);
-	shiftRows(item, proxyRow, 1);
-	endInsertRows();
+        beginInsertRows(pparent, proxyRow, proxyRow);
+        shiftRows(item, proxyRow, 1);
+        endInsertRows();
       } else {
-	// The insert is being submitted. We do not need to shift anything:
-	// the 'proxy' indexes do not change
-	int index = Utils::indexOf(item->insertedRows_, proxyRow);
+        // The insert is being submitted. We do not need to shift anything:
+        // the 'proxy' indexes do not change
+        int index = Utils::indexOf(item->insertedRows_, proxyRow);
 
-	assert(index != -1);
+        assert(index != -1);
 
-	Item *child = item->insertedItems_[index];
-	if (child) {
-	  child->sourceIndex_ = sourceModel()->index(start + i, 0, parent);
-	  child->insertedParent_ = nullptr;
-	  mappedIndexes_[child->sourceIndex_] = child;
-	}
+        Item *child = item->insertedItems_[index];
+        if (child) {
+          child->sourceIndex_ = sourceModel()->index(start + i, 0, parent);
+          child->insertedParent_ = nullptr;
+          mappedIndexes_[child->sourceIndex_] = child;
+        }
 
-	item->insertedItems_.erase(item->insertedItems_.begin() + index);
-	item->insertedRows_.erase(item->insertedRows_.begin() + index);
+        item->insertedItems_.erase(item->insertedItems_.begin() + index);
+        item->insertedRows_.erase(item->insertedRows_.begin() + index);
       }
     } else {
       // Since removed rows are processed first, it cannot be that the
@@ -637,7 +637,7 @@ void WBatchEditProxyModel::sourceRowsInserted(const WModelIndex& parent,
 }
 
 void WBatchEditProxyModel::sourceDataChanged(const WModelIndex& topLeft,
-					     const WModelIndex& bottomRight)
+                                             const WModelIndex& bottomRight)
 {
   if (isRemoved(topLeft.parent()))
     return;
@@ -646,20 +646,20 @@ void WBatchEditProxyModel::sourceDataChanged(const WModelIndex& topLeft,
     for (int col = topLeft.column(); col <= bottomRight.column(); ++col) {
       WModelIndex l = sourceModel()->index(row, col, topLeft.parent());
       if (!isRemoved(l))
-	dataChanged().emit(mapFromSource(l), mapFromSource(l));
+        dataChanged().emit(mapFromSource(l), mapFromSource(l));
     }
   }
 }
 
-void WBatchEditProxyModel::sourceHeaderDataChanged(Orientation orientation, 
-						   int start, int end)
+void WBatchEditProxyModel::sourceHeaderDataChanged(Orientation orientation,
+                                                   int start, int end)
 {
-  if (orientation == Orientation::Vertical) {    
+  if (orientation == Orientation::Vertical) {
     Item *item = itemFromIndex(WModelIndex());
     for (int row = start; row <= end; ++row) {
       int proxyRow = adjustedProxyRow(item, row);
       if (proxyRow != -1)
-	headerDataChanged().emit(orientation, proxyRow, proxyRow);
+        headerDataChanged().emit(orientation, proxyRow, proxyRow);
     }
   } else {
     // FIXME
@@ -721,7 +721,7 @@ cpp17::any WBatchEditProxyModel::indicateDirty(ItemDataRole role, const cpp17::a
       WString s1 = asString(value);
       WString s2 = asString(dirtyIndicationData_);
       if (!s1.empty())
-	s1 += " ";
+        s1 += " ";
       s1 += s2;
       return cpp17::any(s1);
     } else
@@ -779,7 +779,7 @@ WFlags<ItemFlag> WBatchEditProxyModel::flags(const WModelIndex& index) const
 }
 
 cpp17::any WBatchEditProxyModel::headerData(int section,
-					    Orientation orientation,
+                                            Orientation orientation,
                                             ItemDataRole role) const
 {
   if (orientation == Orientation::Vertical)
@@ -803,14 +803,14 @@ void WBatchEditProxyModel::shiftRows(ValueMap& v, int row, int count)
     if (i->first.row >= row) {
       Cell& c = const_cast<Cell&>(i->first);
       if (count < 0) {
-	if (c.row >= row - count) {
-	  c.row += count;
-	  ++i;
-	} else
-	  Utils::eraseAndNext(v, i);
+        if (c.row >= row - count) {
+          c.row += count;
+          ++i;
+        } else
+          Utils::eraseAndNext(v, i);
       } else {
-	c.row += count;
-	++i;
+        c.row += count;
+        ++i;
       }
     } else
       break;
@@ -823,14 +823,14 @@ void WBatchEditProxyModel::shiftColumns(ValueMap& v, int column, int count)
     if (i->first.column >= column) {
       Cell& c = const_cast<Cell&>(i->first);
       if (count < 0) {
-	if (c.column >= column - count) {
-	  c.column += count;
-	  ++i;
-	} else
-	  Utils::eraseAndNext(v, i);
+        if (c.column >= column - count) {
+          c.column += count;
+          ++i;
+        } else
+          Utils::eraseAndNext(v, i);
       } else {
-	c.column += count;
-	++i;
+        c.column += count;
+        ++i;
       }
     } else
       ++i;
@@ -852,7 +852,7 @@ void WBatchEditProxyModel::shiftColumns(Item *item, int column, int count)
 }
 
 bool WBatchEditProxyModel::insertRows(int row, int count,
-				      const WModelIndex& parent)
+                                      const WModelIndex& parent)
 {
   if (columnCount(parent) == 0)
     insertColumns(0, 1, parent);
@@ -864,14 +864,14 @@ bool WBatchEditProxyModel::insertRows(int row, int count,
   shiftRows(item, row, count);
 
   insertIndexes(item, item->insertedRows_, &item->insertedItems_,
-		row, count);
+                row, count);
 
   for (int i = 0; i < count; ++i) {
     for (int j = 0; j < columnCount(parent); ++j) {
       DataMap data;
       std::map<int, DataMap>::const_iterator nri = newRowData_.find(j);
       if (nri != newRowData_.end())
-	data = nri->second;
+        data = nri->second;
       item->editedValues_[Cell(row + i, j)] = data;
     }
   }
@@ -882,14 +882,14 @@ bool WBatchEditProxyModel::insertRows(int row, int count,
 }
 
 bool WBatchEditProxyModel::removeRows(int row, int count,
-				      const WModelIndex& parent)
+                                      const WModelIndex& parent)
 {
   beginRemoveRows(parent, row, row + count - 1);
 
   Item *item = itemFromIndex(parent);
 
   removeIndexes(item, item->insertedRows_, item->removedRows_,
-		&item->insertedItems_, row, count);
+                &item->insertedItems_, row, count);
 
   shiftRows(item->editedValues_, row, -count);
 
@@ -899,7 +899,7 @@ bool WBatchEditProxyModel::removeRows(int row, int count,
 }
 
 bool WBatchEditProxyModel::insertColumns(int column, int count,
-					 const WModelIndex& parent)
+                                         const WModelIndex& parent)
 {
   beginInsertColumns(parent, column, column + count - 1);
 
@@ -915,14 +915,14 @@ bool WBatchEditProxyModel::insertColumns(int column, int count,
 }
 
 bool WBatchEditProxyModel::removeColumns(int column, int count,
-					 const WModelIndex& parent)
+                                         const WModelIndex& parent)
 {
   beginRemoveColumns(parent, column, column + count - 1);
 
   Item *item = itemFromIndex(parent);
 
   removeIndexes(item, item->insertedColumns_, item->removedColumns_,
-		nullptr, column, count);
+                nullptr, column, count);
 
   shiftColumns(item->editedValues_, column, count);
 
@@ -932,9 +932,9 @@ bool WBatchEditProxyModel::removeColumns(int column, int count,
 }
 
 void WBatchEditProxyModel::insertIndexes(Item *item,
-					 std::vector<int>& ins,
-					 std::vector<Item *> *rowItems,
-					 int index, int count)
+                                         std::vector<int>& ins,
+                                         std::vector<Item *> *rowItems,
+                                         int index, int count)
 {
   int insertIndex = Utils::lower_bound(ins, index);
 
@@ -947,10 +947,10 @@ void WBatchEditProxyModel::insertIndexes(Item *item,
 }
 
 void WBatchEditProxyModel::removeIndexes(Item *item,
-					 std::vector<int>& ins,
-					 std::vector<int>& rem,
-					 std::vector<Item *>* rowItems,
-					 int index, int count)
+                                         std::vector<int>& ins,
+                                         std::vector<int>& rem,
+                                         std::vector<Item *>* rowItems,
+                                         int index, int count)
 {
   /*
    * Example: rem contains [4, 8]
@@ -986,12 +986,12 @@ void WBatchEditProxyModel::removeIndexes(Item *item,
       ins.erase(ins.begin() + insi);
 
       if (rowItems) {
-	delete (*rowItems)[insi];
-	rowItems->erase(rowItems->begin() + insi);
+        delete (*rowItems)[insi];
+        rowItems->erase(rowItems->begin() + insi);
       }
     } else {
       if (rowItems)
-	deleteItemsUnder(item, index);
+        deleteItemsUnder(item, index);
 
       rem.insert(rem.begin() + Utils::lower_bound(rem, index), index);
     }
@@ -1013,10 +1013,10 @@ bool WBatchEditProxyModel::isDirty() const
     Item *item = dynamic_cast<Item *>(i->second);
 
     if (!item->removedColumns_.empty()
-	|| !item->insertedColumns_.empty()
-	|| !item->removedRows_.empty()
-	|| !item->insertedRows_.empty()
-	|| !item->editedValues_.empty())
+        || !item->insertedColumns_.empty()
+        || !item->removedRows_.empty()
+        || !item->insertedRows_.empty()
+        || !item->editedValues_.empty())
       return true;
   }
 
@@ -1036,7 +1036,7 @@ void WBatchEditProxyModel::commitAll()
 
     while (!item->insertedColumns_.empty())
       sourceModel()->insertColumn(item->insertedColumns_[0],
-				  item->sourceIndex_);
+                                  item->sourceIndex_);
 
     while (!item->removedRows_.empty())
       sourceModel()->removeRow(item->removedRows_[0], item->sourceIndex_);
@@ -1045,10 +1045,10 @@ void WBatchEditProxyModel::commitAll()
       sourceModel()->insertRow(item->insertedRows_[0], item->sourceIndex_);
 
     for (ValueMap::iterator j = item->editedValues_.begin();
-	 j != item->editedValues_.end();) {
+         j != item->editedValues_.end();) {
       WModelIndex index = sourceModel()->index(j->first.row,
-					       j->first.column,
-					       item->sourceIndex_);
+                                               j->first.column,
+                                               item->sourceIndex_);
       DataMap data = j->second;
 
       Utils::eraseAndNext(item->editedValues_, j);
@@ -1092,7 +1092,7 @@ void WBatchEditProxyModel::revertAll()
     }
 
     for (ValueMap::iterator j = item->editedValues_.begin();
-	 j != item->editedValues_.end();) {
+         j != item->editedValues_.end();) {
       Cell c = j->first;
       Utils::eraseAndNext(item->editedValues_, j);
       WModelIndex child = index(c.row, c.column, proxyIndex);

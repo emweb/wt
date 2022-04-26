@@ -94,13 +94,13 @@ namespace Wt {
  *     return result;
  *   }
  * };
- * 
+ *
  * \endcode
  * \endif
  *
  * <h3>CSS</h3>
  *
- * This widget does not provide styling, 
+ * This widget does not provide styling,
  * and can be styled using inline or external CSS as appropriate.
  */
 class WT_API WViewWidget : public WWebWidget

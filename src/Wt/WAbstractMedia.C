@@ -19,7 +19,7 @@
 #endif
 
 namespace {
-  Wt::MediaReadyState intToReadyState(int i) 
+  Wt::MediaReadyState intToReadyState(int i)
   {
     switch (i) {
     case 0:
@@ -105,12 +105,12 @@ void WAbstractMedia::setFormData(const FormData& formData)
     boost::split(attributes, formData.values[0], boost::is_any_of(";"));
     if (attributes.size() == 6) {
       try {
-	volume_ = Utils::stod(attributes[0]);
+        volume_ = Utils::stod(attributes[0]);
       } catch (const std::exception& e) {
         volume_ = -1;
       }
       try {
-	current_ = Utils::stod(attributes[1]);
+        current_ = Utils::stod(attributes[1]);
       } catch (const std::exception& e) {
         current_ = -1;
       }
@@ -127,8 +127,8 @@ void WAbstractMedia::setFormData(const FormData& formData)
         readyState_ = MediaReadyState::HaveNothing;
       }
     } else
-      throw WException("WAbstractMedia: error parsing: " 
-		       + formData.values[0]);
+      throw WException("WAbstractMedia: error parsing: "
+                       + formData.values[0]);
   }
 }
 
@@ -145,7 +145,7 @@ void WAbstractMedia::pause()
 }
 
 void WAbstractMedia::renderSource(DomElement* element,
-				  WAbstractMedia::Source &source, bool isLast)
+                                  WAbstractMedia::Source &source, bool isLast)
 {
   // src is mandatory
   element->setAttribute("src", resolveRelativeUrl(source.link.url()));
@@ -195,13 +195,13 @@ void WAbstractMedia::updateMediaDom(DomElement& element, bool all)
   if (all || flagsChanged_) {
     if ((!all) || flags_.test(PlayerOption::Controls))
       element.setAttribute("controls",
-			   flags_.test(PlayerOption::Controls) ? "controls" : "");
+                           flags_.test(PlayerOption::Controls) ? "controls" : "");
     if ((!all) || flags_.test(PlayerOption::Autoplay))
       element.setAttribute("autoplay",
-			   flags_.test(PlayerOption::Autoplay) ? "autoplay" : "");
+                           flags_.test(PlayerOption::Autoplay) ? "autoplay" : "");
     if ((!all) || flags_.test(PlayerOption::Loop))
       element.setAttribute("loop",
-			   flags_.test(PlayerOption::Loop) ? "loop" : "");
+                           flags_.test(PlayerOption::Loop) ? "loop" : "");
   }
   if (all || preloadChanged_) {
     switch (preloadMode_) {
@@ -235,8 +235,8 @@ void WAbstractMedia::loadJavaScript()
     LOAD_JAVASCRIPT(app, "js/WAbstractMedia.js", "WAbstractMedia", wtjs1);
 
     setJavaScriptMember(" WAbstractMedia",
-			"new " WT_CLASS ".WAbstractMedia("
-			+ app->javaScriptClass() + "," + jsRef() + ");");
+                        "new " WT_CLASS ".WAbstractMedia("
+                        + app->javaScriptClass() + "," + jsRef() + ");");
   }
 }
 
@@ -301,10 +301,10 @@ DomElement *WAbstractMedia::createDomElement(WApplication *app)
       ss <<
         ""  "v=" + jsMediaRef() + ";"
         ""  "if (v) {"
-	""    "if (w >= 0) "
+        ""    "if (w >= 0) "
         ""      "v.setAttribute('width', w);"
         ""    "if (h >= 0) "
-	""      "v.setAttribute('height', h);"
+        ""      "v.setAttribute('height', h);"
         ""  "}";
     }
     if (alternative_) {
@@ -344,7 +344,7 @@ std::string WAbstractMedia::jsMediaRef() const
 }
 
 void WAbstractMedia::getDomChanges(std::vector<DomElement *>& result,
-				   WApplication *app)
+                                   WApplication *app)
 {
   if (!mediaId_.empty()) {
     DomElement *media = DomElement::getForUpdate(mediaId_, DomElementType::DIV);
@@ -354,9 +354,9 @@ void WAbstractMedia::getDomChanges(std::vector<DomElement *>& result,
       // so we delete them all and reinsert them.
       // Delete source elements that are no longer required
       for (std::size_t i = 0; i < sourcesRendered_; ++i)
-	media->callJavaScript
-	  (WT_CLASS ".remove('" + mediaId_ + "s" + std::to_string(i) + "');",
-	   true);
+        media->callJavaScript
+          (WT_CLASS ".remove('" + mediaId_ + "s" + std::to_string(i) + "');",
+           true);
       sourcesRendered_ = 0;
       for (std::size_t i = 0; i < sources_.size(); ++i) {
         DomElement *src = DomElement::createNew(DomElementType::SOURCE);
@@ -406,7 +406,7 @@ void WAbstractMedia::clearSources()
 }
 
 void WAbstractMedia::addSource(const WLink& link, const std::string &type,
-			       const std::string& media)
+                               const std::string& media)
 {
   sources_.push_back
     (std::unique_ptr<Source>(new Source(this, link, type, media)));
@@ -429,7 +429,7 @@ void WAbstractMedia::iterateChildren(const HandleWidgetMethod& method) const
 #endif
 }
 
-void WAbstractMedia::enableAjax() 
+void WAbstractMedia::enableAjax()
 {
   WWebWidget::enableAjax();
 
@@ -438,11 +438,11 @@ void WAbstractMedia::enableAjax()
     // We therefore restart the play manually
     play();
   }
-}	
+}
 
 WAbstractMedia::Source::Source(WAbstractMedia *parent,
-			       const WLink& link, const std::string &type,
-			       const std::string &media)
+                               const WLink& link, const std::string &type,
+                               const std::string &media)
   :  parent(parent),
      type(type),
      media(media),

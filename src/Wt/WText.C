@@ -90,7 +90,7 @@ WText::WText(const WString& text, TextFormat format)
   setText(text);
 }
 
-WText::~WText() 
+WText::~WText()
 {
   delete[] padding_;
 }
@@ -118,8 +118,8 @@ void WText::autoAdjustInline()
     std::string t = text_.text.toUTF8();
     boost::trim_left(t);
     if (   boost::istarts_with(t, "<div")
-	|| boost::istarts_with(t, "<p")
-	|| boost::istarts_with(t, "<h"))
+        || boost::istarts_with(t, "<p")
+        || boost::istarts_with(t, "<h"))
       setInline(false);
   }
 }
@@ -174,7 +174,7 @@ void WText::updateDom(DomElement& element, bool all)
   if (flags_.test(BIT_WORD_WRAP_CHANGED) || all) {
     if (!all || !flags_.test(BIT_WORD_WRAP))
       element.setProperty(Wt::Property::StyleWhiteSpace,
-			  flags_.test(BIT_WORD_WRAP) ? "normal" : "nowrap");
+                          flags_.test(BIT_WORD_WRAP) ? "normal" : "nowrap");
     flags_.reset(BIT_WORD_WRAP_CHANGED);
   }
 
@@ -299,12 +299,12 @@ std::string WText::formattedText() const
   else {
     WApplication *app = WApplication::instance();
     if (flags_.test(BIT_ENCODE_INTERNAL_PATHS)
-	|| app->session()->hasSessionIdInUrl()) {
+        || app->session()->hasSessionIdInUrl()) {
       WFlags<RefEncoderOption> options;
       if (flags_.test(BIT_ENCODE_INTERNAL_PATHS))
-	options |= EncodeInternalPaths;
+        options |= EncodeInternalPaths;
       if (app->session()->hasSessionIdInUrl())
-	options |= EncodeRedirectTrampoline;
+        options |= EncodeRedirectTrampoline;
       return EncodeRefs(text_.text, options).toXhtmlUTF8();
     } else
       return text_.text.toXhtmlUTF8();

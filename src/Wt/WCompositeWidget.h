@@ -98,7 +98,7 @@ public:
   virtual void setHiddenKeepsGeometry(bool enabled) override;
   virtual bool hiddenKeepsGeometry() const override;
   virtual void setHidden(bool hidden,
-			 const WAnimation& animation = WAnimation()) override;
+                         const WAnimation& animation = WAnimation()) override;
   virtual bool isHidden() const override;
   virtual bool isVisible() const override;
   virtual void setDisabled(bool disabled) override;
@@ -118,17 +118,17 @@ public:
     override;
   void addStyleClass(const char *styleClass, bool force = false);
   virtual void removeStyleClass(const WT_USTRING& styleClass,
-				bool force = false) override;
+                                bool force = false) override;
   void removeStyleClass(const char *styleClass, bool force = false);
   virtual bool hasStyleClass(const WT_USTRING& styleClass) const override;
   virtual void setVerticalAlignment(AlignmentFlag alignment,
-				    const WLength& length = WLength::Auto)
+                                    const WLength& length = WLength::Auto)
     override;
   virtual AlignmentFlag verticalAlignment() const override;
   virtual WLength verticalAlignmentLength() const override;
   virtual WWebWidget *webWidget() override;
   virtual void setToolTip(const WString& text,
-			  TextFormat textFormat = TextFormat::Plain)
+                          TextFormat textFormat = TextFormat::Plain)
     override;
   virtual WString toolTip() const override;
   virtual void setDeferredToolTip(bool enable,
@@ -136,13 +136,13 @@ public:
     override;
   virtual void refresh() override;
   virtual void setAttributeValue(const std::string& name,
-				 const WT_USTRING& value) override;
+                                 const WT_USTRING& value) override;
   virtual WT_USTRING attributeValue(const std::string& name) const override;
   virtual void setJavaScriptMember(const std::string& name,
-				   const std::string& value) override;
+                                   const std::string& value) override;
   virtual std::string javaScriptMember(const std::string& name) const override;
   virtual void callJavaScriptMember(const std::string& name,
-				    const std::string& args) override;
+                                    const std::string& args) override;
   virtual void load() override;
   virtual bool loaded() const override;
   virtual void setCanReceiveFocus(bool enabled) override;
@@ -253,7 +253,7 @@ protected:
   template <typename W, typename Arg1, typename Arg2, typename Arg3>
   W *setNewImplementation(Arg1, Arg2, Arg3);
 #endif // WT_TARGET_JAVA
- 
+
   /*! \brief Get the implementation widget
    *
    * This returns the widget that implements this compositeWidget.
@@ -263,7 +263,7 @@ protected:
   std::unique_ptr<WWidget> takeImplementation();
 
   virtual void getSDomChanges(std::vector<DomElement *>& result,
-			      WApplication *app) override;
+                              WApplication *app) override;
   virtual bool needsToBeRendered() const override;
 
   virtual int boxPadding(Orientation orientation) const override;

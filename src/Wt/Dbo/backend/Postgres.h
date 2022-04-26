@@ -70,7 +70,7 @@ public:
   /*! \brief Tries to connect.
    *
    * Throws an exception if there was a problem, otherwise true.
-   * An example connecion string could be: 
+   * An example connecion string could be:
    * "host=127.0.0.1 user=test password=test port=5432 dbname=test"
    */
   bool connect(const std::string& db);
@@ -142,7 +142,7 @@ public:
   virtual std::vector<std::string>
     autoincrementCreateSequenceSql(const std::string &table,
                                    const std::string &id) const override;
-  virtual std::vector<std::string> 
+  virtual std::vector<std::string>
     autoincrementDropSequenceSql(const std::string &table,
                                  const std::string &id) const override;
   virtual std::string autoincrementType() const override;
@@ -153,7 +153,7 @@ public:
   virtual bool supportDeferrableFKConstraint() const override;
   virtual bool requireSubqueryAlias() const override;
   //!@}
-  
+
   void checkConnection(std::chrono::seconds margin);
 
 private:

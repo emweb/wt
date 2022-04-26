@@ -11,7 +11,7 @@
 
 
 const Wt::WString ChatEvent::formattedHTML(const Wt::WString& user,
-				       Wt::TextFormat format) const
+                                       Wt::TextFormat format) const
 {
   switch (type_) {
   case Login:
@@ -20,22 +20,22 @@ const Wt::WString ChatEvent::formattedHTML(const Wt::WString& user,
   case Logout:
     return Wt::WString("<span class='chat-info'>")
       + ((user == user_) ?
-	 Wt::WString("You") :
-	 Wt::WWebWidget::escapeText(user_))
+         Wt::WString("You") :
+         Wt::WWebWidget::escapeText(user_))
       + " logged out.</span>";
   case Rename:
     return "<span class='chat-info'>"
       + ((user == data_ || user == user_) ?
-	 "You are" :
-	 (Wt::WWebWidget::escapeText(user_) + " is"))
+         "You are" :
+         (Wt::WWebWidget::escapeText(user_) + " is"))
       + " now known as " + Wt::WWebWidget::escapeText(data_) + ".</span>";
   case Message:{
     Wt::WString result;
 
     result = Wt::WString("<span class='")
       + ((user == user_) ?
-	 "chat-self" :
-	 "chat-user")
+         "chat-self" :
+         "chat-user")
       + "'>" + Wt::WWebWidget::escapeText(user_) + ":</span>";
 
     Wt::WString msg
@@ -57,13 +57,13 @@ SimpleChatServer::SimpleChatServer(Wt::WServer& server)
 { }
 
 bool SimpleChatServer::connect(Client *client,
-			       const ChatEventCallback& handleEvent)
+                               const ChatEventCallback& handleEvent)
 {
   std::unique_lock<std::recursive_mutex> lock(mutex_);
 
   if (clients_.count(client) == 0) {
     ClientInfo clientInfo;
-  
+
     clientInfo.sessionId = Wt::WApplication::instance()->sessionId();
     clientInfo.eventCallback = handleEvent;
 
@@ -84,7 +84,7 @@ bool SimpleChatServer::disconnect(Client *client)
 bool SimpleChatServer::login(const Wt::WString& user)
 {
   std::unique_lock<std::recursive_mutex> lock(mutex_);
-  
+
   if (users_.find(user) == users_.end()) {
     users_.insert(user);
 
@@ -114,7 +114,7 @@ bool SimpleChatServer::changeName(const Wt::WString& user, const Wt::WString& ne
     return true;
 
   std::unique_lock<std::recursive_mutex> lock(mutex_);
-  
+
   UserSet::iterator i = users_.find(user);
 
   if (i != users_.end()) {

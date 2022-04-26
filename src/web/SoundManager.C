@@ -38,11 +38,11 @@ void SoundManager::setup(WSound *sound)
 {
   for (unsigned i = 0; i < sound->media_.size(); ++i) {
     const WSound::Source& m = sound->media_[i];
-    if (getSource(m.encoding) != m.link) {      
+    if (getSource(m.encoding) != m.link) {
       clearSources();
       for (unsigned j = 0; j < sound->media_.size(); ++j) {
-	const WSound::Source& m2 = sound->media_[j];
-	addSource(m2.encoding, m2.link);
+        const WSound::Source& m2 = sound->media_[j];
+        addSource(m2.encoding, m2.link);
       }
       break;
     }

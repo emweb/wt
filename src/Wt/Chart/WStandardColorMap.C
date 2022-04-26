@@ -38,8 +38,8 @@ WStandardColorMap::WStandardColorMap(double min, double max, bool continuous)
 }
 
 WStandardColorMap::WStandardColorMap(double min, double max,
-				     const std::vector<WStandardColorMap::Pair>& colors,
-				     bool continuous)
+                                     const std::vector<WStandardColorMap::Pair>& colors,
+                                     bool continuous)
   : WAbstractColorMap(min,max),
     continuous_(continuous)
 {
@@ -69,7 +69,7 @@ void WStandardColorMap::discretise(int numberOfBands)
   for (int i=0; i<numberOfBands; i++) {
     // color taken corresponds to value in the middle of the band
     WStandardColorMap::Pair newCol(val0+i*interval,
-				   toColor(val0+i*interval + interval/2));
+                                   toColor(val0+i*interval + interval/2));
     newColors.push_back(newCol);
   }
 
@@ -81,7 +81,7 @@ WColor WStandardColorMap::toColor(double value) const
 {
   if (colors_.size() == 0)
     return WColor();
-  
+
   // value outside of the colormap
   if (value < colors_[0].value()) {
     return colors_[0].color();
@@ -99,7 +99,7 @@ WColor WStandardColorMap::toColor(double value) const
   if (continuous_) {
     Pair mapVal1 = colors_[i-1];
     Pair mapVal2 = colors_[i];
-    
+
     double factor = (value - mapVal1.value())/(mapVal2.value() - mapVal1.value());
     return interpolate(mapVal1.color(), mapVal2.color(), factor);
   } else {
@@ -126,20 +126,20 @@ void WStandardColorMap::createStrip(WPainter *painter, const WRectF& area) const
   double offset = valueInterval/2;
   for (int i=0; i<height; i++) {
     WColor color = toColor(min_ + offset + i*valueInterval);
-    
+
     painter->setBrush(WBrush(color));
     WPen linePen(color); linePen.setWidth(1);
     painter->setPen(linePen);
-    
+
     painter->drawLine(0, height-(0.5+i),
-		      width, height-(0.5+i));
+                      width, height-(0.5+i));
   }
 
   painter->restore();
 }
 
 void WStandardColorMap::paintLegend(WPainter *painter,
-				    const WRectF& area) const
+                                    const WRectF& area) const
 {
   painter->save();
   WPainterPath clipPath;
@@ -176,21 +176,21 @@ void WStandardColorMap::paintLegend(WPainter *painter,
     int interval = (height-textHeight)/(nbTicks-1);
     int rest = (height-textHeight) % (nbTicks-1);
     int adjustedInterval = interval;
-    
+
     double value = max_;
     double valDiff = (max_-min_)/(nbTicks-1);
     for (int i=0; i < nbTicks; i++) {
       painter->drawLine(0, 0.5, 4, 0.5);
       painter->drawText(10, -textHeight/2, 40, textHeight,
-			WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Middle, 
-			Wt::asString(value, format_));
+                        WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Middle,
+                        Wt::asString(value, format_));
       value -= valDiff;
 
       if (rest > 0) {
-	adjustedInterval = interval + 1;
-	rest--;
+        adjustedInterval = interval + 1;
+        rest--;
       } else {
-	adjustedInterval = interval;
+        adjustedInterval = interval;
       }
       painter->translate(0, adjustedInterval);
     }
@@ -198,8 +198,8 @@ void WStandardColorMap::paintLegend(WPainter *painter,
     // first paint tick for maximum value
     painter->drawLine(0, 0.5, 4, 0.5);
     painter->drawText(10, -textHeight/2, 100, textHeight,
-		      WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Middle,
-		      Wt::asString(max_, format_));
+                      WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Middle,
+                      Wt::asString(max_, format_));
     // paint the rest of the ticks
     int nbTicks = colors_.size();
     int prevDiff = 0;
@@ -210,8 +210,8 @@ void WStandardColorMap::paintLegend(WPainter *painter,
       painter->translate(0, roundedDiff-prevDiff);
       painter->drawLine(0, 0.5, 4, 0.5);
       painter->drawText(10, -textHeight/2, 40, textHeight,
-			WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Middle,
-			Wt::asString(colors_[i].value(), format_));
+                        WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Middle,
+                        Wt::asString(colors_[i].value(), format_));
       prevDiff = roundedDiff;
     }
   }
@@ -220,12 +220,12 @@ void WStandardColorMap::paintLegend(WPainter *painter,
 }
 
 WColor WStandardColorMap::interpolate(const WColor& color1,
-				      const WColor& color2,
-				      double factor) const
+                                      const WColor& color2,
+                                      double factor) const
 {
   return WColor((int)((1-factor)*color1.red() + factor*color2.red()),
-		(int)((1-factor)*color1.green() + factor*color2.green()),
-		(int)((1-factor)*color1.blue() + factor*color2.blue()));
+                (int)((1-factor)*color1.green() + factor*color2.green()),
+                (int)((1-factor)*color1.blue() + factor*color2.blue()));
 }
 
   }

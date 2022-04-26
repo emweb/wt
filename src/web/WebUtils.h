@@ -65,12 +65,12 @@ extern std::string prepend(const std::string& s, char c);
 // in-place replace functions
 extern std::string& replace(std::string& s, char c, const std::string& r);
 extern std::string& replace(std::string& s, const std::string& c,
-			    const std::string& r);
+                            const std::string& r);
 
 // lower case an UTF-8 string
 extern std::string lowerCase(const std::string& s);
 
-// sanitize unicode 
+// sanitize unicode
 extern void sanitizeUnicode(EscapeOStream& sout, const std::string& text);
 
 // word manipulation (for style class editing)
@@ -143,7 +143,7 @@ inline bool erase(std::vector<T>& v, const T& value)
 
 template<typename T>
 inline std::unique_ptr<T> take(std::vector<std::unique_ptr<T> >& v,
-			       const T *value)
+                               const T *value)
 {
   for (std::size_t i = 0; i < v.size();) {
     if (v[i].get() == value) {
@@ -214,7 +214,7 @@ inline void stable_sort(std::vector<T>& result, const Compare& compare)
 
 template <typename T, typename Compare>
 inline unsigned insertion_point(const std::vector<T>& v, const T& item,
-				Compare compare)
+                                Compare compare)
 {
   return static_cast<unsigned>(
     std::lower_bound(v.begin(), v.end(), item, compare) - v.begin());
@@ -280,10 +280,10 @@ extern std::string toHexString(int i);
 extern void replaceAll(std::string& v, char from, char to);
 
 extern WT_API std::string urlEncode(const std::string& url,
-				    const std::string& allowed);
+                                    const std::string& allowed);
 
 extern std::string dataUrlDecode(const std::string& url,
-				 std::vector<unsigned char> &data);
+                                 std::vector<unsigned char> &data);
 
 #ifndef WT_TARGET_JAVA
 extern void inplaceUrlDecode(std::string& s);
@@ -298,7 +298,7 @@ inline bool isNaN(double d) {
   // generates wrong code for d != d.
   return _isnan(d) != 0;
 #else
-  return !(d == d);  
+  return !(d == d);
 #endif
 }
 
@@ -323,13 +323,13 @@ template<typename T> inline int size(const T& vector) {
 #endif // WT_TARGET_JAVA
 }
 
-template<typename Map, typename K, typename V> 
+template<typename Map, typename K, typename V>
 inline void find(const Map& map, const K& key, V& result)
 {
 #ifndef WT_TARGET_JAVA
-  std::pair<typename Map::const_iterator, typename Map::const_iterator> range 
+  std::pair<typename Map::const_iterator, typename Map::const_iterator> range
     = map.equal_range(key);
-  
+
   for (typename Map::const_iterator i = range.first; i != range.second; ++i)
     result.push_back(i->second);
 #endif

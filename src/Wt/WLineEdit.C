@@ -33,7 +33,7 @@ WLineEdit::WLineEdit()
     maskChanged_(false),
     spaceChar_(' '),
     javaScriptDefined_(false)
-{ 
+{
   setInline(true);
   setFormObject(true);
 }
@@ -56,14 +56,14 @@ void WLineEdit::setText(const WT_USTRING& text)
 {
   WT_USTRING newDisplayText = inputText(text);
   WT_USTRING newText = removeSpaces(newDisplayText);
-  if (maskChanged_ || content_ != newText || 
+  if (maskChanged_ || content_ != newText ||
       displayContent_ != newDisplayText) {
     content_ = newText;
     displayContent_ = newDisplayText;
 
     if (isRendered() && !inputMask_.empty()) {
       doJavaScript(jsRef() + ".wtLObj"
-	 ".setValue(" + WWebWidget::jsStringLiteral(newDisplayText) + ");");
+         ".setValue(" + WWebWidget::jsStringLiteral(newDisplayText) + ");");
     }
 
     flags_.set(BIT_CONTENT_CHANGED);
@@ -134,7 +134,7 @@ void WLineEdit::updateDom(DomElement& element, bool all)
   if (all || flags_.test(BIT_CONTENT_CHANGED)) {
     WT_USTRING t = content_;
     if (!mask_.empty() && (inputMaskFlags_.test(
-			   InputMaskFlag::KeepMaskWhileBlurred)))
+                           InputMaskFlag::KeepMaskWhileBlurred)))
       t = displayContent_;
     if (!all || !t.empty())
       element.setProperty(Wt::Property::Value, t.toUTF8());
@@ -142,15 +142,15 @@ void WLineEdit::updateDom(DomElement& element, bool all)
   }
 
   if (all || flags_.test(BIT_ECHO_MODE_CHANGED)) {
-    element.setAttribute("type", echoMode_ == EchoMode::Normal 
-			 ? "text" : "password");
+    element.setAttribute("type", echoMode_ == EchoMode::Normal
+                         ? "text" : "password");
     flags_.reset(BIT_ECHO_MODE_CHANGED);
   }
 
   if (all || flags_.test(BIT_AUTOCOMPLETE_CHANGED)) {
     if (!all || !autoComplete_) {
       element.setAttribute("autocomplete",
-			   autoComplete_ == true ? "on" : "off");
+                           autoComplete_ == true ? "on" : "off");
     }
     flags_.reset(BIT_AUTOCOMPLETE_CHANGED);
   }
@@ -171,7 +171,7 @@ void WLineEdit::updateDom(DomElement& element, bool all)
 }
 
 void WLineEdit::getDomChanges(std::vector<DomElement *>& result,
-			      WApplication *app)
+                              WApplication *app)
 {
   if (app->environment().agentIsIE() && flags_.test(BIT_ECHO_MODE_CHANGED)) {
     DomElement *e = DomElement::getForUpdate(this, domElementType());
@@ -233,7 +233,7 @@ int WLineEdit::boxPadding(Orientation orientation) const
   else if (env.userAgent().find("Mac OS X") != std::string::npos)
     return 1;
   else if (env.userAgent().find("Windows") != std::string::npos
-	   && !env.agentIsGecko())
+           && !env.agentIsGecko())
     return 0;
   else
     return 1;
@@ -258,7 +258,7 @@ int WLineEdit::selectionStart() const
 
   if (app->focus() == id()) {
     if (app->selectionStart() != -1
-	&& app->selectionEnd() != app->selectionStart()) {
+        && app->selectionEnd() != app->selectionStart()) {
       return app->selectionStart();
     } else
       return -1;
@@ -272,7 +272,7 @@ WT_USTRING WLineEdit::selectedText() const
     WApplication *app = WApplication::instance();
 
     std::string result = UTF8Substr(text().toUTF8(), app->selectionStart(),
-				    app->selectionEnd() - app->selectionStart());
+                                    app->selectionEnd() - app->selectionStart());
 #ifdef WT_TARGET_JAVA
     return result;
 #else
@@ -286,7 +286,7 @@ bool WLineEdit::hasSelectedText() const
 {
   return selectionStart() != -1;
 }
-  
+
 void WLineEdit::setSelection(int start, int length)
 {
   std::string s = std::to_string(start);
@@ -310,7 +310,7 @@ WT_USTRING WLineEdit::inputMask() const
 }
 
 void WLineEdit::setInputMask(const WT_USTRING &mask,
-			     WFlags<InputMaskFlag> flags)
+                             WFlags<InputMaskFlag> flags)
 {
   inputMaskFlags_ = flags;
 
@@ -333,10 +333,10 @@ void WLineEdit::setInputMask(const WT_USTRING &mask,
 
       doJavaScript(jsRef() + ".wtLObj"
         ".setInputMask(" + WWebWidget::jsStringLiteral(mask_) + "," +
-			   WWebWidget::jsStringLiteral(raw_) +  "," +
-			   WWebWidget::jsStringLiteral(displayContent_) + "," +
-			   WWebWidget::jsStringLiteral(case_) + "," +
-			   WWebWidget::jsStringLiteral(space) + ", true);");
+                           WWebWidget::jsStringLiteral(raw_) +  "," +
+                           WWebWidget::jsStringLiteral(displayContent_) + "," +
+                           WWebWidget::jsStringLiteral(case_) + "," +
+                           WWebWidget::jsStringLiteral(space) + ", true);");
     } else if (!inputMask_.empty())
       repaint();
   }
@@ -358,16 +358,16 @@ WT_USTRING WLineEdit::removeSpaces(const WT_USTRING& text) const
     std::size_t i = 0;
     for (std::size_t j = 0; j < raw_.length(); ++i, ++j) {
       while (j < raw_.length() &&
-	     result[j] == spaceChar_ &&
-	     mask_[j] != '_') {
-	++j;
+             result[j] == spaceChar_ &&
+             mask_[j] != '_') {
+        ++j;
       }
       if (j < raw_.length()) {
-	if (i != j) {
-	  result[i] = result[j];
-	}
+        if (i != j) {
+          result[i] = result[j];
+        }
       } else {
-	--i;
+        --i;
       }
     }
     result = result.substr(0, i);
@@ -394,28 +394,28 @@ WT_USTRING WLineEdit::inputText(const WT_USTRING& text) const
       chr = newText[i];
 
       while (j < mask_.length() && !acceptChar(chr, j)) {
-	++j; /* Try to move forward as long as this characer is not
-	      * accepted in this position
-	      */
+        ++j; /* Try to move forward as long as this characer is not
+              * accepted in this position
+              */
       }
       if (j == mask_.length()) {
-	j = previousJ;
-	hadIgnoredChar = true;
+        j = previousJ;
+        hadIgnoredChar = true;
       } else {
-	if (raw_[j] != chr) {
-	  if (case_[j] == '>') {
-	    chr = toupper(chr);
-	  } else if (case_[j] == '<') {
-	    chr = tolower(chr);
-	  }
-	  result[j] = chr;
-	}
-	++j;
+        if (raw_[j] != chr) {
+          if (case_[j] == '>') {
+            chr = toupper(chr);
+          } else if (case_[j] == '<') {
+            chr = tolower(chr);
+          }
+          result[j] = chr;
+        }
+        ++j;
       }
     }
     if (hadIgnoredChar) {
       LOG_INFO("Input mask: not all characters in input '" + text + "' complied with "
-	  "input mask " + inputMask_  + " and were ignored. Result is '" + result + "'.");
+          "input mask " + inputMask_  + " and were ignored. Result is '" + result + "'.");
     }
     return WT_USTRING(result);
   }
@@ -437,14 +437,14 @@ void WLineEdit::processInputMask() {
     char32_t currentChar = inputMask_[i];
     if (currentChar == '>' || currentChar == '<' || currentChar == '!') {
       mode = static_cast<char>(currentChar);
-    } else if (std::u32string(U"AaNnXx90Dd#HhBb").find(currentChar) 
-	       != std::u32string::npos) {
+    } else if (std::u32string(U"AaNnXx90Dd#HhBb").find(currentChar)
+               != std::u32string::npos) {
       mask_ += static_cast<char>(currentChar);
       raw_ += spaceChar_;
       case_ += mode;
     } else {
       if (currentChar == '\\')
-	++i;
+        ++i;
       mask_ += '_';
       raw_ += inputMask_[i];
       case_ += mode;
@@ -467,9 +467,9 @@ bool WLineEdit::acceptChar(char32_t chr, std::size_t position) const {
       return (chr >= 'a' && chr <= 'z') || (chr >= 'A' && chr <= 'Z');
     case 'n':
     case 'N': // alphanumeric: A-Za-z0-9
-      return (chr >= 'a' && chr <= 'z') || 
-	(chr >= 'A' && chr <= 'Z') || 
-	(chr >= '0' && chr <= '9');
+      return (chr >= 'a' && chr <= 'z') ||
+        (chr >= 'A' && chr <= 'Z') ||
+        (chr >= '0' && chr <= '9');
     case 'x':
     case 'X': // Anything goes
       return true;
@@ -483,9 +483,9 @@ bool WLineEdit::acceptChar(char32_t chr, std::size_t position) const {
       return (chr >= '0' && chr <= '9') || (chr == '-' || chr == '+');
     case 'h':
     case 'H': // hex
-      return (chr >= 'A' && chr <= 'F') || 
-	(chr >= 'a' && chr <= 'f') || 
-	(chr >= '0' && chr <= '9');
+      return (chr >= 'A' && chr <= 'F') ||
+        (chr >= 'a' && chr <= 'f') ||
+        (chr >= '0' && chr <= '9');
     case 'b':
     case 'B': // binary
       return (chr == '0' || chr == '1');
@@ -534,7 +534,7 @@ void WLineEdit::defineJavaScript()
 }
 
 void WLineEdit::connectJavaScript(Wt::EventSignalBase& s,
-				  const std::string& methodName)
+                                  const std::string& methodName)
 {
   std::string jsFunction =
     "function(lobj, event) {"
@@ -577,24 +577,24 @@ bool WLineEdit::validateInputMask() const {
     for (std::size_t j = 0; j < positions->size(); ++j) {
       std::size_t currentPosition = (*positions)[j];
       if (currentPosition < mask_.length()) {
-	// Check whether we can skip the current position, if so, add
-	// it to positions vector, to be considered later (with the current
-	// input character still).
-	if (SKIPPABLE_MASK_CHARS.find(mask_[currentPosition]) 
-	    != std::string::npos &&
-	    (j + 1 == positions->size() || 
-	     (*positions)[j + 1] != currentPosition + 1)) {
-	  positions->push_back(currentPosition + 1);
-	}
+        // Check whether we can skip the current position, if so, add
+        // it to positions vector, to be considered later (with the current
+        // input character still).
+        if (SKIPPABLE_MASK_CHARS.find(mask_[currentPosition])
+            != std::string::npos &&
+            (j + 1 == positions->size() ||
+             (*positions)[j + 1] != currentPosition + 1)) {
+          positions->push_back(currentPosition + 1);
+        }
 
-	// Check whether we can accept the current character in the current
-	// position, if so, the next position is added to the nextPositions
-	// vector.
-	if (acceptChar(toCheck[i], currentPosition) &&
-	    (nextPositions->empty() || 
-	     nextPositions->back() != currentPosition + 1)) {
-	  nextPositions->push_back(currentPosition + 1);
-	}
+        // Check whether we can accept the current character in the current
+        // position, if so, the next position is added to the nextPositions
+        // vector.
+        if (acceptChar(toCheck[i], currentPosition) &&
+            (nextPositions->empty() ||
+             nextPositions->back() != currentPosition + 1)) {
+          nextPositions->push_back(currentPosition + 1);
+        }
       }
     }
     std::swap(positions, nextPositions);
@@ -608,14 +608,14 @@ bool WLineEdit::validateInputMask() const {
       std::size_t currentPosition = (*positions)[j];
       // One path is in the end state, accept.
       if (currentPosition == mask_.length()) {
-	return true;
+        return true;
       }
       // Check whether we can skip the rest of the mask.
-      if (SKIPPABLE_MASK_CHARS.find(mask_[currentPosition]) 
-	  != std::string::npos &&
-	  (nextPositions->empty() || 
-	   nextPositions->back() != currentPosition + 1)) {
-	nextPositions->push_back(currentPosition + 1);
+      if (SKIPPABLE_MASK_CHARS.find(mask_[currentPosition])
+          != std::string::npos &&
+          (nextPositions->empty() ||
+           nextPositions->back() != currentPosition + 1)) {
+        nextPositions->push_back(currentPosition + 1);
       }
     }
     std::swap(positions, nextPositions);

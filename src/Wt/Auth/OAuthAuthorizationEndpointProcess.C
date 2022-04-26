@@ -103,7 +103,7 @@ void OAuthAuthorizationEndpointProcess::authorizeScope(const std::string& scope)
         redirectUri_, login_.user(), client_);
     sendResponse("code=" + authCodeValue);
     LOG_INFO("authorization_code created for " << login_.user().id() << "(" << login_.user().email() << ")"
-	     << ", code = " + authCodeValue);
+             << ", code = " + authCodeValue);
   } else {
     throw WException("Wt::Auth::OAuthAuthorizationEndpointProcess::authorizeScope: request isn't valid");
   }

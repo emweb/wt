@@ -31,7 +31,7 @@ WTransform::WTransform()
 }
 
 WTransform::WTransform(double m11, double m12, double m21, double m22,
-		       double dx, double dy)
+                       double dx, double dy)
 {
   m_[M11] = m11;
   m_[M12] = m21;
@@ -120,7 +120,7 @@ WPointF WTransform::map(const WPointF& p) const
     const WJavaScriptExposableObject *o = this;
     if (p.isJavaScriptBound()) o = &p;
     result.assignBinding(*o,
-	WT_CLASS ".gfxUtils.transform_mult(" + jsRef() + ',' + p.jsRef() + ')');
+        WT_CLASS ".gfxUtils.transform_mult(" + jsRef() + ',' + p.jsRef() + ')');
   }
 
   return result;
@@ -144,8 +144,8 @@ WRectF WTransform::map(const WRectF& rect) const
 
   for (unsigned i = 0; i < 3; ++i) {
     WPointF p2 = map(i == 0 ? rect.bottomLeft()
-		     : i == 1 ? rect.topRight()
-		     : rect.bottomRight());
+                     : i == 1 ? rect.topRight()
+                     : rect.bottomRight());
     minX = std::min(minX, p2.x());
     maxX = std::max(maxX, p2.x());
     minY = std::min(minY, p2.y());
@@ -158,7 +158,7 @@ WRectF WTransform::map(const WRectF& rect) const
     const WJavaScriptExposableObject *o = this;
     if (rect.isJavaScriptBound()) o = &rect;
     result.assignBinding(*o,
-	WT_CLASS ".gfxUtils.transform_mult(" + jsRef() + ',' + rect.jsRef() + ')');
+        WT_CLASS ".gfxUtils.transform_mult(" + jsRef() + ',' + rect.jsRef() + ')');
   }
 
   return result;
@@ -174,7 +174,7 @@ WPainterPath WTransform::map(const WPainterPath& path) const
     const WJavaScriptExposableObject *o = this;
     if (!isJavaScriptBound()) o = &path;
     result.assignBinding(*o,
-	WT_CLASS ".gfxUtils.transform_apply(" + jsRef() + ',' + path.jsRef() + ')');
+        WT_CLASS ".gfxUtils.transform_apply(" + jsRef() + ',' + path.jsRef() + ')');
   }
 
   const std::vector<WPainterPath::Segment> &sourceSegments = path.segments();
@@ -182,7 +182,7 @@ WPainterPath WTransform::map(const WPainterPath& path) const
   for (std::size_t i = 0; i < sourceSegments.size(); ++i) {
     double tx, ty;
     if (sourceSegments[i].type() == ArcR ||
-	sourceSegments[i].type() == ArcAngleSweep) {
+        sourceSegments[i].type() == ArcAngleSweep) {
       result.segments_.push_back(sourceSegments[i]);
     } else {
       map(sourceSegments[i].x(), sourceSegments[i].y(), &tx, &ty);
@@ -245,17 +245,17 @@ WTransform& WTransform::translate(const WPointF& p)
     if (!isJavaScriptBound()) o = &p;
     if (identity) {
       assignBinding(*o,
-	"((function(){"
-	  "var p=" + p.jsRef() + ";"
-	  "return [1,0,0,1,p[0],p[1]];"
-	"})())");
+        "((function(){"
+          "var p=" + p.jsRef() + ";"
+          "return [1,0,0,1,p[0],p[1]];"
+        "})())");
     } else {
       assignBinding(*o,
-	  WT_CLASS ".gfxUtils.transform_mult((function(){"
-	    "var p="
-	    + p.jsRef() + ";"
-	    "return [1,0,0,1,p[0],p[1]];"
-	  "})(),(" + refBefore + "))");
+          WT_CLASS ".gfxUtils.transform_mult((function(){"
+            "var p="
+            + p.jsRef() + ";"
+            "return [1,0,0,1,p[0],p[1]];"
+          "})(),(" + refBefore + "))");
     }
   }
 
@@ -277,15 +277,15 @@ double WTransform::determinant() const
 WTransform WTransform::adjoint() const
 {
   WTransform res = WTransform(m33() * m22() - m32() * m23(),
-		    - (m33() * m12() - m32() * m13()),
-		    - (m33() * m21() - m31() * m23()),
-		    m33() * m11() - m31() * m13(),
-		    m32() * m21() - m31() * m22(),
-		    - (m32() * m11() - m31() * m12()));
+                    - (m33() * m12() - m32() * m13()),
+                    - (m33() * m21() - m31() * m23()),
+                    m33() * m11() - m31() * m13(),
+                    m32() * m21() - m31() * m22(),
+                    - (m32() * m11() - m31() * m12()));
 
   if (isJavaScriptBound()) {
     res.assignBinding(*this,
-	WT_CLASS ".gfxUtils.transform_adjoint(" + jsRef() + ")");
+        WT_CLASS ".gfxUtils.transform_adjoint(" + jsRef() + ")");
   }
 
   return res;
@@ -299,11 +299,11 @@ WTransform WTransform::inverted() const
     WTransform adj = adjoint();
 
     WTransform res(adj.m11() / det, adj.m12() / det,
-		   adj.m21() / det, adj.m22() / det,
-		   adj.m31() / det, adj.m32() / det);
+                   adj.m21() / det, adj.m22() / det,
+                   adj.m31() / det, adj.m32() / det);
     if (isJavaScriptBound()) {
       res.assignBinding(*this,
-	  WT_CLASS ".gfxUtils.transform_inverted(" + jsRef() + ")");
+          WT_CLASS ".gfxUtils.transform_inverted(" + jsRef() + ")");
     }
     return res;
   } else {
@@ -341,8 +341,8 @@ void WTransform::decomposeTranslateRotateScaleSkew(TRSSDecomposition& result)
 }
 
 static void matrixMultiply(double a11, double a12, double a21, double a22,
-			   double b11, double b12, double b21, double b22,
-			   WT_ARRAY double *result)
+                           double b11, double b12, double b21, double b22,
+                           WT_ARRAY double *result)
 {
   result[0] = a11 * b11 + a12 * b21;
   result[1] = a11 * b12 + a12 * b22;
@@ -351,7 +351,7 @@ static void matrixMultiply(double a11, double a12, double a21, double a22,
 }
 
 static void eigenValues(WT_ARRAY double *m, WT_ARRAY double* l,
-			WT_ARRAY double *v)
+                        WT_ARRAY double *v)
 {
   const double a = m[0];
   const double b = m[1];
@@ -415,11 +415,11 @@ void WTransform::decomposeTranslateRotateScaleRotate(TRSRDecomposition& result)
   double mtm[4];
 
   LOG_DEBUG("M: \n" << m_[M11] << " " << m_[M12] <<
-	    "\n   " << m_[M21] << " " << m_[M22]);
+            "\n   " << m_[M21] << " " << m_[M22]);
 
   matrixMultiply(m_[M11], m_[M21], m_[M12], m_[M22],
-		 m_[M11], m_[M12], m_[M21], m_[M22],
-		 mtm);
+                 m_[M11], m_[M12], m_[M21], m_[M22],
+                 mtm);
 
   double e[2];
   double V[4];
@@ -430,7 +430,7 @@ void WTransform::decomposeTranslateRotateScaleRotate(TRSRDecomposition& result)
   result.sy = std::sqrt(e[1]);
 
   LOG_DEBUG("V: \n" << V[M11] << " " << V[M12] <<
-	    "\n   " << V[M21] << " " << V[M22]);
+            "\n   " << V[M21] << " " << V[M22]);
 
   /*
    * if V is no rotation matrix, it contains a reflexion. A rotation
@@ -446,15 +446,15 @@ void WTransform::decomposeTranslateRotateScaleRotate(TRSRDecomposition& result)
   double U[4];
 
   matrixMultiply(m_[0], m_[1], m_[2], m_[3],
-		 V[0], V[1], V[2], V[3],
-		 U);
+                 V[0], V[1], V[2], V[3],
+                 U);
   U[0] /= result.sx;
   U[2] /= result.sx;
   U[1] /= result.sy;
   U[3] /= result.sy;
 
   LOG_DEBUG("U: \n" << U[M11] << " " << U[M12] <<
-	    "\n   " << U[M21] << " " << U[M22]);
+            "\n   " << U[M21] << " " << U[M22]);
 
   if (U[0]*U[3] - U[1]*U[2] < 0) {
     result.sx = -result.sx;
@@ -466,21 +466,21 @@ void WTransform::decomposeTranslateRotateScaleRotate(TRSRDecomposition& result)
   result.alpha2 = std::atan2(V[1], V[0]);
 
   LOG_DEBUG("alpha1: " << result.alpha1 << ", alpha2: " << result.alpha2
-	    << ", sx: " << result.sx << ", sy: " << result.sy);
+            << ", sx: " << result.sx << ", sy: " << result.sy);
 
   /*
   // check our SVD: m_ = U S VT
   double tmp[4], tmp2[4];
   matrixMultiply(U[0], U[1], U[2], U[3],
-		 sx, 0, 0, sy,
-		 tmp);
+                 sx, 0, 0, sy,
+                 tmp);
   matrixMultiply(tmp[0], tmp[1], tmp[2], tmp[3],
-		 V[0], V[2], V[1], V[3],
-		 tmp2);
+                 V[0], V[2], V[1], V[3],
+                 tmp2);
 
-  LOG_DEBUG("check: \n" << 
-	    tmp2[0] << " " << tmp2[1] << "\n"
-	    tmp2[2] << " " << tmp2[3]);
+  LOG_DEBUG("check: \n" <<
+            tmp2[0] << " " << tmp2[1] << "\n"
+            tmp2[2] << " " << tmp2[3]);
   */
 
   result.dx = m_[DX];
@@ -501,7 +501,7 @@ WTransform& WTransform::operator*= (const WTransform& Y)
     const WJavaScriptExposableObject *o = this;
     if (!isJavaScriptBound()) o = &Y;
     assignBinding(*o,
-	WT_CLASS ".gfxUtils.transform_mult(" + jsRef() + ',' + Y.jsRef() + ')');
+        WT_CLASS ".gfxUtils.transform_mult(" + jsRef() + ',' + Y.jsRef() + ')');
   }
 
   double z11 = X.m_[M11] * Y.m_[M11]
@@ -569,14 +569,14 @@ void WTransform::assignFromJSON(const Json::Value &value)
     const Json::Array &ar = static_cast<Json::Array&>(value);
 #endif
     if (ar.size() == 6 &&
-	!ar[0].toNumber().isNull() &&
-	!ar[1].toNumber().isNull() &&
-	!ar[2].toNumber().isNull() &&
-	!ar[3].toNumber().isNull() &&
-	!ar[4].toNumber().isNull() &&
-	!ar[5].toNumber().isNull()) {
+        !ar[0].toNumber().isNull() &&
+        !ar[1].toNumber().isNull() &&
+        !ar[2].toNumber().isNull() &&
+        !ar[3].toNumber().isNull() &&
+        !ar[4].toNumber().isNull() &&
+        !ar[5].toNumber().isNull()) {
       for (std::size_t i = 0; i < 6; ++i) {
-	m_[i] = ar[i].toNumber().orIfNull(m_[i]);
+        m_[i] = ar[i].toNumber().orIfNull(m_[i]);
       }
     } else {
       LOG_ERROR("Couldn't convert JSON to WTransform");

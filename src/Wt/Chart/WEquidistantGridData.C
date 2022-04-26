@@ -8,10 +8,10 @@ namespace Wt {
   namespace Chart {
 
 WEquidistantGridData::WEquidistantGridData(std::shared_ptr<WAbstractItemModel> model,
-					   double XMin,
-					   double deltaX,
-					   double YMin,
-					   double deltaY)
+                                           double XMin,
+                                           double deltaX,
+                                           double YMin,
+                                           double deltaY)
   : WAbstractGridData(model),
     XMinimum_(XMin), deltaX_(deltaX),
     YMinimum_(YMin), deltaY_(deltaY)
@@ -85,14 +85,14 @@ void WEquidistantGridData::findRange() const
     for (int j=0; j<nbModelCols; j++) {
       zVal = Wt::asNumber(model_->data(i,j));
       if (zVal < minSoFar) {
-	minSoFar = zVal;
+        minSoFar = zVal;
       }
       if (zVal > maxSoFar) {
-	maxSoFar = zVal;
+        maxSoFar = zVal;
       }
     }
   }
-  
+
   zMin_ = minSoFar;
   zMax_ = maxSoFar;
   rangeCached_ = true;
@@ -110,7 +110,7 @@ int WEquidistantGridData::countSimpleData() const
   for (int i=0; i<nbModelRows; i++) {
     for (int j=0; j<nbModelCols; j++) {
       if (!cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerBrushColor))) {
-	result++;
+        result++;
       }
     }
   }
@@ -120,10 +120,10 @@ int WEquidistantGridData::countSimpleData() const
 }
 
 void WEquidistantGridData::pointDataFromModel(FloatBuffer& simplePtsArray,
-					      FloatBuffer& simplePtsSize,
-					      FloatBuffer& coloredPtsArray,
-					      FloatBuffer& coloredPtsSize,
-					      FloatBuffer& coloredPtsColor) const {
+                                              FloatBuffer& simplePtsSize,
+                                              FloatBuffer& coloredPtsArray,
+                                              FloatBuffer& coloredPtsSize,
+                                              FloatBuffer& coloredPtsColor) const {
   int Nx = model_->rowCount();
   int Ny = model_->columnCount();
 
@@ -137,51 +137,51 @@ void WEquidistantGridData::pointDataFromModel(FloatBuffer& simplePtsArray,
   double yMax = chart_->axis(Axis::Y3D).maximum();
   double zMin = chart_->axis(Axis::Z3D).minimum();
   double zMax = chart_->axis(Axis::Z3D).maximum();
-  
+
   for (int i=0; i<Nx; i++) {
     scaledXAxis.push_back((float)(((XMinimum_ + i*deltaX_) - xMin)
-				  /(xMax - xMin)));
+                                  /(xMax - xMin)));
   }
   for (int j=0; j<Ny; j++) {
     scaledYAxis.push_back((float)(((YMinimum_ + j*deltaY_) - yMin)
-				  /(yMax - yMin)));
+                                  /(yMax - yMin)));
   }
 
   for (int i=0; i < Nx; i++) {
     for (int j=0; j < Ny; j++) {
       if (!cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerBrushColor))) {
-	simplePtsArray.push_back(scaledXAxis[i]);
-	simplePtsArray.push_back(scaledYAxis[j]);
-	simplePtsArray.push_back((float)((Wt::asNumber(model_->data(i,j))-zMin)/(zMax-zMin)));
-	if (cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerScaleFactor))) {
-	  simplePtsSize.push_back((float)(Wt::asNumber(model_->data(i,j,ItemDataRole::MarkerScaleFactor))));
-	} else {
-	  simplePtsSize.push_back((float)pointSize());
-	}
+        simplePtsArray.push_back(scaledXAxis[i]);
+        simplePtsArray.push_back(scaledYAxis[j]);
+        simplePtsArray.push_back((float)((Wt::asNumber(model_->data(i,j))-zMin)/(zMax-zMin)));
+        if (cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerScaleFactor))) {
+          simplePtsSize.push_back((float)(Wt::asNumber(model_->data(i,j,ItemDataRole::MarkerScaleFactor))));
+        } else {
+          simplePtsSize.push_back((float)pointSize());
+        }
       } else {
-	coloredPtsArray.push_back(scaledXAxis[i]);
-	coloredPtsArray.push_back(scaledYAxis[j]);
-	coloredPtsArray.push_back((float)((Wt::asNumber(model_->data(i,j))-zMin)
-					  /(zMax-zMin)));
-	WColor color = cpp17::any_cast<WColor>
-	  (model_->data(i,j, ItemDataRole::MarkerBrushColor));
-	coloredPtsColor.push_back((float)color.red());
-	coloredPtsColor.push_back((float)color.green());
-	coloredPtsColor.push_back((float)color.blue());
-	coloredPtsColor.push_back((float)color.alpha());
+        coloredPtsArray.push_back(scaledXAxis[i]);
+        coloredPtsArray.push_back(scaledYAxis[j]);
+        coloredPtsArray.push_back((float)((Wt::asNumber(model_->data(i,j))-zMin)
+                                          /(zMax-zMin)));
+        WColor color = cpp17::any_cast<WColor>
+          (model_->data(i,j, ItemDataRole::MarkerBrushColor));
+        coloredPtsColor.push_back((float)color.red());
+        coloredPtsColor.push_back((float)color.green());
+        coloredPtsColor.push_back((float)color.blue());
+        coloredPtsColor.push_back((float)color.alpha());
 
-	if (cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerScaleFactor))) {
-	  coloredPtsSize.push_back((float)(Wt::asNumber(model_->data(i,j,ItemDataRole::MarkerScaleFactor))));
-	} else {
-	  coloredPtsSize.push_back((float)pointSize());
-	}
+        if (cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerScaleFactor))) {
+          coloredPtsSize.push_back((float)(Wt::asNumber(model_->data(i,j,ItemDataRole::MarkerScaleFactor))));
+        } else {
+          coloredPtsSize.push_back((float)pointSize());
+        }
       }
     }
   }
 }
 
-void WEquidistantGridData::surfaceDataFromModel(std::vector<FloatBuffer>& 
-						simplePtsArrays) const {
+void WEquidistantGridData::surfaceDataFromModel(std::vector<FloatBuffer>&
+                                                simplePtsArrays) const {
   int Nx = model_->rowCount();
   int Ny = model_->columnCount();
 
@@ -198,11 +198,11 @@ void WEquidistantGridData::surfaceDataFromModel(std::vector<FloatBuffer>&
 
   for (int i=0; i<Nx; i++) {
     scaledXAxis.push_back((float)(((XMinimum_ + i*deltaX_) - xMin)
-				  /(xMax - xMin)));
+                                  /(xMax - xMin)));
   }
   for (int j=0; j<Ny; j++) {
     scaledYAxis.push_back((float)(((YMinimum_ + j*deltaY_) - yMin)
-				  /(yMax - yMin)));
+                                  /(yMax - yMin)));
   }
 
   int nbXaxisBuffers = nbXPoints()/(SURFACE_SIDE_LIMIT-1);
@@ -221,15 +221,15 @@ void WEquidistantGridData::surfaceDataFromModel(std::vector<FloatBuffer>&
       int cnt1 = 0;
       int i = k*SURFACE_SIDE_LIMIT;
       for (; i < (k+1)*SURFACE_SIDE_LIMIT + 1; i++) {
-	int cnt2 = 0;
-	int j = l*SURFACE_SIDE_LIMIT;
-	for (; j < (l+1)*SURFACE_SIDE_LIMIT + 1; j++) {
-	  simplePtsArrays[bufferIndex].push_back(scaledXAxis[i]);
-	  simplePtsArrays[bufferIndex].push_back(scaledYAxis[j]);
-	  simplePtsArrays[bufferIndex].push_back((float)((Wt::asNumber(model_->data(i,j))-zMin)/(zMax-zMin)));
-	  cnt2++;
-	}
-	cnt1++;
+        int cnt2 = 0;
+        int j = l*SURFACE_SIDE_LIMIT;
+        for (; j < (l+1)*SURFACE_SIDE_LIMIT + 1; j++) {
+          simplePtsArrays[bufferIndex].push_back(scaledXAxis[i]);
+          simplePtsArrays[bufferIndex].push_back(scaledYAxis[j]);
+          simplePtsArrays[bufferIndex].push_back((float)((Wt::asNumber(model_->data(i,j))-zMin)/(zMax-zMin)));
+          cnt2++;
+        }
+        cnt1++;
       }
     }
     bufferIndex = k*nbYaxisBuffers + nbYaxisBuffers - 1;
@@ -238,9 +238,9 @@ void WEquidistantGridData::surfaceDataFromModel(std::vector<FloatBuffer>&
     for (; i < (k+1)*SURFACE_SIDE_LIMIT + 1; i++) {
       int j = (nbYaxisBuffers-1)*SURFACE_SIDE_LIMIT;
       for (; j < Ny; j++) {
-	simplePtsArrays[bufferIndex].push_back(scaledXAxis[i]);
-	simplePtsArrays[bufferIndex].push_back(scaledYAxis[j]);
-	simplePtsArrays[bufferIndex].push_back((float)((Wt::asNumber(model_->data(i,j))-zMin)/(zMax-zMin)));
+        simplePtsArrays[bufferIndex].push_back(scaledXAxis[i]);
+        simplePtsArrays[bufferIndex].push_back(scaledYAxis[j]);
+        simplePtsArrays[bufferIndex].push_back((float)((Wt::asNumber(model_->data(i,j))-zMin)/(zMax-zMin)));
       }
       cnt1++;
     }
@@ -252,10 +252,10 @@ void WEquidistantGridData::surfaceDataFromModel(std::vector<FloatBuffer>&
       int cnt2 = 0;
       int j = l*SURFACE_SIDE_LIMIT;
       for (; j < (l+1)*SURFACE_SIDE_LIMIT + 1; j++) {
-	simplePtsArrays[bufferIndex].push_back(scaledXAxis[i]);
-	simplePtsArrays[bufferIndex].push_back(scaledYAxis[j]);
-	simplePtsArrays[bufferIndex].push_back((float)((Wt::asNumber(model_->data(i,j))-zMin)/(zMax-zMin)));
-	cnt2++;
+        simplePtsArrays[bufferIndex].push_back(scaledXAxis[i]);
+        simplePtsArrays[bufferIndex].push_back(scaledYAxis[j]);
+        simplePtsArrays[bufferIndex].push_back((float)((Wt::asNumber(model_->data(i,j))-zMin)/(zMax-zMin)));
+        cnt2++;
       }
     }
   }
@@ -282,17 +282,17 @@ void WEquidistantGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsA
     if ( dynamic_cast<WAbstractGridData*>(dataseries[i]) != 0) {
       WAbstractGridData* griddata = dynamic_cast<WAbstractGridData*>(dataseries[i]);
       if (griddata == this ||
-	  griddata->type() != Series3DType::Bar) {
-	break;
+          griddata->type() != Series3DType::Bar) {
+        break;
       }
       if (first) {
-	xDim = griddata->nbXPoints();
-	yDim = griddata->nbYPoints();
-	first = false;
+        xDim = griddata->nbXPoints();
+        yDim = griddata->nbYPoints();
+        first = false;
       }
-      if ( griddata->nbXPoints() != xDim || griddata->nbYPoints() != yDim 
-	   || griddata->isHidden()) {
-	continue;
+      if ( griddata->nbXPoints() != xDim || griddata->nbYPoints() != yDim
+           || griddata->isHidden()) {
+        continue;
       }
       prevDataseries.push_back( griddata );
     }
@@ -322,16 +322,16 @@ void WEquidistantGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsA
   for (int j=0; j < Ny; j++) {
     scaledYAxis.push_back((float)((yMin + 0.5 + j - yMin)/(yMax-yMin)));
   }
-  
+
   int simpleBufferIndex = 0;
   int simpleCount = 0;
   for (int i=0; i < Nx; i++) {
     for (int j=0; j < Ny; j++) {
       float z0 = stackAllValues(prevDataseries, i,j);
-    
+
       if (simpleCount == BAR_BUFFER_LIMIT) {
-	simpleBufferIndex++;
-	simpleCount = 0;
+        simpleBufferIndex++;
+        simpleCount = 0;
       }
       simplePtsArrays[simpleBufferIndex].push_back(scaledXAxis[i]);
       simplePtsArrays[simpleBufferIndex].push_back(scaledYAxis[j]);
@@ -339,7 +339,7 @@ void WEquidistantGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsA
       simplePtsArrays[simpleBufferIndex].push_back(z0);
       double modelVal = Wt::asNumber(model_->data(i,j));
       if (modelVal <= 0)
-	modelVal = 0.00001;
+        modelVal = 0.00001;
       simplePtsArrays[simpleBufferIndex].push_back((float)((modelVal-zMin)/(zMax-zMin)));
       simpleCount++;
     }
@@ -347,8 +347,8 @@ void WEquidistantGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsA
 }
 
 void WEquidistantGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsArrays,
-					    std::vector<FloatBuffer>& coloredPtsArrays,
-					    std::vector<FloatBuffer>& coloredPtsColors) const
+                                            std::vector<FloatBuffer>& coloredPtsArrays,
+                                            std::vector<FloatBuffer>& coloredPtsColors) const
 {
   // search for previously initialized barSeries data
   const std::vector<WAbstractDataSeries3D*> dataseries = chart_->dataSeries();
@@ -359,17 +359,17 @@ void WEquidistantGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsA
     if ( dynamic_cast<WAbstractGridData*>(dataseries[i]) != 0) {
       WAbstractGridData* griddata = dynamic_cast<WAbstractGridData*>(dataseries[i]);
       if (griddata == this ||
-	  griddata->type() != Series3DType::Bar) {
-	break;
+          griddata->type() != Series3DType::Bar) {
+        break;
       }
       if (first) {
-	xDim = griddata->nbXPoints();
-	yDim = griddata->nbYPoints();
-	first = false;
+        xDim = griddata->nbXPoints();
+        yDim = griddata->nbYPoints();
+        first = false;
       }
-      if ( griddata->nbXPoints() != xDim || griddata->nbYPoints() != yDim 
-	   || griddata->isHidden()) {
-	continue;
+      if ( griddata->nbXPoints() != xDim || griddata->nbYPoints() != yDim
+           || griddata->isHidden()) {
+        continue;
       }
       prevDataseries.push_back( griddata );
     }
@@ -400,48 +400,48 @@ void WEquidistantGridData::barDataFromModel(std::vector<FloatBuffer>& simplePtsA
     scaledYAxis.push_back((float)((yMin + 0.5 + j - yMin)/(yMax-yMin)));
   }
 
-  
+
   int simpleBufferIndex = 0, coloredBufferIndex = 0;
   int simpleCount = 0, coloredCount = 0;
   for (int i=0; i < Nx; i++) {
     for (int j=0; j < Ny; j++) {
       float z0 = stackAllValues(prevDataseries, i,j);
-      
-      if (!cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerBrushColor))) {
-	if (simpleCount == BAR_BUFFER_LIMIT) {
-	  simpleBufferIndex++;
-	  simpleCount = 0;
-	}
-	simplePtsArrays[simpleBufferIndex].push_back(scaledXAxis[i]);
-	simplePtsArrays[simpleBufferIndex].push_back(scaledYAxis[j]);
-	// first the value of all previous series stacked,then the current value
-	simplePtsArrays[simpleBufferIndex].push_back(z0);
-	double modelVal = Wt::asNumber(model_->data(i,j));
-	if (modelVal <= 0)
-	  modelVal = 0.00001;
-	simplePtsArrays[simpleBufferIndex].push_back((float)((modelVal-zMin)/(zMax-zMin)));
-	simpleCount++;
-      } else {
-	if (coloredCount == BAR_BUFFER_LIMIT) {
-	  coloredBufferIndex++;
-	  coloredCount = 0;
-	}
-	coloredPtsArrays[coloredBufferIndex].push_back(scaledXAxis[i]);
-	coloredPtsArrays[coloredBufferIndex].push_back(scaledYAxis[j]);
-	coloredPtsArrays[coloredBufferIndex].push_back(z0);
-	double modelVal = Wt::asNumber(model_->data(i,j));
-	if (modelVal <= 0)
-	  modelVal = 0.00001;
-	coloredPtsArrays[coloredBufferIndex].push_back((float)((modelVal-zMin)/(zMax-zMin)));
 
-	WColor color = cpp17::any_cast<WColor>(model_->data(i,j,ItemDataRole::MarkerBrushColor));
-	for (int k=0; k < 8; k++) {
-	  coloredPtsColors[coloredBufferIndex].push_back((float)color.red());
-	  coloredPtsColors[coloredBufferIndex].push_back((float)color.green());
-	  coloredPtsColors[coloredBufferIndex].push_back((float)color.blue());
-	  coloredPtsColors[coloredBufferIndex].push_back((float)color.alpha());
-	}
-	coloredCount++;
+      if (!cpp17::any_has_value(model_->data(i,j,ItemDataRole::MarkerBrushColor))) {
+        if (simpleCount == BAR_BUFFER_LIMIT) {
+          simpleBufferIndex++;
+          simpleCount = 0;
+        }
+        simplePtsArrays[simpleBufferIndex].push_back(scaledXAxis[i]);
+        simplePtsArrays[simpleBufferIndex].push_back(scaledYAxis[j]);
+        // first the value of all previous series stacked,then the current value
+        simplePtsArrays[simpleBufferIndex].push_back(z0);
+        double modelVal = Wt::asNumber(model_->data(i,j));
+        if (modelVal <= 0)
+          modelVal = 0.00001;
+        simplePtsArrays[simpleBufferIndex].push_back((float)((modelVal-zMin)/(zMax-zMin)));
+        simpleCount++;
+      } else {
+        if (coloredCount == BAR_BUFFER_LIMIT) {
+          coloredBufferIndex++;
+          coloredCount = 0;
+        }
+        coloredPtsArrays[coloredBufferIndex].push_back(scaledXAxis[i]);
+        coloredPtsArrays[coloredBufferIndex].push_back(scaledYAxis[j]);
+        coloredPtsArrays[coloredBufferIndex].push_back(z0);
+        double modelVal = Wt::asNumber(model_->data(i,j));
+        if (modelVal <= 0)
+          modelVal = 0.00001;
+        coloredPtsArrays[coloredBufferIndex].push_back((float)((modelVal-zMin)/(zMax-zMin)));
+
+        WColor color = cpp17::any_cast<WColor>(model_->data(i,j,ItemDataRole::MarkerBrushColor));
+        for (int k=0; k < 8; k++) {
+          coloredPtsColors[coloredBufferIndex].push_back((float)color.red());
+          coloredPtsColors[coloredBufferIndex].push_back((float)color.green());
+          coloredPtsColors[coloredBufferIndex].push_back((float)color.blue());
+          coloredPtsColors[coloredBufferIndex].push_back((float)color.alpha());
+        }
+        coloredCount++;
       }
 
     }

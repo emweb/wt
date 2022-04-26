@@ -70,7 +70,7 @@ public:
   Home(const WEnvironment& env, Dbo::SqlConnectionPool& blogDb,
        const std::string& title,
        const std::string& resourceBundle, const std::string& cssPath);
-  
+
   virtual ~Home();
 
   void googleAnalyticsLogger();
@@ -82,12 +82,12 @@ protected:
   virtual std::string filePrefix() const = 0;
 
   void init();
-  
+
   void addLanguage(const Lang& l) { languages.push_back(l); }
   std::unique_ptr<WWidget> linkSourceBrowser(const std::string& examplePath);
 
   WTabWidget *examplesMenu_;
-  
+
   WString tr(const char *key);
   std::string href(const std::string& url, const std::string& description);
 
@@ -118,7 +118,7 @@ private:
   int language_;
 
   void readNews(WTable *newsTable, const std::string& newsfile);
-  
+
   std::unique_ptr<WWidget> wrapView(std::unique_ptr<WWidget> (Home::*createFunction)());
 
   void updateTitle();
@@ -129,7 +129,7 @@ private:
   void chatSetUser(const WString& name);
 
   std::unique_ptr<WContainerWidget> sideBarContent_;
-  
+
   std::vector<Lang> languages;
 };
 

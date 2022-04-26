@@ -48,7 +48,7 @@ struct CellState : public PageState
 
 struct Range
 {
-  Range(double start, double end) 
+  Range(double start, double end)
     : start(start), end(end)
   { }
 
@@ -72,7 +72,7 @@ public:
   BlockList children() const { return children_; }
   void determineDisplay();
   bool normalizeWhitespace(bool haveWhitespace,
-			   Wt::rapidxml::xml_document<> &doc);
+                           Wt::rapidxml::xml_document<> &doc);
 
   bool isFloat() const { return float_ != FloatSide::None; }
   bool isInline() const { return inline_; }
@@ -94,11 +94,11 @@ public:
   bool tableCollapseBorders() const;
 
   double layoutBlock(PageState &ps,
-		     bool canIncreaseWidth,
-		     const WTextRenderer& renderer,
-		     double collapseMarginTop,
-		     double collapseMarginBottom,
-		     double cellHeight = -1);
+                     bool canIncreaseWidth,
+                     const WTextRenderer& renderer,
+                     double collapseMarginTop,
+                     double collapseMarginBottom,
+                     double cellHeight = -1);
 
   void collectStyles(WStringStream& ss);
   void setStyleSheet(StyleSheet* styleSheet);
@@ -108,14 +108,14 @@ public:
 
   static void clearFloats(PageState &ps);
   static void clearFloats(PageState &ps,
-			  double minWidth);
+                          double minWidth);
 
   std::vector<InlineBox> inlineLayout; // for inline elements, one per line
   std::vector<BlockBox>  blockLayout;  // otherwise, one per page
 
   static void adjustAvailableWidth(double y, int page,
-				   const BlockList& floats,
-				   Range &rangeX);
+                                   const BlockList& floats,
+                                   Range &rangeX);
 
   static bool isWhitespace(char c);
 
@@ -206,7 +206,7 @@ private:
   double cssBorderWidth(Side side, double fontScale) const;
   double collapsedBorderWidth(Side side, double fontScale) const;
   double rawCssBorderWidth(Side side, double fontScale,
-			   bool indicateHidden = false) const;
+                           bool indicateHidden = false) const;
   WColor cssBorderColor(Side side) const;
   WColor collapsedBorderColor(Side side) const;
   WColor rawCssBorderColor(Side side) const;
@@ -222,10 +222,10 @@ private:
   WFont cssFont(double fontScale) const;
   std::string cssTextDecoration() const;
   double cssDecodeLength(const std::string& length, double fontScale,
-			 double defaultValue,
-			 PercentageRule percentage =
-			   PercentageRule::PercentageOfFontSize,
-			 double parentSize = 0)
+                         double defaultValue,
+                         PercentageRule percentage =
+                           PercentageRule::PercentageOfFontSize,
+                         double parentSize = 0)
     const;
   static bool isPercentageLength(const std::string& length);
 
@@ -235,48 +235,48 @@ private:
 
   void pageBreak(PageState& ps);
   void inlinePageBreak(const std::string& pageBreak,
-		       Line& line, BlockList& floats,
-		       double minX, double maxX,
-		       const WTextRenderer& renderer);
+                       Line& line, BlockList& floats,
+                       double minX, double maxX,
+                       const WTextRenderer& renderer);
   double layoutInline(Line& line, BlockList& floats,
-		      double minX, double maxX, bool canIncreaseWidth,
-		      const WTextRenderer& renderer);
+                      double minX, double maxX, bool canIncreaseWidth,
+                      const WTextRenderer& renderer);
   void layoutTable(PageState &ps,
-		   bool canIncreaseWidth,
-		   const WTextRenderer& renderer,
-		   double cssSetWidth);
+                   bool canIncreaseWidth,
+                   const WTextRenderer& renderer,
+                   double cssSetWidth);
   double layoutFloat(double y, int page, BlockList& floats,
-		     double lineX, double lineHeight,
-		     double minX, double maxX,
-		     bool canIncreaseWidth,
-		     const WTextRenderer& renderer);
+                     double lineX, double lineHeight,
+                     double minX, double maxX,
+                     bool canIncreaseWidth,
+                     const WTextRenderer& renderer);
   void layoutAbsolute(const WTextRenderer& renderer);
 
   void tableDoLayout(double x, PageState &ps, double cellSpacing,
-		     const std::vector<double>& widths,
-		     std::vector<CellState>& rowSpanBackLog,
-		     bool protectRows, Block *repeatHead,
-		     const WTextRenderer& renderer);
+                     const std::vector<double>& widths,
+                     std::vector<CellState>& rowSpanBackLog,
+                     bool protectRows, Block *repeatHead,
+                     const WTextRenderer& renderer);
   void tableRowDoLayout(double x, PageState &ps,
-			double cellSpacing,
-			const std::vector<double>& widths,
-			std::vector<CellState>& rowSpanBackLog,
-			const WTextRenderer& renderer,
-			double rowHeight);
+                        double cellSpacing,
+                        const std::vector<double>& widths,
+                        std::vector<CellState>& rowSpanBackLog,
+                        const WTextRenderer& renderer,
+                        double rowHeight);
   void tableCellDoLayout(double x, const PageState &ps,
-			 double cellSpacing, PageState& rowEnd,
-			 const std::vector<double>& widths,
-			 const WTextRenderer& renderer,
-			 double rowHeight);
+                         double cellSpacing, PageState& rowEnd,
+                         const std::vector<double>& widths,
+                         const WTextRenderer& renderer,
+                         double rowHeight);
   double tableCellX(const std::vector<double>& widths,
-		    double cellSpacing) const;
+                    double cellSpacing) const;
   double tableCellWidth(const std::vector<double>& widths,
-			double cellSpacing) const;
+                        double cellSpacing) const;
   void tableComputeColumnWidths(std::vector<double>& minima,
-				std::vector<double>& maxima,
-				std::vector<double>& asSet,
-				const WTextRenderer& renderer,
-				Block *table);
+                                std::vector<double>& maxima,
+                                std::vector<double>& asSet,
+                                const WTextRenderer& renderer,
+                                Block *table);
 
   BorderElement collapseCellBorders(Side side) const;
   int numberTableCells(int row, std::vector<int>& rowSpan);
@@ -284,9 +284,9 @@ private:
   Block *siblingTableCell(Side side) const;
 
   void cellComputeColumnWidths(WidthType type,
-			       std::vector<double>& values,
-			       const WTextRenderer& renderer,
-			       Block *table);
+                               std::vector<double>& values,
+                               const WTextRenderer& renderer,
+                               Block *table);
 
   void setOffsetParent();
   Block *findOffsetParent();
@@ -313,29 +313,29 @@ private:
   int lastLayoutPage() const;
 
   static void advance(PageState &ps, double height,
-		      const WTextRenderer& renderer);
+                      const WTextRenderer& renderer);
   static double diff(double y, int page, double startY, int startPage,
-		     const WTextRenderer& renderer);
+                     const WTextRenderer& renderer);
 
   static double positionFloat(double x,
-			      PageState &ps,
-			      double lineHeight, double width,
-			      bool canIncreaseWidth,
-			      const WTextRenderer& renderer,
-			      FloatSide floatSide);
+                              PageState &ps,
+                              double lineHeight, double width,
+                              bool canIncreaseWidth,
+                              const WTextRenderer& renderer,
+                              FloatSide floatSide);
 
   static void unsupportedAttributeValue(const char *attribute,
-					const std::string& value);
+                                        const std::string& value);
   static void unsupportedCssValue(Property property,
-				  const std::string& value);
+                                  const std::string& value);
 
   static bool isAggregate(const std::string& cssProperty);
 
   static double maxBorderWidth(Block *b1, Side s1,
-			       Block *b2, Side s2,
-			       Block *b3, Side s3,
-			       Block *b4, Side s4,
-			       double fontScale);
+                               Block *b2, Side s2,
+                               Block *b3, Side s3,
+                               Block *b4, Side s4,
+                               double fontScale);
 
   friend class Line;
 };

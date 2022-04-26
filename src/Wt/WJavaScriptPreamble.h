@@ -42,11 +42,11 @@ enum JavaScriptScope {
  * This is an internal %Wt type.
  */
 #endif
-class WT_API WJavaScriptPreamble 
+class WT_API WJavaScriptPreamble
 {
 public:
   WJavaScriptPreamble(JavaScriptScope scope, JavaScriptObjectType type,
-		      const char *name, const char *src);
+                      const char *name, const char *src);
 
   JavaScriptScope scope;
   JavaScriptObjectType type;
@@ -57,36 +57,36 @@ public:
 
 #ifndef WT_DEBUG_JS
 
-#define WT_DECLARE_WT_MEMBER(i, type, name, ...)			\
-  namespace {								\
-  using namespace Wt;							\
-  WJavaScriptPreamble wtjs##i() {					\
+#define WT_DECLARE_WT_MEMBER(i, type, name, ...)                        \
+  namespace {                                                           \
+  using namespace Wt;                                                   \
+  WJavaScriptPreamble wtjs##i() {                                       \
     return WJavaScriptPreamble(WtClassScope, type, name, #__VA_ARGS__); \
-  }									\
+  }                                                                     \
   }
 
-#define WT_DECLARE_WT_MEMBER_BIG(i, type, name, ...)			\
-  namespace {								\
-  using namespace Wt;							\
-  WJavaScriptPreamble wtjs##i() {					\
+#define WT_DECLARE_WT_MEMBER_BIG(i, type, name, ...)                    \
+  namespace {                                                           \
+  using namespace Wt;                                                   \
+  WJavaScriptPreamble wtjs##i() {                                       \
     return WJavaScriptPreamble(WtClassScope, type, name, #__VA_ARGS__); \
-  }									\
+  }                                                                     \
   }
 
-#define WT_DECLARE_APP_MEMBER(i, type, name, ...)			\
-  namespace {								\
-  using namespace Wt;							\
-  WJavaScriptPreamble appjs##i() {					\
+#define WT_DECLARE_APP_MEMBER(i, type, name, ...)                           \
+  namespace {                                                               \
+  using namespace Wt;                                                       \
+  WJavaScriptPreamble appjs##i() {                                          \
     return WJavaScriptPreamble(ApplicationScope, type, name, #__VA_ARGS__); \
-  }									\
+  }                                                                         \
   }
 
-#define LOAD_JAVASCRIPT(app, jsFile, name, jsi)	\
+#define LOAD_JAVASCRIPT(app, jsFile, name, jsi) \
   app->loadJavaScript(jsFile, jsi())
 
 #else // !WT_DEBUG_JS
 
-#define LOAD_JAVASCRIPT(app, jsFile, name, jsi)	\
+#define LOAD_JAVASCRIPT(app, jsFile, name, jsi) \
   app->loadJavaScript(jsFile)
 
 #endif // WT_DEBUG_JS

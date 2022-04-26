@@ -30,7 +30,7 @@ public:
   virtual bool isSynchronous() const;
 
   virtual void flush(ResponseState state = ResponseState::ResponseDone,
-		     const WriteCallback& callback = WriteCallback());
+                     const WriteCallback& callback = WriteCallback());
 
   // Sends a simple text reply
   void sendSimpleReply(int status, const std::string &msg);

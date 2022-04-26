@@ -113,7 +113,7 @@ public:
   template<typename FirstArg, typename... Args, class F>
   auto bindSafe(F&& f) const noexcept
     -> std::function<decltype(f(std::declval<FirstArg>(), 
-				std::declval<Args>()...))(FirstArg, Args...)>;
+                                std::declval<Args>()...))(FirstArg, Args...)>;
 
   // unqualified functionoids, should have an unambiguous
   // `T::operator()` and use that.

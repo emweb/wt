@@ -131,9 +131,9 @@ void DataSettings::bindBaseDataSet(Wt::Chart::WAbstractDataSeries3D *data)
       (data->colorMap());
     if (!map->continuous()) {
       if (map->colorValuePairs().size() == 5)
-	colormap_->setCurrentIndex(2);
+        colormap_->setCurrentIndex(2);
       else if (map->colorValuePairs().size() == 10)
-	colormap_->setCurrentIndex(3);
+        colormap_->setCurrentIndex(3);
     } else {
       colormap_->setCurrentIndex(1);
     }
@@ -259,82 +259,82 @@ NumGridDataSettings::NumGridDataSettings()
   zClippingMax_->sliderMoved().connect(changeZClippingMax_);
 
   showClippingLines_->checked().connect([&] () {
-	gridData_->setClippingLinesEnabled(true);
+        gridData_->setClippingLinesEnabled(true);
       });
   showClippingLines_->unChecked().connect([&] () {
-	gridData_->setClippingLinesEnabled(false);
+        gridData_->setClippingLinesEnabled(false);
       });
 
   typeSelection_->changed().connect([&] () {
-	switch (typeSelection_->currentIndex()) {
-	case 0:
+        switch (typeSelection_->currentIndex()) {
+        case 0:
           gridData_->setType(Wt::Chart::Series3DType::Point);
-	  break;
-	case 1:
+          break;
+        case 1:
           gridData_->setType(Wt::Chart::Series3DType::Surface);
-	  break;
-	}
+          break;
+        }
       });
   enableMesh_->changed().connect([&] () {
         gridData_->setSurfaceMeshEnabled(enableMesh_->checkState() == Wt::CheckState::Checked);
       });
   penSize_->changed().connect([&] () {
         Wt::WPen pen = gridData_->pen();
-	pen.setWidth(asNumber(penSize_->text()));
-	gridData_->setPen(pen);
+        pen.setWidth(asNumber(penSize_->text()));
+        gridData_->setPen(pen);
       });
   penColor_->changed().connect([&] () {
         Wt::WPen pen = gridData_->pen();
-	switch (penColor_->currentIndex()) {
-	case 0:
+        switch (penColor_->currentIndex()) {
+        case 0:
           pen.setColor(Wt::WColor(Wt::StandardColor::Black)); break;
-	case 1:
+        case 1:
           pen.setColor(Wt::WColor(Wt::StandardColor::Red)); break;
-	case 2:
+        case 2:
           pen.setColor(Wt::WColor(Wt::StandardColor::Green)); break;
-	case 3:
+        case 3:
           pen.setColor(Wt::WColor(Wt::StandardColor::Blue)); break;
-	}
-	gridData_->setPen(pen);
+        }
+        gridData_->setPen(pen);
       });
   clippingLinesColor_->changed().connect([&] () {
-	switch (clippingLinesColor_->currentIndex()) {
-	case 0:
+        switch (clippingLinesColor_->currentIndex()) {
+        case 0:
           gridData_->setClippingLinesColor(Wt::WColor(Wt::StandardColor::Black)); break;
-	case 1:
+        case 1:
           gridData_->setClippingLinesColor(Wt::WColor(Wt::StandardColor::Red)); break;
-	case 2:
+        case 2:
           gridData_->setClippingLinesColor(Wt::WColor(Wt::StandardColor::Green)); break;
-	case 3:
+        case 3:
           gridData_->setClippingLinesColor(Wt::WColor(Wt::StandardColor::Blue)); break;
-	case 4:
+        case 4:
           gridData_->setClippingLinesColor(Wt::WColor(Wt::StandardColor::Cyan)); break;
-	case 5:
+        case 5:
           gridData_->setClippingLinesColor(Wt::WColor(Wt::StandardColor::Magenta)); break;
-	case 6:
+        case 6:
           gridData_->setClippingLinesColor(Wt::WColor(Wt::StandardColor::Yellow)); break;
-	}
+        }
       });
   showIsolines_->checked().connect([&] () {
-	std::vector<double> isoLevels;
-	for (double z = -20.0; z <= 20.0; z += 0.5) {
-	  isoLevels.push_back(z);
-	}
-	gridData_->setIsoLevels(isoLevels);
+        std::vector<double> isoLevels;
+        for (double z = -20.0; z <= 20.0; z += 0.5) {
+          isoLevels.push_back(z);
+        }
+        gridData_->setIsoLevels(isoLevels);
       });
   showIsolines_->unChecked().connect([&] () {
-	gridData_->setIsoLevels(std::vector<double>());
+        gridData_->setIsoLevels(std::vector<double>());
       });
   isolineColormap_->changed().connect([&] () {
         std::shared_ptr<Wt::Chart::WStandardColorMap> colMap = nullptr;
-	switch (isolineColormap_->currentIndex()) {
-	case 0:
-	  break;
-	case 1:
+        switch (isolineColormap_->currentIndex()) {
+        case 0:
+          break;
+        case 1:
           colMap = std::make_shared<Wt::Chart::WStandardColorMap>(gridData_->minimum(Wt::Chart::Axis::Z3D),
                                                                   gridData_->maximum(Wt::Chart::Axis::Z3D), true);
-	  break;
-	case 2:
+          break;
+        case 2:
           colMap = std::make_shared<Wt::Chart::WStandardColorMap>(gridData_->minimum(Wt::Chart::Axis::Z3D),
                                                                   gridData_->maximum(Wt::Chart::Axis::Z3D), true);
           colMap->discretise(5);
@@ -342,10 +342,10 @@ NumGridDataSettings::NumGridDataSettings()
         case 3:
           colMap = std::make_shared<Wt::Chart::WStandardColorMap>(gridData_->minimum(Wt::Chart::Axis::Z3D),
                                                                   gridData_->maximum(Wt::Chart::Axis::Z3D), true);
-	  colMap->discretise(10);
-	  break;
-	}
-	gridData_->setIsoColorMap(colMap);
+          colMap->discretise(10);
+          break;
+        }
+        gridData_->setIsoColorMap(colMap);
       });
 }
 
@@ -449,9 +449,9 @@ void NumGridDataSettings::bindDataSet(Wt::Chart::WAbstractGridData *data)
         = std::dynamic_pointer_cast<Wt::Chart::WStandardColorMap>(gridData_->isoColorMap());
     if (!map->continuous()) {
       if (map->colorValuePairs().size() == 5)
-	isolineColormap_->setCurrentIndex(2);
+        isolineColormap_->setCurrentIndex(2);
       else if (map->colorValuePairs().size() == 10)
-	isolineColormap_->setCurrentIndex(3);
+        isolineColormap_->setCurrentIndex(3);
     } else {
       isolineColormap_->setCurrentIndex(1);
     }
@@ -521,22 +521,22 @@ ScatterDataSettings::ScatterDataSettings()
       });
   penSize_->changed().connect([&] () {
         Wt::WPen pen = scatterData_->droplinesPen();
-	pen.setWidth(Wt::asNumber(penSize_->text()));
-	scatterData_->setDroplinesPen(pen);
+        pen.setWidth(Wt::asNumber(penSize_->text()));
+        scatterData_->setDroplinesPen(pen);
       });
   penColor_->changed().connect([&] () {
         Wt::WPen pen = scatterData_->droplinesPen();
-	switch (penColor_->currentIndex()) {
-	case 0:
+        switch (penColor_->currentIndex()) {
+        case 0:
           pen.setColor(Wt::WColor(Wt::StandardColor::Black)); break;
-	case 1:
+        case 1:
           pen.setColor(Wt::WColor(Wt::StandardColor::Red)); break;
-	case 2:
+        case 2:
           pen.setColor(Wt::WColor(Wt::StandardColor::Green)); break;
-	case 3:
+        case 3:
           pen.setColor(Wt::WColor(Wt::StandardColor::Blue)); break;
-	}
-	scatterData_->setDroplinesPen(pen);
+        }
+        scatterData_->setDroplinesPen(pen);
       });
 }
 

@@ -64,14 +64,14 @@ namespace base64
   extern WT_API const signed char* from_table;
 
   template <class InputIterator, class OutputIterator>
-  void encode(const InputIterator& begin, 
-              const InputIterator& end, 
+  void encode(const InputIterator& begin,
+              const InputIterator& end,
               OutputIterator out,
-	      bool crlf = true)
+              bool crlf = true)
   {
     InputIterator it = begin;
     int lineSize = 0;
-  
+
     int bytes;
     do
     {
@@ -96,14 +96,14 @@ namespace base64
         ++lineSize;
       }
 
-      if (lineSize >= 76) // ensure proper line length 
+      if (lineSize >= 76) // ensure proper line length
       {
-	if (crlf) {
-	  *out = 13;
-	  ++out;
-	  *out = 10;
-	  ++out;
-	} 
+        if (crlf) {
+          *out = 13;
+          ++out;
+          *out = 10;
+          ++out;
+        }
         lineSize = 0;
       }
 
@@ -121,8 +121,8 @@ namespace base64
 
 
   template <class InputIterator, class OutputIterator>
-  void decode(const InputIterator& begin, 
-              const InputIterator& end, 
+  void decode(const InputIterator& begin,
+              const InputIterator& end,
               OutputIterator out)
   {
     InputIterator it = begin;

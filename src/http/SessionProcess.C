@@ -72,7 +72,7 @@ void SessionProcess::stop()
 }
 
 void SessionProcess::asyncExec(const Configuration &config,
-			       const std::function<void (bool)>& onReady)
+                               const std::function<void (bool)>& onReady)
 {
   asio::ip::tcp::endpoint endpoint(asio::ip::address_v4::loopback(), 0);
   Wt::AsioWrapper::error_code ec;
@@ -99,15 +99,15 @@ void SessionProcess::asyncExec(const Configuration &config,
   }
   acceptor_->async_accept
     (*socket_, std::bind(&SessionProcess::acceptHandler, shared_from_this(),
-			 std::placeholders::_1, onReady));
-  LOG_DEBUG("Listening to child process on port " 
-	    << acceptor_->local_endpoint(ec).port());
+                         std::placeholders::_1, onReady));
+  LOG_DEBUG("Listening to child process on port "
+            << acceptor_->local_endpoint(ec).port());
 
   exec(config, onReady);
 }
 
 void SessionProcess::acceptHandler(const Wt::AsioWrapper::error_code& err,
-				   const std::function<void (bool)>& onReady)
+                                   const std::function<void (bool)>& onReady)
 {
   if (!err) {
     acceptor_.reset();
@@ -245,7 +245,7 @@ void appendArgToCmdLine(const std::string &arg, std::wstring &commandLine)
 #endif // WT_WIN32
 
 void SessionProcess::exec(const Configuration& config,
-			  const std::function<void (bool)>& onReady)
+                          const std::function<void (bool)>& onReady)
 {
 #ifndef WT_WIN32
   std::string parentPortOption = std::string("--parent-port=")
@@ -293,7 +293,7 @@ void SessionProcess::exec(const Configuration& config,
     sigfillset(&mask);
     pthread_sigmask(SIG_UNBLOCK, &mask, 0);
 #endif // WT_THREADED
-    
+
 
     execv(c_options[0], const_cast<char *const *>(c_options));
     // An error occurred, this should not be reached

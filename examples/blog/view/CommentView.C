@@ -94,13 +94,13 @@ void CommentView::renderTemplate(std::ostream& result)
 
 void CommentView::resolveString(const std::string& varName,
                                 const std::vector<Wt::WString>& args,
-				std::ostream& result)
+                                std::ostream& result)
 {
   if (varName == "author")
     format(result, comment_->author ? comment_->author->name : "anonymous");
   else if (varName == "date")
     format(result, comment_->date.timeTo(Wt::WDateTime::currentDateTime())
-	   + " ago");
+           + " ago");
   else if (varName == "contents")
     format(result, comment_->textHtml(), Wt::TextFormat::XHTML);
   else
@@ -113,20 +113,20 @@ void CommentView::renderView()
 
   bool isRootComment = !comment_->parent;
   setTemplateText(isRootComment ? tr("blog-root-comment")
-		  : tr("blog-comment"));
+                  : tr("blog-comment"));
 
   bindString("collapse-expand", Wt::WString::Empty); // NYI
 
   auto replyText
       = std::make_unique<Wt::WText>(isRootComment ? tr("comment-add")
-			       : tr("comment-reply"));
+                               : tr("comment-reply"));
   replyText->setStyleClass("link");
   replyText->clicked().connect(this, &CommentView::reply);
   bindWidget("reply", std::move(replyText));
 
   bool mayEdit = session_.user()
     && (comment_->author == session_.user()
-	|| session_.user()->role == User::Admin);
+        || session_.user()->role == User::Admin);
 
   if (mayEdit) {
     auto editText
@@ -139,7 +139,7 @@ void CommentView::renderView()
 
   bool mayDelete
     = (session_.user() && session_.user() == comment_->author)
-    || session_.user() == comment_->post->author; 
+    || session_.user() == comment_->post->author;
 
   if (mayDelete) {
     auto deleteText

@@ -23,31 +23,31 @@ void FormWidgets::populateSubMenu(Wt::WMenu *menu)
                 deferCreate([this]{ return introduction(); }))->setPathComponent("");
   menu->addItem("Line/Text editor",
                 deferCreate([this]{ return textEditors(); }));
-  menu->addItem("Check boxes", 
+  menu->addItem("Check boxes",
                 deferCreate([this]{ return checkBox(); }));
-  menu->addItem("Radio buttons", 
+  menu->addItem("Radio buttons",
                 deferCreate([this]{ return radioButton(); }));
-  menu->addItem("Combo box", 
+  menu->addItem("Combo box",
                 deferCreate([this]{ return comboBox(); }));
-  menu->addItem("Selection box", 
+  menu->addItem("Selection box",
                 deferCreate([this]{ return selectionBox(); }));
-  menu->addItem("Autocomplete", 
+  menu->addItem("Autocomplete",
                 deferCreate([this]{ return autoComplete(); }));
   menu->addItem("Date & Time entry",
                 deferCreate([this]{ return dateEntry(); }));
-  menu->addItem("In-place edit", 
+  menu->addItem("In-place edit",
                 deferCreate([this]{ return inPlaceEdit(); }));
-  menu->addItem("Slider", 
+  menu->addItem("Slider",
                 deferCreate([this]{ return slider(); }));
-  menu->addItem("Progress bar", 
+  menu->addItem("Progress bar",
                 deferCreate([this]{ return progressBar(); }));
-  menu->addItem("File upload", 
+  menu->addItem("File upload",
                 deferCreate([this]{ return fileUpload(); }));
-  menu->addItem("Push button", 
+  menu->addItem("Push button",
                 deferCreate([this]{ return pushButton(); }));
-  menu->addItem("Validation", 
+  menu->addItem("Validation",
                 deferCreate([this]{ return validation(); }));
-  menu->addItem("Integration example", 
+  menu->addItem("Integration example",
                 deferCreate([this]{ return example(); }));
 }
 
@@ -94,9 +94,9 @@ std::unique_ptr<Wt::WWidget> FormWidgets::textEditors()
 
   // Show the XML-template as text
   result->bindString("lineEdit-template", reindent(Wt::WString::tr("lineEdit-template")),
-		     Wt::TextFormat::Plain);
+                     Wt::TextFormat::Plain);
   result->bindString("editSide-template", reindent(Wt::WString::tr("editSide-template")),
-		     Wt::TextFormat::Plain);
+                     Wt::TextFormat::Plain);
   return std::move(result);
 }
 
@@ -253,7 +253,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::pushButton()
   result->bindWidget("PushButtonOnce", PushButtonOnce());
   result->bindWidget("PushButtonLink", PushButtonLink());
   result->bindWidget("PushButtonDropdownAppended",
-		     PushButtonDropdownAppended());
+                     PushButtonDropdownAppended());
   result->bindWidget("PushButtonColor", PushButtonColor());
   result->bindWidget("PushButtonSize", PushButtonSize());
   result->bindWidget("PushButtonPrimary", PushButtonPrimary());
@@ -262,7 +262,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::pushButton()
   // Show the XML-templates as text
   result->bindString("appendedDropdownButton-template",
                      reindent(Wt::WString::tr("appendedDropdownButton-template")),
-		     Wt::TextFormat::Plain);
+                     Wt::TextFormat::Plain);
   result->bindString("pushButtonColor-template",
                      reindent(Wt::WString::tr("pushButtonColor-template")), Wt::TextFormat::Plain);
   result->bindString("pushButtonSize-template",
@@ -286,7 +286,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::validation()
 
   // Show the XML-template as text
   result->bindString("validation-template", reindent(Wt::WString::tr("validation-template")),
-		     Wt::TextFormat::Plain);
+                     Wt::TextFormat::Plain);
   return std::move(result);
 }
 

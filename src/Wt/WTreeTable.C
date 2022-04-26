@@ -66,7 +66,7 @@ void WTreeTable::defineJavaScript()
   LOAD_JAVASCRIPT(app, "js/WTreeTable.js", "WTreeTable", wtjs1);
 
   setJavaScriptMember(" WTreeTable", "new " WT_CLASS ".WTreeTable("
-		      + app->javaScriptClass() + "," + jsRef() + ");");
+                      + app->javaScriptClass() + "," + jsRef() + ");");
 }
 
 void WTreeTable::render(WFlags<RenderFlag> flags)
@@ -93,7 +93,7 @@ WWidget *WTreeTable::headerWidget() const
 }
 
 void WTreeTable::setTreeRoot(std::unique_ptr<WTreeTableNode> root,
-			     const WString& h)
+                             const WString& h)
 {
   root->setTable(this);
   tree_->setTreeRoot(std::move(root));
@@ -123,7 +123,7 @@ void WTreeTable::addColumn(const WString& header, const WLength& width)
 {
   if (treeRoot())
     throw WException("WTreeTable::addColumn(): must be called before "
-		     "setTreeRoot()");
+                     "setTreeRoot()");
 
   std::unique_ptr<WText> t(new WText(header));
   t->resize(width, WLength::Auto);

@@ -5,24 +5,24 @@
       <h1>Hello World!</h1>
 
       <style>
-	span.special {
-	  color: #FF0000;
-	  font-weight: bold;
-	}
+        span.special {
+          color: #FF0000;
+          font-weight: bold;
+        }
 
-	#main_table {
-	  font-size: 8pt;
-	  margin-left: auto;
-	  margin-right: auto;
-	}
+        #main_table {
+          font-size: 8pt;
+          margin-left: auto;
+          margin-right: auto;
+        }
 
-	#main_table .special {
-	  color: #FF0000;
-	}
+        #main_table .special {
+          color: #FF0000;
+        }
 
-	#main_table th {
-	  border-bottom: 1px solid black;
-	}
+        #main_table th {
+          border-bottom: 1px solid black;
+        }
       </style>
 
       <p>
@@ -61,8 +61,8 @@
       </p>
 
       <p>
-	You can attach an external style sheet, highlighting items that need
-	<span class="special">special attention</span>.
+        You can attach an external style sheet, highlighting items that need
+        <span class="special">special attention</span>.
       </p>
 
       <p>

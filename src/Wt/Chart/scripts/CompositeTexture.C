@@ -3,9 +3,9 @@
 namespace Wt {
 
 void CompositeTexture::defineSubTexture(CompositeTexture::vec2 v0,
-					CompositeTexture::vec2 v1,
-					CompositeTexture::vec2 v2,
-					CompositeTexture::vec2 v3)
+                                        CompositeTexture::vec2 v1,
+                                        CompositeTexture::vec2 v2,
+                                        CompositeTexture::vec2 v3)
 {
   subTexture tex;
   tex.push_back(v0);tex.push_back(v1);tex.push_back(v2);tex.push_back(v3);
@@ -13,8 +13,8 @@ void CompositeTexture::defineSubTexture(CompositeTexture::vec2 v0,
 }
 
 void CompositeTexture::addCoords(int texIndex,
-				 int first,
-				 int amount)
+                                 int first,
+                                 int amount)
 {
   if (texIndex >= texture_.size())
     return;
@@ -29,9 +29,9 @@ void CompositeTexture::addCoords(int texIndex,
 
 #if 0
 void CompositeTexture::writeToFile(int texIndex,
-				   int first,
-				   int amount,
-				   bool eof)
+                                   int first,
+                                   int amount,
+                                   bool eof)
 {
   if (texIndex >= texture_.size())
     return;

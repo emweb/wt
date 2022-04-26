@@ -26,7 +26,7 @@
 
 namespace http {
   namespace server {
-	class ProxyReply;
+    class ProxyReply;
   }
 }
 
@@ -62,7 +62,7 @@ typedef std::function<void ()>  Function;
  */
 struct ApplicationEvent {
   ApplicationEvent(const std::string& aSessionId,
-		   const Function& aFunction,
+                   const Function& aFunction,
                    const Function& aFallbackFunction = Function())
     : sessionId(aSessionId),
       function(aFunction),
@@ -108,19 +108,19 @@ public:
   std::string computeRedirectHash(const std::string& url);
 
 #ifdef WT_TARGET_JAVA
-  int getIdForWebSocket(); 
+  int getIdForWebSocket();
   std::string getContextPath();
 #else // WT_TARGET_JAVA
   WebController(WServer& server,
-		const std::string& singleSessionId = std::string(),
-		bool autoExpire = true);
+                const std::string& singleSessionId = std::string(),
+                bool autoExpire = true);
   ~WebController();
 
   int sessionCount() const;
 
   // Returns whether we should continue receiving data.
   bool requestDataReceived(WebRequest *request, std::uintmax_t current,
-			   std::uintmax_t total);
+                           std::uintmax_t total);
 
   void handleRequest(WebRequest *request);
 
@@ -134,7 +134,7 @@ public:
   void shutdown();
 
   static std::string sessionFromCookie(const char * const cookies,
-				       const std::string& scriptName,
+                                       const std::string& scriptName,
                                        const int sessionIdLength);
 
   typedef std::map<int, WSocketNotifier *> SocketNotifierMap;
@@ -149,7 +149,7 @@ public:
   void socketSelected(int descriptor, WSocketNotifier::Type type);
 
   std::string switchSession(WebSession *session,
-			    const std::string& newSessionId);
+                            const std::string& newSessionId);
   std::string generateNewSessionId(const std::shared_ptr<WebSession>& session);
 
 private:

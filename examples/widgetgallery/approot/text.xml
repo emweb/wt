@@ -111,11 +111,11 @@
       ${TextPlain}
       ${src TextPlain}
     </fieldset>
-    
+
     <p>
       Of course, a <tt>WText</tt> widget may also display XHTML formatted text.
     </p>
-    
+
     <fieldset class="example">
       <legend>Example</legend>
       ${TextXHTML}
@@ -166,7 +166,7 @@
 
     <h3>ToolTip</h3>
     <p>
-      You may add a tooltip or deferred tooltip to <tt>WText</tt> 
+      You may add a tooltip or deferred tooltip to <tt>WText</tt>
     </p>
 
     <fieldset class="example">
@@ -353,13 +353,13 @@
       ${HBoxLayout}
       ${src HBoxLayout}
       <p>
-	The coloring for this and the following examples are provided
-	by a stylesheet that you need to load using
-	<tt>WApplication::useStyleSheet()</tt>:
+        The coloring for this and the following examples are provided
+        by a stylesheet that you need to load using
+        <tt>WApplication::useStyleSheet()</tt>:
       </p>
       <fieldset class="src">
-	<legend>CSS</legend>
-	${tr:src-layout}
+        <legend>CSS</legend>
+        ${tr:src-layout}
       </fieldset>
     </fieldset>
 
@@ -943,29 +943,29 @@
         </dd>
         <dt class="col-sm-2 text-sm-end">bootstrap</dt>
         <dd class="col-sm-10">
-	  <p>
+          <p>
             There are three versions of this theme, implemented through the
             ${doc-link WBootstrap5Theme}, ${doc-link WBootstrap3Theme}, and ${doc-link WBootstrap2Theme}
             classes. They rely on the <a href="http://getbootstrap.com/">Bootstrap CSS framework</a>.
             Use <tt>setTheme(std::make_shared&lt;WBootstrap5Theme&gt;())</tt> to use this theme.
-	  </p>
-	  <p>
-	    As of version 4.6.0, Bootstrap versions 2, 3, and 5
-	    are supported. Prior to 4.6.0 there was ${doc-link WBootstrapTheme},
+          </p>
+          <p>
+            As of version 4.6.0, Bootstrap versions 2, 3, and 5
+            are supported. Prior to 4.6.0 there was ${doc-link WBootstrapTheme},
             which is now deprecated in favor of ${doc-link WBootstrap2Theme},
             ${doc-link WBootstrap3Theme}, ${doc-link WBootstrap4Theme}
             and ${doc-link WBootstrap5Theme}.
             The widget gallery has been restyled to use Bootstrap 5.<br/>
-	    While the theme makes sure that Wt's widgets
-	    are rendered with the markup expected by bootstrap, there
-	    are many features that are particular to the layout system
-	    of bootstrap (and were changed between various versions of
-	    Bootstrap). Thus you need to know how bootstrap expects you to
-	    layout widgets in order to effectivily use this theme, for
-	    which we refer to the <a
-	    href="http://getbootstrap.com/">Bootstrap
-	    documentation</a>.
-	  </p>
+            While the theme makes sure that Wt's widgets
+            are rendered with the markup expected by bootstrap, there
+            are many features that are particular to the layout system
+            of bootstrap (and were changed between various versions of
+            Bootstrap). Thus you need to know how bootstrap expects you to
+            layout widgets in order to effectivily use this theme, for
+            which we refer to the <a
+            href="http://getbootstrap.com/">Bootstrap
+            documentation</a>.
+          </p>
         </dd>
       </dl>
     </p>
@@ -1138,7 +1138,7 @@
     <p><a href="#forms">Top</a></p>
 
   </message>
-  
+
   <message id="simpleForm-template">
     <div class="row">
       <div class="col-auto pe-0">
@@ -1175,7 +1175,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="row">
       <div class="col-4">
         <label class="form-label"  for="${id:country}">
@@ -1230,7 +1230,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="row">
       <div class="col">
         ${submit-button} <span class="help-inline">${submit-info}</span>
@@ -1462,7 +1462,7 @@
       </div>
     </div>
   </message>
-  
+
   <message id="timeEdit-template">
     <p>When do you want your package to be delivered?</p>
     <div class="row g-3">
@@ -1504,11 +1504,11 @@
     <div class="input-group mb-3">
       <span class="input-group-text">@</span>
       ${name}
-    </div>  
+    </div>
     <div class="input-group mb-3">
       ${amount1}
       <span class="input-group-text">.00</span>
-    </div>   
+    </div>
     <div class="input-group mb-3">
       <span class="input-group-text">$</span>
       ${amount2}
@@ -1948,7 +1948,7 @@
         ${src DateEdit}
     </fieldset>
     <p><a href="#date-entry">Top</a></p>
-    
+
     <h3 id="time-picker">Time entry using a time edit</h3>
     <p>
       The ${doc-link WTimeEdit} widget is a line edit with support for
@@ -2126,13 +2126,13 @@
     <h2>File Drop</h2>
 
     <p>Try dropping files in the widget below. It accepts a maximum of 5 files. You can drop one or multiple files at a time.</p>
-    
+
     <fieldset class="example">
         <legend>Example</legend>
         ${FileDrop}
-	${src FileDrop}
+        ${src FileDrop}
     </fieldset>
-    
+
     <p><a href="#file-upload">Top</a></p>
 
   </message>
@@ -3394,8 +3394,8 @@
       providing your own item delegate implementation.
     </p>
     <p>
-      The example below illustrates how to override the editing behaviour of 
-      ${doc-link WItemDelegate}. It uses a combo box to allow the user to edit 
+      The example below illustrates how to override the editing behaviour of
+      ${doc-link WItemDelegate}. It uses a combo box to allow the user to edit
       the cell values.
     </p>
 
@@ -3533,11 +3533,11 @@
       dimensions (rows an columns), then data roles could be considered
       as a third dimension.
     </p>
-    
+
     <p>
       The common use-case for item data roles is that for a single
       item, there may be a textual representation, but also an icon, a
-      customized style class, a link, etc... 
+      customized style class, a link, etc...
     </p>
 
     <p>
@@ -3572,7 +3572,7 @@
     As a straight forward generalization to lists, tables may include
     more than one more column, and each item can be identified by a
     <i>(row, column)</i> pair.
-      
+
     <h4 style="clear: both">Trees</h4>
 
     <img src="/pics/tree-models.png" style="max-width: none; float: right; margin: 30px"/>
@@ -3754,7 +3754,7 @@
       <dt class="col-sm-2 text-sm-end">void sort()</dt>
       <dd class="col-sm-10">Sorts the model according to one of its columns.</dd>
     </dl>
-    
+
     <p>
       Sorting may be bolted onto a source model using the <a
       href="#/trees-tables/proxy-models">WSortFilterProxyModel</a>,
@@ -5124,7 +5124,7 @@
 
     <p>The following example shows how to use a <tt>WPdfImage</tt> directly in
     conjunction with <tt>WPainter</tt>.</p>
-    
+
     <fieldset class="example">
       <legend>Example</legend>
       ${PdfImage}

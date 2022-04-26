@@ -51,7 +51,7 @@ void WBootstrapTheme::apply(WWidget *widget, WWidget *child, int widgetRole)
 }
 
 void WBootstrapTheme::apply(WWidget *widget, DomElement& element,
-			    int elementRole) const
+                            int elementRole) const
 {
   impl_->apply(widget, element, elementRole);
 }
@@ -78,8 +78,8 @@ bool WBootstrapTheme::canStyleAnchorAsButton() const
 
 void WBootstrapTheme
 ::applyValidationStyle(WWidget *widget,
-		       const Wt::WValidator::Result& validation,
-		       WFlags<ValidationStyleFlag> styles) const
+                       const Wt::WValidator::Result& validation,
+                       WFlags<ValidationStyleFlag> styles) const
 {
   impl_->applyValidationStyle(widget, validation, styles);
 }

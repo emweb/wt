@@ -59,7 +59,7 @@ enum class AxisValue {
 W_DECLARE_OPERATORS_FOR_FLAGS(AxisValue)
 
 /*! \brief Axis configuration.
- * 
+ *
  * This describes the configuration of an axis determining how
  * it should be drawn. To be passed into getLabelTicks().
  */
@@ -78,7 +78,7 @@ struct AxisConfig {
    * level. These are requested by WCartesianChart in powers of 2 (1,
    * 2, 4, 8,...)
    */
-  int zoomLevel; 
+  int zoomLevel;
 };
 
 /*! \brief Enumeration that indicates which way the axis ticks point.
@@ -176,7 +176,7 @@ enum class TickLength { Zero, Short, Long };
  * heuristics. The format may be customized using
  * setLabelFormat(). The angle of the label text may be changed using
  * setLabelAngle(). By default, all labels are printed horizontally.
- * 
+ *
  * \sa WCartesianChart
  *
  * \ingroup charts
@@ -291,7 +291,7 @@ public:
    * By default, the minimum and maximum values are determined
    * automatically so that all the data can be displayed.
    *
-   * The numerical value corresponding to a data point is 
+   * The numerical value corresponding to a data point is
    * defined by it's AxisScale type.
    *
    * \sa setMaximum(), setAutoLimits()
@@ -315,7 +315,7 @@ public:
    * By default, the minimum and maximum values are determined
    * automatically so that all the data can be displayed.
    *
-   * The numerical value corresponding to a data point is 
+   * The numerical value corresponding to a data point is
    * defined by it's AxisScale type.
    *
    * \sa setMinimum(), setAutoLimits()
@@ -723,7 +723,7 @@ public:
    * \deprecated Use zoomMinimum() and zoomMaximum() instead.
    */
   double zoom() const;
-  
+
   /*! \brief Sets the maximum zoom level for this axis.
    *
    * Only applies to a WCartesianChart in interactive mode.
@@ -782,7 +782,7 @@ public:
    * \sa setMaximumZoomRange()
    */
   double maximumZoomRange() const;
-  
+
   /*! \brief Sets the minimum zoom level for this axis.
    *
    * Only applies to a WCartesianChart in interactive mode.
@@ -835,7 +835,7 @@ public:
   void setPadding(int padding);
 
   /*! \brief Returns the padding between the chart area and this axis.
-   * 
+   *
    * \sa setPadding()
    */
   int padding() const { return padding_; }
@@ -900,30 +900,30 @@ public:
   bool prepareRender(Orientation orientation, double length) const;
 
   void render(WPainter& painter,
-	      WFlags<AxisProperty> properties,
-	      const WPointF& axisStart,
-	      const WPointF& axisEnd,
-	      double tickStart, double tickEnd, double labelPos,
-	      WFlags<AlignmentFlag> labelFlags,
-	      const WTransform &transform = WTransform(),
-	      AxisValue side = AxisValue::Minimum) const {
+              WFlags<AxisProperty> properties,
+              const WPointF& axisStart,
+              const WPointF& axisEnd,
+              double tickStart, double tickEnd, double labelPos,
+              WFlags<AlignmentFlag> labelFlags,
+              const WTransform &transform = WTransform(),
+              AxisValue side = AxisValue::Minimum) const {
     std::vector<WPen> pens;
     std::vector<WPen> textPens;
-    render(painter, properties, axisStart, axisEnd, 
-	   tickStart, tickEnd, labelPos, labelFlags, 
-	   transform, side, pens, textPens);
+    render(painter, properties, axisStart, axisEnd,
+           tickStart, tickEnd, labelPos, labelFlags,
+           transform, side, pens, textPens);
   }
 
   void render(WPainter& painter,
-	      WFlags<AxisProperty> properties,
-	      const WPointF& axisStart,
-	      const WPointF& axisEnd,
-	      double tickStart, double tickEnd, double labelPos,
-	      WFlags<AlignmentFlag> labelFlags,
-	      const WTransform &transform,
-	      AxisValue side,
-	      std::vector<WPen> pens,
-	      std::vector<WPen> textPens) const;
+              WFlags<AxisProperty> properties,
+              const WPointF& axisStart,
+              const WPointF& axisEnd,
+              double tickStart, double tickEnd, double labelPos,
+              WFlags<AlignmentFlag> labelFlags,
+              const WTransform &transform,
+              AxisValue side,
+              std::vector<WPen> pens,
+              std::vector<WPen> textPens) const;
 
   std::vector<double> gridLinePositions(AxisConfig config) const;
 
@@ -1029,7 +1029,7 @@ protected:
    */
   virtual void getLabelTicks(std::vector<TickLabel>& ticks, int segment, AxisConfig config) const;
 
-  /*! \brief Returns the Date format 
+  /*! \brief Returns the Date format
    */
   virtual WString autoDateFormat(const WDateTime& dt, DateTimeUnit unit, bool atTick) const;
 
@@ -1058,17 +1058,17 @@ private:
   double           titleOffset_;
   WPen             textPen_;
   Orientation      titleOrientation_;
-  double	   maxZoom_;
-  double	   minZoom_;
-  double	   minimumZoomRange_;
-  double	   maximumZoomRange_;
+  double           maxZoom_;
+  double           minZoom_;
+  double           minimumZoomRange_;
+  double           maximumZoomRange_;
   double           zoomMin_;
   double           zoomMax_;
-  bool 		   zoomRangeDirty_;
+  bool                    zoomRangeDirty_;
   int              padding_;
   TickDirection    tickDirection_;
   bool             partialLabelClipping_;
-  bool		   inverted_;
+  bool                   inverted_;
   std::map<AxisValue, LabelTransform > labelTransforms_;
 
   // for 3D charts, don't call update when the labelangle is tempor. changed
@@ -1128,12 +1128,12 @@ private:
   bool hasLabelTransformOnSide(AxisValue side) const;
 
   void renderLabels(WPainter &painter,
-		   const std::vector<WString> &labels,
-		   const WPainterPath &path,
-		   WFlags<AlignmentFlag> flags,
-		   double angle, int margin,
-		   const WTransform &transform,
-		   const WPen& pen) const;
+                   const std::vector<WString> &labels,
+                   const WPainterPath &path,
+                   WFlags<AlignmentFlag> flags,
+                   double angle, int margin,
+                   const WTransform &transform,
+                   const WPen& pen) const;
 
   friend class WCartesianChart;
   friend class WCartesian3DChart;

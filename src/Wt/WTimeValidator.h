@@ -17,12 +17,12 @@ namespace Wt {
 class WT_API WTimeValidator : public WRegExpValidator
 {
 public:
-	/*! \brief Creates a new WTimeValidator
-	 */
+    /*! \brief Creates a new WTimeValidator
+     */
     WTimeValidator();
 
-	/*! \brief Creates a new WTimeValidator
-	 */
+    /*! \brief Creates a new WTimeValidator
+     */
     WTimeValidator(const WT_USTRING &format);
 
     /*! \brief Creates a new WTimeValidator
@@ -34,12 +34,12 @@ public:
                    const WTime &top);
 
     /*! \brief Sets the validator format
-	 * \sa WTime::toString()
-	 */
+     * \sa WTime::toString()
+     */
     void setFormat(const WT_USTRING &format);
 
     /*! \brief Returns the validator current format
-	 */
+     */
     virtual WT_USTRING format() const override { return formats_[0]; }
 
     /*! \brief Sets the time formats used to parse time strings

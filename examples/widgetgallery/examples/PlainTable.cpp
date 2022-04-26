@@ -5,16 +5,16 @@
 
 namespace {
     struct Employee {
-	std::string firstName;
-	std::string lastName;
-	double pay;
+        std::string firstName;
+        std::string lastName;
+        double pay;
 
-        Employee(const std::string& aFirstName, 
-		 const std::string& aLastName,
-		 double aPay)
-	  : firstName(aFirstName),
-	    lastName(aLastName),
-	    pay(aPay) { }
+        Employee(const std::string& aFirstName,
+                 const std::string& aLastName,
+                 double aPay)
+          : firstName(aFirstName),
+            lastName(aLastName),
+            pay(aPay) { }
     };
 
     Employee employees[] = {

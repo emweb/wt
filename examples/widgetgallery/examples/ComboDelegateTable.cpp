@@ -21,7 +21,7 @@
 class ComboDelegate : public Wt::WItemDelegate {
 public:
     ComboDelegate(std::shared_ptr<Wt::WAbstractItemModel> items)
-	: items_(items)
+        : items_(items)
     { }
 
     virtual void setModelData(const Wt::cpp17::any &editState, Wt::WAbstractItemModel* model,
@@ -36,7 +36,7 @@ public:
     {
         Wt::WComboBox* combo = dynamic_cast<Wt::WComboBox*>
             (dynamic_cast<Wt::WContainerWidget*>(editor)->widget(0));
-	return combo->currentIndex();
+        return combo->currentIndex();
     }
 
     virtual void setEditState(Wt::WWidget *editor, const Wt::WModelIndex& index,
@@ -53,15 +53,15 @@ protected:
     {
         auto container = std::make_unique<Wt::WContainerWidget>();
         auto combo = container->addNew<Wt::WComboBox>();
-	combo->setModel(items_);
-	combo->setCurrentIndex((int)Wt::asNumber(index.data(Wt::ItemDataRole::User)));
+        combo->setModel(items_);
+        combo->setCurrentIndex((int)Wt::asNumber(index.data(Wt::ItemDataRole::User)));
 
-	combo->changed().connect(std::bind(&ComboDelegate::doCloseEditor, this,
-					   container.get(), true));
-	combo->enterPressed().connect(std::bind(&ComboDelegate::doCloseEditor,
-						this, container.get(), true));
-	combo->escapePressed().connect(std::bind(&ComboDelegate::doCloseEditor,
-						 this, container.get(), false));
+        combo->changed().connect(std::bind(&ComboDelegate::doCloseEditor, this,
+                                           container.get(), true));
+        combo->enterPressed().connect(std::bind(&ComboDelegate::doCloseEditor,
+                                                this, container.get(), true));
+        combo->escapePressed().connect(std::bind(&ComboDelegate::doCloseEditor,
+                                                 this, container.get(), false));
 
         return std::move(container);
     }

@@ -17,7 +17,7 @@ void WGradient::setLinearGradient(double x0, double y0, double x1, double y1)
 }
 
 void WGradient::setRadialGradient(double cx, double cy, double r,
-				  double fx, double fy)
+                                  double fx, double fy)
 {
   style_ = GradientStyle::Radial;
   center_ = WPointF(cx, cy);
@@ -57,7 +57,7 @@ bool WGradient::operator==(const WGradient& other) const
   if (style_ == GradientStyle::Linear) {
     return gradientVector_ == other.gradientVector_;
   } else if (style_ == GradientStyle::Radial) {
-    return (center_ == other.center_) && 
+    return (center_ == other.center_) &&
       (focal_ == other.focal_) &&
       (radius_ == other.radius_);
   } else

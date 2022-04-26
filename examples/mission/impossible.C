@@ -18,7 +18,7 @@ std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
       = std::make_unique<WApplication>(env);
 
   appl->root()->addWidget(std::make_unique<WText>("<h1>Your mission</h1>"));
-  WText *secret 
+  WText *secret
     = appl->root()->addWidget(std::make_unique<WText>("Your mission, Jim, should you accept, is to create solid "
                 "web applications."));
 

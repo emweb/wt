@@ -23,7 +23,7 @@ WComboBox::WComboBox()
     selectionChanged_(true),
     currentlyConnected_(false),
     noSelectionEnabled_(false)
-{ 
+{
   setInline(true);
   setFormObject(true);
   setModel(std::make_shared<WStringListModel>());
@@ -54,7 +54,7 @@ void WComboBox::setModel(const std::shared_ptr<WAbstractItemModel> model)
     (model_->modelReset().connect(this, &WComboBox::itemsChanged));
   modelConnections_.push_back
     (model_->layoutAboutToBeChanged().connect(this,
-					      &WComboBox::saveSelection));
+                                              &WComboBox::saveSelection));
   modelConnections_.push_back
     (model_->layoutChanged().connect(this, &WComboBox::layoutChanged));
 
@@ -72,9 +72,9 @@ void WComboBox::rowsRemoved(const WModelIndex &index, int from, int to)
     return;
 
   int count = to - from + 1;
-  
+
   if (currentIndex_ > to) // shift up the selection by amount of removed rows
-    currentIndex_ -= count; 
+    currentIndex_ -= count;
   else if (currentIndex_ >= from) {
     currentIndex_ = -1;
     makeCurrentIndexValid();
@@ -239,72 +239,72 @@ void WComboBox::updateDom(DomElement& element, bool all)
       DomElement *item = DomElement::createNew(DomElementType::OPTION);
       item->setProperty(Property::Value, std::to_string(i));
       item->setProperty(Property::InnerHTML,
-			escapeText(asString(model_->data(i, modelColumn_)))
-			.toUTF8());
+                        escapeText(asString(model_->data(i, modelColumn_)))
+                        .toUTF8());
 
       if (!(model_->flags(model_->index(i, modelColumn_)) &
-	    ItemFlag::Selectable))
-	item->setProperty(Property::Disabled, "true");
+            ItemFlag::Selectable))
+        item->setProperty(Property::Disabled, "true");
 
       if (isSelected(i))
-	item->setProperty(Property::Selected, "true");
+        item->setProperty(Property::Selected, "true");
 
-      WString sc = asString(model_->data(i, modelColumn_, 
-					 ItemDataRole::StyleClass));
+      WString sc = asString(model_->data(i, modelColumn_,
+                                         ItemDataRole::StyleClass));
       if (!sc.empty())
-	item->setProperty(Property::Class, sc.toUTF8());
+        item->setProperty(Property::Class, sc.toUTF8());
 
 
       // Read out opt-group
       WString groupname = Wt::asString(model_->data(i, modelColumn_,
-						    ItemDataRole::Level));
+                                                    ItemDataRole::Level));
 
       bool isSoloItem = false;
       if (groupname.empty()) { // no group
-	isSoloItem = true;
+        isSoloItem = true;
 
-	if (currentGroup) { // possibly close off an active group
-	  if (groupDisabled)
-	    currentGroup->setProperty(Property::Disabled, "true");
-	  element.addChild(currentGroup);
-	  currentGroup = nullptr;
-	}
+        if (currentGroup) { // possibly close off an active group
+          if (groupDisabled)
+            currentGroup->setProperty(Property::Disabled, "true");
+          element.addChild(currentGroup);
+          currentGroup = nullptr;
+        }
       } else {
-	isSoloItem = false;
+        isSoloItem = false;
 
-	// not same as current group
-	if (!currentGroup ||
-	    currentGroup->getProperty(Property::Label) != groupname.toUTF8()) {
-	  if (currentGroup) { // possibly close off an active group
-	    if (groupDisabled)
-	      currentGroup->setProperty(Property::Disabled, "true");
-	    element.addChild(currentGroup);
-	    currentGroup = nullptr;
-	  }
+        // not same as current group
+        if (!currentGroup ||
+            currentGroup->getProperty(Property::Label) != groupname.toUTF8()) {
+          if (currentGroup) { // possibly close off an active group
+            if (groupDisabled)
+              currentGroup->setProperty(Property::Disabled, "true");
+            element.addChild(currentGroup);
+            currentGroup = nullptr;
+          }
 
-	  // make group
-	  currentGroup = DomElement::createNew(DomElementType::OPTGROUP);
-	  currentGroup->setProperty(Property::Label, groupname.toUTF8());
-	  groupDisabled = !(model_->flags(model_->index(i, modelColumn_)) &
-			    ItemFlag::Selectable);
-	} else {
-	  if (model_->flags(model_->index(i, modelColumn_)).test(
-	      ItemFlag::Selectable))
-	    groupDisabled = false;
-	}
+          // make group
+          currentGroup = DomElement::createNew(DomElementType::OPTGROUP);
+          currentGroup->setProperty(Property::Label, groupname.toUTF8());
+          groupDisabled = !(model_->flags(model_->index(i, modelColumn_)) &
+                            ItemFlag::Selectable);
+        } else {
+          if (model_->flags(model_->index(i, modelColumn_)).test(
+              ItemFlag::Selectable))
+            groupDisabled = false;
+        }
       }
-      
+
       if (isSoloItem)
-	element.addChild(item);
+        element.addChild(item);
       else
-	currentGroup->addChild(item);
+        currentGroup->addChild(item);
 
       // last loop and there's still an open group
       if (i == size - 1 && currentGroup) {
-	if (groupDisabled)
-	  currentGroup->setProperty(Property::Disabled, "true");
-	element.addChild(currentGroup);
-	currentGroup = nullptr;
+        if (groupDisabled)
+          currentGroup->setProperty(Property::Disabled, "true");
+        element.addChild(currentGroup);
+        currentGroup = nullptr;
       }
     }
 
@@ -349,9 +349,9 @@ void WComboBox::setFormData(const FormData& formData)
 
     if (!value.empty()) {
       try {
-	currentIndex_ = Utils::stoi(value);
+        currentIndex_ = Utils::stoi(value);
       } catch (std::exception& e) {
-	LOG_ERROR("received illegal form value: '" << value << "'");
+        LOG_ERROR("received illegal form value: '" << value << "'");
       }
     } else
       currentIndex_ = -1;
@@ -381,7 +381,7 @@ void WComboBox::setValueText(const WT_USTRING& value)
   int size = count();
   for (int i = 0; i < size; ++i) {
     if (Wt::asString(model_->index(i, modelColumn_).data(ItemDataRole::Display))
-	== value) {
+        == value) {
       setCurrentIndex(i);
       return;
     }
@@ -402,7 +402,7 @@ void WComboBox::itemsChanged()
 void WComboBox::saveSelection()
 {
   if (currentIndex_ >= 0)
-    currentIndexRaw_ = 
+    currentIndexRaw_ =
       model_->toRawIndex(model_->index(currentIndex_, modelColumn_));
   else
     currentIndexRaw_ = nullptr;
@@ -435,8 +435,8 @@ void WComboBox::layoutChanged()
 int WComboBox::findText(const WString& text, WFlags<MatchFlag> flags) const
 {
   WModelIndexList list = model_->match(model_->index(0, modelColumn_),
-				       ItemDataRole::Display, cpp17::any(text),
-				       1, flags);
+                                       ItemDataRole::Display, cpp17::any(text),
+                                       1, flags);
 
   if (list.empty())
     return -1;

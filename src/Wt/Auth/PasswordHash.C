@@ -13,8 +13,8 @@ PasswordHash::PasswordHash()
 { }
 
 PasswordHash::PasswordHash(const std::string& function,
-			   const std::string& salt,
-			   const std::string& value)
+                           const std::string& salt,
+                           const std::string& value)
   : function_(function),
     salt_(salt),
     value_(value)

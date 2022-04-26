@@ -26,11 +26,11 @@ public:
   enum RenderType { Brief, Detail, Edit };
 
   PostView(BlogSession& session, const std::string& basePath,
-	   dbo::ptr<Post> post, RenderType type);
+           dbo::ptr<Post> post, RenderType type);
 
   virtual void resolveString(const std::string& varName,
                              const std::vector<Wt::WString>& args,
-			     std::ostream& result);
+                             std::ostream& result);
 
 protected:
   virtual void renderTemplate(std::ostream& result);

@@ -173,7 +173,7 @@ public:
    * \sa offset(Side) const
    */
   virtual void setOffsets(const WLength& offset,
-			  WFlags<Side> sides = AllSides) = 0;
+                          WFlags<Side> sides = AllSides) = 0;
 
 #ifdef WT_TARGET_JAVA
   /*! \brief Sets CSS offsets for a non-statically positioned widget.
@@ -374,7 +374,7 @@ public:
    * \note This only works if JavaScript is available.
    */
   virtual void positionAt(const WWidget *widget,
-			  Orientation orientation = Orientation::Vertical);
+                          Orientation orientation = Orientation::Vertical);
 
   /*! \brief Sets the CSS line height for contained text.
    */
@@ -409,7 +409,7 @@ public:
    * This pushes the widget down until it is not surrounded by floats
    * at the \p sides (which may be a combination of Wt::Side::Left and
    * Wt::Side::Right).
-   * 
+   *
    * This applies to CSS-based layout.
    *
    * \sa setFloatSide()
@@ -435,7 +435,7 @@ public:
    * \sa margin()
    */
   virtual void setMargin(const WLength& margin,
-			 WFlags<Side> sides = AllSides) = 0;
+                         WFlags<Side> sides = AllSides) = 0;
 
 #ifdef WT_TARGET_JAVA
   /*! \brief Sets CSS margins around the widget.
@@ -445,7 +445,7 @@ public:
    * \sa setMargin(const WLength&, WFlags<Side>)
    */
   virtual void setMargin(int pixels,
-			 WFlags<Side> sides = AllSides);
+                         WFlags<Side> sides = AllSides);
 #endif // WT_TARGET_JAVA
 
   /*! \brief Returns a CSS margin set.
@@ -489,7 +489,7 @@ public:
    * \endif
    */
   virtual void setHidden(bool hidden,
-			 const WAnimation& animation = WAnimation()) = 0;
+                         const WAnimation& animation = WAnimation()) = 0;
 
   /*! \brief Returns whether the widget is set hidden.
    *
@@ -630,7 +630,7 @@ public:
    * flexible way to provide many widgets the same markup.
    *
    * Setting an empty string removes the style class(es).
-   * 
+   *
    * \sa WApplication::styleSheet()
    */
   virtual void setStyleClass(const WT_USTRING& styleClass) = 0;
@@ -655,7 +655,7 @@ public:
    * are all not yet present on the element.
    */
   virtual void addStyleClass(const WT_USTRING& styleClass,
-			     bool force = false) = 0;
+                             bool force = false) = 0;
 
   void addStyleClass(const char *styleClass, bool force = false);
 
@@ -669,14 +669,14 @@ public:
    * The \p styleClass should be a single class
    */
   virtual void removeStyleClass(const WT_USTRING& styleClass,
-				bool force = false) = 0;
+                                bool force = false) = 0;
 
   void removeStyleClass(const char *styleClass, bool force = false);
 
   /*! \brief Toggles a CSS style class.
    */
   virtual void toggleStyleClass(const WT_USTRING& styleClass, bool add,
-				bool force = false);
+                                bool force = false);
 
   void toggleStyleClass(const char *styleClass, bool add, bool force = false);
 
@@ -692,7 +692,7 @@ public:
    * This applies to CSS-based layout.
    */
   virtual void setVerticalAlignment(AlignmentFlag alignment,
-				    const WLength& length = WLength::Auto) = 0;
+                                    const WLength& length = WLength::Auto) = 0;
 
   /*! \brief Returns the vertical alignment.
    *
@@ -722,7 +722,7 @@ public:
    * \sa setDeferredTooltip()
    */
   virtual void setToolTip(const WString& text,
-			  TextFormat textFormat = TextFormat::Plain) = 0;
+                          TextFormat textFormat = TextFormat::Plain) = 0;
 
   /*! \brief Returns the tooltip.
    */
@@ -777,7 +777,7 @@ public:
    * \sa JSlot, doJavaScript()
    */
   virtual void setAttributeValue(const std::string& name,
-				 const WT_USTRING& value) = 0;
+                                 const WT_USTRING& value) = 0;
 
   /*! \brief Returns an attribute value.
    *
@@ -799,7 +799,7 @@ public:
    * instead of setting the CSS width and height properties.
    */
   virtual void setJavaScriptMember(const std::string& name,
-				   const std::string& value) = 0;
+                                   const std::string& value) = 0;
 
   /*! \brief Returns the value of a JavaScript member.
    *
@@ -814,7 +814,7 @@ public:
    * \sa setJavaScriptMember()
    */
   virtual void callJavaScriptMember(const std::string& name,
-				    const std::string& args) = 0;
+                                    const std::string& args) = 0;
 
   /*! \brief Short hand for WString::tr()
    *
@@ -925,7 +925,7 @@ public:
    * \sa dropEvent(), WInteractWidget::setDraggable(), stopAcceptDrops()
    */
   virtual void acceptDrops(const std::string& mimeType,
-			   const WT_USTRING& hoverStyleClass = WT_USTRING());
+                           const WT_USTRING& hoverStyleClass = WT_USTRING());
 
   /*! \brief Indicates that a mime type is no longer accepted for dropping.
    *
@@ -1092,7 +1092,7 @@ public:
    *       may not be correctly emitted, because then Wt can't properly keep track of
    *       the state that the widget is in on the client side.
    *       This feature is not intended to be toggled on and off, but rather enabled
-   * 	   once and disabled once after that.
+   *       once and disabled once after that.
    */
   virtual void setScrollVisibilityEnabled(bool enabled) = 0;
 
@@ -1131,15 +1131,15 @@ public:
    *
    * By default all widgets are styled according to the chosen theme.
    * Disabling the theme style could be useful to completely customize the style of the widget
-   * outside of the theme. 
+   * outside of the theme.
    *
-   * \note This should be changed after the construction but before the rendering 
+   * \note This should be changed after the construction but before the rendering
    * of the widget.
    */
   virtual void setThemeStyleEnabled(bool enabled) = 0;
 
   /*!
-   * \brief Returns whether this widget is currently styled by 
+   * \brief Returns whether this widget is currently styled by
    * the chosen theme.
    *
    * isThemeEnabled() is initially true.
@@ -1291,9 +1291,9 @@ protected:
   virtual void propagateSetVisible(bool visible) = 0;
 
   void getDrop(const std::string sourceId, const std::string mimeType,
-	       WMouseEvent event);
+               WMouseEvent event);
   void getDropTouch(const std::string sourceId, const std::string mimeType,
-	       WTouchEvent event);
+               WTouchEvent event);
 
   virtual void setHideWithOffsets(bool how = true) = 0;
 
@@ -1341,15 +1341,15 @@ protected:
   bool needRerender() const { return flags_.test(BIT_NEED_RERENDER); }
 
   virtual void getSDomChanges(std::vector<DomElement *>& result,
-			      WApplication *app) = 0;
+                              WApplication *app) = 0;
   virtual bool needsToBeRendered() const = 0;
   bool isInLayout() const;
 
   virtual bool hasParent() const;
 
   WCssTextRule *addCssRule(const std::string& selector,
-			   const std::string& declarations,
-			   const std::string& ruleName = std::string());
+                           const std::string& declarations,
+                           const std::string& ruleName = std::string());
 
   bool isGlobalWidget() const;
 

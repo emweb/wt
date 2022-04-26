@@ -23,29 +23,29 @@ WLegend::WLegend()
   legendFont_.setFamily(FontFamily::SansSerif, "Arial");
   legendFont_.setSize(WLength(10, LengthUnit::Point));
 }
-    
+
 void WLegend::setLegendEnabled(bool enabled) {
   if (legendEnabled_ != enabled) {
     legendEnabled_ = enabled;
   }
 }
-    
-void WLegend::setLegendLocation(LegendLocation location, 
-				Side side, 
-				AlignmentFlag alignment)
+
+void WLegend::setLegendLocation(LegendLocation location,
+                                Side side,
+                                AlignmentFlag alignment)
 {
   legendLocation_ = location;
   legendSide_ = side;
   legendAlignment_ = alignment;
 }
-    
-void WLegend::setLegendStyle(const WFont &font, 
-			     const WPen &border, 
-			     const WBrush &background)
+
+void WLegend::setLegendStyle(const WFont &font,
+                             const WPen &border,
+                             const WBrush &background)
 {
   legendFont_ = font;
   legendBorder_ = border;
-  legendBackground_ = background;  
+  legendBackground_ = background;
 }
 
 void WLegend::setLegendColumns(int columns)

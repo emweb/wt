@@ -18,7 +18,7 @@ namespace Wt {
 LOGGER("WebMain");
 
 WebMain::WebMain(WServer *server, WebStream *stream,
-		 std::string singleSessionId)
+                 std::string singleSessionId)
   : server_(server),
     stream_(stream),
     singleSessionId_(singleSessionId),
@@ -67,8 +67,8 @@ void WebMain::run()
       // Asio's io_service::post does no such thing, so calling the function
       // of the superclass if fine.
       static_cast<Wt::AsioWrapper::asio::io_service&>(server_->ioService())
-	.post(std::bind(&WebController::handleRequest,
-	      &controller(), request));
+        .post(std::bind(&WebController::handleRequest,
+              &controller(), request));
     }
   }
 

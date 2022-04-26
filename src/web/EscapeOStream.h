@@ -25,7 +25,7 @@ class WT_ESCAPEOSTREAM_API EscapeOStream
 {
 public:
   enum RuleSet { Empty = 0, HtmlAttribute = 1,
-		 JsStringLiteralSQuote = 2, JsStringLiteralDQuote = 3, 
+                 JsStringLiteralSQuote = 2, JsStringLiteralDQuote = 3,
                  Plain = 4, PlainTextNewLines = 5 };
 
   EscapeOStream();

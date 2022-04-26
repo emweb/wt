@@ -17,32 +17,32 @@
       <p>${tr:Wt.Auth.login-form-info}</p>
 
       <div class="Wt-fields">
-	${<if:passwords>}
+        ${<if:passwords>}
           <label for="${id:user-name}">${user-name-label}
             ${user-name-info class="Wt-info"}
-	  </label>
-	  ${user-name}
+          </label>
+          ${user-name}
 
-	  ${block:Wt.Auth.field password}
-	  ${block:Wt.Auth.field remember-me}
-	 ${</if:passwords>}
+          ${block:Wt.Auth.field password}
+          ${block:Wt.Auth.field remember-me}
+         ${</if:passwords>}
       </div>
 
       ${<if:oauth>}
 
         <div class="Wt-col-right">
-	  <h3>Or use:</h3>
-	  ${icons}
-	</div>
+          <h3>Or use:</h3>
+          ${icons}
+        </div>
 
       ${</if:oauth>}
 
       <div class="Wt-buttons">
-	${login}
+        ${login}
       </div>
 
       <div class="Wt-buttons">
-	${lost-password} ${sep} ${register}
+        ${lost-password} ${sep} ${register}
       </div>
     </div>
   </message>
@@ -56,29 +56,29 @@
 
       <div class="Wt-fields">
         ${<if:user-name>}
-	  <label for="${id:user-name}">${user-name-label}
-	    ${user-name-info class="Wt-info"}
-	    ${confirm-is-you class="Wt-info"}
-	  </label>
-	  ${user-name}
-	${</if:user-name>}
+          <label for="${id:user-name}">${user-name-label}
+            ${user-name-info class="Wt-info"}
+            ${confirm-is-you class="Wt-info"}
+          </label>
+          ${user-name}
+        ${</if:user-name>}
 
-	${block:Wt.Auth.field choose-password}
-	${block:Wt.Auth.field repeat-password}
-	${block:Wt.Auth.field email}
+        ${block:Wt.Auth.field choose-password}
+        ${block:Wt.Auth.field repeat-password}
+        ${block:Wt.Auth.field email}
       </div>
 
       ${<if:oauth>}
         <br clear="both" />
-	${oauth-description}
-	<label>${tr:Wt.Auth.oauth}
-	  <span class="Wt-info">${tr:Wt.Auth.oauth-info}</span>
-	</label>
-	${icons}
+        ${oauth-description}
+        <label>${tr:Wt.Auth.oauth}
+          <span class="Wt-info">${tr:Wt.Auth.oauth-info}</span>
+        </label>
+        ${icons}
       ${</if:oauth>}
 
       <div class="Wt-buttons">
-	${ok-button} ${cancel-button}
+        ${ok-button} ${cancel-button}
       </div>
     </div>
   </message>
@@ -89,17 +89,17 @@
       <p>${tr:Wt.Auth.update-password-form-info}</p>
 
       <div class="Wt-fields">
-	<label for="${id:user-name}">${tr:Wt.Auth.user-name}
-	</label>
-	${user-name}
+        <label for="${id:user-name}">${tr:Wt.Auth.user-name}
+        </label>
+        ${user-name}
 
-	${block:Wt.Auth.field password}
-	${block:Wt.Auth.field choose-password}
-	${block:Wt.Auth.field repeat-password}
+        ${block:Wt.Auth.field password}
+        ${block:Wt.Auth.field choose-password}
+        ${block:Wt.Auth.field repeat-password}
       </div>
 
       <div class="Wt-buttons">
-	${ok-button} ${cancel-button}
+        ${ok-button} ${cancel-button}
       </div>
     </div>
   </message>
@@ -110,14 +110,14 @@
       <p>${tr:Wt.Auth.lost-password-form-info}</p>
 
       <div class="Wt-fields">
-	<label for="${id:email}">${tr:Wt.Auth.email}
-	  <span class="Wt-info">${tr:Wt.Auth.email-info}</span>
-	</label>
-	${email}
+        <label for="${id:email}">${tr:Wt.Auth.email}
+          <span class="Wt-info">${tr:Wt.Auth.email-info}</span>
+        </label>
+        ${email}
       </div>
 
       <div class="Wt-buttons">
-	${send-button} ${cancel-button}
+        ${send-button} ${cancel-button}
       </div>
     </div>
   </message>
@@ -128,15 +128,15 @@
       <p>${tr:Wt.Auth.password-prompt-form-info}</p>
 
       <div class="Wt-fields">
-	<label for="${id:user-name}">${tr:Wt.Auth.user-name}
-	</label>
-	${user-name}
+        <label for="${id:user-name}">${tr:Wt.Auth.user-name}
+        </label>
+        ${user-name}
 
-	${block:Wt.Auth.field password}
+        ${block:Wt.Auth.field password}
       </div>
 
       <div class="Wt-buttons">
-	${ok-button} ${cancel-button}
+        ${ok-button} ${cancel-button}
       </div>
     </div>
   </message>

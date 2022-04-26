@@ -3,66 +3,66 @@
   <message id="template">
     <div id="top_wrapper">
       <div id="top_content">
-	${languages}
-	<div id="top_wt">
-	  <a href="//www.emweb.be/">
-	    <img src="/css/wt/emweb_powered.jpg" alt="Emweb" height="22" />
-	  </a>
-	</div>
+        ${languages}
+        <div id="top_wt">
+          <a href="//www.emweb.be/">
+            <img src="/css/wt/emweb_powered.jpg" alt="Emweb" height="22" />
+          </a>
+        </div>
       </div>
     </div>
 
     <div id="banner_wrapper">
       <div id="banner_content">
-	<div id="banner_end">
-	  <div id="banner">
-	    <!-- <a href="#">Wt</a> -->
-	  </div>
-	</div>
+        <div id="banner_end">
+          <div id="banner">
+            <!-- <a href="#">Wt</a> -->
+          </div>
+        </div>
       </div>
     </div>
 
     <div id="main_wrapper" class="home">
       <div id="main_content">
-	<div id="main_menu">
-	  ${menu}
-	  ${sidebar}
-	</div>
-	${contents}
+        <div id="main_menu">
+          ${menu}
+          ${sidebar}
+        </div>
+        ${contents}
 
-	<div class="clearall"></div>
+        <div class="clearall"></div>
       </div>
     </div>
 
     <div id="footer_wrapper">
       <div id="footer_content">
-	<div id="footer_copyright"> 
-	  <a href="//www.emweb.be/">
-	    <img src="/css/wt/emweb_large.jpg" height="25" width="101"
-		 alt="Emweb.be" title="emweb.be"/></a>
-	  Solutions for web-based systems<br/>
-	  <a href="//www.emweb.be/">www.emweb.be</a>
-	</div>
+        <div id="footer_copyright">
+          <a href="//www.emweb.be/">
+            <img src="/css/wt/emweb_large.jpg" height="25" width="101"
+                 alt="Emweb.be" title="emweb.be"/></a>
+          Solutions for web-based systems<br/>
+          <a href="//www.emweb.be/">www.emweb.be</a>
+        </div>
 
-	<div id="footer_menu"> 
-	  <a href="//www.webtoolkit.eu/wt">Home</a>
-	  | <a href="//www.emweb.be/contact">Contact</a>
+        <div id="footer_menu">
+          <a href="//www.webtoolkit.eu/wt">Home</a>
+          | <a href="//www.emweb.be/contact">Contact</a>
 
-	</div>
+        </div>
 
-	<div id="chat"></div>
-	<script type="text/javascript">
-	    /*<![CDATA[*/
-	  setTimeout(function() {
-	    loadScript("//www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat", null);
-	  }, 0);
+        <div id="chat"></div>
+        <script type="text/javascript">
+            /*<![CDATA[*/
+          setTimeout(function() {
+            loadScript("//www.webtoolkit.eu/wt/examples/simplechat/chat.js?div=chat", null);
+          }, 0);
             /* ]]> */
-	</script>
+        </script>
 
-	<div class="clearall"></div>
+        <div class="clearall"></div>
       </div>
       <script type="text/javascript">
-	    /*<![CDATA[*/
+            /*<![CDATA[*/
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -352,7 +352,7 @@ option is a matter of (re)linking to one of these connector libraries!
 <ul>
   <li>Integrates with most common web servers (apache, lighttpd).</li>
   <li>Different session-to-process mapping strategies.</li>
-  <li>Hot deployment: new sessions use the new application version while 
+  <li>Hot deployment: new sessions use the new application version while
     older sessions may continue with their application version.</li>
   <li>Available only for UNIX platforms.</li>
 </ul>
@@ -625,7 +625,7 @@ target="_blank">item model</a>.</p>
       The <i>ContactSuggestions</i> class provides auto-completion of
       the addressees in the To: Cc: and Bcc: fields. The widget
       derives from <a href="//www.webtoolkit.eu/wt/doc/reference/html/classWt_1_1WSuggestionPopup.html"
-	     target="_blank">WSuggestionPopup</a>.
+             target="_blank">WSuggestionPopup</a>.
     </li>
     <li>
       The <i>AttachmentEdit</i> widget uses a <a
@@ -892,7 +892,7 @@ There is also an Oracle driver for Wt::Dbo, which is sold separately and
 can be used only in conjunction with a Commercial License for Wt::Dbo.
 
   </message>
-  
+
   <message id="home.download.packages">
     <h4><span>Available packages</span></h4>
   </message>
@@ -1039,7 +1039,7 @@ the browser:</p>
      mod_fastcgi-2.4.x.<br />Alternatively you may
      use <a href="http://httpd.apache.org/download.cgi#mod_fcgid">mod_fcgid</a>:
      mod_fcgid-2.3.5.
-  </li> 
+  </li>
 </ul>
 
 <h5>For the built-in http deamon, wthttpd:</h5>
@@ -1246,7 +1246,7 @@ and eventually developing a small support library.
 <img class="language-icon" src="/icons/jython-logo.png" alt="Jython"></img>
 
 Albert Cervera i Areny is experimenting to use JWt from <b>Jython</b>,
-another language running on the JVM. He documents how to create and run 
+another language running on the JVM. He documents how to create and run
 the "Hello World!" program in Jython in <a href="http://www.nan-tic.com/en/from-pyqt-to-jythonjwt-setting-up-the-environment">this blog post</a>.
 </div>
 
@@ -1259,7 +1259,7 @@ the "Hello World!" program in Jython in <a href="http://www.nan-tic.com/en/from-
 
   </message>
   <message id="home.documentation">
- 
+
 <h3><span>Documentation</span></h3>
 
 <h4>Build and install</h4>
@@ -1337,8 +1337,8 @@ tips and tricks.
       <h2>Source code for Wt examples</h2>
 
       <p>
-	Browse below the source code for all examples included in 
-	<a href="#/">Wt</a>.
+        Browse below the source code for all examples included in
+        <a href="#/">Wt</a>.
       </p>
     </div>
   </message>
@@ -1350,8 +1350,8 @@ tips and tricks.
       <h2>Source code of the <i>Hello world</i> example</h2>
 
       <p>
-	Browse below the source code for Wt's 
-	<a href="#/examples/">Hello world</a> example.
+        Browse below the source code for Wt's
+        <a href="#/examples/">Hello world</a> example.
       </p>
     </div>
   </message>
@@ -1363,8 +1363,8 @@ tips and tricks.
       <h2>Source code of the <i>Hangman</i> example</h2>
 
       <p>
-	Browse below the source code for Wt's 
-	<a href="#/examples/">Hangman</a> example.
+        Browse below the source code for Wt's
+        <a href="#/examples/">Hangman</a> example.
       </p>
     </div>
   </message>
@@ -1376,8 +1376,8 @@ tips and tricks.
       <h2>Source code of the <i>Charts</i> example</h2>
 
       <p>
-	Browse below the source code for Wt's 
-	<a href="#/examples/charts">Charts</a> example.
+        Browse below the source code for Wt's
+        <a href="#/examples/charts">Charts</a> example.
       </p>
     </div>
   </message>
@@ -1389,8 +1389,8 @@ tips and tricks.
       <h2>Source code of the <i>Treeview</i> example</h2>
 
       <p>
-	Browse below the source code for Wt's <a href="#/examples/treeview">
-	  Treeview</a> example.
+        Browse below the source code for Wt's <a href="#/examples/treeview">
+          Treeview</a> example.
       </p>
     </div>
   </message>
@@ -1402,21 +1402,21 @@ tips and tricks.
       <h2>Source code of the <i>Mail composer</i> example</h2>
 
       <p>
-	Browse below the source code for Wt's 
-	<a href="#/examples/composer">Mail composer</a> example.
+        Browse below the source code for Wt's
+        <a href="#/examples/composer">Mail composer</a> example.
       </p>
     </div>
   </message>
 
   <message id="srcview.title.composer">Example: Mail composer</message>
-  
+
   <message id="srcview.title.CPP.wt-homepage">
     <div class="srcviewtitle">
       <h2>Source code of the <i>Wt homepage</i> example</h2>
 
       <p>
-	Browse below the source code for Wt's 
-	<a href="#/examples/wt-homepage">Homepage</a> example.
+        Browse below the source code for Wt's
+        <a href="#/examples/wt-homepage">Homepage</a> example.
       </p>
     </div>
   </message>
@@ -1428,8 +1428,8 @@ tips and tricks.
       <h2>Source code of the <i>Git explorer</i> example</h2>
 
       <p>
-	Browse below the source code for Wt's 
-	<a href="#/examples/gitmodel">Git explorer</a> example.
+        Browse below the source code for Wt's
+        <a href="#/examples/gitmodel">Git explorer</a> example.
       </p>
     </div>
   </message>
@@ -1441,8 +1441,8 @@ tips and tricks.
       <h2>Source code of the <i>Chat</i> example</h2>
 
       <p>
-	Browse below the source code for Wt's 
-	<a href="#/examples/simplechat">Chat</a> example.
+        Browse below the source code for Wt's
+        <a href="#/examples/simplechat">Chat</a> example.
       </p>
     </div>
   </message>
@@ -1454,8 +1454,8 @@ tips and tricks.
       <h2>Source code of the <i>Widget gallery</i> example</h2>
 
       <p>
-	Browse below the source code for Wt's 
-	<a href="#/examples/widgetgallery">Widget gallery</a> example.
+        Browse below the source code for Wt's
+        <a href="#/examples/widgetgallery">Widget gallery</a> example.
       </p>
     </div>
   </message>

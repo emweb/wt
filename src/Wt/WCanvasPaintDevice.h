@@ -48,7 +48,7 @@ public:
   /*! \brief Create a canvas paint device.
    */
   WCanvasPaintDevice(const WLength& width, const WLength& height,
-		     bool paintUpdate = false);
+                     bool paintUpdate = false);
   virtual ~WCanvasPaintDevice();
 
   virtual WFlags<PaintDeviceFeatureFlag> features() const override;
@@ -60,23 +60,23 @@ public:
   virtual void drawLine(double x1, double y1, double x2, double y2) override;
   virtual void drawPath(const WPainterPath& path) override;
   virtual void drawStencilAlongPath(const WPainterPath &stencil,
-				    const WPainterPath &path,
+                                    const WPainterPath &path,
                                     bool softClipping);
   virtual void drawRect(const WRectF& rectangle) override;
   virtual void drawText(const WRectF& rect,
-			WFlags<AlignmentFlag> alignmentFlags,
-			TextFlag textFlag,
-			const WString& text,
+                        WFlags<AlignmentFlag> alignmentFlags,
+                        TextFlag textFlag,
+                        const WString& text,
                         const WPointF *clipPoint) override;
   virtual void drawTextOnPath(const WRectF &rect,
-			      WFlags<AlignmentFlag> alignmentFlags,
-			      const std::vector<WString> &text,
-			      const WTransform &transform,
-			      const WPainterPath &path,
-			      double angle, double lineHeight,
-			      bool softClipping);
+                              WFlags<AlignmentFlag> alignmentFlags,
+                              const std::vector<WString> &text,
+                              const WTransform &transform,
+                              const WPainterPath &path,
+                              double angle, double lineHeight,
+                              bool softClipping);
   virtual WTextItem measureText(const WString& text, double maxWidth = -1,
-				bool wordWrap = false) override;
+                                bool wordWrap = false) override;
   virtual WFontMetrics fontMetrics() override;
   virtual void init() override;
   virtual void done() override;

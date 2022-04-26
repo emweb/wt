@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WSuggestionPopup",
  function(APP, el, replacerJS, matcherJS, filterMinLength, filterMore,
-	  defaultValue, isDropDownIconUnfiltered, autoSelectEnabled) {
+          defaultValue, isDropDownIconUnfiltered, autoSelectEnabled) {
    $('.Wt-domRoot').add(el);
 
    el.wtObj = this;
@@ -160,10 +160,10 @@ WT_DECLARE_WT_MEMBER
      var xy = WT.widgetCoordinates(edit, event);
      if (xy.x > edit.offsetWidth - calcButtonWidth(edit)) {
        if (editId != edit.id || !visible()) {
-	 self.showAt(edit, '');
+         self.showAt(edit, '');
        } else {
-	 hidePopup();
-	 editId = null;
+         hidePopup();
+         editId = null;
        }
      }
    };
@@ -171,22 +171,22 @@ WT_DECLARE_WT_MEMBER
    function first(down) {
      var sels = el.childNodes;
      for (n = down ? sels[0] : sels[sels.length-1];
-	  n;
-	  n = down ? n.nextSibling : n.previousSibling) {
+          n;
+          n = down ? n.nextSibling : n.previousSibling) {
        if (WT.hasTag(n, 'LI') && n.style.display != 'none')
-	 return n;
+         return n;
      }
-     
+
      return null;
    }
 
    function next(n, down) {
      for (n = down ? n.nextSibling : n.previousSibling;
-	  n;
-	  n = down ? n.nextSibling : n.previousSibling) {
+          n;
+          n = down ? n.nextSibling : n.previousSibling) {
        if (WT.hasTag(n, 'LI'))
-	 if (n.style.display != 'none')
-	   return n;
+         if (n.style.display != 'none')
+           return n;
      }
 
      return null;
@@ -198,79 +198,79 @@ WT_DECLARE_WT_MEMBER
 
      if (editId != edit.id) {
        if ($(edit).hasClass("Wt-suggest-onedit")) {
-	 editId = edit.id;
-	 droppedDown = false;
+         editId = edit.id;
+         droppedDown = false;
        } else if ($(edit).hasClass("Wt-suggest-dropdown")
-		  && event.keyCode == key_down) {
-	 editId = edit.id;
-	 droppedDown = true;
+                  && event.keyCode == key_down) {
+         editId = edit.id;
+         droppedDown = true;
        } else {
-	 editId = null;
-	 return true;
+         editId = null;
+         return true;
        }
      }
 
      if (visible()) {
        var sel = selId ? WT.getElement(selId) : null;
-       
+
        if ((event.keyCode == key_enter) || (event.keyCode == key_tab)) {
-	 /*
-	  * Select currently selectd
-	  */
-	 if (sel) {
+         /*
+          * Select currently selectd
+          */
+         if (sel) {
            suggestionClicked(sel);
            WT.cancelEvent(event);
-	   setTimeout(function() { edit.focus(); }, 0);
-	 } else {
-	   hidePopup();
-	 }
-	 return false;
+           setTimeout(function() { edit.focus(); }, 0);
+         } else {
+           hidePopup();
+         }
+         return false;
        } else if (   event.keyCode == key_down
-		  || event.keyCode == key_up
-		  || event.keyCode == key_pdown
-		  || event.keyCode == key_pup) {
-	 /*
-	  * Handle navigation in list
-	  */
+                  || event.keyCode == key_up
+                  || event.keyCode == key_pdown
+                  || event.keyCode == key_pup) {
+         /*
+          * Handle navigation in list
+          */
          if (event.type.toUpperCase() == 'KEYDOWN') {
            kd = true;
-	   WT.cancelEvent(event, WT.CancelDefaultAction);
-	 }
+           WT.cancelEvent(event, WT.CancelDefaultAction);
+         }
 
          if (event.type.toUpperCase() == 'KEYPRESS' && kd == true) {
            WT.cancelEvent(event);
            return false;
          }
 
-	 /*
-	  * Find next selected node
-	  */
-	 var n = sel,
-	     down = event.keyCode == key_down || event.keyCode == key_pdown;
-	 if (!n) {
-	   n = first(down);
-	   scrollToSelected(n);
-	 } else {
+         /*
+          * Find next selected node
+          */
+         var n = sel,
+             down = event.keyCode == key_down || event.keyCode == key_pdown;
+         if (!n) {
+           n = first(down);
+           scrollToSelected(n);
+         } else {
            var count = (event.keyCode == key_pdown || event.keyCode == key_pup ?
-			el.clientHeight / sel.offsetHeight : 1),
-	       i;
+                        el.clientHeight / sel.offsetHeight : 1),
+               i;
 
-	   for (i = 0; n && i < count; ++i) {
-	     var l = next(n, down);
-	     if (!l && autoSelectEnabled)
-	       break;
-	     n = l;
-	   }
-	 }
+           for (i = 0; n && i < count; ++i) {
+             var l = next(n, down);
+             if (!l && autoSelectEnabled)
+               break;
+             n = l;
+           }
+         }
 
-	 /*
-	  * Update selection
-	  */
-	 if (sel) {
+         /*
+          * Update selection
+          */
+         if (sel) {
            sel.className = '';
-	   selId = null;
-	 }
-	 if (n && WT.hasTag(n, 'LI')) {
+           selId = null;
+         }
+         if (n && WT.hasTag(n, 'LI')) {
            n.className = 'active';
            if (typeof APP.theme === 'object' &&
                APP.theme.type === 'bootstrap' &&
@@ -307,11 +307,11 @@ WT_DECLARE_WT_MEMBER
     * Refilter the current selection list based on the edit value.
     */
    this.refilter = function(value) {
-	 if(!editId) {
-	   //If edit is null we probably have already choosen a suggestion and 
-	   //we therefore don't need to refilter!
-	   return;
-	 }
+         if(!editId) {
+           //If edit is null we probably have already choosen a suggestion and
+           //we therefore don't need to refilter!
+           return;
+         }
 
      var sel = selId ? WT.getElement(selId) : null,
          edit = WT.getElement(editId),
@@ -323,20 +323,20 @@ WT_DECLARE_WT_MEMBER
 
      if (filterMinLength > 0 || filterMore) {
        if (text.length < filterMinLength && !droppedDown) {
-	 hidePopup();
-	 return;
+         hidePopup();
+         return;
        } else {
-	 var nf = filterPartial ?
-	   text :
-	   text.substring(0, Math.max(filter !== null ? filter.length : 0,
-				      filterMinLength));
+         var nf = filterPartial ?
+           text :
+           text.substring(0, Math.max(filter !== null ? filter.length : 0,
+                                      filterMinLength));
 
-	 if (nf != filter) {
-	   if (nf != filtering) {
-	     filtering = nf;
-	     APP.emit(el, "filter", nf);
-	   }
-	 }
+         if (nf != filter) {
+           if (nf != filtering) {
+             filtering = nf;
+             APP.emit(el, "filter", nf);
+           }
+         }
        }
      }
 
@@ -347,30 +347,30 @@ WT_DECLARE_WT_MEMBER
      for (i = 0, il = sels.length; i < il; ++i) {
        var child = sels[i];
        if (WT.hasTag(child, 'LI')) {
-	 var a = child.firstChild;
+         var a = child.firstChild;
          if (child.orig == null) {
            child.orig = a.firstChild.innerHTML;
-	 }
+         }
 
-	 var result = matcher(child.orig),
-	     match = showall || result.match;
+         var result = matcher(child.orig),
+             match = showall || result.match;
 
-	 if (result.suggestion != a.firstChild.innerHTML)
-	   a.firstChild.innerHTML = result.suggestion;
+         if (result.suggestion != a.firstChild.innerHTML)
+           a.firstChild.innerHTML = result.suggestion;
 
          if (match) {
-	   if (child.style.display != '')
+           if (child.style.display != '')
              child.style.display = '';
            if (first == null)
-	     first = child;
-	   if (i == this.defaultValue) {
-	     toselect = child;
-	   }
+             first = child;
+           if (i == this.defaultValue) {
+             toselect = child;
+           }
          } else if (child.style.display != 'none')
            child.style.display = 'none';
 
-	 if (child.className != '')
-	   child.className = '';
+         if (child.className != '')
+           child.className = '';
        }
      }
 
@@ -378,24 +378,24 @@ WT_DECLARE_WT_MEMBER
        hidePopup();
      } else {
        if (!visible()) {
-	 positionPopup(edit);
-	 self.showPopup(edit);
-	 sel = null;
+         positionPopup(edit);
+         self.showPopup(edit);
+         sel = null;
        }
 
        if ((autoSelectEnabled || toselect) && (!sel || (sel.style.display == 'none'))) {
-	 sel = toselect || first ;
-	 sel.parentNode.scrollTop = 0;
+         sel = toselect || first ;
+         sel.parentNode.scrollTop = 0;
          selId = sel.id;
        }
 
        if (sel) {
-	 sel.className = 'active';
+         sel.className = 'active';
          if (typeof WT.theme === 'object' &&
              WT.theme.type === 'bootstrap' &&
              WT.theme.version >= 4)
           sel.firstChild.className += ' active';
-	 scrollToSelected(sel);
+         scrollToSelected(sel);
        }
      }
    };
@@ -408,8 +408,8 @@ WT_DECLARE_WT_MEMBER
        return;
 
      if (!visible()
-	 && (event.keyCode == key_enter
-	     || event.keyCode == key_tab)) {
+         && (event.keyCode == key_enter
+             || event.keyCode == key_tab)) {
        return;
      }
 
@@ -424,12 +424,12 @@ WT_DECLARE_WT_MEMBER
        // do nothing
      } else {
        if (edit.value != lastFilterValue) {
-		 editId = edit.id;
-		 self.refilter(edit.value);
-	   } else {
-	 var sel = selId ? WT.getElement(selId) : null;
-	 if (sel)
-	   scrollToSelected(sel);
+                 editId = edit.id;
+                 self.refilter(edit.value);
+           } else {
+         var sel = selId ? WT.getElement(selId) : null;
+         if (sel)
+           scrollToSelected(sel);
        }
      }
    };
@@ -445,7 +445,7 @@ WT_DECLARE_WT_MEMBER
        clearTimeout(delayHideTimeout);
        var edit = WT.getElement(editId);
        if (edit)
-	 edit.focus();
+         edit.focus();
      }
    };
 
@@ -453,7 +453,7 @@ WT_DECLARE_WT_MEMBER
      delayHideTimeout = setTimeout(function() {
        delayHideTimeout = null;
        if (el && (edit == null || editId == edit.id))
-	   hidePopup();
+           hidePopup();
        }, 300);
    };
  });
@@ -461,7 +461,7 @@ WT_DECLARE_WT_MEMBER
 WT_DECLARE_WT_MEMBER
 (2, JavaScriptConstructor, "WSuggestionPopupStdMatcher",
  function(highlightBeginTag, highlightEndTag, listSeparator, whiteSpace,
-	  wordSeparators, wordRegexp, appendReplacedText) {
+          wordSeparators, wordRegexp, appendReplacedText) {
    function parseEdit(edit) {
      var value = edit.value;
      var pos = edit.selectionStart ? edit.selectionStart : value.length;
@@ -492,7 +492,7 @@ WT_DECLARE_WT_MEMBER
          }
          regexp += "]))";
        } else
-	 regexp = "(^)";
+         regexp = "(^)";
      } else
        regexp = "(" + wordRegexp + ")";
 
@@ -503,18 +503,18 @@ WT_DECLARE_WT_MEMBER
 
      return function(suggestion) {
        if (!suggestion)
-	 return value;
+         return value;
 
        var matched = false;
 
        if (value.length) {
-	 var highlighted
-	   = suggestion.replace(regexp, "$1" + highlightBeginTag + "$2"
-				+ highlightEndTag);
-	 if (highlighted != suggestion) {
-	   matched = true;
-	   suggestion = highlighted;
-	 }
+         var highlighted
+           = suggestion.replace(regexp, "$1" + highlightBeginTag + "$2"
+                                + highlightEndTag);
+         if (highlighted != suggestion) {
+           matched = true;
+           suggestion = highlighted;
+         }
        }
 
        return { match: matched, suggestion: suggestion };
@@ -534,7 +534,7 @@ WT_DECLARE_WT_MEMBER
 
      if (edit.selectionStart) {
        edit.selectionStart = range.start + suggestionValue.length
-	 + appendReplacedText.length;
+         + appendReplacedText.length;
        edit.selectionEnd = edit.selectionStart;
      }
    };

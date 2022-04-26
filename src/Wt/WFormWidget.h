@@ -57,7 +57,7 @@ public:
    * this widget.
    */
   virtual void setHidden(bool hidden,
-			 const WAnimation& animation = WAnimation()) override;
+                         const WAnimation& animation = WAnimation()) override;
 
   /*! \brief Returns the current value.
    *
@@ -145,7 +145,7 @@ public:
   virtual void refresh() override;
 
   virtual void setToolTip(const WString& text,
-			  TextFormat textFormat = TextFormat::Plain)
+                          TextFormat textFormat = TextFormat::Plain)
     override;
 
   virtual bool canReceiveFocus() const override;

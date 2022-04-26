@@ -17,14 +17,14 @@ void WLocalizedStrings::hibernate()
 { }
 
 LocalizedString WLocalizedStrings::resolvePluralKey(const WLocale& locale,
-					 const std::string& key, 
-					 ::uint64_t amount)
+                                         const std::string& key,
+                                         ::uint64_t amount)
 {
   throw WException("WLocalizedStrings::resolvePluralKey is not supported");
 }
 
 int WLocalizedStrings::evaluatePluralExpression(const std::string& expression,
-						::uint64_t n)
+                                                ::uint64_t n)
 {
   return WMessageResources::evalPluralCase(expression, n);
 }

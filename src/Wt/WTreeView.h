@@ -106,7 +106,7 @@ namespace Wt {
  * needs to be given an explicit height using resize() which determines the
  * number of rows that are displayed at a time.
  *
- * A snapshot of the WTreeView: 
+ * A snapshot of the WTreeView:
  * \image html WTreeView-default-1.png "WTreeView example (default)"
  * \image html WTreeView-polished-1.png "WTreeView example (polished)"
  *
@@ -227,7 +227,7 @@ public:
   virtual void setCurrentPage(int page) override;
 
   virtual void scrollTo(const WModelIndex& index,
-			ScrollHint hint = ScrollHint::EnsureVisible) override;
+                        ScrollHint hint = ScrollHint::EnsureVisible) override;
   virtual EventSignal<WScrollEvent>& scrolled() override;
 
   virtual void setId(const std::string &id) override;
@@ -289,7 +289,7 @@ private:
         itemMouseDownJS_, rootMouseDownJS_,
         itemMouseUpJS_, rootMouseUpJS_,
         touchStartedJS_, touchMovedJS_, touchEndedJS_;
-  
+
   virtual ColumnInfo createColumnInfo(int column) const override;
 
   void defineJavaScript();
@@ -301,20 +301,20 @@ private:
 
   void modelColumnsInserted(const WModelIndex& parent, int start, int end);
   void modelColumnsAboutToBeRemoved(const WModelIndex& parent,
-				    int start, int end);
+                                    int start, int end);
   void modelColumnsRemoved(const WModelIndex& parent, int start, int end);
   void modelRowsInserted(const WModelIndex& parent, int start, int end);
   void modelRowsAboutToBeRemoved(const WModelIndex& parent, int start, int end);
   void modelRowsRemoved(const WModelIndex& parent, int start, int end);
   virtual void modelDataChanged(const WModelIndex& topLeft,
-				const WModelIndex& bottomRight) override;
+                                const WModelIndex& bottomRight) override;
   virtual void modelLayoutAboutToBeChanged() override;
   virtual void modelLayoutChanged() override;
 
   void onViewportChange(WScrollEvent event);
   void contentsSizeChanged(int width, int height);
   void onItemEvent(std::string nodeAndColumnId, std::string type,
-		   std::string extra1, std::string extra2, WMouseEvent event);
+                   std::string extra1, std::string extra2, WMouseEvent event);
   void onRowDropEvent(std::string nodeAndColumnId, std::string sourceId,
                       std::string mimeType, std::string side,
                       WMouseEvent event);
@@ -328,8 +328,8 @@ private:
 
   void shiftModelIndexes(const WModelIndex& parent, int start, int count);
   static int shiftModelIndexes(const WModelIndex& parent, int start, int count,
-			       const std::shared_ptr<WAbstractItemModel>& model,
-			       WModelIndexSet& set);
+                               const std::shared_ptr<WAbstractItemModel>& model,
+                               WModelIndexSet& set);
   static int shiftModelIndexes(const WModelIndex& parent, int start, int count,
                                const std::shared_ptr<WAbstractItemModel>& model,
                                std::unordered_set<WModelIndex>& set);
@@ -346,16 +346,16 @@ private:
   WTreeViewNode *nodeForIndex(const WModelIndex& index) const;
 
   int subTreeHeight(const WModelIndex& index,
-		    int lowerBound = 0,
-		    int upperBound = std::numeric_limits<int>::max()) const;
+                    int lowerBound = 0,
+                    int upperBound = std::numeric_limits<int>::max()) const;
   int renderedRow(const WModelIndex& index,
-		  WWidget *w,
-		  int lowerBound = 0,
-		  int upperBound = std::numeric_limits<int>::max());
+                  WWidget *w,
+                  int lowerBound = 0,
+                  int upperBound = std::numeric_limits<int>::max());
   int getIndexRow(const WModelIndex& index,
-		  const WModelIndex& ancestor,
-		  int lowerBound = 0,
-		  int upperBound = std::numeric_limits<int>::max()) const;
+                  const WModelIndex& ancestor,
+                  int lowerBound = 0,
+                  int upperBound = std::numeric_limits<int>::max()) const;
 
   std::string columnStyleClass(int column) const;
 

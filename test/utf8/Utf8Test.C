@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE( Utf8_test3 )
   Wt::WString ws = w;
 
   std::locale l(std::locale("C"), other_locale,
-		std::locale::collate | std::locale::ctype);
+                std::locale::collate | std::locale::ctype);
 
   std::string s = ws.narrow(l);
 

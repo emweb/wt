@@ -52,7 +52,7 @@ public:
    * Session after a transaction has been finished.
    */
   virtual void returnConnection(std::unique_ptr<SqlConnection>) = 0;
-  
+
   /*! \brief Prepares all connections in the pool for dropping the tables.
    */
   virtual void prepareForDropTables() const = 0;

@@ -51,7 +51,7 @@ WModelIndex WIdentityProxyModel
     return WModelIndex();
 
   return createIndex(sourceIndex.row(), sourceIndex.column(),
-		     sourceIndex.internalPointer());
+                     sourceIndex.internalPointer());
 }
 
 WModelIndex WIdentityProxyModel
@@ -60,7 +60,7 @@ WModelIndex WIdentityProxyModel
   if (!sourceModel() || !proxyIndex.isValid())
     return WModelIndex();
   return createSourceIndex(proxyIndex.row(), proxyIndex.column(),
-			   proxyIndex.internalPointer());
+                           proxyIndex.internalPointer());
 }
 
 void WIdentityProxyModel
@@ -105,32 +105,32 @@ void WIdentityProxyModel
 }
 
 bool WIdentityProxyModel::insertColumns(int column, int count,
-					const WModelIndex &parent)
+                                        const WModelIndex &parent)
 {
   return sourceModel()->insertColumns(column, count, mapToSource(parent));
 }
 
 bool WIdentityProxyModel::insertRows(int row, int count,
-				     const WModelIndex &parent)
+                                     const WModelIndex &parent)
 {
   return sourceModel()->insertRows(row, count, mapToSource(parent));
 }
 
 bool WIdentityProxyModel::removeColumns(int column, int count,
-					const WModelIndex &parent)
+                                        const WModelIndex &parent)
 {
   return sourceModel()->removeColumns(column, count, mapToSource(parent));
 }
 
 bool WIdentityProxyModel::removeRows(int row, int count,
-				     const WModelIndex &parent)
+                                     const WModelIndex &parent)
 {
   return sourceModel()->removeRows(row, count, mapToSource(parent));
 }
 
 bool WIdentityProxyModel::setHeaderData(int section,
-					Orientation orientation,
-					const cpp17::any& value, ItemDataRole role)
+                                        Orientation orientation,
+                                        const cpp17::any& value, ItemDataRole role)
 {
   return sourceModel()->setHeaderData(section, orientation, value, role);
 }

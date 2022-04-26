@@ -208,12 +208,12 @@ public:
    * The widget itself will also define a number of configuration settings
    * and these may be overridden using this method.
    */
-  void setConfigurationSetting(const std::string& name, 
-			       const cpp17::any& value);
+  void setConfigurationSetting(const std::string& name,
+                               const cpp17::any& value);
 
   /*! \brief Returns a TinyMCE configuration setting's value.
    *
-   * An empty Any is returned when no value could be found for the 
+   * An empty Any is returned when no value could be found for the
    * provided argument.
    */
   cpp17::any configurationSetting(const std::string& name) const;
@@ -242,7 +242,7 @@ protected:
   virtual std::string renderRemoveJs(bool recursive) override;
   virtual void updateDom(DomElement& element, bool all) override;
   virtual void getDomChanges(std::vector<DomElement *>& result,
-			     WApplication *app) override;
+                             WApplication *app) override;
   virtual bool domCanBeSaved() const override;
 
   virtual int boxPadding(Orientation orientation) const override;

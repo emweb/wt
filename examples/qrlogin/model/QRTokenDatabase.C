@@ -14,7 +14,7 @@ public:
   QRToken() { }
 
   QRToken(const std::string& aSessionId, const std::string& aHash,
-	  const std::string& aUrl) :
+          const std::string& aUrl) :
     sessionId(aSessionId),
     hash(aHash),
     url(aUrl)
@@ -37,13 +37,13 @@ public:
 
 QRTokenDatabase::QRTokenDatabase(Dbo::Session& session)
   : session_(session)
-{ 
+{
   session_.mapClass<QRToken>("qr_token");
 }
 
 void QRTokenDatabase::addToken(const std::string& sessionId,
-			       const std::string& hash,
-			       const std::string& url)
+                               const std::string& hash,
+                               const std::string& url)
 {
   Dbo::Transaction t(session_);
 

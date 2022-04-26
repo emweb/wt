@@ -188,8 +188,8 @@ void WPopupMenu::popup(const WPoint& p)
   setOffsets(-10000, Side::Left | Side::Top);
 
   doJavaScript(WT_CLASS ".positionXY('" + id() + "',"
-	       + std::to_string(p.x()) + ","
-	       + std::to_string(p.y()) + ");");
+               + std::to_string(p.x()) + ","
+               + std::to_string(p.y()) + ");");
 }
 
 void WPopupMenu::prepareRender(WApplication *app)

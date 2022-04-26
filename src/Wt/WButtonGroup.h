@@ -76,7 +76,7 @@ public:
    * \note The \link WRadioButton WRadioButtons\endlink associated with this
    *       WButtonGroup keep a shared_ptr to this WButtonGroup. Therefore, you
    *       should store a WButtonGroup in a shared_ptr (e.g. construct it with
-   * 	   make_shared) before adding any radio buttons to it.
+   *       make_shared) before adding any radio buttons to it.
    */
   WButtonGroup();
 

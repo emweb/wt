@@ -25,7 +25,7 @@ enum class FontFamily {
 
 /*! \brief The font style.
  */
-enum class FontStyle { 
+enum class FontStyle {
   Normal,   //!< Normal (default)
   Italic,   //!< Italic
   Oblique   //!< Oblique
@@ -35,7 +35,7 @@ enum class FontStyle {
  */
 enum class FontVariant {
   Normal,    //!< Normal (default)
-  SmallCaps  //!< Small Capitals 
+  SmallCaps  //!< Small Capitals
 };
 
 /*! \brief The font weight.
@@ -118,7 +118,7 @@ public:
    * \endcode
    */
   void setFamily(FontFamily genericFamily,
-		 const WString& specificFamilies = WString());
+                 const WString& specificFamilies = WString());
 
   /*! \brief Returns the font generic family.
    */

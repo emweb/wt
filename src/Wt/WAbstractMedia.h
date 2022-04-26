@@ -47,7 +47,7 @@ public:
 
   /*! \brief Typedef for enum Wt::MediaReadyState */
   typedef MediaReadyState ReadyState;
-  
+
   /*! \brief Consctructor for a media widget.
    *
    * A freshly constructed media widget has no options set, no media
@@ -96,7 +96,7 @@ public:
    * attributes.
    */
   void addSource(const WLink& source, const std::string &type = "",
-		 const std::string &media = "");
+                 const std::string &media = "");
 
   /*! \brief Content to be shown when media cannot be played
    *
@@ -189,7 +189,7 @@ public:
 
 protected:
   virtual void getDomChanges(std::vector<DomElement *>& result,
-			     WApplication *app) override;
+                             WApplication *app) override;
   virtual DomElement *createDomElement(WApplication *app) override;
   virtual void iterateChildren(const HandleWidgetMethod& method) const override;
 
@@ -200,7 +200,7 @@ protected:
   virtual void enableAjax() override;
 
 private:
-  struct Source 
+  struct Source
 #ifdef WT_TARGET_JAVA
     : public WObject
 #endif
@@ -217,7 +217,7 @@ private:
     WLink link;
   };
   void renderSource(DomElement* element, WAbstractMedia::Source &source,
-		    bool isLast);
+                    bool isLast);
 
   std::vector<std::unique_ptr<Source> > sources_;
   std::size_t sourcesRendered_;
@@ -234,7 +234,7 @@ private:
   double duration_;
   bool ended_;
   MediaReadyState readyState_;
-  
+
   static const char *PLAYBACKSTARTED_SIGNAL;
   static const char *PLAYBACKPAUSED_SIGNAL;
   static const char *ENDED_SIGNAL;

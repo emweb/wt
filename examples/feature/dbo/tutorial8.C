@@ -31,7 +31,7 @@ struct MembershipId {
 
   MembershipId(dbo::ptr<Person> p, dbo::ptr<Organisation> o)
     : person(p),
-      organisation(o) 
+      organisation(o)
   { }
 
   bool operator== (const MembershipId& other) const {
@@ -58,7 +58,7 @@ namespace Wt {
 
     template <class Action>
     void field(Action& action, MembershipId& mid, const std::string& name,
-	       int /*size*/ = -1)
+               int /*size*/ = -1)
     {
       /*
        * Note: here we ignore name because MembershipId is used only
@@ -163,12 +163,12 @@ void run()
     session.add(std::move(ms));
 
     std::cerr << "Joe is member of " << joe->memberships.size()
-	      << " organisation(s):" << std::endl;
-    for (dbo::collection< dbo::ptr<Membership> >::const_iterator i = 
-	   joe->memberships.begin(); i != joe->memberships.end(); ++i) {
+              << " organisation(s):" << std::endl;
+    for (dbo::collection< dbo::ptr<Membership> >::const_iterator i =
+           joe->memberships.begin(); i != joe->memberships.end(); ++i) {
       const Membership& ms = **i;
       std::cerr << " " << ms.id.organisation->name
-		<< " (karma: " << ms.karma << ")" << std::endl;
+                << " (karma: " << ms.karma << ")" << std::endl;
     }
   }
 }

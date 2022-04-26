@@ -27,30 +27,30 @@ BOOST_AUTO_TEST_CASE( json_generate_object )
 {
   Json::Value initial;
   Json::parse("{"
-	      "  \"first\" : 1,"
-	      "  \"second\" : true,"
-	      "  \"third\" : null,"
-	      "  \"fourth\" : false,"
-	      "  \"fifth\" : 1.25,"
+              "  \"first\" : 1,"
+              "  \"second\" : true,"
+              "  \"third\" : null,"
+              "  \"fourth\" : false,"
+              "  \"fifth\" : 1.25,"
 #if !defined(WT_NO_SPIRIT) && BOOST_VERSION >= 104700 && BOOST_VERSION < 107600
               // We lose precision in earlier versions of boost
-	      "  \"sixth\" : 2.418980221897202e90,"
-	      "  \"seventh\" : 2.713877091499598e75,"
+              "  \"sixth\" : 2.418980221897202e90,"
+              "  \"seventh\" : 2.713877091499598e75,"
 #endif
-	      "  \"eight\" : \"a string type value\","
-	      "  \"ninth\" : {"
-	      "    \"sub-first\" : 1,"
-	      "    \"sub-second\" : 2"
-	      "  },"
-	      "  \"tenth\" : ["
-	      "    true,"
-	      "    false,"
-	      "    null,"
-	      "    666"
-	      "  ]"
-	      "}"
-	      ,
-  	      initial);
+              "  \"eight\" : \"a string type value\","
+              "  \"ninth\" : {"
+              "    \"sub-first\" : 1,"
+              "    \"sub-second\" : 2"
+              "  },"
+              "  \"tenth\" : ["
+              "    true,"
+              "    false,"
+              "    null,"
+              "    666"
+              "  ]"
+              "}"
+              ,
+                initial);
   
   Json::Object obj = initial;
   std::string generated = Json::serialize(obj);
@@ -65,27 +65,27 @@ BOOST_AUTO_TEST_CASE( json_generate_array )
 {
   Json::Value initial;
   Json::parse("["
-	      "  \"string1\","
-	      "  \"string2 (after string1)\","
-	      "  true,"
-	      "  false,"
-	      "  null,"
-	      "  10,"
-	      "  -3.141592,"
-	      "  0.0000369,"
-	      "  1.23e4,"
-	      "  {"
-	      "    \"first\" : \"it works\","
-	      "    \"second\" : true"
-	      "  },"
-	      "  ["
-	      "    10,"
-	      "    20,"
-	      "    30"
-	      "  ]"
-	      "]"
-	      ,
-  	      initial);
+              "  \"string1\","
+              "  \"string2 (after string1)\","
+              "  true,"
+              "  false,"
+              "  null,"
+              "  10,"
+              "  -3.141592,"
+              "  0.0000369,"
+              "  1.23e4,"
+              "  {"
+              "    \"first\" : \"it works\","
+              "    \"second\" : true"
+              "  },"
+              "  ["
+              "    10,"
+              "    20,"
+              "    30"
+              "  ]"
+              "]"
+              ,
+                initial);
 
   Json::Array arr = initial;
   std::string generated = Json::serialize(arr);

@@ -94,7 +94,7 @@ public:
    */
   virtual cpp17::any
   data(const WModelIndex& index, ItemDataRole role = ItemDataRole::Display) const;
-  
+
   /*! \brief Returns header data.
    */
   virtual cpp17::any
@@ -120,9 +120,9 @@ private:
 
     bool operator< (const ChildIndex& other) const {
       if (parentId < other.parentId)
-	return true;
+        return true;
       else if (parentId > other.parentId)
-	return false;
+        return false;
       else return index < other.index;
     }
   };
@@ -135,10 +135,10 @@ private:
     /*! \brief Constructor.
      */
     Tree(int parentId, int index, const Git::ObjectId& object,
-	 int rowCount)
+         int rowCount)
       : index_(parentId, index),
-	treeObject_(object),
-	rowCount_(rowCount)
+        treeObject_(object),
+        rowCount_(rowCount)
     { }
 
     /*! \brief Returns the parent id.

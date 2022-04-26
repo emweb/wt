@@ -57,9 +57,9 @@ WString WLengthValidator::invalidTooShortText() const
       return WString();
     else
       if (maxLength_ == std::numeric_limits<int>::max())
-	return WString::tr("Wt.WLengthValidator.TooShort").arg(minLength_);
+        return WString::tr("Wt.WLengthValidator.TooShort").arg(minLength_);
       else
-	return WString::tr("Wt.WLengthValidator.BadRange")
+        return WString::tr("Wt.WLengthValidator.BadRange")
           .arg(minLength_).arg(maxLength_);
 }
 
@@ -80,9 +80,9 @@ WString WLengthValidator::invalidTooLongText() const
       return WString();
     else
       if (minLength_ == 0)
-	return WString::tr("Wt.WLengthValidator.TooLong").arg(maxLength_);
+        return WString::tr("Wt.WLengthValidator.TooLong").arg(maxLength_);
       else
-	return WString::tr("Wt.WLengthValidator.BadRange")
+        return WString::tr("Wt.WLengthValidator.BadRange")
           .arg(minLength_).arg(maxLength_);
 }
 

@@ -15,7 +15,7 @@ using namespace Wt;
 std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 {
   auto app = std::make_unique<WApplication>(env);
-  
+
   app->setTitle("Hangman");
 
   app->messageResourceBundle().use(app->appRoot() + "strings");

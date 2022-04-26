@@ -29,7 +29,7 @@ WT_DECLARE_WT_MEMBER
              function checkIsOver() {
                  if (!$('#' + id + ':hover').length) {
                      hideToolTip();
-		 }
+                 }
              }
 
              function loadToolTipText() {

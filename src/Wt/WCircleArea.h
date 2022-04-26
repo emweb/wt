@@ -39,11 +39,11 @@ class WT_API WCircleArea : public WAbstractArea
 public:
   /*! \brief Default constructor.
    *
-   * Specifies a circular area with center (0, 0) and radius 0. 
+   * Specifies a circular area with center (0, 0) and radius 0.
    */
   WCircleArea();
 
-  /*! \brief Creates a circular area with given geometry. 
+  /*! \brief Creates a circular area with given geometry.
    *
    * The arguments are in pixel units.
    */
@@ -69,7 +69,7 @@ public:
    */
   int centerY() const { return static_cast<int>(y_); }
 
-  /*! \brief Sets the radius. 
+  /*! \brief Sets the radius.
    */
   void setRadius(int radius);
 

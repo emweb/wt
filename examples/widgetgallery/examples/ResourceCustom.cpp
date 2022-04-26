@@ -11,17 +11,17 @@ public:
     MyResource()
         : WResource()
     {
-	suggestFileName("data.txt");
+        suggestFileName("data.txt");
     }
 
     ~MyResource() {
-	beingDeleted();
+        beingDeleted();
     }
 
     void handleRequest(const Wt::Http::Request &request,
                        Wt::Http::Response &response) {
-	response.setMimeType("plain/text");
-	response.out() << "I am a text file." << std::endl;
+        response.setMimeType("plain/text");
+        response.out() << "I am a text file." << std::endl;
     }
 };
 

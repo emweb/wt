@@ -28,16 +28,16 @@ namespace {
     auto clientSubjectDn = sslInfo->clientCertificate().subjectDn();
     for (auto &dn : clientSubjectDn) {
       if (dn.name() == WSslCertificate::CommonName) {
-	name = dn.value();
-	break;
+        name = dn.value();
+        break;
       }
     }
-    
+
     std::string der = sslInfo->clientCertificate().toDer();
     return Auth::Identity("CLIENT_SSL", Utils::hexEncode(Utils::sha1(der)),
-			      name,
-			      "",
-			      false);
+                              name,
+                              "",
+                              false);
   }
 }
 
@@ -61,9 +61,9 @@ public:
     if (sslInfo) {
       Auth::Identity id = createIdentity(sslInfo);
       Auth::User u = session_.users().findWithIdentity(id.provider(),
-							   id.id());
-      if (!u.isValid()) 
-	authWidget->registerNewUser(id);
+                                                           id.id());
+      if (!u.isValid())
+        authWidget->registerNewUser(id);
       else
         session_.login().login(u, Auth::LoginState::Weak);
 
@@ -80,7 +80,7 @@ public:
   void authEvent() {
     if (session_.login().loggedIn())
       log("notice") << "User " << session_.login().user().id()
-			<< " logged in.";
+                        << " logged in.";
     else {
       log("notice") << "User logged out.";
       root()->clear();

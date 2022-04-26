@@ -36,33 +36,33 @@ public:
 
     if (textArea_->hasFocus()) {
       if (textArea_->hasSelectedText()) {
-	int i = textArea_->selectionStart();
+        int i = textArea_->selectionStart();
         int j = ((std::u32string) textArea_->selectedText()).length();
 
         t = escape(t.substr(0, i)) + U"<span class=\"sel\">"
           + escape(t.substr(i, j)) + U"</span>"
-	  + escape(t.substr(i + j));
+          + escape(t.substr(i + j));
       } else {
-	int i = textArea_->cursorPosition();
-	if (i >= 0) {
+        int i = textArea_->cursorPosition();
+        if (i >= 0) {
           std::u32string s;
           s = escape(t.substr(0, i)) + U"<span class=\"pos\">";
 
-	  if (i + 1 < (int)t.length()) {
-	    if (t[i] == '\n')
+          if (i + 1 < (int)t.length()) {
+            if (t[i] == '\n')
               s += U" ";
             s += escape(t.substr(i, 1)) + U"</span>";
-	    s += escape(t.substr(i + 1));
-	  } else
+            s += escape(t.substr(i + 1));
+          } else
             s += U" </span>";
 
-	  t = s;
-	}
+          t = s;
+        }
       }
     } else
       t = escape(t);
 
-    return t; 
+    return t;
   }
 
   WTextArea *textArea() { return textArea_; }
@@ -122,12 +122,12 @@ void CoderWidget::insertBuffer(int index)
 void CoderWidget::changed(BufferEditorWidget *editor)
 {
   session_->updateBuffer(buffers_->indexOf(editor), editor->name(),
-			 editor->text());
+                         editor->text());
 }
 
 void CoderWidget::sessionChanged()
 {
   observerCount_->setText(WString("Observers: {1}")
-			  .arg(session_->observerCount()));
+                          .arg(session_->observerCount()));
   WApplication::instance()->triggerUpdate();
 }

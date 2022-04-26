@@ -35,7 +35,7 @@ WCalendar::WCalendar()
   impl_->addStyleClass("Wt-calendar");
 }
 
-void WCalendar::setSelectionMode(SelectionMode mode) 
+void WCalendar::setSelectionMode(SelectionMode mode)
 {
   if (selectionMode_ != mode) {
     if (mode != SelectionMode::Extended && selection_.size() > 1) {
@@ -93,7 +93,7 @@ void WCalendar::create()
   impl_ = t.get();
   setImplementation(std::move(t));
   impl_->setTemplateText(WString::fromUTF8(text.str()),
-			 TextFormat::UnsafeXHTML);
+                         TextFormat::UnsafeXHTML);
   impl_->setStyleClass("Wt-cal");
 
   setSelectable(false);
@@ -155,9 +155,9 @@ void WCalendar::setFirstDayOfWeek(int dayOfWeek)
     int day = (i + firstDayOfWeek_ - 1) % 7 + 1;
 
     WString title = WDate::longDayName(day);
-    impl_->bindString("t" + std::to_string(i), 
-		      title, 
-		      TextFormat::UnsafeXHTML);
+    impl_->bindString("t" + std::to_string(i),
+                      title,
+                      TextFormat::UnsafeXHTML);
 
     WString abbr;
     switch (horizontalHeaderFormat_) {
@@ -171,9 +171,9 @@ void WCalendar::setFirstDayOfWeek(int dayOfWeek)
       abbr = WDate::longDayName(day);
       break;
     }
-   
+
     impl_->bindString("d" + std::to_string(i), abbr,
-		      TextFormat::UnsafeXHTML);
+                      TextFormat::UnsafeXHTML);
   }
 
   renderMonth();
@@ -191,7 +191,7 @@ void WCalendar::setHorizontalHeaderFormat(CalendarHeaderFormat format)
     d = "dlong"; break;
   default:
     LOG_ERROR("setHorizontalHeaderFormat(): "
-	      "improper horizontal header format.");
+              "improper horizontal header format.");
     format = CalendarHeaderFormat::SingleLetterDayNames;
     d = "d1";
   }
@@ -232,43 +232,43 @@ void WCalendar::render(WFlags<RenderFlag> flags)
     // The first line contains the last day of the previous month.
     WDate d(currentYear_, currentMonth_, 1);
     d = d.addDays(-1);
- 
+
     d = WDate::previousWeekday(d, firstDayOfWeek_);
 
     for (unsigned i = 0; i < 6; ++i) {
       for (unsigned j = 0; j < 7; ++j) {
-	Utils::itoa(i * 7 + j, buf);
-	std::string cell = std::string("c") + buf;
-	
-	WDate date(d.year(), d.month(), d.day());
+        Utils::itoa(i * 7 + j, buf);
+        std::string cell = std::string("c") + buf;
 
-	WWidget *w = impl_->resolveWidget(cell);
-	WWidget *rw = renderCell(w, date);
-	WInteractWidget* iw = dynamic_cast<WInteractWidget*>(rw->webWidget());
+        WDate date(d.year(), d.month(), d.day());
 
-	if (rw != w)
-	  impl_->bindWidget(cell, std::unique_ptr<WWidget>(rw));
+        WWidget *w = impl_->resolveWidget(cell);
+        WWidget *rw = renderCell(w, date);
+        WInteractWidget* iw = dynamic_cast<WInteractWidget*>(rw->webWidget());
 
-	if (iw && iw != w) {
-	  if (clicked().isConnected()
-	      || (selectionMode_ == SelectionMode::Extended)
-	      || (selectionMode_ != SelectionMode::Extended && 
-		  singleClickSelect_ && activated().isConnected())) {
+        if (rw != w)
+          impl_->bindWidget(cell, std::unique_ptr<WWidget>(rw));
+
+        if (iw && iw != w) {
+          if (clicked().isConnected()
+              || (selectionMode_ == SelectionMode::Extended)
+              || (selectionMode_ != SelectionMode::Extended &&
+                  singleClickSelect_ && activated().isConnected())) {
             const Coordinate c(i, j);
-	    iw->clicked().connect
-	      (this,
-	       std::bind(&WCalendar::cellClicked, this, c));
+            iw->clicked().connect
+              (this,
+               std::bind(&WCalendar::cellClicked, this, c));
           }
 
-	  if ((selectionMode_ != SelectionMode::Extended &&
-	       !singleClickSelect_ && (activated().isConnected() ||
-		   selectionChanged().isConnected()))) {
+          if ((selectionMode_ != SelectionMode::Extended &&
+               !singleClickSelect_ && (activated().isConnected() ||
+                   selectionChanged().isConnected()))) {
             const Coordinate c(i, j);
-	    iw->doubleClicked().connect
-	      (this,
-	       std::bind(&WCalendar::cellDblClicked, this, c));
+            iw->doubleClicked().connect
+              (this,
+               std::bind(&WCalendar::cellDblClicked, this, c));
           }
-	}
+        }
 
     d = d.addDays(1);
       }
@@ -381,9 +381,9 @@ void WCalendar::selectInCurrentMonth(const WDate& d)
       selectionMode_ != SelectionMode::None) {
     if (selectionMode_ == SelectionMode::Extended) {
       if (isSelected(d))
-	selection_.erase(d);
+        selection_.erase(d);
       else
-	selection_.insert(d);
+        selection_.insert(d);
     } else {
       selection_.clear();
       selection_.insert(d);
@@ -408,8 +408,8 @@ void WCalendar::cellClicked(Coordinate weekday)
 
   selectInCurrentMonth(dt);
   clicked().emit(dt);
-  
-  if (selectionMode_ != SelectionMode::Extended && 
+
+  if (selectionMode_ != SelectionMode::Extended &&
       singleClickSelect_)
     activated().emit(dt);
 }
@@ -499,7 +499,7 @@ void WCalendar::yearChanged(WString yearStr)
     int year = Utils::stoi(yearStr.toUTF8());
 
     if (currentYear_ != year &&
-	(year >= 1900 && year <= 2200)) { // ??
+        (year >= 1900 && year <= 2200)) { // ??
       currentYear_ = year;
 
       emitCurrentPageChanged();

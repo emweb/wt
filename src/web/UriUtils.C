@@ -29,7 +29,7 @@ namespace Wt {
     std::size_t commaPos = uriString.find(",");
     if (commaPos == std::string::npos)
       commaPos = dataEndPos;
-      
+
     mimeType = uriString.substr(dataEndPos, commaPos - dataEndPos);
 
     std::string d = uriString.substr(commaPos + 1);

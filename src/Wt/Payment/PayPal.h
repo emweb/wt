@@ -24,7 +24,7 @@ namespace Wt {
 /*! \brief Enumeration for payment actions.
  *
  * See more information at PayPal:
- * 
+ *
  * https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_nvp_r_SetExpressCheckout
  *
  * \sa setPaymentAction()
@@ -337,7 +337,7 @@ public:
    *
    * \sa setPayServerUrl()
    */
-  std::string payServerUrl() const {return payServerUrl_;}  
+  std::string payServerUrl() const {return payServerUrl_;}
 
   int popupWidth() const;
   int popupHeight() const;
@@ -349,7 +349,7 @@ public:
    * progress of the payment.
    */
   PayPalExpressCheckout *createExpressCheckout(const Customer& customer,
-					       const Order& order);
+                                               const Order& order);
 
 protected:
   virtual std::unique_ptr<Http::Client> createHttpClient();

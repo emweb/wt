@@ -45,8 +45,8 @@ static std::string replaceUrlInStyle(std::string& style, WApplication *app)
     boost::algorithm::trim(url);
     if (url.length() > 2)
       if (url[0] == '\'' || url[1] == '"')
-	url = url.substr(1, url.length() - 2);
-    
+        url = url.substr(1, url.length() - 2);
+
     result << WWebWidget::jsStringLiteral(app->encodeUntrustedUrl(url), '\'');
 
     pos = i->position(1) + i->length(1);
@@ -58,7 +58,7 @@ static std::string replaceUrlInStyle(std::string& style, WApplication *app)
 }
 
 void EncodeRefs(xml_node<> *x_node, WApplication *app,
-		WFlags<RefEncoderOption> options)
+                WFlags<RefEncoderOption> options)
 {
   xml_document<> *doc = x_node->document();
 
@@ -67,53 +67,53 @@ void EncodeRefs(xml_node<> *x_node, WApplication *app,
     if (x_href) {
       std::string path = x_href->value();
       if ((options & EncodeInternalPaths)
-	  && path.length() >= 2 && path.substr(0, 2) == "#/") {
-	path = path.substr(1);
-	std::string addClass, url;
+          && path.length() >= 2 && path.substr(0, 2) == "#/") {
+        path = path.substr(1);
+        std::string addClass, url;
 
-	if (app->environment().ajax()) {
-	  url = app->bookmarkUrl(path);
+        if (app->environment().ajax()) {
+          url = app->bookmarkUrl(path);
 
-	  const char *name = "onclick";
-	  char *value
-	    = doc->allocate_string
-	    ((WT_CLASS".navigateInternalPath(event, "
-	      + WWebWidget::jsStringLiteral(path) + ");").c_str());
+          const char *name = "onclick";
+          char *value
+            = doc->allocate_string
+            ((WT_CLASS".navigateInternalPath(event, "
+              + WWebWidget::jsStringLiteral(path) + ");").c_str());
 
-	  xml_attribute<> *x_click = doc->allocate_attribute(name, value);
-	  x_node->insert_attribute(0, x_click);
+          xml_attribute<> *x_click = doc->allocate_attribute(name, value);
+          x_node->insert_attribute(0, x_click);
 
-	  addClass = "Wt-rr";
-	} else {
-	  if (app->environment().agentIsSpiderBot())
-	    url = app->bookmarkUrl(path);
-	  else
-	    url = app->session()->mostRelativeUrl(path);
+          addClass = "Wt-rr";
+        } else {
+          if (app->environment().agentIsSpiderBot())
+            url = app->bookmarkUrl(path);
+          else
+            url = app->session()->mostRelativeUrl(path);
 
-	  addClass = "Wt-ip";
-	}
+          addClass = "Wt-ip";
+        }
 
-	xml_attribute<> *x_class = x_node->first_attribute("class");
-	std::string styleClass = x_class ? x_class->value() : std::string();
+        xml_attribute<> *x_class = x_node->first_attribute("class");
+        std::string styleClass = x_class ? x_class->value() : std::string();
 
-	styleClass = Utils::addWord(styleClass, addClass);
+        styleClass = Utils::addWord(styleClass, addClass);
 
-	if (x_class)
-	  x_class->value(doc->allocate_string(styleClass.c_str()));
-	else {
-	  x_class = doc->allocate_attribute
-	    ("class", doc->allocate_string(styleClass.c_str()));
-	  x_node->insert_attribute(0, x_class);
-	}
+        if (x_class)
+          x_class->value(doc->allocate_string(styleClass.c_str()));
+        else {
+          x_class = doc->allocate_attribute
+            ("class", doc->allocate_string(styleClass.c_str()));
+          x_node->insert_attribute(0, x_class);
+        }
 
-	x_href->value
-	  (doc->allocate_string(app->resolveRelativeUrl(url).c_str()));
+        x_href->value
+          (doc->allocate_string(app->resolveRelativeUrl(url).c_str()));
       } else if (options & EncodeRedirectTrampoline) {
-	if (path.find("://") != std::string::npos ||
-	    boost::starts_with(path, "//")) {
-	  path = app->encodeUntrustedUrl(path);
-	  x_href->value(doc->allocate_string(path.c_str()));
-	}
+        if (path.find("://") != std::string::npos ||
+            boost::starts_with(path, "//")) {
+          path = app->encodeUntrustedUrl(path);
+          x_href->value(doc->allocate_string(path.c_str()));
+        }
       }
     }
   }
@@ -134,7 +134,7 @@ void EncodeRefs(xml_node<> *x_node, WApplication *app,
       if (x_scr) {
         std::string path = x_scr->value();
         if (path.find("://") != std::string::npos ||
-	    boost::starts_with(path, "//")) {
+            boost::starts_with(path, "//")) {
           path = app->encodeUntrustedUrl(path);
           x_scr->value(doc->allocate_string(path.c_str()));
         }

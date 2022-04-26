@@ -9,11 +9,11 @@ public:
     ThemeExample(const Wt::WEnvironment &env)
         : Wt::WApplication(env)
     {
-	setCssTheme("polished");
+        setCssTheme("polished");
 
-	/*
-	 *  Create UI, Set initial values, ...
-	 */
+        /*
+         *  Create UI, Set initial values, ...
+         */
     }
 }
 

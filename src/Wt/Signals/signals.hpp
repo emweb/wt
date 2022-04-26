@@ -96,8 +96,8 @@ private:
     SignalLink ()
       : SignalLinkBase(&SignalLink::unlinkBase),
         next (nullptr),
-	prev (nullptr),
-	ref_count (1) { }
+        prev (nullptr),
+        ref_count (1) { }
 
     ~SignalLink()
     {
@@ -113,9 +113,9 @@ private:
     {
       ref_count -= 1;
       if (!ref_count)
-	delete this;
+        delete this;
       else
-	assert (ref_count > 0);
+        assert (ref_count > 0);
     }
 
     void unlink(bool doDecref = true)
@@ -141,7 +141,7 @@ private:
     }
 
     Connection add_before (CbFunction &&cb,
-			   const Wt::Core::observable *object)
+                           const Wt::Core::observable *object)
     {
       SignalLink *link = new SignalLink ();
       add_before(link);
@@ -181,8 +181,8 @@ public:
   {
     if (callback_ring_) {
       if (callback_ring_->ref_count == 2) {
-	while (callback_ring_->next != callback_ring_)
-	  callback_ring_->next->unlink();
+        while (callback_ring_->next != callback_ring_)
+          callback_ring_->next->unlink();
       }
       assert (callback_ring_->ref_count >= 2);
       callback_ring_->decref();
@@ -193,7 +193,7 @@ public:
   // Operator to add a new function or lambda as signal handler,
   // returns a handler connection ID.
   Connection connect(CbFunction &&cb,
-		     const Wt::Core::observable *object = nullptr) {
+                     const Wt::Core::observable *object = nullptr) {
     ensure_ring();
     return callback_ring_->add_before(std::move(cb), object);
   }
@@ -207,7 +207,7 @@ public:
    
     do {
       if (link->active())
-	return true;
+        return true;
       link = link->next;
     } while (link != callback_ring_);
 
@@ -273,7 +273,7 @@ public:
     if (callback_ring->ref_count < 2) {
       assert(callback_ring->ref_count == 1);
       while (callback_ring->next != callback_ring)
-	callback_ring->next->unlink();
+        callback_ring->next->unlink();
     }
     callback_ring->decref();
   }
@@ -323,7 +323,7 @@ template <int Bcount, class... Args>
 struct ConnectHelper {
   template <class T, class V, class... B>
   static connection connect(Signal<Args...>& signal,
-			    T *target, void (V::*method)(B...))
+                            T *target, void (V::*method)(B...))
   { 
     return signal.connect
       ([target, method](Args... a) { (target ->* method) (a...); },
@@ -334,7 +334,7 @@ struct ConnectHelper {
 template <class... Args>
 struct ConnectHelper<0, Args...> {
   static connection connect(Signals::Signal<Args...>& signal,
-			    const Core::observable *target,
+                            const Core::observable *target,
                             std::function<void ()>&& f)
   {
     return signal.connect([f WT_CXX14ONLY(=std::move(f))](Args...) { f(); }, target);
@@ -342,7 +342,7 @@ struct ConnectHelper<0, Args...> {
 
   template <class T, class V>
   static connection connect(Signals::Signal<Args...>& signal,
-			    T *target, void (V::*method)())
+                            T *target, void (V::*method)())
   {
     return signal.connect
       ([target, method](Args...) { (target ->* method) (); },
@@ -354,20 +354,20 @@ template <class... Args>
 struct ConnectHelper<1, Args...> {
   template <typename B1, typename... An>
   static connection connect(Signals::Signal<Args...>& signal,
-			    const Core::observable *target,
+                            const Core::observable *target,
                             std::function<void (B1)>&& f)
   {
     return signal.connect([f WT_CXX14ONLY(=std::move(f))](B1 b1, An...) { f(b1); }, target);
   }
 
   template <class T, class V,
-	    typename B1, typename... An>
+            typename B1, typename... An>
   static connection connect(Signals::Signal<Args...>& signal,
-			    T *target, void (V::*method)(B1))
+                            T *target, void (V::*method)(B1))
   {
     return signal.connect
       ([target, method](B1 b1, An...) {
-	(target ->* method) (b1);
+        (target ->* method) (b1);
       }, target);
   }
 };
@@ -376,20 +376,20 @@ template <class... Args>
 struct ConnectHelper<2, Args...> {
   template <typename B1, typename B2, typename... An>
   static connection connect(Signals::Signal<Args...>& signal,
-			    const Core::observable *target,
+                            const Core::observable *target,
                             std::function<void (B1, B2)>&& f)
   {
     return signal.connect([f WT_CXX14ONLY(=std::move(f))](B1 b1, B2 b2, An...) { f(b1, b2); }, target);
   }
 
   template <class T, class V,
-	    typename B1, typename B2, typename... An>
+            typename B1, typename B2, typename... An>
   static Wt::Signals::connection connect(Signals::Signal<Args...>& signal,
-					 T *target, void (V::*method)(B1, B2))
+                                         T *target, void (V::*method)(B1, B2))
   {
     return signal.connect
       ([target, method](B1 b1, B2 b2, An...) {
-	(target ->* method) (b1, b2);
+       (target ->* method) (b1, b2);
       }, target);
   }
 };
@@ -398,23 +398,23 @@ template <class... Args>
 struct ConnectHelper<3, Args...> {
   template <typename B1, typename B2, typename B3, typename... An>
   static connection connect(Signals::Signal<Args...>& signal,
-			    const Core::observable *target,
+                            const Core::observable *target,
                             std::function<void (B1, B2, B3)>&& f)
   {
     return signal.connect([f WT_CXX14ONLY(=std::move(f))](B1 b1, B2 b2, B3 b3, An...) {
-	f(b1, b2, b3);
+        f(b1, b2, b3);
       }, target);
   }
 
   template <class T, class V,
-	    typename B1, typename B2, typename B3, typename... An>
+            typename B1, typename B2, typename B3, typename... An>
   static Wt::Signals::connection connect
      (Signals::Signal<Args...>& signal,
       T *target, void (V::*method)(B1, B2, B3))
   {
     return signal.connect
       ([target, method](B1 b1, B2 b2, B3 b3, An...) {
-	(target ->* method) (b1, b2, b3);
+        (target ->* method) (b1, b2, b3);
       }, target);
   }
 };

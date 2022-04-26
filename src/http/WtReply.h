@@ -35,7 +35,7 @@ class WtReply final : public Reply
 {
 public:
   WtReply(Request& request, const Wt::EntryPoint& ep,
-	  const Configuration &config);
+          const Configuration &config);
 
   virtual void reset(const Wt::EntryPoint *ep) override;
   virtual void writeDone(bool success) override;
@@ -44,19 +44,19 @@ public:
   ~WtReply();
 
   virtual bool consumeData(const char *begin,
-			   const char *end,
-			   Request::State state) override;
+                           const char *end,
+                           Request::State state) override;
 
   virtual bool consumeWebSocketMessage(ws_opcode opcode,
-				       const char* begin,
-				       const char* end,
-				       Request::State state) override;
+                                       const char* begin,
+                                       const char* end,
+                                       Request::State state) override;
 
   void setContentLength(::int64_t length);
   void setContentType(const std::string& type);
   void setLocation(const std::string& location);
   void send(const Wt::WebRequest::WriteCallback& callBack,
-	    bool responseComplete);
+            bool responseComplete);
   void readWebSocketMessage(const Wt::WebRequest::ReadCallback& callBack);
   bool readAvailable();
 
@@ -98,8 +98,8 @@ private:
   void readRestWebSocketHandshake();
 
   void consumeRequestBody(const char *begin,
-			  const char *end,
-			  Request::State state);
+                          const char *end,
+                          Request::State state);
   void formatResponse(std::vector<asio::const_buffer>& result);
 #ifdef WTHTTP_WITH_ZLIB
   int deflate(const unsigned char* in, size_t in_size, unsigned char out[], bool& hasMore);

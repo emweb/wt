@@ -6,7 +6,7 @@
  */
 
 #ifndef MEMBERSHIPID_H
-#define	MEMBERSHIPID_H
+#define        MEMBERSHIPID_H
 
 #include <Wt/Dbo/Dbo.h>
 #include <Wt/Dbo/backend/Sqlite3.h>
@@ -19,22 +19,22 @@ struct MembershipId
 {
   Wt::Dbo::ptr<Person> person;
   Wt::Dbo::ptr<Organisation> organisation;
-  
+
   MembershipId()
   {
   }
-  
+
   MembershipId(Wt::Dbo::ptr<Person> p, Wt::Dbo::ptr<Organisation> o)
   : person(p),
     organisation(o)
   {
   }
-  
+
   bool operator==(const MembershipId & other) const
   {
     return person == other.person && organisation == other.organisation;
   }
-  
+
   bool operator<(const MembershipId & other) const
   {
     if (person < other.person)
@@ -56,26 +56,26 @@ namespace Wt
 {
   namespace Dbo
   {
-    
+
     template<>
     struct dbo_traits<Membership> : public dbo_default_traits
     {
       typedef MembershipId IdType;
-      
+
       static IdType invalidId()
       {
-	return MembershipId();
+        return MembershipId();
       }
-      
+
       static const char *surrogateIdField()
       {
-	return 0;
+        return 0;
       }
     };
 
     template <class Action>
     void field(Action& action, MembershipId& mid, const std::string& name,
-	       int /*size*/ = -1)
+               int /*size*/ = -1)
     {
       /*
        * Note: here we ignore name because MembershipId is used only
@@ -88,4 +88,4 @@ namespace Wt
   }
 }
 
-#endif	/* MEMBERSHIPID_H */
+#endif        /* MEMBERSHIPID_H */

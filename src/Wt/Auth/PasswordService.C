@@ -57,11 +57,11 @@ int PasswordService::delayForNextAttempt(const User& user) const
       int diff = t.secsTo(WDateTime::currentDateTime());
 
       if (diff < throttlingNeeded)
-	return throttlingNeeded - diff;
+        return throttlingNeeded - diff;
       else
-	return 0;
+        return 0;
     } else
-	return 0;
+        return 0;
   } else
     return 0;
 }
@@ -83,7 +83,7 @@ int PasswordService::getPasswordThrottle(int failedAttempts) const
 }
 
 PasswordResult PasswordService::verifyPassword(const User& user,
-					    const WT_USTRING& password) const
+                                               const WT_USTRING& password) const
 {
   std::unique_ptr<AbstractUserDatabase::Transaction> t
     (user.database()->startTransaction());
@@ -116,7 +116,7 @@ PasswordResult PasswordService::verifyPassword(const User& user,
 }
 
 void PasswordService::updatePassword(const User& user,
-				     const WT_USTRING& password) const
+                                     const WT_USTRING& password) const
 {
   PasswordHash pwd = verifier_->hashPassword(password);
   user.setPassword(pwd);

@@ -89,8 +89,8 @@ WPainterPath WPainterPath::clone() const
 #endif
 
 WPointF WPainterPath::getArcPosition(double cx, double cy,
-				     double rx, double ry,
-				     double angle)
+                                     double rx, double ry,
+                                     double angle)
 {
   /*
    * angles are counter-clockwise, which means against the logic of
@@ -204,7 +204,7 @@ void WPainterPath::moveTo(double x, double y)
    * first close previous sub path
    */
   if (!openSubPathsEnabled_ &&
-      !segments_.empty() && 
+      !segments_.empty() &&
       segments_.back().type() != MoveTo) {
     WPointF startP = getSubPathStart();
     WPointF currentP = currentPosition();
@@ -213,7 +213,7 @@ void WPainterPath::moveTo(double x, double y)
       lineTo(startP.x(), startP.y());
   }
 
-  segments_.push_back(Segment(x, y, MoveTo));  
+  segments_.push_back(Segment(x, y, MoveTo));
 }
 
 void WPainterPath::lineTo(const WPointF& point)
@@ -228,13 +228,13 @@ void WPainterPath::lineTo(double x, double y)
 }
 
 void WPainterPath::cubicTo(const WPointF& c1, const WPointF& c2,
-			   const WPointF& endPoint)
+                           const WPointF& endPoint)
 {
   cubicTo(c1.x(), c1.y(), c2.x(), c2.y(), endPoint.x(), endPoint.y());
 }
 
 void WPainterPath::cubicTo(double c1x, double c1y, double c2x, double c2y,
-			   double endPointx, double endPointy)
+                           double endPointx, double endPointy)
 {
   checkModifiable();
   segments_.push_back(Segment(c1x, c1y, CubicC1));
@@ -243,20 +243,20 @@ void WPainterPath::cubicTo(double c1x, double c1y, double c2x, double c2y,
 }
 
 void WPainterPath::arcTo(double cx, double cy, double radius,
-			 double startAngle, double sweepLength)
+                         double startAngle, double sweepLength)
 {
   arcTo(cx - radius, cy - radius, radius * 2, radius * 2,
-	startAngle, sweepLength);
+        startAngle, sweepLength);
 }
 
 void WPainterPath::arcTo(double x, double y, double width, double height,
-			 double startAngle, double sweepLength)
+                         double startAngle, double sweepLength)
 {
   checkModifiable();
   segments_.push_back(Segment(x + width/2, y + height/2, ArcC));
   segments_.push_back(Segment(width/2, height/2, ArcR));
-  segments_.push_back(Segment(startAngle, sweepLength, 
-			      ArcAngleSweep));
+  segments_.push_back(Segment(startAngle, sweepLength,
+                              ArcAngleSweep));
 }
 
 void WPainterPath::arcMoveTo(double cx, double cy, double radius, double angle)
@@ -265,13 +265,13 @@ void WPainterPath::arcMoveTo(double cx, double cy, double radius, double angle)
 }
 
 void WPainterPath::arcMoveTo(double x, double y, double width, double height,
-			     double angle)
+                             double angle)
 {
   moveTo(getArcPosition(x + width/2, y + height/2, width/2, height/2, angle));
 }
 
 void WPainterPath::quadTo(double cx, double cy,
-			  double endPointX, double endPointY)
+                          double endPointX, double endPointY)
 {
   checkModifiable();
   segments_.push_back(Segment(cx, cy, QuadC));
@@ -317,7 +317,7 @@ void WPainterPath::addPolygon(const std::vector<WPointF>& points)
   checkModifiable();
   if (!points.empty()) {
     unsigned i = 0;
-    if (currentPosition() != points[0]) 
+    if (currentPosition() != points[0])
       moveTo(points[i++]);
 
     for (; i < points.size(); ++i)
@@ -353,7 +353,7 @@ bool WPainterPath::asRect(WRectF& result) const
       result.setHeight(segments_[1].y());
       return true;
     } else if (segments_.size() == 5
-	       && segments_[0].type() == MoveTo) {
+               && segments_[0].type() == MoveTo) {
       result.setX(segments_[0].x());
       result.setY(segments_[0].y());
       result.setWidth(segments_[1].x() - segments_[0].x());
@@ -387,49 +387,49 @@ WRectF WPainterPath::controlPointRect(const WTransform& transform) const
       case CubicEnd:
       case QuadC:
       case QuadEnd: {
-	if (identity) {
-	  minX = std::min(s.x(), minX);
- 	  minY = std::min(s.y(), minY);
-	  maxX = std::max(s.x(), maxX);
-	  maxY = std::max(s.y(), maxY);
-	} else {
-	  WPointF p = transform.map(WPointF(s.x(), s.y()));
-	  minX = std::min(p.x(), minX);
- 	  minY = std::min(p.y(), minY);
-	  maxX = std::max(p.x(), maxX);
-	  maxY = std::max(p.y(), maxY);
-	}
-	break;
+        if (identity) {
+          minX = std::min(s.x(), minX);
+           minY = std::min(s.y(), minY);
+          maxX = std::max(s.x(), maxX);
+          maxY = std::max(s.y(), maxY);
+        } else {
+          WPointF p = transform.map(WPointF(s.x(), s.y()));
+          minX = std::min(p.x(), minX);
+           minY = std::min(p.y(), minY);
+          maxX = std::max(p.x(), maxX);
+          maxY = std::max(p.y(), maxY);
+        }
+        break;
       }
       case ArcC: {
-	const Segment& s2 = segments_[i+1];
+        const Segment& s2 = segments_[i+1];
 
-	if (identity) {
-	  WPointF tl(s.x() - s2.x(), s.y() - s2.y());
-	  minX = std::min(tl.x(), minX);
-	  minY = std::min(tl.y(), minY);
+        if (identity) {
+          WPointF tl(s.x() - s2.x(), s.y() - s2.y());
+          minX = std::min(tl.x(), minX);
+          minY = std::min(tl.y(), minY);
 
-	  WPointF br(s.x() + s2.x(), s.y() + s2.y());
-	  maxX = std::max(br.x(), maxX);
-	  maxY = std::max(br.y(), maxY);
-	} else {
-	  WPointF p1 = transform.map(WPointF(s.x(), s.y()));
-	  WPointF p2 = transform.map(WPointF(s2.x(), s2.y()));
+          WPointF br(s.x() + s2.x(), s.y() + s2.y());
+          maxX = std::max(br.x(), maxX);
+          maxY = std::max(br.y(), maxY);
+        } else {
+          WPointF p1 = transform.map(WPointF(s.x(), s.y()));
+          WPointF p2 = transform.map(WPointF(s2.x(), s2.y()));
 
-	  WPointF tl(p1.x() - p2.x(), p1.y() - p2.y());
-	  minX = std::min(tl.x(), minX);
-	  minY = std::min(tl.y(), minY);
+          WPointF tl(p1.x() - p2.x(), p1.y() - p2.y());
+          minX = std::min(tl.x(), minX);
+          minY = std::min(tl.y(), minY);
 
-	  WPointF br(p1.x() + p2.x(), p1.y() + p2.y());
-	  maxX = std::max(br.x(), maxX);
-	  maxY = std::max(br.y(), maxY);
-	}
+          WPointF br(p1.x() + p2.x(), p1.y() + p2.y());
+          maxX = std::max(br.x(), maxX);
+          maxY = std::max(br.y(), maxY);
+        }
 
-	i += 2;
-	break;
+        i += 2;
+        break;
       }
       default:
-	assert(false);
+        assert(false);
       }
     }
 
@@ -461,7 +461,7 @@ WPainterPath WPainterPath::crisp() const
 
   if (isJavaScriptBound()) {
     result.assignBinding(*this,
-	WT_CLASS ".gfxUtils.path_crisp(" + jsRef() + ')');
+        WT_CLASS ".gfxUtils.path_crisp(" + jsRef() + ')');
   }
 
   for (std::size_t i = 0; i < segments_.size(); ++i) {
@@ -489,14 +489,14 @@ bool WPainterPath::isPointInPath(const WPointF &p) const
     double by = ay;
     if (segments_[i].type() == ArcC) {
       WPointF arcPos = getArcPosition(segments_[i].x(), segments_[i].y(),
-				      segments_[i+1].x(), segments_[i+1].y(),
-				      segments_[i+2].x());
+                                      segments_[i+1].x(), segments_[i+1].y(),
+                                      segments_[i+2].x());
       bx = arcPos.x();
       by = arcPos.y();
     } else if (segments_[i].type() == ArcAngleSweep) {
       WPointF arcPos = getArcPosition(segments_[i-2].x(), segments_[i-2].y(),
-				      segments_[i-1].x(), segments_[i-1].y(),
-				      segments_[i].x() + segments_[i].y());
+                                      segments_[i-1].x(), segments_[i-1].y(),
+                                      segments_[i].x() + segments_[i].y());
       bx = arcPos.x();
       by = arcPos.y();
     } else if (segments_[i].type() != ArcR) {
@@ -505,8 +505,8 @@ bool WPainterPath::isPointInPath(const WPointF &p) const
     }
     if (segments_[i].type() != MoveTo) {
       if ( (ay > py) != (by > py) &&
-	   (px < (bx - ax) * (py - ay) / (by - ay) + ax) ) {
-	res = !res;
+           (px < (bx - ax) * (py - ay) / (by - ay) + ax) ) {
+        res = !res;
       }
     }
     ax = bx;

@@ -84,7 +84,7 @@ public:
   /*! \brief Binds a value to a column.
    */
   virtual void bind(int column, const std::chrono::system_clock::time_point& value,
-		    SqlDateTimeType type) = 0;
+                    SqlDateTimeType type) = 0;
 
   /*! \brief Binds a value to a column.
    */
@@ -170,7 +170,7 @@ public:
    * Returns \c true when the value was not \c null.
    */
   virtual bool getResult(int column, std::chrono::system_clock::time_point *value,
-			 SqlDateTimeType type) = 0;
+                         SqlDateTimeType type) = 0;
 
   /*! \brief Fetches a result value.
    *
@@ -184,7 +184,7 @@ public:
    * Returns \c true when the value was not \c null.
    */
   virtual bool getResult(int column, std::vector<unsigned char> *value,
-			 int size) = 0;
+                         int size) = 0;
 
   /*! \brief Returns the prepared SQL string.
    */

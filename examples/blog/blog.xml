@@ -9,14 +9,14 @@
   <message id="blog-login-status">
     <div class="login-box">
       <div class="login-menu">
-	${login} ${login-link} | ${register-link}
-	<a href="${feed-url}">
-	  <img src="/css/rss.png" alt="Rss Feed"
-	       style="margin-left: 6px; vertical-align: top;"/>
-	</a>
+        ${login} ${login-link} | ${register-link}
+        <a href="${feed-url}">
+          <img src="/css/rss.png" alt="Rss Feed"
+               style="margin-left: 6px; vertical-align: top;"/>
+        </a>
       </div>
       <div class="user-menu">
-	${archive-link} ${profile-link} ${author-panel-link} ${userlist-link} 
+        ${archive-link} ${profile-link} ${author-panel-link} ${userlist-link}
       </div>
     </div>
   </message>
@@ -60,38 +60,38 @@
   <message id="blog-register">
     <h4>Register</h4>
       <p>
-	To register as a user to post comments with your own login,
-	please fill out the following form.
+        To register as a user to post comments with your own login,
+        please fill out the following form.
       </p>
       <table style="margin: 5px auto;">
-	<tr>
-	  <td>Login:</td>
-	  <td>${name}</td>
-	</tr>
+        <tr>
+          <td>Login:</td>
+          <td>${name}</td>
+        </tr>
 
-	<tr>
-	  <td>Password:</td>
-	  <td>${passwd}</td>
-	</tr>
+        <tr>
+          <td>Password:</td>
+          <td>${passwd}</td>
+        </tr>
 
-	<tr>
-	  <td>Repeat password:</td>
-	  <td>${passwd2}</td>
-	</tr>
+        <tr>
+          <td>Repeat password:</td>
+          <td>${passwd2}</td>
+        </tr>
 
-	<tr>
-	  <td colspan="2" style="text-align: center">
-	    ${ok-button}
-	    ${cancel-button}
-	  </td>
-	</tr>
+        <tr>
+          <td colspan="2" style="text-align: center">
+            ${ok-button}
+            ${cancel-button}
+          </td>
+        </tr>
 
-	<tr>
-	  <td colspan="2" class="login-error">
-	    ${error}
-	  </td>
-	</tr>
-	</table>
+        <tr>
+          <td colspan="2" class="login-error">
+            ${error}
+          </td>
+        </tr>
+        </table>
   </message>
 
   <message id="blog-userslist">
@@ -105,25 +105,25 @@
     <div class="profile-panel">
       <h4>Profile panel for <span class="poster">${user}</span></h4>
       <table style="margin: 5px auto;">
-	<tr>
-	  <td>New password:</td>
-	  <td>${passwd}</td>
-	</tr>
-	<tr>
-	  <td>Repeat password:</td>
-	  <td>${passwd2}</td>
-	</tr>
-	<tr>
-	  <td colspan="2" style="text-align: center">
-	    ${ok-button}
-	    ${cancel-button}
-	  </td>
-	</tr>
-	<tr>
-	  <td colspan="2" style="text-align: center; color: red;" class="login-error">
-	    ${error}
-	  </td>
-	</tr>
+        <tr>
+          <td>New password:</td>
+          <td>${passwd}</td>
+        </tr>
+        <tr>
+          <td>Repeat password:</td>
+          <td>${passwd2}</td>
+        </tr>
+        <tr>
+          <td colspan="2" style="text-align: center">
+            ${ok-button}
+            ${cancel-button}
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" style="text-align: center; color: red;" class="login-error">
+            ${error}
+          </td>
+        </tr>
       </table>
     </div>
   </message>
@@ -133,8 +133,8 @@
       <h4>Author panel for <span class="poster">${user}</span></h4>
       Statistics:
       <ul>
-	<li>${unpublished-count} unpublished post(s)</li>
-	<li>${published-count} published post(s)</li>
+        <li>${unpublished-count} unpublished post(s)</li>
+        <li>${published-count} published post(s)</li>
       </ul>
       ${new-post}
       ${unpublished-posts}
@@ -146,11 +146,11 @@
     <div id="${anchor}">
       <div>by ${author} on ${date}</div>
       <div class="asciidoc">
-	${brief+body}
+        ${brief+body}
       </div>
       <div style="margin-top: 10px;">${comment-count}</div>
       <div>
-	${publish} ${edit} ${delete}
+        ${publish} ${edit} ${delete}
       </div>
     </div>
     <div id="${anchor}/comments">
@@ -178,7 +178,7 @@
       <div>${brief-edit}</div>
       <div>${body-edit}</div>
       <div>
-	${save} ${cancel}
+        ${save} ${cancel}
       </div>
     </div>
   </message>
@@ -187,12 +187,12 @@
     <div class="comment-icon" />
     <div class="comment-body">
       <div class="comment-info">
-	<span class="poster">${author}</span>
-	${date} ${collapse-expand}
+        <span class="poster">${author}</span>
+        ${date} ${collapse-expand}
       </div>
       ${contents}
       <div class="comment-links">
-	${reply} ${edit} ${delete}
+        ${reply} ${edit} ${delete}
       </div>
       ${children}
     </div>

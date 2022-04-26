@@ -26,17 +26,17 @@ SourceView::SourceView(ItemDataRole fileNameRole,
       imageResource_(0)
 {}
 
-SourceView::~SourceView() 
+SourceView::~SourceView()
 { }
 
-bool SourceView::setIndex(const WModelIndex& index) 
+bool SourceView::setIndex(const WModelIndex& index)
 {
   if (index != index_ && index.isValid()) {
     std::string fp = !cpp17::any_has_value(index.data(filePathRole_)) ? std::string()
       : asString(index.data(filePathRole_)).toUTF8();
 
     if (cpp17::any_has_value(index.data(contentRole_))
-	|| (!fp.empty() && !fs::is_directory(fp))) {
+        || (!fp.empty() && !fs::is_directory(fp))) {
       index_ = index;
       update();
 
@@ -47,7 +47,7 @@ bool SourceView::setIndex(const WModelIndex& index)
   return false;
 }
 
-std::string tempFileName() 
+std::string tempFileName()
 {
 #ifndef WT_WIN32
   char spool[20];
@@ -72,17 +72,17 @@ std::string getLanguageFromFileExtension(const std::string &fileName)
     return "xml";
   else if (boost::iends_with(fileName, ".html"))
     return "html";
-  else if (boost::iends_with(fileName, ".java")) 
+  else if (boost::iends_with(fileName, ".java"))
     return "java";
-  else if (boost::iends_with(fileName, ".js")) 
+  else if (boost::iends_with(fileName, ".js"))
     return "javascript";
-  else if (boost::iends_with(fileName, ".css")) 
+  else if (boost::iends_with(fileName, ".css"))
     return "css";
   else
     return std::string();
-} 
+}
 
-std::string readFileToString(const std::string& fileName) 
+std::string readFileToString(const std::string& fileName)
 {
   std::size_t outputFileSize = (std::size_t)fs::file_size(fileName);
   std::fstream file (fileName.c_str(), std::ios::in | std::ios::binary);
@@ -111,7 +111,7 @@ std::unique_ptr<WWidget> SourceView::renderView()
   if (cpp17::any_has_value(contentsData))
    content = asString(contentsData).toUTF8();
   cpp17::any fileNameData = index_.data(fileNameRole_);
-  std::string fileName = 
+  std::string fileName =
     asString(fileNameData).toUTF8();
   cpp17::any filePathData = index_.data(filePathRole_);
   std::string filePath;
@@ -135,12 +135,12 @@ std::unique_ptr<WWidget> SourceView::renderView()
       inputFileName = filePath;
     else {
       inputFileName = tempFileName();
-      std::ofstream out(inputFileName.c_str(), 
-			std::ios::out | std::ios::binary);
+      std::ofstream out(inputFileName.c_str(),
+                        std::ios::out | std::ios::binary);
       out.write(content.c_str(), (std::streamsize)content.length());
       out.close();
     }
-    
+
     outputFileName = tempFileName();
 
     std::string sourceHighlightCommand = "source-highlight ";
@@ -162,14 +162,14 @@ std::unique_ptr<WWidget> SourceView::renderView()
 
     if (!cpp17::any_has_value(filePathData))
       unlink(inputFileName.c_str());
-  } 
+  }
 
   if (content == "")
     // do not load binary files, we would need to perform proper UTF-8
     // transcoding to display them
     if (!boost::iends_with(fileName, ".jar")
-	&& !boost::iends_with(fileName, ".war")
-	&& !boost::iends_with(fileName, ".class"))
+        && !boost::iends_with(fileName, ".war")
+        && !boost::iends_with(fileName, ".class"))
       content = readFileToString(fileName);
 
   std::unique_ptr<WWidget> result;
@@ -179,7 +179,7 @@ std::unique_ptr<WWidget> SourceView::renderView()
     imageResource_ = std::make_shared<WMemoryResource>();
     imageResource_->setMimeType("mime/" + imageExtension(fileName));
     imageResource_->setData((const unsigned char*)content.data(),
-			    (int)content.length());
+                            (int)content.length());
     image->setImageLink(WLink(imageResource_));
     result = std::move(image);
   } else if (lang != "") {

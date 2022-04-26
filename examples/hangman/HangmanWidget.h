@@ -1,5 +1,5 @@
 // This may look like C code, but it's really -*- C++ -*-
-/* 
+/*
  * Copyright (C) 2011 Emweb bv, Herent, Belgium
  *
  * See the LICENSE file for terms of use.
@@ -23,7 +23,7 @@ public:
   HangmanWidget(const std::string &name);
 
   Wt::Signal<int>& scoreUpdated() { return scoreUpdated_; }
-  
+
 private:
   Wt::WText                 *title_;
 
@@ -40,7 +40,7 @@ private:
   std::string                name_;
 
   int                        badGuesses_;
-  
+
   void registerGuess(char c);
 
   void newGame();

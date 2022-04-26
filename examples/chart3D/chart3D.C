@@ -43,12 +43,12 @@ TestApp::TestApp(const Wt::WEnvironment& env)
   chartExPicker_->addItem("Categorical Data");
   chartExPicker_->addItem("Colormap Example");
   chartExPicker_->changed().connect(this, &TestApp::switchExamples);
-  
+
   stack_ = wrapper->addWidget(std::make_unique<Wt::WStackedWidget>());
   numEx_ = stack_->addWidget(std::make_unique<NumericalExample>());
   categoryEx_ = stack_->addWidget(std::make_unique<CategoryExample>());
   colormap_ = stack_->addWidget(std::make_unique<ColorMapTest>());
-  
+
   chartExPicker_->setCurrentIndex(0);
   stack_->setCurrentWidget(numEx_);
 }

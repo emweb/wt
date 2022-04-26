@@ -76,9 +76,9 @@ public:
    * be an empty string if not used.
    */
   MetaHeader(MetaHeaderType type, const std::string& name,
-	     const WString& content, const std::string& lang,
-	     const std::string& userAgent);
-  
+             const WString& content, const std::string& lang,
+             const std::string& userAgent);
+
   MetaHeaderType type;
   std::string name, lang, userAgent;
   WString content;
@@ -99,7 +99,7 @@ public:
  *
  * Each user session of your application has a corresponding
  * %WApplication instance. You need to create a new instance and return
- * it as the result of {javadoclink WtServlet#createApplication(WEnvironment)}. 
+ * it as the result of {javadoclink WtServlet#createApplication(WEnvironment)}.
  * The instance is the main entry point to session information,
  * and holds a reference to the root() of the widget tree.
  *
@@ -216,11 +216,11 @@ public:
    * The \p environment provides information on the initial request,
    * user agent, and deployment-related information.
    */
-#if defined(DOXYGEN_ONLY) || defined(WT_TARGET_JAVA) 
+#if defined(DOXYGEN_ONLY) || defined(WT_TARGET_JAVA)
   WApplication(const WEnvironment& environment);
 #else
   WApplication(const WEnvironment& environment,
-	       WtLibVersion version = WT_INCLUDED_VERSION);
+               WtLibVersion version = WT_INCLUDED_VERSION);
 #endif
 
 #ifndef WT_TARGET_JAVA
@@ -335,7 +335,7 @@ public:
    * \endcode
    */
   void useStyleSheet(const WLink& link, const std::string& condition,
-		     const std::string& media);
+                     const std::string& media);
 
   /*! \brief Adds an external stylesheet.
    *
@@ -363,7 +363,7 @@ public:
    * \sa WWidget::setStyleClass()
    */
   void useStyleSheet(const WLinkedCssStyleSheet& styleSheet,
-		     const std::string& condition = "");
+                     const std::string& condition = "");
 
   /*! \brief Removes an external stylesheet.
    *
@@ -395,12 +395,12 @@ public:
    * the <tt>resources/themes/</tt><i>name</i><tt>/</tt> folder.
    *
    * The default theme is "default". Setting an empty theme "" will
-   * result in a stub CSS theme that does not load any stylesheets. 
+   * result in a stub CSS theme that does not load any stylesheets.
    */
   void setCssTheme(const std::string& name);
 
   /*! \brief Sets the layout direction.
-   * 
+   *
    * The default direction is LayoutDirection::LeftToRight.
    *
    * This sets the language text direction, which by itself sets the
@@ -499,7 +499,7 @@ public:
    * WString::tr() is used to create localized strings, whose
    * localized translation is looked up through this object, using a
    * key.
-   * 
+   *
    * \if cpp
    * \sa WString::tr(), messageResourceBundle()
    * \elseif java
@@ -526,7 +526,7 @@ public:
    * \sa localizedStrings(), WString::tr(const char *key)
    */
   void setLocalizedStrings(const std::shared_ptr<WLocalizedStrings>&
-			   stringResolver);
+                           stringResolver);
 
 #ifndef WT_TARGET_JAVA
   /*! \brief Returns the message resource bundle.
@@ -747,7 +747,7 @@ public:
    * session if available.
    *
    * \if cpp
-   * See also \ref config_session for configuring the session-tracking 
+   * See also \ref config_session for configuring the session-tracking
    * method.
    *
    * For the built-in httpd, when the application is deployed at a folder
@@ -821,7 +821,7 @@ public:
    * see \ref wthttpd ), making clean URLs impossible. Returned
    * URLs then include a <tt>"?_="</tt> encoding for the internal
    * path:
-   * 
+   *
    * \code
    * http://www.mydomain.com/stuff/?_=/project/z3cbc/details/
    * \endcode
@@ -862,7 +862,7 @@ public:
    * setInternalPath(false) for an invalid path. If on the other hand
    * you treat an internal path as invalid by default, then you need
    * to call setInternalPath(true) for a valid path.
-   * 
+   *
    * A user which opens an invalid internal path will receive a HTTP
    * 404-Not Found response code (if sent an HTML response).
    *
@@ -1223,7 +1223,7 @@ public:
    *
    * \if java
    * This works only if your servlet container supports the Servlet 3.0
-   * API. If you try to invoke this function on a servlet container with 
+   * API. If you try to invoke this function on a servlet container with
    * no such support, an exception will be thrown.
    * \endif
    *
@@ -1421,7 +1421,7 @@ public:
   /*! \brief Declares an application-wide JavaScript function.
    *
    * The function is stored in WApplication::javaScriptClass().
-   * 
+   *
    * The next code snippet declares and invokes function foo:
    * \if cpp
    * \code
@@ -1434,7 +1434,7 @@ public:
    * \endif
    */
   void declareJavaScriptFunction(const std::string& name,
-				 const std::string& function);
+                                 const std::string& function);
 
   /*! \brief Loads a JavaScript library.
    *
@@ -1459,7 +1459,7 @@ public:
    * needs to be done using requireJQuery().
    */
   bool require(const std::string& url,
-	       const std::string& symbol = std::string());
+               const std::string& symbol = std::string());
 
   /*! \brief Loads a custom JQuery library.
    *
@@ -1538,7 +1538,7 @@ public:
    * \sa WServer::readConfigurationProperty()
    */
   static bool readConfigurationProperty(const std::string& name,
-					std::string& value);
+                                        std::string& value);
 #else
   /*! \brief Reads a configuration property.
    *
@@ -1547,7 +1547,7 @@ public:
    * is returned.
    */
   static std::string *readConfigurationProperty(const std::string& name,
-						const std::string& value);
+                                                const std::string& value);
 #endif // WT_TARGET_JAVA
 
   /*
@@ -1657,13 +1657,13 @@ public:
    * \sa WEnvironment::supportsCookies(), WEnvironment::getCookie()
    */
   void setCookie(const std::string& name, const std::string& value,
-		 int maxAge, const std::string& domain = "",
-		 const std::string& path = "", bool secure = false);
+                 int maxAge, const std::string& domain = "",
+                 const std::string& path = "", bool secure = false);
 
 #ifndef WT_TARGET_JAVA
   void setCookie(const std::string& name, const std::string& value,
-		 const WDateTime& expires, const std::string& domain = "",
-		 const std::string& path = "", bool secure = false);
+                 const WDateTime& expires, const std::string& domain = "",
+                 const std::string& path = "", bool secure = false);
 #endif // WT_TARGET_JAVA
 
   /*! \brief Removes a cookie.
@@ -1671,24 +1671,24 @@ public:
    * \sa setCookie()
    */
   void removeCookie(const std::string& name, const std::string& domain = "",
-		    const std::string& path = "");
-  
+                    const std::string& path = "");
+
   /*! \brief Adds an HTML meta link.
-   * 
+   *
    * When a link was previously set for the same \p href, its contents
    * are replaced.
-   * When an empty string is used for the arguments \p media, \p hreflang, 
+   * When an empty string is used for the arguments \p media, \p hreflang,
    * \p type or \p sizes, they will be ignored.
    *
    * \sa removeMetaLink()
    */
   void addMetaLink(const std::string &href,
-		   const std::string &rel,
-		   const std::string &media,
-		   const std::string &hreflang,
-		   const std::string &type,
-		   const std::string &sizes,
-		   bool disabled);
+                   const std::string &rel,
+                   const std::string &media,
+                   const std::string &hreflang,
+                   const std::string &type,
+                   const std::string &sizes,
+                   bool disabled);
 
   /*! \brief Removes the HTML meta link.
    *
@@ -1701,7 +1701,7 @@ public:
    * \sa addMetaHeader(MetaHeaderType, const std::string&, const WString&, const std::string&)
    */
   void addMetaHeader(const std::string& name, const WString& content,
-		     const std::string& lang = "");
+                     const std::string& lang = "");
 
   /*! \brief Adds an HTML meta header.
    *
@@ -1732,7 +1732,7 @@ public:
    * \sa removeMetaHeader()
    */
   void addMetaHeader(MetaHeaderType type, const std::string& name,
-		     const WString& content, const std::string& lang = "");
+                     const WString& content, const std::string& lang = "");
 
   /*! \brief Returns a meta header value.
    *
@@ -1755,7 +1755,7 @@ public:
    * Starts a new log entry of the given \p type in the %Wt
    * application log file. This method returns a stream-like object to
    * which the message may be streamed.
-   * 
+   *
    * \if cpp
    * A typical usage would be:
    * \code
@@ -1876,7 +1876,7 @@ public:
    * \sa See WInteractWidget::keyPressed()
    */
   EventSignal<WKeyEvent>& globalKeyPressed();
-    
+
   /*! \brief Event signal emitted when a keyboard key is released.
    *
    * The application receives key events when no widget currently
@@ -2234,12 +2234,12 @@ private:
 
   struct MetaLink {
     MetaLink(const std::string &href,
-	     const std::string &rel,
-	     const std::string &media,
-	     const std::string &hreflang,
-	     const std::string &type,
-	     const std::string &sizes,
-	     bool disabled);
+             const std::string &rel,
+             const std::string &media,
+             const std::string &hreflang,
+             const std::string &type,
+             const std::string &sizes,
+             bool disabled);
 
     std::string href;
     std::string rel;
@@ -2347,7 +2347,7 @@ private:
   void removeExposedSignal(EventSignalBase* signal);
   EventSignalBase  *decodeExposedSignal(const std::string& signalName) const;
   std::string encodeSignal(const std::string& objectId,
-			   const std::string& name) const;
+                           const std::string& name) const;
 
   SignalMap& exposedSignals() { return exposedSignals_; }
   std::set<std::string>& justRemovedSignals() { return justRemovedSignals_; }
@@ -2461,9 +2461,9 @@ private:
  * \sa WApplication
  */
 extern int WRun(int argc, char** argv,
-		ApplicationCreator createApplication = 0);
+                ApplicationCreator createApplication = 0);
 #else // DOXYGEN_ONLY
-extern int WTCONNECTOR_API 
+extern int WTCONNECTOR_API
 WRun(int argc, char** argv,
      ApplicationCreator createApplication = ApplicationCreator());
 

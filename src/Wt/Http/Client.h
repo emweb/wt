@@ -334,7 +334,7 @@ public:
    * \sa request(), done()
    */
   bool put(const std::string& url, const Message& message);
-  
+
   /*! \brief Starts a DELETE request.
    *
    * The function starts an asynchronous DELETE request, and returns
@@ -350,7 +350,7 @@ public:
    * \sa request(), done()
    */
   bool deleteRequest(const std::string& url, const Message& message);
-  
+
   /*! \brief Starts a PATCH request.
    *
    * The function starts an asynchronous PATCH request, and returns
@@ -366,7 +366,7 @@ public:
    * \sa request(), done()
    */
   bool patch(const std::string& url, const Message& message);
-  
+
   /*! \brief Starts a request.
    *
    * The function starts an asynchronous HTTP request, and returns
@@ -382,7 +382,7 @@ public:
    * \sa request(), done()
    */
   bool request(Http::Method method, const std::string& url,
-	       const Message& message);
+               const Message& message);
 
   /*! \brief Aborts the curent request.
    *
@@ -516,7 +516,7 @@ private:
   class SslImpl;
 
   void handleRedirect(Http::Method method, Wt::AsioWrapper::error_code err,
-		      const Message& response, const Message& request);
+                      const Message& response, const Message& request);
 
   void emitDone(Wt::AsioWrapper::error_code err, const Message& response);
   void emitHeadersReceived(const Message& response);

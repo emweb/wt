@@ -22,14 +22,14 @@ public:
       minimum_(DBL_MAX),
       maximum_(-DBL_MAX)
   { }
-  
+
   virtual bool startSeries(const WDataSeries& series, double groupWidth,
-			   int numBarGroups, int currentBarGroup) override;
-  
+                           int numBarGroups, int currentBarGroup) override;
+
   virtual void newValue(const WDataSeries& series, double x, double y,
-			double stackY, int xRow, int xColumn,
-			int yRow, int yColumn) override;
-  
+                        double stackY, int xRow, int xColumn,
+                        int yRow, int yColumn) override;
+
   double minimum() { return minimum_; }
   double maximum() { return maximum_; }
 
@@ -58,7 +58,7 @@ public:
   virtual bool onDemandLoadingEnabled() const override;
 
   virtual void update() override;
-  
+
 private:
   WCartesianChart *chart_;
 };

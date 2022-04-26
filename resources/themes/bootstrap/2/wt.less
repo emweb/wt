@@ -8,12 +8,12 @@
  * Extend menu support to include sub menus
  */
 .nav > li > .nav {
-    display: none;
-    margin-left: 2ex;
+  display: none;
+  margin-left: 2ex;
 }
 
 .nav > li.active .nav {
-    display: block;
+  display: block;
 }
 
 /*
@@ -21,76 +21,76 @@
  */
 .dropdown-menu {
 
-    .disabled a,
-    .disabled a:hover {
-	text-decoration: none;
-	color: #999999;
-	cursor: default;
-	background-color: transparent;
-    }
+  .disabled a,
+  .disabled a:hover {
+    text-decoration: none;
+    color: #999999;
+    cursor: default;
+    background-color: transparent;
+  }
 
-    .Wt-icon {
-	margin-right: 4px;
-	background-repeat: no-repeat;
-	background-position: center left;
-	display: inline-block;
-	width: 16px;
-	height: 14px;
-	line-height: 14px;
-	vertical-align: text-top;
-    }
+  .Wt-icon {
+    margin-right: 4px;
+    background-repeat: no-repeat;
+    background-position: center left;
+    display: inline-block;
+    width: 16px;
+    height: 14px;
+    line-height: 14px;
+    vertical-align: text-top;
+  }
 
-    .Wt-chkbox {
-	margin-left: 1px;
-	margin-right: 7px;
-	display: inline-block;
-	width: 12px;
-	vertical-align: text-top;
-    }
+  .Wt-chkbox {
+    margin-left: 1px;
+    margin-right: 7px;
+    display: inline-block;
+    width: 12px;
+    vertical-align: text-top;
+  }
 
-    .Wt-padded {
-	padding-left: 39px;
-    }
+  .Wt-padded {
+    padding-left: 39px;
+  }
 
-    li label {
-        display: inline;
-    }
+  li label {
+    display: inline;
+  }
 }
 
 /*
  * Make label in any menu item inline
  */
 .nav li label {
-     display: inline;
+  display: inline;
 }
 
 /*
  * Custom collapse nav support
  */
 .navbar .nav-collapse {
-    display: block !important; 
+  display: block !important; 
 }
 
 @media (max-width: 979px) {
-    .nav-collapse .dropdown-menu {
-       display: block !important;
-       position: static !important;
-    }
+  .nav-collapse .dropdown-menu {
+    display: block !important;
+    position: static !important;
+  }
 
-    .nav-collapse .dropdown-menu li > a:hover {
-       color: @navbarLinkColorActive;
-       background: #f2f2f2;
-    }
+  .nav-collapse .dropdown-menu li > a:hover {
+    color: @navbarLinkColorActive;
+    background: #f2f2f2;
+  }
 
-    .nav-collapse .dropdown-menu .active >a {
-       color: inherit;
-       background: inherit;
-    }
+  .nav-collapse .dropdown-menu .active >a {
+    color: inherit;
+    background: inherit;
+  }
 }
 
 .navbar .navbar-inner .container {
-    margin-left: 0px;
-    margin-right: 0px;
+  margin-left: 0px;
+  margin-right: 0px;
 }
 
 /*
@@ -98,28 +98,28 @@
  */
 .navbar .nav > li.submenu > a:hover,
 .navbar .nav > li.submenu > a.active {
-    color: @navbarLinkColorActive;
-    text-decoration: none;
-    background-color: @navbarLinkBackgroundActive;
-    .box-shadow(inset 0 3px 8px rgba(0,0,0,.125));
+  color: @navbarLinkColorActive;
+  text-decoration: none;
+  background-color: @navbarLinkBackgroundActive;
+  .box-shadow(inset 0 3px 8px rgba(0,0,0,.125));
 }
 
 /*
  * Fix submens in popup menus in navbar
  */
 .navbar .nav > li > .dropdown-menu.submenu:before {
-    display: none;
+  display: none;
 }
 
 .navbar .nav > li > .dropdown-menu.submenu:after {
-    display: none;
+  display: none;
 }
 
 /*
  * Show pointer even if anchor has no href
  */
 .nav > li > a {
-   cursor: pointer;
+  cursor: pointer;
 }
 
 /*
@@ -135,34 +135,34 @@
  * Dialog extensions
  */
 .modal {
-    width: auto;
+  width: auto;
 
-    .movable .modal-header {
-	cursor: move;
-    }
+  .movable .modal-header {
+    cursor: move;
+  }
 
-    .modal-body .modal-footer {
-       margin: 0px -15px -15px;
-    }
+  .modal-body .modal-footer {
+    margin: 0px -15px -15px;
+  }
 
-    .modal-body {
-       max-height: none; /* override max-height: 400px in Bootstrap */
-    }
+  .modal-body {
+    max-height: none; /* override max-height: 400px in Bootstrap */
+  }
 }
 
 /*
  * Message box
  */
 .modal .Wt-msgbox-icon {
-    display: block;
-    float: left;
-    margin: -5px 15px 0px 0px;
-    width: 25px;
-    height: 35px;
+  display: block;
+  float: left;
+  margin: -5px 15px 0px 0px;
+  width: 25px;
+  height: 35px;
 }
 
 .modal .Wt-msgbox-text {
-    overflow: auto;
+  overflow: auto;
 }
 
 /*
@@ -173,24 +173,24 @@
  * Resize handles
  */
 .Wt-hrh2, .Wt-vsh2 {
-    cursor: row-resize;
+  cursor: row-resize;
 }
 
 .Wt-vrh2, .Wt-hsh2 {
-    cursor: col-resize;
+  cursor: col-resize;
 }
 
 .Wt-hrh2 {
-    background: url(../splitter-v.png) no-repeat 50% 50% #EEE;
+  background: url(../splitter-v.png) no-repeat 50% 50% #EEE;
 }
 
 .Wt-vrh2 {
-    background: url(../splitter-h.png) no-repeat 50% 50% #EEE;
+  background: url(../splitter-h.png) no-repeat 50% 50% #EEE;
 }
 
 .Wt-hsh2, .Wt-vsh2, 
 .Wt-vrh2:hover, .Wt-hrh2:hover {
-    background-color: @grayLight;
+  background-color: @grayLight;
 }
 
 /*
@@ -198,164 +198,164 @@
  */
 
 .Wt-cal {
-    table {
-	&.d1 {
-	    width: 170px;
-	}
-
-	&.d3 {
-	    width: 255px;
-	}
-
-	&.dlong {
-	    width: 560px;
-	}
+  table {
+    &.d1 {
+      width: 170px;
     }
 
-    .Wt-cal-navbutton {
-        display: block;
+    &.d3 {
+      width: 255px;
     }
 
-    .Wt-cal-now {
-	background-color: lightgray;
+    &.dlong {
+      width: 560px;
+    }
+  }
+
+  .Wt-cal-navbutton {
+    display: block;
+  }
+
+  .Wt-cal-now {
+    background-color: lightgray;
+  }
+
+  .days.d1 td {
+    width: 20px;
+  }
+
+  .days.d3 td {
+    width: 35px;
+  }
+
+  .days.dlong td {
+    width: 80px;
+  }
+
+  td, th, td > div {
+    text-align: center;
+    height: 20px;
+    .border-radius(4px);
+  }
+
+  th, td > div {
+    padding: 4px 5px;
+  }
+
+  tr:first-child th {
+    cursor: pointer;
+    &:hover{
+      background: @grayLighter;
     }
 
-    .days.d1 td {
-	width: 20px;
+    select {
+      width: 125px;
+      margin: 0px;
     }
 
-    .days.d3 td {
-	width: 35px;
+    input {
+      width: 35px;
+      margin: 0px;
+    }
+  }
+
+  .days td {
+    &:hover {
+      background: @grayLighter;
+      cursor: pointer;
     }
 
-    .days.dlong td {
-	width: 80px;
+    .Wt-cal-oom {
+      color: @grayLight;
     }
 
-    td, th, td > div {
-	text-align: center;
-	height: 20px;
-	.border-radius(4px);
+    .Wt-cal-oor {
+      color: @grayLight;
     }
 
-    th, td > div {
-	padding: 4px 5px;
+    .Wt-cal-sel, .Wt-cal-sel:hover {
+      .buttonBackground(@btnPrimaryBackground,
+      @btnPrimaryBackgroundHighlight);
+      color: #fff;
+      text-shadow: 0 -1px 0 rgba(0,0,0,.25);
     }
-
-    tr:first-child th {
-	cursor: pointer;
-	&:hover{
-	    background: @grayLighter;
-	}
-
-	select {
-	    width: 125px;
-	    margin: 0px;
-	}
-
-	input {
-	    width: 35px;
-	    margin: 0px;
-	}
-    }
-
-    .days td {
-	&:hover {
-	    background: @grayLighter;
-	    cursor: pointer;
-	}
-
-	.Wt-cal-oom {
-	    color: @grayLight;
-	}
-
-	.Wt-cal-oor {
-	    color: @grayLight;
-	}
-
-	.Wt-cal-sel, .Wt-cal-sel:hover {
-	    .buttonBackground(@btnPrimaryBackground,
-			      @btnPrimaryBackgroundHighlight);
-	    color: #fff;
-	    text-shadow: 0 -1px 0 rgba(0,0,0,.25);
-	}
-    }
+  }
 }
 
 /*
  * WTimeEdit
  */
 .Wt-timeedit {
-    background-image: url('time-edit-button.png');
-    background-repeat: no-repeat;
-    background-position: right top;
-    padding-right: 40px;
+  background-image: url('time-edit-button.png');
+  background-repeat: no-repeat;
+  background-position: right top;
+  padding-right: 40px;
 
-    &:hover {
-        cursor: default;
-        background-position: right -34px;
-    }
+  &:hover {
+    cursor: default;
+    background-position: right -34px;
+  }
 
-    &:active {
-        cursor: default;
-        background-position: right -68px;
-    }
+  &:active {
+    cursor: default;
+    background-position: right -68px;
+  }
 }
 
 .Wt-timeedit::-ms-clear {
-    display:none
+  display:none
 }
 
 /*
  * WDateEdit
  */
 .Wt-dateedit {
-    background-image: url('date-edit-button.png');
-    background-repeat: no-repeat;
-    background-position: right top;
-    padding-right: 40px;
+  background-image: url('date-edit-button.png');
+  background-repeat: no-repeat;
+  background-position: right top;
+  padding-right: 40px;
 
-    &:hover {
-        cursor: default;
-        background-position: right -30px;
-    }
+  &:hover {
+    cursor: default;
+    background-position: right -30px;
+  }
 
-    &:active {
-        cursor: default;
-        background-position: right -60px;
-    }
+  &:active {
+    cursor: default;
+    background-position: right -60px;
+  }
 }
 
 .Wt-dateedit::-ms-clear {
-    display:none
+  display:none
 }
 
 /*
  * WDatePicker
  */
 .Wt-datepicker {
-   display: block;
-   top: auto;
-   left: auto;
+  display: block;
+  top: auto;
+  left: auto;
 }
 
 /*
  * WProgressBar
  */
 .progress {
-   width: 200px;
-   vertical-align: middle;
-   position: relative;
-   margin-bottom: 0px;
+  width: 200px;
+  vertical-align: middle;
+  position: relative;
+  margin-bottom: 0px;
 
-   .bar-label {
-      position: absolute;
-      left: 0px;
-      width: 100%;
-      text-align: center;
-      font-size: 0.8em;
-      top:0.1em;
-   }
+  .bar-label {
+    position: absolute;
+    left: 0px;
+    width: 100%;
+    text-align: center;
+    font-size: 0.8em;
+    top:0.1em;
+  }
 }
 
 /*
@@ -363,394 +363,394 @@
  */
 .btn.with-label img,
 .list-group-item.with-label img {
-   padding-right: 10px;
+  padding-right: 10px;
 }
 
 /*
  * WGoogleMap
  */
 .Wt-googlemap img {
-   max-width: none;
+  max-width: none;
 }
 
 /*
  * WSpinBox
  */
 .Wt-spinbox {
-    background-image: url('spin-buttons.png');
-    background-repeat: no-repeat;
-    background-position: right top;
-    padding-right: 16px;
+  background-image: url('spin-buttons.png');
+  background-repeat: no-repeat;
+  background-position: right top;
+  padding-right: 16px;
 
-    &.up {
-        background-position: right -30px;
-    }
+  &.up {
+    background-position: right -30px;
+  }
 
-    &.dn {
-        background-position: right -60px;
-    }
+  &.dn {
+    background-position: right -60px;
+  }
 }
 
 .Wt-spinbox::-ms-clear {
-    display: none
+  display: none
 }
 
 /*
  * WSlider
  */
 .Wt-slider-h {
-    .Wt-slider-bg {
-        margin: 0px 5px;
+  .Wt-slider-bg {
+    margin: 0px 5px;
+  }
+
+  .Wt-w {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    left: -1px;
+    margin-top: -5px;
+    height: 8px;
+    border: 1px solid @tableBorder;
+    background: @grayLighter;
+    .border-radius(@baseBorderRadius);
+  }
+
+  .fill {
+    top: 50%;
+    margin-top: -5px;
+    height: 8px;
+    border: 1px solid @btnPrimaryBackground;
+    background: @btnPrimaryBackground;
+    .border-radius(@baseBorderRadius);
+  }
+
+  .handle {
+    top: 50% !important;
+    margin-top: -10px;
+    height: 18px !important;
+    border: 1px solid @btnBorder;
+    .buttonBackground(@btnBackground, @btnBackgroundHighlight,
+    @grayDark, 0 1px 1px rgba(255,255,255,.75));
+    .border-radius(@baseBorderRadius);
+
+    &:hover {
+      background-color: darken(@white, 10%);
+      background-position: 0 -15px;
     }
 
-    .Wt-w {
-        position: absolute;
-        width: 100%;
-	top: 50%;
-	left: -1px;
-        margin-top: -5px;
-	height: 8px;
-        border: 1px solid @tableBorder;
-        background: @grayLighter;
- 	.border-radius(@baseBorderRadius);
+    &:active {
+      background-color: darken(@white, 10%);
+      background-color: darken(@white, 15%) e("\9");
+      background-image: none;
+      outline: 0;
     }
-
-    .fill {
-	top: 50%;
-        margin-top: -5px;
-	height: 8px;
-        border: 1px solid @btnPrimaryBackground;
-        background: @btnPrimaryBackground;
- 	.border-radius(@baseBorderRadius);
-    }
-
-    .handle {
-        top: 50% !important;
-        margin-top: -10px;
-	height: 18px !important;
-        border: 1px solid @btnBorder;
-	.buttonBackground(@btnBackground, @btnBackgroundHighlight,
-			  @grayDark, 0 1px 1px rgba(255,255,255,.75));
-	.border-radius(@baseBorderRadius);
-
-	&:hover {
-	    background-color: darken(@white, 10%);
-	    background-position: 0 -15px;
-	}
-
-	&:active {
-	    background-color: darken(@white, 10%);
-	    background-color: darken(@white, 15%) e("\9");
-	    background-image: none;
-	    outline: 0;
-	}
-    }
+  }
 }
 
 .Wt-slider-v {
-    .Wt-slider-bg {
-        margin: 5px 0px;
+  .Wt-slider-bg {
+    margin: 5px 0px;
+  }
+
+  .Wt-w {
+    position: absolute;
+    height: 100%;
+    left: 50%;
+    margin-left: -5px;
+    width: 8px;
+    border: 1px solid @tableBorder;
+    background: @grayLighter;
+    .border-radius(@baseBorderRadius);
+  }
+
+  .fill {
+    left: 50%;
+    margin-left: -5px;
+    bottom: -1px;
+    width: 8px;
+    border: 1px solid @btnPrimaryBackground;
+    background: @btnPrimaryBackground;
+    .border-radius(@baseBorderRadius);
+  }
+
+  .handle {
+    left: 50% !important;
+    margin-left: -10px;
+    width: 18px !important;
+    border: 1px solid @btnBorder;
+    .buttonBackground(@btnBackground, @btnBackgroundHighlight,
+    @grayDark, 0 1px 1px rgba(255,255,255,.75));
+    .border-radius(@baseBorderRadius);
+
+    &:hover {
+      background-color: darken(@white, 10%);
+      background-position: 0 -15px;
     }
 
-    .Wt-w {
-        position: absolute;
-        height: 100%;
-	left: 50%;
-        margin-left: -5px;
-	width: 8px;
-        border: 1px solid @tableBorder;
-        background: @grayLighter;
- 	.border-radius(@baseBorderRadius);
+    &:active {
+      background-color: darken(@white, 10%);
+      background-color: darken(@white, 15%) e("\9");
+      background-image: none;
+      outline: 0;
     }
-
-    .fill {
-	left: 50%;
-        margin-left: -5px;
-	bottom: -1px;
-	width: 8px;
-        border: 1px solid @btnPrimaryBackground;
-        background: @btnPrimaryBackground;
- 	.border-radius(@baseBorderRadius);
-    }
-
-    .handle {
-        left: 50% !important;
-        margin-left: -10px;
-	width: 18px !important;
-        border: 1px solid @btnBorder;
-	.buttonBackground(@btnBackground, @btnBackgroundHighlight,
-			  @grayDark, 0 1px 1px rgba(255,255,255,.75));
-	.border-radius(@baseBorderRadius);
-
-	&:hover {
-	    background-color: darken(@white, 10%);
-	    background-position: 0 -15px;
-	}
-
-	&:active {
-	    background-color: darken(@white, 10%);
-	    background-color: darken(@white, 15%) e("\9");
-	    background-image: none;
-	    outline: 0;
-	}
-    }
+  }
 }
 
 /*
  * WSuggestionPopup icon!
  */
 .Wt-suggest-dropdown {
-    background-image: url('suggest-dropdown.png');
-    background-repeat: no-repeat;
-    background-position: right top;
-    padding-right: 40px;
+  background-image: url('suggest-dropdown.png');
+  background-repeat: no-repeat;
+  background-position: right top;
+  padding-right: 40px;
 
-    &:hover {
-        cursor: default;
-        background-position: right -30px;
-    }
+  &:hover {
+    cursor: default;
+    background-position: right -30px;
+  }
 
-    &:active {
-        cursor: default;
-        background-position: right -60px;
-    }
+  &:active {
+    cursor: default;
+    background-position: right -60px;
+  }
 }
 
 .dropdown-menu.typeahead {
-    cursor: pointer;
+  cursor: pointer;
 
-    li:not(.active) > a:hover {
-       color: inherit;
-       background: inherit;
-    }
+  li:not(.active) > a:hover {
+    color: inherit;
+    background: inherit;
+  }
 }
 
 /*
  * WAbstractItemView (WTableView and WTreeView)
  */
 .Wt-itemview {
+  cursor: default;
+  white-space: nowrap;
+  background: white;
+  border: 1px solid @tableBorder;
+
+  &.Wt-itemview-paged {
+    overflow: auto;
+  }
+
+  .Wt-spacer {
+    background: url(../../../loading.png);
+  }
+
+  /* header */
+  .Wt-headerdiv {
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    user-select: none;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .Wt-headerdiv,
+  .Wt-headerdiv .Wt-tv-rowc,
+  th {
+    font-weight: bold;
+  }
+
+  th,
+  th .Wt-tv-br {
+    overflow: hidden;
+  }
+
+  .Wt-header {
+    .Wt-label {
+      font-weight: bold;
+      text-overflow: ellipsis;
+      overflow: hidden; /* needed for IE only */
+      white-space: nowrap;
+      height: 100%;
+    }
+
+    .Wt-wwrap .Wt-label {
+      overflow: visible;
+      white-space: normal;
+    }
+  }
+
+
+  /* resize handles */
+  .Wt-tv-rh {
+    float: right;
+    width: 4px;
+    cursor: col-resize;
+  }
+
+  .Wt-tv-no-rh {
+    width: 0px;
+    margin-left: 4px;
     cursor: default;
-    white-space: nowrap;
-    background: white;
-    border: 1px solid @tableBorder;
+  }
 
-    &.Wt-itemview-paged {
-       overflow: auto;
-    }
+  /* sort handles */
+  .Wt-tv-sh {
+    float: right;
+    width: 16px;
+    height: 16px;
+    padding-bottom: 6px;
+    cursor: pointer;
+  }
 
-    .Wt-spacer {
-	background: url(../../../loading.png);
-    }
+  .Wt-tv-rh:hover {
+    background-color: @grayLight; // LESS
+  }
 
-    /* header */
-    .Wt-headerdiv {
-	-moz-user-select: none;
-	-khtml-user-select: none;
-	user-select: none;
-	overflow: hidden;
-	width: 100%;
-    }
+  .Wt-tv-sh-none {
+    background: url(../sort-arrow-none.gif) no-repeat 0 6px;
+  }
 
-    .Wt-headerdiv,
-    .Wt-headerdiv .Wt-tv-rowc,
-    th {
-	font-weight: bold;
-    }
+  .Wt-tv-sh-up {
+    background: url(../sort-arrow-up.gif) no-repeat 0 6px;
+  }
 
-    th,
-    th .Wt-tv-br {
-	overflow: hidden;
-    }
+  .Wt-tv-sh-down {
+    background: url(../sort-arrow-down.gif) no-repeat 0 6px;
+  }
 
-    .Wt-header {
-	.Wt-label {
-	    font-weight: bold;
-	    text-overflow: ellipsis;
-	    overflow: hidden; /* needed for IE only */
-	    white-space: nowrap;
-		height: 100%;
-	}
+  .active {
+    color: @white;
+    text-shadow: 0 -1px 0 rgba(0,0,0,.2);
+    background-color: @linkColor;
+    cursor: default;
+  }
 
-	.Wt-wwrap .Wt-label {
-	    overflow: visible;
-	    white-space: normal;
-	}
-    }
-
-
-    /* resize handles */
-    .Wt-tv-rh {
-	float: right;
-	width: 4px;
-	cursor: col-resize;
-    }
-
-    .Wt-tv-no-rh {
-	width: 0px;
-	margin-left: 4px;
-	cursor: default;
-    }
-
-    /* sort handles */
-    .Wt-tv-sh {
-	float: right;
-	width: 16px;
-	height: 16px;
-	padding-bottom: 6px;
-	cursor: pointer;
-    }
-
-    .Wt-tv-rh:hover {
-	background-color: @grayLight; // LESS
-    }
-
-    .Wt-tv-sh-none {
-	background: url(../sort-arrow-none.gif) no-repeat 0 6px;
-    }
-
-    .Wt-tv-sh-up {
-	background: url(../sort-arrow-up.gif) no-repeat 0 6px;
-    }
-
-    .Wt-tv-sh-down {
-	background: url(../sort-arrow-down.gif) no-repeat 0 6px;
-    }
-
-    .active {
-	color: @white;
-	text-shadow: 0 -1px 0 rgba(0,0,0,.2);
-	background-color: @linkColor;
-	cursor: default;
-    }
-
-    /* item drag & drop */
-    .Wt-drop-site {
-	background-color: #EEEEEE; // LESS
-	outline: 1px dotted black; // LESS
-    }
+  /* item drag & drop */
+  .Wt-drop-site {
+    background-color: #EEEEEE; // LESS
+    outline: 1px dotted black; // LESS
+  }
 }
 
 body.Wt-rtl {
-    .Wt-itemview {
-	.Wt-tv-rh, .Wt-tv-sh {
-	    float: left;
-	}
-
-	.Wt-tv-no-rh {
-	    margin-left: 0px;
-	    margin-right: 4px;
-	}
+  .Wt-itemview {
+    .Wt-tv-rh, .Wt-tv-sh {
+      float: left;
     }
+
+    .Wt-tv-no-rh {
+      margin-left: 0px;
+      margin-right: 4px;
+    }
+  }
 }
 
 /*
  * WTableView
  */
 .Wt-tableview {
-	
-	select {
-	  width : 100%;
-	}
 
-    white-space: nowrap;
+  select {
+    width : 100%;
+  }
 
+  white-space: nowrap;
+
+  .Wt-header .Wt-tv-c {
+    padding-left: 6px;
+  }
+
+  .Wt-tv-contents {
+    background-color: @white;
+  }
+
+  .Wt-tv-contents.Wt-striped div.Wt-tv-c:nth-child(odd) {
+    background-color: @tableBackgroundAccent;
+  }
+
+  .Wt-tv-contents.Wt-striped div.active:nth-child(odd) {
+    background-color: @linkColor;
+  }
+
+  .Wt-tv-contents .Wt-tv-c, .Wt-plaintable td, .Wt-plaintable th {
+    padding: 0px 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .Wt-tv-contents img.icon,
+  .Wt-plaintable img.icon,
+  .Wt-tv-contents input.icon,
+  .Wt-plaintable input.icon {
+    margin: 0px 3px 2px 0px;
+    vertical-align: middle;
+  }
+
+  .Wt-spacer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  table {
+    background-position: left bottom;
+  }
+
+  /* header */
+  th {
+    padding: 0px;
+  }
+
+  /* borders */
+  .Wt-tv-br {
+    border-right: 1px solid @tableBorder;
+  }
+
+  .Wt-plaintable .Wt-tv-br {
+    border-right: 0;
+  }  
+
+  .Wt-tv-contents .Wt-tv-c, .Wt-plaintable td, .Wt-plaintable th {
+    border-right: 1px solid @tableBorder;
+    border-top: 1px solid @tableBorder;
+    margin-top: -1px;
+  }
+
+  .Wt-spacer {
+    border-bottom: 1px solid @tableBorder;
+  }
+
+  .Wt-header {
+    border-bottom: 1px solid @tableBorder;
+  }
+}
+
+body.Wt-rtl {
+  .Wt-tableview {
     .Wt-header .Wt-tv-c {
-	padding-left: 6px;
-    }
-
-    .Wt-tv-contents {
-	background-color: @white;
-    }
-
-    .Wt-tv-contents.Wt-striped div.Wt-tv-c:nth-child(odd) {
-	background-color: @tableBackgroundAccent;
-    }
-
-    .Wt-tv-contents.Wt-striped div.active:nth-child(odd) {
-	background-color: @linkColor;
-    }
-
-    .Wt-tv-contents .Wt-tv-c, .Wt-plaintable td, .Wt-plaintable th {
-	padding: 0px 3px;
-	overflow: hidden;
-	text-overflow: ellipsis;
+      padding-left: 0px;
+      padding-right: 6px;
     }
 
     .Wt-tv-contents img.icon,
     .Wt-plaintable img.icon,
     .Wt-tv-contents input.icon,
     .Wt-plaintable input.icon {
-	margin: 0px 3px 2px 0px;
-	vertical-align: middle;
-    }
-
-    .Wt-spacer {
-	position: relative;
-	overflow: hidden;
+      margin: 0px 0px 2px 3px;
     }
 
     table {
-       background-position: left bottom;
-    }
-
-    /* header */
-    th {
-       padding: 0px;
+      background-position: right bottom;
     }
 
     /* borders */
     .Wt-tv-br {
-	border-right: 1px solid @tableBorder;
+      border-right: 0;
+      border-left: 1px solid @tableBorder;
     }
 
-    .Wt-plaintable .Wt-tv-br {
-        border-right: 0;
-    }  
-
-    .Wt-tv-contents .Wt-tv-c, .Wt-plaintable td, .Wt-plaintable th {
-	border-right: 1px solid @tableBorder;
-	border-top: 1px solid @tableBorder;
-	margin-top: -1px;
+    .Wt-tv-contents .Wt-tv-c, .Wt-plaintable tbody .Wt-tv-c {
+      border-right: 0;
+      border-left: 1px solid @tableBorder;
     }
-
-    .Wt-spacer {
-	border-bottom: 1px solid @tableBorder;
-    }
-
-    .Wt-header {
-	border-bottom: 1px solid @tableBorder;
-    }
-}
-
-body.Wt-rtl {
-    .Wt-tableview {
-	.Wt-header .Wt-tv-c {
-	    padding-left: 0px;
-	    padding-right: 6px;
-	}
-
-	.Wt-tv-contents img.icon,
-	.Wt-plaintable img.icon,
-	.Wt-tv-contents input.icon,
-	.Wt-plaintable input.icon {
-	    margin: 0px 0px 2px 3px;
-	}
-
-	table {
-	    background-position: right bottom;
-	}
-
-	/* borders */
-	.Wt-tv-br {
-	    border-right: 0;
-	    border-left: 1px solid @tableBorder;
-	}
-
-	.Wt-tv-contents .Wt-tv-c, .Wt-plaintable tbody .Wt-tv-c {
-	    border-right: 0;
-	    border-left: 1px solid @tableBorder;
-	}
-    }
+  }
 }
 
 /*
@@ -758,126 +758,126 @@ body.Wt-rtl {
  */
 
 .Wt-tree {
+  cursor: default;
+
+  ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style: none;
+  }
+
+  div.Wt-root {
+    display: none;
+  }
+
+  ul.Wt-root {
+    padding-left: 0px;
+  }
+
+  &.Wt-trunk, .Wt-item.Wt-trunk {
+    background-image: url(../../../line-trunk.gif);
+    background-repeat: repeat-y;
+  }
+
+  .Wt-item {
+    *zoom: 1;
+  }
+
+  .Wt-item.Wt-end {
+    background-image: url(../../../line-last.gif);
+    background-repeat: no-repeat;
+  }
+
+  .active {
+    color: @white;
+    text-shadow: 0 -1px 0 rgba(0,0,0,.2);
+    background-color: @linkColor;
     cursor: default;
+  }
 
-    ul {
-	margin: 0;
-	padding-left: 20px;
-	list-style: none;
+  .Wt-ctrl {
+    float: left;
+    display: block;
+    width: 19px;
+    height: 19px;
+
+    &.Wt-noexpand {
+      background-image: url(../../../line-middle.gif);
+      background-repeat: no-repeat;
     }
 
-    div.Wt-root {
-	display: none;
+    img {
+      vertical-align: top;
     }
+  }
 
-    ul.Wt-root {
-	padding-left: 0px;
-    }
+  .cols-row {
+    float: right;
+  }
 
-    &.Wt-trunk, .Wt-item.Wt-trunk {
-	background-image: url(../../../line-trunk.gif);
-	background-repeat: repeat-y;
-    }
-
-    .Wt-item {
-       	*zoom: 1;
-    }
-
-    .Wt-item.Wt-end {
-	background-image: url(../../../line-last.gif);
-	background-repeat: no-repeat;
-    }
-
-    .active {
-	color: @white;
-	text-shadow: 0 -1px 0 rgba(0,0,0,.2);
-	background-color: @linkColor;
-	cursor: default;
-    }
-
-    .Wt-ctrl {
-	float: left;
-	display: block;
-	width: 19px;
-	height: 19px;
-
-	&.Wt-noexpand {
-	    background-image: url(../../../line-middle.gif);
-	    background-repeat: no-repeat;
-	}
-
-	img {
-	    vertical-align: top;
-	}
-    }
-
-    .cols-row {
-	float: right;
-    }
-
-    .Wt-label {
-	padding: 0px 2px;
-	line-height: 150%;
-    }
+  .Wt-label {
+    padding: 0px 2px;
+    line-height: 150%;
+  }
 }
 
 body.Wt-rtl {
-    .Wt-tree {
-	ul {
-	    margin: 0;
-	    padding-left: 0px;
-	    padding-right: 20px;
-	}
-
-	ul.Wt-root {
-	    padding-right: 0px;
-	}
-
-	&.Wt-trunk, .Wt-item.Wt-trunk {
-	    background-position: top right;
-	}
-
-	.Wt-item.Wt-end {
-	    background-image: url(../../../line-last-rtl.gif);
-	    background-position: top right;
-	}
-
-	.Wt-ctrl {
-	    float: right;
-
-	    &.Wt-noexpand {
-		background-image: url(../../../line-middle-rtl.gif);
-		background-position: top right;
-	    }
-
-	}
-
-	.cols-row {
-	    float: left;
-	}
+  .Wt-tree {
+    ul {
+      margin: 0;
+      padding-left: 0px;
+      padding-right: 20px;
     }
+
+    ul.Wt-root {
+      padding-right: 0px;
+    }
+
+    &.Wt-trunk, .Wt-item.Wt-trunk {
+      background-position: top right;
+    }
+
+    .Wt-item.Wt-end {
+      background-image: url(../../../line-last-rtl.gif);
+      background-position: top right;
+    }
+
+    .Wt-ctrl {
+      float: right;
+
+      &.Wt-noexpand {
+        background-image: url(../../../line-middle-rtl.gif);
+        background-position: top right;
+      }
+
+    }
+
+    .cols-row {
+      float: left;
+    }
+  }
 }
 
 .Wt-treetable {
-    overflow: auto;
+  overflow: auto;
 
-    .Wt-header {
-	font-weight: bold;
-        border-bottom: 1px solid @tableBorder;
-	line-height: 28px;
-    }
+  .Wt-header {
+    font-weight: bold;
+    border-bottom: 1px solid @tableBorder;
+    line-height: 28px;
+  }
 }
 
 .Wt-sbspacer {
-    float: right;
-    width: 16px;
-    height: 1px;
-    border: 0px;
-    display: none;
+  float: right;
+  width: 16px;
+  height: 1px;
+  border: 0px;
+  display: none;
 }
 
 body.Wt-rtl .Wt-sbspacer {
-    float: left;
+  float: left;
 }
 
 /*
@@ -887,267 +887,267 @@ body.Wt-rtl .Wt-sbspacer {
 /* Layout styling */
 .Wt-treeview {
 
-    ul {
-	margin: 0px;
-	padding-left: 20px;
-	list-style: none;
+  ul {
+    margin: 0px;
+    padding-left: 20px;
+    list-style: none;
 
-	&.Wt-tv-root {
-	    padding-left: 0px;
-	}
+    &.Wt-tv-root {
+      padding-left: 0px;
+    }
+  }
+
+  img.icon, input.icon {
+    margin: 0px 3px 2px 0px;
+  }
+
+  .Wt-header {
+    border-bottom: 1px solid @tableBorder;
+
+    .Wt-tv-c {
+      padding: 0px;
+      margin-left: 7px;
+    }
+  }
+
+  .Wt-tv-br,    /* header */
+  ul .Wt-tv-c { /* data */
+    margin-right: 0px;
+    border-right: 1px solid @tableBorder;
+  }
+
+  button.Wt-tv-c {
+    border-right-color: transparent; /* doesn't work */
+  }
+
+  .Wt-tv-c {
+    padding: 0px 3px;
+  }
+
+  .Wt-tv-row {
+    float: right;
+    overflow: hidden;
+
+    .Wt-tv-c {
+      float: left;
+      display: block;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+  }
+
+  img.icon, input.icon {
+    vertical-align: middle;
+  }
+
+  .Wt-scroll {
+    overflow: auto;
+    height: 22px;
+
+    div {
+      height: 1px;
+    }
+  }
+
+  .Wt-item {
+    *zoom: 1;
+  }
+
+  /* nodes */
+  .Wt-trunk {
+    background-image: url(../../../line-trunk.gif);
+    background-repeat: repeat-y;
+  }
+
+  .Wt-end {
+    background-image: url(../../../tv-line-last.gif);
+    background-repeat: no-repeat;
+    background-position: 0 center;
+  }
+
+  .Wt-ctrl {
+    float: left;
+    width: 19px;
+
+    &.expand {
+      background-image: url(nav-plus.gif);
+      background-repeat: no-repeat;
+      background-position: 0 center;
+    }
+
+    &.collapse {
+      background: url(nav-minus.gif);
+      background-repeat: no-repeat;
+      background-position: 0 center;
+    }
+
+    &.noexpand {
+      background: url(../../../line-middle.gif);
+      background-repeat: no-repeat;
+      background-position: 0 center;
+    }
+  }
+}
+
+body.Wt-rtl {
+  .Wt-treeview {
+    ul {
+      padding-left: 0px;
+      padding-right: 20px;
+
+      &.Wt-tv-root {
+        padding-right: 0px;
+      }
     }
 
     img.icon, input.icon {
-	margin: 0px 3px 2px 0px;
+      margin: 0px 0px 2px 3px;
     }
 
     .Wt-header {
-	border-bottom: 1px solid @tableBorder;
-
-	.Wt-tv-c {
-	    padding: 0px;
-	    margin-left: 7px;
-	}
+      .Wt-tv-c {
+        margin-left: 0px;
+        margin-right: 7px;
+      }
     }
 
     .Wt-tv-br,    /* header */
     ul .Wt-tv-c { /* data */
-	margin-right: 0px;
-	border-right: 1px solid @tableBorder;
-    }
-
-    button.Wt-tv-c {
-        border-right-color: transparent; /* doesn't work */
-    }
-
-    .Wt-tv-c {
-	padding: 0px 3px;
+      border-right: 0px;
+      margin-left: 0px;
+      border-left: 1px solid @tableBorder;
     }
 
     .Wt-tv-row {
-	float: right;
-	overflow: hidden;
+      float: left;
 
-	.Wt-tv-c {
-	    float: left;
-	    display: block;
-	    text-overflow: ellipsis;
-	    overflow: hidden;
-	    white-space: nowrap;
-	}
+      .Wt-tv-c {
+        float: right;
+      }
     }
 
-    img.icon, input.icon {
-	vertical-align: middle;
-    }
-
-    .Wt-scroll {
-	overflow: auto;
-	height: 22px;
-
-	div {
-	    height: 1px;
-	}
-    }
-
-    .Wt-item {
-       	*zoom: 1;
-    }
-
-    /* nodes */
     .Wt-trunk {
-	background-image: url(../../../line-trunk.gif);
-	background-repeat: repeat-y;
+      background-position: top right;
     }
 
     .Wt-end {
-	background-image: url(../../../tv-line-last.gif);
-	background-repeat: no-repeat;
-	background-position: 0 center;
+      background-image: url(../../../tv-line-last-rtl.gif);
+      background-position: right center;
     }
 
     .Wt-ctrl {
-	float: left;
-	width: 19px;
+      float: right;
 
-	&.expand {
-	    background-image: url(nav-plus.gif);
-	    background-repeat: no-repeat;
-	    background-position: 0 center;
-	}
+      &.expand {
+        background-image: url(nav-plus-rtl.gif);
+      }
 
-	&.collapse {
-	    background: url(nav-minus.gif);
-	    background-repeat: no-repeat;
-	    background-position: 0 center;
-	}
+      &.collapse {
+        background-image: url(nav-minus-rtl.gif);
+      }
 
-	&.noexpand {
-	    background: url(../../../line-middle.gif);
-	    background-repeat: no-repeat;
-	    background-position: 0 center;
-	}
+      &.noexpand {
+        background-image: url(../../../line-middle-rtl.gif);
+      }
     }
-}
-
-body.Wt-rtl {
-    .Wt-treeview {
-	ul {
-	    padding-left: 0px;
-	    padding-right: 20px;
-
-	    &.Wt-tv-root {
-		padding-right: 0px;
-	    }
-	}
-	
-	img.icon, input.icon {
-	    margin: 0px 0px 2px 3px;
-	}
-
-	.Wt-header {
-	    .Wt-tv-c {
-		margin-left: 0px;
-		margin-right: 7px;
-	    }
-	}
- 
-	.Wt-tv-br,    /* header */
-	ul .Wt-tv-c { /* data */
-	    border-right: 0px;
-	    margin-left: 0px;
-	    border-left: 1px solid @tableBorder;
-	}
-
-	.Wt-tv-row {
-	    float: left;
-
-	    .Wt-tv-c {
-		float: right;
-	    }
-	}
-
-	.Wt-trunk {
-	    background-position: top right;
-	}
-
-	.Wt-end {
-	    background-image: url(../../../tv-line-last-rtl.gif);
-	    background-position: right center;
-	}
-
-	.Wt-ctrl {
-	    float: right;
-
-	    &.expand {
-		background-image: url(nav-plus-rtl.gif);
-	    }
-
-	    &.collapse {
-		background-image: url(nav-minus-rtl.gif);
-	    }
-
-	    &.noexpand {
-		background-image: url(../../../line-middle-rtl.gif);
-	    }
-	}
-    }
+  }
 }
 
 /*
  * WTreeView and WTableView default paging bar
  */
 .Wt-pagingbar {
-    text-align: center;
-    padding: 2px;
-    height: 35px;
-    line-height: 35px;
+  text-align: center;
+  padding: 2px;
+  height: 35px;
+  line-height: 35px;
 
-    span {
-	margin: 0px 4px;
-    }
+  span {
+    margin: 0px 4px;
+  }
 
-    button {
-	margin: 0px 4px;
-    }
+  button {
+    margin: 0px 4px;
+  }
 }
 
 .Wt-in-place-edit {
-    span:hover {
-        color: @white;
-        background-color: @linkColor;
-    } 
+  span:hover {
+    color: @white;
+    background-color: @linkColor;
+  } 
 }
 
 /*
  * WStackedWidget
  */
 .Wt-stack.Wt-animated {
-    overflow: hidden;
-    position: relative;
+  overflow: hidden;
+  position: relative;
 }
 
 /*
  * WResizable
  */
 .Wt-resizable, .Wt-resizable.modal .modal-footer {
-    background-image: url(../../../resizable.png);
-    background-repeat: no-repeat;
-    background-attachment: scroll;
-    background-position: right bottom;
+  background-image: url(../../../resizable.png);
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  background-position: right bottom;
 }
 
 /*
  * WFileDropWidget
  */
 .Wt-filedropzone {
-    width: 200px;
-    height: 200px;
-    border: thick dashed grey;
-    background-color: lightgrey;
+  width: 200px;
+  height: 200px;
+  border: thick dashed grey;
+  background-color: lightgrey;
 }
 
 .Wt-filedropzone.Wt-dropzone-hover {
-    border-color: green;
+  border-color: green;
 }
 
 .Wt-filedropzone.Wt-dropzone-hover * {
-    pointer-events: none;
+  pointer-events: none;
 }
 
 .Wt-fileupload-hidden {
-    display: none !important;
+  display: none !important;
 }
 
 .Wt-filedropzone.Wt-dropzone-dragstyle {
-    position: relative;
-    z-index: 20001;
+  position: relative;
+  z-index: 20001;
 }
 
 .Wt-filedropzone.Wt-dropzone-indication {
-    border-color: green;
+  border-color: green;
 }
 
 .Wt-dropcover {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    height: 100%;
-    z-index: -100;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: -100;
 }
 .Wt-dropcover.Wt-dropzone-drag {
-    z-index: 20000;
+  z-index: 20000;
 }
 
 .Wt-icon {
-    display: inline-block;
-    margin-right: 8px;
-    background-repeat: no-repeat;
-    background-position: center left;
-    width: 16px;
-    height: 16px;
-    line-height: 16px;
-    vertical-align: text-top;
+  display: inline-block;
+  margin-right: 8px;
+  background-repeat: no-repeat;
+  background-position: center left;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  vertical-align: text-top;
 }
 

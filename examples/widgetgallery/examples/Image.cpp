@@ -16,7 +16,7 @@ image->clicked().connect([=] (const Wt::WMouseEvent& e) {
     out->setText("You clicked the Wt logo at "
                  "(" + std::to_string(e.widget().x) +
                  "," + std::to_string(e.widget().y) +
-		 ").");
+                 ").");
 });
 
 SAMPLE_END(return std::move(container))

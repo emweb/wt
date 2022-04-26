@@ -10,7 +10,7 @@ MyCaptcha::MyCaptcha(const int width, const int height)
   : WContainerWidget()
 {
   setStyleClass("captcha");
-		
+
   captchaMessage_ = this->addWidget(std::make_unique<WText>());
 
   shapesWidget_ = this->addWidget(std::make_unique<ShapesWidget>());
@@ -20,10 +20,10 @@ MyCaptcha::MyCaptcha(const int width, const int height)
 
   regenerate();
 }
-  
+
 void MyCaptcha::handleClick(const WMouseEvent& me)
 {
-  if (shapesWidget_->correctlyClicked(me)) 
+  if (shapesWidget_->correctlyClicked(me))
     completed_.emit();
   else
     regenerate();
@@ -34,6 +34,6 @@ void MyCaptcha::regenerate()
   shapesWidget_->initShapes();
   shapesWidget_->update();
   captchaMessage_->setText(tr("captcha.message")
-			   .arg(shapesWidget_->selectedColor())
-			   .arg(shapesWidget_->selectedShape()));
+                           .arg(shapesWidget_->selectedColor())
+                           .arg(shapesWidget_->selectedShape()));
 }

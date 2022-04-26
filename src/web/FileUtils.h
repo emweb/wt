@@ -16,9 +16,9 @@
 namespace Wt {
   namespace FileUtils {
 
-    extern WT_API 
-    std::vector<unsigned char> fileHeader(const std::string &fileName, 
-					  unsigned size);
+    extern WT_API
+    std::vector<unsigned char> fileHeader(const std::string &fileName,
+                                          unsigned size);
     extern WT_API unsigned long long size(const std::string &file);
     extern WT_API std::string* fileToString(const std::string &fileName);
 #ifndef WT_TARGET_JAVA
@@ -26,16 +26,16 @@ namespace Wt {
 #endif
     extern WT_API bool exists(const std::string &file);
     extern bool isDirectory(const std::string &file);
-    extern void listFiles(const std::string &directory, 
-			  std::vector<std::string> &files);
+    extern void listFiles(const std::string &directory,
+                          std::vector<std::string> &files);
     extern std::string leaf(const std::string &file);
-    
+
 
     // Returns a filename that can be used as temporary file
     extern WT_API std::string createTempFileName();
 
     extern void appendFile(const std::string &srcFile,
-			   const std::string &targetFile);
+                           const std::string &targetFile);
   }
 }
 

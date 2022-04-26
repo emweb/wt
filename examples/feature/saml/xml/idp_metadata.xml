@@ -1,4 +1,4 @@
-<!-- The entity describing the SAMLtest IdP, named by the entityID below --> 
+<!-- The entity describing the SAMLtest IdP, named by the entityID below -->
 
 <EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" ID="SAMLtestIdP" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui" validUntil="2100-01-01T00:00:42Z" entityID="https://samltest.id/saml/idp">
 
@@ -7,12 +7,12 @@
         <Extensions>
 <!-- An enumeration of the domains this IdP is able to assert scoped attributes, which are
 typically those with a @ delimiter, like mail.  Most IdP's serve only a single domain.  It's crucial
-for the SP to check received attribute values match permitted domains to prevent a recognized IdP from 
+for the SP to check received attribute values match permitted domains to prevent a recognized IdP from
 sending attribute values for which a different recognized IdP is authoritative. -->
             <shibmd:Scope regexp="false">samltest.id</shibmd:Scope>
 
 <!-- Display information about this IdP that can be used by SP's and discovery
-services to identify the IdP meaningfully for end users --> 
+services to identify the IdP meaningfully for end users -->
             <mdui:UIInfo>
                 <mdui:DisplayName xml:lang="en">SAMLtest IdP</mdui:DisplayName>
                 <mdui:Description xml:lang="en">A free and basic IdP for testing SAML deployments</mdui:Description>
@@ -105,7 +105,7 @@ zBDsMIEzRtQZm4GIoHJae4zmnCekkQ==
         <ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://samltest.id/idp/profile/SAML2/SOAP/ArtifactResolution" index="1" />
 
 <!-- A set of endpoints where the IdP can receive logout messages. These must match the public
-facing addresses if this IdP is hosted behind a reverse proxy.  --> 
+facing addresses if this IdP is hosted behind a reverse proxy.  -->
         <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://samltest.id/idp/profile/SAML2/Redirect/SLO"/>
         <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://samltest.id/idp/profile/SAML2/POST/SLO"/>
         <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://samltest.id/idp/profile/SAML2/POST-SimpleSign/SLO"/>

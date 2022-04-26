@@ -62,7 +62,7 @@ class WRegExp;
     for (unsigned i = 0; i < ROWS; ++i) {
       model_->insertRow(i);
       for (unsigned j = 0; j < COLS; ++j)
-	model_->setData(i, j, "col " + std::to_string(j));
+        model_->setData(i, j, "col " + std::to_string(j));
     }
 
     // set up the proxy model
@@ -117,7 +117,7 @@ public:
    * lastColumn. \p parentColumn must border the range defined by
    * \p firstColumn to \p lastColumn:
    * \code
-   * parentColumn == firstColumn - 1 || parentColumn == lastColumn + 1 
+   * parentColumn == firstColumn - 1 || parentColumn == lastColumn + 1
    * \endcode
    *
    * Note that column parameters reference column indexes in the
@@ -138,7 +138,7 @@ public:
     const override;
 
   virtual void setSourceModel(const std::shared_ptr<WAbstractItemModel>&
-			      sourceModel) override;
+                              sourceModel) override;
 
   virtual void expandColumn(int column) override;
   virtual void collapseColumn(int column) override;
@@ -161,11 +161,11 @@ public:
 
   virtual WModelIndex parent(const WModelIndex& index) const override;
   virtual WModelIndex index(int row, int column,
-			    const WModelIndex& parent = WModelIndex())
+                            const WModelIndex& parent = WModelIndex())
     const override;
 
-  virtual void sort(int column, 
-		    SortOrder order = SortOrder::Ascending) override;
+  virtual void sort(int column,
+                    SortOrder order = SortOrder::Ascending) override;
 
 private:
   struct Aggregate {
@@ -203,35 +203,35 @@ private:
   void collapse(Aggregate& aggregate);
 
   void propagateBeginRemove(const WModelIndex& proxyIndex,
-			    int start, int end);
+                            int start, int end);
   void propagateEndRemove(const WModelIndex& proxyIndex,
-			  int start, int end);
+                          int start, int end);
   void propagateBeginInsert(const WModelIndex& proxyIndex,
-			    int start, int end);
+                            int start, int end);
   void propagateEndInsert(const WModelIndex& proxyIndex,
-			  int start, int end);
+                          int start, int end);
 
   int lastVisibleSourceNotAfter(int sourceColumn) const;
   int firstVisibleSourceNotBefore(int sourceColumn) const;
-  
+
   void sourceColumnsAboutToBeInserted(const WModelIndex& parent,
-				      int start, int end);
+                                      int start, int end);
   void sourceColumnsInserted(const WModelIndex& parent, int start, int end);
 
   void sourceColumnsAboutToBeRemoved(const WModelIndex& parent,
-				     int start, int end);
+                                     int start, int end);
   void sourceColumnsRemoved(const WModelIndex& parent, int start, int end);
 
   void sourceRowsAboutToBeInserted(const WModelIndex& parent,
-				   int start, int end);
+                                   int start, int end);
   void sourceRowsInserted(const WModelIndex& parent, int start, int end);
 
   void sourceRowsAboutToBeRemoved(const WModelIndex& parent,
-				  int start, int end);
+                                  int start, int end);
   void sourceRowsRemoved(const WModelIndex& parent, int start, int end);
 
   void sourceDataChanged(const WModelIndex& topLeft,
-			 const WModelIndex& bottomRight);
+                         const WModelIndex& bottomRight);
 
   void sourceHeaderDataChanged(Orientation orientation, int start, int end);
 

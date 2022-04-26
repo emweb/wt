@@ -24,9 +24,9 @@ WMatrix4x4::WMatrix4x4(double *d)
 {}
 
 WMatrix4x4::WMatrix4x4(double m11, double m12, double m13, double m14,
-		       double m21, double m22, double m23, double m24,
-		       double m31, double m32, double m33, double m34,
-		       double m41, double m42, double m43, double m44):
+                       double m21, double m22, double m23, double m24,
+                       double m31, double m32, double m33, double m34,
+                       double m41, double m42, double m43, double m44):
   WGenericMatrix<double, 4, 4>(0)
 {
   (*this)(0, 0) = m11;
@@ -53,7 +53,7 @@ WMatrix4x4::WMatrix4x4(const WMatrix4x4 &other)
 
 WMatrix4x4::WMatrix4x4(const WGenericMatrix<double, 4, 4> &other)
   : WGenericMatrix<double, 4, 4>(other)
-{} 
+{}
 
 void WMatrix4x4::flipCoordinates()
 {
@@ -61,24 +61,24 @@ void WMatrix4x4::flipCoordinates()
 }
 
 void WMatrix4x4::frustum(double left, double right, double bottom, double top,
-			 double nearPlane, double farPlane)
+                         double nearPlane, double farPlane)
 {
   WGenericMatrix<double, 4, 4> f(0);
   f(0, 0) = 2 * nearPlane / (right - left);
   f(0, 1) = 0;
   f(0, 2) = (right + left) / (right - left);
   f(0, 3) = 0;
-    
+
   f(1, 0) = 0;
   f(1, 1) = 2 * nearPlane / (top - bottom);
   f(1, 2) = (top + bottom) / (top - bottom);
   f(1, 3) = 0;
-    
+
   f(2, 0) = 0;
   f(2, 1) = 0;
   f(2, 2) = - (farPlane + nearPlane) / (farPlane - nearPlane);
   f(2, 3) = - 2 * farPlane * nearPlane / (farPlane - nearPlane);
-    
+
   f(3, 0) = 0;
   f(3, 1) = 0;
   f(3, 2) = -1;
@@ -93,8 +93,8 @@ void WMatrix4x4::frustum(double left, double right, double bottom, double top,
 }
 
 void WMatrix4x4::lookAt(double eyeX, double eyeY, double eyeZ,
-			double centerX, double centerY, double centerZ,
-			double upX, double upY, double upZ)
+                        double centerX, double centerY, double centerZ,
+                        double upX, double upY, double upZ)
 {
   // A 3D vector class would be handy here
   // Compute and normalize lookDir
@@ -119,11 +119,11 @@ void WMatrix4x4::lookAt(double eyeX, double eyeY, double eyeZ,
   double upDirY = -(sideX*lookDirZ - lookDirX*sideZ);
   double upDirZ = sideX*lookDirY - lookDirX*sideY;
   WMatrix4x4 l(
-	       sideX,     sideY,     sideZ,     -(eyeX*sideX + eyeY*sideY + eyeZ*sideZ),
-	       upDirX,    upDirY,    upDirZ,    -(eyeX*upDirX + eyeY*upDirY + eyeZ*upDirZ),
-	       -lookDirX, -lookDirY, -lookDirZ, +(+eyeX*lookDirX + eyeY*lookDirY + eyeZ*lookDirZ),
-	       0,      0,         0,     1
-	       );
+               sideX,     sideY,     sideZ,     -(eyeX*sideX + eyeY*sideY + eyeZ*sideZ),
+               upDirX,    upDirY,    upDirZ,    -(eyeX*upDirX + eyeY*upDirY + eyeZ*upDirZ),
+               -lookDirX, -lookDirY, -lookDirZ, +(+eyeX*lookDirX + eyeY*lookDirY + eyeZ*lookDirZ),
+               0,      0,         0,     1
+               );
 #ifdef WT_GENERIC_MATRIX_USE_BOOST_UBLAS
   using namespace boost::numeric::ublas;
   impl() = prod(impl(), l.impl());;
@@ -133,14 +133,14 @@ void WMatrix4x4::lookAt(double eyeX, double eyeY, double eyeZ,
 }
 
 void WMatrix4x4::ortho(double left, double right, double bottom, double top,
-		       double nearPlane, double farPlane)
+                       double nearPlane, double farPlane)
 {
   WMatrix4x4 o(
-	       2 / (right - left), 0, 0, - (right + left) / (right - left),
-	       0, 2 / (top - bottom), 0, - (top + bottom) / (top - bottom),
-	       0, 0, -2 / (farPlane - nearPlane), - (farPlane + nearPlane) / (farPlane - nearPlane),
-	       0, 0, 0, 1
-	       );
+               2 / (right - left), 0, 0, - (right + left) / (right - left),
+               0, 2 / (top - bottom), 0, - (top + bottom) / (top - bottom),
+               0, 0, -2 / (farPlane - nearPlane), - (farPlane + nearPlane) / (farPlane - nearPlane),
+               0, 0, 0, 1
+               );
 #ifdef WT_GENERIC_MATRIX_USE_BOOST_UBLAS
   using namespace boost::numeric::ublas;
   impl() = prod(impl(), o.impl());;
@@ -150,13 +150,13 @@ void WMatrix4x4::ortho(double left, double right, double bottom, double top,
 }
 
 void WMatrix4x4::perspective(double angle, double aspect,
-		 double nearPlane, double farPlane)
+                 double nearPlane, double farPlane)
 {
   double halfHeight =
     nearPlane * std::tan(angle / 2 / 180 * 3.14159265358979323846);
   double halfWidth = halfHeight * aspect;
   frustum(-halfWidth, halfWidth, -halfHeight, halfHeight,
-	  nearPlane, farPlane);
+          nearPlane, farPlane);
 }
 
 void WMatrix4x4::rotate(double angle, double x, double y, double z)
@@ -250,7 +250,7 @@ WMatrix4x4 WMatrix4x4::inverted(bool *invertible) const
   bounded_matrix<double, 4, 4, row_major> retvalImpl;
   for (std::size_t i = 0; i < 4; ++i)
     for (std::size_t j = 0; j < 4; ++j)
-	retvalImpl(i,j) = (i == j ? 1 : 0);
+        retvalImpl(i,j) = (i == j ? 1 : 0);
 #endif // WT_GENERIC_MATRIX_USE_BOOST_UBLAS
   boost::numeric::ublas::permutation_matrix<unsigned> pivots(4);
 
@@ -266,7 +266,7 @@ WMatrix4x4 WMatrix4x4::inverted(bool *invertible) const
 #ifndef WT_GENERIC_MATRIX_USE_BOOST_UBLAS
     for (std::size_t i = 0; i < 4; ++i)
       for (std::size_t j = 0; j < 4; ++j)
-	retval(i,j) = retvalImpl(i,j);
+        retval(i,j) = retvalImpl(i,j);
 #endif // WT_GENERIC_MATRIX_USE_BOOST_UBLAS
     return retval;
   }

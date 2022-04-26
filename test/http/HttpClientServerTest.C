@@ -33,11 +33,11 @@ namespace {
   public:
     TestResource()
       : continuation_(false),
-	delaySendingBody_(false),
-	haveEverMoreData_(false),
-	haveRandomMoreData_(false),
-	clientAddressTest_(false),
-	aborted_(0)
+        delaySendingBody_(false),
+        haveEverMoreData_(false),
+        haveRandomMoreData_(false),
+        clientAddressTest_(false),
+        aborted_(0)
     { }
 
     virtual ~TestResource() {
@@ -69,14 +69,14 @@ namespace {
     }
 
     virtual void handleRequest(const Http::Request& request,
-			       Http::Response& response) override
+                               Http::Response& response) override
     {
       if (continuation_)
-	handleWithContinuation(request, response);
+        handleWithContinuation(request, response);
       else if (clientAddressTest_)
         handleClientAddress(request, response);
       else
-	handleSimple(request, response);
+        handleSimple(request, response);
     }
 
     virtual void handleAbort(const Http::Request& request) override
@@ -93,7 +93,7 @@ namespace {
     int aborted_;
 
     void handleSimple(const Http::Request& request,
-		      Http::Response& response)
+                      Http::Response& response)
     {
       response.setStatus(200);
       response.out() << "Hello";
@@ -107,18 +107,18 @@ namespace {
     }
 
     void handleWithContinuation(const Http::Request& request,
-				Http::Response& response) 
+                                Http::Response& response) 
     {
       if (request.continuation()) {
-	response.out() << "Hello";
-	if (haveEverMoreData_ ||
-	    (haveRandomMoreData_ && (rand() % 10 != 0)))
-	  response.createContinuation();
+        response.out() << "Hello";
+        if (haveEverMoreData_ ||
+            (haveRandomMoreData_ && (rand() % 10 != 0)))
+          response.createContinuation();
       } else {
-	response.setStatus(200);
-	Http::ResponseContinuation *c = response.createContinuation();
-	if (delaySendingBody_)
-	  c->waitForMoreData();
+        response.setStatus(200);
+        Http::ResponseContinuation *c = response.createContinuation();
+        if (delaySendingBody_)
+          c->waitForMoreData();
       }
     }
   };
@@ -129,10 +129,10 @@ namespace {
     Server() {
       int argc = 7;
       const char *argv[]
-	= { "test",
-	    "--http-address", "127.0.0.1",
-	    "--http-port", "0",
-	    "--docroot", "." 
+        = { "test",
+            "--http-address", "127.0.0.1",
+            "--http-port", "0",
+            "--docroot", "." 
           };
       setServerConfiguration(argc, (char **)argv);
       addResource(&resource_, "/test");
@@ -153,7 +153,7 @@ namespace {
   public:
     Client()
       : done_(true),
-	abortAfterHeaders_(false)
+        abortAfterHeaders_(false)
     {
       impl_.done().connect(this, &Client::onDone);
       impl_.headersReceived().connect(this, &Client::onHeadersReceived);
@@ -195,7 +195,7 @@ namespace {
       std::unique_lock<std::mutex> guard(doneMutex_);
 
       while (!done_)
-	doneCondition_.wait(guard);
+        doneCondition_.wait(guard);
     }
 
     bool isDone() const
@@ -217,7 +217,7 @@ namespace {
     void onHeadersReceived(const Http::Message& m)
     {
       if (abortAfterHeaders_)
-	abort();
+        abort();
     }
 
     void onDataReceived(const std::string& d)
@@ -317,21 +317,21 @@ BOOST_AUTO_TEST_CASE( http_client_server_test4 )
     for (;;) {
       bool alldone = true;
 
-      for (unsigned i = 0; i < clients.size(); ++i) {	
-	if (!clients[i]->isDone()) {
-	  if (i % 100 == 0) {
-	    clients[i]->abort();
-	    ++abortedCount;
-	  }
-	  alldone = false;
-	  break;
-	}
+      for (unsigned i = 0; i < clients.size(); ++i) {        
+        if (!clients[i]->isDone()) {
+          if (i % 100 == 0) {
+            clients[i]->abort();
+            ++abortedCount;
+          }
+          alldone = false;
+          break;
+        }
       }
 
       if (!alldone)
-	server.resource().haveMoreData();
+        server.resource().haveMoreData();
       else
-	break;
+        break;
     }
 
     for (unsigned i = 0; i < 1000; ++i) {

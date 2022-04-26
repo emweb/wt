@@ -74,9 +74,9 @@ void PaintWidget::initializeGL()
     // by specifying a center point and an up direction; mouse movements
     // will allow the camera to be moved around the center point.
     setClientSideLookAtHandler(jsMatrix_, // the name of the JS matrix
-	cx, cy, cz,                       // the center point
-	0, 1, 0,                          // the up direction
-	0.005, 0.005);                    // 'speed' factors
+        cx, cy, cz,                       // the center point
+        0, 1, 0,                          // the up direction
+        0.005, 0.005);                    // 'speed' factors
     // Alternative: this installs a client-side mouse handler that allows
     // to 'walk' around: go forward, backward, turn left, turn right, ...
     //setClientSideWalkHandler(jsMatrix_, 0.05, 0.005);

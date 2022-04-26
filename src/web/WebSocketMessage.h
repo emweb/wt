@@ -20,7 +20,7 @@ public:
   WebSocketMessage(WebSession *session);
 
   virtual void flush(ResponseState state = ResponseState::ResponseDone,
-		     const WriteCallback& callback = WriteCallback()) override;
+                     const WriteCallback& callback = WriteCallback()) override;
 
   void setWebSocketMessageCallback(const ReadCallback& callback);
   virtual bool webSocketMessagePending() const override;

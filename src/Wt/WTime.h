@@ -221,7 +221,7 @@ public:
    * \link toString(const WString& format) const toString(const WString& format)\endlink.
    *
    * When the time could not be parsed or is not valid, an invalid
-   * time is returned (for which isValid() returns false). 
+   * time is returned (for which isValid() returns false).
    *
    * \sa toString(const WString&) const
    */
@@ -277,14 +277,14 @@ private:
   };
 
   static bool parseLast(const std::string& v, unsigned& vi,
-			ParseState& parse, const WString& format);
+                        ParseState& parse, const WString& format);
 
   static WDateTime::CharState handleSpecial(char c, const std::string& v,
-					    unsigned& vi, ParseState& parse,
-					    const WString& format);
+                                            unsigned& vi, ParseState& parse,
+                                            const WString& format);
 
   bool writeSpecial(const std::string& f, unsigned& i, WStringStream& result,
-		    bool useAMPM, int zoneOffset) const;
+                    bool useAMPM, int zoneOffset) const;
 
   int pmhour() const;
 

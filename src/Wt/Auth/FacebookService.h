@@ -44,7 +44,7 @@ namespace Wt {
  * Like all <b>service classes</b>, this class holds only
  * configuration state. Thus, once configured, it can be safely shared
  * between multiple sessions since its state (the configuration) is
- * read-only. 
+ * read-only.
  * \if cpp
  * A "const FacebookService" object is thus thread-safe.
  * \endif

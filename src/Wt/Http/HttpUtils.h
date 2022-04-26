@@ -18,9 +18,9 @@ namespace Wt {
   namespace Http {
     namespace Utils {
       WT_API extern void parseFormUrlEncoded(const Http::Message& response,
-					     Http::ParameterMap &params);
+                                             Http::ParameterMap &params);
       WT_API extern const std::string *getParamValue(Http::ParameterMap &params,
-						     const std::string &name);
+                                                     const std::string &name);
     }
   }
 }

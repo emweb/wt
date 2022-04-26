@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE( dbo2_test1 )
   std::cerr << "We have " << users.size() << " users:" << std::endl;
   for (Users::const_iterator i = users.begin(); i != users.end(); ++i)
     std::cerr << " user " << (*i)->name
-	      << " with karma of " << (*i)->karma << std::endl;
+              << " with karma of " << (*i)->karma << std::endl;
 
   joe = session.find<User>("where \"name\" = ?").bind("Joe");    
   joe.modify()->karma++;

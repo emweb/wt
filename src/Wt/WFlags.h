@@ -366,18 +366,18 @@ bool WFlags<EnumType>::operator<(WFlags<EnumType> other) const
 }
 
 #ifndef WT_TARGET_JAVA
-#define W_DECLARE_OPERATORS_FOR_FLAGS(EnumType)				\
+#define W_DECLARE_OPERATORS_FOR_FLAGS(EnumType)                         \
 inline Wt::WFlags<EnumType> operator|(EnumType l, EnumType r) {         \
-  Wt::WFlags<EnumType> retval(l);					\
-  retval |= r;								\
-  return retval;							\
-}									\
-inline Wt::WFlags<EnumType> operator|(EnumType l,		        \
-                                      Wt::WFlags<EnumType> r) {		\
-  return r | l;								\
+  Wt::WFlags<EnumType> retval(l);                                       \
+  retval |= r;                                                          \
+  return retval;                                                        \
+}                                                                       \
+inline Wt::WFlags<EnumType> operator|(EnumType l,                       \
+                                      Wt::WFlags<EnumType> r) {         \
+  return r | l;                                                         \
 }
 #else
-#define W_DECLARE_OPERATORS_FOR_FLAGS(EnumType)				\
+#define W_DECLARE_OPERATORS_FOR_FLAGS(EnumType)                         \
 Wt::WFlags<EnumType> operator|(EnumType l, EnumType r);                 \
 Wt::WFlags<EnumType> operator|(EnumType l, Wt::WFlags<EnumType> r);     \
 bool operator==(EnumType l, Wt::WFlags<EnumType> r);                    \

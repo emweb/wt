@@ -17,7 +17,7 @@ class DialogCover;
 
 /*! \brief The result of a modal dialog execution.
  */
-enum class DialogCode { 
+enum class DialogCode {
   Rejected, //!< Dialog closed with reject()
   Accepted  //!< Dialog closed with accept()
 };
@@ -33,7 +33,7 @@ enum class DialogCode {
  * A modal dialog can be instantiated synchronously or
  * asynchronously. A non-modal dialog can only be instantiated
  * asynchronously.
- * 
+ *
  * When using a dialog asynchronously, there is no API call that waits
  * for the dialog to be closed. Then, the usage is similar to
  * instantiating any other widget. The dialog may be closed by calling
@@ -98,17 +98,17 @@ enum class DialogCode {
  * void MyClass::showDialog()
  * {
  *   dialog_ = addChild(std::make_unique<Wt::WDialog>("Personalia"));
- *  
+ *
  *   dialog_->contents()->addWidget(std::make_unique<Wt::WText>("Enter your name: "));
  *   edit_ = dialog_->contents()->addWidget(std::make_unique<Wt::WLineEdit>());
  *   dialog_->contents()->addWidget(std::make_unique<Wt::WBreak>());
- *  
+ *
  *   Wt::WPushButton *ok = dialog_->contents()->addWidget(std::make_unique<Wt::WPushButton>("Ok"));
  *
  *   // these events will accept() the Dialog
  *   edit_->enterPressed().connect(dialog_, &Wt::WDialog::accept);
  *   ok->clicked().connect(dialog_, &Wt::WDialog::accept);
- *  
+ *
  *   dialog_->finished().connect(this, &MyClass::dialogDone);
  *   dialog_->show();
  * }
@@ -124,10 +124,10 @@ enum class DialogCode {
  *
  * This dialog looks like this (using the default css themes):
  *
- * <TABLE border="0" align="center"> <TR> <TD> 
- * \image html WDialog-default-1.png "A simple custom dialog (default)" 
+ * <TABLE border="0" align="center"> <TR> <TD>
+ * \image html WDialog-default-1.png "A simple custom dialog (default)"
  * </TD> <TD>
- * \image html WDialog-polished-1.png "A simple custom dialog (polished)" 
+ * \image html WDialog-polished-1.png "A simple custom dialog (polished)"
  * </TD> </TR> </TABLE>
  *
  * \note For the dialog (or rather, the silkscreen covering the user
@@ -194,7 +194,7 @@ public:
 
   /*! \brief Returns the dialog contents container.
    *
-   * Content to the dialog window may be added to this container widget. 
+   * Content to the dialog window may be added to this container widget.
    */
   WContainerWidget *contents() const { return contents_; }
 
@@ -215,8 +215,8 @@ public:
    * entire server will be unresponsive when the thread pool is
    * exhausted.</i>
    *
-   * \if java 
-   * <i>This functionality is only available on Servlet 3.0 compatible 
+   * \if java
+   * <i>This functionality is only available on Servlet 3.0 compatible
    * servlet containers.</i>
    * \endif
    *
@@ -259,7 +259,7 @@ public:
    * \sa reject()
    */
   void rejectWhenEscapePressed(bool enable = true);
-  
+
   /*! \brief %Signal emitted when the dialog is closed.
    *
    * \sa done(DialogCode r), accept(), reject()
@@ -344,12 +344,12 @@ public:
   void setAutoFocus(bool enable){ autoFocus_ = enable;}
 
   virtual void setHidden(bool hidden,
-			 const WAnimation& animation = WAnimation()) override;
+                         const WAnimation& animation = WAnimation()) override;
 
   virtual void positionAt(const WWidget *widget,
-			  Orientation orientation = Orientation::Vertical)
+                          Orientation orientation = Orientation::Vertical)
     override;
-  
+
   /*! \brief Set the position of the widget at the mouse position
    */
   void positionAt(const Wt::WMouseEvent& ev);
@@ -384,7 +384,7 @@ public:
   /*! \brief Event signal emitted when a keyboard key is pushed down.
    *
    *  The event will be triggered if nothing in the WDialog has focus
-   *  
+   *
    *  \sa WInteractiveWidget::keyWentDown
    */
   EventSignal<WKeyEvent>& keyWentDown();
@@ -392,15 +392,15 @@ public:
   /*! \brief Event signal emitted when a "character" was entered.
    *
    *  The event will be triggered if nothing in the WDialog has focus
-   *  
+   *
    *  \sa WInteractiveWidget::keyPressed
    */
   EventSignal<WKeyEvent>& keyPressed();
-    
+
   /*! \brief Event signal emitted when a keyboard key is released.
    *
    *  The event will be triggered if nothing in the WDialog has focus
-   *  
+   *
    *  \sa WInteractiveWidget::keyWentUp
    */
   EventSignal<WKeyEvent>& keyWentUp();
@@ -408,7 +408,7 @@ public:
   /*! \brief Event signal emitted when enter was pressed.
    *
    *  The event will be triggered if nothing in the WDialog has focus
-   *  
+   *
    *  \sa WInteractiveWidget::enterPressed
    */
   EventSignal<>& enterPressed();
@@ -416,7 +416,7 @@ public:
   /*! \brief Event signal emitted when escape was pressed.
    *
    *  The event will be triggered if nothing in the WDialog has focus
-   *  
+   *
    *  \sa WInteractiveWidget::escapePressed
    *
    */

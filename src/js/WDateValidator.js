@@ -9,14 +9,14 @@
 WT_DECLARE_WT_MEMBER
 (1, JavaScriptConstructor, "WDateValidator",
    function(mandatory, formats, bottom, top, blankError,
-	    formatError, tooSmallError, tooLargeError) {
+            formatError, tooSmallError, tooLargeError) {
 
    this.validate = function(text) {
      if (text.length == 0)
        if (mandatory)
-	   return { valid: false, message: blankError };
-	 else
-	   return { valid: true };
+           return { valid: false, message: blankError };
+         else
+           return { valid: true };
 
      var results;
 
@@ -28,11 +28,11 @@ WT_DECLARE_WT_MEMBER
 
        results = r.exec(text);
        if (results != null) {
-	 m = f.getMonth(results);
-	 d = f.getDay(results);
-	 y = f.getYear(results);
+         m = f.getMonth(results);
+         d = f.getDay(results);
+         y = f.getYear(results);
 
-	 break;
+         break;
        }
      }
 
@@ -47,17 +47,17 @@ WT_DECLARE_WT_MEMBER
      if (dt.getDate() != d ||
          dt.getMonth() != m-1 ||
          dt.getFullYear() != y ||
-	 dt.getFullYear() < 1400) {
+         dt.getFullYear() < 1400) {
        return { valid: false, message: formatError };
      }
 
      if (bottom)
        if (dt.getTime() < bottom.getTime())
-	 return { valid: false, message: tooSmallError};
+         return { valid: false, message: tooSmallError};
 
      if (top)
        if (dt.getTime() > top.getTime())
-	 return { valid:false, message: tooLargeError};
+         return { valid:false, message: tooLargeError};
 
 
      return { valid: true };

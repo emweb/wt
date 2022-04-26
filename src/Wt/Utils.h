@@ -68,8 +68,8 @@ WT_API extern std::vector<unsigned char> sha1(const std::string& data);
  *
  * \sa base64Decode()
  */
-WT_API extern std::string base64Encode(const std::string& data, 
-				       bool crlf = true);
+WT_API extern std::string base64Encode(const std::string& data,
+                                       bool crlf = true);
 
 /*! \brief Performs Base64-decoding of data.
  *
@@ -108,7 +108,7 @@ WT_API extern std::string hexDecode(const std::string& data);
  * be embodied verbatim in a HTML text block.
  */
 WT_API extern std::string htmlEncode(const std::string& text,
-				     WFlags<HtmlEncodingFlag> flags = None);
+                                     WFlags<HtmlEncodingFlag> flags = None);
 
 /*! \brief Performs HTML encoding of text.
  *
@@ -119,7 +119,7 @@ WT_API extern std::string htmlEncode(const std::string& text,
  * flag, these may be encoded as line breaks (&lt;br&gt;).
  */
 WT_API extern WString htmlEncode(const WString& text,
-				 WFlags<HtmlEncodingFlag> flags = None);
+                                 WFlags<HtmlEncodingFlag> flags = None);
 
 /*! \brief Performs Url encoding (aka percentage encoding).
  *

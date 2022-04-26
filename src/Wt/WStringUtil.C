@@ -30,33 +30,33 @@ namespace {
     typedef typename OutStrT::value_type OutCharT;
 
     typedef std::codecvt<wchar_t, char, std::mbstate_t> Cvt;
-    
+
     OutStrT result;
     result.reserve(s.length());
-    
+
     const Cvt& myfacet = std::use_facet<Cvt>(loc);
     Cvt::result myresult;
     std::mbstate_t mystate = std::mbstate_t();
-   
+
     wchar_t stack_buffer[stack_buffer_size + 1];
     const char* next_to_convert = s.c_str();
     const char* const to_convert_end = s.c_str() + s.length();
-    
+
     bool error = false;
 
     while (next_to_convert != to_convert_end) {
       wchar_t* converted_end = stack_buffer;
       myresult = myfacet.in(mystate, next_to_convert, to_convert_end,
-			    next_to_convert,
-			    stack_buffer, stack_buffer + stack_buffer_size,
-			    converted_end);
+                            next_to_convert,
+                            stack_buffer, stack_buffer + stack_buffer_size,
+                            converted_end);
 
       result.append((OutCharT*)stack_buffer, (OutCharT*)converted_end);
-      
+
       if (myresult == Cvt::error) {
-	result += '?';
-	++ next_to_convert;
-	error = true;
+        result += '?';
+        ++ next_to_convert;
+        error = true;
       }
     }
 

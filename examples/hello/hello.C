@@ -66,7 +66,7 @@ HelloApplication::HelloApplication(const Wt::WEnvironment& env)
   /*
    * - using a lambda:
    */
-  button->clicked().connect([=]() { 
+  button->clicked().connect([=]() {
       std::cerr << "Hello there, " << nameEdit_->text() << std::endl;
   });
 }

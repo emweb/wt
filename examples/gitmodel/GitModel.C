@@ -50,12 +50,12 @@ WModelIndex GitModel::parent(const WModelIndex& index) const
     // ... and construct that identifies the parent:
     //   row = child index in the grand parent
     //   internalId = id of the grand parent
-    return createIndex(item.index(), 0, item.parentId()); 
+    return createIndex(item.index(), 0, item.parentId());
   }
 }
 
 WModelIndex GitModel::index(int row, int column,
-			    const WModelIndex& parent) const
+                            const WModelIndex& parent) const
 {
   int parentId;
 
@@ -147,14 +147,14 @@ cpp17::any GitModel::data(const WModelIndex& index, ItemDataRole role) const
     Git::Object object = getObject(index);
     if (role == ItemDataRole::Display) {
       if (object.type == Git::Tree)
-	return object.name + '/';
+        return object.name + '/';
       else
-	return object.name;
+        return object.name;
     } else if (role == ItemDataRole::Decoration) {
       if (object.type == Git::Blob)
-	return static_cast<const char*>("icons/git-blob.png");
+        return static_cast<const char*>("icons/git-blob.png");
       else if (object.type == Git::Tree)
-	return static_cast<const char*>("icons/git-tree.png");
+        return static_cast<const char*>("icons/git-tree.png");
     } else if (role == ContentsRole) {
       if (object.type == Git::Blob)
         return git_.catFile(object.id);

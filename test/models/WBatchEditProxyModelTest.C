@@ -16,7 +16,7 @@ enum ModelType { SourceModel, ProxyModel };
 
 namespace {
   std::string d(WAbstractItemModel *model, int row, int column,
-		const WModelIndex& parent = WModelIndex())
+                const WModelIndex& parent = WModelIndex())
   {
     return cpp17::any_cast<std::string>
       (model->data(row, column, ItemDataRole::Display, parent));
@@ -59,38 +59,38 @@ struct BatchEditFixture {
   std::vector<ModelEvent> modelEvents_[2];
 
   void connectEvents(std::shared_ptr<WAbstractItemModel> model,
-		     ModelType modelType)
+                     ModelType modelType)
   {
     typedef BatchEditFixture This;
     using namespace std::placeholders;
 
     model->rowsAboutToBeInserted().connect
       (std::bind(&This::geometryChanged, this, _1, _2, _3,
-		   modelType, RowsInserted, false));
+                   modelType, RowsInserted, false));
     model->rowsInserted().connect
       (std::bind(&This::geometryChanged, this, _1, _2, _3,
-		   modelType, RowsInserted, true));
+                   modelType, RowsInserted, true));
 
     model->rowsAboutToBeRemoved().connect
       (std::bind(&This::geometryChanged, this, _1, _2, _3,
-		   modelType, RowsRemoved, false));
+                   modelType, RowsRemoved, false));
     model->rowsRemoved().connect
       (std::bind(&This::geometryChanged, this, _1, _2, _3,
-		   modelType, RowsRemoved, true));
+                   modelType, RowsRemoved, true));
 
     model->columnsAboutToBeInserted().connect
       (std::bind(&This::geometryChanged, this, _1, _2, _3,
-		   modelType, ColumnsInserted, false));
+                   modelType, ColumnsInserted, false));
     model->columnsInserted().connect
       (std::bind(&This::geometryChanged, this, _1, _2, _3,
-		   modelType, ColumnsInserted, true));
+                   modelType, ColumnsInserted, true));
 
     model->columnsAboutToBeRemoved().connect
       (std::bind(&This::geometryChanged, this, _1, _2, _3,
-		   modelType, ColumnsRemoved, false));
+                   modelType, ColumnsRemoved, false));
     model->columnsRemoved().connect
       (std::bind(&This::geometryChanged, this, _1, _2, _3,
-		   modelType, ColumnsRemoved, true));
+                   modelType, ColumnsRemoved, true));
   }
 
 
@@ -101,9 +101,9 @@ struct BatchEditFixture {
   }
 
   void geometryChanged(const WModelIndex& parent,
-		       int start, int end,
-		       ModelType model, EventType type,
-		       bool ended)
+                       int start, int end,
+                       ModelType model, EventType type,
+                       bool ended)
   {
     if (!ended) {
       ModelEvent event;
@@ -116,15 +116,15 @@ struct BatchEditFixture {
       modelEvents_[model].push_back(event);
     } else {
       for (int i = (int)(modelEvents_[model].size()) - 1; i >= 0; --i) {
-	ModelEvent& e = modelEvents_[model][i];
-	if (e.type == type
-	    && e.index == parent
-	    && e.start == start
-	    && e.end == end
-	    && !e.ended) {
-	  e.ended = true;
-	  return;
-	}
+        ModelEvent& e = modelEvents_[model][i];
+        if (e.type == type
+            && e.index == parent
+            && e.start == start
+            && e.end == end
+            && !e.ended) {
+          e.ended = true;
+          return;
+        }
       }
 
       BOOST_FAIL("Non-matched geometry ending event");

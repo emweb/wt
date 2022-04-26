@@ -43,9 +43,9 @@ public:
     if (session_.login().loggedIn()) {
       const Wt::Auth::User& u = session_.login().user();
       log("notice")
-	<< "User " << u.id()
-	<< " (" << u.identity(Wt::Auth::Identity::LoginName) << ")"
-	<< " logged in.";
+        << "User " << u.id()
+        << " (" << u.identity(Wt::Auth::Identity::LoginName) << ")"
+        << " logged in.";
     } else
       log("notice") << "User logged out.";
   }

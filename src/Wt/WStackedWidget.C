@@ -74,7 +74,7 @@ std::unique_ptr<WWidget> WStackedWidget::removeWidget(WWidget *widget)
 }
 
 void WStackedWidget::setTransitionAnimation(const WAnimation& animation,
-					    bool autoReverse)
+                                            bool autoReverse)
 {
   if (WApplication::instance()->environment().supportsCss3Animations()) {
     if (!animation.empty())
@@ -93,9 +93,9 @@ void WStackedWidget::setCurrentIndex(int index)
 }
 
 void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
-				     bool autoReverse)
+                                     bool autoReverse)
 {
-  if (!animation.empty() && 
+  if (!animation.empty() &&
       WApplication::instance()->environment().supportsCss3Animations() &&
       ((isRendered() && javaScriptDefined_) || !canOptimizeUpdates())) {
     if (canOptimizeUpdates() && index == currentIndex_)
@@ -107,7 +107,7 @@ void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
 
     if (previous)
       doJavaScript(jsRef() + ".wtObj.adjustScroll("
-		   + previous->jsRef() + ");");
+                   + previous->jsRef() + ");");
 
     setJavaScriptMember("wtAutoReverse", autoReverse ? "true" : "false");
 
@@ -122,11 +122,11 @@ void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
 
     for (int i = 0; i < count(); ++i)
       if (!canOptimizeUpdates() || (widget(i)->isHidden() != (currentIndex_ != i)))
-	widget(i)->setHidden(currentIndex_ != i);
+        widget(i)->setHidden(currentIndex_ != i);
 
     if (currentIndex_ >= 0 && isRendered() && javaScriptDefined_)
       doJavaScript(jsRef() + ".wtObj.setCurrent("
-		   + widget(currentIndex_)->jsRef() + ");");
+                   + widget(currentIndex_)->jsRef() + ");");
   }
 }
 
@@ -136,11 +136,11 @@ void WStackedWidget::loadAnimateJS()
     loadAnimateJS_ = true;
     if (javaScriptDefined_) {
       LOAD_JAVASCRIPT(WApplication::instance(), "js/WStackedWidget.js",
-		      "WStackedWidget.prototype.animateChild", wtjs2);
+                      "WStackedWidget.prototype.animateChild", wtjs2);
       setJavaScriptMember("wtAnimateChild",
-			  jsRef() + ".wtObj.animateChild");
+                          jsRef() + ".wtObj.animateChild");
       setJavaScriptMember("wtAutoReverse",
-			  autoReverseAnimation_ ? "true" : "false");
+                          autoReverseAnimation_ ? "true" : "false");
     }
   }
 }
@@ -154,12 +154,12 @@ void WStackedWidget::defineJavaScript()
     LOAD_JAVASCRIPT(app, "js/WStackedWidget.js", "WStackedWidget", wtjs1);
 
     setJavaScriptMember(" WStackedWidget", "new " WT_CLASS ".WStackedWidget("
-			+ app->javaScriptClass() + "," + jsRef() + ");");
+                        + app->javaScriptClass() + "," + jsRef() + ");");
 
     setJavaScriptMember(WT_RESIZE_JS,
-			jsRef() + ".wtObj.wtResize");
+                        jsRef() + ".wtObj.wtResize");
     setJavaScriptMember(WT_GETPS_JS,
-			jsRef() + ".wtObj.wtGetPs");
+                        jsRef() + ".wtObj.wtGetPs");
 
     if (loadAnimateJS_) {
       loadAnimateJS_ = false;
@@ -173,7 +173,7 @@ void WStackedWidget::render(WFlags<RenderFlag> flags)
   if (widgetsAdded_ || flags.test(RenderFlag::Full)) {
     for (int i = 0; i < count(); ++i)
       if (!canOptimizeUpdates() || (widget(i)->isHidden() != (currentIndex_ != i)))
-	widget(i)->setHidden(currentIndex_ != i);
+        widget(i)->setHidden(currentIndex_ != i);
     widgetsAdded_ = false;
   }
 
@@ -181,7 +181,7 @@ void WStackedWidget::render(WFlags<RenderFlag> flags)
     defineJavaScript();
     if (currentIndex_ >= 0 && isRendered() && javaScriptDefined_)
       doJavaScript(jsRef() + ".wtObj.setCurrent("
-		   + widget(currentIndex_)->jsRef() + ");");
+                   + widget(currentIndex_)->jsRef() + ");");
   }
 
   WContainerWidget::render(flags);
@@ -198,7 +198,7 @@ DomElement *WStackedWidget::createDomElement(WApplication *app)
 }
 
 void WStackedWidget::getDomChanges(std::vector<DomElement *>& result,
-				   WApplication *app)
+                                   WApplication *app)
 {
   WContainerWidget::getDomChanges(result, app);
 }

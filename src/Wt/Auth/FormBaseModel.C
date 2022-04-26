@@ -19,11 +19,11 @@ namespace Wt {
 const FormBaseModel::Field FormBaseModel::LoginNameField = "user-name";
 
 FormBaseModel::FormBaseModel(const AuthService& baseAuth,
-			     AbstractUserDatabase& users)
+                             AbstractUserDatabase& users)
   : baseAuth_(baseAuth),
     users_(users),
     passwordAuth_(nullptr)
-{ 
+{
   WApplication *app = WApplication::instance();
   app->builtinLocalizedStrings().useBuiltin(skeletons::AuthStrings_xml1);
 }
@@ -75,9 +75,9 @@ void FormBaseModel::setValid(Field field)
 void FormBaseModel::setValid(Field field, const Wt::WString& message)
 {
   setValidation(field,
-		WValidator::Result(ValidationState::Valid,
-				   message.empty() ? 
-				   WString::tr("Wt.Auth.valid") : message));
+                WValidator::Result(ValidationState::Valid,
+                                   message.empty() ?
+                                   WString::tr("Wt.Auth.valid") : message));
 }
 
 bool FormBaseModel::loginUser(Login& login, User& user, LoginState state)
@@ -89,17 +89,17 @@ bool FormBaseModel::loginUser(Login& login, User& user, LoginState state)
     setValidation
       (LoginNameField,
        WValidator::Result(ValidationState::Invalid,
-			  WString::tr("Wt.Auth.account-disabled")));
+                          WString::tr("Wt.Auth.account-disabled")));
 
     login.login(user, LoginState::Disabled);
 
     return false;
   } else if (baseAuth()->emailVerificationRequired() &&
-	     user.email().empty()) {
+             user.email().empty()) {
     setValidation
       (LoginNameField,
        WValidator::Result(ValidationState::Invalid,
-			  WString::tr("Wt.Auth.email-unverified")));
+                          WString::tr("Wt.Auth.email-unverified")));
 
     login.login(user, LoginState::Disabled);
 
@@ -108,7 +108,7 @@ bool FormBaseModel::loginUser(Login& login, User& user, LoginState state)
     login.login(user, state);
 
     return true;
-  }  
+  }
 }
 
   }

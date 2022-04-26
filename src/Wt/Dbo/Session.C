@@ -60,10 +60,10 @@ std::string quoteSchemaDot(const std::string& table) {
 }
 
 SetInfo::SetInfo(const char *aTableName,
-		 RelationType aType,
-		 const std::string& aJoinName,
-		 const std::string& aJoinSelfId,
-		 int someFkConstraints)
+                 RelationType aType,
+                 const std::string& aJoinName,
+                 const std::string& aJoinSelfId,
+                 int someFkConstraints)
   : tableName(aTableName),
     joinName(aJoinName),
     joinSelfId(aJoinSelfId),
@@ -80,18 +80,18 @@ MappingInfo::~MappingInfo()
 { }
 
 void MappingInfo::init(Session& session)
-{ 
+{
   throw Exception("Not to be done.");
 }
 
 void MappingInfo::dropTable(Session& session,
-				     std::set<std::string>& tablesDropped)
+                            std::set<std::string>& tablesDropped)
 {
   throw Exception("Not to be done.");
 }
 
 void MappingInfo::rereadAll()
-{ 
+{
   throw Exception("Not to be done.");
 }
 
@@ -106,7 +106,7 @@ void MappingInfo::load(Session& session, MetaDboBase *obj)
 }
 
 MetaDboBase *MappingInfo::load(Session& session, SqlStatement *statement,
-			       int& column)
+                               int& column)
 {
   throw Exception("Not to be done.");
 }
@@ -121,10 +121,10 @@ std::string MappingInfo::primaryKeys() const
     bool firstField = true;
     for (unsigned i = 0; i < fields.size(); ++i)
       if (fields[i].isIdField()) {
-	if (!firstField)
-	  result << ", ";
-	result << "\"" << fields[i].name() << "\"";
-	firstField = false;
+        if (!firstField)
+          result << ", ";
+        result << "\"" << fields[i].name() << "\"";
+        firstField = false;
       }
 
     return result.str();
@@ -134,8 +134,8 @@ std::string MappingInfo::primaryKeys() const
     } // end namespace Impl
 
 Session::JoinId::JoinId(const std::string& aJoinIdName,
-			const std::string& aTableIdName,
-			const std::string& aSqlType)
+                        const std::string& aTableIdName,
+                        const std::string& aSqlType)
   : joinIdName(aJoinIdName),
     tableIdName(aTableIdName),
     sqlType(aSqlType)
@@ -340,7 +340,7 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
     sql << "\"" << mapping->versionFieldName << "\" = ?";
     firstField = false;
   }
-  
+
   for (unsigned i = 0; i < mapping->fields.size(); ++i) {
     if (!firstField)
       sql << ", ";
@@ -359,17 +359,17 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
 
     for (unsigned i = 0; i < mapping->fields.size(); ++i) {
       if (mapping->fields[i].isNaturalIdField()) {
-	if (!firstField)
-	  idCondition += " and ";
-	idCondition += "\"" + mapping->fields[i].name() + "\" = ?";
+        if (!firstField)
+          idCondition += " and ";
+        idCondition += "\"" + mapping->fields[i].name() + "\" = ?";
 
-	firstField = false;
+        firstField = false;
       }
     }
 
     if (firstField)
       throw Exception("Table " + std::string(mapping->tableName)
-		      + " is missing a natural id defined with Wt::Dbo::id()");
+                      + " is missing a natural id defined with Wt::Dbo::id()");
   } else
     idCondition
       += std::string() + "\"" + mapping->surrogateIdFieldName + "\" = ?";
@@ -456,7 +456,7 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
 
     if (otherMapping->versionFieldName) {
       if (!firstField)
-	sql << ", ";
+        sql << ", ";
       sql << "\"" << otherMapping->versionFieldName << "\"";
       firstField = false;
     }
@@ -466,44 +466,44 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
 
     for (unsigned i = 0; i < otherMapping->fields.size(); ++i) {
       if (!firstField)
-	sql << ", ";
+        sql << ", ";
       firstField = false;
 
       const FieldInfo& field = otherMapping->fields[i];
       sql << "\"" << field.name() << "\"";
 
       if (field.isForeignKey()
-	  && field.foreignKeyTable() == mapping->tableName) {
-	if (field.foreignKeyName() == info.joinName) {
-	  if (!fkConditions.empty())
-	    fkConditions += " and ";
-	  fkConditions += std::string("\"") + field.name() + "\" = ?";
-	} else {
-	  if (!other.empty())
-	    other += " and ";
+          && field.foreignKeyTable() == mapping->tableName) {
+        if (field.foreignKeyName() == info.joinName) {
+          if (!fkConditions.empty())
+            fkConditions += " and ";
+          fkConditions += std::string("\"") + field.name() + "\" = ?";
+        } else {
+          if (!other.empty())
+            other += " and ";
 
-	  other += "'" + field.foreignKeyName() + "'";
-	}
+          other += "'" + field.foreignKeyName() + "'";
+        }
       }
     }
 
     sql << " from \"" << Impl::quoteSchemaDot(otherMapping->tableName);
-    
+
     switch (info.type) {
     case ManyToOne:
       // where joinfield_id(s) = ?
 
       if (fkConditions.empty()) {
-	std::string msg = std::string()
-	  + "Relation mismatch for table '" + mapping->tableName
-	  + "': no matching belongsTo() found in table '"
-	  + otherMapping->tableName + "' with name '" + info.joinName
-	  + "'";
+        std::string msg = std::string()
+          + "Relation mismatch for table '" + mapping->tableName
+          + "': no matching belongsTo() found in table '"
+          + otherMapping->tableName + "' with name '" + info.joinName
+          + "'";
 
-	if (!other.empty())
-	  msg += ", but did find with name " + other + "?";
+        if (!other.empty())
+          msg += ", but did find with name " + other + "?";
 
-	throw Exception(msg);
+        throw Exception(msg);
       }
 
       sql << "\" where " << fkConditions;
@@ -520,35 +520,35 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
       std::string tableName = Impl::quoteSchemaDot(info.tableName);
 
       sql << "\" join \"" << joinName
-	  << "\" on ";
+          << "\" on ";
 
       std::vector<JoinId> otherJoinIds
-	= getJoinIds(otherMapping, info.joinOtherId, info.flags & Impl::SetInfo::LiteralOtherId);
+        = getJoinIds(otherMapping, info.joinOtherId, info.flags & Impl::SetInfo::LiteralOtherId);
 
       if (otherJoinIds.size() > 1)
-	sql << "(";
+        sql << "(";
 
       for (unsigned i = 0; i < otherJoinIds.size(); ++i) {
-	if (i != 0)
-	  sql << " and ";
-	sql << "\"" << joinName << "\".\"" << otherJoinIds[i].joinIdName
-	    << "\" = \""
-	    << tableName << "\".\"" << otherJoinIds[i].tableIdName << "\"";
+        if (i != 0)
+          sql << " and ";
+        sql << "\"" << joinName << "\".\"" << otherJoinIds[i].joinIdName
+            << "\" = \""
+            << tableName << "\".\"" << otherJoinIds[i].tableIdName << "\"";
       }
 
       if (otherJoinIds.size() > 1)
-	sql << ")";
+        sql << ")";
 
       sql << " where ";
 
       std::vector<JoinId> selfJoinIds
-	= getJoinIds(mapping, info.joinSelfId, info.flags & Impl::SetInfo::LiteralSelfId);
+        = getJoinIds(mapping, info.joinSelfId, info.flags & Impl::SetInfo::LiteralSelfId);
 
       for (unsigned i = 0; i < selfJoinIds.size(); ++i) {
-	if (i != 0)
-	  sql << " and ";
-	sql << "\"" << joinName << "\".\"" << selfJoinIds[i].joinIdName
-	    << "\" = ?";
+        if (i != 0)
+          sql << " and ";
+        sql << "\"" << joinName << "\".\"" << selfJoinIds[i].joinIdName
+            << "\" = ?";
       }
 
       mapping->statements.push_back(sql.str());
@@ -558,31 +558,31 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
       sql.str("");
 
       sql << "insert into \"" << joinName
-	  << "\" (";
+          << "\" (";
 
       firstField = true;
       for (unsigned i = 0; i < selfJoinIds.size(); ++i) {
-	if (!firstField)
-	  sql << ", ";
-	firstField = false;
+        if (!firstField)
+          sql << ", ";
+        firstField = false;
 
-	sql << "\"" << selfJoinIds[i].joinIdName << "\"";
+        sql << "\"" << selfJoinIds[i].joinIdName << "\"";
       }
 
       for (unsigned i = 0; i < otherJoinIds.size(); ++i) {
-	if (!firstField)
-	  sql << ", ";
-	firstField = false;
+        if (!firstField)
+          sql << ", ";
+        firstField = false;
 
-	sql << "\"" << otherJoinIds[i].joinIdName << "\"";
+        sql << "\"" << otherJoinIds[i].joinIdName << "\"";
       }
 
       sql << ") values (";
 
       for (unsigned i = 0; i < selfJoinIds.size() + otherJoinIds.size(); ++i) {
-	if (i != 0)
-	  sql << ", ";
-	sql << "?";
+        if (i != 0)
+          sql << ", ";
+        sql << "?";
       }
 
       sql << ")";
@@ -597,19 +597,19 @@ void Session::prepareStatements(Impl::MappingInfo *mapping)
 
       firstField = true;
       for (unsigned i = 0; i < selfJoinIds.size(); ++i) {
-	if (!firstField)
-	  sql << " and ";
-	firstField = false;
+        if (!firstField)
+          sql << " and ";
+        firstField = false;
 
-	sql << "\"" << selfJoinIds[i].joinIdName << "\" = ?";
+        sql << "\"" << selfJoinIds[i].joinIdName << "\" = ?";
       }
 
       for (unsigned i = 0; i < otherJoinIds.size(); ++i) {
-	if (!firstField)
-	  sql << " and ";
-	firstField = false;
+        if (!firstField)
+          sql << " and ";
+        firstField = false;
 
-	sql << "\"" << otherJoinIds[i].joinIdName << "\" = ?";
+        sql << "\"" << otherJoinIds[i].joinIdName << "\" = ?";
       }
 
       mapping->statements.push_back(sql.str());
@@ -651,12 +651,12 @@ void Session::mergeDuplicates(Impl::MappingInfo *mapping)
     for (unsigned j = i + 1; j < mapping->fields.size(); ++j) {
       FieldInfo& f2 = mapping->fields[j];
       if (f.name() == f2.name()) {
-	if (f.sqlType() != f2.sqlType())
-	  throw Exception("Table: " + mapping->tableName + ": field '"
-			  + f.name() + "' mapped multiple times");
-			  "for " + mapping->tableName + "."
-			  + set.joinName);
-	  
+        if (f.sqlType() != f2.sqlType())
+          throw Exception("Table: " + mapping->tableName + ": field '"
+                          + f.name() + "' mapped multiple times");
+                          "for " + mapping->tableName + "."
+                          + set.joinName);
+
       }
     }
   }
@@ -672,19 +672,19 @@ void Session::resolveJoinIds(Impl::MappingInfo *mapping)
       Impl::MappingInfo *other = getMapping(set.tableName);
 
       for (unsigned j = 0; j < other->sets.size(); ++j) {
-	const Impl::SetInfo& otherSet = other->sets[j];
+        const Impl::SetInfo& otherSet = other->sets[j];
 
-	if (otherSet.joinName == set.joinName) {
-	  // second check make sure we find the other id if Many-To-Many between
-	  // same table
-	  if (mapping != other || i != j) {
-	    set.joinOtherId = otherSet.joinSelfId;
-	    set.otherFkConstraints = otherSet.fkConstraints;
-	    if (otherSet.flags & Impl::SetInfo::LiteralSelfId)
-	      set.flags |= Impl::SetInfo::LiteralOtherId;
-	    break;
-	  }
-	}
+        if (otherSet.joinName == set.joinName) {
+          // second check make sure we find the other id if Many-To-Many between
+          // same table
+          if (mapping != other || i != j) {
+            set.joinOtherId = otherSet.joinSelfId;
+            set.otherFkConstraints = otherSet.fkConstraints;
+            if (otherSet.flags & Impl::SetInfo::LiteralSelfId)
+              set.flags |= Impl::SetInfo::LiteralOtherId;
+            break;
+          }
+        }
       }
     }
   }
@@ -708,7 +708,7 @@ std::string Session::tableCreationSql()
        i != classRegistry_.end(); ++i)
     createRelations(i->second, tablesCreated, &sout);
 
-  t.commit();  
+  t.commit();
 
   return sout.str();
 }
@@ -733,7 +733,7 @@ void Session::createTables()
 }
 
 void Session::createTable(Impl::MappingInfo *mapping,
-			  std::set<std::string>& tablesCreated,
+                          std::set<std::string>& tablesCreated,
                           std::ostream *sout,
                           bool createConstraints)
 {
@@ -752,9 +752,9 @@ void Session::createTable(Impl::MappingInfo *mapping,
   // Auto-generated id
   if (mapping->surrogateIdFieldName) {
     sql << "  \"" << mapping->surrogateIdFieldName << "\" "
-	<< connection(false)->autoincrementType()
-	<< " primary key "
-	<< connection(false)->autoincrementSql() << "";
+        << connection(false)->autoincrementType()
+        << " primary key "
+        << connection(false)->autoincrementSql() << "";
     firstField = false;
   }
 
@@ -764,7 +764,7 @@ void Session::createTable(Impl::MappingInfo *mapping,
       sql << ",\n";
 
     sql << "  \"" << mapping->versionFieldName << "\" "
-	<< sql_value_traits<int>::type(0, 0);
+        << sql_value_traits<int>::type(0, 0);
 
     firstField = false;
   }
@@ -775,13 +775,13 @@ void Session::createTable(Impl::MappingInfo *mapping,
 
     if (!field.isVersionField()) {
       if (!firstField)
-	sql << ",\n";
+        sql << ",\n";
 
       std::string sqlType = field.sqlType();
       if (field.isForeignKey() && !(field.fkConstraints() & Impl::FKNotNull)) {
-	if (sqlType.length() > 9
-	    && sqlType.substr(sqlType.length() - 9) == " not null")
-	  sqlType = sqlType.substr(0, sqlType.length() - 9);
+        if (sqlType.length() > 9
+            && sqlType.substr(sqlType.length() - 9) == " not null")
+          sqlType = sqlType.substr(0, sqlType.length() - 9);
       }
 
       sql << "  \"" << field.name() << "\" " << sqlType;
@@ -789,9 +789,9 @@ void Session::createTable(Impl::MappingInfo *mapping,
       firstField = false;
 
       if (field.isNaturalIdField()) {
-	if (!primaryKey.empty())
-	  primaryKey += ", ";
-	primaryKey += "\"" + field.name() + "\"";
+        if (!primaryKey.empty())
+          primaryKey += ", ";
+        primaryKey += "\"" + field.name() + "\"";
       }
     }
   }
@@ -806,10 +806,10 @@ void Session::createTable(Impl::MappingInfo *mapping,
   for (unsigned i = 0; i < mapping->fields.size();) {
     const FieldInfo& field = mapping->fields[i];
 
-    if (field.isForeignKey() && 
-	(createConstraints || !connection(false)->supportAlterTable())) {
+    if (field.isForeignKey() &&
+        (createConstraints || !connection(false)->supportAlterTable())) {
       if (!firstField)
-	sql << ",\n";
+        sql << ",\n";
 
       unsigned firstI = i;
       i = findLastForeignKeyField(mapping, field, firstI);
@@ -828,31 +828,31 @@ void Session::createTable(Impl::MappingInfo *mapping,
     std::string tableName = Impl::quoteSchemaDot(mapping->tableName);
     std::string idFieldName = mapping->surrogateIdFieldName;
 
-    std::vector<std::string> sql = 
+    std::vector<std::string> sql =
       connection(false)->autoincrementCreateSequenceSql(tableName,
-							idFieldName);
+                                                        idFieldName);
 
     executeSql(sql, sout);
   }
 }
 
 void Session::createRelations(Impl::MappingInfo *mapping,
-			      std::set<std::string>& tablesCreated,
-			      std::ostream *sout)
+                              std::set<std::string>& tablesCreated,
+                              std::ostream *sout)
 {
   for (unsigned i = 0; i < mapping->sets.size(); ++i) {
     const Impl::SetInfo& set = mapping->sets[i];
 
     if (set.type == ManyToMany) {
       if (tablesCreated.count(set.joinName) == 0) {
-	Impl::MappingInfo *other = getMapping(set.tableName);
+        Impl::MappingInfo *other = getMapping(set.tableName);
 
-	createJoinTable(set.joinName, mapping, other,
-			set.joinSelfId, set.joinOtherId,
-			set.fkConstraints, set.otherFkConstraints,
-			set.flags & Impl::SetInfo::LiteralSelfId,
-			set.flags & Impl::SetInfo::LiteralOtherId,
-			tablesCreated, sout);
+        createJoinTable(set.joinName, mapping, other,
+                        set.joinSelfId, set.joinOtherId,
+                        set.fkConstraints, set.otherFkConstraints,
+                        set.flags & Impl::SetInfo::LiteralSelfId,
+                        set.flags & Impl::SetInfo::LiteralOtherId,
+                        tablesCreated, sout);
       }
     }
   }
@@ -863,7 +863,7 @@ void Session::createRelations(Impl::MappingInfo *mapping,
       if (field.isForeignKey()){
         std::stringstream sql;
 
-	std::string table = Impl::quoteSchemaDot(mapping->tableName);
+        std::string table = Impl::quoteSchemaDot(mapping->tableName);
 
         sql << "alter table \"" << table << "\""
             << " add ";
@@ -906,7 +906,7 @@ std::string Session::constraintString(Impl::MappingInfo *mapping,
       && haveSupportUpdateCascade_)
     sql << " on update cascade";
   else if (field.fkConstraints() & Impl::FKOnUpdateSetNull
-	   && haveSupportUpdateCascade_)
+           && haveSupportUpdateCascade_)
     sql << " on update set null";
   else if (field.fkConstraints() & Impl::FKOnUpdateRestrict
            && haveSupportUpdateCascade_)
@@ -941,14 +941,14 @@ unsigned Session::findLastForeignKeyField(Impl::MappingInfo *mapping,
 }
 
 void Session::createJoinTable(const std::string& joinName,
-			      Impl::MappingInfo *mapping1,
-			      Impl::MappingInfo *mapping2,
-			      const std::string& joinId1,
-			      const std::string& joinId2,
-			      int fkConstraints1, int fkConstraints2,
-			      bool literalJoinId1, bool literalJoinId2,
-			      std::set<std::string>& tablesCreated,
-			      std::ostream *sout)
+                              Impl::MappingInfo *mapping1,
+                              Impl::MappingInfo *mapping2,
+                              const std::string& joinId1,
+                              const std::string& joinId2,
+                              int fkConstraints1, int fkConstraints2,
+                              bool literalJoinId1, bool literalJoinId2,
+                              std::set<std::string>& tablesCreated,
+                              std::ostream *sout)
 {
   Impl::MappingInfo joinTableMapping;
 
@@ -957,9 +957,9 @@ void Session::createJoinTable(const std::string& joinName,
   joinTableMapping.surrogateIdFieldName = nullptr;
 
   addJoinTableFields(joinTableMapping, mapping1, joinId1, "key1",
-		     fkConstraints1, literalJoinId1);
+                     fkConstraints1, literalJoinId1);
   addJoinTableFields(joinTableMapping, mapping2, joinId2, "key2",
-		     fkConstraints2, literalJoinId2);
+                     fkConstraints2, literalJoinId2);
 
   createTable(&joinTableMapping, tablesCreated, sout, true);
 
@@ -968,10 +968,10 @@ void Session::createJoinTable(const std::string& joinName,
 }
 
 void Session::createJoinIndex(Impl::MappingInfo& joinTableMapping,
-			      Impl::MappingInfo *mapping,
-			      const std::string& joinId,
-			      const std::string& foreignKeyName,
-			      std::ostream *sout)
+                              Impl::MappingInfo *mapping,
+                              const std::string& joinId,
+                              const std::string& foreignKeyName,
+                              std::ostream *sout)
 {
   std::stringstream sql;
 
@@ -989,7 +989,7 @@ void Session::createJoinIndex(Impl::MappingInfo& joinTableMapping,
     const FieldInfo& f = joinTableMapping.fields[i];
     if (f.foreignKeyName() == foreignKeyName) {
       if (!firstField)
-	sql << ", ";
+        sql << ", ";
       firstField = false;
 
       sql << "\"" << f.name() << "\"";
@@ -1001,7 +1001,7 @@ void Session::createJoinIndex(Impl::MappingInfo& joinTableMapping,
   executeSql(sql, sout);
 }
 
-std::vector<Session::JoinId> 
+std::vector<Session::JoinId>
 Session::getJoinIds(Impl::MappingInfo *mapping, const std::string& joinId, bool literalJoinId)
 {
   std::vector<Session::JoinId> result;
@@ -1019,7 +1019,7 @@ Session::getJoinIds(Impl::MappingInfo *mapping, const std::string& joinId, bool 
       idName = joinId;
     else
       idName = foreignKeyName
-	+ "_" + mapping->surrogateIdFieldName;
+        + "_" + mapping->surrogateIdFieldName;
 
     result.push_back
       (JoinId(idName, mapping->surrogateIdFieldName, longlongType_));
@@ -1030,21 +1030,21 @@ Session::getJoinIds(Impl::MappingInfo *mapping, const std::string& joinId, bool 
       const FieldInfo& field = mapping->fields[i];
 
       if (field.isNaturalIdField()) {
-	++nbNaturalIdFields;
-	std::string idName;
-	if (literalJoinId) {
-	  // NOTE: there should be only one natural id field in this case!
-	  idName = joinId;
-	} else {
-	  idName = foreignKeyName + "_" + field.name();
-	}
-	result.push_back(JoinId(idName, field.name(), field.sqlType()));
+        ++nbNaturalIdFields;
+        std::string idName;
+        if (literalJoinId) {
+          // NOTE: there should be only one natural id field in this case!
+          idName = joinId;
+        } else {
+          idName = foreignKeyName + "_" + field.name();
+        }
+        result.push_back(JoinId(idName, field.name(), field.sqlType()));
       }
     }
     if (literalJoinId && nbNaturalIdFields != 1) {
       throw Exception(std::string("The literal join id >") + joinId + " was used,"
                       " but there are " + std::to_string(nbNaturalIdFields) +
-		      " natural id fields. There may only be one natural id field.");
+                      " natural id fields. There may only be one natural id field.");
     }
   }
 
@@ -1052,21 +1052,21 @@ Session::getJoinIds(Impl::MappingInfo *mapping, const std::string& joinId, bool 
 }
 
 void Session::addJoinTableFields(Impl::MappingInfo& result,
-				 Impl::MappingInfo *mapping,
-				 const std::string& joinId,
-				 const std::string& keyName,
-				 int fkConstraints,
-				 bool literalJoinId)
+                                 Impl::MappingInfo *mapping,
+                                 const std::string& joinId,
+                                 const std::string& keyName,
+                                 int fkConstraints,
+                                 bool literalJoinId)
 {
   std::vector<JoinId> joinIds = getJoinIds(mapping, joinId, literalJoinId);
 
   for (unsigned i = 0; i < joinIds.size(); ++i)
     result.fields.push_back
       (FieldInfo(joinIds[i].joinIdName, &typeid(long long),
-		 joinIds[i].sqlType,
-		 mapping->tableName, keyName,
-		 FieldFlags::NaturalId | FieldFlags::ForeignKey,
-		 fkConstraints));
+                 joinIds[i].sqlType,
+                 mapping->tableName, keyName,
+                 FieldFlags::NaturalId | FieldFlags::ForeignKey,
+                 fkConstraints));
 }
 
 void Session::dropTables()
@@ -1103,7 +1103,7 @@ void Session::dropTables()
         const FieldInfo& field = mapping->fields[j];
         if (field.isForeignKey()){
           std::stringstream sql;
-	  std::string table = Impl::quoteSchemaDot(mapping->tableName);
+          std::string table = Impl::quoteSchemaDot(mapping->tableName);
 
           sql << "alter table \"" << table << "\""
               << " drop "
@@ -1112,7 +1112,7 @@ void Session::dropTables()
 
           j = findLastForeignKeyField(mapping, field, j);
 
-	  executeSql(sql, nullptr);
+          executeSql(sql, nullptr);
         }
       }
     }
@@ -1198,7 +1198,7 @@ void Session::discardUnflushed()
 }
 
 std::string Session::statementId(const char *tableName, int statementIdx)
-{  
+{
   return std::string(tableName) + ":" + std::to_string(statementIdx);
 }
 
@@ -1235,7 +1235,7 @@ Session::getStatementSql(const char *tableName, int statementIdx)
 }
 
 SqlStatement *Session::prepareStatement(const std::string& id,
-					const std::string& sql)
+                                        const std::string& sql)
 {
   SqlConnection *conn = connection(false);
   std::unique_ptr<SqlStatement> stmt = conn->prepareStatement(sql);
@@ -1247,7 +1247,7 @@ SqlStatement *Session::prepareStatement(const std::string& id,
 }
 
 void Session::getFields(const char *tableName,
-			std::vector<FieldInfo>& result)
+                        std::vector<FieldInfo>& result)
 {
   initSchema();
 
@@ -1257,15 +1257,15 @@ void Session::getFields(const char *tableName,
 
   if (mapping->surrogateIdFieldName)
     result.push_back(FieldInfo(mapping->surrogateIdFieldName,
-			       &typeid(long long),
-			       longlongType_,
-			       FieldFlags::SurrogateId |
-			       FieldFlags::NeedsQuotes));
+                               &typeid(long long),
+                               longlongType_,
+                               FieldFlags::SurrogateId |
+                               FieldFlags::NeedsQuotes));
 
   if (mapping->versionFieldName)
     result.push_back(FieldInfo(mapping->versionFieldName, &typeid(int),
-			       intType_,
-			       FieldFlags::Version | FieldFlags::NeedsQuotes));
+                               intType_,
+                               FieldFlags::Version | FieldFlags::NeedsQuotes));
 
   result.insert(result.end(), mapping->fields.begin(), mapping->fields.end());
 }

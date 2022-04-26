@@ -57,7 +57,7 @@ public:
   void saveChanges();
   void discardChanges();
   void letReloadJS(WebResponse& request, bool newSession,
-		   bool embedded = false);
+                   bool embedded = false);
   void letReloadHTML(WebResponse& request, bool newSession);
 
   bool isDirty() const;
@@ -65,13 +65,13 @@ public:
   int pageId() const { return pageId_; }
 
   void serveResponse(WebResponse& request);
-  void serveError(int status, WebResponse& request, 
-		  const std::string& message);
+  void serveError(int status, WebResponse& request,
+                  const std::string& message);
   void serveLinkedCss(WebResponse& request);
 
   void setCookie(const std::string name, const std::string value,
-		 const WDateTime& expires, const std::string domain,
-		 const std::string path, bool secure);
+                 const WDateTime& expires, const std::string domain,
+                 const std::string path, bool secure);
 
   bool preLearning() const { return learning_; }
   void learningIncomplete();
@@ -83,7 +83,7 @@ public:
     ReasonableAck,
     BadAck
   };
-  
+
   AckState ackUpdate(unsigned int updateId);
 
   void streamRedirectJS(WStringStream& out, const std::string& redirect);
@@ -106,7 +106,7 @@ private:
 
     CookieValue();
     CookieValue(const std::string& v, const std::string& p,
-		const std::string& d, const WDateTime& e, bool secure);
+                const std::string& d, const WDateTime& e, bool secure);
   };
 
   WebSession& session_;
@@ -144,15 +144,15 @@ private:
 
   void collectJavaScriptUpdate(WStringStream& out);
   void loadStyleSheet(WStringStream& out, WApplication *app,
-		      const WLinkedCssStyleSheet& sheet);
+                      const WLinkedCssStyleSheet& sheet);
   void loadStyleSheets(WStringStream& out, WApplication *app);
   void removeStyleSheets(WStringStream& out, WApplication *app);
   int loadScriptLibraries(WStringStream& out, WApplication *app,
-			  int count = -1);
+                          int count = -1);
   void updateLoadIndicator(WStringStream& out, WApplication *app, bool all);
   void renderSetServerPush(WStringStream& out);
   void renderStyleSheet(WStringStream& out, const WLinkedCssStyleSheet& sheet,
-			WApplication *app);
+                        WApplication *app);
 
   std::string createFormObjectsList(WApplication *app);
 
@@ -162,11 +162,11 @@ private:
   void collectJS(WStringStream *js);
 
   void setPageVars(FileServe& page);
-  void streamBootContent(WebResponse& response, 
-			 FileServe& boot, bool hybrid);
+  void streamBootContent(WebResponse& response,
+                         FileServe& boot, bool hybrid);
   void addResponseAckPuzzle(WStringStream& out);
   void addContainerWidgets(WWebWidget *w,
-			   std::vector<WContainerWidget *>& v);
+                           std::vector<WContainerWidget *>& v);
 
   std::string headDeclarations() const;
   std::string bodyClassRtl() const;

@@ -10,8 +10,8 @@
 #include <boost/algorithm/string.hpp>
 
 bool WidgetFunction::operator()(WTemplate *t,
-				const std::vector<WString>& args,
-				std::ostream& result)
+                                const std::vector<WString>& args,
+                                std::ostream& result)
 {
   std::string name = args[0].toUTF8();
 
@@ -30,15 +30,15 @@ bool WidgetFunction::operator()(WTemplate *t,
 
       std::string cl = getArg("class", args);
       if (!cl.empty())
-	w->addStyleClass(cl);
+        w->addStyleClass(cl);
     }
 
     if (!w) {
       result << "?? WidgetFunction: could not create instance of type "
-	     << name << "??";
+             << name << "??";
     } else {
       if (id.empty())
-	id = w->id();
+        id = w->id();
     }
 
     t->bindWidget(id, std::move(w));
@@ -51,7 +51,7 @@ bool WidgetFunction::operator()(WTemplate *t,
 }
 
 void WidgetFunction::registerType(const std::string& name,
-				  InstantiateWidget instantiate)
+                                  InstantiateWidget instantiate)
 {
   registeredTypes_[name] = instantiate;
 }

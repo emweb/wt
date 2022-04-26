@@ -84,7 +84,7 @@ namespace Wt {
    * {
    *     typedef std::vector<Wt::Dbo::ptr<Comment> > Comments;
    *
-   *     Comments children(comment->children.begin(), comment->children.end()); // copy into an STL container, freeing the underlying query for reuse 
+   *     Comments children(comment->children.begin(), comment->children.end()); // copy into an STL container, freeing the underlying query for reuse
    *
    *     for (Comments::const_iterator i = children.begin(); i != children.end(); ++i) {
    *        std::cerr << "Comment: " << i->text << std::endl;
@@ -172,19 +172,19 @@ namespace Wt {
       iterator  operator++ (int);
 
       struct shared_impl {
-	const collection<C>& collection_;
-	SqlStatement *statement_;
-	value_type current_;
-	int useCount_;
-	bool queryEnded_;
-	unsigned posPastQuery_;
-	bool ended_;
+        const collection<C>& collection_;
+        SqlStatement *statement_;
+        value_type current_;
+        int useCount_;
+        bool queryEnded_;
+        unsigned posPastQuery_;
+        bool ended_;
 
-	shared_impl(const collection<C>& collection, SqlStatement *statement);
-	~shared_impl();
+        shared_impl(const collection<C>& collection, SqlStatement *statement);
+        ~shared_impl();
 
-	void fetchNextRow();
-	typename collection<C>::value_type& current();
+        void fetchNextRow();
+        typename collection<C>::value_type& current();
       };
 
     private:
@@ -443,10 +443,10 @@ namespace Wt {
     template <class Result, typename BindStrategy> friend class Query;
 
     collection(Session *session, SqlStatement *selectStatement,
-	       SqlStatement *countStatement);
+               SqlStatement *countStatement);
 
     void setRelationData(MetaDboBase *dbo, const std::string *sql,
-			 Impl::SetInfo *info);
+                         Impl::SetInfo *info);
     Activity *activity() const { return data_.relation.activity; }
     void resetActivity();
     void releaseQuery();

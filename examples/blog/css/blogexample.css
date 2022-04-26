@@ -1,52 +1,52 @@
 body {
-	color: #333333;
-	font-family:  arial,sans-serif;
-	font-size: 80%;
-	line-height:1.5em;
-	background-color:#FFF;
-	min-width:750px;
-	overflow-x: hidden;
+  color: #333333;
+  font-family:  arial,sans-serif;
+  font-size: 80%;
+  line-height:1.5em;
+  background-color:#FFF;
+  min-width:750px;
+  overflow-x: hidden;
 } 
 
 a {
-	text-decoration: underline;
-	color: #528B12; /*#70BD1A;*/
+  text-decoration: underline;
+  color: #528B12; /*#70BD1A;*/
 }
 
 .link {
-        color: #528B12; /*#70BD1A;*/
+  color: #528B12; /*#70BD1A;*/
 }
 
 a.blank {
-        text-decoration: none;
+  text-decoration: none;
 }
 
 a:hover {
-	text-decoration: underline;
+  text-decoration: underline;
 }
 
 h4 {
-	font-size: 1.3em;
-	line-height: 1.8;
-	border-top : 1px solid  #528B12;
-	padding-bottom:10px;
-	margin-top:15px;
-	color: #528B12;
-	display: block;
-	}
+  font-size: 1.3em;
+  line-height: 1.8;
+  border-top : 1px solid  #528B12;
+  padding-bottom:10px;
+  margin-top:15px;
+  color: #528B12;
+  display: block;
+}
 
 p {
-	font-size: 1.1em;
-	font-weight: normal;
-	line-height: 1.4;
-	margin-bottom : 15px;
-	color: #333333;
-	}
+  font-size: 1.1em;
+  font-weight: normal;
+  line-height: 1.4;
+  margin-bottom : 15px;
+  color: #333333;
+}
 p.intro {
-	font-size: 1.3em;
-	font-weight: normal;
-	line-height: 1.4;
-	padding-bottom : 15px;
-	color: #333333;
-	}
+  font-size: 1.3em;
+  font-weight: normal;
+  line-height: 1.4;
+  padding-bottom : 15px;
+  color: #333333;
+}
 

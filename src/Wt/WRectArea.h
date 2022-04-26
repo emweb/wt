@@ -18,7 +18,7 @@ namespace Wt {
  * The area may be added to a WImage or WPaintedWidget to provide
  * interactivity on a rectangular area of the image. The rectangle
  * is specified in pixel coordinates.
- * 
+ *
  * \if cpp
  * \code
  * auto image = std::make_unique<Wt::WImage>("images/family.jpg");
@@ -44,19 +44,19 @@ public:
   /*! \brief Creates a rectangular area with given geometry.
    *
    * The arguments are in pixel units.
-   */  
+   */
   WRectArea(int x, int y, int width, int height);
 
   /*! \brief Creates a rectangular area with given geometry.
    *
    * The arguments are in pixel units.
-   */  
+   */
   WRectArea(double x, double y, double width, double height);
 
   /*! \brief Creates a rectangular area with given geometry.
    *
    * The \p rect argument is in pixel units.
-   */  
+   */
   WRectArea(const WRectF& rect);
 
   /*! \brief Sets the top-left X coordinate.

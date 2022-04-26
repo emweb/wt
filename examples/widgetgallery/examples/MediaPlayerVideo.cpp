@@ -19,7 +19,7 @@ player->addSource(Wt::MediaEncoding::M4V, Wt::WLink(mp4Video));
 player->addSource(Wt::MediaEncoding::OGV, Wt::WLink(ogvVideo));
 player->addSource(Wt::MediaEncoding::PosterImage, Wt::WLink(poster));
 player->setTitle("<a href=\"https://durian.blender.org/\""
-		 "target=\"_blank\">Sintel</a>, (c) copyright Blender Foundation");
+                 "target=\"_blank\">Sintel</a>, (c) copyright Blender Foundation");
 
 Wt::WText *out = container->addNew<Wt::WText>();
 

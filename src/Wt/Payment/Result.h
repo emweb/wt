@@ -13,7 +13,7 @@ namespace Wt {
 
 /*! \class Result Wt/Payment/Result.h Wt/Payment/Result.h
  *  \brief A class that represents the result of a payment API call.
- * 
+ *
  * This class indicates the result of an asynchronous call: error()
  * indicates whether there was an error.
  *

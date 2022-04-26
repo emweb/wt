@@ -27,9 +27,9 @@ WT_DECLARE_WT_MEMBER
    function doHide() {
      setOthersInactive(el, null);
      el.style.display = 'none';
-	 setTimeout(function() {
+         setTimeout(function() {
        APP.emit(el.id, 'cancel');
-	 }, 0);
+         }, 0);
    }
 
    function setActive(item, active) {
@@ -42,16 +42,16 @@ WT_DECLARE_WT_MEMBER
      else {
        var u = item.lastChild;
        if (u && WT.hasTag(u, "UL")) {
-	 item.subMenu = u;
-	 u.parentItem = item;
+         item.subMenu = u;
+         u.parentItem = item;
 
-	 $(u).mousemove(handleSubMenus);
+         $(u).mousemove(handleSubMenus);
 
-	 bindOverEvents(u);
+         bindOverEvents(u);
 
-	 return u;
+         return u;
        } else
-	 return null;
+         return null;
      }
    }
 
@@ -78,35 +78,35 @@ WT_DECLARE_WT_MEMBER
    function setOthersInactive(topLevelMenu, activeItem) {
      function itemLeadsTo(item1, item2) {
        if (item1 == item2)
-	 return true;
+         return true;
        else if (item2) {
-	 var parent = item2.parentNode.parentItem;
-	 if (parent)
-	   return itemLeadsTo(item1, parent);
-	 else
-	   return false;
+         var parent = item2.parentNode.parentItem;
+         if (parent)
+           return itemLeadsTo(item1, parent);
+         else
+           return false;
        } else
-	 return false;
+         return false;
      }
 
      function processMenu(menu) {
        var i, il;
 
        for (i = 0, il = menu.childNodes.length; i < il; ++i) {
-	 var item = menu.childNodes[i];
+         var item = menu.childNodes[i];
 
-	 if (!itemLeadsTo(item, activeItem)) {
-	   setActive(item, false);
-	   var sm = submenu(item);
-	   if (sm) {
-	     sm.style.display = 'none';
-	     processMenu(sm);
-	   }
-	 } else if (item !== activeItem) {
-	   var sm = submenu(item);
-	   if (sm)
-	     processMenu(sm);
-	 }
+         if (!itemLeadsTo(item, activeItem)) {
+           setActive(item, false);
+           var sm = submenu(item);
+           if (sm) {
+             sm.style.display = 'none';
+             processMenu(sm);
+           }
+         } else if (item !== activeItem) {
+           var sm = submenu(item);
+           if (sm)
+             processMenu(sm);
+         }
        }
      }
 
@@ -125,7 +125,7 @@ WT_DECLARE_WT_MEMBER
 
      if (WT.hasTag(item, "LI")) {
        if (item === current)
-	 return;
+         return;
 
        current = item;
 
@@ -133,11 +133,11 @@ WT_DECLARE_WT_MEMBER
 
        var menu = submenu(item);
        if (menu)
-	 showSubmenu(menu);
+         showSubmenu(menu);
 
        /*
-	* collapse all submenus not leading to this item
-	*/
+        * collapse all submenus not leading to this item
+        */
        setOthersInactive(el, item);
      }
    }
@@ -159,7 +159,7 @@ WT_DECLARE_WT_MEMBER
    }
 
    function stillExist() {
-	 return document.getElementById(el.id) != null;
+         return document.getElementById(el.id) != null;
    }
 
    function onDocumentDown(event) {
@@ -197,15 +197,15 @@ WT_DECLARE_WT_MEMBER
        el.style.display = '';
        el.style.left = '';
        el.style.top = '';
-       $(document).unbind('mousedown', onDocumentDown);     
+       $(document).unbind('mousedown', onDocumentDown);
        unbindDocumentClick();
-       $(document).unbind('keydown', onDocumentKeyDown);     
+       $(document).unbind('keydown', onDocumentKeyDown);
      } else {
        setTimeout(function() {
-	   $(document).bind('mousedown', onDocumentDown);
+           $(document).bind('mousedown', onDocumentDown);
            bindDocumentClick();
-	   $(document).bind('keydown', onDocumentKeyDown);
-	 }, 0);
+           $(document).bind('keydown', onDocumentKeyDown);
+         }, 0);
        el.style.display = 'block';
      }
 

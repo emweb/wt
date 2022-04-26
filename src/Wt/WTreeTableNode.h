@@ -29,7 +29,7 @@ public:
    * \sa WTreeNode::WTreeNode()
    */
   WTreeTableNode(const WString& labelText,
-		 std::unique_ptr<WIconPair> labelIcon = nullptr);
+                 std::unique_ptr<WIconPair> labelIcon = nullptr);
 
   /*! \brief Sets a widget to be displayed in the given column for this node.
    *
@@ -56,7 +56,7 @@ public:
   WTreeTable *table() const { return table_; }
 
   virtual void insertChildNode(int index,
-			       std::unique_ptr<WTreeNode> node) override;
+                               std::unique_ptr<WTreeNode> node) override;
 
 protected:
 

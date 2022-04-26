@@ -29,9 +29,9 @@ WT_DECLARE_WT_MEMBER
        var newx = WT.pxself(el, 'left');
        var newy = WT.pxself(el, 'top');
        if (newx != x || newy != y) {
-	 x = newx;
-	 y = newy;
-	 APP.emit(el, movedSignal, x, y);
+         x = newx;
+         y = newy;
+         APP.emit(el, movedSignal, x, y);
        }
      }
    }
@@ -105,11 +105,11 @@ WT_DECLARE_WT_MEMBER
 
      if (pctMaxWidth !== 0) {
        var ws = WT.windowSize();
-       
+
        var layout = layoutContainer.firstChild.wtLayout;
        if (layout && layout.setMaxSize) {
-	 layout.setMaxSize(ws.x * pctMaxWidth / 100,
-			   ws.y * pctMaxHeight / 100);
+         layout.setMaxSize(ws.x * pctMaxWidth / 100,
+                           ws.y * pctMaxHeight / 100);
        }
      }
 
@@ -133,19 +133,19 @@ WT_DECLARE_WT_MEMBER
        }
 
        if (centerX) {
-	 el.style.left = Math.round((ws.x - w)/2
-	     + (WT.isIE6 ? document.documentElement.scrollLeft : 0)) + 'px';
-	 el.style.marginLeft = '0px';
+         el.style.left = Math.round((ws.x - w)/2
+             + (WT.isIE6 ? document.documentElement.scrollLeft : 0)) + 'px';
+         el.style.marginLeft = '0px';
        }
 
        if (centerY) {
-	 el.style.top = Math.round((ws.y - h)/2
-	     + (WT.isIE6 ? document.documentElement.scrollTop : 0)) + 'px';
-	 el.style.marginTop = '0px';
+         el.style.top = Math.round((ws.y - h)/2
+             + (WT.isIE6 ? document.documentElement.scrollTop : 0)) + 'px';
+         el.style.marginTop = '0px';
        }
 
        if (el.style.position != '') {
-	 el.style.visibility = 'visible';
+         el.style.visibility = 'visible';
        }
 
         newPos();
@@ -210,11 +210,11 @@ WT_DECLARE_WT_MEMBER
    function wtResize(ignored, w, h, setSize) {
      if (setSize) {
        if (w > 0)
-	 layoutContainer.style.width = w +
+         layoutContainer.style.width = w +
            WT.parsePx($(layoutContainer).css('borderLeftWidth')) +
            WT.parsePx($(layoutContainer).css('borderRightWidth')) + 'px';
        if (h > 0)
-	 layoutContainer.style.height = h +
+         layoutContainer.style.height = h +
            WT.parsePx($(layoutContainer).css('borderTopWidth')) +
            WT.parsePx($(layoutContainer).css('borderBottomWidth')) + 'px';
      }

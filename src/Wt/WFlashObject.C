@@ -16,7 +16,7 @@
 #include <sstream>
 
 namespace {
-  std::string toString(const Wt::WLength& length) 
+  std::string toString(const Wt::WLength& length)
   {
     if (length.isAuto())
       return "";
@@ -42,7 +42,7 @@ WFlashObject::WFlashObject(const std::string& url)
       (WLink("http://www.adobe.com/go/getflashplayer"),
        std::unique_ptr<WImage>
        (new WImage(WLink("http://www.adobe.com/images/"
-			 "shared/download_buttons/get_flash_player.gif"))))));
+                         "shared/download_buttons/get_flash_player.gif"))))));
   ieRendersAlternative_.connect(this, &WFlashObject::renderIeAltnerative);
 }
 
@@ -52,14 +52,14 @@ WFlashObject::~WFlashObject()
 }
 
 void WFlashObject::setFlashParameter(const std::string &name,
-				     const WString &value)
+                                     const WString &value)
 {
   WString v = value;
   parameters_[name] = v;
 }
 
 void WFlashObject::setFlashVariable(const std::string &name,
-				    const WString &value)
+                                    const WString &value)
 {
   WString v = value;
   variables_[name] = v;
@@ -84,10 +84,10 @@ void WFlashObject::updateDom(DomElement& element, bool all)
         """function(self, w, h) {"
         ""  "v=" + jsFlashRef() + ";"
         ""  "if (v) {"
-	""    "if (w >= 0) "
+        ""    "if (w >= 0) "
         ""      "v.setAttribute('width', w);"
         ""    "if (h >= 0) "
-	""      "v.setAttribute('height', h);"
+        ""      "v.setAttribute('height', h);"
         ""  "}";
       if (alternative_) {
         ss <<
@@ -193,7 +193,7 @@ void WFlashObject::getDomChanges(std::vector<DomElement *>& result,
   WWebWidget::getDomChanges(result, app);
   if (sizeChanged_) {
     std::stringstream ss;
-    ss << 
+    ss <<
       ""  "var v=" << jsFlashRef() << ";"
       ""  "if(v){"
       ""    "v.setAttribute('width', '" << toString(width()) << "');"

@@ -26,7 +26,7 @@ class WTableCell;
  *
  * \sa WTable, WTableColumn
  */
-class WT_API WTableRow : public WObject 
+class WT_API WTableRow : public WObject
 {
 public:
   /*! \brief Creates a new table row.

@@ -69,7 +69,7 @@ void WMessageResourceBundle::hibernate()
     messageResources_[i]->hibernate();
 }
 
-const std::set<std::string> 
+const std::set<std::string>
 WMessageResourceBundle::keys(const WLocale& locale) const
 {
   std::set<std::string> keys;

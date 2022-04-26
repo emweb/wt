@@ -23,7 +23,7 @@
  * and modification date.
  *
  * The table use FileTreeTableNode objects to display the actual content
- * of the table. 
+ * of the table.
  *
  * The tree table uses the LazyLoading strategy of WTreeNode to dynamically
  * load contents for the tree.

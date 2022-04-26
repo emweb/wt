@@ -50,14 +50,14 @@ BOOST_AUTO_TEST_CASE( I18n_messageResourceBundleTest )
 
   std::string welcome = Wt::WString::tr("welcome-text").arg("Joske").toUTF8();
   BOOST_REQUIRE(welcome == 
-		"Welcome dear visitor, Joske of the WFooBar magic website !");
+                "Welcome dear visitor, Joske of the WFooBar magic website !");
 
   BOOST_REQUIRE(Wt::WString::tr("welcome").toUTF8() == "??welcome??");
 
   app.setLocale("nl");
   welcome = Wt::WString::tr("welcome-text").arg("Joske").toUTF8();
   BOOST_REQUIRE(welcome == 
-		"Welkom beste bezoeker, Joske van de WFooBar magic website !");
+                "Welkom beste bezoeker, Joske van de WFooBar magic website !");
 
   std::string programmer = Wt::WString::tr("programmer").toUTF8();
   BOOST_REQUIRE(programmer == "Programmer");
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( I18n_messageResourceBundleTest )
   app.setLocale("pl");
   welcome = Wt::WString::tr("welcome-text").arg("Joske").toUTF8();
   BOOST_REQUIRE(welcome == 
-		"Welcome dear visitor, Joske of the WFooBar magic website !");
+                "Welcome dear visitor, Joske of the WFooBar magic website !");
 }
 
 BOOST_AUTO_TEST_CASE( I18n_pluralResourceBundleException1 )
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( I18n_findCaseException2 )
   Wt::WApplication app(environment);
 
   app.messageResourceBundle().use(app.appRoot() + 
-				  "private/i18n/plural_findcase_err2");
+                                  "private/i18n/plural_findcase_err2");
 
   std::string error;
   try {
@@ -183,19 +183,19 @@ BOOST_AUTO_TEST_CASE( I18n_internalArgument1 )
   Wt::WApplication app(environment);
   
   app.messageResourceBundle().use(app.appRoot() + 
-				  "private/i18n/international_argument_1");
+                                  "private/i18n/international_argument_1");
   
   Wt::WString text = Wt::WString::tr("text").arg(Wt::WString::tr("hello"));
 
   BOOST_REQUIRE(text.toUTF8() == 
-		"Internationalized text containing an "
-		"internationalized argument: hello");
+                "Internationalized text containing an "
+                "internationalized argument: hello");
 
   app.setLocale("nl");
 
   BOOST_REQUIRE(text.toUTF8() == 
-		"Geïnternationaliseerde tekst met een geïnternationaliseerd "
-		"argument: hallo");
+                "Geïnternationaliseerde tekst met een geïnternationaliseerd "
+                "argument: hallo");
 }
 
 BOOST_AUTO_TEST_CASE( I18n_badUTF8 )
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( I18n_toXhtmlUTF8 )
   Wt::WApplication app(environment);
 
   app.messageResourceBundle().use(app.appRoot() +
-				  "private/i18n/toxhtml");
+                                  "private/i18n/toxhtml");
 
   Wt::WString text = Wt::WString::tr("support-training").arg(Wt::utf8("<a href=\"http://webtoolkit.eu\">Wt!</a>"));
 

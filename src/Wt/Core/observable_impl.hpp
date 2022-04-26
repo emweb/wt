@@ -39,7 +39,7 @@ auto observable::bindSafe(void(ClassType::*f)(Args...) const) const noexcept
 template<typename FirstArg, typename... Args, class F>
 auto observable::bindSafe(F&& f) const noexcept
     -> std::function<decltype(f(std::declval<FirstArg>(), 
-				std::declval<Args>()...))(FirstArg, Args...)>
+                                std::declval<Args>()...))(FirstArg, Args...)>
 {
   observing_ptr<const observable> p(this);
 

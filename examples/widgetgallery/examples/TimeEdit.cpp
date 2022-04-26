@@ -45,15 +45,15 @@ button->clicked().connect([=] {
         out->setText("You should enter two times!");
     else {
     long secs = te1->time().secsTo(te2->time()) + 1;
-	if (secs <= 60*10)
-	  out->setText("This is a really small range of time");
-	else
-	  out->setText
-	    (Wt::WString("So, you want your package to be delivered between "
-	                 "{1} and {2}?")
-	     .arg(te1->time().toString())
-	     .arg(te2->time().toString()));
-    }  
+        if (secs <= 60*10)
+          out->setText("This is a really small range of time");
+        else
+          out->setText
+            (Wt::WString("So, you want your package to be delivered between "
+                         "{1} and {2}?")
+             .arg(te1->time().toString())
+             .arg(te2->time().toString()));
+    }
 });
 
 SAMPLE_END(return std::move(form))

@@ -20,18 +20,18 @@ using namespace Wt::Dbo;
 
 WString EntryDialog::timeFormat = WString("HH:mm");
 
-EntryDialog::EntryDialog(const WString& title, CalendarCell* cell) 
+EntryDialog::EntryDialog(const WString& title, CalendarCell* cell)
   : WDialog(title)
 {
   cell_ = cell;
 
   WTemplate* t = contents()->addWidget(std::make_unique<WTemplate>());
   t->setTemplateText(tr("calendar.entry"));
-  
+
   auto summaryPtr = std::make_unique<WLineEdit>();
   summary_ = t->bindWidget("summary", std::move(summaryPtr));
   summary_->setValidator(std::make_shared<WValidator>());
-		
+
   auto timeValidator =
     std::make_shared<WRegExpValidator>("^([0-1][0-9]|[2][0-3]):([0-5][0-9])$");
   auto startPtr = std::make_unique<WLineEdit>();
@@ -46,7 +46,7 @@ EntryDialog::EntryDialog(const WString& title, CalendarCell* cell)
 
   auto descriptionPtr = std::make_unique<WTextArea>();
   description_ = t->bindWidget("description", std::move(descriptionPtr));
-		
+
   TimeSuggestions* suggestions = contents()->addChild(std::make_unique<TimeSuggestions>());
   suggestions->forEdit(start_);
   suggestions->forEdit(stop_);
@@ -67,7 +67,7 @@ WDateTime EntryDialog::timeStamp(const WString& time, const WDate& day)
   return WDateTime::fromString(timeStamp, "dd/MM/yyyy " + timeFormat);
 }
 
-WString EntryDialog::description() 
+WString EntryDialog::description()
 {
   return description_->text();
 }
@@ -77,7 +77,7 @@ void EntryDialog::ok()
   Session& session = PlannerApplication::plannerApplication()->session;
   Transaction transaction(session);
 
-  ptr<Entry> e = 
+  ptr<Entry> e =
     PlannerApplication::plannerApplication()->session.add(
         std::make_unique<Entry>());
   e.modify()->start = timeStamp(start_->text(), cell_->date());
@@ -85,9 +85,9 @@ void EntryDialog::ok()
   e.modify()->summary = summary_->text().toUTF8();
   e.modify()->text = description().toUTF8();
   e.modify()->user = cell_->user();
-  
+
   cell_->update(cell_->user(), cell_->date());
-  
+
   transaction.commit();
   hide();
 }

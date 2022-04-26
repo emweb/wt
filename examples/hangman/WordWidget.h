@@ -1,5 +1,5 @@
 // This may look like C code, but it's really -*- C++ -*-
-/* 
+/*
  * Copyright (C) 2011 Emweb bv, Herent, Belgium
  *
  * See the LICENSE file for terms of use.
@@ -17,7 +17,7 @@ class WordWidget : public WContainerWidget
 public:
   WordWidget();
 
-  std::wstring word() const { return word_; } 
+  std::wstring word() const { return word_; }
 
   void init(const std::wstring &word);
   bool guess(wchar_t c);

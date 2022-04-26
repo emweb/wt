@@ -18,16 +18,16 @@ StdLayoutItemImpl::StdLayoutItemImpl()
 
 StdLayoutItemImpl::~StdLayoutItemImpl()
 { }
-  
+
 WContainerWidget *StdLayoutItemImpl::container() const
-{  
+{
   return dynamic_cast<WContainerWidget *>(layoutItem()->parentWidget());
 }
 
 StdLayoutImpl *StdLayoutItemImpl::parentLayoutImpl() const
 {
   WLayoutItem *i = layoutItem();
-  
+
   if (i->parentLayout())
     return dynamic_cast<StdLayoutImpl *>(i->parentLayout()->impl());
   else

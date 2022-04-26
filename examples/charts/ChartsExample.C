@@ -46,12 +46,12 @@ namespace {
 
       if (role == ItemDataRole::Edit) {
         std::string s = asString(data).toUTF8();
-	char *endptr;
-	double d = strtod(s.c_str(), &endptr);
-	if (*endptr == 0)
-	  dt = cpp17::any(d);
-	else
-	  dt = data;
+        char *endptr;
+        double d = strtod(s.c_str(), &endptr);
+        if (*endptr == 0)
+          dt = cpp17::any(d);
+        else
+          dt = data;
       }
 
       WStandardItem::setData(data, role);
@@ -62,7 +62,7 @@ namespace {
    * Reads a CSV file as an (editable) standard item model.
    */
   std::shared_ptr<WAbstractItemModel> readCsvFile(const std::string &fname,
-				  WContainerWidget *parent)
+                                  WContainerWidget *parent)
   {
     std::shared_ptr<WStandardItemModel> model
         = std::make_shared<WStandardItemModel>(0, 0);
@@ -78,17 +78,17 @@ namespace {
           for (int col = 0; col < model->columnCount(); ++col) {
              model->item(row, col)->setFlags(ItemFlag::Selectable | ItemFlag::Editable);
 
-	  /*
-	    Example of tool tips (disabled here because they are not updated
-	    when editing data)
- 	   */
+          /*
+            Example of tool tips (disabled here because they are not updated
+            when editing data)
+            */
 
-	  /*
-	  WString toolTip = asString(model->headerData(col)) + ": "
-	    + asString(model->item(row, col)->data(DisplayRole), "%.f");
-	  model->item(row, col)->setToolTip(toolTip);
-	   */
-	}
+          /*
+          WString toolTip = asString(model->headerData(col)) + ": "
+            + asString(model->item(row, col)->data(DisplayRole), "%.f");
+          model->item(row, col)->setToolTip(toolTip);
+           */
+        }
 
       return model;
     } else {
@@ -310,7 +310,7 @@ ScatterPlotExample::ScatterPlotExample():
     model->setData(i, 0, x);
     model->setData(i, 1, sin(x));
   }
- 
+
   /*
    * Create the scatter plot.
    */
@@ -359,7 +359,7 @@ PieExample::PieExample():
   std::unique_ptr<NumericItem> prototype
       = std::make_unique<NumericItem>();
   model->setItemPrototype(std::move(prototype));
-  
+
   //headers
   model->insertColumns(model->columnCount(), 2);
   model->setHeaderData(0, WString("Item"));

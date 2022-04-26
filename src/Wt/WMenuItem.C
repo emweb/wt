@@ -29,14 +29,14 @@
 namespace Wt {
 
 WMenuItem::WMenuItem(const WString& text, std::unique_ptr<WWidget> contents,
-		     ContentLoading policy)
+                     ContentLoading policy)
   : separator_(false)
 {
   create(std::string(), text, std::move(contents), policy);
 }
 
 WMenuItem::WMenuItem(const std::string& iconPath, const WString& text,
-		     std::unique_ptr<WWidget> contents, ContentLoading policy)
+                     std::unique_ptr<WWidget> contents, ContentLoading policy)
   : separator_(false)
 {
   create(iconPath, text, std::move(contents), policy);
@@ -59,7 +59,7 @@ WMenuItem::WMenuItem(bool separator, const WString& text)
 }
 
 void WMenuItem::create(const std::string& iconPath, const WString& text,
-		       std::unique_ptr<WWidget> contents, ContentLoading policy)
+                       std::unique_ptr<WWidget> contents, ContentLoading policy)
 {
   customLink_ = false;
 
@@ -95,7 +95,7 @@ WMenuItem::~WMenuItem()
 { }
 
 void WMenuItem::setContents(std::unique_ptr<WWidget> contents,
-			    ContentLoading policy)
+                            ContentLoading policy)
 {
   int menuIdx = -1;
   WMenu *menu = menu_;
@@ -192,11 +192,11 @@ void WMenuItem::setText(const WString& text)
 
     for (unsigned i = 0; i < result.length(); ++i) {
       if (std::isspace((unsigned char)result[i]))
-	result[i] = '-';
+        result[i] = '-';
       else if (std::isalnum((unsigned char)result[i]))
-	result[i] = std::tolower((unsigned char)result[i]);
+        result[i] = std::tolower((unsigned char)result[i]);
       else
-	result[i] = '_';
+        result[i] = '_';
     }
 
     setPathComponent(result);
@@ -247,7 +247,7 @@ WLink WMenuItem::link() const
 }
 
 void WMenuItem::updateInternalPath()
-{  
+{
   if (menu_ && menu_->internalPathEnabled() && internalPathEnabled()) {
     std::string internalPath = menu_->internalBasePath() + pathComponent();
     WLink link(LinkType::InternalPath, internalPath);
@@ -257,11 +257,11 @@ void WMenuItem::updateInternalPath()
   } else {
     WAnchor *a = anchor();
     if (a && !customLink_) {
-      if (WApplication::instance()->environment().agent() == 
-	  UserAgent::IE6)
-	a->setLink(WLink("#"));
+      if (WApplication::instance()->environment().agent() ==
+          UserAgent::IE6)
+        a->setLink(WLink("#"));
       else
-	a->setLink(WLink());
+        a->setLink(WLink());
     }
   }
 }
@@ -359,7 +359,7 @@ void WMenuItem::setDisabled(bool disabled)
 }
 
 void WMenuItem::setHidden(bool hidden,
-			  const WAnimation& animation)
+                          const WAnimation& animation)
 {
   WContainerWidget::setHidden(hidden, animation);
 
@@ -425,7 +425,7 @@ void WMenuItem::connectSignals()
 
     if (!oContents_ || contentsLoaded())
       implementStateless(&WMenuItem::selectVisual,
-			 &WMenuItem::undoSelectVisual);
+                         &WMenuItem::undoSelectVisual);
 
     WAnchor *a = anchor();
 
@@ -434,26 +434,26 @@ void WMenuItem::connectSignals()
       bool selectFromCheckbox = false;
 
       if (checkBox_ && !checkBox_->clicked().propagationPrevented()) {
-	as = &checkBox_->changed();
-	/*
-	 * Because the checkbox is not a properly exposed form object,
-	 * we need to relay its value ourselves
-	 */
-	checkBox_->checked().connect(this, &WMenuItem::setCheckBox);
-	checkBox_->unChecked().connect(this, &WMenuItem::setUnCheckBox);
-	selectFromCheckbox = true;
+        as = &checkBox_->changed();
+        /*
+         * Because the checkbox is not a properly exposed form object,
+         * we need to relay its value ourselves
+         */
+        checkBox_->checked().connect(this, &WMenuItem::setCheckBox);
+        checkBox_->unChecked().connect(this, &WMenuItem::setUnCheckBox);
+        selectFromCheckbox = true;
       } else
-	as = &a->clicked();
+        as = &a->clicked();
 
       if (checkBox_)
-	a->setLink(WLink());
+        a->setLink(WLink());
 
       if (uContents_)
-	as->connect(this, &WMenuItem::selectNotLoaded);
+        as->connect(this, &WMenuItem::selectNotLoaded);
       else {
-	as->connect(this, &WMenuItem::selectVisual);
-	if (!selectFromCheckbox)
-	  as->connect(this, &WMenuItem::select);
+        as->connect(this, &WMenuItem::selectVisual);
+        if (!selectFromCheckbox)
+          as->connect(this, &WMenuItem::select);
       }
     }
   }

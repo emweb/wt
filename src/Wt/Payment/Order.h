@@ -167,7 +167,7 @@ public:
   /*! \brief Returns all items in the order.
    *
    * \sa OrderItem
-   */  
+   */
   std::vector<OrderItem>& items() { return items_; }
 
   /*! \brief Computes the total net cost of all items.

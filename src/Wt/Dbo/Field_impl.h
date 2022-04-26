@@ -62,17 +62,17 @@ void FieldRef<V>::bindValue(SqlStatement *statement, int column) const
 
 template <typename V>
 void FieldRef<V>::setValue(Session& /* session */, SqlStatement *statement,
-			   int column) const
+                           int column) const
 {
   sql_value_traits<V>::read(value_, statement, column, size_);
 }
 
 template <class C>
 CollectionRef<C>::CollectionRef(collection< ptr<C> >& value,
-				RelationType type,
-				const std::string& joinName,
-				const std::string& joinId,
-				int fkConstraints)
+                                RelationType type,
+                                const std::string& joinName,
+                                const std::string& joinId,
+                                int fkConstraints)
   : value_(value), joinName_(joinName), joinId_(joinId),
     literalJoinId_(false),
     type_(type), fkConstraints_(fkConstraints)
@@ -88,7 +88,7 @@ CollectionRef<C>::CollectionRef(collection< ptr<C> >& value,
 
 template <class C>
 PtrRef<C>::PtrRef(ptr<C>& value, const std::string& name,
-		  int fkConstraints, int flags)
+                  int fkConstraints, int flags)
   : value_(value),
     name_(name),
     literalForeignKey_(false),
@@ -105,19 +105,19 @@ template <class C, class A, class Enable = void>
 struct LoadLazyHelper
 {
   static void loadLazy(ptr<C>& /* p */, typename dbo_traits<C>::IdType /* id */,
-		       Session * /* session */) { }
+                       Session * /* session */) { }
 };
 
 template <class C, class A>
 struct LoadLazyHelper<C, A, typename std::enable_if<action_sets_value<A>::value >::type>
 {
   static void loadLazy(ptr<C>& p, typename dbo_traits<C>::IdType id,
-		       Session *session) {
+                       Session *session) {
     if (!(id == dbo_traits<C>::invalidId())) {
       if (session)
-	p = session->loadLazy<C>(id);
+        p = session->loadLazy<C>(id);
       else
-	throw Exception("Could not load referenced Dbo::ptr, no session?");
+        throw Exception("Could not load referenced Dbo::ptr, no session?");
     }
   }
 };
@@ -179,25 +179,25 @@ void id(A& action, V& value, const std::string& name, int size)
 
 template <class A, class C>
 void id(A& action, ptr<C>& value, const std::string& name,
-	ForeignKeyConstraint constraint, int size)
+        ForeignKeyConstraint constraint, int size)
 {
   action.actId(value, name, size, constraint.value());
 }
 
 template <class Action, typename V>
 void auxId(Action& action, V& value, const std::string& name,
-	   int size)
+           int size)
 {
   action.act(FieldRef<V>(value, name, size, FieldRef<V>::AuxId));
 }
 
 template <class Action, class C>
 void auxId(Action& action, ptr<C>& value, const std::string& name,
-	   ForeignKeyConstraint constraint, int size)
+           ForeignKeyConstraint constraint, int size)
 {
   action.actPtr(PtrRef<C>(value, name, constraint.value(), PtrRef<C>::AuxId));
 }
-  
+
 template <class A, typename V>
 void field(A& action, V& value, const std::string& name, int size)
 {
@@ -212,11 +212,11 @@ void field(A& action, ptr<C>& value, const std::string& name, int)
 
 template <class A, class C>
 void belongsToImpl(A& action, ptr<C>& value, const std::string& name,
-		   int fkConstraints)
+                   int fkConstraints)
 {
   if (name.empty() && action.session())
     action.actPtr(PtrRef<C>(value, action.session()->template tableName<C>(),
-			    fkConstraints));
+                            fkConstraints));
   else
     action.actPtr(PtrRef<C>(value, name, fkConstraints));
 }
@@ -229,14 +229,14 @@ void belongsTo(A& action, ptr<C>& value, const std::string& name)
 
 template <class A, class C>
 void belongsTo(A& action, ptr<C>& value, const std::string& name,
-	       ForeignKeyConstraint constraint)
+               ForeignKeyConstraint constraint)
 {
   belongsToImpl(action, value, name, constraint.value());
 }
 
 template <class A, class C>
 void belongsTo(A& action, ptr<C>& value,
-	       ForeignKeyConstraint constraint)
+               ForeignKeyConstraint constraint)
 {
   belongsToImpl(action, value, std::string(), constraint.value());
 }
@@ -249,7 +249,7 @@ void hasOne(A& action, weak_ptr<C>& value, const std::string& joinName)
 
 template <class A, class C>
 void hasMany(A& action, collection< ptr<C> >& value,
-	     RelationType type, const std::string& joinName)
+             RelationType type, const std::string& joinName)
 {
   action.actCollection(CollectionRef<C>(value, type, joinName, std::string(),
                                         Impl::FKNotNull |
@@ -258,14 +258,14 @@ void hasMany(A& action, collection< ptr<C> >& value,
 
 template <class A, class C>
 void hasMany(A& action, collection< ptr<C> >& value,
-	     RelationType type, const std::string& joinName,
-	     const std::string& joinId, ForeignKeyConstraint constraint)
+             RelationType type, const std::string& joinName,
+             const std::string& joinId, ForeignKeyConstraint constraint)
 {
   if (type != ManyToMany)
     throw Exception("hasMany() with named joinId only for a ManyToMany relation");
 
   action.actCollection(CollectionRef<C>(value, type, joinName, joinId,
-					constraint.value()));
+                                        constraint.value()));
 }
 
   }

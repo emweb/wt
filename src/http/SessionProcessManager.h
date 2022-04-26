@@ -25,7 +25,7 @@ class SessionProcessManager
 {
 public:
   SessionProcessManager(asio::io_service &ioService,
-			const Wt::Configuration& configuration);
+                        const Wt::Configuration& configuration);
 
   SessionProcessManager(const SessionProcessManager&) = delete;
   SessionProcessManager &operator=(const SessionProcessManager&) = delete;

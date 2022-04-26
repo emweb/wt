@@ -70,7 +70,7 @@ namespace Wt {
  * will convert the data to a string (e.g. for Wt::ItemDataRole::Display).
  *
  * \endif
- * 
+ *
  * \if cpp
  * Conversion between native types and Wt::any is done like this:
  * <ul>
@@ -84,7 +84,7 @@ namespace Wt {
  * WDate d(1976,6,14);
  * model->setData(row, column, Wt::any(d));
  *    </pre>
- * 
+ *
  *  </li>
  *  <li>Conversion from Wt::any <i>a</i> to <i>v</i> (of type <i>Type</i>)
      (for data() and headerData()):
@@ -112,7 +112,7 @@ namespace Wt {
  *  </li>
  * </ul>
  *
- * \endif 
+ * \endif
  *
  * To implement a custom model, you need to reimplement the following methods:
  *  - index() and parent() methods that allow one to navigate the model
@@ -137,7 +137,7 @@ namespace Wt {
  * A crucial point in implementing a hierarchical model is to decide
  * how to reference an index in terms of an internal pointer
  * (WModelIndex::internalPointer()).
- * Other than the top-level index, which is special since it is 
+ * Other than the top-level index, which is special since it is
  * referenced using an invalid index, every index with
  * children must be identifiable using this object. For
  * example, in the WStandardItemModel, the internal pointer points to
@@ -268,7 +268,7 @@ public:
    *
    * \sa flags(), headerData(), setData()
    */
-  virtual cpp17::any data(const WModelIndex& index, 
+  virtual cpp17::any data(const WModelIndex& index,
                        ItemDataRole role = ItemDataRole::Display)
     const = 0;
 
@@ -291,7 +291,7 @@ public:
    * \sa data(), setHeaderData()
    */
   virtual cpp17::any headerData(int section,
-			     Orientation orientation = Orientation::Horizontal,
+                             Orientation orientation = Orientation::Horizontal,
                              ItemDataRole role = ItemDataRole::Display) const;
 
   /*! \brief Returns the child index for the given row and column.
@@ -306,24 +306,24 @@ public:
    * \sa parent()
    */
   virtual WModelIndex index(int row, int column,
-			    const WModelIndex& parent = WModelIndex())
+                            const WModelIndex& parent = WModelIndex())
     const = 0;
 
   /*! \brief Returns an index list for data items that match.
    *
    * Returns an index list of data items that match, starting at
    * start, and searching further in that column. If flags specifies
-   * \link Wt::MatchFlag::Wrap MatchFlag::Wrap \endlink then the search wraps around 
-   * from the start. If hits is not -1, then at most that number of 
+   * \link Wt::MatchFlag::Wrap MatchFlag::Wrap \endlink then the search wraps around
+   * from the start. If hits is not -1, then at most that number of
    * hits are returned.
    */
   virtual WModelIndexList match(const WModelIndex& start,
                                 ItemDataRole role,
-				const cpp17::any& value,
-				int hits = -1,
-				WFlags<MatchFlag> flags
-				= WFlags<MatchFlag>(MatchFlag::StartsWith
-						    | MatchFlag::Wrap))
+                                const cpp17::any& value,
+                                int hits = -1,
+                                WFlags<MatchFlag> flags
+                                = WFlags<MatchFlag>(MatchFlag::StartsWith
+                                                    | MatchFlag::Wrap))
     const;
 
   /*! \brief Returns the data item at the given column and row.
@@ -335,9 +335,9 @@ public:
    *
    * \sa index(), data()
    */
-  cpp17::any data(int row, int column, 
+  cpp17::any data(int row, int column,
                ItemDataRole role = ItemDataRole::Display,
-	       const WModelIndex& parent = WModelIndex()) const;
+               const WModelIndex& parent = WModelIndex()) const;
 
   /*! \brief Returns if an index at the given position is valid
    *         (i.e. falls within the column-row bounds).
@@ -351,7 +351,7 @@ public:
    * \sa rowCount(), columnCount()
    */
   virtual bool hasIndex(int row, int column,
-			const WModelIndex& parent = WModelIndex()) const;
+                        const WModelIndex& parent = WModelIndex()) const;
 
   /*! \brief Inserts one or more columns.
    *
@@ -370,7 +370,7 @@ public:
    * \sa insertRows(), removeColumns(), beginInsertColumns(), endInsertColumns()
    */
   virtual bool insertColumns(int column, int count,
-			     const WModelIndex& parent = WModelIndex());
+                             const WModelIndex& parent = WModelIndex());
 
   /*! \brief Inserts one or more rows.
    *
@@ -391,7 +391,7 @@ public:
    * \sa insertColumns(), removeRows(), beginInsertRows(), endInsertRows()
    */
   virtual bool insertRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex());
+                          const WModelIndex& parent = WModelIndex());
 
   /*! \brief Removes columns.
    *
@@ -407,7 +407,7 @@ public:
    * \sa removeRows(), insertColumns(), beginRemoveColumns(), endRemoveColumns()
    */
   virtual bool removeColumns(int column, int count,
-			     const WModelIndex& parent = WModelIndex());
+                             const WModelIndex& parent = WModelIndex());
 
   /*! \brief Removes rows.
    *
@@ -423,7 +423,7 @@ public:
    * \sa removeColumns(), insertRows(), beginRemoveRows(), endRemoveRows()
    */
   virtual bool removeRows(int row, int count,
-			  const WModelIndex& parent = WModelIndex());
+                          const WModelIndex& parent = WModelIndex());
 
   /*! \brief Sets data at the given model index.
    *
@@ -454,7 +454,7 @@ public:
    * \sa headerData()
    */
   virtual bool setHeaderData(int section, Orientation orientation,
-			     const cpp17::any& value,
+                             const cpp17::any& value,
                              ItemDataRole role = ItemDataRole::Edit);
 
   /*! \brief Sets column header data.
@@ -498,7 +498,7 @@ public:
   virtual void collapseColumn(int column);
 
   /*! \brief Converts a model index to a raw pointer that remains valid
-   *         while the model's layout is changed. 
+   *         while the model's layout is changed.
    *
    * Use this method to temporarily save model indexes while the model's
    * layout is changed by for example a sorting operation.
@@ -511,7 +511,7 @@ public:
    */
   virtual void *toRawIndex(const WModelIndex& index) const;
 
-  /*! \brief Converts a raw pointer to a model index. 
+  /*! \brief Converts a raw pointer to a model index.
    *
    * Use this method to create model index from temporary raw
    * pointers. It is the reciproce method of toRawIndex().
@@ -579,7 +579,7 @@ public:
    * \sa mimeType(), WItemSelectionModel
    */
   virtual void dropEvent(const WDropEvent& e, DropAction action,
-			 int row, int column, const WModelIndex& parent);
+                         int row, int column, const WModelIndex& parent);
 
   /*! \brief Handles a drop event.
    *
@@ -673,7 +673,7 @@ public:
    */
   bool setData(int row, int column, const cpp17::any& value,
                ItemDataRole role = ItemDataRole::Edit,
-	       const WModelIndex& parent = WModelIndex());
+               const WModelIndex& parent = WModelIndex());
 
   /*! \brief %Signal emitted before a number of columns will be inserted.
    *
@@ -696,7 +696,7 @@ public:
    */
   virtual Signal<WModelIndex, int, int>& columnsAboutToBeRemoved()
     { return columnsAboutToBeRemoved_; }
- 
+
   /*! \brief %Signal emitted after a number of columns were inserted.
    *
    * The first argument is the parent index. The two integer arguments
@@ -739,7 +739,7 @@ public:
    */
   virtual Signal<WModelIndex, int, int>& rowsAboutToBeRemoved()
     { return rowsAboutToBeRemoved_; }
- 
+
   /*! \brief %Signal emitted after a number of rows were inserted.
    *
    * The first argument is the parent index. The two integer arguments
@@ -847,7 +847,7 @@ protected:
    * signals to allow view classes to update themselves.
    *
    * \sa endInsertColumns(), insertColumns(), columnsAboutToBeInserted
-   */  
+   */
   void beginInsertColumns(const WModelIndex& parent, int first, int last);
 
   /*! \brief Method to be called before inserting rows.
@@ -858,7 +858,7 @@ protected:
    * signals to allow view classes to update themselves.
    *
    * \sa endInsertRows(), insertRows(), rowsAboutToBeInserted
-   */  
+   */
   void beginInsertRows(const WModelIndex& parent, int first, int last);
 
   /*! \brief Method to be called before removing columns.
@@ -880,7 +880,7 @@ protected:
    * view classes to update themselves.
    *
    * \sa endRemoveRows(), removeRows(), rowsAboutToBeRemoved
-   */  
+   */
   void beginRemoveRows(const WModelIndex& parent, int first, int last);
 
   /*! \brief Method to be called after inserting columns.
@@ -892,13 +892,13 @@ protected:
   /*! \brief Method to be called after inserting rows.
    *
    * \sa beginInsertRows()
-   */  
+   */
   void endInsertRows();
 
   /*! \brief Method to be called after removing columns.
    *
    * \sa beginRemoveColumns()
-   */  
+   */
   void endRemoveColumns();
 
   /*! \brief Method to be called after removing rows.

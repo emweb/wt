@@ -38,19 +38,19 @@ group->checkedChanged().connect([=] (Wt::WRadioButton *selection) {
     switch (rawGroup->id(selection)) {
     case 1: text = Wt::WString("You checked button {1}.")
             .arg(rawGroup->checkedId());
-	break;
+        break;
 
     case 2: text = Wt::WString("You selected button {1}.")
             .arg(rawGroup->checkedId());
-	break;
+        break;
 
     case 3: text = Wt::WString("You clicked button {1}.")
             .arg(rawGroup->checkedId());
-	break;
+        break;
     }
 
     text += Wt::WString("... Are your really {1} now?")
-	.arg(selection->text());
+        .arg(selection->text());
 
     if (rawGroup->id(selection) == 4)
         text = Wt::WString("That's what I expected!");

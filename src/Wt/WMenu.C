@@ -38,9 +38,9 @@ namespace {
 
     for (int i = 0; i < length; ++i) {
       if (component[i] != path[i]) {
-	return current;
+        return current;
       } else if (component[i] == '/')
-	current = i;
+        current = i;
     }
 
     return length;
@@ -77,7 +77,7 @@ WMenu::WMenu(WStackedWidget *contentsStack)
 {
   if (contentsStack_) {
     contentsStack_->childrenChanged().connect(this,
-					      &WMenu::updateSelectionEvent);
+                                              &WMenu::updateSelectionEvent);
   }
 
   setImplementation(std::unique_ptr<WWidget>(ul_ = new WContainerWidget()));
@@ -140,18 +140,18 @@ void WMenu::updateItemsInternalPath()
 }
 
 WMenuItem *WMenu::addItem(const WString& name,
-			  std::unique_ptr<WWidget> contents,
-			  ContentLoading policy)
+                          std::unique_ptr<WWidget> contents,
+                          ContentLoading policy)
 {
   return addItem(std::string(), name, std::move(contents), policy);
 }
 
 WMenuItem *WMenu::addItem(const std::string& iconPath, const WString& name,
-			  std::unique_ptr<WWidget> contents,
-			  ContentLoading policy)
+                          std::unique_ptr<WWidget> contents,
+                          ContentLoading policy)
 {
   return addItem(std::unique_ptr<WMenuItem>
-		 (new WMenuItem(iconPath, name, std::move(contents), policy)));
+                 (new WMenuItem(iconPath, name, std::move(contents), policy)));
 }
 
 WMenuItem *WMenu::addMenu(const WString& text, std::unique_ptr<WMenu> menu)
@@ -160,10 +160,10 @@ WMenuItem *WMenu::addMenu(const WString& text, std::unique_ptr<WMenu> menu)
 }
 
 WMenuItem *WMenu::addMenu(const std::string& iconPath,
-			  const WString& text, std::unique_ptr<WMenu> menu)
+                          const WString& text, std::unique_ptr<WMenu> menu)
 {
   WMenuItem *item = addItem(iconPath, text, nullptr,
-			    ContentLoading::Lazy);
+                            ContentLoading::Lazy);
   item->setMenu(std::move(menu));
   return item;
 }
@@ -171,7 +171,7 @@ WMenuItem *WMenu::addMenu(const std::string& iconPath,
 WMenuItem *WMenu::addSeparator()
 {
   return addItem(std::unique_ptr<WMenuItem>
-		 (new WMenuItem(true, WString::Empty)));
+                 (new WMenuItem(true, WString::Empty)));
 }
 
 WMenuItem *WMenu::addSectionHeader(const WString& text)
@@ -185,15 +185,15 @@ WMenuItem *WMenu::addItem(std::unique_ptr<WMenuItem> item)
 }
 
 WMenuItem *WMenu::insertItem(int index, const WString& name,
-			     std::unique_ptr<WWidget> contents,
-			     ContentLoading policy)
+                             std::unique_ptr<WWidget> contents,
+                             ContentLoading policy)
 {
   return insertItem(index, std::string(), name, std::move(contents), policy);
 }
 
 WMenuItem *WMenu::insertItem(int index, const std::string& iconPath,
                              const WString& name,
-			     std::unique_ptr<WWidget> contents,
+                             std::unique_ptr<WWidget> contents,
                              ContentLoading policy)
 {
   return insertItem
@@ -202,13 +202,13 @@ WMenuItem *WMenu::insertItem(int index, const std::string& iconPath,
 }
 
 WMenuItem *WMenu::insertMenu(int index, const WString& text,
-			     std::unique_ptr<WMenu> menu)
+                             std::unique_ptr<WMenu> menu)
 {
   return insertMenu(index, std::string(), text, std::move(menu));
 }
 
 WMenuItem *WMenu::insertMenu(int index, const std::string& iconPath,
-			     const WString& text, std::unique_ptr<WMenu> menu)
+                             const WString& text, std::unique_ptr<WMenu> menu)
 {
   WMenuItem *item = insertItem(index, iconPath, text, nullptr);
   item->setMenu(std::move(menu));
@@ -229,15 +229,15 @@ WMenuItem *WMenu::insertItem(int index, std::unique_ptr<WMenuItem> item)
       contentsStack_->addWidget(std::move(contentsPtr));
 
       if (contentsStack_->count() == 1) {
-	setCurrent(0);
-	if (loaded()) {
-	  currentItem()->loadContents();
-	}
+        setCurrent(0);
+        if (loaded()) {
+          currentItem()->loadContents();
+        }
         contentsStack_->setCurrentWidget(contents);
 
-	renderSelected(result, true);
+        renderSelected(result, true);
       } else
-	renderSelected(result, false);
+        renderSelected(result, false);
     } else
       renderSelected(result, false);
   } else
@@ -271,7 +271,7 @@ std::unique_ptr<WMenuItem> WMenu::removeItem(WMenuItem *item)
 
     if (contentsStack_ && item->contentsInStack())
       item->returnContentsInStack
-	(contentsStack_->removeWidget(item->contentsInStack()));
+        (contentsStack_->removeWidget(item->contentsInStack()));
 
     item->setParentMenu(nullptr);
 
@@ -301,7 +301,7 @@ void WMenu::select(int index, bool changePath)
     if (parentItemMenu->currentItem() != parentItem_ && parentItem_->isSelectable())
       parentItemMenu->select(parentItemMenu->indexOf(parentItem_), false);
   }
-  
+
   int last = current_;
   setCurrent(index);
 
@@ -466,13 +466,13 @@ void WMenu::internalPathChanged(const std::string& path)
 
     for (int i = 0; i < count(); ++i) {
       if (!itemAt(i)->isEnabled() || itemAt(i)->isHidden())
-	continue;
+        continue;
 
       int matchLength = match(subPath, itemAt(i)->pathComponent());
 
       if (matchLength > bestMatchLength) {
-	bestMatchLength = matchLength;
-	bestI = i;
+        bestMatchLength = matchLength;
+        bestI = i;
       }
     }
 
@@ -480,9 +480,9 @@ void WMenu::internalPathChanged(const std::string& path)
       itemAt(bestI)->setFromInternalPath(path);
     else {
       if (!subPath.empty())
-	LOG_WARN("unknown path: '"<< subPath << "'");
+        LOG_WARN("unknown path: '"<< subPath << "'");
       else
-	select(-1, false);
+        select(-1, false);
     }
   }
 }

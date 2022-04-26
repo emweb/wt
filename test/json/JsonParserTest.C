@@ -36,10 +36,10 @@ BOOST_AUTO_TEST_CASE( json_parse_object1_test )
 {
   Json::Object result;
   Json::parse("{ "
-	      "  \"a\": \"That's great\", "
-	      "  \"b\": true "
-	      "}",
-	      result);
+              "  \"a\": \"That's great\", "
+              "  \"b\": true "
+              "}",
+              result);
   BOOST_REQUIRE(result.size() == 2);
 
   WString a = result.get("a");
@@ -65,10 +65,10 @@ BOOST_AUTO_TEST_CASE( json_parse_strings_test )
 {
   Json::Object result;
   Json::parse(JS({
-	"s1": "simple",
-	"s2": "escaped: \\ \t \n \b \r",
-	"s3": "unicode: \u0194"
-	  }), result);
+        "s1": "simple",
+        "s2": "escaped: \\ \t \n \b \r",
+        "s3": "unicode: \u0194"
+          }), result);
 
   BOOST_REQUIRE(result.size() == 3);
 
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( json_structure_test )
            "number": "646 555-4567"
          }
      ]
-	  }), result);
+          }), result);
 
   BOOST_REQUIRE(result.size() == 5);
 

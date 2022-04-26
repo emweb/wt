@@ -20,13 +20,13 @@
       var w = el.offsetWidth, h = el.offsetHeight;
 
       if (centerX) {
-	el.style.left = Math.round((ws.x - w)/2) + 'px';
-	el.style.marginLeft = '0px';
+        el.style.left = Math.round((ws.x - w)/2) + 'px';
+        el.style.marginLeft = '0px';
       }
 
       if (centerY) {
-	el.style.top = Math.round((ws.y - h)/2) + 'px';
-	el.style.marginTop = '0px';
+        el.style.top = Math.round((ws.y - h)/2) + 'px';
+        el.style.marginTop = '0px';
       }
 
       el.style.visibility = 'visible';

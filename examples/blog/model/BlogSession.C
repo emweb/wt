@@ -41,16 +41,16 @@ namespace {
   class UnixCryptHashFunction : public Wt::Auth::HashFunction
   {
   public:
-    virtual std::string compute(const std::string& msg, 
-				const std::string& salt) const
+    virtual std::string compute(const std::string& msg,
+                                const std::string& salt) const
     {
       std::string md5Salt = "$1$" + salt;
       return crypt(msg.c_str(), md5Salt.c_str());
     }
 
     virtual bool verify(const std::string& msg,
-			const std::string& salt,
-			const std::string& hash) const
+                        const std::string& salt,
+                        const std::string& hash) const
     {
       return crypt(msg.c_str(), hash.c_str()) == hash;
     }
@@ -154,7 +154,7 @@ BlogSession::BlogSession(dbo::SqlConnectionPool& connectionPool)
     t.commit();
 
     std::cerr << "Created database, and user " << ADMIN_USERNAME
-	      << " / " << ADMIN_PASSWORD << std::endl;
+              << " / " << ADMIN_PASSWORD << std::endl;
   } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;
     std::cerr << "Using existing database";

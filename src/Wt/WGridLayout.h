@@ -35,7 +35,7 @@ struct Grid {
     WFlags<AlignmentFlag> alignment_;
 
     Item(std::unique_ptr<WLayoutItem> item = nullptr,
-	 WFlags<AlignmentFlag> alignment = None);
+         WFlags<AlignmentFlag> alignment = None);
     Item(Item&& other) = default;
     Item& operator=(Item&& other) = default;
     ~Item();
@@ -132,13 +132,13 @@ struct Grid {
  * \code
  * WContainerWidget w = new WContainerWidget(this);
  * w.resize(WLength.Auto, new WLength(600));
- *		 
+ *
  * WGridLayout layout = new WGridLayout();
  * layout.addWidget(new WText("Item 0 0"), 0, 0);
  * layout.addWidget(new WText("Item 0 1"), 0, 1);
  * layout.addWidget(new WText("Item 1 0"), 1, 0);
  * layout.addWidget(new WText("Item 1 1"), 1, 1);
- *		 
+ *
  * w.setLayout(layout);
  * \endcode
  * \endif
@@ -188,11 +188,11 @@ public:
    * vertical alignment (Wt::AlignmentFlag::Top, Wt::AlignmentFlag::Middle, or
    * Wt::AlignmentFlag::Bottom).
    *
-   * \sa addLayout(), addWidget() 
+   * \sa addLayout(), addWidget()
    */
   void addItem(std::unique_ptr<WLayoutItem> item, int row, int column,
-	       int rowSpan = 1, int columnSpan = 1,
-	       WFlags<AlignmentFlag> alignment = None);
+               int rowSpan = 1, int columnSpan = 1,
+               WFlags<AlignmentFlag> alignment = None);
 
   /*! \brief Adds a nested layout item to the grid.
    *
@@ -208,10 +208,10 @@ public:
    * vertical alignment (Wt::AlignmentFlag::Top, Wt::AlignmentFlag::Middle, or
    * Wt::AlignmentFlag::Bottom).
    *
-   * \sa addLayout(WLayout *, int, int, int, int, WFlags<AlignmentFlag>) 
+   * \sa addLayout(WLayout *, int, int, int, int, WFlags<AlignmentFlag>)
    */
   void addLayout(std::unique_ptr<WLayout> layout, int row, int column,
-		 WFlags<AlignmentFlag> alignment = None);
+                 WFlags<AlignmentFlag> alignment = None);
 
   /*! \brief Adds a nested layout item to the grid.
    *
@@ -230,11 +230,11 @@ public:
    * vertical alignment (Wt::AlignmentFlag::Top, Wt::AlignmentFlag::Middle, or
    * Wt::AlignmentFlag::Bottom).
    *
-   * \sa addLayout(WLayout *, int, int, WFlags<AlignmentFlag>) 
+   * \sa addLayout(WLayout *, int, int, WFlags<AlignmentFlag>)
    */
   void addLayout(std::unique_ptr<WLayout> layout, int row, int column,
-		 int rowSpan, int columnSpan,
-		 WFlags<AlignmentFlag> alignment = None);
+                 int rowSpan, int columnSpan,
+                 WFlags<AlignmentFlag> alignment = None);
 
   /*! \brief Adds a widget to the grid.
    *
@@ -250,7 +250,7 @@ public:
    * vertical alignment (Wt::AlignmentFlag::Top, Wt::AlignmentFlag::Middle, or
    * Wt::AlignmentFlag::Bottom).
    *
-   * \sa addWidget(WWidget *, int, int, int, int, WFlags<AlignmentFlag>) 
+   * \sa addWidget(WWidget *, int, int, int, int, WFlags<AlignmentFlag>)
    */
 #ifndef WT_TARGET_JAVA
   void addWidget(std::unique_ptr<WWidget> widget, int row, int column,
@@ -264,7 +264,7 @@ public:
   /*! \brief Adds a widget to the grid, returning a raw pointer to the widget.
    *
    * This is implemented as:
-   * 
+   *
    * \code
    * Widget *result = widget.get();
    * addWidget(std::unique_ptr<WWidget>(std::move(widget)), row, column, alignment);
@@ -302,19 +302,19 @@ public:
    */
 #ifndef WT_TARGET_JAVA
   void addWidget(std::unique_ptr<WWidget> widget, int row, int column,
-		 int rowSpan, int columnSpan,
-		 WFlags<AlignmentFlag> alignment);
+                 int rowSpan, int columnSpan,
+                 WFlags<AlignmentFlag> alignment);
 #else // WT_TARGET_JAVA
   void addWidget(std::unique_ptr<WWidget> widget, int row, int column,
-		 int rowSpan, int columnSpan,
-		 WFlags<AlignmentFlag> alignment = None);
+                 int rowSpan, int columnSpan,
+                 WFlags<AlignmentFlag> alignment = None);
 #endif // WT_TARGET_JAVA
 
 #ifndef WT_TARGET_JAVA
   /*! \brief Adds a widget to the grid, returning a raw pointer to the widget.
    *
    * This is implemented as:
-   * 
+   *
    * \code
    * Widget *result = widget.get();
    * addWidget(std::unique_ptr<WWidget>(std::move(widget)), row, column,
@@ -338,13 +338,13 @@ public:
    *
    * The default horizontal spacing is 9 pixels.
    *
-   * \sa setVerticalSpacing(int) 
+   * \sa setVerticalSpacing(int)
    */
   void setHorizontalSpacing(int size);
 
   /*! \brief Returns the horizontal spacing.
    *
-   * \sa setHorizontalSpacing(int) 
+   * \sa setHorizontalSpacing(int)
    */
   int horizontalSpacing() const { return grid_.horizontalSpacing_; }
 
@@ -352,13 +352,13 @@ public:
    *
    * The default vertical spacing is 9 pixels.
    *
-   * \sa setHorizontalSpacing(int) 
+   * \sa setHorizontalSpacing(int)
    */
   void setVerticalSpacing(int size);
 
   /*! \brief Returns the vertical spacing.
    *
-   * \sa setVerticalSpacing(int) 
+   * \sa setVerticalSpacing(int)
    */
   int verticalSpacing() const { return grid_.verticalSpacing_; }
 
@@ -421,7 +421,7 @@ public:
    * it would be given by the layout manager.
    */
   void setColumnResizable(int column, bool enabled = true,
-			  const WLength& initialSize = WLength::Auto);
+                          const WLength& initialSize = WLength::Auto);
 
   /*! \brief Returns whether the user may drag a particular column border.
    *
@@ -445,7 +445,7 @@ public:
    * it would be given by the layout manager.
    */
   void setRowResizable(int row, bool enabled = true,
-		       const WLength& initialSize = WLength::Auto);
+                       const WLength& initialSize = WLength::Auto);
 
   /*! \brief Returns whether the user may drag a particular row border.
    *

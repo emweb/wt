@@ -13,7 +13,7 @@
 
 namespace {
 
-std::string tempFileName() 
+std::string tempFileName()
 {
 #ifndef WT_WIN32
   char spool[20];
@@ -28,7 +28,7 @@ std::string tempFileName()
   return std::string(spool);
 }
 
-std::string readFileToString(const std::string& fileName) 
+std::string readFileToString(const std::string& fileName)
 {
   std::fstream file(fileName.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
   int length = file.tellg();
