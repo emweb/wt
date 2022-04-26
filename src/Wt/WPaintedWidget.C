@@ -766,7 +766,7 @@ std::unique_ptr<WPaintDevice> WWidgetRasterPainter
   return std::unique_ptr<WPaintDevice>
     (new WRasterImage("png", widget_->renderWidth_, widget_->renderHeight_));
 #else
-  throw WException("Wt was built without WRasterImage (graphicsmagick, skia or Direct2D)");
+  throw WException("Wt was built without WRasterImage (graphicsmagick or Direct2D)");
 #endif
 }
 
@@ -777,7 +777,7 @@ std::unique_ptr<WPaintDevice> WWidgetRasterPainter
 #ifdef WT_HAS_WRASTERIMAGE
     device_ = createPaintDevice(paintUpdate);
 #else
-    throw WException("Wt was built without WRasterImage (graphicsmagick, skia or Direct2D)");
+    throw WException("Wt was built without WRasterImage (graphicsmagick or Direct2D)");
 #endif
   }
 

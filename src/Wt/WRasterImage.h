@@ -35,11 +35,8 @@ class WTransform;
  * On Linux, the rendering is provided by <a
  * href="http://www.graphicsmagick.org/">GraphicsMagick</a>, and this
  * class is included in the library only if <tt>libgraphicsmagick</tt>
- * was found during the build of the library. As an alternative, Wt
- * supports certain versions of <a href="https://skia.org/">skia</a>. In
- * general skia is a good and performant renderer, but since it does not
- * have releases, and a not very stable API, we don't recommend it. On
- * Windows, Direct2D is used for rendering, which means that no extra
+ * was found during the build of the library.
+ * On Windows, Direct2D is used for rendering, which means that no extra
  * dependencies have to be installed.
  *
  * If %Wt is built to use <tt>libpango</tt> for font support, then text
