@@ -357,6 +357,8 @@ bool WtReply::consumeWebSocketMessage(ws_opcode opcode,
       in_mem_.str("");
       in_mem_.clear();
 
+      setCloseConnection();
+
       /* fall through */
     case continuation:
       LOG_DEBUG("WtReply::consumeWebSocketMessage(): rx continuation");
@@ -667,6 +669,13 @@ bool WtReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
     sendingMessages_ = true;
   } else if (sending_ > 0) {
     formatResponse(result);
+  } else if (webSocket && closeConnection()) {
+    constexpr char WS_FIN = static_cast<char>(0x80);
+    constexpr char WS_CLOSE_OPCODE = 0x08;
+    constexpr char WS_CLOSE_BODY_LEN = 0;
+    gatherBuf_[0] = static_cast<char>(WS_FIN | WS_CLOSE_OPCODE);
+    gatherBuf_[1] = WS_CLOSE_BODY_LEN;
+    result.push_back(asio::buffer(gatherBuf_, 2));
   }
 
   return httpRequest_ ? httpRequest_->done() : true;
