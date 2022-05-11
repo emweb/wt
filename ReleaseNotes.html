@@ -48,6 +48,21 @@ behaviour.
   </li>
 </ul>
 
+<h2>Release 4.7.2 (May 12, 2022)</h2>
+
+<p>
+  Wt 4.7.2 is a patch release that addresses the following issues:
+  <ul>
+    <li>
+      <a href="https://redmine.webtoolkit.eu/issues/10287" target="_blank">Issue #10287</a>:
+      wthttp now properly sends close frame back when WebSocket connections are closed.
+      Previously, the browser would send a close frame and not get a response back. On Firefox,
+      these kinds of errors caused the creation of new WebSocket connections to the same
+      endpoint to be delayed by up to one minute, making it seem like the application is hanging.
+    </li>
+  </ul>
+</p>
+
 <h2>Release 4.7.1 (April 15, 2022)</h2>
 
 <p>
