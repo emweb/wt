@@ -29,7 +29,7 @@
 #include <cstdlib>
 #endif // WIN32
 
-#if !defined(WT_NO_SPIRIT) && BOOST_VERSION >= 104700 && BOOST_VERSION < 107600
+#if !defined(WT_NO_SPIRIT) && BOOST_VERSION >= 104700 && (BOOST_VERSION < 107600 || BOOST_VERSION >= 107900)
 #  define SPIRIT_FLOAT_FORMAT
 #endif
 
