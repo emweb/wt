@@ -15,6 +15,9 @@ WT_DECLARE_WT_MEMBER
 	  v = "";
 	else
 	  v = edit.options.item(edit.selectedIndex).text;
+     } else if (typeof edit.wtLObj === 'object' &&
+                typeof edit.wtLObj.getValue === 'function') {
+         v = edit.wtLObj.getValue();
      } else
 	 v = edit.value;
 

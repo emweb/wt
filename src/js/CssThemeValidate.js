@@ -12,6 +12,9 @@ WT_DECLARE_WT_MEMBER
      var v;
      if (edit.options)
 	 v = edit.options.item(edit.selectedIndex).text;
+     else if (typeof edit.wtLObj === 'object' &&
+              typeof edit.wtLObj.getValue === 'function')
+         v = edit.wtLObj.getValue();
      else
 	 v = edit.value;
 
