@@ -143,6 +143,13 @@ public:
    * This creates a \link Wt::Json::Type::Number
    * Json::Type::Number\endlink value.
    */
+  Value(long value);
+
+  /*! \brief Creates a value from a long long.
+   *
+   * This creates a \link Wt::Json::Type::Number
+   * Json::Type::Number\endlink value.
+   */
   Value(long long value);
 
   /*! \brief Creates a value from a double.
@@ -432,6 +439,37 @@ public:
    * Json::Type::Number\endlink
    */
   operator long long() const;
+
+  /*! \brief Extracts the integer number value.
+   *
+   * This returns the value of a \link Wt::Json::Type::Number
+   * number \endlink JSON value.
+   *
+   * For example:
+   * \code
+   * const Json::Object& person = ...;
+   * try {
+   *   long cost = person.get("cost");
+   *   ...
+   * } catch (const std::exception& e) {
+   *   ...
+   * }
+   * \endcode
+   *
+   * To coerce a value of another type to a number use toNumber()
+   * first. To provide a fallback in case the value is null or could
+   * not be coerced to a number, use orIfNull().
+   *
+   * For example, the following code does not throw exceptions:
+   * \code
+   * const Json::Object& person = ...;
+   * long cost = person.get("cost").toNumber().orIfNull(0LL);
+   * \endcode
+   *
+   * \throws TypeException if the value type is not \link Wt::Json::Type::Number
+   * Json::Type::Number\endlink
+   */
+  operator long() const;
 
   /*! \brief Extracts the floating point number value.
    *
