@@ -116,7 +116,7 @@ public:
    *
    * \sa saveStatement()
    */
-  virtual SqlStatement *getStatement(const std::string& id);
+  virtual SqlStatement *getStatement(const std::string& id) const;
 
   /*! \brief Saves a statement with the given id.
    *

@@ -51,7 +51,7 @@ void SqlConnection::executeSqlStateful(const std::string& sql)
   executeSql(sql);
 }
 
-SqlStatement *SqlConnection::getStatement(const std::string& id)
+SqlStatement *SqlConnection::getStatement(const std::string& id) const
 {
   StatementMap::const_iterator start;
   StatementMap::const_iterator end;
@@ -63,16 +63,13 @@ SqlStatement *SqlConnection::getStatement(const std::string& id)
       return result;
   }
   if (result) {
-    auto count = statementCache_.count(id);
+    auto count = std::distance(start, end);
     if (count >= WARN_NUM_STATEMENTS_THRESHOLD) {
-      LOG_WARN("Warning: number of instances (" << (count + 1) << ") of prepared statement '"
+      LOG_WARN("Warning: number of instances (" << count << ") of prepared statement '"
                << id << "' for this "
-                  "connection exceeds threshold (" << WARN_NUM_STATEMENTS_THRESHOLD << ")"
+                  "connection has reached or exceeded threshold (" << WARN_NUM_STATEMENTS_THRESHOLD << ")"
                   ". This could indicate a programming error.");
     }
-    auto stmt = prepareStatement(result->sql());
-    result = stmt.get();
-    saveStatement(id, std::move(stmt));
   }
   return nullptr;
 }

@@ -3024,6 +3024,41 @@ BOOST_AUTO_TEST_CASE( dbo_test36 )
   }
 }
 
+BOOST_AUTO_TEST_CASE( dbo_test36b )
+{
+  // Test reentrant statement use with parameters
+  // cfr. issue #10348
+  DboFixture f;
+  dbo::Session *session_ = f.session_;
+
+  {
+    dbo::Transaction t(*session_);
+    auto a = session_->addNew<A>();
+    a.modify()->i = 1;
+    t.commit();
+  }
+
+  {
+    dbo::Transaction t(*session_);
+    auto results1 = session_->find<A>().where("\"i\" = ?").bind(1).resultList();
+    auto begin1 = results1.begin();
+    BOOST_REQUIRE((*begin1)->i == 1);
+    // Concurrent use of statement. Up until Wt 4.7.2 this would create a copy
+    // in SqlConnection::getStatement, and another one in Session::getStatement(const char *, int),
+    // or Session::getOrPrepareStatement(const std::string &).
+    // The last copy would be the one that's actually used.
+    auto results2 = session_->find<A>().where("\"i\" = ?").bind(1).resultList();
+    auto begin2 = results2.begin();
+    BOOST_REQUIRE((*begin2)->i == 1);
+    // This would use the extra statement we created before. The first copy would use SqlStatement::sql(), which
+    // for PostgreSQL already has question marks replaced with $1, $2, etc. This causes paramCount_ to be off
+    // and will result in a "Binding too many parameters" exception.
+    auto results3 = session_->find<A>().where("\"i\" = ?").bind(1).resultList();
+    auto begin3 = results3.begin();
+    BOOST_REQUIRE((*begin3)->i == 1);
+  }
+}
+
 // Test Boost optional
 BOOST_AUTO_TEST_CASE( dbo_test37 )
 {
