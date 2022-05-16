@@ -215,7 +215,10 @@ bool WPanel::isCollapsed() const
 
 void WPanel::collapse()
 {
-  if (isCollapsible()) {
+  // With Bootstrap 5 a WPanel can be collapsed
+  // by user interaction, but there is no collapse
+  // icon, and collapse() has no effect
+  if (isCollapsible() && collapseIcon_) {
     collapseIcon_->showIcon2();
 
     doCollapse();
@@ -224,7 +227,10 @@ void WPanel::collapse()
 
 void WPanel::expand()
 {
-  if (isCollapsible()) {
+  // With Bootstrap 5 a WPanel can be collapsed
+  // by user interaction, but there is no collapse
+  // icon, and expand() has no effect
+  if (isCollapsible() && collapseIcon_) {
     collapseIcon_->showIcon1();
 
     doExpand();
