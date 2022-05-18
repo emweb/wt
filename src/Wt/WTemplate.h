@@ -421,7 +421,7 @@ public:
    * XSS-based security risks.
    *
    * \sa bindWidget(), bindInt()
-   * \sa resolveString()
+   * \sa resolveString(const std::string&)
    */
   virtual void bindString(const std::string& varName, const WString& value,
                           TextFormat textFormat = TextFormat::XHTML);
@@ -689,6 +689,15 @@ public:
    * \endif
    */
   virtual WWidget *resolveWidget(const std::string& varName);
+
+  /*! \brief Resolves a string that was bound to a variable name
+   *
+   * Returns the string that was bound to the variable with bindString().
+   *
+   * This method is not to be confused with resolveString(const std::string&, const std::vector<WString>&, std::ostream&)
+   * which resolves any variable to a string (both strings and widgets alike).
+   */
+  virtual const WString& resolveStringValue(const std::string& varName);
 
   std::vector<WWidget *> widgets() const;
   std::string varName(WWidget *w) const;

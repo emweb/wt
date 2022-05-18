@@ -450,6 +450,15 @@ WWidget *WTemplate::resolveWidget(const std::string& varName)
     return nullptr;
 }
 
+const WString& WTemplate::resolveStringValue(const std::string& varName)
+{
+  StringMap::const_iterator i = strings_.find(varName);
+  if (i != strings_.end())
+    return i->second;
+  else
+    return WString::Empty;
+}
+
 std::vector<WWidget *> WTemplate::widgets() const
 {
   std::vector<WWidget *> result;
