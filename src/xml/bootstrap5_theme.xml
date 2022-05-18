@@ -84,4 +84,7 @@
     <span class="navbar-toggler-icon"></span>
   </message>
 
+  <message id="Wt.WDialog.titlebar">
+    <h4 class="modal-title">${title}</h4>
+  </message>
 </messages>

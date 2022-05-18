@@ -266,4 +266,8 @@
     <div style="clear: both"></div>
     ${children}
   </message>
+
+  <message id="Wt.WDialog.titlebar">
+    <h4>${title}</h4>
+  </message>
 </messages>
