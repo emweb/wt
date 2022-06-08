@@ -57,7 +57,7 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
     // by the server configuration's deploy-path)
     server.addEntryPoint(Wt::EntryPointType::Application, createApplication);
     if (server.start()) {
-      int sig = WServer::waitForShutdown(argv[0]);
+      int sig = WServer::waitForShutdown();
 
       std::cerr << "Shutdown (signal = " << sig << ")" << std::endl;
       server.stop();
