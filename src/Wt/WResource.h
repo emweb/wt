@@ -86,6 +86,10 @@ enum class ContentDisposition {
  * \endcode
  * \endif
  *
+ * In order to configure your web server to serve such a resource, either
+ * create a link to it using WAnchor or WImage, or add it to your WServer
+ * using WServer::handleRequest().
+ *
  * <h3>Concurrency issues</h3>
  *
  * Because of the nature of the web, a resource may be requested one
