@@ -225,7 +225,7 @@ WApplication::WApplication(const WEnvironment& env
                       "margin: 0px;"
                       "padding: 0px;"
                       "font: inherit; "
-                      "cursor: pointer; cursor: hand;"
+                      "cursor: pointer;"
                       "background: transparent;"
                       "text-decoration: none;"
                       "color: inherit;");

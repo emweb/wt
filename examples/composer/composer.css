@@ -18,7 +18,7 @@ body, td, button {
 }
 
 .option {
-  cursor: pointer; cursor: hand;
+  cursor: pointer;
   color: blue;
   font-size: smaller;
   text-decoration: underline;
@@ -50,7 +50,7 @@ button.default {
 }
 
 .remove {
-  cursor: pointer; cursor: hand;
+  cursor: pointer;
   color: blue;
   font-size: x-small;
   text-decoration: underline;

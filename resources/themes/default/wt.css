@@ -123,7 +123,7 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
 }
 
 .Wt-cal caption select {
-  cursor: pointer; cursor: hand;
+  cursor: pointer;
   margin: 2px 0px;
   vertical-align: middle;
 }
@@ -131,7 +131,7 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
 .Wt-cal-navbutton {
   color: #FFFFFF;
   background-color:#6699CC;
-  cursor: pointer; cursor: hand;
+  cursor: pointer;
   margin: 3px;
   vertical-align: middle;
   display: block;
@@ -162,7 +162,7 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
   color: #003DB8;
   border-right: 1px solid #E0E0E0;
   border-bottom: 1px solid #E0E0E0;
-  cursor: pointer; cursor: hand;
+  cursor: pointer;
   text-align: center;
 }
 
@@ -525,12 +525,12 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
 }
 
 .Wt-slider-h .handle {
-  cursor: pointer; cursor: hand;
+  cursor: pointer;
   background: url(slider-thumb-h.gif) no-repeat scroll center bottom;
 }
 
 .Wt-slider-v .handle {
-  cursor: pointer; cursor: hand;
+  cursor: pointer;
   background: url(slider-thumb-v.gif) no-repeat scroll right center;
 }
 
@@ -629,7 +629,7 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
   background: transparent url(../../tab_r.gif) no-repeat scroll right top;
   border-bottom:1px solid #84B0C7;
   float:left; display:block;
-  cursor:pointer;cursor:hand;
+  cursor:pointer;
   font-size: small; font-weight: bold;
 }
 
@@ -850,7 +850,6 @@ body.Wt-rtl .Wt-itemview div.Wt-tv-no-rh {
   height: 16px;
   padding-bottom: 6px;
   cursor: pointer;
-  cursor:hand;
 }
 
 .Wt-itemview .Wt-disabled .Wt-tv-sh {
