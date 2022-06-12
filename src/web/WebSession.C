@@ -680,9 +680,15 @@ bool WebSession::start(WebResponse *response)
 {
   try {
     app_ = controller_->doCreateApplication(this).release();
-    if (!app_->internalPathValid_)
-      if (response->responseType() == WebResponse::ResponseType::Page)
-	response->setStatus(404);
+    if (app_) {
+      if (!app_->internalPathValid_) {
+        if (response->responseType() == WebResponse::ResponseType::Page) {
+          response->setStatus(404);
+        }
+      }
+    } else {
+      throw WException("WebSession::start: ApplicationCreator returned a nullptr");
+    }
   } catch (std::exception& e) {
     app_ = nullptr;
 
