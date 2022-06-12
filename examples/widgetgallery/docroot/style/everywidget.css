@@ -106,7 +106,7 @@ span.doc a:hover {
 span.reactive {
     display: block;
     background-color: #CCCCCC;
-    cursor: pointer;cursor:hand;
+    cursor: pointer;
     margin: 3px 0px;
 }
 

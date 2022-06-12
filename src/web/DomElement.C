@@ -696,27 +696,23 @@ std::string DomElement::cssStyle() const
       styleProperty = &j->second;
     else if ((p >= static_cast<unsigned int>(Property::StylePosition)) &&
              (p < static_cast<unsigned int>(Property::LastPlusOne))) {
-      if ((j->first == Property::StyleCursor) && (j->second == "pointer")) {
-        style << "cursor:pointer;cursor:hand;";
-      } else {
-        if (!j->second.empty()) {
-          style << cssNames_[p -
-                             static_cast<unsigned int>(Property::StylePosition)]
-                << ':' << j->second << ';';
-          if (p >= static_cast<unsigned int>(Property::StyleBoxSizing)) {
-            WApplication *app = WApplication::instance();
+      if (!j->second.empty()) {
+        style << cssNames_[p -
+                            static_cast<unsigned int>(Property::StylePosition)]
+              << ':' << j->second << ';';
+        if (p >= static_cast<unsigned int>(Property::StyleBoxSizing)) {
+          WApplication *app = WApplication::instance();
 
-            if (app) {
-              if (app->environment().agentIsGecko())
-                style << "-moz-";
-              else if (app->environment().agentIsWebKit())
-                style << "-webkit-";
-            }
-
-            style << cssNames_[p -
-                               static_cast<unsigned int>(Property::StylePosition)]
-                  << ':' << j->second << ';';
+          if (app) {
+            if (app->environment().agentIsGecko())
+              style << "-moz-";
+            else if (app->environment().agentIsWebKit())
+              style << "-webkit-";
           }
+
+          style << cssNames_[p -
+                              static_cast<unsigned int>(Property::StylePosition)]
+                << ':' << j->second << ';';
         }
       }
     } else if (j->first == Property::StyleWidthExpression) {

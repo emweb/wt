@@ -83,7 +83,7 @@
 
 .Wt-form .Wt-buttons span {
     text-decoration: underline;
-    cursor: pointer; cursor: hand;
+    cursor: pointer;
 }
 
 .Wt-form .Wt-error {
