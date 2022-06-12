@@ -1748,7 +1748,9 @@ bool DomElement::isSelfClosingTag(const std::string& tag)
 	  || (tag == "img")
 	  || (tag == "area")
 	  || (tag == "col")
-	  || (tag == "input"));
+	  || (tag == "input")
+          || (tag == "link")
+          || (tag == "meta"));
 }
 
 bool DomElement::isSelfClosingTag(DomElementType element)
