@@ -29,7 +29,7 @@ struct FixedSqlConnectionPool::Impl {
   std::condition_variable connectionAvailable;
 #endif // WT_THREADED
 
-  std::chrono::steady_clock::duration timeout;
+  std::chrono::steady_clock::duration timeout{ std::chrono::steady_clock::duration::zero() };
   std::vector<std::unique_ptr<SqlConnection>> freeList;
 };
 
