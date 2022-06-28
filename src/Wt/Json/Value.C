@@ -278,22 +278,6 @@ Value::operator int() const
     throw TypeException(type(), Type::Number);
 }
 
-Value::operator long long() const
-{
-  const std::type_info& t = v_.type();
-
-  if (t == typeid(double))
-    return static_cast<long long>(cpp17::any_cast<double>(v_));
-  else if (t == typeid(long))
-    return static_cast<long long>(cpp17::any_cast<long>(v_));
-  else if (t == typeid(long long))
-    return cpp17::any_cast<long long>(v_);
-  else if (t == typeid(int))
-    return static_cast<long long>(cpp17::any_cast<int>(v_));
-  else
-    throw TypeException(type(), Type::Number);
-}
-
 Value::operator long() const
 {
   const std::type_info& t = v_.type();
@@ -306,6 +290,22 @@ Value::operator long() const
     return static_cast<long>(cpp17::any_cast<long long>(v_));
   else if (t == typeid(int))
     return static_cast<long>(cpp17::any_cast<int>(v_));
+  else
+    throw TypeException(type(), Type::Number);
+}
+
+Value::operator long long() const
+{
+  const std::type_info& t = v_.type();
+
+  if (t == typeid(double))
+    return static_cast<long long>(cpp17::any_cast<double>(v_));
+  else if (t == typeid(long))
+    return static_cast<long long>(cpp17::any_cast<long>(v_));
+  else if (t == typeid(long long))
+    return cpp17::any_cast<long long>(v_);
+  else if (t == typeid(int))
+    return static_cast<long long>(cpp17::any_cast<int>(v_));
   else
     throw TypeException(type(), Type::Number);
 }
