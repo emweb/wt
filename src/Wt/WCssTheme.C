@@ -252,7 +252,7 @@ void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
       }
 
       WDateEdit *dateEdit = dynamic_cast<WDateEdit *>(widget);
-      if (dateEdit) {
+      if (dateEdit && !dateEdit->nativeControl()) {
         element.addPropertyWord(Property::Class, "Wt-dateedit");
         return;
       }

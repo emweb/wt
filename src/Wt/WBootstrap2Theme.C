@@ -363,7 +363,7 @@ void WBootstrap2Theme::apply(WWidget *widget,
       }
 
       WDateEdit *dateEdit = dynamic_cast<WDateEdit *>(widget);
-      if (dateEdit) {
+      if (dateEdit && !dateEdit->nativeControl()) {
         element.addPropertyWord(Property::Class, "Wt-dateedit");
         return;
       }

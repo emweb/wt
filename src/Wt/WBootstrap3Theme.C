@@ -402,7 +402,7 @@ void WBootstrap3Theme::apply(WWidget *widget, DomElement& element,
       }
 
       WDateEdit *dateEdit = dynamic_cast<WDateEdit *>(widget);
-      if (dateEdit) {
+      if (dateEdit && !dateEdit->nativeControl()) {
         element.addPropertyWord(Property::Class, "Wt-dateedit");
         return;
       }

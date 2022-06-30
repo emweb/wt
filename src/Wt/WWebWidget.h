@@ -621,6 +621,7 @@ protected:
   friend class WContainerWidget;
   friend class WCssDecorationStyle;
   friend class WCssTemplateRule;
+  friend class WDateEdit;
   friend class WDialog;
   friend class WFont;
   friend class WGLWidget;

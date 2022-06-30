@@ -7,6 +7,7 @@
 #ifndef WDATE_EDIT_H_
 #define WDATE_EDIT_H_
 
+#include "Wt/WCalendar.h"
 #include <Wt/WDateValidator.h>
 #include <Wt/WLineEdit.h>
 
@@ -22,8 +23,11 @@ namespace Wt {
  *
  * In many cases, it provides a more convenient implementation of a
  * date picker compared to WDatePicker since it is implemented as a
- * line edit. This also makes the implementation ready for a native
- * HTML5 control.
+ * line edit, and a WDateEdit can be configured as a
+ * \link setNativeControl() native HTML5 control\endlink.
+ *
+ * When the native HTML5 control is used, the format is limited to
+ * \c yyyy-MM-dd. Changing to another format has no effect.
  */
 class WT_API WDateEdit : public WLineEdit
 {
@@ -33,6 +37,35 @@ public:
   WDateEdit();
 
   virtual ~WDateEdit();
+
+  /*! \brief Changes whether a native HTML5 control is used.
+   *
+   * When enabled the browser's native date input
+   * (<input type="date">) will be used, if available. This should
+   * provide a better experience on mobile browsers.
+   * This option is set to false by default.
+   *
+   * Setting native control to true limits the format to "yyyy-MM-dd".
+   * Note that this is the format that the widget returns, not the
+   * format the user will see. This format is decided by the browser
+   * based on the user's locale.
+   *
+   * There is no support for changing whether a native control is
+   * used after the widget is rendered.
+   *
+   * \sa nativeControl()
+   */
+  void setNativeControl(bool nativeControl);
+
+  /*! \brief Returns whether a native HTML5 control is used.
+   *
+   * Taking into account the preference for a native control,
+   * configured using setNativeControl(bool nativeControl), this method
+   * returns whether a native control is actually being used.
+   *
+   * \sa setNativeControl()
+   */
+  WT_NODISCARD bool nativeControl() const noexcept { return nativeControl_; }
 
   /*! \brief Sets the date.
    *
@@ -63,6 +96,13 @@ public:
    *
    * Most of the configuration of the date edit is stored in the
    * validator.
+   *
+   * \note Using the validator to change the format while a
+   * native control is being used will break the native control. If a
+   * native control is used, do not call WDateValidator()::setFormat(),
+   * instead use WDateEdit::setFormat().
+   *
+   * \sa WDateValidator::WDateValidator(), setFormat()
    */
   virtual std::shared_ptr<WDateValidator> dateValidator() const;
 
@@ -72,7 +112,11 @@ public:
    *
    * The default format is based on the current WLocale.
    *
-   * \sa WDateValidator::setFormat()
+   * The format is set and limited to "yyyy-MM-dd" when using
+   * the native HTML5 control. Changing to another format has
+   * no effect.
+   *
+   * \sa WDateValidator::setFormat(), setNativeControl()
    */
   void setFormat(const WT_USTRING& format);
 
@@ -117,7 +161,7 @@ public:
    * The calendar may be 0 (e.g. when using a native date entry
    * widget).
    */
-  WCalendar *calendar() const { return calendar_; }
+  WCalendar *calendar() const { return oCalendar_.get(); }
 
   /*! \brief Hide/unhide the widget.
    */
@@ -131,6 +175,8 @@ protected:
   virtual void render(WFlags<RenderFlag> flags) override;
   virtual void propagateSetEnabled(bool enabled) override;
   void validatorChanged() override;
+  WT_NODISCARD std::string type() const noexcept override;
+  void updateDom(DomElement& element, bool all) override;
 
   /*! \brief Sets the value from the calendar to the line edit.
    */
@@ -143,9 +189,11 @@ protected:
 private:
   std::unique_ptr<WPopupWidget> popup_;
   std::unique_ptr<WCalendar> uCalendar_;
-  WCalendar *calendar_;
+  Wt::Core::observing_ptr<WCalendar> oCalendar_;
   bool customFormat_;
+  bool nativeControl_;
 
+  void init();
   void defineJavaScript();
   void connectJavaScript(Wt::EventSignalBase& s, const std::string& methodName);
   void setFocusTrue();

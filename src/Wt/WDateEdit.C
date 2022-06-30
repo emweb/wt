@@ -7,7 +7,6 @@
 #include "Wt/WDateEdit.h"
 
 #include "Wt/WApplication.h"
-#include "Wt/WCalendar.h"
 #include "Wt/WContainerWidget.h"
 #include "Wt/WDateValidator.h"
 #include "Wt/WLineEdit.h"
@@ -17,28 +16,28 @@
 #include "Wt/WTemplate.h"
 #include "Wt/WTheme.h"
 
+#include "DomElement.h"
 #include "WebUtils.h"
 
 #ifndef WT_DEBUG_JS
 #include "js/WDateEdit.min.js"
 #endif
 
+namespace {
+  const std::string YMD_FORMAT = "yyyy-MM-dd";
+}
+
 namespace Wt {
 
 LOGGER("WDateEdit");
 
 WDateEdit::WDateEdit()
-  : customFormat_(false)
+  : customFormat_(false),
+    nativeControl_(false)
 {
   changed().connect(this, &WDateEdit::setFromLineEdit);
 
-  uCalendar_ = std::make_unique<WCalendar>();
-  calendar_ = uCalendar_.get();
-  calendar_->setSingleClickSelect(true);
-  calendar_->activated().connect(this, &WDateEdit::setFocusTrue);
-  calendar_->selectionChanged().connect(this, &WDateEdit::setFromCalendar);
-
-  setValidator(std::make_shared<WDateValidator>(WApplication::instance()->locale().dateFormat()));
+  init();
 }
 
 WDateEdit::~WDateEdit()
@@ -51,7 +50,7 @@ void WDateEdit::load()
   WLineEdit::load();
   // Loading of popup_ is deferred (see issue #4897)
 
-  if (wasLoaded)
+  if (wasLoaded || nativeControl())
     return;
 
   const char *TEMPLATE = "${calendar}";
@@ -65,7 +64,7 @@ void WDateEdit::load()
   popup_->setAnchorWidget(this);
   popup_->setTransient(true);
 
-  calendar_->activated().connect(popup_.get(), &WPopupWidget::hide);
+  oCalendar_->activated().connect(popup_.get(), &WPopupWidget::hide);
   temp->bindWidget("calendar", std::move(uCalendar_));
 
   WApplication::instance()->theme()->apply
@@ -95,15 +94,38 @@ std::shared_ptr<WDateValidator> WDateEdit::dateValidator() const
   return std::dynamic_pointer_cast<WDateValidator>(WLineEdit::validator());
 }
 
+void WDateEdit::setNativeControl(bool nativeControl)
+{
+  // Specific set format normalized by the browser:
+  // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date
+  setFormat(YMD_FORMAT);
+  nativeControl_ = nativeControl;
+
+  if (nativeControl) {
+    uCalendar_.reset(nullptr);
+    popup_.reset(nullptr);
+  } else {
+    // Reset loaded state, so a  new popup and signals can be created.
+    WWebWidget::flags_.reset(BIT_LOADED);
+
+    init();
+    load();
+  }
+}
+
 void WDateEdit::setFormat(const WT_USTRING& format)
 {
   std::shared_ptr<WDateValidator> dv = dateValidator();
 
   if (dv) {
-    WDate d = this->date();
-    dv->setFormat(format);
-    setDate(d);
-    customFormat_ = true;
+    if (!nativeControl()) {
+      WDate d = this->date();
+      dv->setFormat(format);
+      setDate(d);
+      customFormat_ = true;
+    } else {
+      LOG_WARN("setFormat() ignored since nativeControl() is true");
+    }
   } else {
     LOG_WARN("setFormat() ignored since validator is not a WDateValidator");
   }
@@ -123,8 +145,12 @@ WT_USTRING WDateEdit::format() const
 
 void WDateEdit::setFromCalendar()
 {
-  if (!calendar_->selection().empty()) {
-    WDate calDate = Utils::first(calendar_->selection());
+  if (nativeControl()) {
+    return;
+  }
+
+  if (!oCalendar_->selection().empty()) {
+    WDate calDate = Utils::first(oCalendar_->selection());
     setText(calDate.toString(format()));
     textInput().emit();
     changed().emit();
@@ -138,31 +164,40 @@ WDate WDateEdit::date() const
 
 void WDateEdit::setDate(const WDate& date)
 {
+  if (nativeControl()) {
+    setText(date.toString(format()));
+    return;
+  }
+
   if (!date.isNull()) {
     setText(date.toString(format()));
-    calendar_->select(date);
-    calendar_->browseTo(date);
+    oCalendar_->select(date);
+    oCalendar_->browseTo(date);
   }
 }
 
 void WDateEdit::setFromLineEdit()
 {
+  if (nativeControl()) {
+    return;
+  }
+
   WDate d = WDate::fromString(text(), format());
 
   if (d.isValid()) {
-    if (calendar_->selection().empty()) {
-      calendar_->select(d);
-      calendar_->selectionChanged().emit();
+    if (oCalendar_->selection().empty()) {
+      oCalendar_->select(d);
+      oCalendar_->selectionChanged().emit();
     } else {
-      WDate j = Utils::first(calendar_->selection());
+      WDate j = Utils::first(oCalendar_->selection());
 
       if (j != d) {
-        calendar_->select(d);
-        calendar_->selectionChanged().emit();
+        oCalendar_->select(d);
+        oCalendar_->selectionChanged().emit();
       }
     }
 
-    calendar_->browseTo(d);
+    oCalendar_->browseTo(d);
   }
 }
 
@@ -174,11 +209,16 @@ void WDateEdit::propagateSetEnabled(bool enabled)
 void WDateEdit::validatorChanged()
 {
   auto dv = dateValidator();
-  if (dv) {
-    calendar_->setBottom(dv->bottom());
-    calendar_->setTop(dv->top());
+  if (dv && !nativeControl()) {
+    oCalendar_->setBottom(dv->bottom());
+    oCalendar_->setTop(dv->top());
   }
   WLineEdit::validatorChanged();
+}
+
+std::string WDateEdit::type() const noexcept
+{
+  return nativeControl() ? "date" : WLineEdit::type();
 }
 
 void WDateEdit::setHidden(bool hidden, const WAnimation& animation)
@@ -197,14 +237,23 @@ void WDateEdit::setBottom(const WDate& bottom)
   if (dv) {
     dv->setBottom(bottom);
     // validatorChanged will take care of the calendar
-  } else {
-    calendar_->setBottom(bottom);
+  } else if (!nativeControl()) {
+    oCalendar_->setBottom(bottom);
   }
 }
 
 WDate WDateEdit::bottom() const
 {
-  return calendar_->bottom();
+  if (nativeControl()) {
+    std::shared_ptr<WDateValidator> dv = dateValidator();
+    if (dv) {
+      return dv->bottom();
+    }
+
+    return WDate();
+  }
+
+  return oCalendar_->bottom();
 }
 
 void WDateEdit::setTop(const WDate& top)
@@ -213,14 +262,23 @@ void WDateEdit::setTop(const WDate& top)
   if (dv) {
     dv->setTop(top);
     // validatorChanged will take care of the calendar
-  } else {
-    calendar_->setTop(top);
+  } else if (!nativeControl()) {
+    oCalendar_->setTop(top);
   }
 }
 
 WDate WDateEdit::top() const
 {
-  return calendar_->top();
+  if (nativeControl()) {
+    std::shared_ptr<WDateValidator> dv = dateValidator();
+    if (dv) {
+      return dv->top();
+    }
+
+    return WDate();
+  }
+
+  return oCalendar_->top();
 }
 
 void WDateEdit::connectJavaScript(Wt::EventSignalBase& s,
@@ -233,6 +291,17 @@ void WDateEdit::connectJavaScript(Wt::EventSignalBase& s,
     "}";
 
   s.connect(jsFunction);
+}
+
+void WDateEdit::init()
+{
+  uCalendar_ = std::make_unique<WCalendar>();
+  oCalendar_ = uCalendar_.get();
+  oCalendar_->setSingleClickSelect(true);
+  oCalendar_->activated().connect(this, &WDateEdit::setFocusTrue);
+  oCalendar_->selectionChanged().connect(this, &WDateEdit::setFromCalendar);
+
+  setValidator(std::make_shared<WDateValidator>(WApplication::instance()->locale().dateFormat()));
 }
 
 void WDateEdit::defineJavaScript()
@@ -260,7 +329,7 @@ void WDateEdit::defineJavaScript()
 
 void WDateEdit::render(WFlags<RenderFlag> flags)
 {
-  if (flags.test(RenderFlag::Full)) {
+  if (flags.test(RenderFlag::Full) && !nativeControl()) {
     defineJavaScript();
     std::shared_ptr<WDateValidator> dv = dateValidator();
     if (dv) {
@@ -270,6 +339,28 @@ void WDateEdit::render(WFlags<RenderFlag> flags)
   }
 
   WLineEdit::render(flags);
+}
+
+void WDateEdit::updateDom(DomElement& element, const bool all)
+{
+  if (nativeControl() && hasValidatorChanged()) {
+    auto dv = dateValidator();
+    if (dv) {
+      auto bottom = dv->bottom();
+      if (bottom.isValid()) {
+        element.setAttribute("min", bottom.toString(YMD_FORMAT).toUTF8());
+      } else {
+        element.removeAttribute("min");
+      }
+      auto top = dv->top();
+      if (top.isValid()) {
+        element.setAttribute("max", top.toString(YMD_FORMAT).toUTF8());
+      } else {
+        element.removeAttribute("max");
+      }
+    }
+  }
+  WLineEdit::updateDom(element, all);
 }
 
 void WDateEdit::setFocusTrue()
