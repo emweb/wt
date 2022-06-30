@@ -1446,6 +1446,7 @@ public:
    *
    * \deprecated Use setFollowCurve(const WDataSeries*) instead
    */
+  WT_DEPRECATED("Use setFollowCurve(const WDataSeries*) instead.")
   void setFollowCurve(int modelColumn);
 
   /*! \brief Enabled the follow curve funtionality for a data series.

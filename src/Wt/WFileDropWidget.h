@@ -258,6 +258,7 @@ public:
    *
    * \deprecated Override the css rule '.Wt-filedropzone.Wt-dropzone-hover' instead.
    */
+  WT_DEPRECATED("Override the CSS rule '.Wt-filedropzone.Wt-dropzone-hover' instead.")
   void setHoverStyleClass(const std::string& className);
 
   /*! \brief Sets input accept attributes

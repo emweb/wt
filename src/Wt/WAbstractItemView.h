@@ -500,6 +500,7 @@ public:
    *
    * \sa setDragEnabled(), dropEvent()
    */
+  WT_DEPRECATED("Use setEnabledDropLocations() instead.")
   void setDropsEnabled(bool enable);
 
   /*! \brief Enables drop operations (drag & drop).
@@ -772,6 +773,7 @@ public:
    *
    * \deprecated Use touchStarted() instead.
    */
+  WT_DEPRECATED("Use touchStarted() instead.")
   Signal<WModelIndex, WTouchEvent>& touchStart() { return touchStart_; }
 
   /*! \brief %Signal emitted when one or more fingers are placed on the screen.
