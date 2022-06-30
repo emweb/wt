@@ -142,8 +142,7 @@ void WLineEdit::updateDom(DomElement& element, bool all)
   }
 
   if (all || flags_.test(BIT_ECHO_MODE_CHANGED)) {
-    element.setAttribute("type", echoMode_ == EchoMode::Normal
-                         ? "text" : "password");
+    element.setAttribute("type", type());
     flags_.reset(BIT_ECHO_MODE_CHANGED);
   }
 
@@ -348,6 +347,11 @@ void WLineEdit::render(WFlags<RenderFlag> flags)
     defineJavaScript();
 
   WFormWidget::render(flags);
+}
+
+std::string WLineEdit::type() const noexcept
+{
+  return echoMode_ == EchoMode::Normal ? "text" : "password";
 }
 
 // Remove spaces, only for input masks

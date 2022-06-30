@@ -369,6 +369,13 @@ protected:
   virtual int boxBorder(Orientation orientation) const override;
 
   virtual void render(WFlags<RenderFlag> flags) override;
+  /*! \internal
+   * \brief Returns the value of the type attribute for the <input> element
+   *
+   * For WLineEdit this is normally "text" or "password", but this can be overridden by
+   * derived classes, e.g. for a native WTimeEdit this would be "time".
+   */
+  WT_NODISCARD virtual std::string type() const noexcept;
 };
 
 }
