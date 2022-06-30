@@ -130,6 +130,7 @@ public:
 protected:
   virtual void render(WFlags<RenderFlag> flags) override;
   virtual void propagateSetEnabled(bool enabled) override;
+  void validatorChanged() override;
 
   /*! \brief Sets the value from the calendar to the line edit.
    */

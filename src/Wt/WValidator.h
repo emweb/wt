@@ -188,6 +188,9 @@ public:
   virtual std::string inputFilter() const;
 
 protected:
+  /*! \internal
+   * \brief Notifies all form widgets that this validator has changed
+   */
   void repaint();
 
 private:

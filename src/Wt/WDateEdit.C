@@ -171,6 +171,16 @@ void WDateEdit::propagateSetEnabled(bool enabled)
   WLineEdit::propagateSetEnabled(enabled);
 }
 
+void WDateEdit::validatorChanged()
+{
+  auto dv = dateValidator();
+  if (dv) {
+    calendar_->setBottom(dv->bottom());
+    calendar_->setTop(dv->top());
+  }
+  WLineEdit::validatorChanged();
+}
+
 void WDateEdit::setHidden(bool hidden, const WAnimation& animation)
 {
   WLineEdit::setHidden(hidden, animation);
@@ -184,10 +194,12 @@ void WDateEdit::setHidden(bool hidden, const WAnimation& animation)
 void WDateEdit::setBottom(const WDate& bottom)
 {
   std::shared_ptr<WDateValidator> dv = dateValidator();
-  if (dv)
+  if (dv) {
     dv->setBottom(bottom);
-
-  calendar_->setBottom(bottom);
+    // validatorChanged will take care of the calendar
+  } else {
+    calendar_->setBottom(bottom);
+  }
 }
 
 WDate WDateEdit::bottom() const
@@ -198,10 +210,12 @@ WDate WDateEdit::bottom() const
 void WDateEdit::setTop(const WDate& top) 
 {
   std::shared_ptr<WDateValidator> dv = dateValidator();
-  if (dv)
+  if (dv) {
     dv->setTop(top);
-
-  calendar_->setTop(top);
+    // validatorChanged will take care of the calendar
+  } else {
+    calendar_->setTop(top);
+  }
 }
 
 WDate WDateEdit::top() const

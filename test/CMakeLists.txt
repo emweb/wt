@@ -39,6 +39,7 @@ IF(ENABLE_LIBWTTEST)
     utils/RoundJsString.C
     utils/XmlUtils.C
     widgets/WContainerWidgetTest.C
+    widgets/WDateEditTest.C
     widgets/WSpinBoxTest.C
     widgets/WTreeViewTest.C
     length/WLengthTest.C

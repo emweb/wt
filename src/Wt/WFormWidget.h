@@ -164,6 +164,19 @@ protected:
 
   virtual void enableAjax() override;
 
+  /*! \internal
+   * \brief Called whenever the validator is changed
+   *
+   * The validator may be changed because of setValidator() being called, or because one of the
+   * validator's properties was updated, and the validator called WValidator::repaint().
+   *
+   * This can be overridden to specialize how a form widget is updated when its validator changes,
+   * e.g. changing the bottom and top of a WDateEdit's calendar.
+   *
+   * \note The base class's validatorChanged() MUST be called!
+   */
+  virtual void validatorChanged();
+
 private:
   static const int BIT_ENABLED_CHANGED  = 0;
   static const int BIT_READONLY         = 1;
@@ -178,7 +191,6 @@ private:
 
   void setLabel(WLabel *label);
 
-  void validatorChanged();
   void defineJavaScript(bool force = false);
   void updateEmptyText();
 
