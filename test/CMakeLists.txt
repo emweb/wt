@@ -59,6 +59,7 @@ IF(ENABLE_LIBWTTEST)
     widgets/WStackedWidgetTest.C
     widgets/WTemplateTest.C
     widgets/WTextTest.C
+    widgets/WTimeEditTest.C
     widgets/WTreeViewTest.C
     length/WLengthTest.C
     color/WColorTest.C

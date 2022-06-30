@@ -660,9 +660,9 @@ WTime::RegExpInfo WTime::formatToRegExp(const WT_USTRING& format)
   int currentGroup = 1;
 
   result.hourGetJS = "return 1";
-  result.minuteGetJS = "return 1";
-  result.secGetJS = "return 1";
-  result.msecGetJS = "return 1";
+  result.minuteGetJS = "return 0";
+  result.secGetJS = "return 0";
+  result.msecGetJS = "return 0";
 
   //result.regexp = "^";
   bool inQuote = false;

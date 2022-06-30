@@ -2,7 +2,18 @@ WT_DECLARE_WT_MEMBER(
   1,
   JavaScriptConstructor,
   "WTimeValidator",
-  function(mandatory, formats, bottom, top, blankError, formatError, tooSmallError, tooLargeError) {
+  function(
+    mandatory,
+    formats,
+    bottom,
+    top,
+    step,
+    blankError,
+    formatError,
+    tooSmallError,
+    tooLargeError,
+    wrongStepError
+  ) {
     this.validate = function(text) {
       if (text.length === 0) {
         if (mandatory) {
@@ -54,6 +65,14 @@ WT_DECLARE_WT_MEMBER(
       if (top) {
         if (dt.getTime() > top.getTime()) {
           return { valid: false, message: tooLargeError };
+        }
+      }
+
+      if (step) {
+        const start = bottom ? bottom.getTime() : (new Date(0, 0, 0)).getTime();
+        const duration = Math.round((dt.getTime() - start) / 1000);
+        if (duration % step !== 0) {
+          return { valid: false, message: wrongStepError };
         }
       }
 

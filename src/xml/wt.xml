@@ -102,6 +102,9 @@
   <message id="Wt.WTimeValidator.TimeTooLate">The time must be before {1}</message>
   <message id="Wt.WTimeValidator.WrongTimeRange">The time must be between {1} and {2}</message>
   <message id="Wt.WTimeValidator.WrongFormat">Must be a time in the format '{1}'</message>
+  <message id="Wt.WTimeValidator.WrongStep">An invalid increment has been used</message>
+  <message id="Wt.WTimeValidator.WrongStep-seconds">The time must be an increment of {1} second(s)</message>
+  <message id="Wt.WTimeValidator.WrongStep-minutes">The time must be an increment of {1} minute(s)</message>
 
   <message id="Wt.WDefaultLoadingIndicator.Loading">Loading...</message>
 

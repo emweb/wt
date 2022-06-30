@@ -1,8 +1,10 @@
-
 #ifndef WTIME_VALIDATOR_H_
 #define WTIME_VALIDATOR_H_
 
+#include "Wt/WDllDefs.h"
 #include "Wt/WRegExpValidator.h"
+
+#include <chrono>
 
 namespace Wt {
 
@@ -70,6 +72,20 @@ public:
      */
     const WTime& top() const { return top_;}
 
+    /*! \brief Sets the step (in seconds) between two valid values.
+     *
+     * The default value is 0 seconds, meaning any step is accepted.
+     *
+     * When the native HTML5 control is used, this sets the step to 1
+     * or 60 automatically, denepding on the format, respectively HH:mm,
+     * or HH:mm:ss. Changing this value has no effect.
+     */
+    void setStep(const std::chrono::seconds& step);
+
+    /*! \brief Returns the step (in seconds) between two valid values.
+     */
+    WT_NODISCARD const std::chrono::seconds& step() const noexcept { return step_; }
+
     /*! \brief Sets the message to display when the input is not a time
      */
     void setInvalidNotATimeText(const WString &text);
@@ -94,6 +110,14 @@ public:
      */
     WString invalidTooLateText() const;
 
+    /*! \brief Sets the message to display when the time increment is invalid.
+     */
+    void setInvalidWrongStepText(const WString &text);
+
+    /*! \brief Returns the message displayed when the time increment is invalid.
+     */
+    WString invalidWrongStepText() const;
+
     /*! \brief Validates the given input
      *
      * The input is considered valid only when it is blank for a
@@ -108,10 +132,12 @@ private:
 
     std::vector<WT_USTRING> formats_;
     WTime bottom_, top_;
+    std::chrono::seconds step_ = std::chrono::seconds(0);
 
     WString tooEarlyText_;
     WString tooLateText_;
     WString notATimeText_;
+    WString wrongStepText_;
 
     static void loadJavaScript(WApplication *app);
 

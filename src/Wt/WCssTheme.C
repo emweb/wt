@@ -258,7 +258,7 @@ void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
       }
 
       WTimeEdit *timeEdit = dynamic_cast<WTimeEdit *>(widget);
-      if (timeEdit) {
+      if (timeEdit && !timeEdit->nativeControl()) {
         element.addPropertyWord(Property::Class, "Wt-timeedit");
         return;
       }

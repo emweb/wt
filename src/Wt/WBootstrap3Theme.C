@@ -408,7 +408,7 @@ void WBootstrap3Theme::apply(WWidget *widget, DomElement& element,
       }
 
       WTimeEdit *timeEdit = dynamic_cast<WTimeEdit *>(widget);
-      if (timeEdit) {
+      if (timeEdit && !timeEdit->nativeControl()) {
         element.addPropertyWord(Property::Class, "Wt-timeedit");
         return;
       }

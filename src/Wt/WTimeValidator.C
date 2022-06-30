@@ -70,6 +70,19 @@ void WTimeValidator::setTop(const WTime &top)
     }
 }
 
+void WTimeValidator::setStep(const std::chrono::seconds& step)
+{
+  if (step < std::chrono::seconds(0)) {
+    LOG_ERROR("WTimeValidator::setStep(): ignoring call, value should not be negative");
+    return;
+  }
+
+  if (step_ != step) {
+    step_ = step;
+    repaint();
+  }
+}
+
 void WTimeValidator::setInvalidNotATimeText(const WString &text)
 {
     notATimeText_ = text;
@@ -130,6 +143,26 @@ WString WTimeValidator::invalidTooLateText() const
 
 }
 
+void WTimeValidator::setInvalidWrongStepText(const WString &text)
+{
+  wrongStepText_ = text;
+  repaint();
+}
+
+WString WTimeValidator::invalidWrongStepText() const
+{
+  if (step_ <= std::chrono::seconds(0))
+    return WString::Empty;
+  else if (!wrongStepText_.empty())
+    return wrongStepText_;
+  else if (step_.count() % 60 == 0)
+    return WString::tr("Wt.WTimeValidator.WrongStep-minutes").arg(step_.count() / 60);
+  else if (step_.count() % 1 == 0)
+    return WString::tr("Wt.WTimeValidator.WrongStep-seconds").arg(step_.count() / 1);
+  else
+    return WString::tr("Wt.WTimeValidator.WrongStep");
+}
+
 WValidator::Result WTimeValidator::validate(const WT_USTRING &input) const
 {
     if (input.empty())
@@ -144,6 +177,12 @@ WValidator::Result WTimeValidator::validate(const WT_USTRING &input) const
                 if(!top_.isNull() && t > top_)
                   return Result(ValidationState::Invalid,
                                 invalidTooLateText());
+                if (step_ > std::chrono::seconds(0)) {
+                  WTime start = !bottom_.isNull() ? bottom_ : WTime(0, 0);
+                  long secs = start.secsTo(t);
+                  if (secs % step_.count() != 0)
+                    return Result(ValidationState::Invalid, invalidWrongStepText());
+                }
                 return Result(ValidationState::Valid);
             }
         } catch (std::exception &e){
@@ -199,11 +238,18 @@ std::string WTimeValidator::javaScriptValidate() const
            << ")";
     else
         js << "null";
+    js << ',';
+
+    if (step_ > std::chrono::seconds(0))
+      js << static_cast<int>(step_.count());
+    else
+      js << "null";
 
     js << ',' << invalidBlankText().jsStringLiteral()
        << ',' << invalidNotATimeText().jsStringLiteral()
        << ',' << invalidTooEarlyText().jsStringLiteral()
        << ',' << invalidTooLateText().jsStringLiteral()
+       << ',' << invalidWrongStepText().jsStringLiteral()
        << ");";
 
     return js.str();
