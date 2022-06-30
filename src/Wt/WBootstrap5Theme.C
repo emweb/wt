@@ -547,8 +547,7 @@ void WBootstrap5Theme::applyValidationStyle(WWidget *widget,
     js << WT_CLASS ".setValidationState(" << widget->jsRef() << ","
        << (validation.state() == ValidationState::Valid) << ","
        << validation.message().jsStringLiteral() << ","
-       << styles.value() << ","
-       << "'is-valid', 'is-invalid');";
+       << styles.value() << ");";
 
     widget->doJavaScript(js.str());
   } else {
