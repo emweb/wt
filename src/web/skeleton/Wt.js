@@ -296,14 +296,12 @@ this.initAjaxComm = function(url, handler) {
         }
 
         function recvCallback() {
-          if (request.readyState == 4) {
-            var good = request.status == 200
-              && request.getResponseHeader("Content-Type")
-              && request.getResponseHeader("Content-Type")
-                .indexOf("text/javascript") == 0;
+          var good = request.status == 200
+            && request.getResponseHeader("Content-Type")
+            && request.getResponseHeader("Content-Type")
+              .indexOf("text/javascript") == 0;
 
-            handleResponse(good);
-          }
+          handleResponse(good);
         }
 
         function handleTimeout() {
@@ -334,11 +332,13 @@ this.initAjaxComm = function(url, handler) {
         if (timeout > 0)
           timer = setTimeout(handleTimeout, timeout);
 
-        request.onreadystatechange = recvCallback;
+        request.onreadystatechange = function() {
+          if (request.readyState == 4) {
+            recvCallback()
+          }
+        }
         try {
-          request.onload = function() {
-            handleResponse(true);
-          };
+          request.onload = recvCallback;
           request.onerror = function() {
             handleResponse(false);
           };
