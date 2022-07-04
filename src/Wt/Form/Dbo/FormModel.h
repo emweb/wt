@@ -143,6 +143,10 @@ public:
    */
   Wt::Dbo::Session& session() const { return session_; }
 
+  /*! \brief Returns the database object used by this class
+   */
+  const Wt::Dbo::ptr<C>& item() const { return item_; }
+
 private:
   Wt::Dbo::Session& session_;
   Wt::Dbo::ptr<C> item_;

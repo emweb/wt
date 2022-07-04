@@ -177,6 +177,10 @@ public:
     }
   }
 
+  /*! \brief Returns the form model used by this class
+   */
+  const std::shared_ptr<FormModel<C>>& model() const { return model_; }
+
 protected:
   /*! \brief Customize the auto generate form widget
    *
