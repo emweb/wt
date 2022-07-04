@@ -26,8 +26,10 @@ Dependencies
 ------------
 
 To build Wt from source you will need at least
-[CMake](https://cmake.org/) (>= 3.1), and
-[boost](http://www.boost.org) (version >= 1.50).
+[CMake](https://cmake.org/), [boost](http://www.boost.org),
+and a C++ compiler like GCC, Clang or MSVC. See the
+[minimum dependency versions](doc/MinimumDependencyVersions.md)
+for an explanation about which versions Wt supports.
 
 Optionally, you may want to add:
 
