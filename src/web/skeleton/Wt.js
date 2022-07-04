@@ -259,12 +259,12 @@ this.initAjaxComm = function(url, handler) {
     return new (function() {
       var sessionUrl = url;
 
-      function Request(data, userData, id, timeout) {
+      function Request(data, userData, id, timeout, isPollRequest) {
         var request = createRequest('POST', sessionUrl);
         var timer = null;
         var handled = false;
 
-        function handleResponse(good) {
+        function handleResponse(status) {
           if (handled)
             return;
 
@@ -288,20 +288,24 @@ this.initAjaxComm = function(url, handler) {
             request = null;
           }
 
-          if (good) {
-            handler(0, rq.responseText, userData);
+          if (status === WT.ResponseStatus.OK) {
+            handler(status, rq.responseText, userData);
           } else {
-            handler(1, null, userData);
+            handler(status, null, userData);
           }
         }
 
         function recvCallback() {
-          var good = request.status == 200
-            && request.getResponseHeader("Content-Type")
-            && request.getResponseHeader("Content-Type")
-              .indexOf("text/javascript") == 0;
-
-          handleResponse(good);
+          if (request.status == 200
+              && request.getResponseHeader("Content-Type")
+              && request.getResponseHeader("Content-Type")
+              .indexOf("text/javascript") == 0) {
+            handleResponse(WT.ResponseStatus.OK);
+          } else if (isPollRequest && request.status == 504) {
+            handleResponse(WT.ResponseStatus.Timeout);
+          } else {
+            handleResponse(WT.ResponseStatus.Error);
+          }
         }
 
         function handleTimeout() {
@@ -314,7 +318,7 @@ this.initAjaxComm = function(url, handler) {
           request.onreadystatechange = new Function;
           request = null;
           handled = true;
-          handler(2, null, userData);
+          handler(WT.ResponseStatus.Timeout, null, userData);
         }
 
         this.abort = function() {
@@ -340,7 +344,7 @@ this.initAjaxComm = function(url, handler) {
         try {
           request.onload = recvCallback;
           request.onerror = function() {
-            handleResponse(false);
+            handleResponse(WT.ResponseStatus.Error);
           };
         } catch (e) {
           /*
@@ -353,10 +357,10 @@ this.initAjaxComm = function(url, handler) {
 
       this.responseReceived = function(updateId) { };
 
-      this.sendUpdate = function(data, userData, id, timeout) {
+      this.sendUpdate = function(data, userData, id, timeout, isPoll) {
         if (!sessionUrl)
           return null;
-        return new Request(data, userData, id, timeout);
+        return new Request(data, userData, id, timeout, isPoll);
       };
 
       this.cancel = function() {
@@ -382,7 +386,7 @@ this.initAjaxComm = function(url, handler) {
         s.setAttribute('src', sessionUrl + '&' + data);
 
         function onerror() {
-          handler(1, null, userData);
+          handler(WT.ResponseStatus.Error, null, userData);
           s.parentNode.removeChild(s);
         }
 
@@ -401,11 +405,11 @@ this.initAjaxComm = function(url, handler) {
           var req = request;
           request.script.parentNode.removeChild(request.script);
           request = null;
-          handler(0, "", req.userData);
+          handler(WT.ResponseStatus.OK, "", req.userData);
         }
       };
 
-      this.sendUpdate = function(data, userData, id, timeout) {
+      this.sendUpdate = function(data, userData, id, timeout, isPoll) {
         if (!sessionUrl)
           return null;
         request = new Request(data, userData, id, timeout);
@@ -2380,6 +2384,12 @@ this.maxZIndex = function() {
   return maxz;
 }
 
+this.ResponseStatus = {
+  OK : 0,
+  Error : 1,
+  Timeout : 2
+};
+
 })();
 
 if (window._$_APP_CLASS_$_ && window._$_APP_CLASS_$_._p_) {
@@ -3184,7 +3194,7 @@ function webSocketAckConnect() {
 
 function handleResponse(status, msg, timer) {
   if (connectionMonitor)
-    connectionMonitor.onStatusChange('connectionStatus', status == 0 ? 1 : 0);
+    connectionMonitor.onStatusChange('connectionStatus', status === WT.ResponseStatus.OK ? 1 : 0);
 
   if (hasQuit)
     return;
@@ -3199,7 +3209,7 @@ function handleResponse(status, msg, timer) {
     pollTimer = null;
   }
 
-  if (status == 0) {
+  if (status === WT.ResponseStatus.OK) {
     WT.resolveRelativeAnchors();
 _$_$if_CATCH_ERROR_$_();
     try {
@@ -3230,10 +3240,11 @@ _$_$endif_$_();
 
   responsePending = null;
 
-  if (status > 0)
-    ++commErrors;
-  else
+  if (status === WT.ResponseStatus.OK) {
     commErrors = 0;
+  } else if (status === WT.ResponseStatus.Error) {
+    ++commErrors;
+  }
 
   if (hasQuit)
     return;
@@ -3242,7 +3253,7 @@ _$_$endif_$_();
     webSocketAckConnect();
 
   if ((serverPush && !waitingForJavaScript) || pendingEvents.length > 0) {
-    if (status == 1) {
+    if (status === WT.ResponseStatus.Error) {
       var ms = Math.min(120000, Math.exp(commErrors) * 500);
       updateTimeout = setTimeout(function() { sendUpdate(); }, ms);
     } else if (updateTimeout == null)
@@ -3439,7 +3450,7 @@ _$_$if_WEB_SOCKETS_$_();
 
             websocket.reconnectTries = 0;
             if (js != null)
-              handleResponse(0, js, null);
+              handleResponse(WT.ResponseStatus.OK, js, null);
           };
 
           ws.onerror = function(event) {
@@ -3659,8 +3670,7 @@ function sendUpdate() {
      = poll ? setTimeout(doPollTimeout, _$_SERVER_PUSH_TIMEOUT_$_) : null;
 
     responsePending = 1;
-    responsePending = comm.sendUpdate
-      ('request=jsupdate' + data, tm, ackUpdateId, -1);
+    responsePending = comm.sendUpdate('request=jsupdate' + data, tm, ackUpdateId, -1, poll);
   }
 }
 
