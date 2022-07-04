@@ -2130,8 +2130,13 @@ protected:
    * seconds (since it may be a refresh).
    *
    * You may want to reimplement this if you want to keep the
-   * application running until it times out (as was the behaviour
-   * before %Wt 3.1.6).
+   * application running until it times out.
+   *
+   * \note There is no guarantee that closing the browser tab sends the unload event. This is
+   *       because it is at the web browser's discretion whether it still sends requests for a closed tab.
+   *       It's also possible that there was no connection upon closing the tab. Sessions that don't
+   *       receive the unload event will eventually time out according to the `session-timeout` set in
+   *       `wt_config.xml` (this defaults to 10 minutes).
    */
   virtual void unload();
 
