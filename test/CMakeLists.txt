@@ -40,6 +40,7 @@ IF(ENABLE_LIBWTTEST)
     utils/XmlUtils.C
     widgets/WContainerWidgetTest.C
     widgets/WSpinBoxTest.C
+    widgets/WTextTest.C
     widgets/WTreeViewTest.C
     length/WLengthTest.C
     color/WColorTest.C
