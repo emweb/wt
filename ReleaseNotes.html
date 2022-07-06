@@ -89,6 +89,11 @@ behaviour.
     <a href="https://redmine.webtoolkit.eu/issues/9442" target="_blank">Issue #9442</a>:
     Added functions <a href="classWt_1_1Dbo_1_1Query.html#aad47f25e7c86f927e0b2d86c4f519f8a">Query::asString()</a> and <a href="classWt_1_1Dbo_1_1Query.html#abd755ac8e896597a569ab202f5afa4d6">Query::bindSubqueryValues()</a>. These functions make it possible to embed one query in another by converting it to a string and moving all its bound parameters to the other query. See <a href="classWt_1_1Dbo_1_1Query.html#abd755ac8e896597a569ab202f5afa4d6">Query::bindSubqueryValues()</a> for a basic code example.
   </li>
+  <li>
+    Fixed <a href="https://redmine.webtoolkit.eu/issues/10599" target="_blank">issue #10599</a>:
+    there were issues on macOS when using a statically built Wt library, causing the linker to output
+    warnings and some test cases to fail.
+  </li>
 </ul>
 
 <h2>Release 4.7.2 (May 12, 2022)</h2>
