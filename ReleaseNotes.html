@@ -113,6 +113,17 @@ behaviour.
     was changed from <code>true</code> to <code>false</code>.
     This means that the default method when using OAuth is always to redirect.
   </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10136" target="_blank">Issue #10136</a>:
+    When an uncaught exception was thrown from
+    <a href="classWt_1_1WApplication.html#a4a6f167bea94aefa8ba24f914c2fbee5">WApplication::notify()</a>
+    the exception
+    details would be sent to the browser. If Wt was built with libunwind this
+    would include stacktrace details. This exposes potentially sensitive details
+    about the application to the enduser. Wt now just sends a simple
+    "500 Internal Server Error" without any further details. On the server side
+    the exception details will still be stored in the logs.
+  </li>
 </ul>
 
 <h2>Release 4.7.2 (May 12, 2022)</h2>

@@ -1757,7 +1757,7 @@ void WebSession::handleRequest(Handler& handler)
       kill();
 
       if (handler.response())
-        serveError(500, handler, e.what());
+        serveError(500, handler, "Internal Server Error");
 
     } catch (std::exception& e) {
       LOG_ERROR("fatal error: " << e.what());
@@ -1769,14 +1769,14 @@ void WebSession::handleRequest(Handler& handler)
       kill();
 
       if (handler.response())
-        serveError(500, handler, e.what());
+        serveError(500, handler, "Internal Server Error");
     } catch (...) {
       LOG_ERROR("fatal error: caught unknown exception.");
 
       kill();
 
       if (handler.response())
-        serveError(500, handler, "Unknown exception");
+        serveError(500, handler, "Internal Server Error");
     }
 
   if (handler.response())
