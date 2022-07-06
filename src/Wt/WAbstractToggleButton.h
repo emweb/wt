@@ -128,8 +128,8 @@ public:
    *
    * This signal is emitted when the user checks the button.
    *
-   * You can use the changed() signal to react to any change of the
-   * button state.
+   * You can use the changed() signal to react when the user
+   * makes any change to the button state.
    */
   EventSignal<>& checked();
 
@@ -137,8 +137,8 @@ public:
    *
    * This signal is emitted when the user unchecks the button.
    *
-   * You can use the changed() signal to react to any change of the
-   * button state.
+   * You can use the changed() signal to react when the user
+   * makes any change to the button state.
    *
    * \remark This signal is not emitted for WRadioButton. In this case
    * a button can only be unchecked because another button is checked.
