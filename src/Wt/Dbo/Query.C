@@ -368,6 +368,10 @@ AbstractQuery::AbstractQuery(const AbstractQuery& other)
 
 AbstractQuery& AbstractQuery::operator=(const AbstractQuery& other)
 {
+  if (this == &other) {
+    return *this;
+  }
+
   join_ = other.join_;
   where_ = other.where_;
   groupBy_ = other.groupBy_;

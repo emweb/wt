@@ -3488,4 +3488,33 @@ BOOST_AUTO_TEST_CASE( dbo_test46 )
   }
 }
 
+BOOST_AUTO_TEST_CASE( dbo_test47 )
+{
+  // Test Query self-assignment
+  DboFixture f;
+  dbo::Session &session = *f.session_;
+
+  {
+    dbo::Transaction t(session);
+    auto a1 = session.addNew<A>();
+    a1.modify()->i = 3;
+    auto a2 = session.addNew<A>();
+    a2.modify()->i = 4;
+    auto a3 = session.addNew<A>();
+    a3.modify()->i = 5;
+  }
+
+  {
+    dbo::Transaction t(session);
+    auto query = session.find<A>().where("i < ?").bind(5);
+    BOOST_REQUIRE(query.resultList().size() == 2);
+
+    // do self-assignment
+    query = query;
+
+    // 5 should still be bound, so we should still get 2 results
+    BOOST_REQUIRE(query.resultList().size() == 2);
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
