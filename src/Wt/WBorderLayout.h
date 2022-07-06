@@ -52,9 +52,7 @@ enum class LayoutPosition {
  * layout->addWidget(std::make_unique<Wt::WText>("West-side is best"), Wt::LayoutPosition::West);
  * layout->addWidget(std::make_unique<Wt::WText>("East-side is best"), Wt::LayoutPosition::East);
  * layout->addWidget(std::move(contents), Wt::LayoutPosition::Center);
- *
- * // use layout but do not justify vertically
- * w->setLayout(std::move(layout), Wt::AlignmentFlag::Top | Wt::AlignmentFlag::Justify);
+ * w->setLayout(std::move(layout));
  * \endcode
  * \endif
  */
