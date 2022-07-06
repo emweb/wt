@@ -28,15 +28,19 @@ using namespace Wt;
 
 namespace {
 
+  enum class TestType {
+    Simple,
+    Continuation,
+    ClientAddress,
+  };
+
   class TestResource : public WResource
   {
   public:
     TestResource()
-      : continuation_(false),
-        delaySendingBody_(false),
+      : delaySendingBody_(false),
         haveEverMoreData_(false),
         haveRandomMoreData_(false),
-        clientAddressTest_(false),
         aborted_(0)
     { }
 
@@ -44,8 +48,8 @@ namespace {
       beingDeleted();
     }
 
-    void useContinuation() {
-      continuation_ = true;
+    void setType(const TestType type) {
+      type_ = type;
     }
 
     void delaySendingBody() {
@@ -60,10 +64,6 @@ namespace {
       haveRandomMoreData_ = true;
     }
 
-    void clientAddressTest() {
-      clientAddressTest_ = true;
-    }
-
     int abortedCount() const {
       return aborted_;
     }
@@ -71,12 +71,14 @@ namespace {
     virtual void handleRequest(const Http::Request& request,
                                Http::Response& response) override
     {
-      if (continuation_)
-        handleWithContinuation(request, response);
-      else if (clientAddressTest_)
-        handleClientAddress(request, response);
-      else
-        handleSimple(request, response);
+      switch (type_) {
+      case TestType::Simple:
+        return handleSimple(request, response);
+      case TestType::Continuation:
+        return handleWithContinuation(request, response);
+      case TestType::ClientAddress:
+        return handleClientAddress(request, response);
+      }
     }
 
     virtual void handleAbort(const Http::Request& request) override
@@ -85,12 +87,11 @@ namespace {
     }
 
   private:
-    bool continuation_;
     bool delaySendingBody_;
     bool haveEverMoreData_;
     bool haveRandomMoreData_;
-    bool clientAddressTest_;
     int aborted_;
+    TestType type_ = TestType::Simple;
 
     void handleSimple(const Http::Request& request,
                       Http::Response& response)
@@ -259,7 +260,7 @@ BOOST_AUTO_TEST_CASE( http_client_server_test2 )
 {
   Server server;
 
-  server.resource().useContinuation();
+  server.resource().setType(TestType::Continuation);
 
   if (server.start()) {
     Client client;
@@ -276,7 +277,7 @@ BOOST_AUTO_TEST_CASE( http_client_server_test3 )
 {
   Server server;
 
-  server.resource().useContinuation();
+  server.resource().setType(TestType::Continuation);
   server.resource().delaySendingBody();
   server.resource().haveEverMoreData();
 
@@ -299,7 +300,7 @@ BOOST_AUTO_TEST_CASE( http_client_server_test4 )
 {
   Server server;
 
-  server.resource().useContinuation();
+  server.resource().setType(TestType::Continuation);
   server.resource().delaySendingBody();
   server.resource().haveRandomMoreData();
 
@@ -344,7 +345,7 @@ BOOST_AUTO_TEST_CASE( http_client_server_test4 )
 BOOST_AUTO_TEST_CASE( http_client_server_test5 )
 {
   Server server;
-  server.resource().useContinuation();
+  server.resource().setType(TestType::Continuation);
   server.resource().delaySendingBody();
 
   Http::Message msg;
@@ -373,7 +374,7 @@ BOOST_AUTO_TEST_CASE( http_client_server_test5 )
 BOOST_AUTO_TEST_CASE( http_client_address_not_behind_reverse_proxy )
 {
   Server server;
-  server.resource().clientAddressTest();
+  server.resource().setType(TestType::ClientAddress);
 
   if (server.start()) {
     Client client;
@@ -397,7 +398,7 @@ BOOST_AUTO_TEST_CASE( http_client_address_not_behind_reverse_proxy )
 BOOST_AUTO_TEST_CASE( http_client_address_client_ip )
 {
   Server server;
-  server.resource().clientAddressTest();
+  server.resource().setType(TestType::ClientAddress);
   server.configuration().setBehindReverseProxy(true);
 
   if (server.start()) {
@@ -422,7 +423,7 @@ BOOST_AUTO_TEST_CASE( http_client_address_client_ip )
 BOOST_AUTO_TEST_CASE( http_client_address_forwarded_for )
 {
   Server server;
-  server.resource().clientAddressTest();
+  server.resource().setType(TestType::ClientAddress);
   server.configuration().setOriginalIPHeader("X-Forwarded-For");
   server.configuration().setTrustedProxies({
                                              Configuration::Network::fromString("127.0.0.1"),
@@ -450,7 +451,7 @@ BOOST_AUTO_TEST_CASE( http_client_address_forwarded_for )
 BOOST_AUTO_TEST_CASE( http_multiple_proxies )
 {
   Server server;
-  server.resource().clientAddressTest();
+  server.resource().setType(TestType::ClientAddress);
   server.configuration().setTrustedProxies({
                                                    Configuration::Network::fromString("127.0.0.1"),
                                                    Configuration::Network::fromString("198.51.100.0/24")
@@ -478,7 +479,7 @@ BOOST_AUTO_TEST_CASE( http_multiple_proxies )
 BOOST_AUTO_TEST_CASE( http_multiple_proxies2 )
 {
   Server server;
-  server.resource().clientAddressTest();
+  server.resource().setType(TestType::ClientAddress);
   server.configuration().setTrustedProxies({
                                                    Configuration::Network::fromString("127.0.0.1"),
                                                    Configuration::Network::fromString("198.51.100.0/24"),
@@ -507,7 +508,7 @@ BOOST_AUTO_TEST_CASE( http_multiple_proxies2 )
 BOOST_AUTO_TEST_CASE( http_client_address_forward_for_includes_us_on_subnet )
 {
   Server server;
-  server.resource().clientAddressTest();
+  server.resource().setType(TestType::ClientAddress);
   server.configuration().setTrustedProxies({
                                                    Configuration::Network::fromString("127.0.0.0/8"),
                                                    Configuration::Network::fromString("198.51.100.0/24"),
