@@ -468,8 +468,10 @@ public:
    * allowing the state to be restored when it completes.
    * A timeout can be configured in wt_config.xml (see <tt>oauth2-redirect-timeout</tt>).
    *
-   * The default value is true. When JavaScript is not available, a redirect without
+   * The default value is false. When JavaScript is not available, a redirect without
    * popup is always used.
+   *
+   * \note In %Wt 4.8.0 the default value changed from true to false
    */
   void setPopupEnabled(bool enable);
 

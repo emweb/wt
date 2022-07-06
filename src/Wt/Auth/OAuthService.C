@@ -615,7 +615,7 @@ struct OAuthService::Impl
 OAuthService::OAuthService(const AuthService& auth)
   : baseAuth_(auth),
     impl_(std::make_unique<Impl>()),
-    usePopup_(true)
+    usePopup_(false)
 { }
 
 OAuthService::~OAuthService()
