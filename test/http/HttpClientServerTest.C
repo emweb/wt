@@ -32,6 +32,7 @@ namespace {
     Simple,
     Continuation,
     ClientAddress,
+    Exception,
   };
 
   class TestResource : public WResource
@@ -78,6 +79,8 @@ namespace {
         return handleWithContinuation(request, response);
       case TestType::ClientAddress:
         return handleClientAddress(request, response);
+      case TestType::Exception:
+        throw Wt::WException("Test exception");
       }
     }
 
@@ -623,6 +626,22 @@ BOOST_AUTO_TEST_CASE( application_expired_while_newid )
     controller->expireSessions();
 
     t.join();
+  }
+}
+
+BOOST_AUTO_TEST_CASE( http_wresource_exception )
+{
+  Server server;
+  server.resource().setType(TestType::Exception);
+
+  if (server.start()) {
+    Client client;
+
+    client.get("http://" + server.address() + "/test");
+    client.waitDone();
+
+    BOOST_REQUIRE(!client.err());
+    BOOST_REQUIRE(client.message().status() == 500);
   }
 }
 

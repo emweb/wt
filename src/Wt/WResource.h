@@ -356,6 +356,9 @@ public:
    *
    * This is a convenience method to serialize to a stream (for
    * example a file stream).
+   *
+   * Unlike when an actual request is being done, exceptions thrown from
+   * handleRequest() are not caught.
    */
   void write(WT_BOSTREAM& out,
              const Http::ParameterMap& parameters = Http::ParameterMap(),

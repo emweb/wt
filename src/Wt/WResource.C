@@ -227,7 +227,18 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
   if (!continuation)
     response.setStatus(200);
 
-  handleRequest(request, response);
+  try {
+    handleRequest(request, response);
+  } catch (std::exception& e) {
+    LOG_ERROR("Uncaught exception from handleRequest (aborting request): " << e.what());
+    // If the status was not already sent, set it to 500 Internal Server Error
+    response.setStatus(500);
+    if (response.continuation_) {
+      // We always abort when an exception is thrown from handleRequest,
+      // so any continuation is removed.
+      removeContinuation(response.continuation_);
+    }
+  }
 
 #ifdef WT_THREADED
   updateLock.reset();
