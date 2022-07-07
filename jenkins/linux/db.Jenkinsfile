@@ -11,7 +11,7 @@ def user_name
 def group_id
 def group_name
 
-def thread_count = 5
+def thread_count = 10
 
 node('wt') {
     user_id = sh(returnStdout: true, script: 'id -u').trim()
