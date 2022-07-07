@@ -1470,6 +1470,14 @@ WApplication::UpdateLock::UpdateLock(WApplication *app)
 #ifndef WT_THREADED
   return;
 #else
+
+  // check if 'app' is a nullptr to prevent an access violation
+  // in the following code
+  if (!app) {
+    ok_ = false;
+    return;
+  }
+
   /*
    * If we are already handling this application, then we already have
    * exclusive access, unless we are not having the lock (e.g. from a
