@@ -20,7 +20,11 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.7.3 (July 7, 2022)</h2>
+<h2>Release 4.7.3 (July 8, 2022)</h2>
+
+<p>
+  Wt 4.7.3 is a patch release that addresses the following issues:
+</p>
 
 <ul>
   <li>
@@ -31,11 +35,13 @@ behaviour.
     as invalid, since they would not take the input mask into account.
   </li>
   <li>
-    <a href="https://redmine.webtoolkit.eu/issues/10362" target="_blank">Issue #10362</a>:
-    <a href="classWt_1_1WPanel.html#aefd66ff6dd8e2a1108e70efec4eab1b5">WPanel::collapse()</a> and
-    <a href="classWt_1_1WPanel.html#a2ac9a05172675559b6f988083a4fd666">WPanel::expand()</a>
-    would cause a segmentation fault with
-    <a href="classWt_1_1WBootstrap5Theme.html">WBootstrap5Theme</a>. Now they do nothing.
+    <a href="https://redmine.webtoolkit.eu/issues/10543" target="_blank">Issue #10543</a>
+    (<a href="https://github.com/emweb/wt/pull/194" target="_blank">PR #194</a>):
+    The
+    <a href="classWt_1_1Dbo_1_1FixedSqlConnectionPool.html#ab7291dc4ff981598a75606ac29184002">timeout</a>
+    in
+    <a href="classWt_1_1Dbo_1_1FixedSqlConnectionPool.html">Wt::Dbo::FixedSqlConnectionPool</a>
+    was uninitialized, which caused a random timeout instead of no timeout if the timeout was left unspecified.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/10348" target="_blank">Issue #10348</a>:
@@ -43,8 +49,54 @@ behaviour.
     cause a "Binding too many parameters" exception to be thrown.
   </li>
   <li>
-    <a href="https://redmine.webtoolkit.eu/issues/9923" target="_blank">Issue #9923</a>:
-    A <a href="classWt_1_1WFileDropWidget.html">WFileDropWidget</a> with <a href="classWt_1_1WFileDropWidget.html#a4032057631d756628f27b6546eeaa7bb">setAcceptDrops()</a> <code>false</code> and <a href="classWt_1_1WFileDropWidget.html#a0c1400a6f7f63eec4bb1cfe30807538e">setDropIndicationEnabled()</a> <code>true</code> would render the page unresponsive.
+    <a href="https://redmine.webtoolkit.eu/issues/9719" target="_blank">Issue #9719</a>
+    (<a href="https://github.com/emweb/wt/pull/186" target="_blank">PR #186</a>):
+    Fixed a regression where panning an interactive
+    <a href="classWt_1_1Chart_1_1WCartesianChart.html">WCartesianChart</a>
+    would not update the
+    <a href="classWt_1_1Chart_1_1WAxisSliderWidget.html">WAxisSliderWidget</a>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10362" target="_blank">Issue #10362</a>:
+    <a href="classWt_1_1WPanel.html#aefd66ff6dd8e2a1108e70efec4eab1b5">WPanel::collapse()</a> and
+    <a href="classWt_1_1WPanel.html#a2ac9a05172675559b6f988083a4fd666">WPanel::expand()</a>
+    would cause a segmentation fault with
+    <a href="classWt_1_1WBootstrap5Theme.html">WBootstrap5Theme</a>. Now they do nothing.
+  </li>
+  <li>
+    <a href="https://github.com/emweb/wt/pull/188" target="_blank">PR #188</a>:
+    Fixed an issue where
+    <a href="classWt_1_1WTable.html#a0496a46f14f74aed6df4fde8ed161f52">WTable::insertColumn</a>
+    would not properly associate the table with the newly created column.
+  </li>
+  <li>
+    Fixed <a href="https://redmine.webtoolkit.eu/issues/9923" target="_blank">issue #9923</a>:
+    A <a href="classWt_1_1WFileDropWidget.html">WFileDropWidget</a> with
+    <a href="classWt_1_1WFileDropWidget.html#a4032057631d756628f27b6546eeaa7bb">setAcceptDrops()</a>
+    <code>false</code> and
+    <a href="classWt_1_1WFileDropWidget.html#a0c1400a6f7f63eec4bb1cfe30807538e">setDropIndicationEnabled()</a>
+    <code>true</code> would render the page unresponsive.
+  </li>
+  <li>
+    <a href="https://github.com/emweb/wt/pull/193" target="_blank">PR #193</a>:
+    When the application creator returned a <code>null</code> pointer this would
+    cause a null pointer dereference. This was changed to throw an exception, which then
+    logs an error and cleanly terminates the session.
+  </li>
+  <li>
+    <a href="https://github.com/emweb/wt/pull/192" target="_blank">PR #192</a>:
+    <code>&lt;link&gt;</code> and <code>&lt;meta&gt;</code> tags used in
+    <code>&lt;head-matter&gt;</code> in <code>wt_config.xml</code> are now
+    properly outputted as self-closing tags. This fixes a regression introduced
+    in Wt 4.7.0.
+  </li>
+  <li>
+    Fixed <a href="https://redmine.webtoolkit.eu/issues/10578" target="_blank">issue #10578</a>:
+    Changing the validator of a
+    <a href="classWt_1_1WDateEdit.html">WDateEdit</a> would not update the
+    <a href="classWt_1_1WDateEdit.html#a9b3a90d5a5e9e5bc766aad3707f61736">bottom()</a> and
+    <a href="classWt_1_1WDateEdit.html#a68431831acb72c35f46d30b28e93e2a6">top()</a> of the
+    <code>WDateEdit</code> correctly.
   </li>
 </ul>
 
