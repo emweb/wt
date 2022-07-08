@@ -52,58 +52,60 @@ behaviour.
 
 <p>
   Wt 4.7.2 is a patch release that addresses the following issues:
-  <ul>
-    <li>
-      <a href="https://redmine.webtoolkit.eu/issues/10287" target="_blank">Issue #10287</a>:
-      wthttp now properly sends close frame back when WebSocket connections are closed.
-      Previously, the browser would send a close frame and not get a response back. On Firefox,
-      these kinds of errors caused the creation of new WebSocket connections to the same
-      endpoint to be delayed by up to one minute, making it seem like the application is hanging.
-    </li>
-    <li>
-      <a href="https://redmine.webtoolkit.eu/issues/10003" target="_blank">Issue #10003</a>:
-      Calling <a href="classWt_1_1WApplication.html#a02b9d8aa1b6c2d0dc9edc1b9c63f86dc">WApplication::refresh()</a>
-      in the application constructor (e.g. by setting the locale) would produce a JavaScript error if there was
-      a <a href="classWt_1_1WSpinBox.html">WSpinBox</a> in the widget tree.
-    </li>
-    <li>
-      <a href="https://redmine.webtoolkit.eu/issues/10320" target="_blank">Issue #10320</a>:
-      Version 4.5.2
-      (issue <a href="https://redmine.webtoolkit.eu/issues/9363" target="_blank">#9363</a>) and 4.6.2
-      (issue <a href="https://redmine.webtoolkit.eu/issues/9572" target="_blank">#9572</a>)
-      added workarounds to deal with the incorrect formatting of floating point numbers with
-      Boost since version 1.76.0. Since Boost 1.79.0 this issue has been fixed, so the workaround
-      is now disabled for versions since 1.79.0.
-    </li>
-  </ul>
 </p>
+
+<ul>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10287" target="_blank">Issue #10287</a>:
+    wthttp now properly sends close frame back when WebSocket connections are closed.
+    Previously, the browser would send a close frame and not get a response back. On Firefox,
+    these kinds of errors caused the creation of new WebSocket connections to the same
+    endpoint to be delayed by up to one minute, making it seem like the application is hanging.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10003" target="_blank">Issue #10003</a>:
+    Calling <a href="classWt_1_1WApplication.html#a02b9d8aa1b6c2d0dc9edc1b9c63f86dc">WApplication::refresh()</a>
+    in the application constructor (e.g. by setting the locale) would produce a JavaScript error if there was
+    a <a href="classWt_1_1WSpinBox.html">WSpinBox</a> in the widget tree.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10320" target="_blank">Issue #10320</a>:
+    Version 4.5.2
+    (issue <a href="https://redmine.webtoolkit.eu/issues/9363" target="_blank">#9363</a>) and 4.6.2
+    (issue <a href="https://redmine.webtoolkit.eu/issues/9572" target="_blank">#9572</a>)
+    added workarounds to deal with the incorrect formatting of floating point numbers with
+    Boost since version 1.76.0. Since Boost 1.79.0 this issue has been fixed, so the workaround
+    is now disabled for versions since 1.79.0.
+  </li>
+</ul>
 
 <h2>Release 4.7.1 (April 15, 2022)</h2>
 
 <p>
   Wt 4.7.1 is a patch release that addresses the following issues:
-  <ul>
-    <li>
-      <a href="https://redmine.webtoolkit.eu/issues/9922" target="_blank">Issue #9922</a>:
-      Wt would send an update to the browser on every call to
-      <a href="classWt_1_1WApplication.html#a51f50e0641a6d702a7c6ab7f8dd5946a">WApplication::triggerUpdate()</a>
-      if server push was enabled.
-      This is because Wt thought the state was dirty when its JavaScript response buffer contained only <code>{}</code> (empty
-      block). This has been fixed by not sending a response if the buffer contains only <code>{}</code>.
-    </li>
-    <li>
-      <a href="https://redmine.webtoolkit.eu/issues/10177" target="_blank">Issue #10177</a>:
-      <code>WT_API</code> was missing from <a href="classWt_1_1Json_1_1TypeException.html">Json::TypeException</a>,
-      which meant that its symbols were not exported from dynamic libraries.
-    </li>
-    <li>
-      <a href="https://redmine.webtoolkit.eu/issues/9695" target="_blank">Issue #9695</a>:
-      If a <a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a> was created before the dialog it appears in,
-      it would be displayed below the dialog. The <code>z-index</code> of
-      <code>WSuggestionPopup</code> is now calculated using javascript so it is always shown on top.
-    </li>
-  </ul>
 </p>
+
+<ul>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9922" target="_blank">Issue #9922</a>:
+    Wt would send an update to the browser on every call to
+    <a href="classWt_1_1WApplication.html#a51f50e0641a6d702a7c6ab7f8dd5946a">WApplication::triggerUpdate()</a>
+    if server push was enabled.
+    This is because Wt thought the state was dirty when its JavaScript response buffer contained only <code>{}</code> (empty
+    block). This has been fixed by not sending a response if the buffer contains only <code>{}</code>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10177" target="_blank">Issue #10177</a>:
+    <code>WT_API</code> was missing from <a href="classWt_1_1Json_1_1TypeException.html">Json::TypeException</a>,
+    which meant that its symbols were not exported from dynamic libraries.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9695" target="_blank">Issue #9695</a>:
+    If a <a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a> was created before the dialog it appears in,
+    it would be displayed below the dialog. The <code>z-index</code> of
+    <code>WSuggestionPopup</code> is now calculated using javascript so it is always shown on top.
+  </li>
+</ul>
 
 <h2>Release 4.7.0 (March 11, 2022)</h2>
 
@@ -181,41 +183,43 @@ behaviour.
 <h2>Release 4.6.3 (March 10, 2022)</h2>
 <p>
   Wt 4.6.3 is a patch release that addresses the following issues:
-  <ul>
-    <li>
-      <a href="https://redmine.webtoolkit.eu/issues/9790" target="_blank">Issue #9790</a>:
-      A localized <a href="classWt_1_1WText.html">WText</a> with <a href="namespaceWt.html#a140dea437d52d3d7c438ea3bd16a1480">TextFormat::XHTML</a> was not refreshed properly when using arguments.
-    </li>
-  </ul>
 </p>
+
+<ul>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9790" target="_blank">Issue #9790</a>:
+    A localized <a href="classWt_1_1WText.html">WText</a> with <a href="namespaceWt.html#a140dea437d52d3d7c438ea3bd16a1480">TextFormat::XHTML</a> was not refreshed properly when using arguments.
+  </li>
+</ul>
 
 <h2>Release 4.6.2 (February 15, 2022)</h2>
 
 <p>
   Wt 4.6.2 is a patch release that addresses the following issues:
-  <ul>
-    <li>
-      <a href="https://redmine.webtoolkit.eu/issues/9424" target="_blank">Issue #9424</a>:
-      The special "no selection" status of
-      <a href="classWt_1_1WComboBox.html">WComboBox</a>
-      was lost if the items were rerendered, e.g. if the model changed.
-    </li>
-    <li>
-      <a href="https://redmine.webtoolkit.eu/issues/9721" target="_blank">Issue #9721</a>:
-      Somewhere during the Bootstrap 5 transition, we accidentally removed some example code (<tt>pdfImageWrite.cpp</tt>) from the widget gallery.
-      We added it back.
-    </li>
-    <li>
-      <a href="https://redmine.webtoolkit.eu/issues/9572" target="_blank">Issue #9572</a>:
-      Some JSON serialization tests were temporarily disabled since Boost 1.76.0, since the workaround put
-      in place does not generate entirely the same result.
-    </li>
-    <li>
-      <a href="https://redmine.webtoolkit.eu/issues/9571" target="_blank">Issue #9571</a>:
-      Provided a fix for a false positive <tt>-Wfree-nonheap-object</tt> warning in <tt>Wt::Signals</tt>.
-    </li>
-  </ul>
 </p>
+
+<ul>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9424" target="_blank">Issue #9424</a>:
+    The special "no selection" status of
+    <a href="classWt_1_1WComboBox.html">WComboBox</a>
+    was lost if the items were rerendered, e.g. if the model changed.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9721" target="_blank">Issue #9721</a>:
+    Somewhere during the Bootstrap 5 transition, we accidentally removed some example code (<code>pdfImageWrite.cpp</code>) from the widget gallery.
+    We added it back.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9572" target="_blank">Issue #9572</a>:
+    Some JSON serialization tests were temporarily disabled since Boost 1.76.0, since the workaround put
+    in place does not generate entirely the same result.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9571" target="_blank">Issue #9571</a>:
+    Provided a fix for a false positive <code>-Wfree-nonheap-object</code> warning in <code>Wt::Signals</code>.
+  </li>
+</ul>
 
 <h2>Release 4.6.1 (December 23, 2021)</h2>
 
@@ -432,7 +436,7 @@ behaviour.
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/9363" target="_blank">Issue #9363</a>: Added a workaround for
     <a href="https://github.com/boostorg/spirit/issues/688" target="_blank">Boost Spirit issue #688</a>,
-    affecting versions of Boost &gte; 1.66.0.
+    affecting versions of Boost &ge; 1.66.0.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/9270" target="_blank">Issue #9270</a>: Fixed a possible but
@@ -614,7 +618,7 @@ behaviour.
 <h3>Notable changes</h3>
 
 <ul>
-  <li>Wt now targets C++14, and <tt>CMAKE_CXX_STANDARD</tt> defaults to "14". There appears to
+  <li>Wt now targets C++14, and <code>CMAKE_CXX_STANDARD</code> defaults to "14". There appears to
       be no good reason to maintain C++11 support, since every compiler that supports enough C++11
       for Wt also supports enough C++14. You should still be able to use C++11 mode when using Wt
       as a library, but Wt itself no longer builds in C++11 mode.</li>
@@ -628,11 +632,11 @@ behaviour.
 
 <ul>
   <li><a href="https://redmine.webtoolkit.eu/issues/7586" target="_blank">Issue #7586</a>:
-    The <tt>&lt;behind-reverse-proxy&gt;</tt> option has been deprecated in favor of a new
-    <tt>&lt;trusted-proxy-config&gt;</tt> option. It's now possible to specify the IP header
-    that Wt should look for using <tt>&lt;remote-ip-header&gt;</tt> (defaults to <tt>X-Forwarded-For</tt>).
-    Wt will trust all proxies listed in <tt>&lt;trusted-proxies&gt;</tt>.
-    When <tt>&lt;behind-reverse-proxy&gt;</tt> is set to <tt>true</tt>, the behavior stays the
+    The <code>&lt;behind-reverse-proxy&gt;</code> option has been deprecated in favor of a new
+    <code>&lt;trusted-proxy-config&gt;</code> option. It's now possible to specify the IP header
+    that Wt should look for using <code>&lt;remote-ip-header&gt;</code> (defaults to <code>X-Forwarded-For</code>).
+    Wt will trust all proxies listed in <code>&lt;trusted-proxies&gt;</code>.
+    When <code>&lt;behind-reverse-proxy&gt;</code> is set to <code>true</code>, the behavior stays the
     same as it was before. <a href="overview.html#config_general">See the library overview for more
     information about this option.</a>
   </li>
@@ -642,12 +646,12 @@ behaviour.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/7666" target="_blank">Issue #7666</a>: In some cases Wt 4.4.0 would
-    connect <tt>jsScrollVisibilityChanged</tt> even if it was not actually being used, causing extra unnecessary
+    connect <code>jsScrollVisibilityChanged</code> even if it was not actually being used, causing extra unnecessary
     requests.
   </li>
   <li>
     Added Jenkins pipelines in the
-    <tt><a href="https://github.com/emweb/wt/tree/master/jenkins" target="_blank">jenkins</a></tt> folder.
+    <code><a href="https://github.com/emweb/wt/tree/master/jenkins" target="_blank">jenkins</a></code> folder.
     We use Jenkins to test Wt at Emweb but we would usually
     keep this configuration in Jenkins. Our pipelines for Linux and FreeBSD have now been updated a bit and moved
     into the Wt repository, since they may be of use to people looking to contribute to Wt.
@@ -692,15 +696,15 @@ behaviour.
   </li>
   <li>
     Fixed an issue where the <a href="classWt_1_1Http_1_1Client.html">HTTP Client</a>
-    would wait indefinitely for data when <tt>Content-Length</tt> is zero.
+    would wait indefinitely for data when <code>Content-Length</code> is zero.
   </li>
   <li>
-    WebSockets: If a bad value for <tt>server_max_window_bits</tt> or
-    <tt>client_max_window_bits</tt> was encountered, this would cause
+    WebSockets: If a bad value for <code>server_max_window_bits</code> or
+    <code>client_max_window_bits</code> was encountered, this would cause
     an uncaught exception and a crash. This is now handled properly.
   </li>
   <li>
-    Fixed issue with <tt>DISTINCT ON</tt> in X3 based query parser: the fields listed
+    Fixed issue with <code>DISTINCT ON</code> in X3 based query parser: the fields listed
     there would incorrectly be regarded as fields being returned.
   </li>
   <li>
@@ -711,7 +715,7 @@ behaviour.
   <li>
     Fixed issue <a href="https://redmine.webtoolkit.eu/issues/7719" target="_blank">#7719</a>:
     <a href="group__modelview.html#gaac976f394f370d3d62c29791b13a0049">Wt::asString</a>
-    did not properly handle <tt>unsigned long</tt>.
+    did not properly handle <code>unsigned long</code>.
   </li>
   <li>
     <a href="https://github.com/emweb/wt/pull/166" target="_blank">PR #166</a>:
@@ -720,11 +724,11 @@ behaviour.
   </li>
   <li>
     <a href="https://github.com/emweb/wt/pull/167" target="_blank">PR #167</a>:
-    we need to link with Boost unit_test_framework on Windows when <tt>BOOST_DYNAMIC</tt> is <tt>ON</tt>.
+    we need to link with Boost unit_test_framework on Windows when <code>BOOST_DYNAMIC</code> is <code>ON</code>.
   </li>
   <li>
     Fixed an issue where <a href="classWt_1_1WMediaPlayer.html">WMediaPlayer</a> would not get properly
-    loaded when <tt>reload-is-new-session</tt> is <tt>false</tt>, and the page is refreshed.
+    loaded when <code>reload-is-new-session</code> is <code>false</code>, and the page is refreshed.
   </li>
 </ul>
 
@@ -746,7 +750,7 @@ behaviour.
   <li>
     <a href="classWt_1_1Chart_1_1WCartesianChart.html">WCartesianChart</a>: similar to how
     Wt 4.0.4 added support for multiple Y axes, Wt 4.4.0 adds support for multiple X axes,
-    too. Instead of trying to squeeze another <tt>int</tt> argument into functions like
+    too. Instead of trying to squeeze another <code>int</code> argument into functions like
     <a href="classWt_1_1Chart_1_1WCartesianChart.html#a37b22e4bdc17c45d193848cca443dd28">WCartesianChart::map</a>,
     we decided to add overloads that take two <a href="classWt_1_1Chart_1_1WAxis.html">WAxis</a> references.
   </li>
@@ -764,11 +768,11 @@ behaviour.
     <ul>
       <li>
         <a href="https://github.com/emweb/wt/pull/161" target="_blank">PR #161</a>: added support for
-        <a href="group__dbo.html#ga4987bb75aacce8ada8662cc86a6fc3b5"><tt>ON UPDATE RESTRICT</tt></a> and
+        <a href="group__dbo.html#ga4987bb75aacce8ada8662cc86a6fc3b5"><code>ON UPDATE RESTRICT</code></a> and
         <a href="group__dbo.html#gaae0942000fa56b27ca4185f76395c388">ON DELETE RESTRICT</a> foreign key constraints in Wt::Dbo.
       </li>
       <li>
-        <tt>DBO_INSTANTIATE_TEMPLATES</tt> and the <tt>DBO_EXTERN_TEMPLATES</tt> macros used to be disabled with
+        <code>DBO_INSTANTIATE_TEMPLATES</code> and the <code>DBO_EXTERN_TEMPLATES</code> macros used to be disabled with
         Visual Studio since they wouldn't work with old versions of Visual Studio. We reenabled those macros, since
         they've been working for a while now.
       </li>
@@ -782,11 +786,11 @@ behaviour.
     it would not be very clear why nothing was downloaded.
   </li>
   <li>
-    Added the MIME type for <tt>.txt</tt> files to <tt>wthttp</tt>, so that
+    Added the MIME type for <code>.txt</code> files to <code>wthttp</code>, so that
     they are displayed in the browser rather than prompt a download.
   </li>
   <li>
-    All of the properties that Wt uses are now listed in the default <tt>wt_config.xml</tt> to make it easier
+    All of the properties that Wt uses are now listed in the default <code>wt_config.xml</code> to make it easier
     to get an overview of all of them without having to find them in the reference documentation.
   </li>
 </ul>
@@ -831,9 +835,9 @@ behaviour.
 
 <ul>
   <li>
-    <a href="classWt_1_1WWebWidget.html">WWebWidget:</a> moved <tt>id_</tt> out of <tt>OtherImpl</tt>:
-    this fixes issues caused by the <tt>id_</tt> being removed before other things that depend on it,
-    like the <tt>jsScrollVisibilityChanged_</tt> signal. Fixes
+    <a href="classWt_1_1WWebWidget.html">WWebWidget:</a> moved <code>id_</code> out of <code>OtherImpl</code>:
+    this fixes issues caused by the <code>id_</code> being removed before other things that depend on it,
+    like the <code>jsScrollVisibilityChanged_</code> signal. Fixes
     <a href="https://redmine.webtoolkit.eu/issues/7508" target="_blank">issue #7508</a>.
   </li>
   <li>
@@ -859,11 +863,11 @@ behaviour.
 <h3>Logging redirection (<a href="https://redmine.webtoolkit.eu/issues/7240" target="_blank">issue #7240</a>)</h3>
 
 <p>
-Before, it was possible to send logging to a file or an <tt>std::ostream</tt>, and configure which messages were logged in <tt>wt_config.xml</tt>. Wt 4.3.0 extends
-this with the ability to send all logging to a function, allowing users to redirect Wt's logs to whathever logging framework they prefer to use.
+Before, it was possible to send logging to a file or an <code>std::ostream</code>, and configure which messages were logged in <code>wt_config.xml</code>. Wt 4.3.0 extends
+this with the ability to send all logging to a function, allowing users to redirect Wt's logs to whatever logging framework they prefer to use.
 </p>
 
-<p>The few log messages coming from Wt::Dbo would always be logged to <tt>std::cerr</tt>. It is now possible to change this to use Wt's logger, or a custom log function.</p>
+<p>The few log messages coming from Wt::Dbo would always be logged to <code>std::cerr</code>. It is now possible to change this to use Wt's logger, or a custom log function.</p>
 
 <p>To allow for this new functionality, we introduced an abstract <a href="classWt_1_1WLogSink.html">WLogSink</a> class, and the following functions:</p>
 
@@ -884,8 +888,8 @@ simple <a href="namespaceWt_1_1Mail.html#a55d819f240a3553f33e6416ecd05b91fa099d7
 
 <p>
 You can enable authentication with <a href="classWt_1_1Mail_1_1Client.html#a4861b5d0157663d803a3edcb97f651f4">Client::enableAuthentication()</a>, and encryption with
-<a href="classWt_1_1Mail_1_1Client.html#a170288f392a84a1e4e560422843c9a74">Client::setTransportEncryption()</a>, or using the configuration properties <tt>smtp-auth-username</tt>, <tt>smtp-auth-password</tt>,
-<tt>smtp-auth-method</tt>, and <tt>smtp-transport-encryption</tt>.
+<a href="classWt_1_1Mail_1_1Client.html#a170288f392a84a1e4e560422843c9a74">Client::setTransportEncryption()</a>, or using the configuration properties <code>smtp-auth-username</code>,
+  <code>smtp-auth-password</code>, <code>smtp-auth-method</code>, and <code>smtp-transport-encryption</code>.
 </p>
 
 <h3>Other changes</h3>
@@ -898,7 +902,7 @@ You can enable authentication with <a href="classWt_1_1Mail_1_1Client.html#a4861
     token will stay valid until the password is actually changed. Also, if the password is changed through other means, the update password token is invalidated.
   </li>
   <li>
-    <a href="classWt_1_1WCanvasPaintDevice.html">WCanvasPaintDevice</a>: instead of stopping the drawing entirely when <tt>drawImage()</tt> fails (e.g. because of a missing image),
+    <a href="classWt_1_1WCanvasPaintDevice.html">WCanvasPaintDevice</a>: instead of stopping the drawing entirely when <code>drawImage()</code> fails (e.g. because of a missing image),
     the image will be skipped but drawing will continue. An error will be logged to the console.
   </li>
   <li>
@@ -922,10 +926,10 @@ You can enable authentication with <a href="classWt_1_1Mail_1_1Client.html#a4861
     and <a href="namespaceWt.html#a736803866293d189d852d2c7adb7d94ea91b2f19f5c34f05a401200359e38e3c3">LengthUnit::ViewportMax</a>.
   </li>
   <li>
-    Updated the <tt>composer</tt> and <tt>filetreetable</tt> examples to use <a href="classWt_1_1WLocalDateTime.html">WLocalDateTime</a> rather than OS specific functions.
+    Updated the <code>composer</code> and <code>filetreetable</code> examples to use <a href="classWt_1_1WLocalDateTime.html">WLocalDateTime</a> rather than OS specific functions.
   </li>
   <li>
-    Refactored the <tt>treelist</tt> example.
+    Refactored the <code>treelist</code> example.
   </li>
   <li>
     Wt::Dbo:
@@ -934,11 +938,12 @@ You can enable authentication with <a href="classWt_1_1Mail_1_1Client.html#a4861
     </ul>
     <ul>
       <li>added <a href="classWt_1_1Dbo_1_1SqlStatement.html#a4868a3639566171ac3d58e15e3bf77f3">SqlStatement::columnCount()</a>. This
-        makes it possible to create <tt>query_result_traits</tt> for result types with a variable number of columns, like <tt>std::vector</tt>.</li>
+        makes it possible to create <code>query_result_traits</code> for result types with a variable number of columns, like <code>std::vector</code>.</li>
     </ul>
   </li>
   <li>
-    <a href="classWt_1_1WModelIndex.html">WModelIndex</a> now has a proper ordering, even for raw indexes. This means they can properly be inserted into and retrieved from a <tt>std::set</tt>.
+    <a href="classWt_1_1WModelIndex.html">WModelIndex</a> now has a proper ordering, even for raw indexes. This means they can properly be inserted into and retrieved from a
+    <code>std::set</code>.
   </li>
   <li>
     <a href="classWt_1_1WServer.html">WServer</a>: documented the <a href="classWt_1_1WServer.html#a5f850e30f9bd54a946c3f832d60f5b2a">schedule()</a> function.
@@ -968,7 +973,7 @@ You can enable authentication with <a href="classWt_1_1Mail_1_1Client.html#a4861
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/7448" target="_blank">Issue #7448</a>:
-    fixed compilation error on recent versions of MinGW, by using the <tt>gmtime_s</tt>
+    fixed compilation error on recent versions of MinGW, by using the <code>gmtime_s</code>
     function on Windows.
   </li>
   <li>
@@ -985,21 +990,21 @@ You can enable authentication with <a href="classWt_1_1Mail_1_1Client.html#a4861
   <li>
     Fixes for <a href="classWt_1_1WVirtualImage.html">WVirtualImage</a>:
     <ul>
-      <li>Do not render zero width or zero height images. This was possible when <tt>imageWidth</tt> or <tt>imageHeight</tt> was
-        a multiple of the <tt>gridImageSize</tt>.</li>
-      <li>Fixed <a href="classWt_1_1WVirtualImage.html#a0feb746fc22b907f779423bd9768109c">scrollTo()</a> when the image is narrower than the viewport: <tt>scrollTo(0, 0)</tt> would not put <tt>(0, 0)</tt> at
+      <li>Do not render zero width or zero height images. This was possible when <code>imageWidth</code> or <code>imageHeight</code> was
+        a multiple of the <code>gridImageSize</code>.</li>
+      <li>Fixed <a href="classWt_1_1WVirtualImage.html#a0feb746fc22b907f779423bd9768109c">scrollTo()</a> when the image is narrower than the viewport: <code>scrollTo(0, 0)</code> would not put <code>(0, 0)</code> at
         the top left when the image was narrower (or taller) than the viewport.</li>
     </ul>
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/7480" target="_blank">Issue #7480</a>: prefix Wt's crypt functions to fix issues
-    when linking with <tt>libxcrypt</tt>, and also set C code's default visibility to hidden.
+    when linking with <code>libxcrypt</code>, and also set C code's default visibility to hidden.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/7468" target="_blank">Issue #7468</a>: fixed panning not working properly for a <a href="classWt_1_1Chart_1_1WCartesianChart.html">WCartesianChart</a> with plain tooltips.
   </li>
   <li>
-    <a href="https://redmine.webtoolkit.eu/issues/7482" target="_blank">Issue #7482</a>: <tt>lastId_</tt> in Postgres backend should be <tt>long long</tt>.
+    <a href="https://redmine.webtoolkit.eu/issues/7482" target="_blank">Issue #7482</a>: <code>lastId_</code> in Postgres backend should be <code>long long</code>.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/6774" target="_blank">Issue #6774</a>: misc. <a href="classWt_1_1WTreeView.html">WTreeView</a> fixes.
@@ -1019,26 +1024,27 @@ You can enable authentication with <a href="classWt_1_1Mail_1_1Client.html#a4861
   <li>wthttp fixes:
     <ul>
       <li>
-        <a href="https://redmine.webtoolkit.eu/issues/7406" target="_blank">Issue #7406</a>: requests for absolute-form URLs (e.g. <tt>GET http://localhost:8080/ HTTP/1.1</tt> instead of <tt>GET / HTTP/1.1</tt>) are now rejected. No client normally sends requests like this to an origin server. See <a href="https://tools.ietf.org/html/rfc7230#section-5.3.2" target="_blank">RFC 7230, section 5.3.2</a>.
+        <a href="https://redmine.webtoolkit.eu/issues/7406" target="_blank">Issue #7406</a>: requests for absolute-form URLs (e.g. <code>GET http://localhost:8080/ HTTP/1.1</code> instead of <code>GET / HTTP/1.1</code>) are now rejected. No client normally sends requests like this to an origin server. See <a href="https://tools.ietf.org/html/rfc7230#section-5.3.2" target="_blank">RFC 7230, section 5.3.2</a>.
       </li>
       <li>
         <a href="https://redmine.webtoolkit.eu/issues/7405" target="_blank">Issue #7405</a>: multiline HTTP headers (line folding) were causing
         wthttp to segfault. This was fixed by removing support for (obsolete) line folding. See <a href="https://tools.ietf.org/html/rfc7230#section-3.2.4" target="_blank">RFC 7230, section 3.2.4</a>.
       </li>
       <li>
-        <a href="https://redmine.webtoolkit.eu/issues/7390" target="_blank">Issue #7390</a>: added MIME type for <tt>.wasm</tt> files.
+        <a href="https://redmine.webtoolkit.eu/issues/7390" target="_blank">Issue #7390</a>: added MIME type for <code>.wasm</code> files.
       </li>
       <li>
-        <a href="https://redmine.webtoolkit.eu/issues/7384" target="_blank">Issue #7384</a>: setting the <tt>--docroot</tt> of wthttp
-        to <tt>.;</tt> will now correctly make it so that no path is interpreted as being a static resource.
+        <a href="https://redmine.webtoolkit.eu/issues/7384" target="_blank">Issue #7384</a>: setting the <code>--docroot</code> of wthttp
+        to <code>.;</code> will now correctly make it so that no path is interpreted as being a static resource.
       </li>
     </ul>
   </li>
   <li>
-    <a href="https://redmine.webtoolkit.eu/issues/7350" target="_blank">Issue #7350</a>: fixed <a href="classWt_1_1WPaintedWidget.html">WPaintedWidget</a>'s <tt>wtResize</tt> JavaScript to assume its preferred size when called with a size of -1.
+    <a href="https://redmine.webtoolkit.eu/issues/7350" target="_blank">Issue #7350</a>: fixed <a href="classWt_1_1WPaintedWidget.html">WPaintedWidget</a>'s
+    <code>wtResize</code> JavaScript to assume its preferred size when called with a size of -1.
   </li>
   <li>
-    Fixed possible JavaScript errors caused by <a href="classWt_1_1WContainerWidget.html">WContainerWidget</a>'s <tt>wtEncodeValue</tt> JavaScript not    being terminated by a semicolon.
+    Fixed possible JavaScript errors caused by <a href="classWt_1_1WContainerWidget.html">WContainerWidget</a>'s <code>wtEncodeValue</code> JavaScript not    being terminated by a semicolon.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/7407" target="_blank">Issue #7407</a>: fixed JavaScript memory leak related to deferred or HTML tooltips.
@@ -1064,18 +1070,19 @@ You can enable authentication with <a href="classWt_1_1Mail_1_1Client.html#a4861
   </li>
   <li>
     <a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a>: when
-    <a href="classWt_1_1WSuggestionPopup.html#a0395bd5080856eb95ccb50748f25d1c7"><tt>setDropDownIconUnfiltered(true)</tt></a>
+    <a href="classWt_1_1WSuggestionPopup.html#a0395bd5080856eb95ccb50748f25d1c7"><code>setDropDownIconUnfiltered(true)</code></a>
     was used, pressing the up/down arrows to move through the list would cause it to be filtered.
   </li>
   <li>
-    Reverted a previous change to <a href="classWt_1_1WModelIndex.html">WModelIndex</a>: since the comparison operator of model indexes uses the parent, we can't insert raw indexes into a <tt>std::set</tt>.
+    Reverted a previous change to <a href="classWt_1_1WModelIndex.html">WModelIndex</a>: since the comparison operator of model indexes
+    uses the parent, we can't insert raw indexes into a <code>std::set</code>.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/7353" target="_blank">Issue #7353</a>: added mention in 3.5.0 release notes about
     <a href="classWt_1_1WPdfImage.html">WPdfImage</a> pen width fix.
   </li>
   <li>
-    <a href="group__modelview.html#gaeb2f9c583490833afd55d65402b4fea9">registerType</a> now uses <tt>std::type_index</tt> instead of comparing <tt>type_info</tt> pointers.
+    <a href="group__modelview.html#gaeb2f9c583490833afd55d65402b4fea9">registerType</a> now uses <code>std::type_index</code> instead of comparing <code>type_info</code> pointers.
   </li>
   <li>
     Some widgets (like <a href="classWt_1_1WTreeView.html">WTreeView</a>) would not be properly sized when they were initially hidden.
@@ -1090,14 +1097,14 @@ You can enable authentication with <a href="classWt_1_1Mail_1_1Client.html#a4861
     <b>CMake fixes:</b>
     <ul>
       <li>
-        <tt>wt-config.cmake</tt>: CMake would look for Boost even when Wt was linked dynamically, and
+        <code>wt-config.cmake</code>: CMake would look for Boost even when Wt was linked dynamically, and
         Boost was linked statically, like in our Windows builds.
       </li>
       <li>
-        <tt>wt-config-version.cmake</tt>: <tt>match</tt> function needed to be <tt>math</tt>
+        <code>wt-config-version.cmake</code>: <code>match</code> function needed to be <code>math</code>
       </li>
       <li>
-        CMake needed to look for <tt>Boost::filesystem</tt> for some examples (but didn't).
+        CMake needed to look for <code>Boost::filesystem</code> for some examples (but didn't).
       </li>
     </ul>
   </li>
@@ -1118,14 +1125,14 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
 <ul>
   <li><a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a>: <a href="structWt_1_1WSuggestionPopup_1_1Options.html#a3e29211108f2b156a0b983a5a15ecece">wordSeparators</a> no longer requires (extra) escaping, so a newline is indicated with the string literal "\n", not "\\n". Similarly, the <a href="structWt_1_1WSuggestionPopup_1_1Options.html#aef3e98b66b4cc136e2c726079d6681de">whitespace</a> property was incorrectly documented as requiring (extra) escaping.</li>
   <li>The <a href="classWt_1_1WLogEntry.html">WLogEntry</a> copy constructor&ndash;which logically performed a move&ndash;was removed and replaced by a move constructor.</li>
-  <li>Removed <tt>WDatePicker::setGlobalPopup</tt>&ndash;it was deprecated in Wt 3.3.0, but we forgot to remove it in Wt 4.</li>
-  <li><a href="classWt_1_1WLogger.html">WLogger</a> now logs opening of log file to the previous output (usually <tt>std::cerr</tt>) using the logger instead of directly to <tt>std::cerr</tt>. This allows to disable this log message with <tt>-info:WLogger</tt>.</li>
+  <li>Removed <code>WDatePicker::setGlobalPopup</code>&ndash;it was deprecated in Wt 3.3.0, but we forgot to remove it in Wt 4.</li>
+  <li><a href="classWt_1_1WLogger.html">WLogger</a> now logs opening of log file to the previous output (usually <code>std::cerr</code>) using the logger instead of directly to <code>std::cerr</code>. This allows to disable this log message with <code>-info:WLogger</code>.</li>
 </ul>
 <h3>CMake changes</h3>
 <ul>
   <li>
     When using GCC and clang, the default visibility of symbols is now set to hidden. This limits the exported symbols to only Wt's public interfaces,
-    reducing the size of <tt>.so</tt> files and preventing accidental use of unexposed APIs.
+    reducing the size of <code>.so</code> files and preventing accidental use of unexposed APIs.
   </li>
   <li>
     Added Wt version information to Wt's CMake config files
@@ -1138,14 +1145,14 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
 <h3>Features</h3>
 <ul>
   <li>
-    PR <a href="https://github.com/emweb/wt/pull/140">#140</a>: <a href="classWt_1_1WLogEntry.html">WLogEntry</a> can now use argument dependent lookup for <tt>to_string</tt> in its <tt>operator&lt;&lt;</tt>.
+    PR <a href="https://github.com/emweb/wt/pull/140">#140</a>: <a href="classWt_1_1WLogEntry.html">WLogEntry</a> can now use argument dependent lookup for <code>to_string</code> in its <code>operator&lt;&lt;</code>.
   </li>
   <li>
     Added overloads to <a href="classWt_1_1WServer.html#af2100c604f1ad933256097972fd38102">WRun()</a>,
     <a href="classWt_1_1WServer.html#af22c4176fb07d6f5f3cab42ef7f36f7f">WServer::WServer()</a>,
     <a href="classWt_1_1WServer.html#a6ef2c780a70eebc68707ea0d684b8509">WServer::setServerConfiguration()</a>,
     and <a href="classWt_1_1WServer.html#afd4dc8802de5f9b93b23ea7948c8a91e">WServer::restart()</a> that
-    take an applicationPath <tt>std::string</tt>, and a vector of strings for arguments, instead of <tt>argc</tt>, and <tt>argv</tt>.
+    take an applicationPath <code>std::string</code>, and a vector of strings for arguments, instead of <code>argc</code>, and <code>argv</code>.
     This is more convenient if the command line arguments are generated by the application.
   </li>
   <li>
@@ -1158,7 +1165,7 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
 <h3>Fixes</h3>
 <ul>
   <li>
-    Limited prevention of default action of the <tt>dragstart</tt> event to only draggable widgets. This used to be global (set on <tt>document.body</tt>), but could conflict with other JavaScript libraries, especially when Wt is used in WidgetSet mode.
+    Limited prevention of default action of the <code>dragstart</code> event to only draggable widgets. This used to be global (set on <code>document.body</code>), but could conflict with other JavaScript libraries, especially when Wt is used in WidgetSet mode.
   </li>
   <li>
     Issue <a href="https://redmine.webtoolkit.eu/issues/7210" target="_blank">#7210</a>: fixed removal of all widgets in a layout causing a JavaScript error
@@ -1182,7 +1189,7 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
     Fixed issue <a href="https://redmine.webtoolkit.eu/issues/7336" target="_blank">#7336</a>: Wt was touching the history API every 10 ms when scrolling to store the scroll position, causing sluggishness, especially on mobile browsers with smooth scrolling. The scroll position is now saved after the user has stopped scrolling.
   </li>
   <li>
-    Fixed issue <a href="https://redmine.webtoolkit.eu/issues/7323" target="_blank">#7323</a>: updated the <a href="https://github.com/emweb/wt/tree/master/examples/feature/broadcast" target="_blank">broadcast</a> feature example: its use of <tt>bindSafe()</tt> was incorrect
+    Fixed issue <a href="https://redmine.webtoolkit.eu/issues/7323" target="_blank">#7323</a>: updated the <a href="https://github.com/emweb/wt/tree/master/examples/feature/broadcast" target="_blank">broadcast</a> feature example: its use of <code>bindSafe()</code> was incorrect
   </li>
 </ul>
 
@@ -1193,12 +1200,12 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
 <ul>
   <li><b>wthttp security issues</b>:
     <ul>
-      <li>Wt internally used an <tt>SSL-Client-Certificates</tt> header to send client certificates to child processes when using dedicated process mode. It was however <i>always accepted even when Wt was not behind a reverse proxy</i>, and sent to child processes as-is. <tt>wthttp</tt> now correctly disregards it when not received from a reverse proxy. The header was also renamed to <tt>X-Wt-Ssl-Client-Certificates</tt> to clarify that it is a non-standard internal Wt header.</li>
-      <li>When using dedicated session processes with wthttp, the parent process would trust <tt>X-Forwarded-Proto</tt> and <tt>X-Forwarded-Port</tt> even when Wt was not configured to be behind a reverse proxy. These are now discarded.</li>
+      <li>Wt internally used an <code>SSL-Client-Certificates</code> header to send client certificates to child processes when using dedicated process mode. It was however <i>always accepted even when Wt was not behind a reverse proxy</i>, and sent to child processes as-is. <code>wthttp</code> now correctly disregards it when not received from a reverse proxy. The header was also renamed to <code>X-Wt-Ssl-Client-Certificates</code> to clarify that it is a non-standard internal Wt header.</li>
+      <li>When using dedicated session processes with wthttp, the parent process would trust <code>X-Forwarded-Proto</code> and <code>X-Forwarded-Port</code> even when Wt was not configured to be behind a reverse proxy. These are now discarded.</li>
     </ul>
   </li>
   <li>
-    Fixed <a href="https://redmine.webtoolkit.eu/boards/2/topics/16551" target="_blank">an issue raised on the forum</a> causing <tt>WTreeView</tt> to not properly react to certain size changes.
+    Fixed <a href="https://redmine.webtoolkit.eu/boards/2/topics/16551" target="_blank">an issue raised on the forum</a> causing <code>WTreeView</code> to not properly react to certain size changes.
   </li>
   <li>
     Fixed <a href="https://redmine.webtoolkit.eu/issues/7291" target="_blank">issue #7291</a>: wtfcgi would not properly match default entry point
@@ -1207,7 +1214,7 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
     Fixed a few issues found by clang-analyzer:
     <ul>
       <li>
-        Fixed an issue in <a href="classWt_1_1WAnchor.html">WAnchor</a> that would cause <tt>image()</tt> to return <tt>nullptr</tt> if it was provided in the constructor.
+        Fixed an issue in <a href="classWt_1_1WAnchor.html">WAnchor</a> that would cause <code>image()</code> to return <code>nullptr</code> if it was provided in the constructor.
       </li>
       <li>
         Fixed <a href="classWt_1_1WCssDecorationStyle.html">WCssDecorationStyle</a> self-assignment
@@ -1215,24 +1222,24 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
     </ul>
   </li>
   <li>
-    Made tests succeed even if Wt is built with <tt>ENABLE_UNWIND=ON</tt>.
+    Made tests succeed even if Wt is built with <code>ENABLE_UNWIND=ON</code>.
   </li>
-  <li><a href="https://redmine.webtoolkit.eu/issues/7292" target="_blank">issue #7292</a>: <a href="classWt_1_1Auth_1_1OAuthService.html">OAuthService</a> now correctly uses <tt>refresh_token</tt> instead of <tt>refreshToken</tt></li>
+  <li><a href="https://redmine.webtoolkit.eu/issues/7292" target="_blank">issue #7292</a>: <a href="classWt_1_1Auth_1_1OAuthService.html">OAuthService</a> now correctly uses <code>refresh_token</code> instead of <code>refreshToken</code></li>
   <li><a href="classWt_1_1Http_1_1Client.html">Http::Client</a> fixes:
     <ul>
-      <li>fixed <a href="https://redmine.webtoolkit.eu/issues/7272" target="_blank">issue #7272</a>: support <tt>@</tt> character in the path of a URL</li>
+      <li>fixed <a href="https://redmine.webtoolkit.eu/issues/7272" target="_blank">issue #7272</a>: support <code>@</code> character in the path of a URL</li>
       <li>fixed 204 No Content response code behavior (would hang before, waiting for content) (<a href="https://redmine.webtoolkit.eu/issues/7273" target="_blank">issue #7273</a>)</li>
     </ul>
   </li>
   <li>More informative error and exception messages:
     <ul>
-      <li><a href="classWt_1_1Dbo_1_1QueryModel.html"><tt>QueryModel</tt></a>'s "geometry inconsistent with database" exception now contains row and cache start and size information</li>
-      <li><tt>WebSession</tt>'s "not serving this" info message contains more context so it's less confusing</li>
+      <li><a href="classWt_1_1Dbo_1_1QueryModel.html"><code>QueryModel</code></a>'s "geometry inconsistent with database" exception now contains row and cache start and size information</li>
+      <li><code>WebSession</code>'s "not serving this" info message contains more context so it's less confusing</li>
     </ul>
   </li>
   <li>Documentation fixes:
     <ul>
-      <li>The release notes for Wt 3.3.8 incorrectly referred to <tt>allowed-hosts</tt>, while this property is actually named <tt>allowed-origins</tt></li>
+      <li>The release notes for Wt 3.3.8 incorrectly referred to <code>allowed-hosts</code>, while this property is actually named <code>allowed-origins</code></li>
       <li>Updated <a href="classWt_1_1WLocale.html#a5b1961702289e8dc6f9e2c293f9f8aa5">WLocale::setTimeZone()</a> documentation</li>
     </ul>
 </ul>
@@ -1242,15 +1249,15 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
   This release fixes the following issues:
 </p>
 <ul>
-  <li>Fixed horizontal scrolling stutter on mobile browsers in <tt>WTableView</tt></li>
-  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7000" target="_blank">issue #7000</a>: possible out of bounds access in <tt>WTableView::itemWidget()</tt></li>
-  <li>Fixed <tt>valueChanged()</tt> documentation of <tt>WSpinBox</tt> and <tt>WDoubleSpinBox</tt></li>
-  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7164" target="_blank">issue #7164</a>: Added missing <tt>&lt;stdexcept&gt;</tt> include to <tt>observing_ptr_impl.hpp</tt></li>
-  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7167" target="_blank">issue #7167</a>: configure SSL context when using <tt>--https-listen</tt> too (not just when using <tt>--https-address</tt>/<tt>--https-port</tt></li>
-  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7187" target="_blank">issue #7187</a>: contents of <tt>WTabWidget</tt> did not properly stretch in height</li>
+  <li>Fixed horizontal scrolling stutter on mobile browsers in <code>WTableView</code></li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7000" target="_blank">issue #7000</a>: possible out of bounds access in <code>WTableView::itemWidget()</code></li>
+  <li>Fixed <code>valueChanged()</code> documentation of <code>WSpinBox</code> and <code>WDoubleSpinBox</code></li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7164" target="_blank">issue #7164</a>: Added missing <code>&lt;stdexcept&gt;</code> include to <code>observing_ptr_impl.hpp</code></li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7167" target="_blank">issue #7167</a>: configure SSL context when using <code>--https-listen</code> too (not just when using <code>--https-address</code>/<code>--https-port</code></li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7187" target="_blank">issue #7187</a>: contents of <code>WTabWidget</code> did not properly stretch in height</li>
   <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7193" target="_blank">issue #7193</a>: compatibility with Pango 1.44: added harfbuzz include dir</li>
-  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7195" target="_blank">issue #7195</a>: contents of <tt>WStackedWidget</tt> would not properly respond to window size change</li>
-  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7206" target="_blank">issue #7206</a>: added mention in Wt 4.0.0 release notes that <tt>setObjectName()</tt> does not change a widget's <tt>id</tt> anymore. It is now in an extra attribute called <tt>data-object-name</tt>.</li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7195" target="_blank">issue #7195</a>: contents of <code>WStackedWidget</code> would not properly respond to window size change</li>
+  <li>Fixed <a href="https://redmine.webtoolkit.eu/issues/7206" target="_blank">issue #7206</a>: added mention in Wt 4.0.0 release notes that <code>setObjectName()</code> does not change a widget's <code>id</code> anymore. It is now in an extra attribute called <code>data-object-name</code>.</li>
 </ul>
 
 <h2>Release 4.1.0 (July 31, 2019)</h2>
@@ -1274,8 +1281,8 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
 </p>
 <h3>Notable backwards-incompatible changes</h3>
 <ul>
-  <li>Extensionless headers (e.g. <tt>#include &lt;Wt/WApplication&gt;</tt> instead of <tt>#include &lt;Wt/WApplication.h&gt;</tt>) have
-      been deprecated since Wt 4.0.0. These headers were now removed. Use the script <tt>migrate/wt4_add_h_to_includes.py</tt> if you
+  <li>Extensionless headers (e.g. <code>#include &lt;Wt/WApplication&gt;</code> instead of <code>#include &lt;Wt/WApplication.h&gt;</code>) have
+      been deprecated since Wt 4.0.0. These headers were now removed. Use the script <code>migrate/wt4_add_h_to_includes.py</code> if you
       want to automate the rewriting of extensionless headers.</li>
   <li>When using the GraphicsMagick implementation of <a href="classWt_1_1WRasterImage.html">WRasterImage</a>, the rendering to
       raster image is now done in <a href="classWt_1_1WPaintDevice.html#a75827be2076716985533dbc75dfdc512">done()</a> instead of <a href="classWt_1_1WResource.html#a3a740f8cc29e2e6e4e58defc9c88b8b6">handleRequest()</a>.
@@ -1285,8 +1292,8 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
   </li>
   <li>
     <a href="classWt_1_1WApplication_1_1UpdateLock.html#a09011389bb0b9319acbcd32800852918">WApplication::UpdateLock::operator bool()</a> and
-    <a href="classWt_1_1Core_1_1observing__ptr.html#a93ae9f0dd2a1553dc081faad7e1078ee">observing_ptr::operator bool()</a> were made <tt>explicit</tt>,
-    so they will no longer implicitly convert to <tt>bool</tt>, only
+    <a href="classWt_1_1Core_1_1observing__ptr.html#a93ae9f0dd2a1553dc081faad7e1078ee">observing_ptr::operator bool()</a> were made <code>explicit</code>,
+    so they will no longer implicitly convert to <code>bool</code>, only
     <a href="https://en.cppreference.com/w/cpp/language/implicit_conversion#Contextual_conversions" target="_blank">contextually</a>.
     This may cause some valid code to no longer compile, but it is more likely that it will actually uncover bugs.
   </li>
@@ -1308,10 +1315,10 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
 <ul>
   <li>
     Added a <a href="classWt_1_1WLeafletMap.html">WLeafletMap</a> example to the <a href="https://www.webtoolkit.eu/widgets/graphics-charts/leaflet-maps" target="_blank">widget gallery</a>
-    and in <tt>examples/leaflet</tt>.
+    and in <code>examples/leaflet</code>.
   </li>
   <li>
-    Added an <a href="classWt_1_1Http_1_1Client.html">Http::Client</a> example in <tt>examples/http-client</tt>.
+    Added an <a href="classWt_1_1Http_1_1Client.html">Http::Client</a> example in <code>examples/http-client</code>.
   </li>
 </ul>
 <h3>CMake changes</h3>
@@ -1320,8 +1327,8 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
     Wt now uses CMake's included FindOpenSSL, FindZLIB and FindPNG modules instead of its own.
   </li>
   <li>
-    <tt>WT_CPP17_ANY_IMPLEMENTATION</tt> is now set to <tt>any</tt> by default when <tt>CMAKE_CXX_STANDARD</tt> is set to
-    17 or higher, i.e. it defaults to <tt>std::any</tt>.
+    <code>WT_CPP17_ANY_IMPLEMENTATION</code> is now set to <code>any</code> by default when <code>CMAKE_CXX_STANDARD</code> is set to
+    17 or higher, i.e. it defaults to <code>std::any</code>.
   </li>
   <li>
     Removed the "vintage" method of finding Boost, because it has been obsolete for a long time already.
@@ -1330,10 +1337,10 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
     Fixed building with Boost 1.70 when using Boost's included package configuration files for CMake.
   </li>
   <li>
-    Made the <tt>wtwithqt</tt> example build with Qt 5 too, not just with Qt 4.
+    Made the <code>wtwithqt</code> example build with Qt 5 too, not just with Qt 4.
   </li>
   <li>
-    Made sure we can properly build <tt>wtdbomysql</tt> with a static MariaDB client library on Windows.
+    Made sure we can properly build <code>wtdbomysql</code> with a static MariaDB client library on Windows.
   </li>
 </ul>
 <h3>Auth</h3>
@@ -1342,7 +1349,7 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
     Added <a href="classWt_1_1Auth_1_1AuthService.html#aee229af97b12975d00e7448e486f9cb2">AuthService::setAuthTokenUpdateEnabled()</a>. Previously, when using the
     remember me functionality the auth token (remember me cookie) would be changed. When accessing the application from two tabs at the same time, however, or when
     refreshing quickly, this could cause the session to be logged out: the auth token has changed, but the client still uses the old one. This is still the default
-    behavior, but you can disable it by using <tt>setAuthTokenUpdateEnabled(false)</tt>.
+    behavior, but you can disable it by using <code>setAuthTokenUpdateEnabled(false)</code>.
   </li>
   <li>
     Fixed a use-after-free issue when <a href="classWt_1_1Auth_1_1Login.html#aafb1d791aeee8b59d28faeda88e8392b">Auth::Login::changed()</a> is connected to a slot that
@@ -1361,29 +1368,29 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
     and <a href="classWt_1_1Dbo_1_1Query.html#a1dd4a3461a4d99377dee24227325c63c">Query::rightJoin()</a>.
   </li>
   <li>
-    Added support for <tt>std::optional</tt> when using C++ &ge; 17.
+    Added support for <code>std::optional</code> when using C++ &ge; 17.
   </li>
   <li>
-    <tt>std::chrono::time_point</tt> and <tt>std::chrono::duration</tt> were treated as nullable, while they should be non-nullable, since they have
-    no reasonable "null" value. Use <tt>std::optional</tt> or <tt>boost::optional</tt> to make them nullable instead.
+    <code>std::chrono::time_point</code> and <code>std::chrono::duration</code> were treated as nullable, while they should be non-nullable, since they have
+    no reasonable "null" value. Use <code>std::optional</code> or <code>boost::optional</code> to make them nullable instead.
   </li>
   <li>
-    Fixed a query corruption bug when using <tt>UNION</tt>, <tt>INTERSECT</tt>, or <tt>EXCEPT</tt> (<a href="https://redmine.webtoolkit.eu/issues/7028" target="_blank">issue #7028</a>).
+    Fixed a query corruption bug when using <code>UNION</code>, <code>INTERSECT</code>, or <code>EXCEPT</code> (<a href="https://redmine.webtoolkit.eu/issues/7028" target="_blank">issue #7028</a>).
   </li>
   <li>
-    Fixed a crash when using <tt>Session::dropTables()</tt> while there is an active transaction, <a href="https://redmine.webtoolkit.eu/boards/2/topics/16123" target="_blank">as reported on the forum</a>.
+    Fixed a crash when using <code>Session::dropTables()</code> while there is an active transaction, <a href="https://redmine.webtoolkit.eu/boards/2/topics/16123" target="_blank">as reported on the forum</a>.
   </li>
   <li>
-    PostgreSQL uses <tt>?</tt> for some operators, but that is also the character we use for placeholders in prepared statements. If the literal <tt>?</tt> is meant instead of a placeholder, you can now use <tt>??</tt>. This is similar to how PostgreSQL's JDBC driver handles it.
+    PostgreSQL uses <code>?</code> for some operators, but that is also the character we use for placeholders in prepared statements. If the literal <code>?</code> is meant instead of a placeholder, you can now use <code>??</code>. This is similar to how PostgreSQL's JDBC driver handles it.
   </li>
 </ul>
 <h3>Miscellaneous features</h3>
 <ul>
   <li>
-    wthttp: <tt>--deploy-path</tt> is now prepended to <a href="classWt_1_1WServer.html#a84f84652ccb139850adcf5ea75f50fa5">entry points</a> and <a href="classWt_1_1WServer.html#a7b78b5e35d2dc3086faa54f82124cf38">static resources</a> when they don't start with a forward slash (<tt>/</tt>). Omitting the slash used to be an error.
+    wthttp: <code>--deploy-path</code> is now prepended to <a href="classWt_1_1WServer.html#a84f84652ccb139850adcf5ea75f50fa5">entry points</a> and <a href="classWt_1_1WServer.html#a7b78b5e35d2dc3086faa54f82124cf38">static resources</a> when they don't start with a forward slash (<code>/</code>). Omitting the slash used to be an error.
   </li>
   <li>
-    <a href="classWt_1_1Chart_1_1WCartesian3DChart.html">WCartesian3DChart</a>: added <a href="classWt_1_1Chart_1_1WCartesian3DChart.html#ac097e1922b519592a6b3732f3e8b8119">setAxis()</a>, allowing custom <tt>WAxis</tt> implementations e.g. axes with <a href="classWt_1_1Chart_1_1WAxis.html#a7a6e079a7a0b136f77dad65b2c1abcc1">custom labels and ticks</a>.
+    <a href="classWt_1_1Chart_1_1WCartesian3DChart.html">WCartesian3DChart</a>: added <a href="classWt_1_1Chart_1_1WCartesian3DChart.html#ac097e1922b519592a6b3732f3e8b8119">setAxis()</a>, allowing custom <code>WAxis</code> implementations e.g. axes with <a href="classWt_1_1Chart_1_1WAxis.html#a7a6e079a7a0b136f77dad65b2c1abcc1">custom labels and ticks</a>.
   </li>
   <li>
     Added <a href="classWt_1_1ItemDataRole.html#af593515a1cc8e972679cc00e362db4ce">ItemDataRole::MarkerType</a>, to change the <a href="group__charts.html#ga9f38f3460fb2575d5f4f1a1ac51a7db6">MarkerType</a> of individual data points on a <a href="classWt_1_1Chart_1_1WCartesianChart.html">2D chart</a>.
@@ -1395,12 +1402,12 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
         added <a href="classWt_1_1Http_1_1Client.html#a28336ba9677e6e3cc6c890f490f2965a">HEAD request</a> support
       </li>
       <li>
-        On Windows: uses Windows root certificates. It is no longer necessary to provide a <a href="classWt_1_1Http_1_1Client.html#a7c9fbf7fc9f671519b0652f3bbe38521">path</a> with certificates for validation (or worse, disable verification altogether) when using TLS to talk to a server that uses a certificate issued by a CA that is trusted by Windows. Now the <tt>Http::Client</tt> will generally just work with <tt>https</tt> sites on Windows, just like it did on Linux. This also fixes other parts of Wt that use <tt>Http::Client</tt>, like <a href="classWt_1_1Payment_1_1PayPalService.html">PayPalService</a> and <a href="classWt_1_1Auth_1_1OAuthService.html">OAuthService</a>.
+        On Windows: uses Windows root certificates. It is no longer necessary to provide a <a href="classWt_1_1Http_1_1Client.html#a7c9fbf7fc9f671519b0652f3bbe38521">path</a> with certificates for validation (or worse, disable verification altogether) when using TLS to talk to a server that uses a certificate issued by a CA that is trusted by Windows. Now the <code>Http::Client</code> will generally just work with <code>https</code> sites on Windows, just like it did on Linux. This also fixes other parts of Wt that use <code>Http::Client</code>, like <a href="classWt_1_1Payment_1_1PayPalService.html">PayPalService</a> and <a href="classWt_1_1Auth_1_1OAuthService.html">OAuthService</a>.
       </li>
     </ul>
   </li>
   <li>
-    <a href="classWt_1_1WWidget.html#a1f5151154770b4956b4870cb4ecc38d3">removeWidget()</a> and <a href="classWt_1_1WObject.html#a00f32a263b742f42b73a9353eaa3c7ca">removeChild()</a> now return a more concrete <tt>std::unique_ptr</tt>, for convenience. Also added a similar <a href="classWt_1_1WFitLayout.html#a071ea55ea16e71213b3bbd2f5f497932">WFitLayout::addWidget()</a>.
+    <a href="classWt_1_1WWidget.html#a1f5151154770b4956b4870cb4ecc38d3">removeWidget()</a> and <a href="classWt_1_1WObject.html#a00f32a263b742f42b73a9353eaa3c7ca">removeChild()</a> now return a more concrete <code>std::unique_ptr</code>, for convenience. Also added a similar <a href="classWt_1_1WFitLayout.html#a071ea55ea16e71213b3bbd2f5f497932">WFitLayout::addWidget()</a>.
   </li>
   <li>
     Wt's widget coordinate calculation code now uses <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect" target="_blank">getBoundingClientRect()</a>, which means that coordinate calculations are still accurate even when CSS transforms are used to position widgets. This was necessary for <a href="classWt_1_1WLeafletMap_1_1WidgetMarker.html">WidgetMarker</a> support.
@@ -1412,7 +1419,7 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
     Added <a href="classWt_1_1WResource.html#a6695dad28a25c7cbfef93c371e7c5a1e">WResource::setTakesUpdateLock()</a> as a way to make a (non-static) resource grab the <a href="classWt_1_1WApplication.html">WApplication</a>'s <a href="classWt_1_1WApplication_1_1UpdateLock.html">UpdateLock</a> before <a href="classWt_1_1WResource.html#a3a740f8cc29e2e6e4e58defc9c88b8b6">handleRequest()</a>.
   </li>
   <li>
-    Made it possible to set a <a href="classWt_1_1WTableView.html#afc65ef8675ae2d53300eaa511c1fad6b">preload margin</a> on <tt>WTableView</tt>. This
+    Made it possible to set a <a href="classWt_1_1WTableView.html#afc65ef8675ae2d53300eaa511c1fad6b">preload margin</a> on <code>WTableView</code>. This
     allows to customize how much of the table's contents should be loaded. Higher preload margin means fewer but larger updates of the table's contents
     when scrolling.
   </li>
@@ -1441,7 +1448,7 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
         <a href="https://redmine.webtoolkit.eu/issues/7034" target="_blank">#7034</a>).
       </li>
       <li>
-        WebSocket message size is now properly limited by <tt>--max-memory-request-size</tt>. Previously, this would only limit the size
+        WebSocket message size is now properly limited by <code>--max-memory-request-size</code>. Previously, this would only limit the size
         of individual frames, not the entire message.
       </li>
       <li>
@@ -1450,7 +1457,7 @@ Wt 4.2.0 introduces no major new features, but comes with some nice fixes and li
     </ul>
   </li>
   <li>
-    Fixed undefined <tt>ackId</tt> overflow behavior (which could very rarely cause a session to fail)
+    Fixed undefined <code>ackId</code> overflow behavior (which could very rarely cause a session to fail)
   </li>
   <li>
     <a href="classWt_1_1WContainerWidget.html#a60e57a8860785d6b587a36b616cb5e12">WContainerWidget::setLayout()</a> now properly clears any existing contents of the container.
@@ -1482,7 +1489,7 @@ have been updated:</p>
 <p>The <a href="classWt_1_1Auth_1_1UpdatePasswordWidget.html">UpdatePasswordWidget</a>,
 part of the authentication subsystem of Wt, would delete itself when done.
 This was harmless when it was inside of a <a href="classWt_1_1WDialog.html">WDialog</a>, but it's less practical when
-used elsewhere. We've changed the behavior of <tt>UpdatePasswordWidget</tt> to emit the
+used elsewhere. We've changed the behavior of <code>UpdatePasswordWidget</code> to emit the
 <a href="classWt_1_1Auth_1_1UpdatePasswordWidget.html#a6c6bedf0628488cbb09d44c6df441004">updated()</a> and
 <a href="classWt_1_1Auth_1_1UpdatePasswordWidget.html#a640d20893579fcc2642ac62f0a550b6a">canceled()</a>
 signals instead.</p>
@@ -1514,30 +1521,30 @@ allows for any amount of Y axes, and extends the interactive functionality to su
 <p>The following methods have been added:</p>
 
 <dl>
-  <dt><a href="classWt_1_1Chart_1_1WCartesianChart.html"><tt>WCartesianChart</tt></a></dt>
+  <dt><a href="classWt_1_1Chart_1_1WCartesianChart.html"><code>WCartesianChart</code></a></dt>
   <dd>
     <ul>
-      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a44f9ac7c63b7ccf0be2cc925c8159094"><tt>std::vector&lt;WAxis*&gt; yAxes()</tt></a></li>
-      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a457197f9f6a0215a260922a47dde9115"><tt>std::vector&lt;const WAxis*&gt; yAxes() const</tt></a></li>
-      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a3b0038712fce477634c39cdc736c2388"><tt>WAxis&amp; yAxis(int i)</tt></a></li>
-      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#ab301c3aed79917163a093ca102cc4563"><tt>const WAxis&amp; yAxis(int i) const</tt></a></li>
-      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#aa9d7bbc307118d222aca64deb76b60d5"><tt>int yAxisCount() const</tt></a></li>
-      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a0abfca1c61508d49f9c8b5e95e896b4b"><tt>int addYAxis(std::unique_ptr&lt;WAxis&gt; waxis)</tt></a></li>
-      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a8e884bd514607231e025b1c06aed6b8e"><tt>std::unique_ptr&lt;WAxis&gt; removeYAxis(int yAxisId)</tt></a></li>
-      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a34329c849eaa8761f730d027c9c47af9"><tt>void clearYAxes()</tt></a></li>
-      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a191d840f367d27f66612b8e68009f888"><tt>WPointF mapFromDevice(const WPointF &amp;point, int ordinateAxis) const</tt></a></li>
-      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#aad25e33c3a389c99ea63f606a30e2f65"><tt>WPointF mapToDevice(const Wt::cpp17::any &amp;xValue, const Wt::cpp17::any &amp;yValue, int yAxis, int xSegment = 0, int ySegment = 0) const</tt></a></li>
-      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a9f31ca5174b6127e49ad92c9da481adc"><tt>void setCrosshairYAxis(int yAxis)</tt></a></li>
-      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#abdac8c6bf3f39c524054645f8b063383"><tt>int crosshairYAxis() const</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a44f9ac7c63b7ccf0be2cc925c8159094"><code>std::vector&lt;WAxis*&gt; yAxes()</code></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a457197f9f6a0215a260922a47dde9115"><code>std::vector&lt;const WAxis*&gt; yAxes() const</code></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a3b0038712fce477634c39cdc736c2388"><code>WAxis&amp; yAxis(int i)</code></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#ab301c3aed79917163a093ca102cc4563"><code>const WAxis&amp; yAxis(int i) const</code></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#aa9d7bbc307118d222aca64deb76b60d5"><code>int yAxisCount() const</code></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a0abfca1c61508d49f9c8b5e95e896b4b"><code>int addYAxis(std::unique_ptr&lt;WAxis&gt; waxis)</code></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a8e884bd514607231e025b1c06aed6b8e"><code>std::unique_ptr&lt;WAxis&gt; removeYAxis(int yAxisId)</code></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a34329c849eaa8761f730d027c9c47af9"><code>void clearYAxes()</code></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a191d840f367d27f66612b8e68009f888"><code>WPointF mapFromDevice(const WPointF &amp;point, int ordinateAxis) const</code></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#aad25e33c3a389c99ea63f606a30e2f65"><code>WPointF mapToDevice(const Wt::cpp17::any &amp;xValue, const Wt::cpp17::any &amp;yValue, int yAxis, int xSegment = 0, int ySegment = 0) const</code></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a9f31ca5174b6127e49ad92c9da481adc"><code>void setCrosshairYAxis(int yAxis)</code></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#abdac8c6bf3f39c524054645f8b063383"><code>int crosshairYAxis() const</code></a></li>
     </ul>
-    <b>Small breaking change</b>: note that the virtual method <a href="classWt_1_1Chart_1_1WCartesianChart.html#a1813b0cfd8692b5b5720b5b9e7fa807b"><tt>prepareAxes</tt></a> has been modified to take a <a href="classWt_1_1WPaintDevice.html"><tt>WPaintDevice*</tt></a> argument. If your code overrides this method, be sure to add this argument to your overridden version.
+    <b>Small breaking change</b>: note that the virtual method <a href="classWt_1_1Chart_1_1WCartesianChart.html#a1813b0cfd8692b5b5720b5b9e7fa807b"><code>prepareAxes</code></a> has been modified to take a <a href="classWt_1_1WPaintDevice.html"><code>WPaintDevice*</code></a> argument. If your code overrides this method, be sure to add this argument to your overridden version.
   </dd>
-  <dt><a href="classWt_1_1Chart_1_1WDataSeries.html"><tt>WDataSeries</tt></a></dt>
+  <dt><a href="classWt_1_1Chart_1_1WDataSeries.html"><code>WDataSeries</code></a></dt>
   <dd>
     <ul>
-      <li><a href="classWt_1_1Chart_1_1WDataSeries.html#aafffe717e28c00afea645652a9b6a655"><tt>WDataSeries(int modelColumn, SeriesType seriesType, int yAxis)</tt></a></li>
-      <li><a href="classWt_1_1Chart_1_1WDataSeries.html#ae3abca77e796e8d0c1b1e5830ef80866"><tt>void bindToYAxis(int yAxis)</tt></a></li>
-      <li><a href="classWt_1_1Chart_1_1WDataSeries.html#a338558cb67b5114f7d9de07192a3c1a8"><tt>int yAxis() const</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WDataSeries.html#aafffe717e28c00afea645652a9b6a655"><code>WDataSeries(int modelColumn, SeriesType seriesType, int yAxis)</code></a></li>
+      <li><a href="classWt_1_1Chart_1_1WDataSeries.html#ae3abca77e796e8d0c1b1e5830ef80866"><code>void bindToYAxis(int yAxis)</code></a></li>
+      <li><a href="classWt_1_1Chart_1_1WDataSeries.html#a338558cb67b5114f7d9de07192a3c1a8"><code>int yAxis() const</code></a></li>
     </ul>
   </dd>
 </dl>
@@ -1546,25 +1553,25 @@ allows for any amount of Y axes, and extends the interactive functionality to su
 
 <h4>On-demand loading</h4>
 
-<p>We've added on-demand loading functionality to <a href="classWt_1_1Chart_1_1WCartesianChart.html"><tt>WCartesianChart</tt></a>. Enable on-demand loading when you have a lot of data and/or need the ability to zoom in very far. This will make it so that only the data for the visible X range is loaded, and will improve performance of data series with large amounts data. This becomes especially useful in combination with the ability to set a maximum zoom range, so that you can't zoom all the way out to see all data.</p>
+<p>We've added on-demand loading functionality to <a href="classWt_1_1Chart_1_1WCartesianChart.html"><code>WCartesianChart</code></a>. Enable on-demand loading when you have a lot of data and/or need the ability to zoom in very far. This will make it so that only the data for the visible X range is loaded, and will improve performance of data series with large amounts data. This becomes especially useful in combination with the ability to set a maximum zoom range, so that you can't zoom all the way out to see all data.</p>
 
 <p>The following methods have been added:</p>
 
 <dl>
-  <dt><a href="classWt_1_1Chart_1_1WCartesianChart.html"><tt>WCartesianChart</tt></a></dt>
+  <dt><a href="classWt_1_1Chart_1_1WCartesianChart.html"><code>WCartesianChart</code></a></dt>
   <dd>
     <ul>
-      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a97f7f38a9f751b0b41d67f4546cc32f9"><tt>void setOnDemandLoadingEnabled(bool enabled)</tt></a></li>
-      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a2380aeb17e103bae1f332fd4c56d6b2b"><tt>bool onDemandLoadingEnabled() const</tt></a></li>
-      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a9072e157f556bd8eea1eef14426d4f29"><tt>void setLoadingBackground(const WBrush &amp;brush)</tt></a></li>
-      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a3e33918e5cbee75d172ab820e71f69bc"><tt>const WBrush&amp; loadingBackground() const</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a97f7f38a9f751b0b41d67f4546cc32f9"><code>void setOnDemandLoadingEnabled(bool enabled)</code></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a2380aeb17e103bae1f332fd4c56d6b2b"><code>bool onDemandLoadingEnabled() const</code></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a9072e157f556bd8eea1eef14426d4f29"><code>void setLoadingBackground(const WBrush &amp;brush)</code></a></li>
+      <li><a href="classWt_1_1Chart_1_1WCartesianChart.html#a3e33918e5cbee75d172ab820e71f69bc"><code>const WBrush&amp; loadingBackground() const</code></a></li>
     </ul>
   </dd>
-  <dt><a href="classWt_1_1Chart_1_1WAxis.html"><tt>WAxis</tt></a></dt>
+  <dt><a href="classWt_1_1Chart_1_1WAxis.html"><code>WAxis</code></a></dt>
   <dd>
     <ul>
-      <li><a href="classWt_1_1Chart_1_1WAxis.html#ada743ccf44212cfb1f4a6fa83b79e581"><tt>void setMaximumZoomRange(double size)</tt></a></li>
-      <li><a href="classWt_1_1Chart_1_1WAxis.html#a10742d531e8141474ea707d3c4730386"><tt>double maximumZoomRange() const</tt></a></li>
+      <li><a href="classWt_1_1Chart_1_1WAxis.html#ada743ccf44212cfb1f4a6fa83b79e581"><code>void setMaximumZoomRange(double size)</code></a></li>
+      <li><a href="classWt_1_1Chart_1_1WAxis.html#a10742d531e8141474ea707d3c4730386"><code>double maximumZoomRange() const</code></a></li>
     </ul>
   </dd>
 </dl>
@@ -1573,18 +1580,18 @@ allows for any amount of Y axes, and extends the interactive functionality to su
 
 <h3>Path parameters</h3>
 
-<p>It's now possible to use variables in <a href="classWt_1_1WServer.html#a7b78b5e35d2dc3086faa54f82124cf38"><tt>WServer::addResource()</tt></a>, e.g. <tt>server.addResource(&amp;resource, &quot;/users/${user}&quot;)</tt>.</p>
+<p>It's now possible to use variables in <a href="classWt_1_1WServer.html#a7b78b5e35d2dc3086faa54f82124cf38"><code>WServer::addResource()</code></a>, e.g. <code>server.addResource(&amp;resource, &quot;/users/${user}&quot;)</code>.</p>
 
-<p>These parameters are then accessible in the <tt>WResource</tt>'s <tt>handleRequest()</tt> function through
-<a href="classWt_1_1Http_1_1Request.html#af6917bd5182e9a33f74e3e7191899495"><tt>Http::Request::urlParams()</tt></a>
-and <a href="classWt_1_1Http_1_1Request.html#a0100186e6bc33bd221e25799e2059f7d"><tt>Http::Request::urlParam(const std::string&amp;)</tt></a>.</p>
+<p>These parameters are then accessible in the <code>WResource</code>'s <code>handleRequest()</code> function through
+<a href="classWt_1_1Http_1_1Request.html#af6917bd5182e9a33f74e3e7191899495"><code>Http::Request::urlParams()</code></a>
+and <a href="classWt_1_1Http_1_1Request.html#a0100186e6bc33bd221e25799e2059f7d"><code>Http::Request::urlParam(const std::string&amp;)</code></a>.</p>
 
-<p>A feature example demonstrating this was added in <tt>examples/feature/urlparams</tt>.</p>
+<p>A feature example demonstrating this was added in <code>examples/feature/urlparams</code>.</p>
 
 <h3>Idle timeout</h3>
 
-<p>Added an <tt>&lt;idle-timeout&gt;</tt> option to the configuration (<tt>wt_config.xml</tt>). If set,
-<a href="classWt_1_1WApplication.html#a4e8020fca24d09661ee4bf13400354d9"><tt>WApplication::idleTimeout()</a></tt> will be triggered after the configured number of seconds.</p>
+<p>Added an <code>&lt;idle-timeout&gt;</code> option to the configuration (<code>wt_config.xml</code>). If set,
+<a href="classWt_1_1WApplication.html#a4e8020fca24d09661ee4bf13400354d9"><code>WApplication::idleTimeout()</code></a> will be triggered after the configured number of seconds.</p>
 
 <p>This is intended to prevent unauthorized people from using an active session from a
 device that's been abandoned by the user.</p>
@@ -1599,17 +1606,17 @@ compress uploads client side.
 
 <ul>
   <li>Added support for transparency in PDFs</li>
-  <li>Rudimentary support for drawing SVGs on HTML canvas with <tt>WPainter::drawImage</tt></li>
+  <li>Rudimentary support for drawing SVGs on HTML canvas with <code>WPainter::drawImage</code></li>
   <li>
-    <a href="classWt_1_1Dbo_1_1backend_1_1MySQL.html"><tt>Wt::Dbo::backend::MySQL</tt></a>:
+    <a href="classWt_1_1Dbo_1_1backend_1_1MySQL.html"><code>Wt::Dbo::backend::MySQL</code></a>:
     Fixed compatibility with MySQL Connector/C 8.0 and MariaDB Connector/C 3.0
   </li>
   <li>
-    Added <a href="classWt_1_1WEnvironment.html#ad2846f6fd581cd6c8c6933eff0e5fa73"><tt>WEnvironment::timeZoneName()</tt></a>
+    Added <a href="classWt_1_1WEnvironment.html#ad2846f6fd581cd6c8c6933eff0e5fa73"><code>WEnvironment::timeZoneName()</code></a>
   </li>
   <li>
-    Added <tt>insertTab</tt>, <tt>itemAt</tt> and <tt>currentItem</tt> to
-    <a href="classWt_1_1WTabWidget.html"><tt>WTabWidget</tt></a>
+    Added <code>insertTab</code>, <code>itemAt</code> and <code>currentItem</code> to
+    <a href="classWt_1_1WTabWidget.html"><code>WTabWidget</code></a>
   </li>
   <li>
     Disabled TLS v. 1.0 and 1.1 support
@@ -1652,30 +1659,33 @@ some functionality:</p>
 <p>This is a smaller release with mostly bugfixes, and some new features:</p>
 <dl>
   <dt>Added <a href="classWt_1_1WContainerWidget.html#acf75dda5024db05cf847c282f8a99117">WContainerWidget::addNew()</a> and similar methods</dt>
-  <dd>Because writing code like this:
-<div class="fragment">
-  <div class="line"><tt>auto text = root()-&gt;addWidget(std::make_unique&lt;Wt::WText&gt;("Hello!"));</tt></div>
-</div>
-  is a bit verbose, a shorthand was added that creates the widget and adds it to the container in one go:
-<div class="fragment">
-  <div class="line"><tt>auto text = root()-&gt;addNew&lt;Wt::WText&gt;("Hello!");</tt></div>
-</div>
-<tt>addNew</tt> forwards its arguments to the constructor, just like <tt>std::make_unique</tt>.
-Along those lines, we added <a href="classWt_1_1WContainerWidget.html#a5a7e7b9fe21bdc38f7a270193ed83243">WContainerWidget::insertNew()</a> and <a href="classWt_1_1WTemplate.html#a240f910cd1e3d5b7876aa20f6b33767c">WTemplate::bindNew()</a>.
+  <dd>
+    <p>Because writing code like this:</p>
+    <div class="fragment">
+      <div class="line">auto text = root()-&gt;addWidget(std::make_unique&lt;Wt::WText&gt;("Hello!"));</div>
+    </div>
+    <p>is a bit verbose, a shorthand was added that creates the widget and adds it to the container in one go:</p>
+    <div class="fragment">
+      <div class="line">auto text = root()-&gt;addNew&lt;Wt::WText&gt;("Hello!");</div>
+    </div>
+<p>
+  <code>addNew</code> forwards its arguments to the constructor, just like <code>std::make_unique</code>.
+  Along those lines, we added <a href="classWt_1_1WContainerWidget.html#a5a7e7b9fe21bdc38f7a270193ed83243">WContainerWidget::insertNew()</a> and <a href="classWt_1_1WTemplate.html#a240f910cd1e3d5b7876aa20f6b33767c">WTemplate::bindNew()</a>.
+</p>
   </dd>
-  <dt>Added the <tt>&lt;max-formdata-size&gt;</tt> configuration option</dt>
+  <dt>Added the <code>&lt;max-formdata-size&gt;</code> configuration option</dt>
   <dd>Previously, the maximum size of form data sent by Wt in a single POST request was capped to 5 MiB.
       In applications with a large amount of forms with a lot of data, that may not be enough,
-      so <tt>&lt;max-formdata-size&gt;</tt> can be used to adjust this independently. Note that
+      so <code>&lt;max-formdata-size&gt;</code> can be used to adjust this independently. Note that
       the maximum request size (and by consequence, the form data size) is still capped by
-      <tt>&lt;max-request-size&gt;</tt>.</dd>
+      <code>&lt;max-request-size&gt;</code>.</dd>
 </dl>
 
 <h2>Release 4.0.0 (September 19, 2017)</h2>
 <p>
   This release has all of the added features of Wt 3.3.8, but comes with many notable changes. In general,
   Wt 4 employs the more modern C++ style of C++11 and beyond. Support for compilers
-  without sufficient C++11 support is dropped competely. Wt 4 aligns more with the
+  without sufficient C++11 support is dropped completely. Wt 4 aligns more with the
   <a href="https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md">C++ Core Guidelines</a>
   in a pragmatic way, while keeping the API familiar.
 </p>
@@ -1689,75 +1699,83 @@ Along those lines, we added <a href="classWt_1_1WContainerWidget.html#a5a7e7b9fe
       It's based on ODBC and works with Microsoft's ODBC Driver
       for SQL Server. With unixODBC, Linux and macOS are also supported.</dd>
   <dt>Added support for listening on multiple interfaces and ports to wthttp</dt>
-  <dd>With the multivalued <tt>--http-listen</tt> and <tt>--https-listen</tt> options,
+  <dd>
+    <p>
+      With the multivalued <code>--http-listen</code> and <code>--https-listen</code> options,
       you can now listen on multiple interfaces and ports. For example, if you want to
       listen on port 8080 on all IPv4 and IPv6 interfaces, you can use:
-      <div class="fragment">
-	<div class="line"><tt>--http-listen 0.0.0.0:8080 --https-listen [0::0]:8080</tt></div>
-      </div>
-      <tt>--http-listen</tt> and <tt>--https-listen</tt> obsolete the
-      <tt>--http-address</tt>, <tt>--http-port</tt>, <tt>--https-address</tt>, and <tt>--https-port</tt>
-      options.</dd>
+    </p>
+    <div class="fragment">
+      <div class="line">--http-listen 0.0.0.0:8080 --https-listen [0::0]:8080</div>
+    </div>
+    <p>
+      <code>--http-listen</code> and <code>--https-listen</code> obsolete the
+      <code>--http-address</code>, <code>--http-port</code>, <code>--https-address</code>, and <code>--https-port</code>
+      options.
+    </p>
+  </dd>
 </dl>
 <h3>Changes in Wt's memory model</h3>
 <p>
 Like before, the parent widget (e.g. a <a href="classWt_1_1WContainerWidget.html">WContainerWidget</a>) owns
-its child widgets. This has not changed. Wt 4 makes ownership transfers more clear by using <tt>std::unique_ptr</tt>
+its child widgets. This has not changed. Wt 4 makes ownership transfers more clear by using <code>std::unique_ptr</code>
 There are no more owning raw pointers in Wt's public API.
 </p>
 <p>
-By consequence of using <tt>unique_ptr</tt>, constructors no longer take a <tt>parent</tt> argument. For
+By consequence of using <code>unique_ptr</code>, constructors no longer take a <code>parent</code> argument. For
 convenience, <a href="classWt_1_1WContainerWidget.html#a3341360fc6cc1e86c1a42a3a54d9e0c7">addWidget()</a>
 now returns a (non-owning) raw pointer. Instead of doing:
+</p>
 <div class="fragment">
-  <div class="line"><span class="comment"><tt>// parent is a Wt::WContainerWidget*</tt></span></div>
-  <div class="line"><tt>Wt::WPushButton *button = new Wt::WPushButton("Click me", parent); <span class="comment">// Wt 3: parent owns the button</span></tt></div>
+  <div class="line"><span class="comment">// parent is a Wt::WContainerWidget*</span></div>
+  <div class="line">Wt::WPushButton *button = new Wt::WPushButton("Click me", parent); <span class="comment">// Wt 3: parent owns the button</span></div>
 </div>
-or:
+<p>or:</p>
 <div class="fragment">
-  <div class="line"><tt>Wt::WPushButton *button = new Wt::WPushButton("Click me");</tt></div>
-  <div class="line"><tt>parent-&gt;addWidget(button); <span class="comment">// Wt 3: ownership is transferred to parent through addWidget</span></tt></div>
+  <div class="line">Wt::WPushButton *button = new Wt::WPushButton("Click me");</div>
+  <div class="line">parent-&gt;addWidget(button); <span class="comment">// Wt 3: ownership is transferred to parent through addWidget</span></div>
 </div>
-You can now do:
+<p>You can now do:</p>
 <div class="fragment">
-  <div class="line"><span class="comment"><tt>// Wt 4 (with C++14's std::make_unique)</tt></span></div>
-  <div class="line"><tt>Wt::WPushButton *button = parent-&gt;addWidget(std::make_unique&lt;Wt::WPushButton&gt;("Click me"));</tt></div>
+  <div class="line"><span class="comment">// Wt 4 (with C++14's std::make_unique)</span></div>
+  <div class="line">Wt::WPushButton *button = parent-&gt;addWidget(std::make_unique&lt;Wt::WPushButton&gt;("Click me"));</div>
 </div>
-<tt>Wt::cpp14::make_unique</tt> can be used instead of <tt>std::make_unique</tt> if C++14 support is unavailable.
+<p>
+  <code>Wt::cpp14::make_unique</code> can be used instead of <code>std::make_unique</code> if C++14 support is unavailable.
 </p>
 <p>
 Some classes were changed from the old single ownership
-model to shared ownership through <tt>std::shared_ptr</tt>, like models (<a href="classWt_1_1WAbstractItemModel.html">WAbstractItemModel</a>, <a href="classWt_1_1Chart_1_1WAbstractChartModel.html">WAbstractChartModel</a>, and derivates) and <a href="classWt_1_1WValidator.html">validators</a>.
+model to shared ownership through <code>std::shared_ptr</code>, like models (<a href="classWt_1_1WAbstractItemModel.html">WAbstractItemModel</a>, <a href="classWt_1_1Chart_1_1WAbstractChartModel.html">WAbstractChartModel</a>, and derivates) and <a href="classWt_1_1WValidator.html">validators</a>.
 </p>
 <p>
 <a href="classWt_1_1Core_1_1observing__ptr.html">Wt::Core::observing_ptr</a> was introduced. This pointer will
-be notified when the object it points to is deleted. <tt>observing_ptr</tt>s are intended to be used within the
+be notified when the object it points to is deleted. <code>observing_ptr</code>s are intended to be used within the
 scope of a <a href="classWt_1_1WApplication.html">WApplication</a> and are not thread safe. Every
 <a href="classWt_1_1WObject.html">WObject</a> (and by consequence, every <a href="classWt_1_1WWidget.html">widget</a>)
 is an <a href="classWt_1_1Core_1_1observing_ptr.html">observable</a>, so its lifetime can be observed with
-an <tt>observing_ptr</tt>. Their use is entirely optional, but they may be useful when the lifetime of an
+an <code>observing_ptr</code>. Their use is entirely optional, but they may be useful when the lifetime of an
 object is not always clear.
 </p>
 <h3>Header files now end in .h</h3>
 Wt 3 used extensionless headers. This confuses many editors and IDEs.
-For Wt 4, the <tt>.h</tt> extension was added, and using the old style headers is deprecated. You can use the
+For Wt 4, the <code>.h</code> extension was added, and using the old style headers is deprecated. You can use the
 Python script <a href="https://github.com/emweb/wt/blob/wt4/migrate/wt4_add_h_to_includes.py">migrate/wt4_add_h_to_includes.py</a> to help update your Wt includes.
 <h3>Enums replaced by enum classes</h3>
 Many enums were replaced with enum classes, and many have been moved from class scope to namespace scope, e.g.:
 <div class="fragment">
-  <div class="line"><tt>enum SelectionMode {</tt></div>
-  <div class="line"><tt>&nbsp;&nbsp;NoSelection = 0,</tt></div>
-  <div class="line"><tt>&nbsp;&nbsp;SingleSelection = 1,</tt></div>
-  <div class="line"><tt>&nbsp;&nbsp;ExtendedSelection = 3</tt></div>
-  <div class="line"><tt>};</tt></div>
+  <div class="line">enum SelectionMode {</div>
+  <div class="line">&nbsp;&nbsp;NoSelection = 0,</div>
+  <div class="line">&nbsp;&nbsp;SingleSelection = 1,</div>
+  <div class="line">&nbsp;&nbsp;ExtendedSelection = 3</div>
+  <div class="line">};</div>
 </div>
 became:
 <div class="fragment">
-  <div class="line"><tt>enum class SelectionMode {</tt></div>
-  <div class="line"><tt>&nbsp;&nbsp;None = 0,</tt></div>
-  <div class="line"><tt>&nbsp;&nbsp;Single = 1,</tt></div>
-  <div class="line"><tt>&nbsp;&nbsp;Extended = 3</tt></div>
-  <div class="line"><tt>};</tt></div>
+  <div class="line">enum class SelectionMode {</div>
+  <div class="line">&nbsp;&nbsp;None = 0,</div>
+  <div class="line">&nbsp;&nbsp;Single = 1,</div>
+  <div class="line">&nbsp;&nbsp;Extended = 3</div>
+  <div class="line">};</div>
 </div>
 Some enums were preserved in places were the added verbosity
 was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91ca564">Wt::Dbo::RelationType</a> enum.
@@ -1768,7 +1786,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
     <dl>
       <dt>Choice between Boost.Asio and standalone Asio</dt>
       <dd>
-        The CMake option <tt>WT_ASIO_IMPLEMENTATION</tt> allows to choose between <tt>boost</tt> and <tt>standalone</tt>
+        The CMake option <code>WT_ASIO_IMPLEMENTATION</code> allows to choose between <code>boost</code> and <code>standalone</code>
 	Asio.</dd>
       <dt>Removal of Boost usage in Wt headers</dt>
       <dd>
@@ -1778,9 +1796,9 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
 	If you want to use Boost, you'll have to provide your own. You can find prebuilt Boost binaries for Windows
 	<a href="https://sourceforge.net/projects/boost/files/boost-binaries/">here</a>.
       </dd>
-      <dt>Boost.Date_Time was replaced with Howard Hinnant's <tt>std::chrono</tt>-based date implementation</dt>
+      <dt>Boost.Date_Time was replaced with Howard Hinnant's <code>std::chrono</code>-based date implementation</dt>
       <dd>
-      The author of the <tt>std::chrono</tt> standard has created a
+      The author of the <code>std::chrono</code> standard has created a
       <a href="https://github.com/HowardHinnant/date">library for dates and time zones</a>.
 	This library is proposed for inclusion into the C++ standard in the future. For now, Wt includes
 	this date and time zone library (at this moment, this is version 2.2). This is used for all time-related
@@ -1789,17 +1807,17 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
 	and <a href="classWt_1_1WLocalDateTime.html">WLocalDateTime</a>.
       </dd>
       <dt>
-        Boost.Any replaced by <tt>Wt::cpp17::any</tt>
+        Boost.Any replaced by <code>Wt::cpp17::any</code>
       </dt>
       <dd>
         <a href="classWt_1_1WStandardItemModel.html">WStandardItemModel</a> relied heavily on
-	<tt>boost::any</tt>. This was replaced with <tt>Wt::cpp17::any</tt>. You can choose the
-	implementation of <tt>any</tt> to use with the CMake option <tt>WT_CPP17_ANY_IMPLEMENTATION</tt>.
+	<code>boost::any</code>. This was replaced with <code>Wt::cpp17::any</code>. You can choose the
+	implementation of <code>any</code> to use with the CMake option <code>WT_CPP17_ANY_IMPLEMENTATION</code>.
 	Valid options are:
 	<ul>
 	  <li><a href="https://github.com/thelink2012/any">thelink2012</a>: this is the default implementation, included in Wt</li>
-	  <li><tt>experimental</tt> for <tt>std::experimental::any</tt></li>
-	  <li><tt>std</tt> for C++17's <tt>std::any</tt></li>
+	  <li><code>experimental</code> for <code>std::experimental::any</code></li>
+	  <li><code>std</code> for C++17's <code>std::any</code></li>
 	</ul>
       </dd>
       <dt>Boost.Signals2 replaced with own implementation</dt>
@@ -1809,23 +1827,25 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
 	  have been created. Wt 4's implementation, based on
 	  <a href="https://testbit.eu/cpp11-signal-system-performance/">this blog post</a>, offers better performance
 	  and more understandable stack traces. It's now no longer necessary to
-	  use <tt>std::bind</tt> with lambda functions, e.g.:
-	  <div class="fragment"><div class="line"><tt>button-&gt;clicked().connect(std::bind([]{ std::cout &lt;&lt; "Clicked!" &lt;&lt; std::endl; })); <span class="comment">// Wt 3</span></tt></div></div>
+	  use <code>std::bind</code> with lambda functions, e.g.:
+        </p>
+	<div class="fragment"><div class="line">button-&gt;clicked().connect(std::bind([]{ std::cout &lt;&lt; "Clicked!" &lt;&lt; std::endl; })); <span class="comment">// Wt 3</span></div></div>
+        <p>
 	  can be changed to:
-	  <div class="fragment"><div class="line"><tt>button-&gt;clicked().connect([]{ std::cout &lt;&lt; "Clicked!" &lt;&lt; std::endl; }); <span class="comment">// Wt 4</span></tt></div></div>
-	</p>
+        </p>
+	<div class="fragment"><div class="line">button-&gt;clicked().connect([]{ std::cout &lt;&lt; "Clicked!" &lt;&lt; std::endl; }); <span class="comment">// Wt 4</span></div></div>
 	<p>
-	  Boost.Signals2, together with <tt>boost::bind</tt>, allowed you to automatically disconnect slots
+	  Boost.Signals2, together with <code>boost::bind</code>, allowed you to automatically disconnect slots
 	  when one of their bound arguments was deleted, if the argument was a derived class of
-	  <tt>boost::signals2::trackable</tt>. In Wt 4, this is no longer the case. Instead, you
+	  <code>boost::signals2::trackable</code>. In Wt 4, this is no longer the case. Instead, you
 	  can provide a target <a class="classWt_1_1WObject.html">WObject</a> as the first argument to
-	  the connect function, and Wt will disconnect the slot when the target <tt>WObject</tt> is deleted.
+	  the connect function, and Wt will disconnect the slot when the target <code>WObject</code> is deleted.
 	</p>
 	<p>
-	  <tt>WApplication::bind</tt> has been removed, and instead
+	  <code>WApplication::bind</code> has been removed, and instead
 	  <a href="classWt_1_1Core_1_1observable.html#a8ef9ce1dc22e3bae13e198b27e6b64cc">observable::bindSafe</a>
-	  was introduced. <tt>bindSafe</tt> will guard the <tt>observable</tt>, returning a function
-	  object that doesn't do anything if the <tt>observable</tt> has been deleted.
+	  was introduced. <code>bindSafe</code> will guard the <code>observable</code>, returning a function
+	  object that doesn't do anything if the <code>observable</code> has been deleted.
 	</p>
       </dd>
       <dt>Other Boost libraries obsoleted by C++11</dt>
@@ -1839,14 +1859,14 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
 	<a href="classWt_1_1ItemDataRole.html">ItemDataRole</a> is now a class instead of an enum.
       </li>
       <li>
-	Wt 4 assumes that <tt>std::string</tt> is UTF-8 encoded by default, so
+	Wt 4 assumes that <code>std::string</code> is UTF-8 encoded by default, so
 	<a href="classWt_1_1WString.html#a64d17e31e557208ab8d8ea765c1e52b8">WString(std::string)</a>
 	will assume that the argument is UTF-8 encoded. Overloads for new C++11 string types
-	(<tt>std::u16string</tt>, <tt>std::u32string</tt>) have been added.
+	(<code>std::u16string</code>, <code>std::u32string</code>) have been added.
       </li>
       <li>
-	Intervals and other durations previously indicated by <tt>int</tt>s have been replaced by
-	<tt>std::chrono::duration</tt>s, e.g. in 
+	Intervals and other durations previously indicated by <code>int</code>s have been replaced by
+	<code>std::chrono::duration</code>s, e.g. in
 	<a href="classWt_1_1WIOService.html#a5e445e207ee36f75cea4ba7ae321d7dc">WIOService::schedule()</a> or
 	<a href="classWt_1_1Http_1_1Client.html#a84856aabdef30b9e91bb3c4d30b9ecd1">Wt::Http::Client::setTimeout()</a>.
       </li>
@@ -1858,8 +1878,8 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
 	to set a preferred implementation.
       </li>
       <li>
-        <a href="classWt_1_1WObject.html#a64ce31cadb378c4eba81224f43bf493d">setObjectName()</a> no longer affects the <tt>id</tt> of a widget. Instead, it is
-        placed into an extra attribute called <tt>data-object-name</tt>. <tt>selenium/wtLocators.js</tt>
+        <a href="classWt_1_1WObject.html#a64ce31cadb378c4eba81224f43bf493d">setObjectName()</a> no longer affects the <code>id</code> of a widget. Instead, it is
+        placed into an extra attribute called <code>data-object-name</code>. <code>selenium/wtLocators.js</code>
         has been updated to reflect this change.
       </li>
     </ul>
@@ -1867,10 +1887,10 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
     <ul>
       <li>
 	Everything that was marked as deprecated in Wt 3.3.7 has been removed,
-	including <tt>Wt::Ext</tt>.
+	including <code>Wt::Ext</code>.
       </li>
       <li>
-	<tt>WScrollArea</tt> was removed, use CSS or
+	<code>WScrollArea</code> was removed, use CSS or
 	<a href="classWt_1_1WContainerWidget.html#af3d9510f569deed060689aa509ecc831">WContainerWidget::setOverflow()</a> instead.
       </li>
     </ul>
@@ -1915,9 +1935,9 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
        of <a href="structWt_1_1Dbo_1_1sql_value_traits.html">sql_value_traits</a> for
        <a href="classWt_1_1Json_1_1Object.html">Wt::Json::Object</a> and
        <a href="classWt_1_1Json_1_1Array.html">Wt::Json::Array</a> in
-       <tt>Wt/Dbo/WtSqlTraits</tt>. This allows you to store <tt>Wt::Json</tt> Objects and Arrays
+       <code>Wt/Dbo/WtSqlTraits</code>. This allows you to store <code>Wt::Json</code> Objects and Arrays
        just like you any other field.</p>
-    <p>Additionally, we've made the <tt>Wt::Json</tt> API a bit more friendly, by adding support
+    <p>Additionally, we've made the <code>Wt::Json</code> API a bit more friendly, by adding support
     for initializer lists (when using C++11), and implicit constructors for
     <a href="classWt_1_1Json_1_1Value.html">Wt::Json::Value</a>
     from 
@@ -1925,15 +1945,15 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
     <a href="classWt_1_1Json_1_1Array.html">Wt::Json::Array</a>.</p>
   </dd>
   <dt>
-    Added <tt>&lt;allowed-origins&gt;</tt> configuration option for CORS
+    Added <code>&lt;allowed-origins&gt;</code> configuration option for CORS
   </dt>
   <dd>
     Wt used to allow almost any origin, to allow Wt applications to be embedded in any page using
     WidgetSet mode. Although Wt encodes session IDs in URLs rather than cookies by default, this
     could still pose a security risk in some cases. In Wt 3.3.8, CORS support has been updated:
     Wt now only allows cross-origin resource sharing for WidgetSet entry points, and trusts no
-    origin by default. You can specify the allowed origins using the <tt>&lt;allowed-origins&gt;</tt>
-    tag in the configuration file. Using <tt>&lt;allowed-origins&gt;*&lt;/allowed-origins&gt;</tt> 
+    origin by default. You can specify the allowed origins using the <code>&lt;allowed-origins&gt;</code>
+    tag in the configuration file. Using <code>&lt;allowed-origins&gt;*&lt;/allowed-origins&gt;</code>
     restores the old behaviour.
   </dd>
   <dt>
@@ -1941,13 +1961,13 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
   </dt>
   <dd>
     <ul>
-      <li>Any <tt>boost::asio::io_service</tt> can now be used with <a href="classWt_1_1Http_1_1Client.html">Wt::Http::Client</a>,
+      <li>Any <code>boost::asio::io_service</code> can now be used with <a href="classWt_1_1Http_1_1Client.html">Wt::Http::Client</a>,
 	  instead of just <a href="classWt_1_1WIOService.html">Wt::WIOService</a>.</li>
-      <li>Added support for <tt>PATCH</tt> requests in <a href="classWt_1_1WResource.html">WResource</a> and
+      <li>Added support for <code>PATCH</code> requests in <a href="classWt_1_1WResource.html">WResource</a> and
 	<a href="classWt_1_1Http_1_1Client.html">Wt::Http::Client</a>,
-	next to <tt>GET</tt>, <tt>POST</tt>, <tt>PUT</tt>, and <tt>DELETE</tt>.
-      <li>wthttp connector: added support for forward secrecy with the <tt>--ssl-prefer-server-ciphers</tt> option.</li>
-      <li>Added the <tt>num-session-threads</tt> configuration parameter, to set the amount of threads per session when
+	next to <code>GET</code>, <code>POST</code>, <code>PUT</code>, and <code>DELETE</code>.
+      <li>wthttp connector: added support for forward secrecy with the <code>--ssl-prefer-server-ciphers</code> option.</li>
+      <li>Added the <code>num-session-threads</code> configuration parameter, to set the amount of threads per session when
 	  using dedicated process mode. By default, the main process and the session threads use the same amount of threads.</li>
       <li>The <a href="https://github.com/emweb/wt/tree/master/examples/te-benchmark">te-benchmark</a>
 	  example was added, implementing the TechEmpower framework benchmarks.
@@ -1955,7 +1975,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
           RESTful services is planned in a future release.</li>
       <li>Added <a href="classWt_1_1Dbo_1_1FixedSqlConnectionPool.html#a955e2ce03d8d45e8738f6ff718614601">Wt::Dbo::FixedSqlConnectionPool::setTimeout()</a>, to set a timeout for obtaining a connection.</li>
       <li>Added <a href="classWt_1_1Dbo_1_1backend_1_1Postgres.html#acb13461474cc43bc9e8a51b844a051f3">Wt::Dbo::backend::Postgres::setTimeout()</a>, to set a timeout for queries.</li>
-      <li>Added libunwind support for printing stacktraces. Enable this with the <tt>ENABLE_UNWIND</tt> CMake option.</li>
+      <li>Added libunwind support for printing stacktraces. Enable this with the <code>ENABLE_UNWIND</code> CMake option.</li>
     </ul>
   </dd>
 </dl>
@@ -2076,7 +2096,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
   </dt>
   <dd>
     The Skia backend for <a href="classWt_1_1WRasterImage.html">WRasterImage</a> is now compatible with more recent versions of Skia. If you need
-    to support an older version of Skia, use <tt>-DWT_SKIA_OLD=ON</tt>. The Skia version of the Windows builds
+    to support an older version of Skia, use <code>-DWT_SKIA_OLD=ON</code>. The Skia version of the Windows builds
     has been updated from 394c7bb to 834d9e1.
   </dd>
   <dt>
@@ -2091,10 +2111,10 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
       relationships, you'll have to change it to include a &ldquo;&gt;&rdquo; before it in order to keep the same database schema.
       </li>
       <li>
-	The <tt>size</tt> argument of <a href="group__dbo.html#gac089020eff000d9e2c4ef72cf715bd21">belongsTo()</a> has been
+	The <code>size</code> argument of <a href="group__dbo.html#gac089020eff000d9e2c4ef72cf715bd21">belongsTo()</a> has been
 	removed, since it served no actual purpose.
       </li>
-    </li>
+    </ul>
   </dd>
   <dt>
     Scroll position
@@ -2218,11 +2238,11 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
   </dd>
 
   <dt> <a href="classWt_1_1WAnchor.html">WAnchor</a> target (such as this window, or new window) moved to <a href="classWt_1_1WLink.html#afda591cd277562d5c8ea723733290790">WLink</a></dt>
-  <dd>As WLink is used in several places (including for example inside item data models), the target can now be specified in more places in the same consisten way. However, since until now a WAnchor was the owner of the TargetType, this may break existing code which calls WAnchor::setTarget() before WAnchor::setLink(), as the latter overrides the target.
+  <dd>As WLink is used in several places (including for example inside item data models), the target can now be specified in more places in the same consistent way. However, since until now a WAnchor was the owner of the TargetType, this may break existing code which calls WAnchor::setTarget() before WAnchor::setLink(), as the latter overrides the target.
   </dd>
 
   <dt>A new <a href="namespaceWt.html#a6c93a6e97016801a310275457e43f333">TargetDownload</a> target was added for links.</dt>
-  <dd>Until now it was recommended to use TargetNewWindow as otherwise this would interfere with the rendering of the current page (since browsers are unaware of the content-type and content-disposition of the target link until after it unloaded the current page. The new TargetDownload option is implemented using the new HTML5 download attribute or, if not supported, by targetting a hidden iFrame contained in the page.
+  <dd>Until now it was recommended to use TargetNewWindow as otherwise this would interfere with the rendering of the current page (since browsers are unaware of the content-type and content-disposition of the target link until after it unloaded the current page. The new TargetDownload option is implemented using the new HTML5 download attribute or, if not supported, by targeting a hidden iFrame contained in the page.
   </dd>
 
   <dt>The included SQLite version was updated</dt>
@@ -2296,7 +2316,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
   </dt>
   <dd>
     Until now, you were responsible for configuring the padding around
-    the chart area to accomodate for axis labels, titles, and
+    the chart area to accommodate for axis labels, titles, and
     legend. While this is still the default behaviour, we added an
     option to let the chart derive the required padding (using
     approximate font-metrics available server-side).
@@ -2308,7 +2328,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
   </dt>
   <dd>
     Whereas previously a chart axis was a "value class", it is now a
-    proper polyymorphic class, and you can provide your own
+    proper polymorphic class, and you can provide your own
     implementation. In this way you can customize things like for
     example label strings.
   </dd>  
@@ -2423,7 +2443,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
     </dt>
   <dd>
     Support for bootstrap version 3 was added, so now you have the
-    choice between botstrap version 2 or 3. Needless to say, you
+    choice between bootstrap version 2 or 3. Needless to say, you
     should probably target version 3 for new development work if you
     can live with its restricted browser support.
   </dd>
@@ -2566,7 +2586,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
   <dd>
     We've added a CSS style sheet parser which will parse and apply
     style rules in &lt;style&gt; blocks (or loaded through the API),
-    and expanded CSS support to much improvemed table rendering
+    and expanded CSS support to improve table rendering
     (including border-collapse border model and repeated table
     headers), relative/absolute positioning, and page-break-before/after
     support.
@@ -2644,7 +2664,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
 <h2>Release 3.3.0 (April, 8 2013)</h2>
 
 <p>
- This release focusses on a reorganization of Wt's theme
+ This release focuses on a reorganization of Wt's theme
  infrastructure, with the objective of
  supporting <a href="http://twitter.github.com/bootstrap/">Twitter's
  Bootstrap CSS framework</a> as a new theme. At the same time we've
@@ -2659,7 +2679,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
  without too much trouble, although you may need to adapt some CSS
  stylesheets as we did reorganize a number of things which were
  required for Bootstrap and were a good idea for our own CSS
- stlesheets too.</p>
+ stylesheets too.</p>
 
 <h3>A) New classes:</h3>
 
@@ -2714,7 +2734,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
   </dt>
   <dd>
     A base class to simplify the creation of popup widgets that
-    typically assist in editing or provide circumstancial information
+    typically assist in editing or provide circumstantial information
     for another widget.
   </dd>
 
@@ -2898,7 +2918,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
   <dd>
     The popup menu item class has been merged with WMenuItem (and
     WPopupMenu is now a specialized WMenu). This should not have
-    noticable API changes, except for the changes in markup and CSS
+    noticeable API changes, except for the changes in markup and CSS
     documented above.
   </dd>
   
@@ -3023,8 +3043,8 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
 
     <p> The old behaviour is still available as PseudoISO8601AsText,
     which can be configured using
-    <tt>connection.setDateTimeStorage(Wt::Dbo::SqlDateTime,
-    Wt::Dbo::backend::Sqlite3::PseudoISO8601AsText)</tt>
+    <code>connection.setDateTimeStorage(Wt::Dbo::SqlDateTime,
+    Wt::Dbo::backend::Sqlite3::PseudoISO8601AsText)</code>
     </p>
   </dd>
 </dl>
@@ -3073,8 +3093,8 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
   </dt>
   <dd>
     <p>
-    The layout managers have been reimplement, to address various
-    issues with the old implementation, including API (in particular the wonked
+    The layout managers have been reimplemented, to address various
+    issues with the old implementation, including API (in particular the wonky
     side-effects of AlignTop | AlignJustify) inconsistencies and bugs.
     </p>
 
@@ -3171,7 +3191,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
       <p>An alignment specified in
       <a href="classWt_1_1WBoxLayout.html#a7c1ec58e25d0b7add93f5f4342844db6">W(Box/Grid)Layout::addWidget(widget, stretch, alignment)</a> now
       purely affects the alignment but has no other side effects. The
-      perferred and minimum sizes of a child widget or layout is now
+      preferred and minimum sizes of a child widget or layout is now
       always taken into account.</p>
       </li>
       <li><p>Child item sizes</p>
@@ -3188,7 +3208,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
       A layout in the first page of an application rendered using
       progressive bootstrap will no longer fully upgrade to a full
       JavaScript version, but will result in a hybrid (between
-      table-based and JavaScript-based). If it doesn't work out as you'ld
+      table-based and JavaScript-based). If it doesn't work out as you'd
       expect, then you should reconsider the use of progressive bootstrap,
       or the use of a layout manager in your first page.
       </li>
@@ -3295,7 +3315,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
     now automatically commit(), unless the transaction is being
     destroyed (goes out of scope) because an exception is being
     thrown, in which case the transaction will rollback(). Previously,
-    an uncomitted transaction would always rollback() on destruction.
+    an uncommitted transaction would always rollback() on destruction.
   </dd>
 
   <dt>
@@ -3323,7 +3343,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
     <a href="classWt_1_1WTextEdit.html">WTextEdit</a>
   </dt>
   <dd>
-    Due to backwards incompatiblity of IE9, we now require the latest
+    Due to backwards incompatibility of IE9, we now require the latest
     version of TinyMCE (3.5b1 or later).
   </dd>
 
@@ -3397,7 +3417,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
   <dd>
     <div>This namespace contains model and view classes for
       authentication. It implements password authentication using best
-      practices, email verifiation, remember-me tokens, and provisions
+      practices, email verification, remember-me tokens, and provisions
       support for federated login with an implementation of OAuth 2.0
       for authentication using third party identity providers.</div>
 
@@ -3483,7 +3503,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
   </dt>
   <dd>
     Added a setHeaderWordWrap() method which configures header text
-    word wrapping, and changed setHeaderAlignemnt() so that it now
+    word wrapping, and changed setHeaderAlignment() so that it now
     allows to change both the horizontal and vertical alignment. This
     replaces the previously interwoven API for both features using the
     multiLine parameter in setHeaderHeight(), which has been
@@ -3503,7 +3523,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
     handle this synchronously in the user-interface (i.e. blocking the
     interface until the operation completes). While this is not a good
     idea in general, it may be useful if you can guarantee that the
-    event will arrive within an acceptible time (e.g. 1 second). This
+    event will arrive within an acceptable time (e.g. 1 second). This
     effectively stalls the response to the current request, but avoids
     blocking threads in the process.
   </dd>
@@ -3543,7 +3563,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
     <div>
       But we've also improved our logger so that it now can be
       configured to filter only certain information, based on type and
-      scope. This is mostly useful for debuggin and development of Wt
+      scope. This is mostly useful for debugging and development of Wt
       itself, since it allows us to switch on debugging output, in a
       fine-grained way, in a debug build.
     </div>
@@ -3672,7 +3692,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
     This class has moved to a pseudo-connector library
     (libwttest). This was needed to be able to use asynchronous I/O
     (such as Http::Client) in test cases, which rely on a WIOService
-    fournished by a WServer instance.
+    furnished by a WServer instance.
   </dd>
 </dl>
 
@@ -3698,7 +3718,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
     a URL, a resource, or an internal path. We've updated the API
     throughout to replace the function overloads for these different
     cases with a single usage of WLink, simplifying the API (but don't
-    worry, we left the old methods, albeit depricated).
+    worry, we left the old methods, albeit deprecated).
   </dd>
   <dt>
     <a href="classWt_1_1WMediaPlayer.html">WMediaPlayer</a>
@@ -3706,7 +3726,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
   <dd>
     A media player has been added which provides a unified framework
     for playing audio and video, and which deals with cross-browser
-    issues (chosing a suitable implementation per browser). We've also
+    issues (choosing a suitable implementation per browser). We've also
     renamed WHTML5Audio, WHTML5Video, and WHTML5Media to WAudio,
     WVideo and WAbstractMedia respectively (since well, everything
     will eventually be HTML5, no ?).
@@ -3900,17 +3920,17 @@ deprecated:
     you can (but only using the built-in httpd) instantiate multiple
     servers side by side in the same process, which may server the
     same or different web applications over different ports. A feature
-    example (<tt>multiple_servers</tt>) shows how that works.
+    example (<code>multiple_servers</code>) shows how that works.
   </dd>
 
   <dt>
-    Internal path encoding in WTemplate and WText</a>
+    Internal path encoding in WTemplate and WText
   </dt>
   <dd>
     <div>
       The
       new <a href="classWt_1_1WTemplate.html#aeee888e560c519ac0e33bfc1ebb315e2">setInternalPathEncoding()</a>
-      method will, if needed, enable reencoding of &lt;a&gt; anchors
+      method will, if needed, enable re-encoding of &lt;a&gt; anchors
       which reference internal paths consistent with how in the
       current session internal paths need to be dealt with (which
       depends on whether the browser supports Ajax and HTML5 History).
@@ -4011,7 +4031,7 @@ deprecated:
 
 </dl>
 
-<h3>C) Non-backwwards compatible changes</h3>
+<h3>C) Non-backwards compatible changes</h3>
 
 <dl>
   <dt>The signature of the virtual method WWidget::setHidden() has changed.</dt>
@@ -4098,7 +4118,7 @@ deprecated:
   <dd>
     Implementation of setRowHeaderCount() which fixes the number of
     columns that are used as row headers and remain fixed while
-    scrolling horiziontally through the table. This replaces the now
+    scrolling horizontally through the table. This replaces the now
     deprecated setColumn1Fixed() API.
   </dd>
 
@@ -4164,18 +4184,18 @@ deprecated:
 
 </dl>
 
-<h3>C) Non-backwwards compatible changes</h3>
+<h3>C) Non-backwards compatible changes</h3>
 
 <dl>
-  <dt>Changed i18n keys for <tt>Wt.WDate.Mon-Sun</tt>
-  and <tt>Wt.Date.Jan-Dec</tt></dt>
+  <dt>Changed i18n keys for <code>Wt.WDate.Mon-Sun</code>
+  and <code>Wt.Date.Jan-Dec</code></dt>
   <dd>
     We were pointed out the fact that the built-in i18n keys for WDate
     month names had a collision for the month 'May', which had the
     same key for the abbreviated 3-letter variant as the full length
     variant. Therefore in this release we reformatted the abbreviated
-    3-letter variant keys to <tt>Wt.WDate.3.Mon-Sun</tt>
-    and <tt>Wt.WDate.3.Jan-Dec</tt>. You will need to update your own
+    3-letter variant keys to <code>Wt.WDate.3.Mon-Sun</code>
+    and <code>Wt.WDate.3.Jan-Dec</code>. You will need to update your own
     languages copies of these (or better, contribute them and we'll
     maintain them for you!).
   </dd>
@@ -4323,7 +4343,7 @@ applications on these devices.</p>
     <a href="structWt_1_1Dbo_1_1sql__value__traits.html">Dbo::sql_value_traits&lt;bool&gt;, Dbo::sql_value_traits&lt;long&gt;</a>
   </dt>
   <dd>
-    Added mappings for C++ <tt>bool</tt> and <tt>long</tt> types.
+    Added mappings for C++ <code>bool</code> and <code>long</code> types.
   </dd>
 
 </dl>
@@ -4512,7 +4532,7 @@ applications on these devices.</p>
   </dt>
   <dd>Rather then waiting for the session to expire, an application
     that is navigated away iis now notified of this and will by
-    default <tt>quit()</tt>.</dd>
+    default <code>quit()</code>.</dd>
   <dt>
     <a href="classWt_1_1WApplication.html#a149412d829d104621c445bc10604be53">WApplication::addMetaHeader()</a>
   </dt>
@@ -4549,8 +4569,8 @@ applications on these devices.</p>
 
   <dt><a href="classWt_1_1WLineEdit.html">WLineEdit</a>, <a href="classWt_1_1WTextArea.html">WTextArea</a></dt>
   <dd>
-    Added <tt>currentPosition()</tt>, <tt>selectionStart()</tt>,
-    <tt>selectedText()</tt>, and <tt>hasSelectedText()</tt> methods to retrieve
+    Added <code>currentPosition()</code>, <code>selectionStart()</code>,
+    <code>selectedText()</code>, and <code>hasSelectedText()</code> methods to retrieve
     the current cursor position and selection.
   </dd>
 
@@ -4558,7 +4578,7 @@ applications on these devices.</p>
   <dd>
     Utility method to create an anchor that looks like a button, or a
     button that behaves like an anchor, depending on your point of
-    view. There is also <tt>setResource()</tt> to set a resource as
+    view. There is also <code>setResource()</code> to set a resource as
     target.
   </dd>
   <dt>
@@ -4576,8 +4596,8 @@ applications on these devices.</p>
   <dt>
     <a href="classWt_1_1Http_1_1Response.html">Http::Response</a>
   </dt>
-  <dd>Added <tt>setContentLength()</tt> which allows you to specify the
-    lenght of the response in advance, proving a better user experience
+  <dd>Added <code>setContentLength()</code> which allows you to specify the
+    length of the response in advance, proving a better user experience
     for large downloads.
   </dd>
   <dt>
@@ -4591,7 +4611,7 @@ applications on these devices.</p>
     <a href="classWt_1_1Dbo_1_1QueryModel.html">Dbo::QueryModel</a>
   </dt>
   <dd>Added support for custom column header names and changing the
-    undelrying query using setQuery() while preserving the current
+    underlying query using setQuery() while preserving the current
     column definitions.</dd>
   <dt>
     <a href="classWt_1_1Dbo_1_1SqlStatement.html">Dbo::SqlStatement</a>
@@ -4620,8 +4640,8 @@ applications on these devices.</p>
     manager used would automatically slowdown every event because it would try
     to relayout each time. This is no longer the case.</dd>
   <dt><a href="classWt_1_1WSocketNotifier.html">WSocketNotifier</a></dt>
-  <dd>The socket notifier has been resurrected (it was in an perpetual state
-    of brokeness) and now works reliably across targets.</dd>
+  <dd>The socket notifier has been resurrected (it was in a perpetual state
+    of brokenness) and now works reliably across targets.</dd>
 </dl>
 
 <h3>B) Changes that may break existing applications:</h3>
@@ -4792,11 +4812,11 @@ All affected classes (only those listed above actually have changed API and beha
     </pre>
   </dd>
   <dt>CSS</dt>
-  <dd>The toplevel container used by Wt is now given a <tt>position:
-    relative</tt> style; this was needed to be able to position widgets
-    (such as popups) using <tt>position: absolute</tt>, but may break
+  <dd>The toplevel container used by Wt is now given a <code>position:
+    relative</code> style; this was needed to be able to position widgets
+    (such as popups) using <code>position: absolute</code>, but may break
     application layouts. You can override this CSS style by adding
-    <tt>.Wt-domRoot { position: static; }</tt> to your application's
+    <code>.Wt-domRoot { position: static; }</code> to your application's
     (internal or external) stylesheet.
   </dd>
 </dl>
@@ -4873,7 +4893,7 @@ All affected classes (only those listed above actually have changed API and beha
   <dd>Added support for use with a connection pool. Added execute()
   method to execute an SQL statement.</dd>
   <dt>Built-in httpd</dt>
-  <dd>Support for HTTP Range header and partial content servering.</dd>
+  <dd>Support for HTTP Range header and partial content serving.</dd>
 </dl>
 
 <h3>C) Changes that break existing applications:</h3>
@@ -4924,7 +4944,7 @@ All affected classes (only those listed above actually have changed API and beha
     widgets (like WTreeView), deprecating the old API.</dd>
   <dt><a href="classWt_1_1WDateTime.html">WDateTime</a></dt>
   <dd>Added <a href="classWt_1_1WDateTime.html#0d7f04bacc6ea6534bc61ec7305a8262">toPosixTime()</a> and <a href="classWt_1_1WDateTime.html#eb5f093554829688b36640f0977da541">fromPosixTime()</a> methods to interoperate with
-    <tt>boost::posix_time::ptime</tt>.</dd>
+    <code>boost::posix_time::ptime</code>.</dd>
   <dt><a href="classWt_1_1WFormWidget.html">WFormWidget</a></dt>
   <dd>Added a <a href="classWt_1_1WFormWidget.html#92de7a4d9ca6796607dc9fd26f608436">setEmptyText()</a> method to implement a label inside a line edit or text area.</dd>
   <dt><a href="classWt_1_1WPainter.html">WPainter</a></dt>
@@ -4960,10 +4980,10 @@ All affected classes (only those listed above actually have changed API and beha
   <dd>Performance improvements in serializing the widgets to HTML
     and/or JavaScript</dd>
   <dt>Built-in httpd</dt>
-  <dd>Added a configuration option <tt>--max-request-size</tt> to
+  <dd>Added a configuration option <code>--max-request-size</code> to
   limit the size of a POST instead of the built-in default of 40
   MB<br/> Added a configuration option
-  <tt>--max-memory-request-size</tt> to limit the size of a POST that
+  <code>--max-memory-request-size</code> to limit the size of a POST that
   is handed in-memory. Bigger POSTs are handled using a spool file.
   </dd>
 </dl>
@@ -5084,8 +5104,8 @@ while a new "polished" theme provides a less boring (?) look for
 several widgets (work in progress). The theme can be set using <a
 href="classWt_1_1WApplication.html">WApplication::setCssTheme()</a>.
 
-As a result, you will need to deploy Wt's <tt>"resources/"</tt>
-folder, which contains the themes in <tt>"resources/themes/"</tt>, for
+As a result, you will need to deploy Wt's <code>"resources/"</code>
+folder, which contains the themes in <code>"resources/themes/"</code>, for
 all but the most trivial applications.
 
 <dl>
@@ -5146,7 +5166,7 @@ all but the most trivial applications.
   <dt>XML_FEATURES</dt>
   <dd>A new configuration option, XML_FEATURES, was added which allows the library to be built without MiniXML (and disabling fatures that require Mini-XML support). This configuration option is likely to be removed again in future versions.</dd>
   <dt>Documentation</dt>
-  <dd>A <tt>doc</tt> directive was added, which uses doxygen and asciidoc tools
+  <dd>A <code>doc</code> directive was added, which uses doxygen and asciidoc tools
   to generate the reference documentation and tutorial.</dd>
   <dt>Tests</dt>
   <dd>Automated tests were added for non-interactive functionality,
@@ -5204,7 +5224,7 @@ variables.
   addition to the existing <samp>generateUrl()</samp> which generates
   a new URL, a method was added which merely returns the existing
   URL: <samp>url()</samp>. With these improvements, a resource can
-  effictively be shared by many view widgets and updated with the
+  effectively be shared by many view widgets and updated with the
   minimum of bandwidth usage.</dd>
 </dl>
 
@@ -5465,7 +5485,7 @@ requires at least boost >= 1.35.0.
   e.g. <samp>WInteractWidget::clicked</samp> has been renamed to
   <samp>WInteractWidget::clicked()</samp>. This has as major benefit
   that signals can be created on-demand, which leads to drastically
-  lower memory usage and signifcant speedups especially on embedded
+  lower memory usage and significant speedups especially on embedded
   systems.</p> <p>The change requires that everywhere in your code
   where you access a signal, you will need to change to add
   parentheses. For consistency, you may also want to
@@ -5689,7 +5709,7 @@ interface is that it allows us to implement View widgets like the new
 <p>This release has a rather substantial rewrite (and simplification)
 of Wt's bootstrapping process. In the past, Wt used a frameset trick
 to be able to load the AJAX-based skeleton when JavaScript was
-available. Isntead, now, the entire AJAX-based stuff is loaded
+available. Instead, now, the entire AJAX-based stuff is loaded
 directly into the bootstrap page. A benefit of the new approach is
 that we avoid iframe tricks, which have been deprecated from strict
 HTML and XHTML. But, it was in fact motivated in the first place to
@@ -5711,7 +5731,7 @@ may break your application:</p>
   <samp>WMenuItem::updateItemWidget()</samp> allowing you to react to
   item changes (internal path or text). The default implementation now
   always uses a WAnchor.</li>
-  <li><samp>WApplication::setState()</samp>, <samp>WApplication::state()</samp> and <samp>WApplication::stateChanged</samp> have been deprecated. It is stronly advised that you use the new internal path API instead. This does require you to treat different parts of the state as a file hierarchy. See the <samp>WApplication::setInternalPath() documentation</samp>.
+  <li><samp>WApplication::setState()</samp>, <samp>WApplication::state()</samp> and <samp>WApplication::stateChanged</samp> have been deprecated. It is strongly advised that you use the new internal path API instead. This does require you to treat different parts of the state as a file hierarchy. See the <samp>WApplication::setInternalPath() documentation</samp>.
   </li>
 </ul>
 
@@ -5896,7 +5916,7 @@ around the extjs 2.x library, instead of extjs 1.x.</p>
       declarations to <samp>WSignalMapper</samp>, you will need to modify
       these too (or simply include <samp>WSignalMapper</samp>).</li>
     <li><samp>WAnchor</samp>: no longer uses a <samp>WLabel</samp> internally,
-      and the label-releated methods have been removed.</li>
+      and the label-related methods have been removed.</li>
   </ul>
 
 <hr />
@@ -6135,7 +6155,7 @@ Wt::WApplication *createApplication(const Wt::WEnvironment&amp; env)
   The constructor and methods that takes a boost::regex object in
   the WRegExpValidator API have been deprecated, to remove the dependency
   on boost from the public API. You should consider the std::string based
-  construtor and method instead.
+  constructor and method instead.
 </p>
 
 <h4>8) WObject::emit() has been removed.</h4>
@@ -6205,7 +6225,7 @@ Changes to impact everybody, since the previous release:
 </li>
 <li>
   Wt programs need to link against libwtfcgi.so, instead of libwt.so. In the
-  future Wt will also support different web-connnector systems besides
+  future Wt will also support different web-connector systems besides
   FastCGI.
 </li>
 <li>
