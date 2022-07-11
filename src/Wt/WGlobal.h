@@ -17,36 +17,17 @@
 namespace Wt {
 
   /* make_unique implementation for backwards compatibility for Wt versions before 4.5.0 */
-  namespace cpp14 {
 #ifndef WT_TARGET_JAVA
-#ifdef WT_CXX14
+  namespace cpp14 {
     template<typename T, typename ...Args>
+    [[deprecated("Wt::cpp14::make_unique has been marked as deprecated and will be removed in the future, "
+                 "use std::make_unique instead.")]]
     auto make_unique(Args&& ...args) -> decltype(std::make_unique<T, Args...>(std::forward<Args>(args)...))
     {
       return std::make_unique<T, Args...>(std::forward<Args>(args)...);
     }
-#else // WT_CXX14
-    template<typename T, typename ...Args>
-    std::unique_ptr<T> make_unique( Args&& ...args )
-    {
-      return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-    }
-#endif // WT_CXX14
-#else // WT_TARGET_JAVA
-    template<typename T>
-    std::unique_ptr<T> make_unique();
-    template<typename T, typename Arg1>
-    std::unique_ptr<T> make_unique(Arg1 arg1);
-    template<typename T, typename Arg1, typename Arg2>
-    std::unique_ptr<T> make_unique(Arg1 arg1, Arg2 arg2);
-    template<typename T, typename Arg1, typename Arg2, typename Arg3>
-    std::unique_ptr<T> make_unique(Arg1 arg1, Arg2 arg2, Arg3 arg3);
-    template<typename T, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
-    std::unique_ptr<T> make_unique(Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4);
-    template<typename T, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5>
-    std::unique_ptr<T> make_unique(Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4, Arg5);
-#endif // WT_TARGET_JAVA
   }
+#endif
 
   class EventSignalBase;
   class JSlot;

@@ -330,7 +330,6 @@ BOOST_AUTO_TEST_CASE( test_signals13 )
   BOOST_REQUIRE(!conn2.isConnected());
 }
 
-#if __cplusplus >= 201402L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201402L)
 BOOST_AUTO_TEST_CASE( test_signals14 )
 {
   struct movable_bool_ref {
@@ -397,7 +396,6 @@ BOOST_AUTO_TEST_CASE( test_signals14 )
   BOOST_REQUIRE(destroyed);
   BOOST_REQUIRE(!signal.isConnected());
 }
-#endif
 
 BOOST_AUTO_TEST_CASE( test_signals15 )
 {

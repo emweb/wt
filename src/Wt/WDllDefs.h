@@ -73,19 +73,11 @@ typedef unsigned __int32 uint32_t;  /* 32 bit unsigned */
 #include <stdint.h>
 #endif // _MSC_VER
 
+// Since Wt 4.5.0 we require C++14, so these are always defined
 #ifndef WT_CXX14
-
-#if __cplusplus >= 201402L || _MSVC_LANG >= 201402L
 #define WT_CXX14
-#endif
-
-#ifdef WT_CXX14
 #define WT_CXX14ONLY(x) x
-#else
-#define WT_CXX14ONLY(x)
 #endif
-
-#endif // end outer ifndef WT_CXX14
 
 #ifndef WT_CXX17
 

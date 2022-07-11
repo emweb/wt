@@ -337,7 +337,7 @@ struct ConnectHelper<0, Args...> {
                             const Core::observable *target,
                             std::function<void ()>&& f)
   {
-    return signal.connect([f WT_CXX14ONLY(=std::move(f))](Args...) { f(); }, target);
+    return signal.connect([f=std::move(f)](Args...) { f(); }, target);
   }
 
   template <class T, class V>
@@ -357,7 +357,7 @@ struct ConnectHelper<1, Args...> {
                             const Core::observable *target,
                             std::function<void (B1)>&& f)
   {
-    return signal.connect([f WT_CXX14ONLY(=std::move(f))](B1 b1, An...) { f(b1); }, target);
+    return signal.connect([f=std::move(f)](B1 b1, An...) { f(b1); }, target);
   }
 
   template <class T, class V,
@@ -379,7 +379,7 @@ struct ConnectHelper<2, Args...> {
                             const Core::observable *target,
                             std::function<void (B1, B2)>&& f)
   {
-    return signal.connect([f WT_CXX14ONLY(=std::move(f))](B1 b1, B2 b2, An...) { f(b1, b2); }, target);
+    return signal.connect([f=std::move(f)](B1 b1, B2 b2, An...) { f(b1, b2); }, target);
   }
 
   template <class T, class V,
@@ -401,7 +401,7 @@ struct ConnectHelper<3, Args...> {
                             const Core::observable *target,
                             std::function<void (B1, B2, B3)>&& f)
   {
-    return signal.connect([f WT_CXX14ONLY(=std::move(f))](B1 b1, B2 b2, B3 b3, An...) {
+    return signal.connect([f=std::move(f)](B1 b1, B2 b2, B3 b3, An...) {
         f(b1, b2, b3);
       }, target);
   }

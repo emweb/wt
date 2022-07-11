@@ -41,6 +41,12 @@ behaviour.
     JavaScript code in
     <a href="classWt_1_1WGoogleMap.html#ad5b1aabd260b3b05e9888718264c40e2">setMapTypeControl</a>
     targeting the v2 API would cause a JavaScript error.
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9570" target="_blank">Issue #9570</a>:
+    All uses of <code>WT_CXX14</code> and <code>WT_CXX14ONLY</code> were removed in Wt's
+    source code. <code>WT_CXX14</code> is now always defined, since Wt <strong>requires</strong>
+    C++14. We marked <code>Wt::cpp14::make_unique</code> as deprecated, since this only
+    existed because C++11 lacked <code>std::make_unique</code>.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/10914" target="_blank">Issue #10914</a>:
