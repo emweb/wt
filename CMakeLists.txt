@@ -49,6 +49,9 @@ OPTION(WT_NO_STD_WSTRING "Build Wt to run on a system without std::wstring suppo
 OPTION(ENABLE_OPENGL "Build Wt with support for server-side opengl rendering" ON)
 OPTION(ENABLE_UNWIND "Build Wt with stacktrace support using libunwind" OFF)
 
+option(DEBUG_JS "Serve non-minified JavaScript from the filesystem instead of embedding it, for debugging." OFF)
+mark_as_advanced(DEBUG_JS)
+
 IF(NOT CMAKE_CXX_STANDARD)
   SET(CMAKE_CXX_STANDARD 14)
 ENDIF(NOT CMAKE_CXX_STANDARD)
