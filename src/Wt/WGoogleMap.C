@@ -526,8 +526,6 @@ void WGoogleMap::setMapTypeControl(MapTypeControl type)
 {
   std::stringstream strm;
 
-  strm << jsRef() << ".map.removeControl(" << jsRef() << ".mtc);";
-
   std::string control;
   switch (type) {
   case MapTypeControl::Default:
