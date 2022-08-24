@@ -3474,7 +3474,7 @@ BOOST_AUTO_TEST_CASE( dbo_test46 )
 #ifndef SQLITE3 // no support for right join
     dbo::collection<ResultType> results2 = session.query<ResultType>("select a, b from \"table_a\" a")
       .rightJoin<B>("b", "a.b_id = b.id")
-      .orderBy("a.id");
+      .orderBy("b.id");
 
     BOOST_REQUIRE(results2.size() == 2);
 
