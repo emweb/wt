@@ -277,7 +277,11 @@ std::unique_ptr<Wt::WSslInfo> Request::sslInfo() const
   if (!ssl)
     return nullptr;
 
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+  X509 *x509 = SSL_get1_peer_certificate(ssl);
+#else
   X509 *x509 = SSL_get_peer_certificate(ssl);
+#endif
 
   if (x509) {
     Wt::WSslCertificate clientCert = Wt::Ssl::x509ToWSslCertificate(x509);
