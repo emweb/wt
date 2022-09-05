@@ -16,8 +16,10 @@
 
 #ifndef WT_TARGET_JAVA
 #ifdef WT_WITH_SSL
-struct rsa_st;
-typedef struct rsa_st RSA;
+extern "C" {
+struct evp_pkey_st;
+typedef struct evp_pkey_st EVP_PKEY;
+}
 #endif // WT_WITH_SSL
 #endif // WT_TARGET_JAVA
 
@@ -108,7 +110,7 @@ private:
 
 #ifndef WT_TARGET_JAVA
 #ifdef WT_WITH_SSL
-  RSA *privateKey;
+  EVP_PKEY* privateKey_;
   std::string rs256(const std::string &input);
 #endif // WT_WITH_SSL
 #endif // WT_TARGET_JAVA

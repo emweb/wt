@@ -11,6 +11,8 @@
 #endif // WT_WIN32
 #endif // WT_WITH_SSL
 
+#include <Wt/WException.h>
+
 #include "SslUtils.h"
 
 #ifdef WT_WITH_SSL
@@ -241,6 +243,42 @@ namespace Wt {
       }
 
       return context;
+    }
+
+    EVP_PKEY* readPrivateKeyFromFile(const std::string& path)
+    {
+      const auto file = std::fopen(path.c_str(), "rb");
+      if (!file) {
+        return nullptr;
+      }
+      const auto pkey = PEM_read_PrivateKey(file, nullptr, nullptr, nullptr);
+      std::fclose(file);
+      return pkey;
+    }
+
+    std::string rs256(EVP_PKEY* pkey, const std::string& message)
+    {
+      auto ctx = EVP_MD_CTX_new();
+      int status = EVP_DigestSignInit(ctx, nullptr, EVP_sha256(), nullptr, pkey);
+      if (status != 1) {
+        throw WException("RS256 digest failed: could not initialize!");
+      }
+      status = EVP_DigestSignUpdate(ctx, message.c_str(), message.size());
+      if (status != 1) {
+        throw WException("RS256 digest failed: EVP_DigestSignUpdate failed");
+      }
+      std::size_t slen{};
+      status = EVP_DigestSignFinal(ctx, nullptr, &slen);
+      if (status != 1) {
+        throw WException("RS256 digest failed: EVP_DigestSignFinal failed");
+      }
+      std::string result(slen, '\0');
+      status = EVP_DigestSignFinal(ctx, reinterpret_cast<unsigned char *>(&result[0]), &slen);
+      if (status != 1) {
+        throw WException("RS256 digest failed: EVP_DigestSignFinal failed");
+      }
+      EVP_MD_CTX_free(ctx);
+      return result;
     }
   }
 }
