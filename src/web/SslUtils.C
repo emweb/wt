@@ -124,16 +124,16 @@ namespace Wt {
       std::vector<Wt::WSslCertificate::DnAttribute> issuerDn
         = getDnAttributes(X509_get_issuer_name(x509));
       Wt::WDateTime validityStart
-        = dateToWDate(X509_get_notBefore(x509));
+        = dateToWDate(X509_get0_notBefore(x509));
       Wt::WDateTime validityEnd
-        = dateToWDate(X509_get_notAfter(x509));
+        = dateToWDate(X509_get0_notAfter(x509));
 
       std::string pemCert = Wt::Ssl::exportToPem(x509);
 
       return WSslCertificate(subjectDn, issuerDn, validityStart, validityEnd, pemCert);
     }
 
-    Wt::WDateTime dateToWDate(ASN1_TIME *date)
+    Wt::WDateTime dateToWDate(const ASN1_TIME *date)
     {
       // Got my wisdom from ITU-T rec X.680 (07/2002) and RFC 3280
       Wt::WDateTime retval;

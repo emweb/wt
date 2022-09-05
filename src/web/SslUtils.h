@@ -32,7 +32,7 @@ namespace Wt {
 
     WT_API extern WSslCertificate x509ToWSslCertificate(X509 *x);
 
-    Wt::WDateTime dateToWDate(struct asn1_string_st *date);
+    Wt::WDateTime dateToWDate(const struct asn1_string_st *date);
 
     std::string exportToPem(struct x509_st *x509);
 
