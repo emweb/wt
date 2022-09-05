@@ -227,7 +227,11 @@ void WPdfImage::setChanged(WFlags<PainterChangeFlag> flags)
         HPDF_Page_SetLineCap(page_, HPDF_BUTT_END);
         break;
       case PenCapStyle::Square:
+#if HPDF_VERSION_ID >= 20400
+        HPDF_Page_SetLineCap(page_, HPDF_PROJECTING_SQUARE_END);
+#else
         HPDF_Page_SetLineCap(page_, HPDF_PROJECTING_SCUARE_END); // scuary !
+#endif
         break;
       case PenCapStyle::Round:
         HPDF_Page_SetLineCap(page_, HPDF_ROUND_END);
@@ -253,22 +257,38 @@ void WPdfImage::setChanged(WFlags<PainterChangeFlag> flags)
         HPDF_Page_SetDash(page_, nullptr, 0, 0);
         break;
       case PenStyle::DashLine: {
+#if HPDF_VERSION_ID >= 20400
+        const HPDF_REAL dash_ptn[] = { 4, 2 };
+#else
         const HPDF_UINT16 dash_ptn[] = { 4, 2 };
+#endif
         HPDF_Page_SetDash(page_, dash_ptn, 2, 0);
         break;
       }
       case PenStyle::DotLine: {
+#if HPDF_VERSION_ID >= 20400
+        const HPDF_REAL dash_ptn[] = { 1, 2 };
+#else
         const HPDF_UINT16 dash_ptn[] = { 1, 2 };
+#endif
         HPDF_Page_SetDash(page_, dash_ptn, 2, 0);
         break;
       }
       case PenStyle::DashDotLine: {
+#if HPDF_VERSION_ID >= 20400
+        const HPDF_REAL dash_ptn[] = { 4, 2, 1, 2 };
+#else
         const HPDF_UINT16 dash_ptn[] = { 4, 2, 1, 2 };
+#endif
         HPDF_Page_SetDash(page_, dash_ptn, 4, 0);
         break;
       }
       case PenStyle::DashDotDotLine: {
+#if HPDF_VERSION_ID >= 20400
+        const HPDF_REAL dash_ptn[] = { 4, 2, 1, 2, 1, 2 };
+#else
         const HPDF_UINT16 dash_ptn[] = { 4, 2, 1, 2, 1, 2 };
+#endif
         HPDF_Page_SetDash(page_, dash_ptn, 6, 0);
         break;
       }
