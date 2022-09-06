@@ -21,14 +21,10 @@
 #include "3rdparty/rapidxml/rapidxml.hpp"
 
 #include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_object.hpp>
-#if BOOST_VERSION < 105600
-#include <boost/spirit/home/phoenix/statement/throw.hpp>
-#else
-#include <boost/phoenix.hpp>
-#endif
+#include <boost/phoenix/core.hpp>
+#include <boost/phoenix/object.hpp>
+#include <boost/phoenix/operator.hpp>
+#include <boost/phoenix/statement.hpp>
 
 #include <boost/bind/bind.hpp>
 
