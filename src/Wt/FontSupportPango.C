@@ -106,8 +106,17 @@ FontSupport::FontSupport(WPaintDevice *paintDevice, EnabledFontFormats enabledFo
   if (!pangoFontMap) {
     pangoFontMap = pango_ft2_font_map_new();
 
+#if PANGO_VERSION_CHECK(1, 48, 0)
+    pango_fc_font_map_set_default_substitute(PANGO_FC_FONT_MAP(pangoFontMap),
+                                             addTrueTypePattern,
+                                             nullptr,
+                                             nullptr);
+#else
     pango_ft2_font_map_set_default_substitute(PANGO_FT2_FONT_MAP(pangoFontMap),
-                                              addTrueTypePattern, NULL, NULL);
+                                              addTrueTypePattern,
+                                              nullptr,
+                                              nullptr);
+#endif
   }
 
 #if PANGO_VERSION_MAJOR > 1 || PANGO_VERSION_MINOR > 21
