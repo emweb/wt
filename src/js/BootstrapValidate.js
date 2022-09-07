@@ -37,8 +37,6 @@ WT_DECLARE_WT_MEMBER(2, JavaScriptFunction, "setValidationState", function(edit,
   var invalidStyle = (state != 1) &&
     ((styles & ValidationInvalidStyle) != 0);
 
-  var $edit = $(edit);
-
   var validClass = "Wt-valid";
   var invalidClass = "Wt-invalid";
   var theme = this.theme;
@@ -46,44 +44,38 @@ WT_DECLARE_WT_MEMBER(2, JavaScriptFunction, "setValidationState", function(edit,
     validClass = theme.classes.valid;
     invalidClass = theme.classes.invalid;
   }
-  $edit
-    .toggleClass(validClass, validStyle)
-    .toggleClass(invalidClass, invalidStyle);
+  edit.classList.toggle(validClass, validStyle);
+  edit.classList.toggle(invalidClass, invalidStyle);
 
-  var controlGroup;
+  let controlGroup;
   var success;
   var error;
 
-  controlGroup = $edit.closest(".control-group");
+  controlGroup = edit.closest(".control-group");
 
-  if (controlGroup.length > 0) { // bootstrapVersion === 2
+  if (controlGroup) { // bootstrapVersion === 2
     success = "success";
     error = "error";
   } else {
-    controlGroup = $edit.closest(".form-group");
-    if (controlGroup.length > 0) { // bootstrapVersion === 3
+    controlGroup = edit.closest(".form-group");
+    if (controlGroup) { // bootstrapVersion === 3
       success = "has-success";
       error = "has-error";
     }
   }
 
-  if (controlGroup.length > 0) {
-    var validationMsg = controlGroup.find(".Wt-validation-message");
-    if (validationMsg) {
+  if (controlGroup) {
+    const validationMsgs = controlGroup.querySelectorAll(".Wt-validation-message");
+    for (const validationMsg of validationMsgs) {
       if (state) {
-        validationMsg.text(edit.defaultTT);
+        validationMsg.textContent = edit.defaultTT;
       } else {
-        validationMsg.text(message);
+        validationMsg.textContent = message;
       }
     }
 
-    controlGroup
-      .toggleClass(success, validStyle)
-      .toggleClass(error, invalidStyle);
-  }
-
-  if (typeof edit.defaultTT === "undefined") {
-    edit.defaultTT = edit.getAttribute("title") || "";
+    controlGroup.classList.toggle(success, validStyle);
+    controlGroup.classList.toggle(error, invalidStyle);
   }
 
   if (state) {
