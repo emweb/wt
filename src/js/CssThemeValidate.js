@@ -33,11 +33,8 @@ WT_DECLARE_WT_MEMBER(2, JavaScriptFunction, "setValidationState", function(edit,
   var invalidStyle = (state != 1) &&
     ((styles & ValidationInvalidStyle) != 0);
 
-  var $edit = $(edit);
-
-  $edit
-    .toggleClass("Wt-valid", validStyle)
-    .toggleClass("Wt-invalid", invalidStyle);
+  edit.classList.toggle("Wt-valid", validStyle);
+  edit.classList.toggle("Wt-invalid", invalidStyle);
 
   if (typeof edit.defaultTT === "undefined") {
     edit.defaultTT = edit.getAttribute("title") || "";
