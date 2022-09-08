@@ -46,8 +46,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "Resizable", function(WT, el) {
   }
 
   function onMouseUp(event) {
-    $(window.document).unbind("mousemove", onMouseMove);
-    $(window.document).unbind("mouseup", onMouseUp);
+    document.removeEventListener("mousemove", onMouseMove);
+    document.removeEventListener("mouseup", onMouseUp);
 
     if (handler) {
       handler(WT.pxself(el, "width"), WT.pxself(el, "height"), true);
@@ -96,12 +96,12 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "Resizable", function(WT, el) {
       cheight = el.clientHeight;
 
       WT.capture(null);
-      $(window.document).bind("mousemove", onMouseMove);
-      $(window.document).bind("mouseup", onMouseUp);
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
     }
   }
 
-  $(el).mousedown(onMouseDown);
+  el.addEventListener("mousedown", onMouseDown);
 
   this.onresize = function(f) {
     handler = f;
