@@ -13,7 +13,7 @@ WT_DECLARE_WT_MEMBER(3, JavaScriptConstructor, "ScrollVisibility", function(APP)
     if (
       w.style.visibility == "hidden" ||
       w.style.display == "none" ||
-      $(w).hasClass("out")
+      w.classList.contains("out")
     ) {
       return false;
     } else {
