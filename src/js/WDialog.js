@@ -14,7 +14,7 @@ WT_DECLARE_WT_MEMBER(
     el.wtObj = this;
 
     var self = this;
-    var layoutContainer = $(el).find(".dialog-layout").get(0);
+    const layoutContainer = el.querySelector(".dialog-layout");
     var WT = APP.WT;
     var dsx, dsy;
     var x = -1, y = -1, w = -1, h = -1;
@@ -23,7 +23,6 @@ WT_DECLARE_WT_MEMBER(
     // set in %)
     var percentageWidth = -1, percentageHeight = -1;
     var calculatedPercentageWidth = -1, calculatedPercentageHeight = -1;
-    var width = -1;
 
     function newPos() {
       if (movedSignal) {
@@ -165,8 +164,6 @@ WT_DECLARE_WT_MEMBER(
 
       el.style.visibility = "visible";
 
-      var ws = WT.windowSize();
-
       percentageHeight = WT.parsePct(el.style.height, percentageHeight);
       percentageWidth = WT.parsePct(el.style.width, percentageWidth);
 
@@ -212,14 +209,14 @@ WT_DECLARE_WT_MEMBER(
     function wtResize(ignored, w, h, setSize) {
       if (setSize) {
         if (w > 0) {
-          layoutContainer.style.width = w +
-            WT.parsePx($(layoutContainer).css("borderLeftWidth")) +
-            WT.parsePx($(layoutContainer).css("borderRightWidth")) + "px";
+          const leftWidth = WT.px(layoutContainer, "border-left-width");
+          const rightWidth = WT.px(layoutContainer, "border-right-width");
+          layoutContainer.style.width = `${w + rightWidth + leftWidth}px`;
         }
         if (h > 0) {
-          layoutContainer.style.height = h +
-            WT.parsePx($(layoutContainer).css("borderTopWidth")) +
-            WT.parsePx($(layoutContainer).css("borderBottomWidth")) + "px";
+          const topWidth = WT.px(layoutContainer, "border-top-width");
+          const bottomWidth = WT.px(layoutContainer, "border-bottom-width");
+          layoutContainer.style.height = `${h + topWidth + bottomWidth}px`;
         }
       }
 
