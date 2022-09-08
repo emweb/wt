@@ -12,16 +12,21 @@ WT_DECLARE_WT_MEMBER(20, JavaScriptConstructor, "WJavaScriptObjectStorage", func
   var self = this;
   var WT = APP.WT;
 
+  // function to determine if the argument is a plain object (an object with zero or more key-value pairs)
+  function isPlainObject(object) {
+    return Object.prototype.toString.call(object) === "[object Object]";
+  }
+
   // Deep copy a simple JavaScript object, value or array
   function deepCopy(v) {
-    if (jQuery.isArray(v)) {
+    if (Array.isArray(v)) {
       var res = [];
       var i;
       for (i = 0; i < v.length; ++i) {
         res.push(deepCopy(v[i]));
       }
       return res;
-    } else if (jQuery.isPlainObject(v)) {
+    } else if (isPlainObject(v)) {
       var res = {};
       var key;
       for (key in v) {
@@ -40,7 +45,7 @@ WT_DECLARE_WT_MEMBER(20, JavaScriptConstructor, "WJavaScriptObjectStorage", func
     if (a === b) {
       return true;
     }
-    if (jQuery.isArray(a) && jQuery.isArray(b)) {
+    if (Array.isArray(a) && Array.isArray(b)) {
       if (a.length !== b.length) {
         return false;
       }
@@ -51,7 +56,7 @@ WT_DECLARE_WT_MEMBER(20, JavaScriptConstructor, "WJavaScriptObjectStorage", func
         }
       }
       return true;
-    } else if (jQuery.isPlainObject(a) && jQuery.isPlainObject(b)) {
+    } else if (isPlainObject(a) && isPlainObject(b)) {
       var key;
       for (key in a) {
         if (a.hasOwnProperty(key)) {
@@ -78,7 +83,7 @@ WT_DECLARE_WT_MEMBER(20, JavaScriptConstructor, "WJavaScriptObjectStorage", func
 
   // FIXME: hacky check to omit WPainterPaths (WPainterPaths are readonly)
   function isPainterPath(v) {
-    return jQuery.isArray(v) && v.length > 6;
+    return Array.isArray(v) && v.length > 6;
   }
 
   var oldValues = {};
