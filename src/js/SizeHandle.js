@@ -91,7 +91,7 @@ WT_DECLARE_WT_MEMBER(
       }
     }
     if (document.addEventListener) {
-      var domRoot = $(".Wt-domRoot")[0];
+      let domRoot = document.querySelector(".Wt-domRoot");
       if (!domRoot) {
         // widgetset mode
         domRoot = parent;
