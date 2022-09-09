@@ -18,8 +18,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, a
     haveMouseDown = false;
 
   if (WT.isIOS) {
-    $(el).bind("touchstart", startElTouch);
-    $(el).bind("touchend", endElTouch);
+    el.addEventListener("touchstart", startElTouch);
+    el.addEventListener("touchend", endElTouch);
   }
 
   function doHide() {
@@ -31,7 +31,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, a
   }
 
   function setActive(item, active) {
-    $(item).toggleClass("active", active);
+    item.classList.toggle("active", active);
   }
 
   function submenu(item) {
@@ -43,7 +43,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, a
         item.subMenu = u;
         u.parentItem = item;
 
-        $(u).mousemove(handleSubMenus);
+        u.addEventListener("mousemove", handleSubMenus);
 
         bindOverEvents(u);
 
@@ -69,8 +69,10 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, a
     setOthersInactive(menu, null);
 
     if (WT.isIOS) {
-      $(menu).unbind("touchstart", startElTouch).bind("touchstart", startElTouch);
-      $(menu).unbind("touchend", endElTouch).bind("touchend", endElTouch);
+      menu.removeEventListener("touchstart", startElTouch);
+      menu.addEventListener("touchstart", startElTouch);
+      menu.removeEventListener("touchend", endElTouch);
+      menu.addEventListener("touchend", endElTouch);
     }
   }
 
@@ -161,7 +163,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, a
   }
 
   function bindOverEvents(popup) {
-    $(popup).mouseleave(mouseLeave).mouseenter(mouseEnter);
+    popup.addEventListener("mouseleave", mouseLeave);
+    popup.addEventListener("mouseenter", mouseEnter);
   }
 
   function stillExist() {
@@ -206,14 +209,14 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, a
       el.style.display = "";
       el.style.left = "";
       el.style.top = "";
-      $(document).unbind("mousedown", onDocumentDown);
+      document.removeEventListener("mousedown", onDocumentDown);
       unbindDocumentClick();
-      $(document).unbind("keydown", onDocumentKeyDown);
+      document.removeEventListener("keydown", onDocumentKeyDown);
     } else {
       setTimeout(function() {
-        $(document).bind("mousedown", onDocumentDown);
+        document.addEventListener("mousedown", onDocumentDown);
         bindDocumentClick();
-        $(document).bind("keydown", onDocumentKeyDown);
+        document.addEventListener("keydown", onDocumentKeyDown);
       }, 0);
       el.style.display = "block";
     }
@@ -227,19 +230,19 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, a
 
   function bindDocumentClick() {
     if (WT.isIOS) {
-      $(document).bind("touchstart", startTouch);
-      $(document).bind("touchend", endTouch);
+      document.addEventListener("touchstart", startTouch);
+      document.addEventListener("touchend", endTouch);
     } else {
-      $(document).bind("click", onDocumentClick);
+      document.addEventListener("click", onDocumentClick);
     }
   }
 
   function unbindDocumentClick() {
     if (WT.isIOS) {
-      $(document).unbind("touchstart", startTouch);
-      $(document).unbind("touchend", endTouch);
+      document.removeEventListener("touchstart", startTouch);
+      document.removeEventListener("touchend", endTouch);
     } else {
-      $(document).unbind("click", onDocumentClick);
+      document.removeEventListener("click", onDocumentClick);
     }
   }
 
@@ -277,5 +280,5 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, a
     bindOverEvents(el);
   }, 0);
 
-  $(el).mousemove(handleSubMenus);
+  el.addEventListener("mousemove", handleSubMenus);
 });
