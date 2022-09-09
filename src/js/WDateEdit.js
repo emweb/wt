@@ -13,23 +13,19 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WDateEdit", function(APP, edit, 
 
   edit.wtDObj = this;
 
-  var self = this, WT = APP.WT, $edit = $(edit);
+  var self = this, WT = APP.WT;
 
   function isReadOnly() {
     return edit.readOnly;
   }
 
-  function isPopupVisible() {
-    return $("#" + popup).style.display === "";
-  }
-
   function getPopup() {
-    var p = $("#" + popup).get(0);
+    var p = WT.$(popup);
     return p.wtPopup;
   }
 
   function resetButton() {
-    $edit.removeClass(CLASS_ACTIVE);
+    edit.classList.remove(CLASS_ACTIVE);
   }
 
   function showPopup() {
@@ -39,7 +35,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WDateEdit", function(APP, edit, 
   }
 
   this.mouseOut = function(o, event) {
-    $edit.removeClass(CLASS_HOVER);
+    edit.classList.remove(CLASS_HOVER);
   };
 
   this.mouseMove = function(o, event) {
@@ -49,13 +45,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WDateEdit", function(APP, edit, 
 
     var xy = WT.widgetCoordinates(edit, event);
 
-    if (xy.x > edit.offsetWidth - 40) {
-      $edit.addClass(CLASS_HOVER);
-    } else {
-      if ($edit.hasClass(CLASS_HOVER)) {
-        $edit.removeClass(CLASS_HOVER);
-      }
-    }
+    const isHovering = xy.x > edit.offsetWidth - 40;
+    edit.classList.toggle(CLASS_HOVER, isHovering);
   };
 
   this.mouseDown = function(o, event) {
@@ -65,12 +56,13 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WDateEdit", function(APP, edit, 
 
     var xy = WT.widgetCoordinates(edit, event);
     if (xy.x > edit.offsetWidth - 40) {
-      $edit.addClass(CLASS_UNSELECTABLE).addClass(CLASS_ACTIVE);
+      edit.classList.add(CLASS_UNSELECTABLE);
+      edit.classList.add(CLASS_ACTIVE);
     }
   };
 
   this.mouseUp = function(o, event) {
-    $edit.removeClass(CLASS_UNSELECTABLE);
+    edit.classList.remove(CLASS_UNSELECTABLE);
 
     var xy = WT.widgetCoordinates(edit, event);
     if (xy.x > edit.offsetWidth - 40) {
