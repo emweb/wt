@@ -53,7 +53,7 @@ WT_DECLARE_WT_MEMBER(
           ele = t;
         }
 
-        if ($(t).hasClass(selectedClass)) {
+        if (t.classList.contains(selectedClass)) {
           selected = true;
         }
 
@@ -192,7 +192,7 @@ WT_DECLARE_WT_MEMBER(
           cw = WT.pxself(r, "width"),
           minDelta = -cw,
           maxDelta = 10000,
-          rtl = $(document.body).hasClass("Wt-rtl");
+          rtl = document.body.classList.contains("Wt-rtl");
 
         if (rtl) {
           var tmp = minDelta;
@@ -281,7 +281,7 @@ WT_DECLARE_WT_MEMBER(
         * @!@#$%! CSS spec, btw.). Only IE in RTL mode (when float: left)
         * seems to implement this correctly and thus needs the following:
         */
-        if (WT.isIE && $(document.body).hasClass("Wt-rtl")) {
+        if (WT.isIE && document.body.classList.contains("Wt-rtl")) {
           var rrow = WT.getCssRule("#" + el.id + " .Wt-tv-row");
           if (rrow) {
             rrow.style.width = allw_1 + "px";
@@ -296,7 +296,9 @@ WT_DECLARE_WT_MEMBER(
             c0r.style.width = c0rw + "px";
           }
         } else {
-          $(el).find(".Wt-headerdiv ." + c0id).css("width", c0r.style.width);
+          el.querySelectorAll(`.Wt-headerdiv .${c0id}`).forEach(function(descendant) {
+            descendant.style.width = c0r.style.width;
+          });
         }
       }
 
@@ -325,15 +327,6 @@ WT_DECLARE_WT_MEMBER(
         if (APP.layouts2) {
           APP.layouts2.adjust();
         }
-
-        if (WT.isIE) {
-          setTimeout(function() {
-            $(el).find(".Wt-tv-rowc")
-              .css("width", allw_1 + "px")
-              .css("width", "");
-          }, 0);
-        }
-
         el.changed = true;
       }
     }
@@ -418,7 +411,7 @@ WT_DECLARE_WT_MEMBER(
         var node;
         var side = "bottom";
         if (item.nodeId) {
-          node = $("#" + item.nodeId)[0];
+          node = WT.$(item.nodeId);
           var coords = WT.widgetCoordinates(node, event);
           side = (coords.y - node.clientHeight / 2) <= 0 ? "top" : "bottom";
         } else {
@@ -463,10 +456,9 @@ WT_DECLARE_WT_MEMBER(
 
       doAdjustColumns();
 
-      var $el = $(el),
-        c0id,
-        c0r,
-        c0w = null;
+      let c0id;
+      let c0r;
+      let c0w = null;
 
       var tw = WT.pxself(el, "width");
 
@@ -489,8 +481,8 @@ WT_DECLARE_WT_MEMBER(
         tw -= scrollwidth;
       }
 
-      if ($el.hasClass("column1")) {
-        c0id = $el.find(".Wt-headerdiv").get(0)
+      if (el.classList.contains("column1")) {
+        c0id = el.querySelector(".Wt-headerdiv")
           .lastChild.className.split(" ")[0];
         c0r = WT.getCssRule("#" + el.id + " ." + c0id);
         c0w = WT.pxself(c0r, "width");
@@ -508,7 +500,7 @@ WT_DECLARE_WT_MEMBER(
         contentsContainer.tw = tw;
         contentsContainer.c0w = c0w;
 
-        c0id = $el.find(".Wt-headerdiv").get(0)
+        c0id = el.querySelector(".Wt-headerdiv")
           .lastChild.className.split(" ")[0];
         c0r = WT.getCssRule("#" + el.id + " ." + c0id);
 
@@ -521,10 +513,12 @@ WT_DECLARE_WT_MEMBER(
 
         contentsContainer.style.width = (tw + scrollwidth) + "px";
 
-        var rtl = $(document.body).hasClass("Wt-rtl");
+        var rtl = document.body.classList.contains("Wt-rtl");
         if (!rtl) {
           headerContainer.style.marginRight = scrollwidth + "px";
-          $("#" + el.id + " .Wt-scroll").css("marginRight", scrollwidth + "px");
+          document.querySelectorAll(`#${el.id} .Wt-scroll`).forEach(function(descendant) {
+            descendant.style.marginRight = scrollwidth + "px";
+          });
         }
 
         if (c0w != null) {
@@ -539,14 +533,6 @@ WT_DECLARE_WT_MEMBER(
 
             /* This is really slow in FF, slower than the jquery equivalent */
             WT.getCssRule("#" + el.id + " .Wt-tv-row").style.width = w2 + "px";
-
-            if (WT.isIE) {
-              setTimeout(function() {
-                $el.find(" .Wt-tv-row")
-                  .css("width", w2 + "px")
-                  .css("width", "");
-              }, 0);
-            }
           }
         } else {
           if (contentstoo) {
