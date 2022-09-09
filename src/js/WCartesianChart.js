@@ -773,10 +773,10 @@ WT_DECLARE_WT_MEMBER_BIG(
           y - MouseDistance
         );
 
-        $(tobj.toolTipEl).mouseenter(function() {
+        tobj.toolTipEl.addEventListener("mouseenter", function() {
           tobj.overTooltip = true;
         });
-        $(tobj.toolTipEl).mouseleave(function() {
+        tobj.toolTipEl.addEventListener("mouseleave", function() {
           tobj.overTooltip = false;
         });
       }
