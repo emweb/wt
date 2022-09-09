@@ -862,33 +862,14 @@ void WebRenderer::collectJavaScript()
   }
 
   if (visibleOnly_) {
-    bool needFetchInvisible = false;
-
-    if (!updateMap_.empty()) {
-      needFetchInvisible = true;
-
-      if (twoPhaseThreshold_ > 0) {
-        /*
-         * See how large the invisible changes are, perhaps we can
-         * send them along
-         */
-        visibleOnly_ = false;
-
-        collectJavaScriptUpdate(invisibleJS_);
-
-        if (invisibleJS_.length() < (unsigned)twoPhaseThreshold_) {
-          collectedJS1_ << invisibleJS_.str();
-          invisibleJS_.clear();
-          needFetchInvisible = false;
-        }
-
-        visibleOnly_ = true;
-      }
-    }
-
-    if (needFetchInvisible)
-      collectedJS1_ << app->javaScriptClass()
+    preCollectInvisibleChanges();
+    if (twoPhaseThreshold_ > 0 && invisibleJS_.length() < static_cast<unsigned>(twoPhaseThreshold_)) {
+      collectedJS1_ << invisibleJS_.str();
+      invisibleJS_.clear();
+    } else {
+      collectedJS1_ << session_.app()->javaScriptClass()
                     << "._p_.update(null, 'none', null, false);";
+    }
   }
 
   if (conf.inlineCss())
@@ -1267,6 +1248,19 @@ void WebRenderer::serveMainAjax(WStringStream& out)
 
   preLearnStateless(app, collectedJS1_);
 
+  if (visibleOnly_) {
+    preCollectInvisibleChanges();
+    if (twoPhaseThreshold_ > 0 && invisibleJS_.length() < static_cast<unsigned>(twoPhaseThreshold_)) {
+      collectedJS1_ << invisibleJS_.str();
+      invisibleJS_.clear();
+    } else if (widgetset) {
+      // If application is not widgetset a 'load' signal will still
+      // be sent, so no extra update is necessary
+      collectedJS1_ << session_.app()->javaScriptClass()
+                    << "._p_.update(null, 'none', null, false);";
+    }
+  }
+
   LOG_DEBUG("js: " << collectedJS1_.str());
 
   out << collectedJS1_.str();
@@ -1289,9 +1283,10 @@ void WebRenderer::serveMainAjax(WStringStream& out)
       << '}';
 
   if (!widgetset) {
-    if (!app->hasQuit())
+    if (!app->hasQuit()) {
       out << session_.app()->javaScriptClass()
           << "._p_.update(null, 'load', null, false);\n";
+    }
     out << "};\n";
   }
 
@@ -2077,6 +2072,15 @@ std::string WebRenderer::headDeclarations() const
 void WebRenderer::addWsRequestId(int wsRqId)
 {
   wsRequestsToHandle_.push_back(wsRqId);
+}
+
+void WebRenderer::preCollectInvisibleChanges()
+{
+  if (visibleOnly_ && !updateMap_.empty() && twoPhaseThreshold_ > 0) {
+    visibleOnly_ = false;
+    collectJavaScriptUpdate(invisibleJS_);
+    visibleOnly_ = true;
+  }
 }
 
 }

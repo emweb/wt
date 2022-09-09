@@ -184,6 +184,12 @@ private:
   void updateMultiSessionCookie(const WebRequest &request);
   void renderCookieUpdate(WStringStream &out);
 
+  /*
+   * See how large the invisible changes are, perhaps we can
+   * send them along in the first request.
+   */
+  void preCollectInvisibleChanges();
+
 public:
   virtual std::string learn(WStatelessSlot* slot) final override;
 
