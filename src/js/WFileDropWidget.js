@@ -29,11 +29,11 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
   var hiddenInput = document.createElement("input");
   hiddenInput.type = "file";
   hiddenInput.setAttribute("multiple", "multiple");
-  $(hiddenInput).hide();
+  hiddenInput.style.display = "none";
   dropwidget.appendChild(hiddenInput);
 
   var dropcover = document.createElement("div");
-  $(dropcover).addClass("Wt-dropcover");
+  dropcover.classList.add("Wt-dropcover");
   document.body.appendChild(dropcover);
 
   this.eventContainsFile = function(e) {
@@ -106,7 +106,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
   bodyDragEnter = function(e) {
     if (
       !(dropIndication || bodyDropForward) ||
-      !$(dropwidget).is(":visible") ||
+      WT.css(dropwidget, "display") === "none" ||
       !acceptDrops
     ) {
       return;
@@ -177,7 +177,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
 
   dropwidget.addEventListener("click", function(e) {
     if (acceptDrops) {
-      $(hiddenInput).val("");
+      hiddenInput.value = "";
       hiddenInput.click();
     }
   });
@@ -315,27 +315,23 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
 
   this.setPageHoverStyle = function() {
     if (dropIndication || bodyDropForward) {
-      $(dropcover).addClass(dragClassName);
-      $(dropwidget).addClass(dragClassName);
+      dropcover.classList.add(dragClassName);
+      dropwidget.classList.add(dragClassName);
 
       if (dropIndication) {
-        $(dropwidget).addClass(indicationClassName);
+        dropwidget.classList.add(indicationClassName);
       }
     }
   };
 
   this.setWidgetHoverStyle = function(enable) {
-    if (enable) {
-      $(dropwidget).addClass(hoverClassName);
-    } else {
-      $(dropwidget).removeClass(hoverClassName);
-    }
+    dropwidget.classList.toggle(hoverClassName, enable);
   };
 
   this.resetDragDrop = function() {
-    $(dropwidget).removeClass(indicationClassName);
-    $(dropwidget).removeClass(dragClassName);
-    $(dropcover).removeClass(dragClassName);
+    dropwidget.classList.remove(indicationClassName);
+    dropwidget.classList.remove(dragClassName);
+    dropcover.classList.remove(dragClassName);
     self.setWidgetHoverStyle(false);
 
     dragState = 0;
