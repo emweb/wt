@@ -16,14 +16,14 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAbstractMedia", function(APP, e
 
   this.play = function() {
     if (el.mediaId) {
-      var mediaEl = $("#" + el.mediaId).get(0);
+      var mediaEl = WT.$(el.mediaId);
       if (mediaEl) {
         mediaEl.play();
         return;
       }
     }
     if (el.alternativeId) {
-      var alternativeEl = $("#" + el.alternativeId).get(0);
+      var alternativeEl = WT.$(el.alternativeId);
       if (alternativeEl && alternativeEl.WtPlay) {
         alternativeEl.WtPlay();
       }
@@ -32,14 +32,14 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAbstractMedia", function(APP, e
 
   this.pause = function() {
     if (el.mediaId) {
-      var mediaEl = $("#" + el.mediaId).get(0);
+      var mediaEl = WT.$(el.mediaId);
       if (mediaEl) {
         mediaEl.pause();
         return;
       }
     }
     if (el.alternativeId) {
-      var alternativeEl = $("#" + el.alternativeId).get(0);
+      var alternativeEl = WT.$(el.alternativeId);
       if (alternativeEl && alternativeEl.WtPlay) {
         alternativeEl.WtPause();
       }
@@ -48,7 +48,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAbstractMedia", function(APP, e
 
   function encodeValue() {
     if (el.mediaId) {
-      var mediaEl = $("#" + el.mediaId).get(0);
+      var mediaEl = WT.$(el.mediaId);
 
       if (mediaEl) {
         return "" + mediaEl.volume + ";" +
