@@ -15,7 +15,7 @@ WT_DECLARE_WT_MEMBER(
 
     var self = this;
     var WT = APP.WT;
-    var rtl = $(document.body).hasClass("Wt-rtl");
+    let rtl = document.body.classList.contains("Wt-rtl");
 
     /** @const */ var EnsureVisible = 0;
     /** @const */ var PositionAtTop = 1;
@@ -103,8 +103,7 @@ WT_DECLARE_WT_MEMBER(
     };
 
     function isSelected(item) {
-      var $t = $(item.el);
-      return $t.hasClass(selectedClass);
+      return item.el.classList.contains(selectedClass);
     }
 
     function getItem(event) {
@@ -113,20 +112,19 @@ WT_DECLARE_WT_MEMBER(
       var t = WT.target(event);
 
       while (t) {
-        var $t = $(t);
-        if ($t.hasClass("Wt-tv-contents")) {
+        if (t.classList.contains("Wt-tv-contents")) {
           break;
-        } else if ($t.hasClass("Wt-tv-c")) {
+        } else if (t.classList.contains("Wt-tv-c")) {
           if (t.getAttribute("drop") === "true") {
             drop = true;
           }
-          if ($t.hasClass(selectedClass)) {
+          if (t.classList.contains(selectedClass)) {
             selected = true;
           }
           ele = t;
           t = t.parentNode;
           columnId = t.className.split(" ")[0].substring(7) * 1;
-          rowIdx = $t.index();
+          rowIdx = indexOf(t);
           break;
         }
         t = t.parentNode;
@@ -152,7 +150,7 @@ WT_DECLARE_WT_MEMBER(
     }
 
     function resizeColumn(header, delta) {
-      var rtl = $(document.body).hasClass("Wt-rtl");
+      let rtl = document.body.classList.contains("Wt-rtl");
 
       if (rtl) {
         delta = -delta;
@@ -166,7 +164,7 @@ WT_DECLARE_WT_MEMBER(
           headerColumnsContainer.firstChild :
           contentsContainer.firstChild,
         wt_tv_contents = contents.firstChild,
-        column = $(contents).find("." + columnClass).get(0),
+        column = contents.querySelector("." + columnClass),
         h = header.nextSibling,
         c = column.nextSibling,
         newWidth = WT.pxself(header, "width") - 1 + delta;
@@ -249,7 +247,7 @@ WT_DECLARE_WT_MEMBER(
         minDelta = -cw,
         maxDelta = 10000;
 
-      var rtl = $(document.body).hasClass("Wt-rtl");
+      let rtl = document.body.classList.contains("Wt-rtl");
       if (rtl) {
         var tmp = minDelta;
         minDelta = -maxDelta;
@@ -547,11 +545,11 @@ WT_DECLARE_WT_MEMBER(
               }
               col = col.parentNode.childNodes[j];
               var elij = col.childNodes[i];
-              var inputs = $(elij).find(":input");
-              if (inputs.size() > 0) {
+              let inputs = elij.querySelectorAll("input, select, textarea, button");
+              if (inputs.length > 0) {
                 setTimeout(function() {
-                  inputs.focus();
-                  inputs.select();
+                  inputs.forEach((elem) => elem.dispatchEvent(new Event("focus", { bubbles: true })));
+                  inputs.forEach((elem) => elem.dispatchEvent(new Event("select", { bubbles: true })));
                 }, 0);
                 return;
               }
@@ -619,10 +617,10 @@ WT_DECLARE_WT_MEMBER(
         if (rowi > -1 && rowi < rows && coli > -1 && coli < cols) {
           col = col.parentNode.childNodes[coli];
           var elToSelect = col.childNodes[rowi];
-          var inputs = $(elToSelect).find(":input");
-          if (inputs.size() > 0) {
+          let inputs = elToSelect.querySelectorAll("input, select, textarea, button");
+          if (inputs.length > 0) {
             setTimeout(function() {
-              inputs.focus();
+              inputs.forEach((elem) => elem.dispatchEvent(new Event("focus", { bubbles: true })));
             }, 0);
             return;
           }
@@ -681,7 +679,7 @@ WT_DECLARE_WT_MEMBER(
         headerContainer.style.width = (tw - scrollwidth) + "px";
       }
 
-      var rtl = $(document.body).hasClass("Wt-rtl");
+      let rtl = document.body.classList.contains("Wt-rtl");
       if (!rtl) {
         headerContainer.style.marginRight = scrollwidth + "px";
       } else {
