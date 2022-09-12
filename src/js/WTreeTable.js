@@ -10,9 +10,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTreeTable", function(APP, table
   table.wtObj = this;
 
   var self = this, WT = APP.WT;
-
-  var content = $(table).find(".Wt-content").get(0),
-    spacer = $(table).find(".Wt-sbspacer").get(0);
+  let content = table.querySelector(".Wt-content"),
+    spacer = table.querySelector(".Wt-sbspacer");
 
   this.wtResize = function(el, w, h, setSize) {
     var hdefined = h >= 0;
@@ -27,7 +26,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTreeTable", function(APP, table
 
     var c = el.lastChild;
     var t = el.firstChild;
-    h -= $(t).outerHeight();
+    h -= t.getBoundingClientRect().height;
 
     if (hdefined && h > 0) {
       if (c.style.height != h + "px") {
