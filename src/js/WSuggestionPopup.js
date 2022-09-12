@@ -21,8 +21,6 @@ WT_DECLARE_WT_MEMBER(
     isDropDownIconUnfiltered,
     autoSelectEnabled
   ) {
-    $(".Wt-domRoot").add(el);
-
     el.wtObj = this;
 
     var self = this;
@@ -53,8 +51,8 @@ WT_DECLARE_WT_MEMBER(
 
     /* Checks if we are (still) assisting the given edit */
     function checkEdit(edit) {
-      return $(edit).hasClass("Wt-suggest-onedit") ||
-        $(edit).hasClass("Wt-suggest-dropdown");
+      return edit.classList.contains("Wt-suggest-onedit") ||
+        edit.classList.contains("Wt-suggest-dropdown");
     }
 
     function visible() {
@@ -219,11 +217,11 @@ WT_DECLARE_WT_MEMBER(
       }
 
       if (editId != edit.id) {
-        if ($(edit).hasClass("Wt-suggest-onedit")) {
+        if (edit.classList.contains("Wt-suggest-onedit")) {
           editId = edit.id;
           droppedDown = false;
         } else if (
-          $(edit).hasClass("Wt-suggest-dropdown") &&
+          edit.classList.contains("Wt-suggest-dropdown") &&
           event.keyCode == key_down
         ) {
           editId = edit.id;
