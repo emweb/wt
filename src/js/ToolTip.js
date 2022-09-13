@@ -27,7 +27,7 @@ WT_DECLARE_WT_MEMBER(
         var overTooltip = false;
 
         function checkIsOver() {
-          if (!$("#" + id + ":hover").length) {
+          if (!document.querySelectorAll(`#${id}:hover`).length) {
             hideToolTip();
           }
         }
@@ -68,18 +68,18 @@ WT_DECLARE_WT_MEMBER(
             // bring tooltip to front if there are dialogs
             var maxz = 0;
             var oldZIndex = parseInt(WT.css(outerDiv, "zIndex"), 10);
-            $(".Wt-dialog, .modal, .modal-dialog").each(function(index, value) {
-              maxz = Math.max(maxz, parseInt(WT.css(value, "zIndex"), 10));
+            document.querySelectorAll(".Wt-dialog, .modal, .modal-dialog").forEach(function(elem) {
+              maxz = Math.max(maxz, parseInt(WT.css(elem, "zIndex"), 10));
               if (maxz > oldZIndex) {
                 var newZIndex = maxz + 1000;
                 outerDiv.style["zIndex"] = newZIndex;
               }
             });
 
-            $(toolTipEl).mouseenter(function() {
+            toolTipEl.addEventListener("mouseenter", function() {
               overTooltip = true;
             });
-            $(toolTipEl).mouseleave(function() {
+            toolTipEl.addEventListener("mouseleave", function() {
               overTooltip = false;
             });
           }
@@ -98,7 +98,7 @@ WT_DECLARE_WT_MEMBER(
               return;
             }
             if (toolTipEl) {
-              $(toolTipEl).parent().remove();
+              toolTipEl.parentElement.remove();
               toolTipEl = null;
               clearInterval(checkInt);
               checkInt = null;
