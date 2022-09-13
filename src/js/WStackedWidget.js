@@ -12,7 +12,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WStackedWidget", function(APP, w
   var WT = APP.WT, scrollTops = [], scrollLefts = [], lastResizeWidth = null, lastResizeHeight = null;
 
   function isProperChild(el) {
-    return el.nodeType == 1 && !$(el).hasClass("wt-reparented") && !$(el).hasClass("resize-sensor");
+    return el.nodeType == 1 && !el.classList.contains("wt-reparented") && !el.classList.contains("resize-sensor");
   }
 
   this.reApplySize = function() {
@@ -74,7 +74,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WStackedWidget", function(APP, w
       c = self.childNodes[j];
 
       if (isProperChild(c)) {
-        if (!WT.isHidden(c) && !$(c).hasClass("out")) {
+        if (!WT.isHidden(c) && !c.classList.contains("out")) {
           if (hdefined) {
             var ch = h - marginV(c);
             if (ch > 0) {
@@ -222,7 +222,7 @@ WT_DECLARE_WT_MEMBER(
 
           if (ch == child) {
             toI = i;
-          } else if (ch.style.display !== "none" && !$(ch).hasClass("out")) {
+          } else if (ch.style.display !== "none" && !ch.classList.contains("out")) {
             fromI = i;
           }
         }
@@ -238,13 +238,11 @@ WT_DECLARE_WT_MEMBER(
 
       var from = stack.childNodes[index.from],
         to = stack.childNodes[index.to],
-        $from = $(from),
-        $to = $(to),
         h = stack.scrollHeight,
         w = stack.scrollWidth;
 
       function restoreTo() {
-        $to.removeClass(anim + " in");
+        to.classList.remove(...anim, "in");
         to.style.position = "";
         to.style.left = "";
         to.style.width = "";
@@ -265,7 +263,7 @@ WT_DECLARE_WT_MEMBER(
       }
 
       function restoreFrom() {
-        $from.removeClass(anim + " out");
+        from.classList.remove(...anim, "out");
         from.style.display = "none";
         if (stack.lh) { // stack has a layout-set height
           if (to.lh) { // child had a layout-set height
@@ -284,15 +282,15 @@ WT_DECLARE_WT_MEMBER(
       * For now, reduce duration of any queued animations so that
       * backlogs are minimized for faster resync.
       */
-      if ($from.hasClass("in")) {
-        $from.one(animationEventEnd, function() {
+      if (from.classList.contains("in")) {
+        from.addEventListener(animationEventEnd, function() {
           doAnimateChild(WT, child, effects, timing, 1, style);
-        });
+        }, { once: true });
         return;
-      } else if ($to.hasClass("out")) {
-        $to.one(animationEventEnd, function() {
+      } else if (to.classList.contains("out")) {
+        from.addEventListener(animationEventEnd, function() {
           doAnimateChild(WT, child, effects, timing, 1, style);
-        });
+        }, { once: true });
         return;
       }
 
@@ -325,32 +323,32 @@ WT_DECLARE_WT_MEMBER(
       }
       to.style.display = style.display;
 
-      var needReverse = reverseIfPrecedes && (index.to < index.from),
-        anim = "";
+      let needReverse = reverseIfPrecedes && (index.to < index.from);
+      let anim = [];
 
       switch (effects & 0xFF) {
         case SlideInFromLeft:
           needReverse = !needReverse;
         case SlideInFromRight:
-          anim = "slide";
+          anim = ["slide"];
           break;
         case SlideInFromBottom:
-          anim = "slideup";
+          anim = ["slideup"];
           break;
         case SlideInFromTop:
-          anim = "slidedown";
+          anim = ["slidedown"];
           break;
         case Pop:
-          anim = "pop";
+          anim = ["pop"];
           break;
       }
 
       if (effects & Fade) {
-        anim += " fade";
+        anim.push("fade");
       }
 
       if (needReverse) {
-        anim += " reverse";
+        anim.push("reverse");
       }
 
       from.style[WT.styleAttribute("animation-duration")] = duration + "ms";
@@ -358,11 +356,11 @@ WT_DECLARE_WT_MEMBER(
       from.style[WT.styleAttribute("animation-timing-function")] = timings[inverseTiming[timing]];
       to.style[WT.styleAttribute("animation-timing-function")] = timings[timing];
 
-      $from.addClass(anim + " out");
-      $from.one(animationEventEnd, restoreFrom);
+      from.classList.add(...anim, "out");
+      from.addEventListener(animationEventEnd, restoreFrom, { once: true });
 
-      $to.addClass(anim + " in");
-      $to.one(animationEventEnd, restoreTo);
+      to.classList.add(...anim, "in");
+      to.addEventListener(animationEventEnd, restoreTo, { once: true });
     };
 
     doAnimateChild(WT, child, effects, timing, duration, style);
