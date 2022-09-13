@@ -20,19 +20,19 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupWidget", function(APP, el,
 
   function bindDocumentClick() {
     if (WT.isIOS) {
-      $(document).bind("touchstart", startTouch);
-      $(document).bind("touchend", endTouch);
+      document.addEventListener("touchstart", startTouch);
+      document.addEventListener("touchend", endTouch);
     } else {
-      $(document).bind("click", onDocumentClick);
+      document.addEventListener("click", onDocumentClick);
     }
   }
 
   function unbindDocumentClick() {
     if (WT.isIOS) {
-      $(document).unbind("touchstart", startTouch);
-      $(document).unbind("touchend", endTouch);
+      document.removeEventListener("touchstart", startTouch);
+      document.removeEventListener("touchend", endTouch);
     } else {
-      $(document).unbind("click", onDocumentClick);
+      document.removeEventListener("click", onDocumentClick);
     }
   }
 
@@ -163,7 +163,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupWidget", function(APP, el,
     }
   };
 
-  $(el).mouseleave(mouseLeave).mouseenter(mouseEnter);
+  el.addEventListener("mouseleave", mouseLeave);
+  el.addEventListener("mouseenter", mouseEnter);
 
   if (shown) {
     this.shown();
