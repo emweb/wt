@@ -31,8 +31,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
     var animationPrefix = WT.vendorPrefix(WT.styleAttribute("animation"));
     var transitionPrefix = WT.vendorPrefix(WT.styleAttribute("transition"));
     var transformPrefix = WT.vendorPrefix(WT.styleAttribute("transform"));
-    var $el = $("#" + id),
-      el = $el.get(0),
+    let el = WT.$(id),
       animationEventEnd = animationPrefix == "Webkit" ?
         "webkitAnimationEnd" :
         "animationend",
@@ -40,22 +39,22 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
         "webkitTransitionEnd" :
         "transitionend";
 
-    if ($el.css("display") !== display) {
+    if (WT.css(el, "display") !== display) {
       var p = el.parentNode;
 
       if (p.wtAnimateChild) {
-        p.wtAnimateChild(WT, $el.get(0), effects, timing, duration, { display: display });
+        p.wtAnimateChild(WT, el, effects, timing, duration, { display: display });
         return;
       }
 
-      if ($el.hasClass("animating")) {
-        $(el).one(transitionEventEnd, function() {
+      if (el.classList.contains("animating")) {
+        el.addEventListener(transitionEventEnd, function() {
           doAnimateDisplay(id, effects, timing, duration, display);
-        });
+        }, { once: true });
         return;
       }
 
-      $el.addClass("animating");
+      el.classList.add("animating");
 
       var effect = effects & 0xFF,
         hide = display === "none",
@@ -93,7 +92,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
           el.wtAnimatedHidden(hide);
         }
 
-        $el.removeClass("animating");
+        el.classList.remove("animating");
 
         if (APP.layouts2) {
           APP.layouts2.setElementDirty(el);
@@ -114,7 +113,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
         var targetHeight, currentHeight, elcStyle = {}, elc;
 
         if (hide) {
-          currentHeight = $el.height() + "px";
+          currentHeight = WT.css(el, "height");
           set(el, { height: currentHeight, overflow: "hidden" }, elStyle);
 
           if (effect == SlideInFromTop && el.childNodes.length == 1) {
@@ -127,17 +126,17 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
 
           targetHeight = "0px";
         } else {
-          var $p = $(p), pStyle = {};
+          let pStyle = {};
 
-          set(p, { height: $p.height() + "px", overflow: "hidden" }, pStyle);
+          set(p, { height: WT.css(p, "height"), overflow: "hidden" }, pStyle);
 
           show();
 
-          if ($el.height() == 0) {
+          if (WT.css(el, "height") == "0px") {
             el.style.height = "auto";
           }
 
-          targetHeight = $el.height() + "px";
+          targetHeight = WT.css(el, "height");
           set(el, { height: "0px", overflow: "hidden" }, elStyle);
           restore(p, pStyle);
 
@@ -167,7 +166,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
             }, elcStyle);
           }
 
-          $el.one(transitionEventEnd, function() {
+          el.addEventListener(transitionEventEnd, function() {
             if (hide) {
               el.style.display = display;
             }
@@ -181,7 +180,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
             }
 
             onEnd();
-          });
+          }, { once: true });
         }, 0);
       }
 
@@ -216,7 +215,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
             set(el, { opacity: (hide ? 0 : 1) });
           }
 
-          $el.one(transitionEventEnd, function() {
+          el.addEventListener(transitionEventEnd, function() {
             if (hide) {
               el.style.display = display;
             }
@@ -224,7 +223,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
             restore(el, elStyle);
 
             onEnd();
-          });
+          }, { once: true });
         }, 50); // If this timeout is too small or 0, this will cause some browsers, like
         // Chrome to sometimes not perform the animation at all.
       }
@@ -241,7 +240,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
         set(el, { animationDuration: duration + "ms" }, elStyle);
 
         if (hide) {
-          $el.removeClass("in");
+          el.classList.remove("in");
         }
 
         var cl;
@@ -268,22 +267,22 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
           show();
         }
 
-        $el.addClass(cl);
-        $el.one(animationEventEnd, function() {
+        el.classList.add(...cl.split(" ").filter((el) => el !== ""));
+        el.addEventListener(animationEventEnd, function() {
           if (!hide) {
             cl = cl.replace(" in", "");
           }
-          $el.removeClass(cl);
+          el.classList.remove(...cl.split(" ").filter((el) => el !== ""));
           if (hide) {
             el.style.display = display;
           }
           restore(el, elStyle);
           onEnd();
-        });
+        }, { once: true });
       }
 
       setTimeout(function() {
-        var position = $el.css("position"),
+        var position = WT.css(el, "position"),
           absolute = (position === "absolute" || position === "fixed");
 
         switch (effect) {
