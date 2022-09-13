@@ -24,7 +24,7 @@ WT_DECLARE_WT_MEMBER(
 
     edit.wtObj = this;
 
-    var self = this, WT = APP.WT, key_up = 38, key_down = 40, CH = "crosshair", $edit = $(edit);
+    var self = this, WT = APP.WT, key_up = 38, key_down = 40, CH = "crosshair";
 
     var dragStartXY = null, dragStartValue, changed = false;
     var validator = null;
@@ -181,7 +181,7 @@ WT_DECLARE_WT_MEMBER(
     };
 
     this.mouseOut = function(o, event) {
-      $edit.removeClass(CLASS_DOWN).removeClass(CLASS_UP);
+      edit.classList.remove(CLASS_DOWN, CLASS_UP);
     };
 
     this.mouseMove = function(o, event) {
@@ -192,8 +192,8 @@ WT_DECLARE_WT_MEMBER(
       if (!dragStartXY) {
         var xy = WT.widgetCoordinates(edit, event);
 
-        if ($edit.hasClass(CLASS_DOWN) || $edit.hasClass(CLASS_UP)) {
-          $edit.removeClass(CLASS_DOWN).removeClass(CLASS_UP);
+        if (edit.classList.contains(CLASS_DOWN) || edit.classList.contains(CLASS_UP)) {
+          edit.classList.remove(CLASS_DOWN, CLASS_UP);
         }
 
         var bootstrapVersion = -1;
@@ -214,9 +214,9 @@ WT_DECLARE_WT_MEMBER(
           } else {
             edit.style.cursor = "default";
             if (xy.y < mid - 1) {
-              $edit.addClass(CLASS_UP);
+              edit.classList.add(CLASS_UP);
             } else {
-              $edit.addClass(CLASS_DOWN);
+              edit.classList.add(CLASS_DOWN);
             }
           }
         } else if (bootstrapVersion < 4 && xy.x > edit.offsetWidth - 22) {
@@ -226,9 +226,9 @@ WT_DECLARE_WT_MEMBER(
           } else {
             edit.style.cursor = "default";
             if (xy.y < mid - 1) {
-              $edit.addClass(CLASS_UP);
+              edit.classList.add(CLASS_UP);
             } else {
-              $edit.addClass(CLASS_DOWN);
+              edit.classList.add(CLASS_DOWN);
             }
           }
         } else {
@@ -255,7 +255,7 @@ WT_DECLARE_WT_MEMBER(
       if (edit.style.cursor == CH) {
         WT.capture(null);
         WT.capture(edit);
-        $edit.addClass(CLASS_UNSELECTABLE);
+        edit.classList.add(CLASS_UNSELECTABLE);
 
         dragStartXY = WT.pageCoordinates(event);
         dragStartValue = getValue();
@@ -272,7 +272,7 @@ WT_DECLARE_WT_MEMBER(
           // suppress selection, focus
           WT.cancelEvent(event);
           WT.capture(edit);
-          $edit.addClass(CLASS_UNSELECTABLE);
+          edit.classList.add(CLASS_UNSELECTABLE);
 
           var mid = edit.offsetHeight / 2;
           if (xy.y < mid) {
@@ -288,7 +288,7 @@ WT_DECLARE_WT_MEMBER(
           // suppress selection, focus
           WT.cancelEvent(event);
           WT.capture(edit);
-          $edit.addClass(CLASS_UNSELECTABLE);
+          edit.classList.add(CLASS_UNSELECTABLE);
 
           var mid = edit.offsetHeight / 2;
           if (xy.y < mid) {
@@ -305,7 +305,7 @@ WT_DECLARE_WT_MEMBER(
     };
 
     this.mouseUp = function(o, event) {
-      $edit.removeClass(CLASS_UNSELECTABLE);
+      edit.classList.remove(CLASS_UNSELECTABLE);
       if (isReadOnly()) {
         return;
       }
