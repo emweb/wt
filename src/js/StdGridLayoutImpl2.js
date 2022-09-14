@@ -59,7 +59,7 @@ WT_DECLARE_WT_MEMBER(
       parentMargin,
       parentWithWtPS;
 
-    var rtl = $(document.body).hasClass("Wt-rtl");
+    var rtl = document.body.classList.contains("Wt-rtl");
 
     var DirConfig = [{
       initialized: false,
@@ -233,8 +233,8 @@ WT_DECLARE_WT_MEMBER(
           scrollSize = clientSize;
         } else {
           var visiblePopup = false;
-          $(element).find(".Wt-popup").each(function(index) {
-            if (this.style.display !== "none") {
+          element.querySelectorAll(".Wt-popup").forEach(function(elem) {
+            if (elem.style.display !== "none") {
               visiblePopup = true;
             }
           });
@@ -398,7 +398,7 @@ WT_DECLARE_WT_MEMBER(
     */
     function isHidden(w) {
       // XXX second condition is a hack for WTextEdit
-      return (w.style.display === "none" && !w.ed) || $(w).hasClass("Wt-hidden");
+      return (w.style.display === "none" && !w.ed) || w.classList.contains("Wt-hidden");
     }
 
     function measure(dir, widget, container) {
@@ -441,8 +441,7 @@ WT_DECLARE_WT_MEMBER(
 
             if (item) {
               if (!item.w || (dir == HORIZONTAL && item.dirty > 1)) {
-                var $w = $("#" + item.id);
-                var w2 = $w.get(0);
+                let w2 = WT.$(item.id);
 
                 if (!w2) { // is missing, could be because it is overspanned!
                   DC.setItem(di, oi, null);
@@ -452,10 +451,13 @@ WT_DECLARE_WT_MEMBER(
                 if (w2 != item.w) {
                   item.w = w2;
 
-                  $w.find("img").add($w.filter("img"))
-                    .bind("load", { item: item }, function(event) {
-                      setItemDirty(event.data.item, 1, true);
+                  const arg = item;
+                  let myNodeList = [w2, ...w2.querySelectorAll("img")].filter((elem) => elem.tagName === "IMG");
+                  myNodeList.forEach(function(elem) {
+                    elem.addEventListener("load", function() {
+                      setItemDirty(arg, 1, true);
                     });
+                  });
                 }
               }
 
@@ -1064,7 +1066,7 @@ WT_DECLARE_WT_MEMBER(
 
               if (
                 (WT.hasTag(container, "TD") || WT.hasTag(container, "TH") ||
-                  $(container.parentNode).hasClass("Wt-domRoot")) &&
+                  container.parentNode.classList.contains("Wt-domRoot")) &&
                 !(WT.isIE && !WT.isIElt9)
               ) {
                 minSize = 0;
@@ -1618,12 +1620,9 @@ WT_DECLARE_WT_MEMBER(
         DC.resizeHandles.length = dirCount;
       }
 
-      $(widget).children("." + OC.handleClass)
-        .css(
-          DC.size,
-          (cSize - DC.margins[MARGIN_RIGHT] - DC.margins[MARGIN_LEFT]) +
-            "px"
-        );
+      widget.querySelectorAll(`:scope > .${OC.handleClass}`).forEach(function(descendant) {
+        descendant.style[DC.size] = (cSize - DC.margins[MARGIN_RIGHT] - DC.margins[MARGIN_LEFT]) + "px";
+      });
     }
 
     this.setConfig = function(conf) {
@@ -1782,7 +1781,7 @@ WT_DECLARE_WT_MEMBER(
 
         parentMargin = [0, 0];
         for (; p != document;) {
-          if ($(c).hasClass("wt-reparented")) {
+          if (c.classList.contains("wt-reparented")) {
             break;
           }
 
