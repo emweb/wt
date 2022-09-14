@@ -34,10 +34,10 @@ WT_DECLARE_WT_MEMBER(
 
     edit.wtLObj = this;
 
-    var self = this, WT = APP.WT, $edit = $(edit);
+    var self = this, WT = APP.WT;
 
     function inputSignal() {
-      $edit.trigger("input");
+      edit.dispatchEvent(new InputEvent("input"));
     }
 
     function getValue() {
@@ -336,7 +336,7 @@ WT_DECLARE_WT_MEMBER(
       displayValue = edit.value;
       edit.value = this.getValue();
       if (edit.value !== previousValue) {
-        $edit.change();
+        edit.dispatchEvent(new Event("change", { bubbles: true }));
       }
     };
 
