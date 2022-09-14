@@ -13,11 +13,11 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFormWidget", function(APP, el, 
 
   this.applyEmptyText = function() {
     if (WT.hasFocus(el)) {
-      if ($(el).hasClass(emptyTextStyle)) {
+      if (el.classList.contains(emptyTextStyle)) {
         if (!WT.isIE && el.oldtype) {
           el.type = el.oldtype;
         }
-        $(el).removeClass(emptyTextStyle);
+        el.classList.remove(emptyTextStyle);
         el.value = "";
       }
     } else {
@@ -30,10 +30,10 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFormWidget", function(APP, el, 
             return;
           }
         }
-        $(el).addClass(emptyTextStyle);
+        el.classList.add(emptyTextStyle);
         el.value = emptyText;
       } else {
-        $(el).removeClass(emptyTextStyle);
+        el.classList.remove(emptyTextStyle);
       }
     }
   };
@@ -41,7 +41,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFormWidget", function(APP, el, 
   this.setEmptyText = function(newEmptyText) {
     emptyText = newEmptyText;
 
-    if ($(el).hasClass(emptyTextStyle)) {
+    if (el.classList.contains(emptyTextStyle)) {
       el.value = emptyText;
     }
   };
