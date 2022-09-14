@@ -57,7 +57,7 @@ WT_DECLARE_WT_MEMBER(10, JavaScriptFunction, "ChildrenResize", function(self, w,
   for (j = 0, jl = self.childNodes.length; j < jl; ++j) {
     c = self.childNodes[j];
 
-    if (c.nodeType == 1 && !$(c).hasClass("wt-reparented")) {
+    if (c.nodeType == 1 && !c.classList.contains("wt-reparented")) {
       if (hdefined) {
         var ch = h - marginV(c);
 
@@ -118,7 +118,7 @@ WT_DECLARE_WT_MEMBER(12, JavaScriptFunction, "LastResize", function(self, w, h, 
   var t = self.lastChild;
   while (
     t && t.nodeType == 1 &&
-    ($(t).hasClass("wt-reparented") || $(t).hasClass("resize-sensor"))
+    (t.classList.contains("wt-reparented") || t.classList.contains("resize-sensor"))
   ) {
     t = t.previousSibling;
   }
