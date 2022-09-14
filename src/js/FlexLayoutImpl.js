@@ -20,7 +20,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id) {
       var c = children[i];
       if (
         c.style.display == "none" ||
-        $(c).hasClass("out") ||
+        c.classList.contains("out") ||
         c.className == "resize-sensor"
       ) {
         continue;
@@ -49,7 +49,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id) {
         var c = children[i];
         if (
           c.style.display == "none" ||
-          $(c).hasClass("out") ||
+          c.classList.contains("out") ||
           c.className == "resize-sensor"
         ) {
           continue;
@@ -69,7 +69,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id) {
 
         if (
           c.style.display == "none" ||
-          $(c).hasClass("out") ||
+          c.classList.contains("out") ||
           c.className == "resize-sensor"
         ) {
           continue;
