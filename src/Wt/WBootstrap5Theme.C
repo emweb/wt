@@ -48,8 +48,8 @@
 #endif
 
 namespace skeletons {
-  extern const char * BootstrapTheme_xml1;
-  extern const char * Bootstrap5Theme_xml1;
+  extern const char* BootstrapTheme_xml;
+  extern const char* Bootstrap5Theme_xml;
 }
 
 namespace {
@@ -89,8 +89,8 @@ WBootstrap5Theme::~WBootstrap5Theme()
 
 void WBootstrap5Theme::init(WApplication *app) const
 {
-  app->builtinLocalizedStrings().useBuiltin(skeletons::BootstrapTheme_xml1);
-  app->builtinLocalizedStrings().useBuiltin(skeletons::Bootstrap5Theme_xml1);
+  app->builtinLocalizedStrings().useBuiltin(skeletons::BootstrapTheme_xml);
+  app->builtinLocalizedStrings().useBuiltin(skeletons::Bootstrap5Theme_xml);
   app->require(resourcesUrl() + "js/bootstrap.bundle.min.js");
   LOAD_JAVASCRIPT(app, "js/Bootstrap5Theme.js", "theme", wtjs3);
   WString v = app->metaHeader(MetaHeaderType::Meta, "viewport");

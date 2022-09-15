@@ -31,7 +31,7 @@
 #endif
 
 namespace skeletons {
-  extern const char * AuthCssTheme_xml1;
+  extern const char* AuthCssTheme_xml;
 }
 
 namespace Wt {
@@ -140,7 +140,7 @@ void WCssTheme::apply(WWidget *widget, WWidget *child, int widgetRole) const
   case AuthWidgets:
     WApplication *app = WApplication::instance();
     app->useStyleSheet(WApplication::relativeResourcesUrl() + "form.css");
-    app->builtinLocalizedStrings().useBuiltin(skeletons::AuthCssTheme_xml1);
+    app->builtinLocalizedStrings().useBuiltin(skeletons::AuthCssTheme_xml);
     break;
   }
 }

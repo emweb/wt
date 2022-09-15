@@ -34,7 +34,7 @@
 #endif
 
 namespace skeletons {
-  extern const char * Wt_xml1;
+  extern const char* Wt_xml;
 }
 
 namespace Wt {
@@ -1037,7 +1037,7 @@ void WApplication
     localizedStrings_.reset(new WCombinedLocalizedStrings());
 
     auto defaultMessages = std::shared_ptr<WMessageResourceBundle>(new WMessageResourceBundle());
-    defaultMessages->useBuiltin(skeletons::Wt_xml1);
+    defaultMessages->useBuiltin(skeletons::Wt_xml);
     localizedStrings_->add(defaultMessages);
   }
 

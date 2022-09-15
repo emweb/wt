@@ -42,7 +42,7 @@
 #endif
 
 namespace skeletons {
-  extern const char * BootstrapTheme_xml1;
+  extern const char* BootstrapTheme_xml;
 }
 
 namespace Wt {
@@ -88,7 +88,7 @@ std::vector<WLinkedCssStyleSheet> WBootstrap2Theme::styleSheets() const
 
 void WBootstrap2Theme::init(WApplication *app) const
 {
-  app->builtinLocalizedStrings().useBuiltin(skeletons::BootstrapTheme_xml1);
+  app->builtinLocalizedStrings().useBuiltin(skeletons::BootstrapTheme_xml);
 }
 
 void WBootstrap2Theme::apply(WWidget *widget,

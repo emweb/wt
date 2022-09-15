@@ -74,15 +74,12 @@ namespace {
 }
 
 namespace skeletons {
-  extern const char *Boot_html1;
-  extern const char *Plain_html1;
-  extern const char *Hybrid_html1;
-  extern const char *Wt_js1;
-  extern const char *Boot_js1;
-  extern const char *JQuery_js1;
-
-  extern std::vector<const char *> JQuery_js();
-  extern std::vector<const char *> Wt_js();
+  extern const char* Boot_html;
+  extern const char* Plain_html;
+  extern const char* Hybrid_html;
+  extern const char* Wt_js;
+  extern const char* Boot_js;
+  extern const char* JQuery_js;
 }
 
 namespace Wt {
@@ -352,7 +349,7 @@ void WebRenderer::streamBootContent(WebResponse& response,
   boot.streamUntil(out, "BOOT_JS");
 
   if (!(hybrid && session_.app()->hasQuit())) {
-    FileServe bootJs(skeletons::Boot_js1);
+    FileServe bootJs(skeletons::Boot_js);
 
     bootJs.setVar("SELF_URL",
                   safeJsStringLiteral
@@ -438,7 +435,7 @@ void WebRenderer::serveBootstrap(WebResponse& response)
 {
   Configuration& conf = session_.controller()->configuration();
 
-  FileServe boot(skeletons::Boot_html1);
+  FileServe boot(skeletons::Boot_html);
   setPageVars(boot);
 
   WStringStream noJsRedirectUrl;
@@ -941,27 +938,14 @@ void WebRenderer::serveMainscript(WebResponse& response)
     if (!haveJQuery) {
       out << "if (typeof window.$ === 'undefined') {";
 #ifndef WT_TARGET_JAVA
-      std::vector<const char *> parts = skeletons::JQuery_js();
-      for (std::size_t i = 0; i < parts.size(); ++i)
-        out << const_cast<char *>(parts[i]);
+      out << skeletons::JQuery_js;
 #else
-      out << const_cast<char *>(skeletons::JQuery_js1);
+      out << const_cast<char *>(skeletons::JQuery_js);
 #endif
       out << '}';
     }
 
-#ifndef WT_TARGET_JAVA
-    std::vector<const char *> parts = skeletons::Wt_js();
-#else
-    std::vector<const char *> parts = std::vector<const char *>();
-#endif
-    std::string Wt_js_combined;
-    if (parts.size() > 1)
-      for (std::size_t i = 0; i < parts.size(); ++i)
-        Wt_js_combined += parts[i];
-
-    FileServe script(parts.size() > 1
-                     ? Wt_js_combined.c_str() : skeletons::Wt_js1);
+    FileServe script(skeletons::Wt_js);
 
     script.setCondition
       ("CATCH_ERROR", conf.errorReporting() != Configuration::NoErrors);
@@ -1449,7 +1433,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
   app->newBeforeLoadJavaScript_ = app->beforeLoadJavaScript_.length();
 
   bool hybridPage = session_.progressiveBoot() || session_.env().ajax();
-  FileServe page(hybridPage ? skeletons::Hybrid_html1 : skeletons::Plain_html1);
+  FileServe page(hybridPage ? skeletons::Hybrid_html : skeletons::Plain_html);
 
   setPageVars(page);
   page.setVar("SESSION_ID", session_.sessionId());

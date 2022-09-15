@@ -11,17 +11,20 @@ INCLUDE_DIRECTORIES(
 
 LINK_DIRECTORIES(${BOOST_LIB_DIRS})
 
-MACRO (FILE_TO_STRING infile outfile var)
-ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${outfile}
-               COMMAND ${CMAKE_COMMAND}
-                   ARGS -Dinfile:FILEPATH=${CMAKE_CURRENT_SOURCE_DIR}/${infile}
-                        -Doutfile:FILEPATH=${CMAKE_CURRENT_BINARY_DIR}/${outfile}
-                        -Dvar:STRING=${var}
-                        -P ${CMAKE_CURRENT_SOURCE_DIR}/filetostring.cmake
-           MAIN_DEPENDENCY
-                ${CMAKE_CURRENT_SOURCE_DIR}/${infile}
-)
-ENDMACRO (FILE_TO_STRING)
+function(file_to_string infile outfile var)
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${outfile}
+    COMMAND ${CMAKE_COMMAND}
+      ARGS -Dinfile:FILEPATH=${CMAKE_CURRENT_SOURCE_DIR}/${infile}
+           -Doutfile:FILEPATH=${CMAKE_CURRENT_BINARY_DIR}/${outfile}
+           -Dvar:STRING=${var}
+           -P ${CMAKE_CURRENT_SOURCE_DIR}/filetostring.cmake
+    MAIN_DEPENDENCY
+      ${CMAKE_CURRENT_SOURCE_DIR}/${infile}
+    DEPENDS
+      ${CMAKE_CURRENT_SOURCE_DIR}/filetostring.cmake
+  )
+endfunction()
 
 FILE_TO_STRING(web/skeleton/Plain.html    Plain_html.C      Plain_html)
 FILE_TO_STRING(web/skeleton/Hybrid.html   Hybrid_html.C     Hybrid_html)

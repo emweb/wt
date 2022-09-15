@@ -45,8 +45,8 @@
 #endif
 
 namespace skeletons {
-  extern const char * BootstrapTheme_xml1;
-  extern const char * Bootstrap3Theme_xml1;
+  extern const char* BootstrapTheme_xml;
+  extern const char* Bootstrap3Theme_xml;
 }
 
 namespace {
@@ -109,8 +109,8 @@ std::vector<WLinkedCssStyleSheet> WBootstrap3Theme::styleSheets() const
 
 void WBootstrap3Theme::init(WApplication *app) const
 {
-  app->builtinLocalizedStrings().useBuiltin(skeletons::BootstrapTheme_xml1);
-  app->builtinLocalizedStrings().useBuiltin(skeletons::Bootstrap3Theme_xml1);
+  app->builtinLocalizedStrings().useBuiltin(skeletons::BootstrapTheme_xml);
+  app->builtinLocalizedStrings().useBuiltin(skeletons::Bootstrap3Theme_xml);
 }
 
   void WBootstrap3Theme::apply(WWidget *widget, WWidget *child, int widgetRole)

@@ -39,24 +39,13 @@
 
 #ifndef WT_TARGET_JAVA
 namespace skeletons {
-  extern std::vector<const char*> WCartesianChart_js();
+  extern const char* WCartesianChart_js;
 }
 
 namespace {
   using namespace Wt;
-  std::string WCartesianChart_js_str()
-  {
-    std::vector<const char *> v = skeletons::WCartesianChart_js();
-    WStringStream ss;
-    for (std::size_t i = 0; i < v.size(); ++i) {
-      ss << std::string(v[i]);
-    }
-    return ss.str();
-  }
-
   WJavaScriptPreamble wtjs1() {
-    static std::string js = WCartesianChart_js_str();
-    return WJavaScriptPreamble(WtClassScope, JavaScriptConstructor, "WCartesianChart", js.c_str());
+    return WJavaScriptPreamble(WtClassScope, JavaScriptConstructor, "WCartesianChart", skeletons::WCartesianChart_js);
   }
 }
 #else

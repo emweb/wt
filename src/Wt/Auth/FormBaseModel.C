@@ -10,7 +10,7 @@
 #include "web/WebUtils.h"
 
 namespace skeletons {
-  extern const char *AuthStrings_xml1;
+  extern const char* AuthStrings_xml;
 }
 
 namespace Wt {
@@ -25,7 +25,7 @@ FormBaseModel::FormBaseModel(const AuthService& baseAuth,
     passwordAuth_(nullptr)
 {
   WApplication *app = WApplication::instance();
-  app->builtinLocalizedStrings().useBuiltin(skeletons::AuthStrings_xml1);
+  app->builtinLocalizedStrings().useBuiltin(skeletons::AuthStrings_xml);
 }
 
 void FormBaseModel::addPasswordAuth(const AbstractPasswordService *auth)
