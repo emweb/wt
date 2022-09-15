@@ -1404,7 +1404,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
 
     for (unsigned i = 0; i < childrenToSave_.size(); ++i) {
       out << "var c" << var_ << (int)i << '='
-          << "$('#" << childrenToSave_[i] << "')";
+          << WT_CLASS ".$('" << childrenToSave_[i] << "')";
       // In IE, contents is deleted by setting innerHTML
       if (app->environment().agentIsIE())
         out << ".detach()";

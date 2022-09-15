@@ -53,6 +53,14 @@ if (!window._$_WT_CLASS_$_) {
     /** @const */ var UNDEFINED = "undefined";
     /** @const */ var UNKNOWN = "unknown"; // seen on IE for reasons unknown
 
+    // Function to test is object is empty
+    this.isEmptyObject = function(obj) {
+      for (var elem in obj) {
+        return false;
+      }
+      return true;
+    };
+
     this.condCall = function(o, f, a) {
       if (o[f]) {
         o[f](a);
@@ -513,7 +521,7 @@ if (!window._$_WT_CLASS_$_) {
       } else {
         var i, j, il;
         for (i = 0, j = 0, il = p.childNodes.length; i < il; ++i) {
-          if ($(p.childNodes[i]).hasClass("wt-reparented")) {
+          if (p.childNodes[i].classList.contains("wt-reparented")) {
             continue;
           }
           if (j === pos) {
@@ -534,15 +542,14 @@ if (!window._$_WT_CLASS_$_) {
       }
     };
 
-    this.replaceWith = function(w1Id, $w2) {
-      var $w1 = $("#" + w1Id);
-      $w1.replaceWith($w2);
+    this.replaceWith = function(w1Id, w2) {
+      WT.$(w1Id).replaceWith(w2);
 
       /* Reapply client-side validation, bootstrap applys validation classes
          also outside the element into its ancestors */
-      if ($w2.get(0).wtValidate && WT.validate) {
+      if (w2.wtValidate && WT.validate) {
         setTimeout(function() {
-          WT.validate($w2.get(0));
+          WT.validate(w2);
         }, 0);
       }
     };
@@ -587,9 +594,9 @@ if (!window._$_WT_CLASS_$_) {
     };
 
     this.saveReparented = function(el) {
-      $(el).find(".wt-reparented").each(function() {
-        var domRoot = $(".Wt-domRoot").get(0);
-        domRoot.appendChild(this.parentNode.removeChild(this));
+      el.querySelectorAll(".wt-reparented").forEach(function(elem) {
+        let domRoot = document.querySelector(".Wt-domRoot");
+        domRoot.appendChild(elem.parentNode.removeChild(elem));
       });
     };
 
@@ -658,8 +665,8 @@ if (!window._$_WT_CLASS_$_) {
     };
 
     this.ajaxInternalPaths = function(basePath) {
-      $(".Wt-ip").each(function() {
-        var href = this.getAttribute("href"), wtd = href.lastIndexOf("?wtd");
+      document.querySelectorAll(".Wt-ip").forEach(function(elem) {
+        let href = elem.getAttribute("href"), wtd = href.lastIndexOf("?wtd");
         if (wtd === -1) {
           wtd = href.lastIndexOf("&wtd");
         }
@@ -667,16 +674,16 @@ if (!window._$_WT_CLASS_$_) {
           href = href.substr(0, wtd);
         }
 
-        var internalPath;
+        let internalPath;
 
         /*
          * On IE < 8, an absolute URL is read from href. In that case we
          * also turn the basePath into an absolute URL.
          */
         if (href.indexOf("://") != -1) {
-          var el = document.createElement("div");
+          let el = document.createElement("div");
           el.innerHTML = '<a href="' + basePath + '">x</a>';
-          var absBase = el.firstChild.href;
+          let absBase = el.firstChild.href;
           internalPath = href.substr(absBase.length - 1);
         } else {
           while (href.substr(0, 3) == "../") {
@@ -700,28 +707,26 @@ if (!window._$_WT_CLASS_$_) {
         if (internalPath.substr(0, 4) == "/?_=") {
           internalPath = internalPath.substr(4);
         }
-        this.setAttribute("href", href); // computes this.href
-        this.setAttribute("href", this.href);
-        this.onclick = function(event) {
+        elem.setAttribute("href", href); // computes this.href
+        elem.setAttribute("href", elem.href);
+        elem.onclick = function(event) {
           WT.navigateInternalPath(event, internalPath);
         };
-        $(this).removeClass("Wt-ip");
+        elem.classList.remove("Wt-ip");
       });
     };
 
     this.resolveRelativeAnchors = function() {
-      if (window.$) {
-        $(".Wt-rr").each(function() {
-          if (this.href) {
-            this.setAttribute("href", this.href);
-          }
-          if (this.src) {
-            this.setAttribute("src", this.src);
-          }
+      document.querySelectorAll(".Wt-rr").forEach(function(elem) {
+        if (elem.href) {
+          elem.setAttribute("href", elem.href);
+        }
+        if (elem.src) {
+          elem.setAttribute("src", elem.src);
+        }
 
-          $(this).removeClass("Wt-rr");
-        });
-      }
+        elem.classList.remove("Wt-rr");
+      });
     };
 
     var delegating = false;
@@ -1027,7 +1032,7 @@ if (!window._$_WT_CLASS_$_) {
     }
 
     this.getUnicodeSelectionRange = function(elem) {
-      return toUnicodeSelection(WT.getSelectionRange(elem), $(elem).val());
+      return toUnicodeSelection(WT.getSelectionRange(elem), elem.value);
     };
 
     this.getSelectionRange = function(elem) {
@@ -1060,7 +1065,7 @@ if (!window._$_WT_CLASS_$_) {
           var start = -1;
           var end = -1;
 
-          var val = $(elem).val();
+          let val = elem.value;
           if (val) {
             var range = document.selection.createRange().duplicate();
 
@@ -1091,7 +1096,7 @@ if (!window._$_WT_CLASS_$_) {
        * Copyright (c) 2009 Matt Zabriskie
        * Released under the MIT and GPL licenses.
        */
-      var val = $(elem).val();
+      let val = elem.value;
 
       if (typeof start != "number") {
         start = -1;
@@ -1308,7 +1313,7 @@ if (!window._$_WT_CLASS_$_) {
 
     // Return if an element (or one of its ancestors) is hidden
     this.isHidden = function(w) {
-      if (w.style.display == "none" || $(w).hasClass("out")) {
+      if (w.style.display == "none" || w.classList.contains("out")) {
         return true;
       } else {
         w = w.parentNode;
@@ -1592,11 +1597,11 @@ if (!window._$_WT_CLASS_$_) {
       }
 
       if (obj != null) {
-        $(db).addClass("unselectable");
+        db.classList.add("unselectable");
         db.setAttribute("unselectable", "on");
         db.onselectstart = "return false;";
       } else {
-        $(db).removeClass("unselectable");
+        db.classList.remove("unselectable");
         db.setAttribute("unselectable", "off");
         db.onselectstart = "";
       }
@@ -1760,9 +1765,9 @@ if (!window._$_WT_CLASS_$_) {
     };
 
     this.removeStyleSheet = function(uri) {
-      if ($('link[rel=stylesheet][href~="' + uri + '"]')) {
-        $('link[rel=stylesheet][href~="' + uri + '"]').remove();
-      }
+      document.querySelectorAll('link[rel=stylesheet][href~="' + uri + '"]').forEach(function(link) {
+        link.remove();
+      });
       var sheets = document.styleSheets;
       for (var i = 0; i < sheets.length; ++i) {
         var sheet = sheets[i];
@@ -1838,7 +1843,7 @@ if (!window._$_WT_CLASS_$_) {
        * widget that can grow dynamically (e.g. a suggestion popup) we
        * should prepare ourselves and consider maximum size here
        */
-      if (!$(e).hasClass("Wt-tooltip")) {
+      if (!e.classList.contains("Wt-tooltip")) {
         reserveWidth = WT.px(e, "maxWidth") || reserveWidth;
         reserveHeight = WT.px(e, "maxHeight") || reserveHeight;
       }
@@ -1998,7 +2003,7 @@ if (!window._$_WT_CLASS_$_) {
       }
 
       p.appendChild(w);
-      $(w).addClass("wt-reparented");
+      w.classList.add("wt-reparented");
 
       WT.fitToWindow(w, x, y, rightx, bottomy);
 
@@ -2571,9 +2576,9 @@ if (!window._$_WT_CLASS_$_) {
     }
 
     this.maxZIndex = function() {
-      var maxz = 0;
-      $(".Wt-dialog, .modal, .modal-dialog").each(function(index, value) {
-        maxz = Math.max(maxz, $(value).css("z-index"));
+      let maxz = 0;
+      document.querySelectorAll(".Wt-dialog, .modal, .modal-dialog").forEach(function(elem) {
+        maxz = Math.max(maxz, WT.css(elem, "z-index"));
       });
 
       return maxz;
@@ -2984,7 +2989,7 @@ window._$_APP_CLASS_$_ = new (function() {
           v = el.value;
         }
       } else if (el.type != "file") {
-        if ($(el).hasClass("Wt-edit-emptyText")) {
+        if (el.classList.contains("Wt-edit-emptyText")) {
           v = "";
         } else {
           /* For WTextEdit */
@@ -3253,9 +3258,9 @@ window._$_APP_CLASS_$_ = new (function() {
       pollTimer = null;
     }
     comm.cancel();
-    var tr = $("#Wt-timers");
-    if (tr.length > 0) {
-      WT.setHtml(tr.get(0), "", false);
+    let tr = WT.$("Wt-timers");
+    if (tr) {
+      WT.setHtml(tr, "", false);
     }
   }
 
@@ -3357,7 +3362,8 @@ window._$_APP_CLASS_$_ = new (function() {
     }
 
     // this could be cancelled leading to havoc?
-    $(document).mousedown(WT.mouseDown).mouseup(WT.mouseUp);
+    document.addEventListener("mousedown", WT.mouseDown);
+    document.addEventListener("mouseup", WT.mouseUp);
 
     WT.history._initialize();
     initIdleTimeout();
@@ -3739,7 +3745,7 @@ window._$_APP_CLASS_$_ = new (function() {
 
                   if (
                     responsePending ||
-                    !$.isEmptyObject(pendingWsRequests)
+                    !WT.isEmptyObject(pendingWsRequests)
                   ) {
                     websocket.state = WebSocketAckConnect;
                   } else {
@@ -3927,8 +3933,8 @@ window._$_APP_CLASS_$_ = new (function() {
     data += "&pageId=" + pageId;
 
     if (ackPuzzle) {
-      var solution = "";
-      var d = $("#" + ackPuzzle).get(0);
+      let solution = "";
+      let d = WT.$(ackPuzzle);
       if (d) {
         d = d.parentNode;
 
@@ -4368,9 +4374,9 @@ window._$_APP_CLASS_$_ = new (function() {
 
   function updateGlobal(id) {
     firstCall = false;
-    var domId;
+    let domId;
     if (id == null) {
-      domId = $(".Wt-domRoot").get(0).id;
+      domId = document.querySelector(".Wt-domRoot").id;
     } else {
       domId = id;
     }
