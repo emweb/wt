@@ -6,12 +6,14 @@
 #include <Wt/WApplication.h>
 
 #include <hpdf.h>
+#include <hpdf_version.h>
 
 namespace {
-    void HPDF_STDCALL error_handler(HPDF_STATUS error_no, HPDF_STATUS detail_no,
-                       void *user_data) {
-        fprintf(stderr, "libharu error: error_no=%04X, detail_no=%d\n",
-                (unsigned int) error_no, (int) detail_no);
+    void HPDF_STDCALL error_handler(HPDF_STATUS error_no,
+                                    HPDF_STATUS detail_no,
+                                    void *user_data) {
+        auto pdfImage = static_cast<Wt::WPdfImage*>(user_data);
+        pdfImage->errorHandler(error_no, detail_no);
     }
 }
 
@@ -36,7 +38,7 @@ public:
 
         HPDF_Doc pdf = HPDF_New(error_handler, 0);
 
-#if HPDF_MAJOR_VERION >= 2 || HPDF_MINOR_VERSION >= 3
+#if HPDF_VERSION_ID >= 20300
         // Note: UTF-8 encoding (for TrueType fonts) is only available since libharu 2.3.0 !
         HPDF_UseUTFEncodings(pdf);
 #endif

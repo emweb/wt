@@ -11,7 +11,7 @@ BEGIN { p = 1; ifndef = 0 }
 /^#ifndef WT_TARGET_JAVA/ { ifndef = 1; next }
 /^#else/ { if (ifndef) { p = 0; next } }
 /^#endif/ { if (ifndef) { p = 1; ifndef = 0; next } }
-{ if (p) { print } }' | sed -e 's/extern //g' | grep -v SAMPLE_ | grep -v 'ifdef' | grep -v 'ifndef' | grep -v HPDF_MAJOR | grep -v 'endif' | pygmentize -l cpp -f html >> $DEST
+{ if (p) { print } }' | sed -e 's/extern //g' | grep -v SAMPLE_ | grep -v 'ifdef' | grep -v 'ifndef' | grep -v HPDF_VERSION | grep -v 'endif' | pygmentize -l cpp -f html >> $DEST
   echo "  </message>" >> $DEST
 done
 
