@@ -77,15 +77,9 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
       self.wtResize(el, lastW, lastH, true);
     }
 
-    var doc;
+    let doc = iframe.contentDocument;
 
-    if (WT.isIE) {
-      doc = document.frames[iframe.id].document; // one day it may work? :-)
-    } else {
-      doc = iframe.contentDocument;
-    }
-
-    $(doc.body).bind("paste", function(event) {
+    doc.body.addEventListener("paste", function(event) {
       var clipboardData = event.clipboardData || event.originalEvent.clipboardData,
         i,
         il;
