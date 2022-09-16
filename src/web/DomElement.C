@@ -1309,8 +1309,9 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
         if (removeAllChildren_ == 0)
           out << WT_CLASS << ".setHtml(" << var_ << ", '');\n";
         else {
-          out << "$(" << var_ << ").children(':gt(" << (removeAllChildren_ - 1)
-              << ")').remove();";
+          out << "(Array.from(" << var_ << ".querySelectorAll(':scope > *')).slice(" << removeAllChildren_ 
+              << ")).forEach( elem => elem.remove());";
+
         }
       }
     }
