@@ -256,7 +256,7 @@ void WAnchor::renderUrlResolution(WWidget *widget, DomElement& element,
     element.setProperty(Property::Class,
                         Utils::addWord(widget->styleClass().toUTF8(), "Wt-rr"));
   else
-    element.callJavaScript("$('#" + widget->id() + "').addClass('Wt-rr');");
+    element.callJavaScript(WT_CLASS ".$('" + widget->id() + "').classList.add('Wt-rr');");
 }
 
 void WAnchor::propagateRenderOk(bool deep)
