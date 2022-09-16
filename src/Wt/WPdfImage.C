@@ -24,6 +24,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <hpdf.h>
+#include <hpdf_version.h>
 #ifdef WT_WIN32
 // Disable warnings about conversions from double to real (data loss)
 #pragma warning(disable: 4244)
