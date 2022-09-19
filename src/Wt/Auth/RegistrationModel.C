@@ -304,13 +304,13 @@ void RegistrationModel::validatePasswordsMatchJS(WLineEdit *password,
   password2->keyWentUp().connect
     ("function(o) {"
      """var i=" + info2->jsRef() + ",o1=" + password->jsRef() + ";"
-     """if (!$(o1).hasClass('Wt-invalid')) {"
+     """if (!o1.classList.contains('Wt-invalid')) {"
      ""  "if (o.value == o1.value) {"
-     ""     "$(o).removeClass('Wt-invalid');"
+     ""     "o.classList.remove('Wt-invalid');"
      ""      WT_CLASS ".setHtml(i," + WString::tr("Wt.Auth.valid")
      .jsStringLiteral() + ");"
      ""  "} else {"
-     ""     "$(o).removeClass('Wt-valid');"
+     ""     "o.classList.remove('Wt-valid');"
      ""      WT_CLASS ".setHtml(i,"
      ""        + WString::tr("Wt.Auth.repeat-password-info").jsStringLiteral()
      +                         ");"
