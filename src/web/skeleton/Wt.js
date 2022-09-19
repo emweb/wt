@@ -53,6 +53,15 @@ if (!window._$_WT_CLASS_$_) {
     /** @const */ var UNDEFINED = "undefined";
     /** @const */ var UNKNOWN = "unknown"; // seen on IE for reasons unknown
 
+    // Alternative for jQuery $(document).ready
+    this.ready = function(f) {
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", f);
+      } else {
+        f();
+      }
+    };
+
     // Function to test is object is empty
     this.isEmptyObject = function(obj) {
       for (var elem in obj) {

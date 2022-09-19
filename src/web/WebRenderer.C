@@ -1124,7 +1124,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
         <<   "}, 400);"
         << "else ";
 
-    out << "$(document).ready(function() { "
+    out << WT_CLASS ".ready(function() { "
         << app->javaScriptClass() << "._p_.load(true);});\n";
   }
 
@@ -1276,7 +1276,7 @@ void WebRenderer::serveMainAjax(WStringStream& out)
 
   renderSetServerPush(out);
 
-  out << "$(document).ready(function() { "
+  out << WT_CLASS ".ready(function() { "
       << app->javaScriptClass() << "._p_.load(" << !widgetset << ");});\n";
 
   loadScriptLibraries(out, app, librariesLoaded);
