@@ -116,7 +116,7 @@ void WTableView::setup()
 
     canvas_->clicked().connect
       ("function(o, e) { "
-       """$(document).trigger($.event.fix(e));"
+       """document.dispatchEvent(new Event(e.type, e));"
        "}");
 
     canvas_->clicked().preventPropagation();
@@ -125,14 +125,14 @@ void WTableView::setup()
                        std::placeholders::_1));
     canvas_->mouseWentDown().preventPropagation();
     canvas_->mouseWentDown().connect("function(o, e) { "
-                                     "$(document).trigger($.event.fix(e));"
+                                     "document.dispatchEvent(new Event(e.type, e));"
                                      "}");
     canvas_->mouseWentUp().connect
       (this, std::bind(&WTableView::handleMouseWentUp, this, false,
                        std::placeholders::_1));
     canvas_->mouseWentUp().preventPropagation();
     canvas_->mouseWentUp().connect("function(o, e) { "
-                                     "$(document).trigger($.event.fix(e));"
+                                     "document.dispatchEvent(new Event(e.type, e));"
                                      "}");
     canvas_->addWidget(std::unique_ptr<WWidget>(table_));
 
@@ -165,21 +165,21 @@ void WTableView::setup()
       (this, std::bind(&WTableView::handleSingleClick, this, true,
                        std::placeholders::_1));
     headerColumnsCanvas_->clicked().connect("function(o, e) { "
-                               "$(document).trigger($.event.fix(e));"
+                               "document.dispatchEvent(new Event(e.type, e));"
                                "}");
     headerColumnsCanvas_->mouseWentDown().preventPropagation();
     headerColumnsCanvas_->mouseWentDown().connect
       (this, std::bind(&WTableView::handleMouseWentDown, this, true,
                        std::placeholders::_1));
     headerColumnsCanvas_->mouseWentDown().connect("function(o, e) { "
-                                     "$(document).trigger($.event.fix(e));"
+                                     "document.dispatchEvent(new Event(e.type, e));"
                                      "}");
     headerColumnsCanvas_->mouseWentUp().preventPropagation();
     headerColumnsCanvas_->mouseWentUp().connect
       (this, std::bind(&WTableView::handleMouseWentUp, this, true,
                        std::placeholders::_1));
     headerColumnsCanvas_->mouseWentUp().connect("function(o, e) { "
-                                     "$(document).trigger($.event.fix(e));"
+                                     "document.dispatchEvent(new Event(e.type, e));"
                                      "}");
     headerColumnsCanvas_->addWidget
       (std::unique_ptr<WWidget>(headerColumnsTable_));
