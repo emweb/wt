@@ -173,7 +173,7 @@ void WFileUpload::create()
     setJavaScriptMember(WT_RESIZE_JS,
                         "function(self, w, h) {"
                         """if (w >= 0) "
-                        ""  "$(self).find('input').width(w);"
+                        ""  "self.querySelector('input').style.width = `${w}px`;"
                         "}");
   } else
     fileUploadTarget_.reset();
