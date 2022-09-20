@@ -14,8 +14,8 @@ INSTALL_FILES(/include/Wt "^AsioWrapper$")
 
 IF (ASCIIDOC_FOUND)
   ASCIIDOC_FILE(wt-tutorial
-    ${CMAKE_SOURCE_DIR}/doc/tutorial/wt.doc
-    ${CMAKE_SOURCE_DIR}/doc/tutorial/wt.html)
+    ${WT_SOURCE_DIR}/doc/tutorial/wt.doc
+    ${WT_SOURCE_DIR}/doc/tutorial/wt.html)
 ENDIF (ASCIIDOC_FOUND)
 
 IF (WT_DATE_TZ_USE_DATE)

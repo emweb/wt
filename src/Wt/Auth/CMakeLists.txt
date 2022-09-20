@@ -7,8 +7,8 @@ INSTALL(FILES ${AUTH_H_FILES}
 
 IF (ASCIIDOC_FOUND)
   ASCIIDOC_FILE(auth-tutorial
-    ${CMAKE_SOURCE_DIR}/doc/tutorial/auth.doc
-    ${CMAKE_SOURCE_DIR}/doc/tutorial/auth.html)
+    ${WT_SOURCE_DIR}/doc/tutorial/auth.doc
+    ${WT_SOURCE_DIR}/doc/tutorial/auth.html)
 ENDIF (ASCIIDOC_FOUND)
 
 if(WT_HAS_SAML)

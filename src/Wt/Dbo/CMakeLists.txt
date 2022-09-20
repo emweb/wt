@@ -87,8 +87,8 @@ IF(ENABLE_LIBWTDBO)
 
   IF (ASCIIDOC_FOUND)
     ASCIIDOC_FILE(dbo-tutorial
-      ${CMAKE_SOURCE_DIR}/doc/tutorial/dbo.doc
-      ${CMAKE_SOURCE_DIR}/doc/tutorial/dbo.html)
+      ${WT_SOURCE_DIR}/doc/tutorial/dbo.doc
+      ${WT_SOURCE_DIR}/doc/tutorial/dbo.html)
   ENDIF (ASCIIDOC_FOUND)
 
 ELSE (ENABLE_LIBWTDBO)
