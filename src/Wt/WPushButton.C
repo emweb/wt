@@ -69,7 +69,7 @@ void WPushButton::setCheckable(bool checkable)
   flags_.set(BIT_IS_CHECKABLE, checkable);
 
   if (checkable) {
-    clicked().connect("function(o,e) { $(o).toggleClass('active'); }");
+    clicked().connect("function(o,e) { o.classList.toggle('active'); }");
     clicked().connect(this, &WPushButton::toggled);
   }
 }
