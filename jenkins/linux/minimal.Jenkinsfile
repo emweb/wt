@@ -66,6 +66,32 @@ pipeline {
         pollSCM('H/5 * * * *')
     }
     stages {
+        stage('Check JS') {
+            stages {
+                stage('pnpm install') {
+                    steps {
+                        dir('src/js') {
+                            sh '''#!/bin/bash
+                              export PNPM_HOME="${HOME}/.local/share/pnpm"
+                              export PATH="${PNPM_HOME}:${PATH}"
+                              pnpm install
+                            '''
+                        }
+                    }
+                }
+                stage('Check formatting') {
+                    steps {
+                        dir('src/js') {
+                            sh '''#!/bin/bash
+                              export PNPM_HOME="${HOME}/.local/share/pnpm"
+                              export PATH="${PNPM_HOME}:${PATH}"
+                              pnpm run checkfmt
+                            '''
+                        }
+                    }
+                }
+            }
+        }
         stage('Single-threaded') {
             steps {
                 dir('build-st') {
