@@ -6,126 +6,131 @@
 
 /* Note: this is at the same time valid JavaScript and C++. */
 
-WT_DECLARE_WT_MEMBER
-(10, JavaScriptFunction, "toolTip",
- function(APP, id, text, deferred, ToolTipInnerStyle, ToolTipOuterStyle) {
+WT_DECLARE_WT_MEMBER(
+  10,
+  JavaScriptFunction,
+  "toolTip",
+  function(APP, id, text, deferred, ToolTipInnerStyle, ToolTipOuterStyle) {
+    var el = document.getElementById(id);
+    var WT = APP.WT;
 
+    var obj = el.toolTip;
 
-     var el = document.getElementById(id);
-     var WT = APP.WT;
+    if (!obj) {
+      el.toolTip = new function() {
+        var showTimer = null, checkInt = null, coords = null, toolTipEl = null;
+        /* const */ var MouseDistance = 10;
+        /* const */ var Delay = 500;
+        /* const */ var HideDelay = 200;
+        var waitingForText = false, toolTipText = text;
 
-     var obj = el.toolTip;
+        var overTooltip = false;
 
-     if (!obj) {
-         el.toolTip = new function() {
-             var showTimer = null, checkInt = null, coords = null, toolTipEl = null;
-             /* const */ var MouseDistance = 10;
-             /* const */ var Delay = 500;
-             /* const */ var HideDelay = 200;
-             var waitingForText = false, toolTipText = text;
+        function checkIsOver() {
+          if (!$("#" + id + ":hover").length) {
+            hideToolTip();
+          }
+        }
 
-             var overTooltip = false;
+        function loadToolTipText() {
+          waitingForText = true;
+          APP.emit(el, "Wt-loadToolTip");
+        }
 
-             function checkIsOver() {
-                 if (!$('#' + id + ':hover').length) {
-                     hideToolTip();
-                 }
-             }
+        this.setToolTipText = function(text) {
+          toolTipText = text;
+          if (waitingForText) {
+            this.showToolTip();
+            clearTimeout(showTimer);
+            waitingForText = false;
+          }
+        };
 
-             function loadToolTipText() {
-                 waitingForText = true;
-                 APP.emit(el, "Wt-loadToolTip");
-             }
+        this.showToolTip = function() {
+          if (deferred && !toolTipText && !waitingForText) {
+            loadToolTipText();
+          }
 
-             this.setToolTipText = function(text) {
-                 toolTipText = text;
-                 if (waitingForText) {
-                     this.showToolTip();
-                     clearTimeout(showTimer);
-                     waitingForText = false;
-                 }
-             }
+          if (toolTipText) {
+            toolTipEl = document.createElement("div");
+            toolTipEl.className = ToolTipInnerStyle;
+            toolTipEl.innerHTML = toolTipText;
 
-             this.showToolTip = function() {
-                 if (deferred && !toolTipText && !waitingForText)
-                     loadToolTipText();
+            outerDiv = document.createElement("div");
+            outerDiv.className = ToolTipOuterStyle;
 
-                 if (toolTipText){
-                     toolTipEl = document.createElement('div');
-                     toolTipEl.className = ToolTipInnerStyle;
-                     toolTipEl.innerHTML = toolTipText;
+            document.body.appendChild(outerDiv);
+            outerDiv.appendChild(toolTipEl);
 
-                     outerDiv = document.createElement('div');
-                     outerDiv.className = ToolTipOuterStyle;
+            var x = coords.x, y = coords.y;
+            WT.fitToWindow(outerDiv, x + MouseDistance, y + MouseDistance, x - MouseDistance, y - MouseDistance);
 
-                     document.body.appendChild(outerDiv);
-                     outerDiv.appendChild(toolTipEl);
+            // bring tooltip to front if there are dialogs
+            var maxz = 0;
+            var oldZIndex = parseInt(WT.css(outerDiv, "zIndex"), 10);
+            $(".Wt-dialog, .modal, .modal-dialog").each(function(index, value) {
+              maxz = Math.max(maxz, parseInt(WT.css(value, "zIndex"), 10));
+              if (maxz > oldZIndex) {
+                var newZIndex = maxz + 1000;
+                outerDiv.style["zIndex"] = newZIndex;
+              }
+            });
 
-                     var x = coords.x, y = coords.y;
-                     WT.fitToWindow(outerDiv, x + MouseDistance, y + MouseDistance,
-                                    x - MouseDistance, y - MouseDistance);
+            $(toolTipEl).mouseenter(function() {
+              overTooltip = true;
+            });
+            $(toolTipEl).mouseleave(function() {
+              overTooltip = false;
+            });
+          }
 
-                     // bring tooltip to front if there are dialogs
-                     var maxz = 0;
-                     var oldZIndex = parseInt(WT.css(outerDiv, 'zIndex'), 10);
-                     $('.Wt-dialog, .modal, .modal-dialog').each
-                       (function(index, value)
-                         {
-                           maxz = Math.max(maxz, parseInt(WT.css(value, 'zIndex'), 10));
-                           if (maxz > oldZIndex) {
-                             var newZIndex = maxz + 1000;
-                             outerDiv.style['zIndex'] = newZIndex;
-                           }
-                         }
-                       );
+          clearInterval(checkInt);
+          checkInt = null;
+          checkInt = setInterval(function() {
+            checkIsOver();
+          }, 200);
+        };
 
-                     $(toolTipEl).mouseenter(function() {
-                       overTooltip = true;
-                     });
-                     $(toolTipEl).mouseleave(function() {
-                       overTooltip = false;
-                     });
-                 }
+        function hideToolTip() {
+          clearTimeout(showTimer);
+          setTimeout(function() {
+            if (overTooltip) {
+              return;
+            }
+            if (toolTipEl) {
+              $(toolTipEl).parent().remove();
+              toolTipEl = null;
+              clearInterval(checkInt);
+              checkInt = null;
+            }
+          }, HideDelay);
+        }
 
-                 clearInterval(checkInt);
-                 checkInt = null;
-                 checkInt = setInterval(function() { checkIsOver(); }, 200);
-             }
+        function resetTimer(e) {
+          clearTimeout(showTimer);
+          coords = WT.pageCoordinates(e);
 
-             function hideToolTip() {
-               clearTimeout(showTimer);
-               setTimeout(function() {
-                 if (overTooltip)
-                   return;
-                 if (toolTipEl) {
-                   $(toolTipEl).parent().remove();
-                   toolTipEl = null;
-                   clearInterval(checkInt);
-                   checkInt = null;
-                 }
-               }, HideDelay);
-             }
+          if (!toolTipEl) {
+            showTimer = setTimeout(function() {
+              el.toolTip.showToolTip();
+            }, Delay);
+          }
+        }
 
-             function resetTimer(e) {
-                 clearTimeout(showTimer);
-                 coords = WT.pageCoordinates(e);
+        if (el.addEventListener) {
+          el.addEventListener("mouseenter", resetTimer);
+          el.addEventListener("mousemove", resetTimer);
+          el.addEventListener("mouseleave", hideToolTip);
+        } else {
+          el.attachEvent("mouseenter", resetTimer);
+          el.attachEvent("mousemove", resetTimer);
+          el.attachEvent("mouseleave", hideToolTip);
+        }
+      }();
+    }
 
-                 if (!toolTipEl)
-                     showTimer = setTimeout(function() { el.toolTip.showToolTip(); }, Delay);
-             }
-
-             if (el.addEventListener) {
-               el.addEventListener('mouseenter', resetTimer);
-               el.addEventListener('mousemove', resetTimer);
-               el.addEventListener('mouseleave', hideToolTip);
-             } else {
-               el.attachEvent('mouseenter', resetTimer);
-               el.attachEvent('mousemove', resetTimer);
-               el.attachEvent('mouseleave', hideToolTip);
-             }
-         };
-     }
-
-     if (obj)
-         obj.setToolTipText(text);
- });
+    if (obj) {
+      obj.setToolTipText(text);
+    }
+  }
+);

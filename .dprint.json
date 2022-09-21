@@ -1,0 +1,26 @@
+{
+  "lineWidth": 120,
+  "indentWidth": 2,
+  "useTabs": false,
+  "typescript": {
+    "quoteStyle": "preferDouble",
+    "semiColons": "always",
+    "useBraces": "always",
+    "bracePosition": "sameLine",
+    "singleBodyPosition": "nextLine",
+    "arrowFunction.useParentheses": "force",
+    "operatorPosition": "sameLine",
+    "trailingCommas": "onlyMultiLine",
+    "arguments.trailingCommas": "never",
+    "parameters.trailingCommas": "never"
+  },
+  "includes": ["src/js/*.{js}", "src/web/skeleton/*.{js}"],
+  "excludes": [
+    "**/node_modules",
+    "*.min.js",
+    "jquery.js"
+  ],
+  "plugins": [
+    "https://plugins.dprint.dev/typescript-0.74.0.wasm"
+  ]
+}

@@ -6,12 +6,11 @@
 
 /* Note: this is at the same time valid JavaScript and C++. */
 
-WT_DECLARE_WT_MEMBER
-(3, JavaScriptObject, "theme", {
+WT_DECLARE_WT_MEMBER(3, JavaScriptObject, "theme", {
   classes: {
-    valid: 'is-valid',
-    invalid: 'is-invalid'
+    valid: "is-valid",
+    invalid: "is-invalid",
   },
-  type: 'bootstrap',
-  version: 5
+  type: "bootstrap",
+  version: 5,
 });
