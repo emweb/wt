@@ -7,27 +7,25 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id) {
-  var WT = APP.WT;
+  const WT = APP.WT;
 
   function init() {
-    var el = WT.getElement(id);
+    const el = WT.getElement(id);
     if (!el) {
       return;
     }
 
-    var children = el.childNodes;
-    for (var i = 0; i < children.length; ++i) {
-      var c = children[i];
+    for (const c of el.childNodes) {
       if (
-        c.style.display == "none" ||
+        c.style.display === "none" ||
         c.classList.contains("out") ||
-        c.className == "resize-sensor"
+        c.className === "resize-sensor"
       ) {
         continue;
       }
 
-      var of = WT.css(c, "overflow");
-      if (of === "visible" || of === "") {
+      const overflow = WT.css(c, "overflow");
+      if (overflow === "visible" || overflow === "") {
         c.style.overflow = "hidden";
       }
     }
@@ -35,42 +33,38 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id) {
 
   setTimeout(init, 0);
 
-  this.adjust = function(spacing) {
+  this.adjust = function() {
     setTimeout(function() {
-      var el = WT.getElement(id);
+      const el = WT.getElement(id);
       if (!el) {
         return;
       }
 
-      var children = el.childNodes;
-      var totalStretch = 0;
-      var flexGrowProp = WT.styleAttribute("flex-grow");
-      for (var i = 0; i < children.length; ++i) {
-        var c = children[i];
+      const children = el.childNodes;
+      let totalStretch = 0;
+      for (const c of children) {
         if (
-          c.style.display == "none" ||
+          c.style.display === "none" ||
           c.classList.contains("out") ||
-          c.className == "resize-sensor"
+          c.className === "resize-sensor"
         ) {
           continue;
         }
 
-        var flg = c.getAttribute("flg");
+        const flg = c.getAttribute("flg");
         if (flg === "0") {
           continue;
         }
 
-        var flexGrow = WT.css(c, flexGrowProp);
+        const flexGrow = WT.css(c, "flex-grow");
         totalStretch += parseFloat(flexGrow);
       }
 
-      for (var i = 0; i < children.length; ++i) {
-        var c = children[i];
-
+      for (const c of children) {
         if (
-          c.style.display == "none" ||
+          c.style.display === "none" ||
           c.classList.contains("out") ||
-          c.className == "resize-sensor"
+          c.className === "resize-sensor"
         ) {
           continue;
         }
@@ -80,21 +74,21 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id) {
           c.resizeSensor.trigger();
         }
 
-        var stretch;
+        let stretch;
 
         if (totalStretch === 0) {
           stretch = 1;
         } else {
-          var flg = c.getAttribute("flg");
+          const flg = c.getAttribute("flg");
           if (flg === "0") {
             stretch = 0;
           } else {
-            var flexGrow = WT.css(c, flexGrowProp);
+            const flexGrow = WT.css(c, "flex-grow");
             stretch = flexGrow;
           }
         }
 
-        c.style[flexGrowProp] = stretch;
+        c.style.flexGrow = stretch;
       }
     }, 0);
   };

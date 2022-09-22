@@ -87,9 +87,7 @@ void FlexLayoutImpl::updateDom(DomElement& parent)
 
   removedItems_.clear();
 
-  WStringStream js;
-  js << "layout.adjust(" << grid_.horizontalSpacing_ << ")";
-  div->callMethod(js.str());
+  div->callMethod("layout.adjust()");
 
   parent.addChild(div);
 }
