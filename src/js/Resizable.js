@@ -7,7 +7,7 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "Resizable", function(WT, el) {
-  var handler = null,
+  let handler = null,
     downXY = null,
     iwidth,
     iheight, /* initial CSS width and height */
@@ -19,17 +19,17 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "Resizable", function(WT, el) {
     cssMinHeight;
 
   function onMouseMove(event) {
-    var xy = WT.pageCoordinates(event);
+    const xy = WT.pageCoordinates(event);
 
-    var dx = xy.x - downXY.x, dy = xy.y - downXY.y, overflow = 0;
+    const dx = xy.x - downXY.x, dy = xy.y - downXY.y;
 
-    var p_width = WT.px(el, "width");
-    var p_height = WT.px(el, "height");
+    const p_width = WT.px(el, "width");
+    const p_height = WT.px(el, "height");
 
-    var vw = Math.max(iwidth + dx, minwidth + (iwidth - cwidth));
+    const vw = Math.max(iwidth + dx, minwidth + (iwidth - cwidth));
     el.style.width = vw + "px";
 
-    var vh = Math.max(iheight + dy, minheight + (iheight - cheight));
+    const vh = Math.max(iheight + dy, minheight + (iheight - cheight));
     el.style.height = vh + "px";
 
     if (el.style.left === "auto") {
@@ -45,7 +45,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "Resizable", function(WT, el) {
     }
   }
 
-  function onMouseUp(event) {
+  function onMouseUp(_event) {
     document.removeEventListener("mousemove", onMouseMove);
     document.removeEventListener("mouseup", onMouseUp);
 
@@ -55,11 +55,12 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "Resizable", function(WT, el) {
   }
 
   function onMouseDown(event) {
-    var xy = WT.widgetCoordinates(el, event);
+    const xy = WT.widgetCoordinates(el, event);
 
     if (el.offsetWidth - xy.x < 16 && el.offsetHeight - xy.y < 16) {
       if (!cssMinWidth) {
-        cssMinWidth = WT.css(el, "minWidth"), cssMinHeight = WT.css(el, "minHeight");
+        cssMinWidth = WT.css(el, "minWidth");
+        cssMinHeight = WT.css(el, "minHeight");
 
         if (WT.isIE6) {
           /*
@@ -67,22 +68,22 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "Resizable", function(WT, el) {
           * in the cssText
           */
           function fishCssText(el, property) {
-            var m = new RegExp(property + ":\\s*(\\d+(?:\\.\\d+)?)\\s*px", "i")
+            const m = new RegExp(property + ":\\s*(\\d+(?:\\.\\d+)?)\\s*px", "i")
               .exec(el.style.cssText);
-            return (m && m.length == 2) ? m[1] + "px" : "";
+            return (m && m.length === 2) ? m[1] + "px" : "";
           }
 
           cssMinWidth = fishCssText(el, "min-width");
           cssMinHeight = fishCssText(el, "min-height");
         }
 
-        if (cssMinWidth == "0px") {
+        if (cssMinWidth === "0px") {
           minwidth = el.clientWidth;
         } else {
           minwidth = WT.parsePx(cssMinWidth);
         }
 
-        if (cssMinHeight == "0px") {
+        if (cssMinHeight === "0px") {
           minheight = el.clientHeight;
         } else {
           minheight = WT.parsePx(cssMinHeight);
