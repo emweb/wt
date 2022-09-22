@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "AuthThrottle", function(WT, button, text) {
   button.wtThrottle = this;
 
-  var timer = null, originalText = null, counter = 0;
+  let timer = null, originalText = null, counter = 0;
 
   function restore() {
     clearInterval(timer);
@@ -21,7 +21,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "AuthThrottle", function(WT, butt
   }
 
   function update() {
-    if (counter == 0) {
+    if (counter === 0) {
       restore();
     } else {
       WT.setHtml(button, text.replace("{1}", counter));
