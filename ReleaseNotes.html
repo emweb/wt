@@ -30,18 +30,6 @@ behaviour.
     <a href="https://terser.org/" target="_blank">terser</a>.
   </li>
   <li>
-    <a href="https://redmine.webtoolkit.eu/issues/8801" target="_blank">Issue #8801</a>:
-    We have adopted a policy to determine what is the minimum version of our dependencies we support.
-    This makes it clear to users and customers what they can expect, and it makes it so we don't need
-    to have a discussion every time we decide to bump the minimum requirements.
-  </li>
-  <li>
-    <a href="https://redmine.webtoolkit.eu/issues/10825" target="_blank">Issue #10825</a>:
-    Fixed an issue in <a href="classWt_1_1WGoogleMap.html">WGoogleMap</a> where some left-over
-    JavaScript code in
-    <a href="classWt_1_1WGoogleMap.html#ad5b1aabd260b3b05e9888718264c40e2">setMapTypeControl</a>
-    targeting the v2 API would cause a JavaScript error.
-  <li>
     <a href="https://redmine.webtoolkit.eu/issues/9570" target="_blank">Issue #9570</a>:
     All uses of <code>WT_CXX14</code> and <code>WT_CXX14ONLY</code> were removed in Wt's
     source code. <code>WT_CXX14</code> is now always defined, since Wt <strong>requires</strong>
@@ -51,17 +39,6 @@ behaviour.
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/10914" target="_blank">Issue #10914</a>:
     Changed some Boost.Phoenix includes to silence deprecation warnings.
-  </li>
-  <li>
-    <a href="https://redmine.webtoolkit.eu/issues/10909" target="_blank">Issue #10909</a>:
-    <a href="classWt_1_1WPdfImage.html">WPdfImage</a>: fixed compatibility with libharu 2.4.0.
-  </li>
-  <li>
-    <a href="https://redmine.webtoolkit.eu/issues/10834" target="_blank">Issue #10834</a>:
-    Fixed a regression since Wt 4.8.0 with the tests for
-    <a href="https://redmine.webtoolkit.eu/issues/9442">issue #9442</a>,
-    <code>dbo_test46</code> would fail with the MySQL/MariaDB and the SQL Server
-    backends because they sort null values differently from PostgreSQL.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/10911" target="_blank">Issue #10911</a>:
@@ -74,6 +51,35 @@ behaviour.
   <li>
     <tt><a href="https://redmine.webtoolkit.eu/issues/9076" target="_blank">Issue #9076</a></tt>:
     The Wt::WDateEdit gave a javascript error when opening the calendar popup if the application was rendered in widgetset mode.
+  </li>
+</ul>
+
+<h2>Release 4.8.1 (September 22, 2022)</h2>
+
+<ul>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/8801" target="_blank">Issue #8801</a>:
+    We have adopted a policy to determine what is the minimum version of our dependencies we support.
+    This makes it clear to users and customers what they can expect, and it makes it so we don't need
+    to have a discussion every time we decide to bump the minimum requirements.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10825" target="_blank">Issue #10825</a>:
+    Fixed an issue in <a href="classWt_1_1WGoogleMap.html">WGoogleMap</a> where some left-over
+    JavaScript code in
+    <a href="classWt_1_1WGoogleMap.html#ad5b1aabd260b3b05e9888718264c40e2">setMapTypeControl</a>
+    targeting the v2 API would cause a JavaScript error.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10909" target="_blank">Issue #10909</a>:
+    <a href="classWt_1_1WPdfImage.html">WPdfImage</a>: fixed compatibility with libharu 2.4.0.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10834" target="_blank">Issue #10834</a>:
+    Fixed a regression since Wt 4.8.0 with the tests for
+    <a href="https://redmine.webtoolkit.eu/issues/9442">issue #9442</a>,
+    <code>dbo_test46</code> would fail with the MySQL/MariaDB and the SQL Server
+    backends because they sort null values differently from PostgreSQL.
   </li>
 </ul>
 
