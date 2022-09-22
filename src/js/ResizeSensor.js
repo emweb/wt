@@ -34,18 +34,11 @@ THE SOFTWARE.
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "ResizeSensor", function(WT, element) {
-  var requestAnimationFrame = window.requestAnimationFrame ||
-    window.mozRequestAnimationFrame ||
-    window.webkitRequestAnimationFrame ||
-    function(fn) {
-      return window.setTimeout(fn, 20);
-    };
-
   element.resizeSensor = document.createElement("div");
   element.resizeSensor.className = "resize-sensor";
-  var style =
+  const style =
     "position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; z-index: -1; visibility: hidden;";
-  var styleChild = "position: absolute; left: 0; top: 0; transition: 0s;";
+  const styleChild = "position: absolute; left: 0; top: 0; transition: 0s;";
 
   element.resizeSensor.style.cssText = style;
   element.resizeSensor.innerHTML = '<div class="resize-sensor-expand" style="' + style + '">' +
@@ -56,21 +49,21 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "ResizeSensor", function(WT, elem
     "</div>";
   element.appendChild(element.resizeSensor);
 
-  if (WT.css(element, "position") == "static") {
+  if (WT.css(element, "position") === "static") {
     element.style.position = "relative";
   }
 
-  var expand = element.resizeSensor.childNodes[0];
-  var expandChild = expand.childNodes[0];
-  var shrink = element.resizeSensor.childNodes[1];
+  const expand = element.resizeSensor.childNodes[0];
+  const expandChild = expand.childNodes[0];
+  const shrink = element.resizeSensor.childNodes[1];
 
-  var initialHiddenCheck = true;
-  var lastAnimationFrameForInvisibleCheck = 0;
+  let initialHiddenCheck = true;
+  let lastAnimationFrameForInvisibleCheck = 0;
 
-  var reset = function() {
+  const reset = function() {
     // Check if element is hidden
     if (initialHiddenCheck) {
-      var invisible = element.offsetWidth === 0 && element.offsetHeight === 0;
+      const invisible = element.offsetWidth === 0 && element.offsetHeight === 0;
       if (invisible) {
         // Check in next frame
         if (!lastAnimationFrameForInvisibleCheck) {
@@ -95,8 +88,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "ResizeSensor", function(WT, elem
   };
 
   element.resizeSensor.trigger = function() {
-    var w = lastWidth;
-    var h = lastHeight;
+    let w = lastWidth;
+    let h = lastHeight;
 
     if (!WT.boxSizing(element)) {
       h -= WT.px(element, "borderTopWidth");
@@ -116,10 +109,10 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "ResizeSensor", function(WT, elem
   };
 
   reset();
-  var dirty = false;
-  var lastWidth, lastHeight;
+  let dirty = false;
+  let lastWidth, lastHeight;
 
-  var dirtyChecking = function() {
+  const dirtyChecking = function() {
     if (dirty) {
       element.resizeSensor.trigger();
       dirty = false;
@@ -129,12 +122,12 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "ResizeSensor", function(WT, elem
   };
 
   requestAnimationFrame(dirtyChecking);
-  var cachedWidth, cachedHeight; // useful to not query offsetWidth twice
+  let cachedWidth, cachedHeight; // useful to not query offsetWidth twice
 
-  var onScroll = function() {
+  const onScroll = function() {
     if (
-      (cachedWidth = element.offsetWidth) != lastWidth ||
-      (cachedHeight = element.offsetHeight) != lastHeight
+      (cachedWidth = element.offsetWidth) !== lastWidth ||
+      (cachedHeight = element.offsetHeight) !== lastHeight
     ) {
       dirty = true;
 
@@ -144,16 +137,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "ResizeSensor", function(WT, elem
     reset();
   };
 
-  var addEvent = function(el, name, cb) {
-    if (el.attachEvent) {
-      el.attachEvent("on" + name, cb);
-    } else {
-      el.addEventListener(name, cb);
-    }
-  };
-
-  addEvent(expand, "scroll", onScroll);
-  addEvent(shrink, "scroll", onScroll);
+  expand.addEventListener("scroll", onScroll);
+  shrink.addEventListener("scroll", onScroll);
 
   lastAnimationFrameForInvisibleCheck = requestAnimationFrame(function() {
     lastAnimationFrameForInvisibleCheck = 0;
