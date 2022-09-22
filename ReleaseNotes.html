@@ -56,12 +56,25 @@ behaviour.
 
 <h2>Release 4.8.1 (September 22, 2022)</h2>
 
+<p>
+  As usual, Wt 4.8.1 is a patch release, but we also added a document
+  clarifying our policy on which minimum versions of libraries Wt requires
+  (<a href="https://redmine.webtoolkit.eu/issues/8801" target="_blank">issue #8801</a>).
+  You can find this document in Wt's source tree at
+  <a
+    href="https://github.com/emweb/wt/blob/master/doc/MinimumDependencyVersions.md"
+    target="_blank"><code>doc/MinimumDependencyVersions.md</code></a>.
+</p>
+
+<p>
+  That aside, Wt 4.8.1 addresses the following issues:
+</p>
+
 <ul>
   <li>
-    <a href="https://redmine.webtoolkit.eu/issues/8801" target="_blank">Issue #8801</a>:
-    We have adopted a policy to determine what is the minimum version of our dependencies we support.
-    This makes it clear to users and customers what they can expect, and it makes it so we don't need
-    to have a discussion every time we decide to bump the minimum requirements.
+    <a href="https://redmine.webtoolkit.eu/issues/10909" target="_blank">Issue #10909</a>:
+    <a href="classWt_1_1WPdfImage.html">WPdfImage</a>: Fixed compatibility with recent libharu
+    versions (2.4.0 and up, excluding version 2.4.1).
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/10825" target="_blank">Issue #10825</a>:
@@ -69,10 +82,6 @@ behaviour.
     JavaScript code in
     <a href="classWt_1_1WGoogleMap.html#ad5b1aabd260b3b05e9888718264c40e2">setMapTypeControl</a>
     targeting the v2 API would cause a JavaScript error.
-  </li>
-  <li>
-    <a href="https://redmine.webtoolkit.eu/issues/10909" target="_blank">Issue #10909</a>:
-    <a href="classWt_1_1WPdfImage.html">WPdfImage</a>: fixed compatibility with libharu 2.4.0.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/10834" target="_blank">Issue #10834</a>:
