@@ -7,35 +7,19 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "PopupWindow", function(WT, url, width, height, onclose) {
-  function getScreenPos() {
-    var width = 0;
-    var height = 0;
-
-    if (typeof (window.screenLeft) === "number") {
-      width = window.screenLeft;
-      height = window.screenTop;
-    } else if (typeof (window.screenX) === "number") {
-      width = window.screenX;
-      height = window.screenY;
-    }
-
-    return { x: width, y: height };
-  }
-
   function computePopupPos(width, height) {
-    var parentSize = WT.windowSize();
-    var parentPos = getScreenPos();
+    const parentSize = WT.windowSize();
 
-    var xPos = parentPos.x +
+    const xPos = window.screenLeft +
       Math.max(0, Math.floor((parentSize.x - width) / 2));
-    var yPos = parentPos.y +
+    const yPos = window.screenTop +
       Math.max(0, Math.floor((parentSize.y - height) / 2));
 
     return { x: xPos, y: yPos };
   }
 
-  var coordinates = computePopupPos(width, height);
-  var w = window.open(
+  const coordinates = computePopupPos(width, height);
+  const w = window.open(
     url,
     "",
     "width=" + width + ",height=" + height +
@@ -45,7 +29,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "PopupWindow", function(WT, url, wid
   w.opener = window;
 
   if (onclose) {
-    var timer = setInterval(function() {
+    const timer = setInterval(function() {
       if (w.closed) {
         clearInterval(timer);
         onclose(w);
