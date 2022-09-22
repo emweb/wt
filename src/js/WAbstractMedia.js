@@ -8,22 +8,18 @@
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAbstractMedia", function(APP, el) {
   el.wtObj = this;
 
-  var self = this;
-  var WT = APP.WT;
-
-  function handleMove(event) {
-  }
+  const WT = APP.WT;
 
   this.play = function() {
     if (el.mediaId) {
-      var mediaEl = WT.$(el.mediaId);
+      const mediaEl = WT.$(el.mediaId);
       if (mediaEl) {
         mediaEl.play();
         return;
       }
     }
     if (el.alternativeId) {
-      var alternativeEl = WT.$(el.alternativeId);
+      const alternativeEl = WT.$(el.alternativeId);
       if (alternativeEl && alternativeEl.WtPlay) {
         alternativeEl.WtPlay();
       }
@@ -32,14 +28,14 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAbstractMedia", function(APP, e
 
   this.pause = function() {
     if (el.mediaId) {
-      var mediaEl = WT.$(el.mediaId);
+      const mediaEl = WT.$(el.mediaId);
       if (mediaEl) {
         mediaEl.pause();
         return;
       }
     }
     if (el.alternativeId) {
-      var alternativeEl = WT.$(el.alternativeId);
+      const alternativeEl = WT.$(el.alternativeId);
       if (alternativeEl && alternativeEl.WtPlay) {
         alternativeEl.WtPause();
       }
@@ -48,7 +44,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAbstractMedia", function(APP, e
 
   function encodeValue() {
     if (el.mediaId) {
-      var mediaEl = WT.$(el.mediaId);
+      const mediaEl = WT.$(el.mediaId);
 
       if (mediaEl) {
         return "" + mediaEl.volume + ";" +
