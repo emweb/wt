@@ -25,11 +25,11 @@ WT_DECLARE_WT_MEMBER(
     offsetX,
     offsetY
   ) {
-    var handle = document.createElement("div");
+    const handle = document.createElement("div");
     handle.style.position = "absolute";
     handle.style.zIndex = "100";
 
-    if (orientation == "v") {
+    if (orientation === "v") {
       handle.style.width = height + "px";
       handle.style.height = width + "px";
     } else {
@@ -37,7 +37,9 @@ WT_DECLARE_WT_MEMBER(
       handle.style.width = width + "px";
     }
 
-    var offset, elpos = WT.widgetPageCoordinates(el), parentpos = WT.widgetPageCoordinates(parent);
+    let offset;
+    const elpos = WT.widgetPageCoordinates(el),
+      parentpos = WT.widgetPageCoordinates(parent);
 
     if (event.touches) {
       offset = WT.widgetCoordinates(el, event.touches[0]);
@@ -63,9 +65,10 @@ WT_DECLARE_WT_MEMBER(
     WT.cancelEvent(event);
 
     function computeDelta(event) {
-      var result, p = WT.pageCoordinates(event);
+      let result;
+      const p = WT.pageCoordinates(event);
 
-      if (orientation == "h") {
+      if (orientation === "h") {
         result = (p.x - offset.x) - elpos.x;
       } else {
         result = (p.y - offset.y) - elpos.y;
@@ -75,8 +78,8 @@ WT_DECLARE_WT_MEMBER(
     }
 
     function mousemove(event) {
-      var delta = computeDelta(event);
-      if (orientation == "h") {
+      const delta = computeDelta(event);
+      if (orientation === "h") {
         handle.style.left = (elpos.x + delta) + "px";
       } else {
         handle.style.top = (elpos.y + delta) + "px";
@@ -85,7 +88,7 @@ WT_DECLARE_WT_MEMBER(
       WT.cancelEvent(event);
     }
     function mouseup_common(event) {
-      if (handle.parentNode != null) {
+      if (handle.parentNode !== null) {
         handle.parentNode.removeChild(handle);
         doneFn(computeDelta(event));
       }
@@ -96,16 +99,16 @@ WT_DECLARE_WT_MEMBER(
         // widgetset mode
         domRoot = parent;
       }
-      var oldPointerEvents = domRoot.style["pointer-events"];
+      let oldPointerEvents = domRoot.style["pointer-events"];
       if (!oldPointerEvents) {
         oldPointerEvents = "all";
       }
       domRoot.style["pointer-events"] = "none";
-      var oldCursorStyle = document.body.style["cursor"];
+      let oldCursorStyle = document.body.style["cursor"];
       if (!oldCursorStyle) {
         oldCursorStyle = "auto";
       }
-      if (orientation == "h") {
+      if (orientation === "h") {
         document.body.style["cursor"] = "ew-resize";
       } else {
         document.body.style["cursor"] = "ns-resize";
