@@ -11,20 +11,20 @@ WT_DECLARE_WT_MEMBER(
   JavaScriptFunction,
   "toolTip",
   function(APP, id, text, deferred, ToolTipInnerStyle, ToolTipOuterStyle) {
-    var el = document.getElementById(id);
-    var WT = APP.WT;
+    const el = document.getElementById(id);
+    const WT = APP.WT;
 
-    var obj = el.toolTip;
+    const obj = el.toolTip;
 
     if (!obj) {
       el.toolTip = new function() {
-        var showTimer = null, checkInt = null, coords = null, toolTipEl = null;
-        /* const */ var MouseDistance = 10;
-        /* const */ var Delay = 500;
-        /* const */ var HideDelay = 200;
-        var waitingForText = false, toolTipText = text;
+        let showTimer = null, checkInt = null, coords = null, toolTipEl = null;
+        const MouseDistance = 10;
+        const Delay = 500;
+        const HideDelay = 200;
+        let waitingForText = false, toolTipText = text;
 
-        var overTooltip = false;
+        let overTooltip = false;
 
         function checkIsOver() {
           if (!document.querySelectorAll(`#${id}:hover`).length) {
@@ -56,22 +56,22 @@ WT_DECLARE_WT_MEMBER(
             toolTipEl.className = ToolTipInnerStyle;
             toolTipEl.innerHTML = toolTipText;
 
-            outerDiv = document.createElement("div");
+            const outerDiv = document.createElement("div");
             outerDiv.className = ToolTipOuterStyle;
 
             document.body.appendChild(outerDiv);
             outerDiv.appendChild(toolTipEl);
 
-            var x = coords.x, y = coords.y;
+            const x = coords.x, y = coords.y;
             WT.fitToWindow(outerDiv, x + MouseDistance, y + MouseDistance, x - MouseDistance, y - MouseDistance);
 
             // bring tooltip to front if there are dialogs
-            var maxz = 0;
-            var oldZIndex = parseInt(WT.css(outerDiv, "zIndex"), 10);
+            let maxz = 0;
+            const oldZIndex = parseInt(WT.css(outerDiv, "zIndex"), 10);
             document.querySelectorAll(".Wt-dialog, .modal, .modal-dialog").forEach(function(elem) {
               maxz = Math.max(maxz, parseInt(WT.css(elem, "zIndex"), 10));
               if (maxz > oldZIndex) {
-                var newZIndex = maxz + 1000;
+                const newZIndex = maxz + 1000;
                 outerDiv.style["zIndex"] = newZIndex;
               }
             });
@@ -117,15 +117,9 @@ WT_DECLARE_WT_MEMBER(
           }
         }
 
-        if (el.addEventListener) {
-          el.addEventListener("mouseenter", resetTimer);
-          el.addEventListener("mousemove", resetTimer);
-          el.addEventListener("mouseleave", hideToolTip);
-        } else {
-          el.attachEvent("mouseenter", resetTimer);
-          el.attachEvent("mousemove", resetTimer);
-          el.attachEvent("mouseleave", hideToolTip);
-        }
+        el.addEventListener("mouseenter", resetTimer);
+        el.addEventListener("mousemove", resetTimer);
+        el.addEventListener("mouseleave", hideToolTip);
       }();
     }
 
