@@ -7,12 +7,14 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "validate", function(edit) {
-  var v;
+  let v;
   if (edit.options) {
-    if (edit.options.item(edit.selectedIndex) == null) {
+    /** @type {?HTMLOptionElement} */
+    const item = edit.options.item(edit.selectedIndex);
+    if (item === null) {
       v = "";
     } else {
-      v = edit.options.item(edit.selectedIndex).text;
+      v = item.text;
     }
   } else if (
     typeof edit.wtLObj === "object" &&
@@ -29,15 +31,15 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "validate", function(edit) {
 });
 
 WT_DECLARE_WT_MEMBER(2, JavaScriptFunction, "setValidationState", function(edit, state, message, styles) {
-  /* const */ var ValidationInvalidStyle = 0x1;
-  /* const */ var ValidationValidStyle = 0x2;
+  const ValidationInvalidStyle = 0x1;
+  const ValidationValidStyle = 0x2;
 
-  var validStyle = state && ((styles & ValidationValidStyle) != 0);
-  var invalidStyle = !state && ((styles & ValidationInvalidStyle) != 0);
+  const validStyle = state && ((styles & ValidationValidStyle) !== 0);
+  const invalidStyle = !state && ((styles & ValidationInvalidStyle) !== 0);
 
-  var validClass = "Wt-valid";
-  var invalidClass = "Wt-invalid";
-  var theme = this.theme;
+  let validClass = "Wt-valid";
+  let invalidClass = "Wt-invalid";
+  const theme = this.theme;
   if (typeof theme === "object") {
     validClass = theme.classes.valid;
     invalidClass = theme.classes.invalid;
@@ -46,8 +48,8 @@ WT_DECLARE_WT_MEMBER(2, JavaScriptFunction, "setValidationState", function(edit,
   edit.classList.toggle(invalidClass, invalidStyle);
 
   let controlGroup;
-  var success;
-  var error;
+  let success;
+  let error;
 
   controlGroup = edit.closest(".control-group");
 
