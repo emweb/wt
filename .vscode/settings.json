@@ -1,0 +1,9 @@
+{
+  "editor.tabSize": 8,
+  "editor.insertSpaces": true,
+  "[javascript]": {
+    "editor.defaultFormatter": "dprint.dprint",
+    "editor.formatOnSave": true
+  },
+  "dprint.path": "src/js/node_modules/dprint/dprint"
+}
