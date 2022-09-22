@@ -9,32 +9,24 @@
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP, widget, target, config) {
   // draw area: inside of the margins of the widget
   // config: { chart:, rect:(function), transform:, drawArea:, series:, updateYAxis: }
-  var rqAnimFrame = (function() {
-    return window.requestAnimationFrame ||
-      window.webkitRequestAnimationFrame ||
-      window.mozRequestAnimationFrame ||
-      function(callback) {
-        window.setTimeout(callback, 0);
-      };
-  })();
-  var framePending = false;
-  var rqAnimFrameThrottled = function(cb) {
+  let framePending = false;
+  const rqAnimFrameThrottled = function(cb) {
     if (framePending) {
       return;
     }
     framePending = true;
-    rqAnimFrame(function() {
+    requestAnimationFrame(function() {
       cb();
       framePending = false;
     });
   };
 
-  var touchHandlers = {};
+  const touchHandlers = {};
 
   widget.wtSObj = this;
 
-  var self = this;
-  var WT = APP.WT;
+  const self = this;
+  const WT = APP.WT;
 
   target.canvas.style.msTouchAction = "none";
 
@@ -43,7 +35,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
       event.pointerType === "pen" || event.pointerType === "touch";
   }
 
-  var pointerActive = false;
+  let pointerActive = false;
 
   if (window.MSPointerEvent || window.PointerEvent) {
     widget.style.touchAction = "none";
@@ -53,7 +45,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
 
   if (window.MSPointerEvent || window.PointerEvent) {
     (function() {
-      pointers = [];
+      const pointers = [];
 
       function updatePointerActive() {
         if (pointers.length > 0 && !pointerActive) {
@@ -82,8 +74,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
           return;
         }
         event.preventDefault();
-        var i;
-        for (i = 0; i < pointers.length; ++i) {
+        for (let i = 0; i < pointers.length; ++i) {
           if (pointers[i].pointerId === event.pointerId) {
             pointers.splice(i, 1);
             break;
@@ -99,8 +90,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
           return;
         }
         event.preventDefault();
-        var i;
-        for (i = 0; i < pointers.length; ++i) {
+        for (let i = 0; i < pointers.length; ++i) {
           if (pointers[i].pointerId === event.pointerId) {
             pointers[i] = event;
             break;
@@ -111,46 +101,29 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
         touchHandlers.moved(widget, { touches: pointers.slice(0) });
       }
 
-      var o = widget.wtEObj;
+      const o = widget.wtEObj;
       if (o) {
-        if (!window.PointerEvent) {
-          widget.removeEventListener("MSPointerDown", o.pointerDown);
-          widget.removeEventListener("MSPointerUp", o.pointerUp);
-          widget.removeEventListener("MSPointerOut", o.pointerUp);
-          widget.removeEventListener("MSPointerMove", o.pointerMove);
-        } else {
-          widget.removeEventListener("pointerdown", o.pointerDown);
-          widget.removeEventListener("pointerup", o.pointerUp);
-          widget.removeEventListener("pointerout", o.pointerUp);
-          widget.removeEventListener("pointermove", o.pointerMove);
-        }
+        widget.removeEventListener("pointerdown", o.pointerDown);
+        widget.removeEventListener("pointerup", o.pointerUp);
+        widget.removeEventListener("pointerout", o.pointerUp);
+        widget.removeEventListener("pointermove", o.pointerMove);
       }
       widget.wtEObj = {
         pointerDown: pointerDown,
         pointerUp: pointerUp,
         pointerMove: pointerMove,
       };
-      if (!window.PointerEvent) {
-        widget.addEventListener("MSPointerDown", pointerDown);
-        widget.addEventListener("MSPointerUp", pointerUp);
-        widget.addEventListener("MSPointerOut", pointerUp);
-        widget.addEventListener("MSPointerMove", pointerMove);
-      } else {
-        widget.addEventListener("pointerdown", pointerDown);
-        widget.addEventListener("pointerup", pointerUp);
-        widget.addEventListener("pointerout", pointerUp);
-        widget.addEventListener("pointermove", pointerMove);
-      }
+      widget.addEventListener("pointerdown", pointerDown);
+      widget.addEventListener("pointerup", pointerUp);
+      widget.addEventListener("pointerout", pointerUp);
+      widget.addEventListener("pointermove", pointerMove);
     })();
   }
 
-  var left = WT.gfxUtils.rect_left,
+  const left = WT.gfxUtils.rect_left,
     right = WT.gfxUtils.rect_right,
     top = WT.gfxUtils.rect_top,
-    bottom = WT.gfxUtils.rect_bottom,
-    normalized = WT.gfxUtils.rect_normalized,
-    mult = WT.gfxUtils.transform_mult,
-    apply = WT.gfxUtils.transform_apply;
+    bottom = WT.gfxUtils.rect_bottom;
 
   function configSeries() {
     return config.chart.config.series[config.series];
@@ -168,11 +141,11 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
     return config.chart.config.maxZoom.x[seriesXAxis()];
   }
 
-  var previousXY = null;
+  let previousXY = null;
 
   // positions:
-  var LEFT_OF_RECT = 1, ON_RECT = 2, RIGHT_OF_RECT = 3;
-  var position = null;
+  const LEFT_OF_RECT = 1, ON_RECT = 2, RIGHT_OF_RECT = 3;
+  let position = null;
 
   function scheduleRepaint() {
     rqAnimFrameThrottled(target.repaint);
@@ -185,26 +158,26 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
     if (v > 1) {
       v = 1;
     }
-    var drawArea = config.drawArea;
+    const drawArea = config.drawArea;
     config.transform[0] = v - u;
     config.transform[4] = u * drawArea[2];
     scheduleRepaint();
   };
 
   function transformToUV() {
-    var drawArea = config.drawArea;
-    var u = config.transform[4] / drawArea[2];
-    var v = config.transform[0] + u;
+    const drawArea = config.drawArea;
+    const u = config.transform[4] / drawArea[2];
+    const v = config.transform[0] + u;
     return [u, v];
   }
 
   function repaint(setRange) {
     scheduleRepaint();
     if (setRange) {
-      var transform = config.transform;
-      var drawArea = config.drawArea;
-      var u = transform[4] / drawArea[2];
-      var v = transform[0] + u;
+      const transform = config.transform;
+      const drawArea = config.drawArea;
+      const u = transform[4] / drawArea[2];
+      const v = transform[0] + u;
       config.chart.setXRange(config.series, u, v, config.updateYAxis);
     }
   }
@@ -246,7 +219,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
       return;
     }
     previousXY = WT.widgetCoordinates(widget, event);
-    var rect = config.rect();
+    const rect = config.rect();
     if (onLeftBorder(previousXY, rect, 10)) {
       position = LEFT_OF_RECT;
     } else if (onRightBorder(previousXY, rect, 10)) {
@@ -273,17 +246,17 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
   };
 
   function dragLeft(dx) {
-    var transform = config.transform;
-    var drawArea = config.drawArea;
-    var u = transform[4] / drawArea[2];
-    var v = transform[0] + u;
-    var xBefore = u * drawArea[2];
-    var xAfter = xBefore + dx;
-    var uAfter = xAfter / drawArea[2];
+    const transform = config.transform;
+    const drawArea = config.drawArea;
+    const u = transform[4] / drawArea[2];
+    const v = transform[0] + u;
+    const xBefore = u * drawArea[2];
+    const xAfter = xBefore + dx;
+    let uAfter = xAfter / drawArea[2];
     if (v <= uAfter) {
       return;
     }
-    var newZoom = 1 / (v - uAfter);
+    const newZoom = 1 / (v - uAfter);
     if (newZoom > maxXZoom()) {
       return;
     }
@@ -298,7 +271,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
     }
     self.changeRange(uAfter, v);
     repaint(true);
-    var uv = transformToUV();
+    const uv = transformToUV();
     if (Math.abs(uv[1] - v) > Math.abs(uv[0] - u)) {
       self.changeRange(u, v);
       repaint(true);
@@ -306,17 +279,17 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
   }
 
   function dragRight(dx) {
-    var transform = config.transform;
-    var drawArea = config.drawArea;
-    var u = transform[4] / drawArea[2];
-    var v = transform[0] + u;
-    var xBefore = v * drawArea[2];
-    var xAfter = xBefore + dx;
-    var vAfter = xAfter / drawArea[2];
+    const transform = config.transform;
+    const drawArea = config.drawArea;
+    const u = transform[4] / drawArea[2];
+    const v = transform[0] + u;
+    const xBefore = v * drawArea[2];
+    const xAfter = xBefore + dx;
+    let vAfter = xAfter / drawArea[2];
     if (vAfter <= u) {
       return;
     }
-    var newZoom = 1 / (vAfter - u);
+    const newZoom = 1 / (vAfter - u);
     if (newZoom > maxXZoom()) {
       return;
     }
@@ -331,7 +304,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
     }
     self.changeRange(u, vAfter);
     repaint(true);
-    var uv = transformToUV();
+    const uv = transformToUV();
     if (Math.abs(uv[0] - u) > Math.abs(uv[1] - v)) {
       self.changeRange(u, v);
       repaint(true);
@@ -339,26 +312,26 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
   }
 
   function move(dx) {
-    var transform = config.transform;
-    var drawArea = config.drawArea;
-    var u = transform[4] / drawArea[2];
-    var v = transform[0] + u;
-    var leftBefore = u * drawArea[2];
-    var leftAfter = leftBefore + dx;
+    const transform = config.transform;
+    const drawArea = config.drawArea;
+    const u = transform[4] / drawArea[2];
+    const v = transform[0] + u;
+    const leftBefore = u * drawArea[2];
+    let leftAfter = leftBefore + dx;
     if (leftAfter < 0) {
       dx = -leftBefore;
       leftAfter = 0;
     }
-    var uAfter = leftAfter / drawArea[2];
-    var rightBefore = v * drawArea[2];
-    var rightAfter = rightBefore + dx;
+    let uAfter = leftAfter / drawArea[2];
+    const rightBefore = v * drawArea[2];
+    let rightAfter = rightBefore + dx;
     if (rightAfter > drawArea[2]) {
       dx = drawArea[2] - rightBefore;
       leftAfter = leftBefore + dx;
       uAfter = leftAfter / drawArea[2];
       rightAfter = drawArea[2];
     }
-    var vAfter = rightAfter / drawArea[2];
+    const vAfter = rightAfter / drawArea[2];
     self.changeRange(uAfter, vAfter);
     repaint(true);
   }
@@ -371,12 +344,12 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
       return;
     }
     WT.cancelEvent(event);
-    var pos = WT.widgetCoordinates(widget, event);
+    const pos = WT.widgetCoordinates(widget, event);
     if (previousXY === null) {
       previousXY = pos;
       return;
     }
-    var dx;
+    let dx;
     if (isHorizontal()) {
       dx = pos.x - previousXY.x;
     } else {
@@ -405,8 +378,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
       if (position) {
         return;
       }
-      var pos = WT.widgetCoordinates(widget, event);
-      var rect = config.rect();
+      const pos = WT.widgetCoordinates(widget, event);
+      const rect = config.rect();
       if (onLeftBorder(pos, rect, 10) || onRightBorder(pos, rect, 10)) {
         if (isHorizontal()) {
           target.canvas.style.cursor = "col-resize";
@@ -421,17 +394,17 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
     }, 0);
   };
 
-  var singleTouch = false;
-  var doubleTouch = false;
+  let singleTouch = false;
+  let doubleTouch = false;
 
-  var touchDelta = null;
+  let touchDelta = null;
 
   touchHandlers.start = function(o, event) {
     singleTouch = event.touches.length === 1;
     doubleTouch = event.touches.length === 2;
     if (singleTouch) {
       previousXY = WT.widgetCoordinates(target.canvas, event.touches[0]);
-      var rect = config.rect();
+      const rect = config.rect();
       if (onLeftBorder(previousXY, rect, 20)) {
         position = LEFT_OF_RECT;
       } else if (onRightBorder(previousXY, rect, 20)) {
@@ -449,11 +422,11 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
       }
     } else if (doubleTouch) {
       position = null;
-      var touches = [
+      const touches = [
         WT.widgetCoordinates(target.canvas, event.touches[0]),
         WT.widgetCoordinates(target.canvas, event.touches[1]),
       ];
-      var rect = config.rect();
+      const rect = config.rect();
       if (
         !isInside(touches[0], rect) ||
         !isInside(touches[1], rect)
@@ -474,21 +447,20 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
   };
 
   touchHandlers.end = function(o, event) {
-    var touches = Array.prototype.slice.call(event.touches);
+    const touches = Array.prototype.slice.call(event.touches);
 
-    var wasSingleTouch = singleTouch;
-    var wasDoubleTouch = doubleTouch;
-    var noTouch = touches.length === 0;
+    const wasSingleTouch = singleTouch;
+    const wasDoubleTouch = doubleTouch;
+    let noTouch = touches.length === 0;
     singleTouch = touches.length === 1;
     doubleTouch = touches.length === 2;
 
     if (!noTouch) {
       (function() {
-        var i;
-        for (i = 0; i < event.changedTouches.length; ++i) {
+        for (let i = 0; i < event.changedTouches.length; ++i) {
           (function() {
-            var id = event.changedTouches[i].identifier;
-            for (var j = 0; j < touches.length; ++j) {
+            const id = event.changedTouches[i].identifier;
+            for (let j = 0; j < touches.length; ++j) {
               if (touches[j].identifier === id) {
                 touches.splice(j, 1);
                 return;
@@ -529,12 +501,12 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
       if (event.preventDefault) {
         event.preventDefault();
       }
-      var pos = WT.widgetCoordinates(widget, event);
+      const pos = WT.widgetCoordinates(widget, event);
       if (previousXY === null) {
         previousXY = pos;
         return;
       }
-      var dx;
+      let dx;
       if (isHorizontal()) {
         dx = pos.x - previousXY.x;
       } else {
@@ -557,18 +529,17 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
       if (event.preventDefault) {
         event.preventDefault();
       }
-      touches = [
+      const touches = [
         WT.widgetCoordinates(target.canvas, event.touches[0]),
         WT.widgetCoordinates(target.canvas, event.touches[1]),
       ];
-      var rect = config.rect();
-      var newDelta;
+      let newDelta;
       if (isHorizontal()) {
         newDelta = Math.abs(touches[0].x - touches[1].x);
       } else {
         newDelta = Math.abs(touches[0].y - touches[1].y);
       }
-      var d = newDelta - touchDelta;
+      const d = newDelta - touchDelta;
       dragLeft(-d / 2);
       dragRight(d / 2);
       touchDelta = newDelta;
@@ -577,10 +548,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
   };
 
   this.updateConfig = function(newConfig) {
-    for (var key in newConfig) {
-      if (newConfig.hasOwnProperty(key)) {
-        config[key] = newConfig[key];
-      }
+    for (const [key, value] of Object.entries(newConfig)) {
+      config[key] = value;
     }
     repaint(false);
   };
@@ -592,7 +561,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WAxisSliderWidget", function(APP
     self.touchEnded = touchHandlers.end;
     self.touchMoved = touchHandlers.moved;
   } else {
-    var nop = function() {};
+    const nop = function() {};
     self.touchStarted = nop;
     self.touchEnded = nop;
     self.touchMoved = nop;
