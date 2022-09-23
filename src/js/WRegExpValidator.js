@@ -11,10 +11,10 @@ WT_DECLARE_WT_MEMBER(
   JavaScriptConstructor,
   "WRegExpValidator",
   function(mandatory, regexp, modifiers, blankError, invalidError) {
-    var r = regexp ? new RegExp(regexp, modifiers) : null;
+    const r = regexp ? new RegExp(regexp, modifiers) : null;
 
     this.validate = function(text) {
-      if (text.length == 0) {
+      if (text.length === 0) {
         if (mandatory) {
           return { valid: false, message: blankError };
         } else {
@@ -23,7 +23,7 @@ WT_DECLARE_WT_MEMBER(
       }
 
       if (r) {
-        var result = r.exec(text);
+        const result = r.exec(text);
         if (result !== null && result[0].length === text.length) {
           return { valid: true };
         } else {
