@@ -9,9 +9,9 @@
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupWidget", function(APP, el, tr, ahd, shown) {
   el.wtPopup = this;
 
-  var self = this,
-    WT = APP.WT,
-    hideTimeout = null,
+  const self = this,
+    WT = APP.WT;
+  let hideTimeout = null,
     isTransient = tr,
     autoHideDelay = ahd,
     touch = null,
@@ -37,7 +37,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupWidget", function(APP, el,
   }
 
   function startTouch(event) {
-    var l = event.originalEvent.touches;
+    const l = event.originalEvent.touches;
     if (l.length > 1) {
       touch = null;
     } else {
@@ -50,7 +50,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupWidget", function(APP, el,
 
   function endTouch(event) {
     if (touch) {
-      var t = event.originalEvent.changedTouches[0];
+      const t = event.originalEvent.changedTouches[0];
       if (Math.abs(touch.x - t.screenX) < 20 && Math.abs(touch.y - t.screenY) < 20) {
         onDocumentClick(event);
       }
@@ -71,17 +71,17 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupWidget", function(APP, el,
   }
 
   function isHidden() {
-    return el.style.display == "hidden";
+    return el.style.display === "hidden";
   }
 
   function onDocumentClick(event) {
     function isAncestor(a, b) {
-      if (a == b) {
+      if (a === b) {
         return true;
       }
 
       for (b = b.parentNode; b; b = b.parentNode) {
-        if (a == b) {
+        if (a === b) {
           return true;
         }
       }
@@ -89,8 +89,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupWidget", function(APP, el,
       return false;
     }
 
-    var target = WT.target(event);
-    if (target == document) {
+    let target = WT.target(event);
+    if (target === document) {
       if (WT.WPopupWidget.popupClicked !== null) {
         target = WT.WPopupWidget.popupClicked;
       }
@@ -109,7 +109,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupWidget", function(APP, el,
     hideF = f;
   };
 
-  this.shown = function(f) {
+  this.shown = function() {
     if (isTransient) {
       setTimeout(function() {
         bindDocumentClick();
@@ -122,7 +122,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupWidget", function(APP, el,
   };
 
   this.show = function(anchorWidget, side) {
-    if (el.style.display != "") {
+    if (el.style.display !== "") {
       el.style.display = "";
 
       if (anchorWidget) {
@@ -144,7 +144,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupWidget", function(APP, el,
   };
 
   this.hide = function() {
-    if (el.style.display != "none") {
+    if (el.style.display !== "none") {
       el.style.display = "none";
     }
 
