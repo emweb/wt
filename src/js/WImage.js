@@ -9,17 +9,16 @@
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WImage", function(APP, el, target) {
   el.wtObj = this;
 
-  var self = this;
-  var WT = APP.WT;
+  const self = this;
 
-  var WAIT_TIMEOUT = 100;
-  var ROW_QUANTUM = 50;
-  var areaCoordsJSON = null;
+  const WAIT_TIMEOUT = 100;
+  const ROW_QUANTUM = 50;
+  let areaCoordsJSON = null;
 
-  var waitStarted = 0;
-  var currentTransform = "";
-  var timeoutId = null;
-  var updateRow = 0;
+  let waitStarted = 0;
+  let currentTransform = "";
+  let timeoutId = null;
+  let updateRow = 0;
 
   this.setAreaCoordsJSON = function(newAreaCoordsJSON) {
     areaCoordsJSON = newAreaCoordsJSON;
@@ -28,15 +27,14 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WImage", function(APP, el, targe
   };
 
   this.updateAreas = function() {
-    var combinedTransformJS = target.combinedTransform;
-    if (combinedTransformJS === undefined || areaCoordsJSON === null) {
+    const combinedTransformJS = target.combinedTransform;
+    if (typeof combinedTransformJS === "undefined" || areaCoordsJSON === null) {
       return;
     }
 
-    var newTransform = combinedTransformJS();
-    var transformChanged = (newTransform.toString() !== currentTransform.toString());
+    const newTransform = combinedTransformJS();
+    const transformChanged = (newTransform.toString() !== currentTransform.toString());
 
-    // console.log('updateAreas: currentTransform: ' + currentTransform + ', newTransform: ' + newTransform + ', changed: ' + transformChanged);
     /* if idle state */
     if (waitStarted === 0 && updateRow === 0) {
       /* ...and transform unchanged, we are done...  */
@@ -51,7 +49,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WImage", function(APP, el, targe
       }
     }
 
-    var timeNow = new Date().getTime();
+    const timeNow = new Date().getTime();
 
     /* if the transform changed, enter wait state */
     if (transformChanged) {
@@ -87,7 +85,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WImage", function(APP, el, targe
       return;
     } /* new call or timeout with quantum not expired ... */
     else {
-      var timeRemaining = timeNow - waitStarted;
+      let timeRemaining = timeNow - waitStarted;
       if (timeRemaining > WAIT_TIMEOUT) {
         timeRemaining = WAIT_TIMEOUT;
       }
@@ -100,25 +98,26 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WImage", function(APP, el, targe
 
   this.updateAreaCoords = function(quantum) {
     // console.log('updateAreaCoords: updateRow: ' + updateRow + ", transform: " + currentTransform);
-    var mult = APP.WT.gfxUtils.transform_mult;
+    const mult = APP.WT.gfxUtils.transform_mult;
 
-    var endIndex = updateRow + quantum;
+    let endIndex = updateRow + quantum;
     if (endIndex > areaCoordsJSON.length) {
       endIndex = areaCoordsJSON.length;
     }
 
     while (updateRow < endIndex) {
-      var coordEntry = areaCoordsJSON[updateRow];
-      var areaEl = coordEntry[0];
-      var points = coordEntry[1];
+      const coordEntry = areaCoordsJSON[updateRow];
+      const areaEl = coordEntry[0];
+      const points = coordEntry[1];
 
-      var len = points.length;
-      var new_coords = "";
-      for (var i = 0; i + 1 < len; i += 2) {
+      const len = points.length;
+      let new_coords = "";
+      let i = 0;
+      for (; i + 1 < len; i += 2) {
         if (i > 0) {
           new_coords += ",";
         }
-        var p = mult(currentTransform, points.slice(i, i + 2));
+        const p = mult(currentTransform, points.slice(i, i + 2));
         new_coords += Math.round(p[0]).toString() + "," + Math.round(p[1]).toString();
       }
 
