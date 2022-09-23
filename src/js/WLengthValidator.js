@@ -12,7 +12,7 @@ WT_DECLARE_WT_MEMBER(
   "WLengthValidator",
   function(mandatory, minLength, maxLength, blankError, tooShortError, tooLongError) {
     this.validate = function(text) {
-      if (text.length == 0) {
+      if (text.length === 0) {
         if (mandatory) {
           return { valid: false, message: blankError };
         } else {
