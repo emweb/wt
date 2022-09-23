@@ -18,7 +18,7 @@ WT_DECLARE_WT_MEMBER(
     this.validate = function(text) {
       text = String(text);
 
-      if (text.length == 0) {
+      if (text.length === 0) {
         if (mandatory) {
           return { valid: false, message: blankError };
         } else {
@@ -26,13 +26,13 @@ WT_DECLARE_WT_MEMBER(
         }
       }
 
-      if (groupSeparator != "") {
-        text = text.replace(groupSeparator, "", "g");
+      if (groupSeparator !== "") {
+        text = text.replaceAll(groupSeparator, "");
       }
 
-      var n = Number(text);
+      const n = Number(text);
 
-      if (isNaN(n) || (Math.round(n) != n)) {
+      if (isNaN(n) || (Math.round(n) !== n)) {
         return { valid: false, message: NaNError };
       }
 
