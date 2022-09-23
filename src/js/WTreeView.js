@@ -13,38 +13,38 @@ WT_DECLARE_WT_MEMBER(
   function(APP, el, contentsContainer, headerContainer, rowHeaderCount, selectedClass) {
     el.wtObj = this;
 
-    var contents = contentsContainer.firstChild;
-    var headers = headerContainer.firstChild;
+    const contents = contentsContainer.firstChild;
+    const headers = headerContainer.firstChild;
 
-    var self = this;
-    var WT = APP.WT;
+    const self = this;
+    const WT = APP.WT;
 
-    var sizeSet = false;
+    let sizeSet = false;
 
-    var itemDropsEnabled = false, betweenRowsDropsEnabled = false;
+    let itemDropsEnabled = false, betweenRowsDropsEnabled = false;
 
-    /** @const */ var EnsureVisible = 0;
-    /** @const */ var PositionAtTop = 1;
-    /** @const */ var PositionAtBottom = 2;
-    /** @const */ var PositionAtCenter = 3;
+    const EnsureVisible = 0;
+    const PositionAtTop = 1;
+    const PositionAtBottom = 2;
+    const PositionAtCenter = 3;
 
     function getItem(event) {
-      var columnId = -1, nodeId = null, selected = false, drop = false, ele = null;
+      let columnId = -1, nodeId = null, selected = false, drop = false, ele = null;
 
-      var t = WT.target(event);
+      let t = WT.target(event);
 
-      while (t && t != el) {
+      while (t && t !== el) {
         if (WT.hasTag(t, "LI")) {
-          if (columnId == -1) {
+          if (columnId === -1) {
             columnId = 0;
           }
           nodeId = t.id;
 
           break;
-        } else if (t.className && t.className.indexOf("Wt-tv-c") == 0) {
-          if (t.className.indexOf("Wt-tv-c") == 0) {
+        } else if (t.className && t.className.indexOf("Wt-tv-c") === 0) {
+          if (t.className.indexOf("Wt-tv-c") === 0) {
             columnId = t.className.split(" ")[0].substring(7) * 1;
-          } else if (columnId == -1) {
+          } else if (columnId === -1) {
             columnId = 0;
           }
           if (t.getAttribute("drop") === "true") {
@@ -64,8 +64,8 @@ WT_DECLARE_WT_MEMBER(
     }
 
     this.click = function(obj, event) {
-      var item = getItem(event);
-      if (item.columnId != -1) {
+      const item = getItem(event);
+      if (item.columnId !== -1) {
         APP.emit(
           el,
           { name: "itemEvent", eventObject: obj, event: event },
@@ -78,8 +78,8 @@ WT_DECLARE_WT_MEMBER(
     };
 
     this.dblClick = function(obj, event) {
-      var item = getItem(event);
-      if (item.columnId != -1) {
+      const item = getItem(event);
+      if (item.columnId !== -1) {
         APP.emit(
           el,
           { name: "itemEvent", eventObject: obj, event: event },
@@ -93,8 +93,8 @@ WT_DECLARE_WT_MEMBER(
 
     this.mouseDown = function(obj, event) {
       WT.capture(null);
-      var item = getItem(event);
-      if (item.columnId != -1) {
+      const item = getItem(event);
+      if (item.columnId !== -1) {
         APP.emit(
           el,
           { name: "itemEvent", eventObject: obj, event: event },
@@ -110,8 +110,8 @@ WT_DECLARE_WT_MEMBER(
     };
 
     this.mouseUp = function(obj, event) {
-      var item = getItem(event);
-      if (item.columnId != -1) {
+      const item = getItem(event);
+      if (item.columnId !== -1) {
         APP.emit(
           el,
           { name: "itemEvent", eventObject: obj, event: event },
@@ -123,11 +123,12 @@ WT_DECLARE_WT_MEMBER(
       }
     };
 
-    var touchStartTimer;
+    /** @type {?number} */
+    let touchStartTimer = null;
 
     function emitTouchEvent(obj, event, evtType) {
-      var item = getItem(event);
-      if (item.columnId != -1) {
+      const item = getItem(event);
+      if (item.columnId !== -1) {
         APP.emit(
           el,
           { name: "itemTouchEvent", eventObject: obj, event: event },
@@ -154,16 +155,18 @@ WT_DECLARE_WT_MEMBER(
     };
 
     this.touchMove = function(obj, event) {
-      if (event.touches.length == 1 && touchStartTimer) {
+      if (event.touches.length === 1 && touchStartTimer) {
         clearTimeout(touchStartTimer);
+        touchStartTimer = null;
       }
     };
 
-    this.touchEnd = function(obj, event) {
+    this.touchEnd = function(_obj, _event) {
       // FIXME: emit touch end event if connected to slot
       // emitTouchEvent(obj, event, 'touchend');
       if (touchStartTimer) {
         clearTimeout(touchStartTimer);
+        touchStartTimer = null;
       }
     };
 
@@ -184,20 +187,18 @@ WT_DECLARE_WT_MEMBER(
     };
 
     this.resizeHandleMDown = function(obj, event) {
-      var parent = obj.parentNode,
+      const parent = obj.parentNode,
         c = parent.className.split(" ")[0];
 
       if (c) {
-        var r = WT.getCssRule("#" + el.id + " ." + c),
+        const r = WT.getCssRule("#" + el.id + " ." + c),
           cw = WT.pxself(r, "width"),
-          minDelta = -cw,
-          maxDelta = 10000,
           rtl = document.body.classList.contains("Wt-rtl");
+        let minDelta = -cw,
+          maxDelta = 10000;
 
         if (rtl) {
-          var tmp = minDelta;
-          minDelta = -maxDelta;
-          maxDelta = -tmp;
+          [minDelta, maxDelta] = [-maxDelta, -minDelta];
         }
 
         new WT.SizeHandle(
@@ -209,7 +210,7 @@ WT_DECLARE_WT_MEMBER(
           maxDelta,
           "Wt-hsh2",
           function(delta) {
-            var newWidth = cw + (rtl ? -delta : delta),
+            const newWidth = cw + (rtl ? -delta : delta),
               columnId = c.substring(7) * 1;
             r.style.width = newWidth + "px";
             self.adjustColumns();
@@ -236,7 +237,7 @@ WT_DECLARE_WT_MEMBER(
     *  else
     *    4) width('Wt-rowc') = sum(column(-1) widths)
     */
-    var adjustScheduled = false;
+    let adjustScheduled = false;
 
     function doAdjustColumns() {
       if (!adjustScheduled || !sizeSet) {
@@ -249,23 +250,23 @@ WT_DECLARE_WT_MEMBER(
 
       adjustScheduled = false;
 
-      var wrapRoot = contents.firstChild, // table parent
-        hc = headers.firstChild, // Wt-tv-row
+      const wrapRoot = contents.firstChild; // table parent
+      let hc = headers.firstChild, // Wt-tv-row
         allw_1 = 0,
-        allw = 0,
-        c0id = headers.lastChild.className.split(" ")[0],
+        allw = 0;
+      const c0id = headers.lastChild.className.split(" ")[0],
         c0r = WT.getCssRule("#" + el.id + " ." + c0id);
 
       if (rowHeaderCount) {
         hc = hc.firstChild; // Wt-tv-rowc
       }
 
-      for (var i = 0, length = hc.childNodes.length; i < length; ++i) {
-        if (hc.childNodes[i].className) { // IE may have only a text node
-          var cl = hc.childNodes[i].className.split(" ")[0],
+      for (const childNode of hc.childNodes) {
+        if (childNode.className) { // IE may have only a text node
+          const cl = childNode.className.split(" ")[0],
             r = WT.getCssRule("#" + el.id + " ." + cl);
 
-          if (r.style.display == "none") {
+          if (r.style.display === "none") {
             continue;
           }
 
@@ -275,23 +276,10 @@ WT_DECLARE_WT_MEMBER(
       }
 
       if (!rowHeaderCount) {
-        /*
-        * A floating container does not relate to size of contained
-        * children. It needs an explicit width (as to the letter of the
-        * @!@#$%! CSS spec, btw.). Only IE in RTL mode (when float: left)
-        * seems to implement this correctly and thus needs the following:
-        */
-        if (WT.isIE && document.body.classList.contains("Wt-rtl")) {
-          var rrow = WT.getCssRule("#" + el.id + " .Wt-tv-row");
-          if (rrow) {
-            rrow.style.width = allw_1 + "px";
-          }
-        }
-
         if (!c0r.style.width) {
           // first resize and c0 width not set
           // 9 = 2px (widget border) - 7px column padding - 22px (scrollbar room)
-          var c0rw = el.scrollWidth - hc.offsetWidth - 9 - 15;
+          const c0rw = el.scrollWidth - hc.offsetWidth - 9 - 15;
           if (c0rw > 0) {
             c0r.style.width = c0rw + "px";
           }
@@ -302,22 +290,17 @@ WT_DECLARE_WT_MEMBER(
         }
       }
 
-      if (c0r.style["width"] == "auto") {
+      if (c0r.style["width"] === "auto") {
         return;
       }
 
-      /*
-      * IE6 is still not entirely right. It seems to be caused by a padding
-      * of 7 pixels in the first column which gets added to the width.
-      */
-
-      allw = allw_1 + WT.pxself(c0r, "width") + (WT.isIE6 ? 10 : 7);
+      allw = allw_1 + WT.pxself(c0r, "width") + 7;
 
       if (!rowHeaderCount) {
         headers.style.width = wrapRoot.style.width = allw + "px";
         hc.style.width = allw_1 + "px";
       } else {
-        var r = WT.getCssRule("#" + el.id + " .Wt-tv-rowc");
+        const r = WT.getCssRule("#" + el.id + " .Wt-tv-rowc");
         r.style.width = allw_1 + "px";
 
         // if the WTreeView is rendered using StdGridLayoutImpl2,
@@ -348,20 +331,20 @@ WT_DECLARE_WT_MEMBER(
       betweenRowsDropsEnabled = betweenRowsDrop;
     };
 
-    var dropEl = null;
-    var dropRow = null;
+    let dropEl = null;
+    let dropRow = null;
 
     function showRowDropSite(node, side) {
       // keep dropsite visual consistent by always displaying it at the bottom
       if (side === "top") {
-        var prevSibling = node.previousSibling;
+        const prevSibling = node.previousSibling;
         if (prevSibling) {
           node = prevSibling;
           side = "bottom";
         }
       }
 
-      var visual = document.createElement("div");
+      const visual = document.createElement("div");
       visual.className = "Wt-drop-site-" + side;
       node.style.position = "relative";
       node.appendChild(visual);
@@ -372,7 +355,7 @@ WT_DECLARE_WT_MEMBER(
     function hideRowDropSite(node) {
       node.style.position = "";
       node.dropVisual.remove();
-      node.dropVisual = undefined;
+      delete node.dropVisual;
     }
 
     el.handleDragDrop = function(action, object, event, sourceId, mimeType) {
@@ -385,14 +368,14 @@ WT_DECLARE_WT_MEMBER(
         dropRow = null;
       }
 
-      if (action == "end") {
+      if (action === "end") {
         return;
       }
 
-      var item = getItem(event);
+      const item = getItem(event);
 
-      if (!item.selected && item.drop && itemDropsEnabled && item.columnId != -1) {
-        if (action == "drop") {
+      if (!item.selected && item.drop && itemDropsEnabled && item.columnId !== -1) {
+        if (action === "drop") {
           APP.emit(
             el,
             { name: "itemEvent", eventObject: object, event: event },
@@ -408,22 +391,22 @@ WT_DECLARE_WT_MEMBER(
           dropEl.className = dropEl.className + " Wt-drop-site";
         }
       } else if (!item.selected && betweenRowsDropsEnabled) {
-        var node;
-        var side = "bottom";
+        let node;
+        let side = "bottom";
         if (item.nodeId) {
           node = WT.$(item.nodeId);
-          var coords = WT.widgetCoordinates(node, event);
+          const coords = WT.widgetCoordinates(node, event);
           side = (coords.y - node.clientHeight / 2) <= 0 ? "top" : "bottom";
         } else {
-          var root = contentsContainer.getElementsByClassName("Wt-tv-root");
-          if (root.length == 1) {
+          const root = contentsContainer.getElementsByClassName("Wt-tv-root");
+          if (root.length === 1) {
             node = root[0].lastChild;
           } else {
             node = headerContainer;
           }
         }
 
-        if (action == "drop") {
+        if (action === "drop") {
           APP.emit(
             el,
             { name: "rowDropEvent", eventObject: object, event: event },
@@ -460,16 +443,16 @@ WT_DECLARE_WT_MEMBER(
       let c0r;
       let c0w = null;
 
-      var tw = WT.pxself(el, "width");
+      let tw = WT.pxself(el, "width");
 
-      if (tw == 0) {
+      if (tw === 0) {
         tw = el.clientWidth;
       } else if (WT.boxSizing(el)) {
         tw -= WT.px(el, "borderLeftWidth");
         tw -= WT.px(el, "borderRightWidth");
       }
 
-      var scrollwidth = contentsContainer.offsetWidth -
+      let scrollwidth = contentsContainer.offsetWidth -
         contentsContainer.clientWidth;
 
       // IE cannot accurately estimate scrollwidth from time to time ?
@@ -490,12 +473,12 @@ WT_DECLARE_WT_MEMBER(
 
       // XXX: IE's incremental rendering foobars completely
       if (
-        (!WT.isIE || tw > 100) &&
-        (tw != contentsContainer.tw ||
-          c0w != contentsContainer.c0w ||
+        tw > 100 &&
+        (tw !== contentsContainer.tw ||
+          c0w !== contentsContainer.c0w ||
           el.changed)
       ) {
-        var adjustColumns = !el.changed;
+        const adjustColumns = !el.changed;
 
         contentsContainer.tw = tw;
         contentsContainer.c0w = c0w;
@@ -504,16 +487,16 @@ WT_DECLARE_WT_MEMBER(
           .lastChild.className.split(" ")[0];
         c0r = WT.getCssRule("#" + el.id + " ." + c0id);
 
-        var table = contents.firstChild,
+        const table = contents.firstChild,
           r = WT.getCssRule("#" + el.id + " .cwidth"),
-          contentstoo = (r.style.width == (table.offsetWidth + 1) + "px"),
+          contentstoo = (r.style.width === (table.offsetWidth + 1) + "px"),
           hc = headers.firstChild;
 
         r.style.width = tw + "px";
 
         contentsContainer.style.width = (tw + scrollwidth) + "px";
 
-        var rtl = document.body.classList.contains("Wt-rtl");
+        const rtl = document.body.classList.contains("Wt-rtl");
         if (!rtl) {
           headerContainer.style.marginRight = scrollwidth + "px";
           document.querySelectorAll(`#${el.id} .Wt-scroll`).forEach(function(descendant) {
@@ -521,11 +504,11 @@ WT_DECLARE_WT_MEMBER(
           });
         }
 
-        if (c0w != null) {
-          var w = tw - c0w - (WT.isIE6 ? 10 : 7);
+        if (c0w !== null) {
+          const w = tw - c0w - 7;
 
           if (w > 0) {
-            var w2 = Math.min(w, WT.pxself(WT.getCssRule("#" + el.id + " .Wt-tv-rowc"), "width"));
+            const w2 = Math.min(w, WT.pxself(WT.getCssRule("#" + el.id + " .Wt-tv-rowc"), "width"));
             tw -= w - w2;
 
             headers.style.width = tw + "px";
@@ -549,18 +532,18 @@ WT_DECLARE_WT_MEMBER(
 
         el.changed = false;
 
-        if (adjustColumns /* && WT.isIE */) {
+        if (adjustColumns) {
           self.adjustColumns();
         }
       }
     };
 
-    this.scrollTo = function(x, y, rowHeight, hint) {
-      if (y != -1) {
+    this.scrollTo = function(_x, y, rowHeight, hint) {
+      if (y !== -1) {
         y *= rowHeight;
-        var top = contentsContainer.scrollTop,
+        const top = contentsContainer.scrollTop,
           height = contentsContainer.clientHeight;
-        if (hint == EnsureVisible) {
+        if (hint === EnsureVisible) {
           if (top + height < y) {
             hint = PositionAtTop;
           } else if (y < top) {
@@ -586,7 +569,8 @@ WT_DECLARE_WT_MEMBER(
       }
     };
 
-    var rowHeight;
+    /** @type {number} */
+    let rowHeight = 0;
     this.setRowHeight = function(height) {
       rowHeight = height;
     };
@@ -594,13 +578,13 @@ WT_DECLARE_WT_MEMBER(
     // bug #1352: when the browser is zoomed the alternating rowcolors get
     //   out of sync when scrolling down. fix = offset the alternating colors
     //   image to repeat starting from the current scrolled position.
-    var offsetRowColorImg = function() {
-      if (rowHeight == 0) {
+    const offsetRowColorImg = function() {
+      if (rowHeight === 0) {
         return;
       }
 
-      var scrollPos = contentsContainer.scrollTop;
-      var rootNode = contents.children[0].children[0];
+      const scrollPos = contentsContainer.scrollTop;
+      const rootNode = contents.children[0].children[0];
       rootNode.style.backgroundPosition = "0px " + Math.floor(scrollPos / (2 * rowHeight)) * (2 * rowHeight) + "px";
     };
 
