@@ -6,11 +6,10 @@
 
 /* Note: this is at the same time valid JavaScript and C++. */
 
-WT_DECLARE_WT_MEMBER(20, JavaScriptConstructor, "WJavaScriptObjectStorage", function(APP, widget) {
+WT_DECLARE_WT_MEMBER(20, JavaScriptConstructor, "WJavaScriptObjectStorage", function(_APP, widget) {
   widget.wtJSObj = this;
 
-  var self = this;
-  var WT = APP.WT;
+  const self = this;
 
   // function to determine if the argument is a plain object (an object with zero or more key-value pairs)
   function isPlainObject(object) {
@@ -20,19 +19,15 @@ WT_DECLARE_WT_MEMBER(20, JavaScriptConstructor, "WJavaScriptObjectStorage", func
   // Deep copy a simple JavaScript object, value or array
   function deepCopy(v) {
     if (Array.isArray(v)) {
-      var res = [];
-      var i;
-      for (i = 0; i < v.length; ++i) {
+      const res = [];
+      for (let i = 0; i < v.length; ++i) {
         res.push(deepCopy(v[i]));
       }
       return res;
     } else if (isPlainObject(v)) {
-      var res = {};
-      var key;
-      for (key in v) {
-        if (v.hasOwnProperty(key)) {
-          res[key] = deepCopy(v[key]);
-        }
+      const res = {};
+      for (const [key, value] of Object.entries(v)) {
+        res[key] = deepCopy(value);
       }
       return res;
     } else {
@@ -49,30 +44,24 @@ WT_DECLARE_WT_MEMBER(20, JavaScriptConstructor, "WJavaScriptObjectStorage", func
       if (a.length !== b.length) {
         return false;
       }
-      var i;
-      for (i = 0; i < a.length; ++i) {
+      for (let i = 0; i < a.length; ++i) {
         if (!isEqual(a[i], b[i])) {
           return false;
         }
       }
       return true;
     } else if (isPlainObject(a) && isPlainObject(b)) {
-      var key;
-      for (key in a) {
-        if (a.hasOwnProperty(key)) {
-          if (!b.hasOwnProperty(key)) {
-            return false;
-          }
-          if (!isEqual(a[key], b[key])) {
-            return false;
-          }
+      for (const [key, value] of Object.entries(a)) {
+        if (!Object.prototype.hasOwnProperty.call(b, key)) {
+          return false;
+        }
+        if (!isEqual(value, b[key])) {
+          return false;
         }
       }
-      for (key in b) {
-        if (b.hasOwnProperty(key)) {
-          if (!a.hasOwnProperty(key)) {
-            return false;
-          }
+      for (const key of Object.keys(b)) {
+        if (!Object.prototype.hasOwnProperty.call(a, key)) {
+          return false;
         }
       }
       return true;
@@ -86,7 +75,7 @@ WT_DECLARE_WT_MEMBER(20, JavaScriptConstructor, "WJavaScriptObjectStorage", func
     return Array.isArray(v) && v.length > 6;
   }
 
-  var oldValues = {};
+  const oldValues = {};
   this.jsValues = [];
   this.setJsValue = function(index, value) {
     if (!isPainterPath(value)) {
@@ -96,11 +85,9 @@ WT_DECLARE_WT_MEMBER(20, JavaScriptConstructor, "WJavaScriptObjectStorage", func
   };
 
   function encodeJSValues() {
-    var res = {};
-    var value;
-    var i;
-    for (i = 0; i < self.jsValues.length; ++i) {
-      value = self.jsValues[i];
+    const res = {};
+    for (let i = 0; i < self.jsValues.length; ++i) {
+      const value = self.jsValues[i];
       if (
         !isPainterPath(value) &&
         !isEqual(value, oldValues[i])
