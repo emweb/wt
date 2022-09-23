@@ -9,12 +9,12 @@
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTreeTable", function(APP, table) {
   table.wtObj = this;
 
-  var self = this, WT = APP.WT;
-  let content = table.querySelector(".Wt-content"),
+  const self = this, WT = APP.WT;
+  const content = table.querySelector(".Wt-content"),
     spacer = table.querySelector(".Wt-sbspacer");
 
   this.wtResize = function(el, w, h, setSize) {
-    var hdefined = h >= 0;
+    const hdefined = h >= 0;
 
     if (setSize) {
       if (hdefined) {
@@ -24,12 +24,12 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTreeTable", function(APP, table
       }
     }
 
-    var c = el.lastChild;
-    var t = el.firstChild;
+    const c = el.lastChild;
+    const t = el.firstChild;
     h -= t.getBoundingClientRect().height;
 
     if (hdefined && h > 0) {
-      if (c.style.height != h + "px") {
+      if (c.style.height !== h + "px") {
         c.style.height = h + "px";
       }
     } else {
@@ -45,7 +45,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTreeTable", function(APP, table
         spacer.style.display = "none";
       }
 
-      var h = WT.pxself(table, "height");
+      const h = WT.pxself(table, "height");
       if (h) {
         self.wtResize(table, 0, h, false);
       }
