@@ -7,9 +7,9 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER(10, JavaScriptFunction, "ChildrenResize", function(self, w, h, setSize) {
-  var WT = this;
+  const WT = this;
 
-  var hdefined = h >= 0;
+  const hdefined = h >= 0;
 
   if (setSize) {
     if (hdefined) {
@@ -40,7 +40,7 @@ WT_DECLARE_WT_MEMBER(10, JavaScriptFunction, "ChildrenResize", function(self, w,
   }
 
   function marginV(el) {
-    var result = WT.px(el, "marginTop");
+    let result = WT.px(el, "marginTop");
     result += WT.px(el, "marginBottom");
 
     if (!WT.boxSizing(el)) {
@@ -53,13 +53,10 @@ WT_DECLARE_WT_MEMBER(10, JavaScriptFunction, "ChildrenResize", function(self, w,
     return result;
   }
 
-  var j, jl, c;
-  for (j = 0, jl = self.childNodes.length; j < jl; ++j) {
-    c = self.childNodes[j];
-
-    if (c.nodeType == 1 && !c.classList.contains("wt-reparented")) {
+  for (const c of self.childNodes) {
+    if (c.nodeType === 1 && !c.classList.contains("wt-reparented")) {
       if (hdefined) {
-        var ch = h - marginV(c);
+        const ch = h - marginV(c);
 
         if (ch > 0) {
           /*
@@ -68,8 +65,8 @@ WT_DECLARE_WT_MEMBER(10, JavaScriptFunction, "ChildrenResize", function(self, w,
             and the original work-around 548948b63
           */
           if (c.offsetTop > 0) {
-            var of = WT.css(c, "overflow");
-            if (of === "visible" || of === "") {
+            const overflow = WT.css(c, "overflow");
+            if (overflow === "visible" || overflow === "") {
               c.style.overflow = "auto";
             }
           }
@@ -77,8 +74,8 @@ WT_DECLARE_WT_MEMBER(10, JavaScriptFunction, "ChildrenResize", function(self, w,
           if (c.wtResize) {
             c.wtResize(c, w, ch, true);
           } else {
-            var cheight = ch + "px";
-            if (c.style.height != cheight) {
+            const cheight = ch + "px";
+            if (c.style.height !== cheight) {
               c.style.height = cheight;
               c.lh = true;
             }
@@ -96,13 +93,13 @@ WT_DECLARE_WT_MEMBER(10, JavaScriptFunction, "ChildrenResize", function(self, w,
   }
 });
 
-WT_DECLARE_WT_MEMBER(11, JavaScriptFunction, "ChildrenGetPS", function(self, child, dir, size) {
+WT_DECLARE_WT_MEMBER(11, JavaScriptFunction, "ChildrenGetPS", function(_self, _child, _dir, size) {
   return size;
 });
 
 WT_DECLARE_WT_MEMBER(12, JavaScriptFunction, "LastResize", function(self, w, h, setSize) {
-  var WT = this;
-  var hdefined = h >= 0;
+  const WT = this;
+  const hdefined = h >= 0;
   if (setSize) {
     if (hdefined) {
       self.style.height = h + "px";
@@ -115,9 +112,9 @@ WT_DECLARE_WT_MEMBER(12, JavaScriptFunction, "LastResize", function(self, w, h, 
     self.lh = false;
   }
 
-  var t = self.lastChild;
+  let t = self.lastChild;
   while (
-    t && t.nodeType == 1 &&
+    t && t.nodeType === 1 &&
     (t.classList.contains("wt-reparented") || t.classList.contains("resize-sensor"))
   ) {
     t = t.previousSibling;
@@ -127,7 +124,7 @@ WT_DECLARE_WT_MEMBER(12, JavaScriptFunction, "LastResize", function(self, w, h, 
     return;
   }
 
-  var c = t.previousSibling;
+  const c = t.previousSibling;
 
   if (hdefined) {
     h -= c.offsetHeight + WT.px(c, "marginTop") + WT.px(c, "marginBottom");
@@ -150,13 +147,12 @@ WT_DECLARE_WT_MEMBER(12, JavaScriptFunction, "LastResize", function(self, w, h, 
 });
 
 WT_DECLARE_WT_MEMBER(13, JavaScriptFunction, "LastGetPS", function(self, child, dir, size) {
-  var WT = this, i, il;
+  const WT = this;
 
-  for (i = 0, il = self.childNodes.length; i < il; ++i) {
-    var c = self.childNodes[i];
-    if (c != child) {
-      var pc = WT.css(c, "position");
-      if (pc != "absolute" && pc != "fixed") {
+  for (const c of self.childNodes) {
+    if (c !== child) {
+      const pc = WT.css(c, "position");
+      if (pc !== "absolute" && pc !== "fixed") {
         if (dir === 0) {
           size = Math.max(size, c.offsetWidth);
         } else {
