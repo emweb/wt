@@ -7,20 +7,20 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTimeEdit", function(APP, edit, popup) {
-  /** @const */ var CLASS_HOVER = "hover";
-  /** @const */ var CLASS_ACTIVE = "active";
-  /** @const */ var CLASS_UNSELECTABLE = "unselectable";
+  const CLASS_HOVER = "hover";
+  const CLASS_ACTIVE = "active";
+  const CLASS_UNSELECTABLE = "unselectable";
 
   edit.wtDObj = this;
 
-  var self = this, WT = APP.WT;
+  const WT = APP.WT;
 
   function isReadOnly() {
     return edit.readOnly;
   }
 
   function getPopup() {
-    var p = WT.$(popup);
+    const p = WT.$(popup);
     return p.wtPopup;
   }
 
@@ -29,12 +29,12 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTimeEdit", function(APP, edit, 
   }
 
   function showPopup() {
-    var p = getPopup();
+    const p = getPopup();
     p.bindHide(resetButton);
     p.show(edit, WT.Vertical);
   }
 
-  this.mouseOut = function(o, event) {
+  this.mouseOut = function(_o, _event) {
     edit.classList.remove(CLASS_HOVER);
   };
 
@@ -43,7 +43,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTimeEdit", function(APP, edit, 
       return;
     }
 
-    var xy = WT.widgetCoordinates(edit, event);
+    const xy = WT.widgetCoordinates(edit, event);
 
     const isHovering = xy.x > edit.offsetWidth - 40;
     edit.classList.toggle(CLASS_HOVER, isHovering);
@@ -54,7 +54,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTimeEdit", function(APP, edit, 
       return;
     }
 
-    var xy = WT.widgetCoordinates(edit, event);
+    const xy = WT.widgetCoordinates(edit, event);
     if (xy.x > edit.offsetWidth - 40) {
       edit.classList.add(CLASS_UNSELECTABLE);
       edit.classList.add(CLASS_ACTIVE);
@@ -64,7 +64,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTimeEdit", function(APP, edit, 
   this.mouseUp = function(o, event) {
     edit.classList.remove(CLASS_UNSELECTABLE);
 
-    var xy = WT.widgetCoordinates(edit, event);
+    const xy = WT.widgetCoordinates(edit, event);
     if (xy.x > edit.offsetWidth - 40) {
       showPopup();
     }
