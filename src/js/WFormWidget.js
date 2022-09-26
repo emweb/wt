@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFormWidget", function(APP, el, emptyText) {
   el.wtObj = this;
 
-  var self = this, WT = APP.WT, emptyTextStyle = "Wt-edit-emptyText";
+  const WT = APP.WT, emptyTextStyle = "Wt-edit-emptyText";
 
   this.applyEmptyText = function() {
     if (WT.hasFocus(el)) {
@@ -21,8 +21,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFormWidget", function(APP, el, 
         el.value = "";
       }
     } else {
-      if (el.value == "") {
-        if (el.type == "password") {
+      if (el.value === "") {
+        if (el.type === "password") {
           if (!WT.isIE) {
             el.oldtype = "password";
             el.type = "text";
