@@ -9,45 +9,47 @@
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, dropwidget, maxFileSize) {
   dropwidget.wtLObj = this;
 
-  var self = this, WT = APP.WT;
-  var hoverClassName = "Wt-dropzone-hover";
-  var indicationClassName = "Wt-dropzone-indication";
-  var dragClassName = "Wt-dropzone-dragstyle";
+  const self = this, WT = APP.WT;
+  let hoverClassName = "Wt-dropzone-hover";
+  const indicationClassName = "Wt-dropzone-indication";
+  const dragClassName = "Wt-dropzone-dragstyle";
 
-  var uploads = [];
-  var sending = false;
-  var acceptDrops = true;
+  const uploads = [];
+  let sending = false;
+  let acceptDrops = true;
 
-  var dropIndication = false;
-  var bodyDropForward = false;
+  let dropIndication = false;
+  let bodyDropForward = false;
 
-  var uploadWorker = undefined;
-  var chunkSize = 0;
+  /** @type {?Worker} */
+  let uploadWorker = null;
+  let chunkSize = 0;
 
-  var dragState = 0;
+  let dragState = 0;
 
-  var hiddenInput = document.createElement("input");
+  const hiddenInput = document.createElement("input");
   hiddenInput.type = "file";
   hiddenInput.setAttribute("multiple", "multiple");
   hiddenInput.style.display = "none";
   dropwidget.appendChild(hiddenInput);
 
-  var dropcover = document.createElement("div");
+  const dropcover = document.createElement("div");
   dropcover.classList.add("Wt-dropcover");
   document.body.appendChild(dropcover);
 
-  this.eventContainsFile = function(e) {
-    var items = (e.dataTransfer.items != null &&
-      e.dataTransfer.items.length > 0 &&
-      e.dataTransfer.items[0].kind === "file");
-    var types = (e.dataTransfer.types != null &&
-      e.dataTransfer.types.length > 0 &&
-      e.dataTransfer.types[0] === "Files");
-    return items || types;
-  };
+  /**
+   * @param {DragEvent} e The event
+   */
+  function eventContainsFile(e) {
+    const items = e.dataTransfer?.items ?? null;
+    const hasFileItem = items !== null && Array.prototype.some.call(items, (item) => item.kind === "file");
+    const types = e.dataTransfer?.types ?? null;
+    const hasFilesType = types !== null && types.includes("Files");
+    return hasFileItem || hasFilesType;
+  }
 
   this.validFileCheck = function(file, callback, url) {
-    var reader = new FileReader();
+    const reader = new FileReader();
     reader.onload = function() {
       callback(true, url);
     };
@@ -72,7 +74,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
   dropwidget.ondragenter = function(e) {
     if (!acceptDrops) {
       return;
-    } else if (self.eventContainsFile(e)) {
+    } else if (eventContainsFile(e)) {
       if (dragState === 0) {
         self.setPageHoverStyle();
       }
@@ -84,8 +86,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
   };
 
   dropwidget.ondragleave = function(e) {
-    var x = e.clientX, y = e.clientY;
-    var el = document.elementFromPoint(x, y);
+    const x = e.clientX, y = e.clientY;
+    let el = document.elementFromPoint(x, y);
     if (x === 0 && y === 0) { // chrome issue
       el = null;
     }
@@ -103,7 +105,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
     e.preventDefault();
   };
 
-  bodyDragEnter = function(e) {
+  const bodyDragEnter = function(_e) {
     if (
       !(dropIndication || bodyDropForward) ||
       WT.css(dropwidget, "display") === "none" ||
@@ -121,8 +123,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
     e.preventDefault();
     e.stopPropagation();
   };
-  dropcover.ondragleave = function(e) {
-    if (!acceptDrops || dragState != 1) {
+  dropcover.ondragleave = function(_e) {
+    if (!acceptDrops || dragState !== 1) {
       return;
     }
     self.resetDragDrop();
@@ -143,11 +145,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
     }
 
     self.resetDragDrop();
-    if (
-      window.FormData === undefined ||
-      e.dataTransfer.files === null ||
-      e.dataTransfer.files.length === 0
-    ) {
+    if (e.dataTransfer.files.length === 0) {
       return;
     }
 
@@ -155,15 +153,15 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
   };
 
   this.addFiles = function(filesList) {
-    var newKeys = [];
-    for (var i = 0; i < filesList.length; i++) {
-      var upload = new Object();
+    const newKeys = [];
+    for (const file of filesList) {
+      const upload = new Object();
       upload.id = Math.floor(Math.random() * Math.pow(2, 31));
-      upload.file = filesList[i];
+      upload.file = file;
 
       uploads.push(upload);
 
-      var newUpload = {};
+      const newUpload = {};
       newUpload["id"] = upload.id;
       newUpload["filename"] = upload.file.name;
       newUpload["type"] = upload.file.type;
@@ -175,7 +173,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
     APP.emit(dropwidget, "dropsignal", JSON.stringify(newKeys));
   };
 
-  dropwidget.addEventListener("click", function(e) {
+  dropwidget.addEventListener("click", function() {
     if (acceptDrops) {
       hiddenInput.value = "";
       hiddenInput.click();
@@ -183,11 +181,11 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
   });
 
   dropwidget.markForSending = function(files) {
-    for (var j = 0; j < files.length; j++) {
-      var id = files[j]["id"];
-      for (var i = 0; i < uploads.length; i++) {
-        if (uploads[i].id === id) {
-          uploads[i].ready = true;
+    for (const file of files) {
+      const id = file["id"];
+      for (const upload of uploads) {
+        if (upload.id === id) {
+          upload.ready = true;
           break;
         }
       }
@@ -211,13 +209,13 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
   };
 
   dropwidget.send = function(url, useFilter) {
-    upload = uploads[0];
+    const upload = uploads[0];
     if (upload.file.size > maxFileSize) {
       APP.emit(dropwidget, "filetoolarge", upload.file.size);
       self.uploadFinished(null);
       return;
     } else {
-      var sendFn = (uploadWorker != undefined && useFilter) ?
+      const sendFn = (uploadWorker !== null && useFilter) ?
         self.workerSend :
         self.actualSend;
       self.validFileCheck(upload.file, sendFn, url);
@@ -230,7 +228,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
       return;
     }
 
-    var xhr = new XMLHttpRequest();
+    const xhr = new XMLHttpRequest();
     xhr.addEventListener("load", self.uploadFinished);
     xhr.addEventListener("error", self.uploadFinished);
     xhr.addEventListener("abort", self.uploadFinished);
@@ -239,7 +237,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
 
     uploads[0].request = xhr;
 
-    var fd = new FormData();
+    const fd = new FormData();
     fd.append("file-id", uploads[0].id);
     fd.append("data", uploads[0].file);
     xhr.send(fd);
@@ -262,7 +260,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
 
   this.uploadFinished = function(e) {
     if (
-      (e != null &&
+      (e !== null && typeof e !== "undefined" &&
         e.type === "load" &&
         e.currentTarget.status === 200) ||
       e === true
@@ -290,7 +288,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
         });
       }
     } else {
-      for (var i = 1; i < uploads.length; i++) {
+      for (let i = 1; i < uploads.length; i++) {
         if (uploads[i].id === id) {
           uploads[i].skip = true;
         }
@@ -302,11 +300,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
     if (!acceptDrops) {
       return;
     }
-    if (
-      window.FormData === undefined ||
-      this.files === null ||
-      this.files.length === 0
-    ) {
+    if (this.files === null || this.files.length === 0) {
       return;
     }
 
@@ -360,7 +354,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
       };
       uploadWorker.postMessage({ "cmd": "check" });
     } else {
-      uploadWorker = undefined;
+      uploadWorker = null;
     }
   };
 
