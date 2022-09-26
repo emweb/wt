@@ -15,6 +15,9 @@
 
 #include "RequestHandler.h"
 
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/utility/string_view.hpp>
+
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -168,8 +171,8 @@ bool RequestHandler::url_decode(const buffer_string& in, std::string& path,
     len = in.len;
   }
 
-  // Only allow origin form and asterisk form (RFC 7230 5.3.1 and 5.3.4)
-  if (len > 0 && d[0] != '/' && !(len == 1 && d[0] == '*'))
+  // Only allow origin form (RFC 9112 3.2.1)
+  if (!boost::starts_with(boost::string_view(d, len), "/"))
     return false;
 
   path.reserve(len);
