@@ -7,38 +7,39 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER(2, JavaScriptConstructor, "ChartCommon", function(APP) {
-  var MOVE_TO = 0,
-    LINE_TO = 1,
+  const _MOVE_TO = 0,
+    _LINE_TO = 1,
     CUBIC_C1 = 2,
     CUBIC_C2 = 3,
-    CUBIC_END = 4,
+    _CUBIC_END = 4,
     QUAD_C = 5,
-    QUAD_END = 6,
-    ARC_C = 7,
-    ARC_R = 8,
-    ARC_ANGLE_SWEEP = 9;
-  var X = 0, Y = 1;
-  var WT = APP.WT;
+    _QUAD_END = 6,
+    _ARC_C = 7,
+    _ARC_R = 8,
+    _ARC_ANGLE_SWEEP = 9;
 
-  var self = this;
+  const X = 0, Y = 1;
+  const WT = APP.WT;
 
-  var utils = WT.gfxUtils;
-  var top = utils.rect_top;
-  var bottom = utils.rect_bottom;
-  var left = utils.rect_left;
-  var right = utils.rect_right;
-  var mult = utils.transform_mult;
+  const self = this;
+
+  const utils = WT.gfxUtils;
+  const top = utils.rect_top;
+  const bottom = utils.rect_bottom;
+  const left = utils.rect_left;
+  const right = utils.rect_right;
+  const mult = utils.transform_mult;
 
   // Find the anchor point (not a curve control point!)
   // with X coordinate nearest to the given x,
   // and smaller than the given x, and return
   // its index in the given series.
   function binarySearch(x, series, ascending, isHorizontal) {
-    var axis = X;
+    let axis = X;
     if (isHorizontal) {
       axis = Y;
     }
-    var len = series.length;
+    const len = series.length;
     function s(i) {
       if (ascending) {
         return series[i];
@@ -53,11 +54,11 @@ WT_DECLARE_WT_MEMBER(2, JavaScriptConstructor, "ChartCommon", function(APP) {
       }
       return i;
     }
-    var i = Math.floor(len / 2);
+    let i = Math.floor(len / 2);
     i = moveBack(i);
-    var lower_bound = 0;
-    var upper_bound = len;
-    var found = false;
+    let lower_bound = 0;
+    let upper_bound = len;
+    let found = false;
     if (s(0)[axis] > x) {
       return ascending ? -1 : len;
     }
@@ -65,7 +66,7 @@ WT_DECLARE_WT_MEMBER(2, JavaScriptConstructor, "ChartCommon", function(APP) {
       return ascending ? len : -1;
     }
     while (!found) {
-      var next_i = i + 1;
+      let next_i = i + 1;
       if (next_i < len && (s(next_i)[2] === CUBIC_C1 || s(next_i)[2] === CUBIC_C2)) {
         next_i += 2;
       }
@@ -98,12 +99,12 @@ WT_DECLARE_WT_MEMBER(2, JavaScriptConstructor, "ChartCommon", function(APP) {
   }
 
   this.findClosestPoint = function(x, series, isHorizontal) {
-    var axis = X;
+    let axis = X;
     if (isHorizontal) {
       axis = Y;
     }
-    var ascending = isAscending(axis, series);
-    var i = binarySearch(x, series, ascending, isHorizontal);
+    const ascending = isAscending(axis, series);
+    let i = binarySearch(x, series, ascending, isHorizontal);
     if (i < 0) {
       i = 0;
     }
@@ -116,18 +117,18 @@ WT_DECLARE_WT_MEMBER(2, JavaScriptConstructor, "ChartCommon", function(APP) {
     if (series[i][axis] === x) {
       return [series[i][X], series[i][Y]];
     }
-    var next_i = ascending ? i + 1 : i - 1;
-    if (ascending && series[next_i][2] == CUBIC_C1) {
+    let next_i = ascending ? i + 1 : i - 1;
+    if (ascending && series[next_i][2] === CUBIC_C1) {
       next_i += 2;
     }
     if (!ascending && next_i < 0) {
       return [series[i][X], series[i][Y]];
     }
-    if (!ascending && next_i > 0 && series[next_i][2] == CUBIC_C2) {
+    if (!ascending && next_i > 0 && series[next_i][2] === CUBIC_C2) {
       next_i -= 2;
     }
-    var d1 = Math.abs(x - series[i][axis]);
-    var d2 = Math.abs(series[next_i][axis] - x);
+    const d1 = Math.abs(x - series[i][axis]);
+    const d2 = Math.abs(series[next_i][axis] - x);
     if (d1 < d2) {
       return [series[i][X], series[i][Y]];
     } else {
@@ -136,10 +137,10 @@ WT_DECLARE_WT_MEMBER(2, JavaScriptConstructor, "ChartCommon", function(APP) {
   };
 
   this.minMaxY = function(series, isHorizontal) {
-    var yAxis = isHorizontal ? X : Y;
-    var min = series[0][yAxis];
-    var max = series[0][yAxis];
-    for (var i = 1; i < series.length; ++i) {
+    const yAxis = isHorizontal ? X : Y;
+    let min = series[0][yAxis];
+    let max = series[0][yAxis];
+    for (let i = 1; i < series.length; ++i) {
       if (
         series[i][2] !== CUBIC_C1 && series[i][2] !== CUBIC_C2 &&
         series[i][2] !== QUAD_C
@@ -158,17 +159,17 @@ WT_DECLARE_WT_MEMBER(2, JavaScriptConstructor, "ChartCommon", function(APP) {
   // Get projection matrix to project any point
   // to a line through m at angle theta
   this.projection = function(theta, m) {
-    var c = Math.cos(theta);
-    var s = Math.sin(theta);
-    var c2 = c * c;
-    var s2 = s * s;
-    var cs = c * s;
-    var h = -m[0] * c - m[1] * s;
+    const c = Math.cos(theta);
+    const s = Math.sin(theta);
+    const c2 = c * c;
+    const s2 = s * s;
+    const cs = c * s;
+    const h = -m[0] * c - m[1] * s;
     return [c2, cs, cs, s2, c * h + m[0], s * h + m[1]];
   };
 
   this.distanceSquared = function(p1, p2) {
-    var d = [p2[X] - p1[X], p2[Y] - p1[Y]];
+    const d = [p2[X] - p1[X], p2[Y] - p1[Y]];
     return d[X] * d[X] + d[Y] * d[Y];
   };
 
@@ -181,21 +182,19 @@ WT_DECLARE_WT_MEMBER(2, JavaScriptConstructor, "ChartCommon", function(APP) {
   };
 
   // Check if a point is inside of the given rect
+  /**
+   * @param {[number]|{x:number,y:number}} point
+   * @param {[number]} rect
+   */
   this.isPointInRect = function(point, rect) {
-    var x, y;
-    if (point.x !== undefined) {
-      x = point.x;
-      y = point.y;
-    } else {
-      x = point[0];
-      y = point[1];
-    }
+    const x = point.x ?? point[0];
+    const y = point.y ?? point[1];
     return x >= left(rect) && x <= right(rect) &&
       y >= top(rect) && y <= bottom(rect);
   };
 
   this.toDisplayCoord = function(p, transform, isHorizontal, area, modelArea) {
-    var u, res;
+    let u, res;
     if (isHorizontal) {
       u = [(p[X] - modelArea[0]) / modelArea[2], (p[Y] - modelArea[1]) / modelArea[3]];
       res = [area[0] + u[Y] * area[2], area[1] + u[X] * area[3]];
@@ -218,19 +217,19 @@ WT_DECLARE_WT_MEMBER(2, JavaScriptConstructor, "ChartCommon", function(APP) {
     maxZoom
   ) {
     if (series.length === 0) {
-      return; // This would be weird?
+      return null; // This would be weird?
     }
-    var p0 = self.toDisplayCoord([lowerBound, 0], [1, 0, 0, 1, 0, 0], horizontal, area, modelArea);
-    var p1 = self.toDisplayCoord([upperBound, 0], [1, 0, 0, 1, 0, 0], horizontal, area, modelArea);
-    var axis = horizontal ? Y : X;
-    var otherAxis = horizontal ? X : Y;
-    var ascending = isAscending(axis, series);
-    var i0 = binarySearch(p0[axis], series, ascending, horizontal);
-    var i_n = binarySearch(p1[axis], series, ascending, horizontal);
-    var i, u, y, before_i0, after_i_n;
-    var min_y = Infinity;
-    var max_y = -Infinity;
-    var outsideRange = (i0 === i_n && i0 === series.length) || (i0 === -1 && i_n === -1);
+    const p0 = self.toDisplayCoord([lowerBound, 0], [1, 0, 0, 1, 0, 0], horizontal, area, modelArea);
+    const p1 = self.toDisplayCoord([upperBound, 0], [1, 0, 0, 1, 0, 0], horizontal, area, modelArea);
+    const axis = horizontal ? Y : X;
+    const otherAxis = horizontal ? X : Y;
+    const ascending = isAscending(axis, series);
+    let i0 = binarySearch(p0[axis], series, ascending, horizontal);
+    let i_n = binarySearch(p1[axis], series, ascending, horizontal);
+    let i, u, y, before_i0, after_i_n;
+    let min_y = Infinity;
+    let max_y = -Infinity;
+    const outsideRange = (i0 === i_n && i0 === series.length) || (i0 === -1 && i_n === -1);
     if (!outsideRange) {
       if (ascending) {
         if (i0 < 0) {
@@ -302,9 +301,9 @@ WT_DECLARE_WT_MEMBER(2, JavaScriptConstructor, "ChartCommon", function(APP) {
         }
       }
     }
-    var yZoom, yMargin;
-    var xZoom = modelArea[2] / (upperBound - lowerBound);
-    var H = horizontal ? 2 : 3;
+    let yZoom, yMargin;
+    const xZoom = modelArea[2] / (upperBound - lowerBound);
+    const H = horizontal ? 2 : 3;
     if (!outsideRange) {
       yZoom = area[H] / (max_y - min_y);
       yMargin = 10;
@@ -316,7 +315,7 @@ WT_DECLARE_WT_MEMBER(2, JavaScriptConstructor, "ChartCommon", function(APP) {
         yZoom = minZoom.y[seriesAxis];
       }
     }
-    var panPoint;
+    let panPoint;
     if (horizontal) {
       panPoint = [p0[Y] - top(area), !outsideRange ? ((min_y + max_y) / 2 - (area[2] / yZoom) / 2 - left(area)) : 0];
     } else {
@@ -355,7 +354,7 @@ WT_DECLARE_WT_MEMBER(2, JavaScriptConstructor, "ChartCommon", function(APP) {
         return -1;
       }
     }
-    for (var xAx = 0; xAx < xAxisCount(); ++xAx) {
+    for (let xAx = 0; xAx < xAxisCount(); ++xAx) {
       if (isHorizontal) {
         if (
           (xAxisSide(xAx) === "min" || xAxisSide(xAx) === "both") &&
@@ -416,7 +415,7 @@ WT_DECLARE_WT_MEMBER(2, JavaScriptConstructor, "ChartCommon", function(APP) {
         return -1;
       }
     }
-    for (var yAx = 0; yAx < yAxisCount(); ++yAx) {
+    for (let yAx = 0; yAx < yAxisCount(); ++yAx) {
       if (isHorizontal) {
         if (
           (yAxisSide(yAx) === "min" || yAxisSide(yAx) === "both") &&
