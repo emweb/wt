@@ -11,30 +11,30 @@ WT_DECLARE_WT_MEMBER(
   JavaScriptConstructor,
   "WLineEdit",
   function(APP, edit, mask, raw, displayValue, caseMap, spaceChar, flags) {
-    /** @const */ var BACKSPACE_KEY = 8;
-    /** @const */ var DELETE_KEY = 46;
-    /** @const */ var RIGHT_KEY = 39;
-    /** @const */ var LEFT_KEY = 37;
-    /** @const */ var HOME_KEY = 36;
-    /** @const */ var END_KEY = 35;
-    /** @const */ var LF_CHAR = 10;
-    /** @const */ var CR_CHAR = 13;
-    /** @const */ var A_LOWER_CHAR = "a".charCodeAt(0);
-    /** @const */ var F_LOWER_CHAR = "f".charCodeAt(0);
-    /** @const */ var Z_LOWER_CHAR = "z".charCodeAt(0);
-    /** @const */ var A_UPPER_CHAR = "A".charCodeAt(0);
-    /** @const */ var F_UPPER_CHAR = "F".charCodeAt(0);
-    /** @const */ var Z_UPPER_CHAR = "Z".charCodeAt(0);
-    /** @const */ var MINUS_CHAR = "-".charCodeAt(0);
-    /** @const */ var PLUS_CHAR = "+".charCodeAt(0);
-    /** @const */ var ZERO_CHAR = "0".charCodeAt(0);
-    /** @const */ var ONE_CHAR = "1".charCodeAt(0);
-    /** @const */ var NINE_CHAR = "9".charCodeAt(0);
-    /** @const */ var KEEP_MASK_WHEN_BLURRED_FLAG = 0x1;
+    const BACKSPACE_KEY = 8;
+    const DELETE_KEY = 46;
+    const RIGHT_KEY = 39;
+    const LEFT_KEY = 37;
+    const HOME_KEY = 36;
+    const END_KEY = 35;
+    const LF_CHAR = 10;
+    const CR_CHAR = 13;
+    const A_LOWER_CHAR = "a".charCodeAt(0);
+    const F_LOWER_CHAR = "f".charCodeAt(0);
+    const Z_LOWER_CHAR = "z".charCodeAt(0);
+    const A_UPPER_CHAR = "A".charCodeAt(0);
+    const F_UPPER_CHAR = "F".charCodeAt(0);
+    const Z_UPPER_CHAR = "Z".charCodeAt(0);
+    const MINUS_CHAR = "-".charCodeAt(0);
+    const PLUS_CHAR = "+".charCodeAt(0);
+    const ZERO_CHAR = "0".charCodeAt(0);
+    const ONE_CHAR = "1".charCodeAt(0);
+    const NINE_CHAR = "9".charCodeAt(0);
+    const KEEP_MASK_WHEN_BLURRED_FLAG = 0x1;
 
     edit.wtLObj = this;
 
-    var self = this, WT = APP.WT;
+    const self = this, WT = APP.WT;
 
     function inputSignal() {
       edit.dispatchEvent(new InputEvent("input"));
@@ -44,11 +44,11 @@ WT_DECLARE_WT_MEMBER(
       if (mask === "") {
         return edit.value;
       }
-      var value = edit.value;
-      var result = "";
-      var currentChar = "";
-      var i = 0;
-      var nbChars = 0;
+      const value = edit.value;
+      let result = "";
+      let currentChar = "";
+      let i = 0;
+      let nbChars = 0;
       for (i = 0; i < value.length; i++) {
         currentChar = value.charAt(i);
         if (currentChar !== spaceChar && mask.charAt(i) !== "_") {
@@ -79,14 +79,14 @@ WT_DECLARE_WT_MEMBER(
         return;
       }
 
-      var selection = WT.getSelectionRange(edit);
-      var newCursor = -1;
+      const selection = WT.getSelectionRange(edit);
+      let newCursor = -1;
 
       edit.value = raw;
 
-      var i = 0;
-      var j = 0;
-      var charToInsert = "";
+      let i = 0;
+      let j = 0;
+      let charToInsert = "";
       for (; i < newValue.length; i++) {
         charToInsert = newValue.charAt(i);
         if (selection.start === selection.end && selection.start === i) {
@@ -98,7 +98,7 @@ WT_DECLARE_WT_MEMBER(
       if (WT.hasFocus(edit)) {
         if (newCursor !== -1) {
           setCursor(newCursor);
-        } else if (newValue.length == 0) {
+        } else if (newValue.length === 0) {
           setCursor(0);
         }
       }
@@ -179,16 +179,16 @@ WT_DECLARE_WT_MEMBER(
     }
 
     function clearSelection(selection) {
-      var before = edit.value.substring(0, selection.start);
-      var after = edit.value.substring(selection.end);
-      var between = raw.substring(selection.start, selection.end);
+      const before = edit.value.substring(0, selection.start);
+      const after = edit.value.substring(selection.end);
+      const between = raw.substring(selection.start, selection.end);
       edit.value = before + between + after;
       WT.setSelectionRange(edit, selection.start, selection.start);
     }
 
     function insertChar(charToInsert, position, pasteMode) {
-      var j = position;
-      var jBefore = j;
+      let j = position;
+      const jBefore = j;
       // If the previous static character was typed, don't move forward.
       // This causes an input sequence like "192.168.0.1" to be handled properly.
       if (
@@ -207,8 +207,8 @@ WT_DECLARE_WT_MEMBER(
       if (j === mask.length) { // This char didn't fit, discard
         return jBefore;
       }
-      var before = edit.value.substring(0, j);
-      var after = edit.value.substring(j + 1);
+      const before = edit.value.substring(0, j);
+      const after = edit.value.substring(j + 1);
       if (raw.charAt(j) !== charToInsert) {
         if (caseMap.charAt(j) === ">") {
           charToInsert = charToInsert.toUpperCase();
@@ -225,8 +225,8 @@ WT_DECLARE_WT_MEMBER(
       if (mask === "" || edit.readOnly) {
         return;
       }
-      var valueBefore = getValue();
-      var selection;
+      const valueBefore = getValue();
+      let selection;
       switch (event.keyCode) {
         case RIGHT_KEY:
           WT.cancelEvent(event, WT.CancelDefaultAction);
@@ -258,13 +258,13 @@ WT_DECLARE_WT_MEMBER(
           WT.cancelEvent(event, WT.CancelDefaultAction);
           selection = WT.getSelectionRange(edit);
           if (selection.end - selection.start <= 1) {
-            var position = selection.start;
+            const position = selection.start;
             if (
               position < mask.length &&
               !skippable(position)
             ) {
-              var before = edit.value.substring(0, position);
-              var after = edit.value.substring(position + 1);
+              const before = edit.value.substring(0, position);
+              const after = edit.value.substring(position + 1);
               edit.value = before + spaceChar + after;
               WT.setSelectionRange(edit, position, position);
             }
@@ -276,12 +276,12 @@ WT_DECLARE_WT_MEMBER(
           WT.cancelEvent(event, WT.CancelDefaultAction);
           selection = WT.getSelectionRange(edit);
           if (selection.end - selection.start <= 1) {
-            var position = selection.start - 1;
+            let position = selection.start - 1;
             if (position >= 0) {
               position = moveBackward(position);
               if (!skippable(position)) {
-                var before = edit.value.substring(0, position);
-                var after = edit.value.substring(position + 1);
+                const before = edit.value.substring(0, position);
+                const after = edit.value.substring(position + 1);
                 edit.value = before + spaceChar + after;
                 setCursor(position);
               }
@@ -300,26 +300,26 @@ WT_DECLARE_WT_MEMBER(
       if (mask === "" || edit.readOnly) {
         return;
       }
-      var valueBefore = getValue();
-      var charCode = event.charCode || event.keyCode;
+      const valueBefore = getValue();
+      const charCode = event.charCode || event.keyCode;
       if (charCode === 0 || charCode === CR_CHAR || charCode === LF_CHAR) {
         return;
       }
       WT.cancelEvent(event, WT.CancelDefaultAction);
-      var selection = WT.getSelectionRange(edit);
+      const selection = WT.getSelectionRange(edit);
       if (selection.start < selection.end) {
         clearSelection(selection);
       }
-      var currentPosition = insertChar(String.fromCharCode(charCode), selection.start);
+      const currentPosition = insertChar(String.fromCharCode(charCode), selection.start);
       moveForward(currentPosition);
       if (valueBefore !== getValue()) {
         inputSignal();
       }
     };
 
-    var previousValue = this.getValue();
+    let previousValue = this.getValue();
 
-    this.focussed = function(o, event) {
+    this.focussed = function(_o, _event) {
       if (mask === "" || edit.readOnly || (flags & KEEP_MASK_WHEN_BLURRED_FLAG)) {
         return;
       }
@@ -329,7 +329,7 @@ WT_DECLARE_WT_MEMBER(
       }, 0);
     };
 
-    this.blurred = function(o, event) {
+    this.blurred = function(_o, _event) {
       if (mask === "" || edit.readOnly || (flags & KEEP_MASK_WHEN_BLURRED_FLAG)) {
         return;
       }
@@ -340,30 +340,31 @@ WT_DECLARE_WT_MEMBER(
       }
     };
 
-    this.clicked = function(o, event) {
+    this.clicked = function(_o, _event) {
       if (mask === "" || edit.readOnly) {
         return;
       }
-      var selection = WT.getSelectionRange(edit);
+      const selection = WT.getSelectionRange(edit);
       if (selection.start === selection.end) {
         setCursor(selection.start);
       }
     };
 
+    /**
+     * @param {ClipboardEvent} event
+     */
     function paste(event) {
       if (mask === "" || edit.readOnly) {
         return;
       }
       WT.cancelEvent(event, WT.CancelDefaultAction);
-      var valueBefore = getValue();
-      var selection = WT.getSelectionRange(edit);
+      const valueBefore = getValue();
+      const selection = WT.getSelectionRange(edit);
       if (selection.start !== selection.end) {
         clearSelection(selection);
       }
-      var pasteData = undefined;
-      if (window.clipboardData && window.clipboardData.getData) {
-        pasteData = window.clipboardData.getData("Text");
-      } else if (event.clipboardData && event.clipboardData.getData) {
+      let pasteData = null;
+      if (event.clipboardData && event.clipboardData.getData) {
         pasteData = event.clipboardData.getData("text/plain");
       } else {
         if (edit.value !== valueBefore) {
@@ -371,9 +372,8 @@ WT_DECLARE_WT_MEMBER(
         }
         return;
       }
-      var text = edit.value;
-      var charToInsert = "";
-      var i = 0, j = selection.start;
+      let charToInsert = "";
+      let i = 0, j = selection.start;
       for (; i < pasteData.length; i++) {
         charToInsert = pasteData.charAt(i);
         j = insertChar(charToInsert, j, true);
@@ -384,21 +384,17 @@ WT_DECLARE_WT_MEMBER(
       }
     }
 
-    if (edit.addEventListener) {
-      edit.addEventListener("paste", paste, false);
-    } else if (edit.attachEvent) {
-      edit.attachEvent("onpaste", paste);
-    }
+    edit.addEventListener("paste", paste, false);
 
     function cut(event) {
       if (mask === "" || edit.readOnly) {
         return;
       }
       WT.cancelEvent(event, WT.CancelDefaultAction);
-      var valueBefore = getValue();
-      var selection = WT.getSelectionRange(edit);
+      const valueBefore = getValue();
+      const selection = WT.getSelectionRange(edit);
       if (selection.start !== selection.end) {
-        var cutData = edit.value.substring(selection.start, selection.end);
+        const cutData = edit.value.substring(selection.start, selection.end);
         if (window.clipboardData && window.clipboardData.setData) {
           window.clipboardData.setData("Text", cutData);
         } else if (event.clipboardData && event.clipboardData.setData) {
@@ -411,13 +407,9 @@ WT_DECLARE_WT_MEMBER(
       }
     }
 
-    if (edit.addEventListener) {
-      edit.addEventListener("cut", cut, false);
-    } else if (edit.attachEvent) {
-      edit.attachEvent("oncut", cut);
-    }
+    edit.addEventListener("cut", cut, false);
 
-    function input(event) {
+    function input(_event) {
       if (mask === "" || edit.readOnly) {
         return;
       }
@@ -429,11 +421,7 @@ WT_DECLARE_WT_MEMBER(
       }
     }
 
-    if (edit.addEventListener) {
-      edit.addEventListener("input", input, false);
-    } else if (edit.attachEvent) {
-      edit.attachEvent("oninput", input);
-    }
+    edit.addEventListener("input", input, false);
 
     edit.wtEncodeValue = function() {
       if (mask === "" || (flags & KEEP_MASK_WHEN_BLURRED_FLAG) || WT.hasFocus(edit)) {
