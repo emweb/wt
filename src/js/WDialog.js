@@ -13,22 +13,22 @@ WT_DECLARE_WT_MEMBER(
   function(APP, el, titlebar, movable, centerX, centerY, movedSignal, resizedSignal, zIndexChangedSignal) {
     el.wtObj = this;
 
-    var self = this;
+    const self = this;
     const layoutContainer = el.querySelector(".dialog-layout");
-    var WT = APP.WT;
-    var dsx, dsy;
-    var x = -1, y = -1, w = -1, h = -1;
-    var resizeBusy = false;
+    const WT = APP.WT;
+    let dsx, dsy;
+    let x = -1, y = -1, w = -1, h = -1;
+    let resizeBusy = false;
     // Percentage size before it was recomputed by layout manager. (if it was
     // set in %)
-    var percentageWidth = -1, percentageHeight = -1;
-    var calculatedPercentageWidth = -1, calculatedPercentageHeight = -1;
+    let percentageWidth = -1, percentageHeight = -1;
+    let calculatedPercentageWidth = -1, calculatedPercentageHeight = -1;
 
     function newPos() {
       if (movedSignal) {
-        var newx = WT.pxself(el, "left");
-        var newy = WT.pxself(el, "top");
-        if (newx != x || newy != y) {
+        const newx = WT.pxself(el, "left");
+        const newy = WT.pxself(el, "top");
+        if (newx !== x || newy !== y) {
           x = newx;
           y = newy;
           APP.emit(el, movedSignal, x, y);
@@ -38,7 +38,7 @@ WT_DECLARE_WT_MEMBER(
 
     function newSize(neww, newh) {
       if (!resizeBusy) {
-        if (neww != w || newh != h) {
+        if (neww !== w || newh !== h) {
           w = neww;
           h = newh;
           if (resizedSignal) {
@@ -49,10 +49,10 @@ WT_DECLARE_WT_MEMBER(
     }
 
     function handleMove(event) {
-      var e = event || window.event;
-      var nowxy = WT.pageCoordinates(e);
-      var wxy = WT.windowCoordinates(e);
-      var wsize = WT.windowSize();
+      const e = event || window.event;
+      const nowxy = WT.pageCoordinates(e);
+      const wxy = WT.windowCoordinates(e);
+      const wsize = WT.windowSize();
 
       if (wxy.x > 0 && wxy.x < wsize.x && wxy.y > 0 && wxy.y < wsize.y) {
         centerX = centerY = false;
@@ -80,16 +80,16 @@ WT_DECLARE_WT_MEMBER(
 
     if (titlebar && movable) {
       titlebar.onmousedown = function(event) {
-        var e = event || window.event;
+        const e = event || window.event;
         WT.capture(titlebar);
-        var pc = WT.pageCoordinates(e);
+        const pc = WT.pageCoordinates(e);
         dsx = pc.x;
         dsy = pc.y;
 
         titlebar.onmousemove = handleMove;
       };
 
-      titlebar.onmouseup = function(event) {
+      titlebar.onmouseup = function(_event) {
         titlebar.onmousemove = null;
 
         newPos();
@@ -99,19 +99,19 @@ WT_DECLARE_WT_MEMBER(
     }
 
     this.centerDialog = function() {
-      var pctMaxWidth = WT.parsePct(WT.css(el, "max-width"), 0);
-      var pctMaxHeight = WT.parsePct(WT.css(el, "max-height"), 0);
+      const pctMaxWidth = WT.parsePct(WT.css(el, "max-width"), 0);
+      const pctMaxHeight = WT.parsePct(WT.css(el, "max-height"), 0);
 
       if (pctMaxWidth !== 0) {
-        var ws = WT.windowSize();
+        const ws = WT.windowSize();
 
-        var layout = layoutContainer.firstChild.wtLayout;
+        const layout = layoutContainer.firstChild.wtLayout;
         if (layout && layout.setMaxSize) {
           layout.setMaxSize(ws.x * pctMaxWidth / 100, ws.y * pctMaxHeight / 100);
         }
       }
 
-      if (el.parentNode == null) {
+      if (el.parentNode === null) {
         el = titlebar = null;
         return;
       }
@@ -119,14 +119,14 @@ WT_DECLARE_WT_MEMBER(
       // FIXME: figure out the visibility story. The stdlayoutimpl sets
       //        itself to visible, seemingly by accident? It seems like
       //        a hack that centerDialog() causes the dialog to be visible?
-      if ((el.style.display != "none") /* && (el.style.visibility != 'hidden')*/) {
-        var ws = WT.windowSize();
-        var w = el.offsetWidth, h = el.offsetHeight;
-        if (percentageWidth != -1) {
+      if ((el.style.display !== "none") /* && (el.style.visibility != 'hidden')*/) {
+        const ws = WT.windowSize();
+        const w = el.offsetWidth, h = el.offsetHeight;
+        if (percentageWidth !== -1) {
           centerX = true;
         }
 
-        if (percentageHeight != -1) {
+        if (percentageHeight !== -1) {
           centerY = true;
         }
 
@@ -146,7 +146,7 @@ WT_DECLARE_WT_MEMBER(
           el.style.marginTop = "0px";
         }
 
-        if (el.style.position != "") {
+        if (el.style.position !== "") {
           el.style.visibility = "visible";
         }
 
@@ -158,7 +158,7 @@ WT_DECLARE_WT_MEMBER(
     * The dialog layout manager resizes the dialog
     */
     function layoutResize(ignored, w, h, setSize) {
-      if (el.style.position == "") {
+      if (el.style.position === "") {
         el.style.position = WT.isIE6 ? "absolute" : "fixed";
       }
 
@@ -176,9 +176,9 @@ WT_DECLARE_WT_MEMBER(
 
       self.centerDialog();
 
-      var precentWidthChanged = percentageWidth != -1;
+      const precentWidthChanged = percentageWidth !== -1;
 
-      var precentHeightChanged = percentageHeight != -1;
+      const precentHeightChanged = percentageHeight !== -1;
 
       if (precentWidthChanged && precentHeightChanged) {
         calculatedPercentageWidth = percentageWidthInPx();
@@ -194,12 +194,12 @@ WT_DECLARE_WT_MEMBER(
     }
 
     function percentageWidthInPx() {
-      var ws = WT.windowSize();
+      const ws = WT.windowSize();
       return (ws.x * percentageWidth / 100);
     }
 
     function percentageHeightInPx() {
-      var ws = WT.windowSize();
+      const ws = WT.windowSize();
       return (ws.y * percentageHeight / 100);
     }
 
@@ -241,9 +241,9 @@ WT_DECLARE_WT_MEMBER(
     }
 
     this.bringToFront = function() {
-      var maxz = WT.maxZIndex();
+      const maxz = WT.maxZIndex();
       if (maxz > el.style["zIndex"]) {
-        var newZIndex = maxz + 1;
+        const newZIndex = maxz + 1;
         el.style["zIndex"] = newZIndex;
         APP.emit(el, zIndexChangedSignal, newZIndex);
       }
@@ -258,7 +258,7 @@ WT_DECLARE_WT_MEMBER(
       resizeBusy = !done;
       wtResize(el, w, h, true);
 
-      var layout = layoutContainer.firstChild.wtLayout;
+      const layout = layoutContainer.firstChild.wtLayout;
       if (layout && layout.setMaxSize) {
         layout.setMaxSize(0, 0);
       }
@@ -275,7 +275,7 @@ WT_DECLARE_WT_MEMBER(
     layoutContainer.wtResize = layoutResize;
     el.wtPosition = wtPosition;
 
-    if (el.style.width != "") {
+    if (el.style.width !== "") {
       if (WT.parsePx(el.style.width) > 0) {
         layoutContainer.style.width = el.style.width;
       } else {
@@ -283,7 +283,7 @@ WT_DECLARE_WT_MEMBER(
       }
     }
 
-    if (el.style.height != "") {
+    if (el.style.height !== "") {
       if (WT.parsePx(el.style.height) > 0) {
         layoutContainer.style.height = el.style.height;
       } else {
