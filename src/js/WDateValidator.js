@@ -12,7 +12,7 @@ WT_DECLARE_WT_MEMBER(
   "WDateValidator",
   function(mandatory, formats, bottom, top, blankError, formatError, tooSmallError, tooLargeError) {
     this.validate = function(text) {
-      if (text.length == 0) {
+      if (text.length === 0) {
         if (mandatory) {
           return { valid: false, message: blankError };
         } else {
@@ -20,16 +20,16 @@ WT_DECLARE_WT_MEMBER(
         }
       }
 
-      var results;
+      /** @type {?[string]} */
+      let results = null;
 
-      var m = -1, d = -1, y = -1;
+      let m = -1, d = -1, y = -1;
 
-      for (var i = 0, il = formats.length; i < il; ++i) {
-        var f = formats[i];
-        var r = new RegExp("^" + f.regexp + "$");
+      for (const f of formats) {
+        const r = new RegExp("^" + f.regexp + "$");
 
         results = r.exec(text);
-        if (results != null) {
+        if (results !== null) {
           m = f.getMonth(results);
           d = f.getDay(results);
           y = f.getYear(results);
@@ -38,7 +38,7 @@ WT_DECLARE_WT_MEMBER(
         }
       }
 
-      if (results == null) {
+      if (results === null) {
         return { valid: false, message: formatError };
       }
 
@@ -46,12 +46,12 @@ WT_DECLARE_WT_MEMBER(
         return { valid: false, message: formatError };
       }
 
-      var dt = new Date(y, m - 1, d);
+      const dt = new Date(y, m - 1, d);
 
       if (
-        dt.getDate() != d ||
-        dt.getMonth() != m - 1 ||
-        dt.getFullYear() != y ||
+        dt.getDate() !== d ||
+        dt.getMonth() !== m - 1 ||
+        dt.getFullYear() !== y ||
         dt.getFullYear() < 1400
       ) {
         return { valid: false, message: formatError };
