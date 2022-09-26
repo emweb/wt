@@ -1711,8 +1711,7 @@ void WClientGLWidget::initializeGL(const std::string &jsRef, std::stringstream &
     "" << js_.str() <<
     """obj.initialized = true;\n"
     // updates are queued until initialization is complete
-    """var key;\n"
-    """for(key in obj.updates) obj.updates[key]();\n"
+    """for(const update of obj.updates) update();\n"
     """obj.updates = new Array();\n"
     // Similar, resizeGL is not executed until initialized
     """obj.resizeGL();\n"

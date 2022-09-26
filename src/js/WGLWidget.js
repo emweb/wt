@@ -9,12 +9,11 @@
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WGLWidget", function(APP, canvas) {
   canvas.wtObj = this;
 
-  var self = this;
-  var WT = APP.WT;
+  const self = this;
+  const WT = APP.WT;
 
-  var vec3 = WT.glMatrix.vec3;
-  var mat3 = WT.glMatrix.mat3;
-  var mat4 = WT.glMatrix.mat4;
+  const vec3 = WT.glMatrix.vec3;
+  const mat4 = WT.glMatrix.mat4;
 
   this.ctx = null;
 
@@ -33,15 +32,19 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WGLWidget", function(APP, canvas
     if (canvas.getContext) {
       try {
         this.ctx = canvas.getContext("webgl", { antialias: antialiasingEnabled });
-      } catch (e) {}
+      } catch (e) {
+        // empty
+      }
       if (this.ctx === null) {
         try {
           this.ctx = canvas.getContext("experimental-webgl", { antialias: antialiasingEnabled });
-        } catch (e) {}
+        } catch (e) {
+          // empty
+        }
       }
       if (this.ctx === null) {
-        var alternative = canvas.firstChild;
-        var parentNode = canvas.parentNode;
+        const alternative = canvas.firstChild;
+        const parentNode = canvas.parentNode;
         parentNode.insertBefore(alternative, canvas);
         canvas.style.display = "none";
         noGLHandler();
@@ -55,12 +58,12 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WGLWidget", function(APP, canvas
       event.preventDefault();
       self.initialized = false;
     }, false);
-    canvas.addEventListener("webglcontextrestored", function(event) {
+    canvas.addEventListener("webglcontextrestored", function(_event) {
       APP.emit(canvas, "contextRestored");
     }, false);
   }
 
-  var mouseHandler = null;
+  let mouseHandler = null;
 
   this.setMouseHandler = function(newMouseHandler) {
     mouseHandler = newMouseHandler;
@@ -70,17 +73,17 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WGLWidget", function(APP, canvas
   };
 
   this.LookAtMouseHandler = function(matrix, center, up, pitchRate, yawRate) {
-    var cameraMatrix = matrix;
-    var lookAtCenter = center;
-    var lookAtUpDir = up;
-    var lookAtPitchRate = pitchRate;
-    var lookAtYawRate = yawRate;
-    var pinchWidth = null;
-    var singleTouch = null;
-    var doubleTouch = null;
-    var dragPreviousXY = null;
+    const cameraMatrix = matrix;
+    const lookAtCenter = center;
+    const lookAtUpDir = up;
+    const lookAtPitchRate = pitchRate;
+    const lookAtYawRate = yawRate;
+    let pinchWidth = null;
+    let singleTouch = null;
+    let doubleTouch = null;
+    let dragPreviousXY = null;
 
-    var thisHandler = this;
+    const thisHandler = this;
 
     this.mouseDown = function(o, event) {
       WT.capture(null);
@@ -89,7 +92,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WGLWidget", function(APP, canvas
       dragPreviousXY = WT.pageCoordinates(event);
     };
 
-    this.mouseUp = function(o, event) {
+    this.mouseUp = function(_o, _event) {
       if (dragPreviousXY !== null) {
         dragPreviousXY = null;
       }
@@ -99,7 +102,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WGLWidget", function(APP, canvas
       if (dragPreviousXY === null) {
         return;
       }
-      var c = WT.pageCoordinates(event);
+      const c = WT.pageCoordinates(event);
       if (WT.buttons === 1) {
         rotate(c);
       }
@@ -108,12 +111,12 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WGLWidget", function(APP, canvas
     // Mouse wheel = zoom in/out
     this.mouseWheel = function(o, event) {
       WT.cancelEvent(event);
-      var d = WT.wheelDelta(event);
+      const d = WT.wheelDelta(event);
       zoom(d);
     };
 
     function zoom(delta) {
-      var s = Math.pow(1.2, delta);
+      const s = Math.pow(1.2, delta);
       mat4.translate(cameraMatrix, lookAtCenter);
       mat4.scale(cameraMatrix, [s, s, s]);
       vec3.negate(lookAtCenter);
@@ -124,21 +127,21 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WGLWidget", function(APP, canvas
     }
 
     function rotate(newCoords) {
-      var prevPitchCos = cameraMatrix[5] / vec3.length([cameraMatrix[1], cameraMatrix[5], cameraMatrix[9]]);
-      var prevPitchSin = cameraMatrix[6] / vec3.length([cameraMatrix[2], cameraMatrix[6], cameraMatrix[10]]);
-      var prevPitch = Math.atan2(prevPitchSin, prevPitchCos);
-      var dx = (newCoords.x - dragPreviousXY.x);
-      var dy = (newCoords.y - dragPreviousXY.y);
-      var s = vec3.create();
+      const prevPitchCos = cameraMatrix[5] / vec3.length([cameraMatrix[1], cameraMatrix[5], cameraMatrix[9]]);
+      const prevPitchSin = cameraMatrix[6] / vec3.length([cameraMatrix[2], cameraMatrix[6], cameraMatrix[10]]);
+      const prevPitch = Math.atan2(prevPitchSin, prevPitchCos);
+      const dx = (newCoords.x - dragPreviousXY.x);
+      const dy = (newCoords.y - dragPreviousXY.y);
+      const s = vec3.create();
       s[0] = cameraMatrix[0];
       s[1] = cameraMatrix[4];
       s[2] = cameraMatrix[8];
-      var r = mat4.create();
+      const r = mat4.create();
       mat4.identity(r);
       mat4.translate(r, lookAtCenter);
-      var dPitch = dy * lookAtPitchRate;
+      let dPitch = dy * lookAtPitchRate;
       if (Math.abs(prevPitch + dPitch) >= Math.PI / 2) {
-        var sign = prevPitch > 0 ? 1 : -1;
+        const sign = prevPitch > 0 ? 1 : -1;
         dPitch = sign * Math.PI / 2 - prevPitch;
       }
       mat4.rotate(r, dPitch, s);
@@ -162,8 +165,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WGLWidget", function(APP, canvas
         WT.capture(canvas);
         dragPreviousXY = WT.pageCoordinates(event.touches[0]);
       } else if (doubleTouch) {
-        var c0 = WT.pageCoordinates(event.touches[0]);
-        var c1 = WT.pageCoordinates(event.touches[1]);
+        const c0 = WT.pageCoordinates(event.touches[0]);
+        const c1 = WT.pageCoordinates(event.touches[1]);
         pinchWidth = Math.sqrt((c0.x - c1.x) * (c0.x - c1.x) + (c0.y - c1.y) * (c0.y - c1.y));
       } else {
         return;
@@ -172,7 +175,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WGLWidget", function(APP, canvas
     };
 
     this.touchEnd = function(o, event) {
-      var noTouch = event.touches.length === 0 ? true : false;
+      const noTouch = event.touches.length === 0 ? true : false;
       singleTouch = event.touches.length === 1 ? true : false;
       doubleTouch = event.touches.length === 2 ? true : false;
 
@@ -194,14 +197,14 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WGLWidget", function(APP, canvas
         if (dragPreviousXY === null) {
           return;
         }
-        var c = WT.pageCoordinates(event);
+        const c = WT.pageCoordinates(event);
         rotate(c);
       }
       if (doubleTouch) {
-        var c0 = WT.pageCoordinates(event.touches[0]);
-        var c1 = WT.pageCoordinates(event.touches[1]);
-        var d = Math.sqrt((c0.x - c1.x) * (c0.x - c1.x) + (c0.y - c1.y) * (c0.y - c1.y));
-        var scale = d / pinchWidth;
+        const c0 = WT.pageCoordinates(event.touches[0]);
+        const c1 = WT.pageCoordinates(event.touches[1]);
+        const d = Math.sqrt((c0.x - c1.x) * (c0.x - c1.x) + (c0.y - c1.y) * (c0.y - c1.y));
+        let scale = d / pinchWidth;
         if (Math.abs(scale - 1) < 0.05) {
           return;
         } else if (scale > 1) {
@@ -216,12 +219,10 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WGLWidget", function(APP, canvas
   };
 
   this.WalkMouseHandler = function(matrix, frontRate, yawRate) {
-    var cameraMatrix = matrix;
-    var walkFrontRate = frontRate;
-    var walkYawRate = yawRate;
-    var dragPreviousXY = null;
-
-    var thisHandler = this;
+    const cameraMatrix = matrix;
+    const walkFrontRate = frontRate;
+    const walkYawRate = yawRate;
+    let dragPreviousXY = null;
 
     this.mouseDown = function(o, event) {
       WT.capture(null);
@@ -230,27 +231,27 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WGLWidget", function(APP, canvas
       dragPreviousXY = WT.pageCoordinates(event);
     };
 
-    this.mouseUp = function(o, event) {
+    this.mouseUp = function(_o, _event) {
       if (dragPreviousXY !== null) {
         dragPreviousXY = null;
       }
     };
 
-    this.mouseDrag = function(o, event) {
+    this.mouseDrag = function(_o, event) {
       if (dragPreviousXY === null) {
         return;
       }
-      var c = WT.pageCoordinates(event);
+      const c = WT.pageCoordinates(event);
       walk(c);
     };
 
     function walk(newCoords) {
-      var dx = (newCoords.x - dragPreviousXY.x);
-      var dy = (newCoords.y - dragPreviousXY.y);
-      var r = mat4.create();
+      const dx = (newCoords.x - dragPreviousXY.x);
+      const dy = (newCoords.y - dragPreviousXY.y);
+      const r = mat4.create();
       mat4.identity(r);
       mat4.rotateY(r, dx * walkYawRate);
-      var t = vec3.create();
+      const t = vec3.create();
       t[0] = 0;
       t[1] = 0;
       t[2] = -walkFrontRate * dy;
@@ -308,10 +309,9 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WGLWidget", function(APP, canvas
   this.handlePreload = function() {
     if (this.preloadingTextures === 0 && this.preloadingBuffers === 0) {
       if (this.initialized) {
-        var key;
         // execute all updates scheduled in o.updates
-        for (key in this.updates) {
-          this.updates[key]();
+        for (const update of this.updates) {
+          update();
         }
         this.updates = new Array();
         // Delay calling of resizeGL() to after updates are executed
@@ -329,18 +329,16 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WGLWidget", function(APP, canvas
   };
 
   function encodeJSValues() {
-    var obj = canvas.wtObj;
-    var str = "";
-    for (var index in obj.jsValues) {
-      if (obj.jsValues.hasOwnProperty(index)) {
-        str += index + ":";
-        for (var i = 0; i < obj.jsValues[index].length; i++) {
-          str += obj.jsValues[index][i];
-          if (i !== obj.jsValues[index].length - 1) {
-            str += ",";
-          } else {
-            str += ";";
-          }
+    const obj = canvas.wtObj;
+    let str = "";
+    for (const [index, value] of Object.entries(obj.jsValues)) {
+      str += index + ":";
+      for (let i = 0; i < value.length; i++) {
+        str += value[i];
+        if (i !== value.length - 1) {
+          str += ",";
+        } else {
+          str += ";";
         }
       }
     }
@@ -350,12 +348,12 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WGLWidget", function(APP, canvas
 
   // For server-side rendering: avoid that image loads are aborted because
   // URL is changed too quickly (before image is fully loaded)
-  var nextImage = null;
-  var loader = new Image();
+  let nextImage = null;
+  const loader = new Image();
   loader.busy = false;
   loader.onload = function() {
     canvas.src = loader.src;
-    if (nextImage != null) {
+    if (nextImage !== null) {
       loader.src = nextImage;
     } else {
       loader.busy = false;
