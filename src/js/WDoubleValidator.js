@@ -37,18 +37,17 @@ WT_DECLARE_WT_MEMBER(
         return value.replace(new RegExp("([\\^\\\\\\][\\-.$*+?()|{}])", "g"), "\\$1");
       }
 
-      if (text.length == 0) {
+      if (text.length === 0) {
         if (mandatory) {
           return { valid: false, message: blankError };
         } else {
           return { valid: true };
         }
       }
-
-      if (groupSeparator != "") {
+      if (groupSeparator !== "") {
         text = text.replace(new RegExp(toRegexp(groupSeparator), "g"), "");
       }
-      if (decimalPoint != ".") {
+      if (decimalPoint !== ".") {
         text = text.replace(decimalPoint, ".");
       }
 
@@ -56,7 +55,7 @@ WT_DECLARE_WT_MEMBER(
         return { valid: false, message: NaNError };
       }
 
-      var n = Number(text);
+      const n = Number(text);
 
       if (isNaN(n)) {
         return { valid: false, message: NaNError };
