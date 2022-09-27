@@ -1,3 +1,4 @@
+/* global $:readonly */
 /*
  * Copyright (C) 2011 Emweb bv, Herent, Belgium.
  *
@@ -8,11 +9,8 @@
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WMediaPlayer", function(APP, el) {
   el.wtObj = this;
 
-  var self = this;
-  var WT = APP.WT;
-
   function encodeValue() {
-    var jplayer = $(el).find(".jp-jplayer").data("jPlayer"),
+    const jplayer = $(el).find(".jp-jplayer").data("jPlayer"),
       status = jplayer.status,
       options = jplayer.options;
 
@@ -29,7 +27,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WMediaPlayer", function(APP, el)
   el.wtEncodeValue = encodeValue;
 
   function setPlaybackRate(rate) {
-    var jplayer = this,
+    const jplayer = this,
       media = jplayer.htmlElement.video || jplayer.htmlElement.audio;
 
     if (media) {
@@ -39,6 +37,6 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WMediaPlayer", function(APP, el)
     return this;
   }
 
-  var jplayer = $(el).find(".jp-jplayer").data("jPlayer");
+  const jplayer = $(el).find(".jp-jplayer").data("jPlayer");
   jplayer.wtPlaybackRate = setPlaybackRate;
 });
