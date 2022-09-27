@@ -438,7 +438,7 @@ void WAbstractItemView::setHeaderAlignment(int column,
 {
   columnInfo(column).headerHAlignment = alignment & AlignHorizontalMask;
 
-  if (alignment.test(AlignVerticalMask))
+  if (!(alignment & AlignVerticalMask).empty())
     columnInfo(column).headerVAlignment = alignment & AlignVerticalMask;
 
   if (columnInfo(column).hidden ||
