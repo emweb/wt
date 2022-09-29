@@ -45,10 +45,10 @@ BOOST_AUTO_TEST_CASE( SslUtils_readPrivateKey )
 {
   boost::filesystem::path tmpFile = boost::filesystem::unique_path();
   {
-    std::ofstream ofs(tmpFile.native(), std::ios::out | std::ios::binary);
+    std::ofstream ofs(tmpFile.string(), std::ios::out | std::ios::binary);
     ofs << pkeyStr;
   }
-  EVP_PKEY* pkey = Wt::Ssl::readPrivateKeyFromFile(tmpFile.native());
+  EVP_PKEY* pkey = Wt::Ssl::readPrivateKeyFromFile(tmpFile.string());
   BOOST_TEST(pkey != nullptr);
   EVP_PKEY_free(pkey);
   boost::filesystem::remove(tmpFile);
@@ -58,10 +58,10 @@ BOOST_AUTO_TEST_CASE( SslUtils_rs256 )
 {
   boost::filesystem::path tmpFile = boost::filesystem::unique_path();
   {
-    std::ofstream ofs(tmpFile.native(), std::ios::out | std::ios::binary);
+    std::ofstream ofs(tmpFile.string(), std::ios::out | std::ios::binary);
     ofs << pkeyStr;
   }
-  EVP_PKEY* pkey = Wt::Ssl::readPrivateKeyFromFile(tmpFile.native());
+  EVP_PKEY* pkey = Wt::Ssl::readPrivateKeyFromFile(tmpFile.string());
 
   const auto result = Wt::Ssl::rs256(pkey, "Hello, world!\n");
   BOOST_TEST(result.size() == 128);
