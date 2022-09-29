@@ -9,7 +9,7 @@ pipeline {
     disableConcurrentBuilds abortPrevious: true
   }
   triggers {
-    pollSCM('H/5 * * * *')
+    pollSCM('@midnight')
   }
   agent none
   stages {
@@ -21,7 +21,7 @@ pipeline {
             filename 'Dockerfile'
             label 'win'
             // Note: installing build tools fails with isolation=process, so we don't use it here
-            additionalBuildArgs '--isolation=hyperv --memory 2G --target minimal --build-arg VCVARS_VER=14.3'
+            additionalBuildArgs '--isolation=hyperv --memory 2G --target minimal --build-arg VCVARS_VER=14.1'
             // We have build issues when using Hyper-V isolation with older Visual Studio versions, see:
             // https://developercommunity.visualstudio.com/t/lnk1318-unexpected-pdb-error-when-building-from-a/607325
             args "--isolation=process"
@@ -38,7 +38,7 @@ pipeline {
             steps {
               dir("build-shared-${env.SHARED_LIBS}") {
                 bat """
-                      call C:\\BuildTools\\Common7\\Tools\\VsDevCmd.bat -arch=amd64 -host_arch=amd64 -vcvars_ver=14.3
+                      call C:\\BuildTools\\Common7\\Tools\\VsDevCmd.bat -arch=amd64 -host_arch=amd64 -vcvars_ver=14.1
 
                       cmake.exe ^
                         "-GNinja" ^
@@ -68,7 +68,7 @@ pipeline {
             steps {
               dir("build-shared-${env.SHARED_LIBS}") {
                 bat """
-                      call C:\\BuildTools\\Common7\\Tools\\VsDevCmd.bat -arch=amd64 -host_arch=amd64 -vcvars_ver=14.3
+                      call C:\\BuildTools\\Common7\\Tools\\VsDevCmd.bat -arch=amd64 -host_arch=amd64 -vcvars_ver=14.1
 
                       ninja -v
                     """;
