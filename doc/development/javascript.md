@@ -7,23 +7,54 @@ compile time.
 These JavaScript files can be found in [`src/js`](../../src/js)
 and [`src/web/skeleton`](../../src/web/skeleton).
 
+## Tooling
+
+We use various tools, all of which are installed using [pnpm](https://pnpm.io).
+
+You'll need a recent version of [Node.js](https://nodejs.org)
+to install some dependencies, like [dprint](https://dprint.dev).
+You can use `pnpm` to install a more recent version (e.g. Ubuntu
+22.04 comes with version 12, which is too old):
+
+```shell
+pnpm env use --global lts
+```
+
+In `src/js` you can install and run all the tools:
+
+```shell
+cd src/js
+pnpm install
+```
+
+## Formatting
+
+We use [dprint](https://dprint.dev) for formatting. You can check formatting
+and format all files in `src/js`:
+
+```shell
+cd src/js
+pnpm run checkfmt # Check formatting
+pnpm run fmt # Run formatter
+```
+
+If you install the dprint extension for Visual Studio Code, then your
+could should automatically format on save.
+
 ## Minified JavaScript
 
 We check the minified version into git, so it's not necessary to minify
 them when building Wt.
 
 They do have to be re-minified when they're changed though. We use
-[gulp-terser](https://www.npmjs.com/package/gulp-terser) for this.
-You will need to have `npm` installed on your system:
-
+[gulp-terser](https://www.npmjs.com/package/gulp-terser) for this:
 
 ```shell
 cd src/js
-npm install
-npm run minify
+pnpm run minify
 ```
 
-This will minify all of the JavaScript in `src/js` and `src/web/skeleton`.
+This will minify all JavaScript in `src/js` and `src/web/skeleton`.
 
 ## Debugging JavaScript
 
