@@ -57,12 +57,12 @@ IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
     SET(HAVE_HARU true)
     add_library(libhpdf SHARED IMPORTED)
     set_target_properties(libhpdf PROPERTIES
-      IMPORTED_IMPLIB "${WT_INSTALL_DIR}/lib/libhpdf.lib"
-      IMPORTED_LOCATION "${WT_INSTALL_DIR}/bin/libhpdf.dll")
+      IMPORTED_IMPLIB "${WT_INSTALL_DIR}/lib/hpdf.lib"
+      IMPORTED_LOCATION "${WT_INSTALL_DIR}/bin/hpdf.dll")
     add_library(libhpdfd SHARED IMPORTED)
     set_target_properties(libhpdfd PROPERTIES
-      IMPORTED_IMPLIB "${WT_INSTALL_DIR}/lib/libhpdfd.lib"
-      IMPORTED_LOCATION "${WT_INSTALL_DIR}/bin/libhpdfd.dll")
+      IMPORTED_IMPLIB "${WT_INSTALL_DIR}/lib/hpdfd.lib"
+      IMPORTED_LOCATION "${WT_INSTALL_DIR}/bin/hpdfd.dll")
     SET(HARU_LIB optimized libhpdf debug libhpdfd)
 
     SET(EXAMPLES_CONNECTOR Wt::HTTP)
