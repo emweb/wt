@@ -54,4 +54,13 @@
 
 #endif // end outer ifndef WT_CXX17
 
+#ifndef WT_DEPRECATED
+#if defined(WT_BUILDING) || defined(WT_CNOR)
+// Don't warn about internal use of deprecated APIs
+#define WT_DEPRECATED(details)
+#else
+#define WT_DEPRECATED(details) [[deprecated(details)]]
+#endif
+#endif
+
 #endif // DLLDEFS_H_

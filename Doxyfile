@@ -1544,7 +1544,8 @@ PREDEFINED             = DOXYGEN_ONLY \
                          WT_UCHAR=std::string \
                          WT_BOSTREAM=std::ostream \
                          WT_BAOSTREAM=std::ostringstream \
-                         WT_ARRAY=
+                         WT_ARRAY= \
+                         WT_DEPRECATED(...)=
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then
 # this tag can be used to specify a list of macro names that should be expanded.
