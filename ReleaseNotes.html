@@ -20,7 +20,60 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.9.0 (October 2022)</h2>
+<h2>Release 4.9.0 (November 2022)</h2>
+
+<h3>Backwards incompatible changes</h3>
+
+<h4>Removal of jQuery</h4>
+
+<p>
+  We removed every use of jQuery from Wt, and jQuery is now no longer automatically loaded.
+  This means that if you relied on the included jQuery version (for example, the <code>$</code> object or function),
+  you will have to make some changes to make it work with Wt 4.9.0. There are several options:
+</p>
+
+<ul>
+  <li>
+    <p>
+      Replace your uses of jQuery with vanilla JavaScript, which is what we did.
+    </p>
+    <p>
+      For example, the <code>$</code> function can often be replaced with
+      <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector" target="_blank">querySelector</a> or
+      <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll" target="_blank">querySelectorAll</a>.
+    </p>
+  </li>
+  <li>
+    <p>
+      Load jQuery yourself using
+      <a href="classWt_1_1WApplication.html#ae88546224ed32cade783da188b145138">WApplication::require()</a>.
+      <a href="classWt_1_1WApplication.html#aa2add60804ff75b3798fc270050654c5">WApplication::requireJQuery()</a>
+      has been marked as deprecated.
+    </p>
+    <p>
+    For example:
+    <code>application->require("https://code.jquery.com/jquery-3.6.1.slim.min.js", "$");</code>.
+    </p>
+  </li>
+  <li>
+    <p>
+      Change your <code>wt_config.xml</code>, adding a <code>&lt;head-matter&gt;</code> section
+      that loads jQuery through a <code>&lt;script&gt;</code> tag:
+    </p>
+    <p>
+      <code>
+        &lt;head-matter&gt;<br>
+        &nbsp;&nbsp;&lt;script<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;src="https://code.jquery.com/jquery-3.6.1.slim.min.js"<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;integrity="sha256-w8CvhFs7iHNVUtnSP0YKEg00p9Ih13rlL9zGqvLdePA="<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;crossorigin="anonymous"&gt;&lt;/script&gt;<br>
+        &lt;/head-matter&gt;
+      </code>
+    </p>
+  </li>
+</ul>
+
+<h3>Other</h3>
 
 <ul>
   <li>
