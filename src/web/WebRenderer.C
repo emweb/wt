@@ -933,18 +933,6 @@ void WebRenderer::serveMainscript(WebResponse& response)
   const bool innerHtml = true;
 
   if (serveSkeletons) {
-    bool haveJQuery = app->customJQuery();
-
-    if (!haveJQuery) {
-      out << "if (typeof window.$ === 'undefined') {";
-#ifndef WT_TARGET_JAVA
-      out << skeletons::JQuery_js;
-#else
-      out << const_cast<char *>(skeletons::JQuery_js);
-#endif
-      out << '}';
-    }
-
     FileServe script(skeletons::Wt_js);
 
     script.setCondition

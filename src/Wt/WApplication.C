@@ -1605,7 +1605,7 @@ bool WApplication::require(const std::string& uri, const std::string& symbol)
 bool WApplication::requireJQuery(const std::string& uri)
 {
   customJQuery_ = true;
-  return require(uri);
+  return require(uri, "$");
 }
 
 #ifndef WT_TARGET_JAVA

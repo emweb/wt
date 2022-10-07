@@ -48,8 +48,6 @@ ELSE(CMAKE_BUILD_TYPE STREQUAL "Debug")
   FILE_TO_STRING(js/WCartesianChart.min.js WCartesianChart_js.C WCartesianChart_js)
 ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
-FILE_TO_STRING(web/skeleton/jquery.min.js JQuery_js.C JQuery_js)
-
 FILE_TO_STRING(xml/wt.xml Wt_xml.C Wt_xml)
 FILE_TO_STRING(xml/auth_strings.xml AuthStrings_xml.C AuthStrings_xml)
 FILE_TO_STRING(xml/bootstrap_theme.xml
@@ -406,7 +404,6 @@ BootstrapTheme_xml.C
 Bootstrap3Theme_xml.C
 Bootstrap5Theme_xml.C
 AuthCssTheme_xml.C
-JQuery_js.C
 )
 
 IF (WT_CPP20_DATE_TZ_IMPLEMENTATION STREQUAL "date")

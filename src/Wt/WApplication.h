@@ -1452,34 +1452,36 @@ public:
    * JavaScript code is deferred until the library is loaded, except
    * for JavaScript that was defined to load before, passing \c false
    * as second parameter to doJavaScript().
-   *
-   * Although %Wt includes an off-the-shelf JQuery version (which can
-   * also be used by your own JavaScript code), you can override the
-   * one used by %Wt and load another JQuery version instead, but this
-   * needs to be done using requireJQuery().
    */
   bool require(const std::string& url,
                const std::string& symbol = std::string());
 
   /*! \brief Loads a custom JQuery library.
    *
-   * %Wt ships with a rather old version of JQuery (1.4.1) which is
-   * sufficient for its needs and is many times smaller than more recent
-   * JQuery releases (about 50% smaller).
+   * For %Wt versions before 4.9.0, this function was used to load a different version of jQuery than
+   * the one included in %Wt. Since %Wt 4.9.0 however, %Wt no longer relies on jQuery and does not load
+   * jQuery by default. If your application relies on jQuery, use require() instead.
    *
-   * Using this function, you can replace Wt's JQuery version with another
-   * version of JQuery.
+   * Calling this function makes customJQuery() return `true`, and calls:
    *
-   * \code
-   * requireJQuery("jquery/jquery-1.7.2.min.js");
-   * \endcode
+   * ```cpp
+   * return require(url, "$");
+   * ```
+   *
+   * \deprecated %Wt no longer loads jQuery by default, making a separate
+   *             requireJQuery() function unnecessary, use require() instead
    */
+  WT_DEPRECATED("Wt no longer loads jQuery by default, rendering requireJQuery() obsolete, use require() instead")
   bool requireJQuery(const std::string& url);
 
   /*! \brief Returns whether a custom JQuery library is used.
    *
    * \sa requireJQuery(const std::string& url)
+   *
+   * \deprecated %Wt no longer loads jQuery by default, making the use of requireJQuery() and thus
+   *             customJQuery() obsolete.
    */
+  WT_DEPRECATED("Wt no longer loads jQuery by default, rendering requireJQuery() and thus customJQuery() obsolete")
   bool customJQuery() const { return customJQuery_; }
 
   /*! \brief Sets the name of the application JavaScript class.
