@@ -32,33 +32,32 @@ WT_DECLARE_WT_MEMBER(
   JavaScriptObject,
   "glMatrix",
   (function() {
+    let glMatrixArrayType;
     // Fallback for systems that don't support WebGL
-    if (typeof Float32Array != "undefined") {
+    if (typeof Float32Array !== "undefined") {
       glMatrixArrayType = Float32Array;
-    } else if (typeof WebGLFloatArray != "undefined") {
-      glMatrixArrayType = WebGLFloatArray; // This is officially deprecated and should dissapear in future revisions.
     } else {
       glMatrixArrayType = Array;
     }
 
     /*
- * vec3 - 3 Dimensional Vector
- */
-    var vec3 = {};
+     * vec3 - 3 Dimensional Vector
+     */
+    const vec3 = {};
 
     /*
- * vec3.create
- * Creates a new instance of a vec3 using the default array type
- * Any javascript array containing at least 3 numeric elements can serve as a vec3
- *
- * Params:
- * vec - Optional, vec3 containing values to initialize with
- *
- * Returns:
- * New vec3
- */
+     * vec3.create
+     * Creates a new instance of a vec3 using the default array type
+     * Any javascript array containing at least 3 numeric elements can serve as a vec3
+     *
+     * Params:
+     * vec - Optional, vec3 containing values to initialize with
+     *
+     * Returns:
+     * New vec3
+     */
     vec3.create = function(vec) {
-      var dest = new glMatrixArrayType(3);
+      const dest = new glMatrixArrayType(3);
 
       if (vec) {
         dest[0] = vec[0];
@@ -70,16 +69,16 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * vec3.set
- * Copies the values of one vec3 to another
- *
- * Params:
- * vec - vec3 containing values to copy
- * dest - vec3 receiving copied values
- *
- * Returns:
- * dest
- */
+     * vec3.set
+     * Copies the values of one vec3 to another
+     *
+     * Params:
+     * vec - vec3 containing values to copy
+     * dest - vec3 receiving copied values
+     *
+     * Returns:
+     * dest
+     */
     vec3.set = function(vec, dest) {
       dest[0] = vec[0];
       dest[1] = vec[1];
@@ -89,19 +88,19 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * vec3.add
- * Performs a vector addition
- *
- * Params:
- * vec - vec3, first operand
- * vec2 - vec3, second operand
- * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
- *
- * Returns:
- * dest if specified, vec otherwise
- */
+     * vec3.add
+     * Performs a vector addition
+     *
+     * Params:
+     * vec - vec3, first operand
+     * vec2 - vec3, second operand
+     * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
+     *
+     * Returns:
+     * dest if specified, vec otherwise
+     */
     vec3.add = function(vec, vec2, dest) {
-      if (!dest || vec == dest) {
+      if (!dest || vec === dest) {
         vec[0] += vec2[0];
         vec[1] += vec2[1];
         vec[2] += vec2[2];
@@ -115,19 +114,19 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * vec3.subtract
- * Performs a vector subtraction
- *
- * Params:
- * vec - vec3, first operand
- * vec2 - vec3, second operand
- * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
- *
- * Returns:
- * dest if specified, vec otherwise
- */
+     * vec3.subtract
+     * Performs a vector subtraction
+     *
+     * Params:
+     * vec - vec3, first operand
+     * vec2 - vec3, second operand
+     * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
+     *
+     * Returns:
+     * dest if specified, vec otherwise
+     */
     vec3.subtract = function(vec, vec2, dest) {
-      if (!dest || vec == dest) {
+      if (!dest || vec === dest) {
         vec[0] -= vec2[0];
         vec[1] -= vec2[1];
         vec[2] -= vec2[2];
@@ -141,16 +140,16 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * vec3.negate
- * Negates the components of a vec3
- *
- * Params:
- * vec - vec3 to negate
- * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
- *
- * Returns:
- * dest if specified, vec otherwise
- */
+     * vec3.negate
+     * Negates the components of a vec3
+     *
+     * Params:
+     * vec - vec3 to negate
+     * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
+     *
+     * Returns:
+     * dest if specified, vec otherwise
+     */
     vec3.negate = function(vec, dest) {
       if (!dest) {
         dest = vec;
@@ -163,19 +162,19 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * vec3.scale
- * Multiplies the components of a vec3 by a scalar value
- *
- * Params:
- * vec - vec3 to scale
- * val - Numeric value to scale by
- * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
- *
- * Returns:
- * dest if specified, vec otherwise
- */
+     * vec3.scale
+     * Multiplies the components of a vec3 by a scalar value
+     *
+     * Params:
+     * vec - vec3 to scale
+     * val - Numeric value to scale by
+     * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
+     *
+     * Returns:
+     * dest if specified, vec otherwise
+     */
     vec3.scale = function(vec, val, dest) {
-      if (!dest || vec == dest) {
+      if (!dest || vec === dest) {
         vec[0] *= val;
         vec[1] *= val;
         vec[2] *= val;
@@ -189,63 +188,63 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * vec3.normalize
- * Generates a unit vector of the same direction as the provided vec3
- * If vector length is 0, returns [0, 0, 0]
- *
- * Params:
- * vec - vec3 to normalize
- * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
- *
- * Returns:
- * dest if specified, vec otherwise
- */
+     * vec3.normalize
+     * Generates a unit vector of the same direction as the provided vec3
+     * If vector length is 0, returns [0, 0, 0]
+     *
+     * Params:
+     * vec - vec3 to normalize
+     * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
+     *
+     * Returns:
+     * dest if specified, vec otherwise
+     */
     vec3.normalize = function(vec, dest) {
       if (!dest) {
         dest = vec;
       }
 
-      var x = vec[0], y = vec[1], z = vec[2];
-      var len = Math.sqrt(x * x + y * y + z * z);
+      const x = vec[0], y = vec[1], z = vec[2];
+      const len = Math.sqrt(x * x + y * y + z * z);
 
       if (!len) {
         dest[0] = 0;
         dest[1] = 0;
         dest[2] = 0;
         return dest;
-      } else if (len == 1) {
+      } else if (len === 1) {
         dest[0] = x;
         dest[1] = y;
         dest[2] = z;
         return dest;
       }
 
-      len = 1 / len;
-      dest[0] = x * len;
-      dest[1] = y * len;
-      dest[2] = z * len;
+      const invLen = 1 / len;
+      dest[0] = x * invLen;
+      dest[1] = y * invLen;
+      dest[2] = z * invLen;
       return dest;
     };
 
     /*
- * vec3.cross
- * Generates the cross product of two vec3s
- *
- * Params:
- * vec - vec3, first operand
- * vec2 - vec3, second operand
- * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
- *
- * Returns:
- * dest if specified, vec otherwise
- */
+     * vec3.cross
+     * Generates the cross product of two vec3s
+     *
+     * Params:
+     * vec - vec3, first operand
+     * vec2 - vec3, second operand
+     * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
+     *
+     * Returns:
+     * dest if specified, vec otherwise
+     */
     vec3.cross = function(vec, vec2, dest) {
       if (!dest) {
         dest = vec;
       }
 
-      var x = vec[0], y = vec[1], z = vec[2];
-      var x2 = vec2[0], y2 = vec2[1], z2 = vec2[2];
+      const x = vec[0], y = vec[1], z = vec[2];
+      const x2 = vec2[0], y2 = vec2[1], z2 = vec2[2];
 
       dest[0] = y * z2 - z * y2;
       dest[1] = z * x2 - x * z2;
@@ -254,57 +253,57 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * vec3.length
- * Caclulates the length of a vec3
- *
- * Params:
- * vec - vec3 to calculate length of
- *
- * Returns:
- * Length of vec
- */
+     * vec3.length
+     * Caclulates the length of a vec3
+     *
+     * Params:
+     * vec - vec3 to calculate length of
+     *
+     * Returns:
+     * Length of vec
+     */
     vec3.length = function(vec) {
-      var x = vec[0], y = vec[1], z = vec[2];
+      const x = vec[0], y = vec[1], z = vec[2];
       return Math.sqrt(x * x + y * y + z * z);
     };
 
     /*
- * vec3.dot
- * Caclulates the dot product of two vec3s
- *
- * Params:
- * vec - vec3, first operand
- * vec2 - vec3, second operand
- *
- * Returns:
- * Dot product of vec and vec2
- */
+     * vec3.dot
+     * Caclulates the dot product of two vec3s
+     *
+     * Params:
+     * vec - vec3, first operand
+     * vec2 - vec3, second operand
+     *
+     * Returns:
+     * Dot product of vec and vec2
+     */
     vec3.dot = function(vec, vec2) {
       return vec[0] * vec2[0] + vec[1] * vec2[1] + vec[2] * vec2[2];
     };
 
     /*
- * vec3.direction
- * Generates a unit vector pointing from one vector to another
- *
- * Params:
- * vec - origin vec3
- * vec2 - vec3 to point to
- * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
- *
- * Returns:
- * dest if specified, vec otherwise
- */
+     * vec3.direction
+     * Generates a unit vector pointing from one vector to another
+     *
+     * Params:
+     * vec - origin vec3
+     * vec2 - vec3 to point to
+     * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
+     *
+     * Returns:
+     * dest if specified, vec otherwise
+     */
     vec3.direction = function(vec, vec2, dest) {
       if (!dest) {
         dest = vec;
       }
 
-      var x = vec[0] - vec2[0];
-      var y = vec[1] - vec2[1];
-      var z = vec[2] - vec2[2];
+      const x = vec[0] - vec2[0];
+      const y = vec[1] - vec2[1];
+      const z = vec[2] - vec2[2];
 
-      var len = Math.sqrt(x * x + y * y + z * z);
+      const len = Math.sqrt(x * x + y * y + z * z);
       if (!len) {
         dest[0] = 0;
         dest[1] = 0;
@@ -312,45 +311,45 @@ WT_DECLARE_WT_MEMBER(
         return dest;
       }
 
-      len = 1 / len;
-      dest[0] = x * len;
-      dest[1] = y * len;
-      dest[2] = z * len;
+      const invLen = 1 / len;
+      dest[0] = x * invLen;
+      dest[1] = y * invLen;
+      dest[2] = z * invLen;
       return dest;
     };
 
     /*
- * vec3.str
- * Returns a string representation of a vector
- *
- * Params:
- * vec - vec3 to represent as a string
- *
- * Returns:
- * string representation of vec
- */
+     * vec3.str
+     * Returns a string representation of a vector
+     *
+     * Params:
+     * vec - vec3 to represent as a string
+     *
+     * Returns:
+     * string representation of vec
+     */
     vec3.str = function(vec) {
       return "[" + vec[0] + ", " + vec[1] + ", " + vec[2] + "]";
     };
 
     /*
- * mat3 - 3x3 Matrix
- */
-    var mat3 = {};
+     * mat3 - 3x3 Matrix
+     */
+    const mat3 = {};
 
     /*
- * mat3.create
- * Creates a new instance of a mat3 using the default array type
- * Any javascript array containing at least 9 numeric elements can serve as a mat3
- *
- * Params:
- * mat - Optional, mat3 containing values to initialize with
- *
- * Returns:
- * New mat3
- */
+     * mat3.create
+     * Creates a new instance of a mat3 using the default array type
+     * Any javascript array containing at least 9 numeric elements can serve as a mat3
+     *
+     * Params:
+     * mat - Optional, mat3 containing values to initialize with
+     *
+     * Returns:
+     * New mat3
+     */
     mat3.create = function(mat) {
-      var dest = new glMatrixArrayType(9);
+      const dest = new glMatrixArrayType(9);
 
       if (mat) {
         dest[0] = mat[0];
@@ -369,16 +368,16 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat3.set
- * Copies the values of one mat3 to another
- *
- * Params:
- * mat - mat3 containing values to copy
- * dest - mat3 receiving copied values
- *
- * Returns:
- * dest
- */
+     * mat3.set
+     * Copies the values of one mat3 to another
+     *
+     * Params:
+     * mat - mat3 containing values to copy
+     * dest - mat3 receiving copied values
+     *
+     * Returns:
+     * dest
+     */
     mat3.set = function(mat, dest) {
       dest[0] = mat[0];
       dest[1] = mat[1];
@@ -393,15 +392,15 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat3.identity
- * Sets a mat3 to an identity matrix
- *
- * Params:
- * dest - mat3 to set
- *
- * Returns:
- * dest
- */
+     * mat3.identity
+     * Sets a mat3 to an identity matrix
+     *
+     * Params:
+     * dest - mat3 to set
+     *
+     * Returns:
+     * dest
+     */
     mat3.identity = function(dest) {
       dest[0] = 1;
       dest[1] = 0;
@@ -416,16 +415,16 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat3.toMat4
- * Copies the elements of a mat3 into the upper 3x3 elements of a mat4
- *
- * Params:
- * mat - mat3 containing values to copy
- * dest - Optional, mat4 receiving copied values
- *
- * Returns:
- * dest if specified, a new mat4 otherwise
- */
+     * mat3.toMat4
+     * Copies the elements of a mat3 into the upper 3x3 elements of a mat4
+     *
+     * Params:
+     * mat - mat3 containing values to copy
+     * dest - Optional, mat4 receiving copied values
+     *
+     * Returns:
+     * dest if specified, a new mat4 otherwise
+     */
     mat3.toMat4 = function(mat, dest) {
       if (!dest) {
         dest = mat4.create();
@@ -455,15 +454,15 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat3.str
- * Returns a string representation of a mat3
- *
- * Params:
- * mat - mat3 to represent as a string
- *
- * Returns:
- * string representation of mat
- */
+     * mat3.str
+     * Returns a string representation of a mat3
+     *
+     * Params:
+     * mat - mat3 to represent as a string
+     *
+     * Returns:
+     * string representation of mat
+     */
     mat3.str = function(mat) {
       return "[" + mat[0] + ", " + mat[1] + ", " + mat[2] +
         ", " + mat[3] + ", " + mat[4] + ", " + mat[5] +
@@ -471,23 +470,23 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4 - 4x4 Matrix
- */
-    var mat4 = {};
+     * mat4 - 4x4 Matrix
+     */
+    const mat4 = {};
 
     /*
- * mat4.create
- * Creates a new instance of a mat4 using the default array type
- * Any javascript array containing at least 16 numeric elements can serve as a mat4
- *
- * Params:
- * mat - Optional, mat4 containing values to initialize with
- *
- * Returns:
- * New mat4
- */
+     * mat4.create
+     * Creates a new instance of a mat4 using the default array type
+     * Any javascript array containing at least 16 numeric elements can serve as a mat4
+     *
+     * Params:
+     * mat - Optional, mat4 containing values to initialize with
+     *
+     * Returns:
+     * New mat4
+     */
     mat4.create = function(mat) {
-      var dest = new glMatrixArrayType(16);
+      const dest = new glMatrixArrayType(16);
 
       if (mat) {
         dest[0] = mat[0];
@@ -512,16 +511,16 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.set
- * Copies the values of one mat4 to another
- *
- * Params:
- * mat - mat4 containing values to copy
- * dest - mat4 receiving copied values
- *
- * Returns:
- * dest
- */
+     * mat4.set
+     * Copies the values of one mat4 to another
+     *
+     * Params:
+     * mat - mat4 containing values to copy
+     * dest - mat4 receiving copied values
+     *
+     * Returns:
+     * dest
+     */
     mat4.set = function(mat, dest) {
       dest[0] = mat[0];
       dest[1] = mat[1];
@@ -543,15 +542,15 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.identity
- * Sets a mat4 to an identity matrix
- *
- * Params:
- * dest - mat4 to set
- *
- * Returns:
- * dest
- */
+     * mat4.identity
+     * Sets a mat4 to an identity matrix
+     *
+     * Params:
+     * dest - mat4 to set
+     *
+     * Returns:
+     * dest
+     */
     mat4.identity = function(dest) {
       dest[0] = 1;
       dest[1] = 0;
@@ -573,22 +572,22 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.transpose
- * Transposes a mat4 (flips the values over the diagonal)
- *
- * Params:
- * mat - mat4 to transpose
- * dest - Optional, mat4 receiving transposed values. If not specified result is written to mat
- *
- * Returns:
- * dest is specified, mat otherwise
- */
+     * mat4.transpose
+     * Transposes a mat4 (flips the values over the diagonal)
+     *
+     * Params:
+     * mat - mat4 to transpose
+     * dest - Optional, mat4 receiving transposed values. If not specified result is written to mat
+     *
+     * Returns:
+     * dest is specified, mat otherwise
+     */
     mat4.transpose = function(mat, dest) {
       // If we are transposing ourselves we can skip a few steps but have to cache some values
-      if (!dest || mat == dest) {
-        var a01 = mat[1], a02 = mat[2], a03 = mat[3];
-        var a12 = mat[6], a13 = mat[7];
-        var a23 = mat[11];
+      if (!dest || mat === dest) {
+        const a01 = mat[1], a02 = mat[2], a03 = mat[3];
+        const a12 = mat[6], a13 = mat[7];
+        const a23 = mat[11];
 
         mat[1] = mat[4];
         mat[2] = mat[8];
@@ -625,21 +624,21 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.determinant
- * Calculates the determinant of a mat4
- *
- * Params:
- * mat - mat4 to calculate determinant of
- *
- * Returns:
- * determinant of mat
- */
+     * mat4.determinant
+     * Calculates the determinant of a mat4
+     *
+     * Params:
+     * mat - mat4 to calculate determinant of
+     *
+     * Returns:
+     * determinant of mat
+     */
     mat4.determinant = function(mat) {
       // Cache the matrix values (makes for huge speed increases!)
-      var a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3];
-      var a10 = mat[4], a11 = mat[5], a12 = mat[6], a13 = mat[7];
-      var a20 = mat[8], a21 = mat[9], a22 = mat[10], a23 = mat[11];
-      var a30 = mat[12], a31 = mat[13], a32 = mat[14], a33 = mat[15];
+      const a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3];
+      const a10 = mat[4], a11 = mat[5], a12 = mat[6], a13 = mat[7];
+      const a20 = mat[8], a21 = mat[9], a22 = mat[10], a23 = mat[11];
+      const a30 = mat[12], a31 = mat[13], a32 = mat[14], a33 = mat[15];
 
       return a30 * a21 * a12 * a03 - a20 * a31 * a12 * a03 - a30 * a11 * a22 * a03 + a10 * a31 * a22 * a03 +
         a20 * a11 * a32 * a03 - a10 * a21 * a32 * a03 - a30 * a21 * a02 * a13 + a20 * a31 * a02 * a13 +
@@ -650,42 +649,42 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.inverse
- * Calculates the inverse matrix of a mat4
- *
- * Params:
- * mat - mat4 to calculate inverse of
- * dest - Optional, mat4 receiving inverse matrix. If not specified result is written to mat
- *
- * Returns:
- * dest is specified, mat otherwise
- */
+     * mat4.inverse
+     * Calculates the inverse matrix of a mat4
+     *
+     * Params:
+     * mat - mat4 to calculate inverse of
+     * dest - Optional, mat4 receiving inverse matrix. If not specified result is written to mat
+     *
+     * Returns:
+     * dest is specified, mat otherwise
+     */
     mat4.inverse = function(mat, dest) {
       if (!dest) {
         dest = mat;
       }
 
       // Cache the matrix values (makes for huge speed increases!)
-      var a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3];
-      var a10 = mat[4], a11 = mat[5], a12 = mat[6], a13 = mat[7];
-      var a20 = mat[8], a21 = mat[9], a22 = mat[10], a23 = mat[11];
-      var a30 = mat[12], a31 = mat[13], a32 = mat[14], a33 = mat[15];
+      const a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3];
+      const a10 = mat[4], a11 = mat[5], a12 = mat[6], a13 = mat[7];
+      const a20 = mat[8], a21 = mat[9], a22 = mat[10], a23 = mat[11];
+      const a30 = mat[12], a31 = mat[13], a32 = mat[14], a33 = mat[15];
 
-      var b00 = a00 * a11 - a01 * a10;
-      var b01 = a00 * a12 - a02 * a10;
-      var b02 = a00 * a13 - a03 * a10;
-      var b03 = a01 * a12 - a02 * a11;
-      var b04 = a01 * a13 - a03 * a11;
-      var b05 = a02 * a13 - a03 * a12;
-      var b06 = a20 * a31 - a21 * a30;
-      var b07 = a20 * a32 - a22 * a30;
-      var b08 = a20 * a33 - a23 * a30;
-      var b09 = a21 * a32 - a22 * a31;
-      var b10 = a21 * a33 - a23 * a31;
-      var b11 = a22 * a33 - a23 * a32;
+      const b00 = a00 * a11 - a01 * a10;
+      const b01 = a00 * a12 - a02 * a10;
+      const b02 = a00 * a13 - a03 * a10;
+      const b03 = a01 * a12 - a02 * a11;
+      const b04 = a01 * a13 - a03 * a11;
+      const b05 = a02 * a13 - a03 * a12;
+      const b06 = a20 * a31 - a21 * a30;
+      const b07 = a20 * a32 - a22 * a30;
+      const b08 = a20 * a33 - a23 * a30;
+      const b09 = a21 * a32 - a22 * a31;
+      const b10 = a21 * a33 - a23 * a31;
+      const b11 = a22 * a33 - a23 * a32;
 
       // Calculate the determinant (inlined to avoid double-caching)
-      var invDet = 1 / (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06);
+      const invDet = 1 / (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06);
 
       dest[0] = (a11 * b11 - a12 * b10 + a13 * b09) * invDet;
       dest[1] = (-a01 * b11 + a02 * b10 - a03 * b09) * invDet;
@@ -708,16 +707,16 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.toRotationMat
- * Copies the upper 3x3 elements of a mat4 into another mat4
- *
- * Params:
- * mat - mat4 containing values to copy
- * dest - Optional, mat4 receiving copied values
- *
- * Returns:
- * dest is specified, a new mat4 otherwise
- */
+     * mat4.toRotationMat
+     * Copies the upper 3x3 elements of a mat4 into another mat4
+     *
+     * Params:
+     * mat - mat4 containing values to copy
+     * dest - Optional, mat4 receiving copied values
+     *
+     * Returns:
+     * dest is specified, a new mat4 otherwise
+     */
     mat4.toRotationMat = function(mat, dest) {
       if (!dest) {
         dest = mat4.create();
@@ -744,16 +743,16 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.toMat3
- * Copies the upper 3x3 elements of a mat4 into a mat3
- *
- * Params:
- * mat - mat4 containing values to copy
- * dest - Optional, mat3 receiving copied values
- *
- * Returns:
- * dest is specified, a new mat3 otherwise
- */
+     * mat4.toMat3
+     * Copies the upper 3x3 elements of a mat4 into a mat3
+     *
+     * Params:
+     * mat - mat4 containing values to copy
+     * dest - Optional, mat3 receiving copied values
+     *
+     * Returns:
+     * dest is specified, a new mat3 otherwise
+     */
     mat4.toMat3 = function(mat, dest) {
       if (!dest) {
         dest = mat3.create();
@@ -773,32 +772,32 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.toInverseMat3
- * Calculates the inverse of the upper 3x3 elements of a mat4 and copies the result into a mat3
- * The resulting matrix is useful for calculating transformed normals
- *
- * Params:
- * mat - mat4 containing values to invert and copy
- * dest - Optional, mat3 receiving values
- *
- * Returns:
- * dest is specified, a new mat3 otherwise
- */
+     * mat4.toInverseMat3
+     * Calculates the inverse of the upper 3x3 elements of a mat4 and copies the result into a mat3
+     * The resulting matrix is useful for calculating transformed normals
+     *
+     * Params:
+     * mat - mat4 containing values to invert and copy
+     * dest - Optional, mat3 receiving values
+     *
+     * Returns:
+     * dest is specified, a new mat3 otherwise
+     */
     mat4.toInverseMat3 = function(mat, dest) {
       // Cache the matrix values (makes for huge speed increases!)
-      var a00 = mat[0], a01 = mat[1], a02 = mat[2];
-      var a10 = mat[4], a11 = mat[5], a12 = mat[6];
-      var a20 = mat[8], a21 = mat[9], a22 = mat[10];
+      const a00 = mat[0], a01 = mat[1], a02 = mat[2];
+      const a10 = mat[4], a11 = mat[5], a12 = mat[6];
+      const a20 = mat[8], a21 = mat[9], a22 = mat[10];
 
-      var b01 = a22 * a11 - a12 * a21;
-      var b11 = -a22 * a10 + a12 * a20;
-      var b21 = a21 * a10 - a11 * a20;
+      const b01 = a22 * a11 - a12 * a21;
+      const b11 = -a22 * a10 + a12 * a20;
+      const b21 = a21 * a10 - a11 * a20;
 
-      var d = a00 * b01 + a01 * b11 + a02 * b21;
+      const d = a00 * b01 + a01 * b11 + a02 * b21;
       if (!d) {
         return null;
       }
-      var id = 1 / d;
+      const id = 1 / d;
 
       if (!dest) {
         dest = mat3.create();
@@ -818,32 +817,32 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.multiply
- * Performs a matrix multiplication
- *
- * Params:
- * mat - mat4, first operand
- * mat2 - mat4, second operand
- * dest - Optional, mat4 receiving operation result. If not specified result is written to mat
- *
- * Returns:
- * dest if specified, mat otherwise
- */
+     * mat4.multiply
+     * Performs a matrix multiplication
+     *
+     * Params:
+     * mat - mat4, first operand
+     * mat2 - mat4, second operand
+     * dest - Optional, mat4 receiving operation result. If not specified result is written to mat
+     *
+     * Returns:
+     * dest if specified, mat otherwise
+     */
     mat4.multiply = function(mat, mat2, dest) {
       if (!dest) {
         dest = mat;
       }
 
       // Cache the matrix values (makes for huge speed increases!)
-      var a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3];
-      var a10 = mat[4], a11 = mat[5], a12 = mat[6], a13 = mat[7];
-      var a20 = mat[8], a21 = mat[9], a22 = mat[10], a23 = mat[11];
-      var a30 = mat[12], a31 = mat[13], a32 = mat[14], a33 = mat[15];
+      const a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3];
+      const a10 = mat[4], a11 = mat[5], a12 = mat[6], a13 = mat[7];
+      const a20 = mat[8], a21 = mat[9], a22 = mat[10], a23 = mat[11];
+      const a30 = mat[12], a31 = mat[13], a32 = mat[14], a33 = mat[15];
 
-      var b00 = mat2[0], b01 = mat2[1], b02 = mat2[2], b03 = mat2[3];
-      var b10 = mat2[4], b11 = mat2[5], b12 = mat2[6], b13 = mat2[7];
-      var b20 = mat2[8], b21 = mat2[9], b22 = mat2[10], b23 = mat2[11];
-      var b30 = mat2[12], b31 = mat2[13], b32 = mat2[14], b33 = mat2[15];
+      const b00 = mat2[0], b01 = mat2[1], b02 = mat2[2], b03 = mat2[3];
+      const b10 = mat2[4], b11 = mat2[5], b12 = mat2[6], b13 = mat2[7];
+      const b20 = mat2[8], b21 = mat2[9], b22 = mat2[10], b23 = mat2[11];
+      const b30 = mat2[12], b31 = mat2[13], b32 = mat2[14], b33 = mat2[15];
 
       dest[0] = b00 * a00 + b01 * a10 + b02 * a20 + b03 * a30;
       dest[1] = b00 * a01 + b01 * a11 + b02 * a21 + b03 * a31;
@@ -866,24 +865,24 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.multiplyVec3
- * Transforms a vec3 with the given matrix
- * 4th vector component is implicitly '1'
- *
- * Params:
- * mat - mat4 to transform the vector with
- * vec - vec3 to transform
- * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
- *
- * Returns:
- * dest if specified, vec otherwise
- */
+     * mat4.multiplyVec3
+     * Transforms a vec3 with the given matrix
+     * 4th vector component is implicitly '1'
+     *
+     * Params:
+     * mat - mat4 to transform the vector with
+     * vec - vec3 to transform
+     * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
+     *
+     * Returns:
+     * dest if specified, vec otherwise
+     */
     mat4.multiplyVec3 = function(mat, vec, dest) {
       if (!dest) {
         dest = vec;
       }
 
-      var x = vec[0], y = vec[1], z = vec[2];
+      const x = vec[0], y = vec[1], z = vec[2];
 
       dest[0] = mat[0] * x + mat[4] * y + mat[8] * z + mat[12];
       dest[1] = mat[1] * x + mat[5] * y + mat[9] * z + mat[13];
@@ -893,23 +892,23 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.multiplyVec4
- * Transforms a vec4 with the given matrix
- *
- * Params:
- * mat - mat4 to transform the vector with
- * vec - vec4 to transform
- * dest - Optional, vec4 receiving operation result. If not specified result is written to vec
- *
- * Returns:
- * dest if specified, vec otherwise
- */
+     * mat4.multiplyVec4
+     * Transforms a vec4 with the given matrix
+     *
+     * Params:
+     * mat - mat4 to transform the vector with
+     * vec - vec4 to transform
+     * dest - Optional, vec4 receiving operation result. If not specified result is written to vec
+     *
+     * Returns:
+     * dest if specified, vec otherwise
+     */
     mat4.multiplyVec4 = function(mat, vec, dest) {
       if (!dest) {
         dest = vec;
       }
 
-      var x = vec[0], y = vec[1], z = vec[2], w = vec[3];
+      const x = vec[0], y = vec[1], z = vec[2], w = vec[3];
 
       dest[0] = mat[0] * x + mat[4] * y + mat[8] * z + mat[12] * w;
       dest[1] = mat[1] * x + mat[5] * y + mat[9] * z + mat[13] * w;
@@ -920,21 +919,21 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.translate
- * Translates a matrix by the given vector
- *
- * Params:
- * mat - mat4 to translate
- * vec - vec3 specifying the translation
- * dest - Optional, mat4 receiving operation result. If not specified result is written to mat
- *
- * Returns:
- * dest if specified, mat otherwise
- */
+     * mat4.translate
+     * Translates a matrix by the given vector
+     *
+     * Params:
+     * mat - mat4 to translate
+     * vec - vec3 specifying the translation
+     * dest - Optional, mat4 receiving operation result. If not specified result is written to mat
+     *
+     * Returns:
+     * dest if specified, mat otherwise
+     */
     mat4.translate = function(mat, vec, dest) {
-      var x = vec[0], y = vec[1], z = vec[2];
+      const x = vec[0], y = vec[1], z = vec[2];
 
-      if (!dest || mat == dest) {
+      if (!dest || mat === dest) {
         mat[12] = mat[0] * x + mat[4] * y + mat[8] * z + mat[12];
         mat[13] = mat[1] * x + mat[5] * y + mat[9] * z + mat[13];
         mat[14] = mat[2] * x + mat[6] * y + mat[10] * z + mat[14];
@@ -942,9 +941,9 @@ WT_DECLARE_WT_MEMBER(
         return mat;
       }
 
-      var a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3];
-      var a10 = mat[4], a11 = mat[5], a12 = mat[6], a13 = mat[7];
-      var a20 = mat[8], a21 = mat[9], a22 = mat[10], a23 = mat[11];
+      const a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3];
+      const a10 = mat[4], a11 = mat[5], a12 = mat[6], a13 = mat[7];
+      const a20 = mat[8], a21 = mat[9], a22 = mat[10], a23 = mat[11];
 
       dest[0] = a00;
       dest[1] = a01;
@@ -967,21 +966,21 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.scale
- * Scales a matrix by the given vector
- *
- * Params:
- * mat - mat4 to scale
- * vec - vec3 specifying the scale for each axis
- * dest - Optional, mat4 receiving operation result. If not specified result is written to mat
- *
- * Returns:
- * dest if specified, mat otherwise
- */
+     * mat4.scale
+     * Scales a matrix by the given vector
+     *
+     * Params:
+     * mat - mat4 to scale
+     * vec - vec3 specifying the scale for each axis
+     * dest - Optional, mat4 receiving operation result. If not specified result is written to mat
+     *
+     * Returns:
+     * dest if specified, mat otherwise
+     */
     mat4.scale = function(mat, vec, dest) {
-      var x = vec[0], y = vec[1], z = vec[2];
+      const x = vec[0], y = vec[1], z = vec[2];
 
-      if (!dest || mat == dest) {
+      if (!dest || mat === dest) {
         mat[0] *= x;
         mat[1] *= x;
         mat[2] *= x;
@@ -1017,49 +1016,50 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.rotate
- * Rotates a matrix by the given angle around the specified axis
- * If rotating around a primary axis (X,Y,Z) one of the specialized rotation functions should be used instead for performance
- *
- * Params:
- * mat - mat4 to rotate
- * angle - angle (in radians) to rotate
- * axis - vec3 representing the axis to rotate around
- * dest - Optional, mat4 receiving operation result. If not specified result is written to mat
- *
- * Returns:
- * dest if specified, mat otherwise
- */
+     * mat4.rotate
+     * Rotates a matrix by the given angle around the specified axis
+     * If rotating around a primary axis (X,Y,Z) one of the specialized rotation
+     * functions should be used instead for performance
+     *
+     * Params:
+     * mat - mat4 to rotate
+     * angle - angle (in radians) to rotate
+     * axis - vec3 representing the axis to rotate around
+     * dest - Optional, mat4 receiving operation result. If not specified result is written to mat
+     *
+     * Returns:
+     * dest if specified, mat otherwise
+     */
     mat4.rotate = function(mat, angle, axis, dest) {
-      var x = axis[0], y = axis[1], z = axis[2];
-      var len = Math.sqrt(x * x + y * y + z * z);
+      let x = axis[0], y = axis[1], z = axis[2];
+      const len = Math.sqrt(x * x + y * y + z * z);
       if (!len) {
         return null;
       }
-      if (len != 1) {
-        len = 1 / len;
-        x *= len;
-        y *= len;
-        z *= len;
+      if (len !== 1) {
+        const invLen = 1 / len;
+        x *= invLen;
+        y *= invLen;
+        z *= invLen;
       }
 
-      var s = Math.sin(angle);
-      var c = Math.cos(angle);
-      var t = 1 - c;
+      const s = Math.sin(angle);
+      const c = Math.cos(angle);
+      const t = 1 - c;
 
       // Cache the matrix values (makes for huge speed increases!)
-      var a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3];
-      var a10 = mat[4], a11 = mat[5], a12 = mat[6], a13 = mat[7];
-      var a20 = mat[8], a21 = mat[9], a22 = mat[10], a23 = mat[11];
+      const a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3];
+      const a10 = mat[4], a11 = mat[5], a12 = mat[6], a13 = mat[7];
+      const a20 = mat[8], a21 = mat[9], a22 = mat[10], a23 = mat[11];
 
       // Construct the elements of the rotation matrix
-      var b00 = x * x * t + c, b01 = y * x * t + z * s, b02 = z * x * t - y * s;
-      var b10 = x * y * t - z * s, b11 = y * y * t + c, b12 = z * y * t + x * s;
-      var b20 = x * z * t + y * s, b21 = y * z * t - x * s, b22 = z * z * t + c;
+      const b00 = x * x * t + c, b01 = y * x * t + z * s, b02 = z * x * t - y * s;
+      const b10 = x * y * t - z * s, b11 = y * y * t + c, b12 = z * y * t + x * s;
+      const b20 = x * z * t + y * s, b21 = y * z * t - x * s, b22 = z * z * t + c;
 
       if (!dest) {
         dest = mat;
-      } else if (mat != dest) { // If the source and destination differ, copy the unchanged last row
+      } else if (mat !== dest) { // If the source and destination differ, copy the unchanged last row
         dest[12] = mat[12];
         dest[13] = mat[13];
         dest[14] = mat[14];
@@ -1085,28 +1085,28 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.rotateX
- * Rotates a matrix by the given angle around the X axis
- *
- * Params:
- * mat - mat4 to rotate
- * angle - angle (in radians) to rotate
- * dest - Optional, mat4 receiving operation result. If not specified result is written to mat
- *
- * Returns:
- * dest if specified, mat otherwise
- */
+     * mat4.rotateX
+     * Rotates a matrix by the given angle around the X axis
+     *
+     * Params:
+     * mat - mat4 to rotate
+     * angle - angle (in radians) to rotate
+     * dest - Optional, mat4 receiving operation result. If not specified result is written to mat
+     *
+     * Returns:
+     * dest if specified, mat otherwise
+     */
     mat4.rotateX = function(mat, angle, dest) {
-      var s = Math.sin(angle);
-      var c = Math.cos(angle);
+      const s = Math.sin(angle);
+      const c = Math.cos(angle);
 
       // Cache the matrix values (makes for huge speed increases!)
-      var a10 = mat[4], a11 = mat[5], a12 = mat[6], a13 = mat[7];
-      var a20 = mat[8], a21 = mat[9], a22 = mat[10], a23 = mat[11];
+      const a10 = mat[4], a11 = mat[5], a12 = mat[6], a13 = mat[7];
+      const a20 = mat[8], a21 = mat[9], a22 = mat[10], a23 = mat[11];
 
       if (!dest) {
         dest = mat;
-      } else if (mat != dest) { // If the source and destination differ, copy the unchanged rows
+      } else if (mat !== dest) { // If the source and destination differ, copy the unchanged rows
         dest[0] = mat[0];
         dest[1] = mat[1];
         dest[2] = mat[2];
@@ -1132,28 +1132,28 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.rotateY
- * Rotates a matrix by the given angle around the Y axis
- *
- * Params:
- * mat - mat4 to rotate
- * angle - angle (in radians) to rotate
- * dest - Optional, mat4 receiving operation result. If not specified result is written to mat
- *
- * Returns:
- * dest if specified, mat otherwise
- */
+     * mat4.rotateY
+     * Rotates a matrix by the given angle around the Y axis
+     *
+     * Params:
+     * mat - mat4 to rotate
+     * angle - angle (in radians) to rotate
+     * dest - Optional, mat4 receiving operation result. If not specified result is written to mat
+     *
+     * Returns:
+     * dest if specified, mat otherwise
+     */
     mat4.rotateY = function(mat, angle, dest) {
-      var s = Math.sin(angle);
-      var c = Math.cos(angle);
+      const s = Math.sin(angle);
+      const c = Math.cos(angle);
 
       // Cache the matrix values (makes for huge speed increases!)
-      var a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3];
-      var a20 = mat[8], a21 = mat[9], a22 = mat[10], a23 = mat[11];
+      const a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3];
+      const a20 = mat[8], a21 = mat[9], a22 = mat[10], a23 = mat[11];
 
       if (!dest) {
         dest = mat;
-      } else if (mat != dest) { // If the source and destination differ, copy the unchanged rows
+      } else if (mat !== dest) { // If the source and destination differ, copy the unchanged rows
         dest[4] = mat[4];
         dest[5] = mat[5];
         dest[6] = mat[6];
@@ -1179,28 +1179,28 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.rotateZ
- * Rotates a matrix by the given angle around the Z axis
- *
- * Params:
- * mat - mat4 to rotate
- * angle - angle (in radians) to rotate
- * dest - Optional, mat4 receiving operation result. If not specified result is written to mat
- *
- * Returns:
- * dest if specified, mat otherwise
- */
+     * mat4.rotateZ
+     * Rotates a matrix by the given angle around the Z axis
+     *
+     * Params:
+     * mat - mat4 to rotate
+     * angle - angle (in radians) to rotate
+     * dest - Optional, mat4 receiving operation result. If not specified result is written to mat
+     *
+     * Returns:
+     * dest if specified, mat otherwise
+     */
     mat4.rotateZ = function(mat, angle, dest) {
-      var s = Math.sin(angle);
-      var c = Math.cos(angle);
+      const s = Math.sin(angle);
+      const c = Math.cos(angle);
 
       // Cache the matrix values (makes for huge speed increases!)
-      var a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3];
-      var a10 = mat[4], a11 = mat[5], a12 = mat[6], a13 = mat[7];
+      const a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3];
+      const a10 = mat[4], a11 = mat[5], a12 = mat[6], a13 = mat[7];
 
       if (!dest) {
         dest = mat;
-      } else if (mat != dest) { // If the source and destination differ, copy the unchanged last row
+      } else if (mat !== dest) { // If the source and destination differ, copy the unchanged last row
         dest[8] = mat[8];
         dest[9] = mat[9];
         dest[10] = mat[10];
@@ -1227,25 +1227,25 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.frustum
- * Generates a frustum matrix with the given bounds
- *
- * Params:
- * left, right - scalar, left and right bounds of the frustum
- * bottom, top - scalar, bottom and top bounds of the frustum
- * near, far - scalar, near and far bounds of the frustum
- * dest - Optional, mat4 frustum matrix will be written into
- *
- * Returns:
- * dest if specified, a new mat4 otherwise
- */
+     * mat4.frustum
+     * Generates a frustum matrix with the given bounds
+     *
+     * Params:
+     * left, right - scalar, left and right bounds of the frustum
+     * bottom, top - scalar, bottom and top bounds of the frustum
+     * near, far - scalar, near and far bounds of the frustum
+     * dest - Optional, mat4 frustum matrix will be written into
+     *
+     * Returns:
+     * dest if specified, a new mat4 otherwise
+     */
     mat4.frustum = function(left, right, bottom, top, near, far, dest) {
       if (!dest) {
         dest = mat4.create();
       }
-      var rl = (right - left);
-      var tb = (top - bottom);
-      var fn = (far - near);
+      const rl = (right - left);
+      const tb = (top - bottom);
+      const fn = (far - near);
       dest[0] = (near * 2) / rl;
       dest[1] = 0;
       dest[2] = 0;
@@ -1266,44 +1266,44 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.perspective
- * Generates a perspective projection matrix with the given bounds
- *
- * Params:
- * fovy - scalar, vertical field of view
- * aspect - scalar, aspect ratio. typically viewport width/height
- * near, far - scalar, near and far bounds of the frustum
- * dest - Optional, mat4 frustum matrix will be written into
- *
- * Returns:
- * dest if specified, a new mat4 otherwise
- */
+     * mat4.perspective
+     * Generates a perspective projection matrix with the given bounds
+     *
+     * Params:
+     * fovy - scalar, vertical field of view
+     * aspect - scalar, aspect ratio. typically viewport width/height
+     * near, far - scalar, near and far bounds of the frustum
+     * dest - Optional, mat4 frustum matrix will be written into
+     *
+     * Returns:
+     * dest if specified, a new mat4 otherwise
+     */
     mat4.perspective = function(fovy, aspect, near, far, dest) {
-      var top = near * Math.tan(fovy * Math.PI / 360.0);
-      var right = top * aspect;
+      const top = near * Math.tan(fovy * Math.PI / 360.0);
+      const right = top * aspect;
       return mat4.frustum(-right, right, -top, top, near, far, dest);
     };
 
     /*
- * mat4.ortho
- * Generates a orthogonal projection matrix with the given bounds
- *
- * Params:
- * left, right - scalar, left and right bounds of the frustum
- * bottom, top - scalar, bottom and top bounds of the frustum
- * near, far - scalar, near and far bounds of the frustum
- * dest - Optional, mat4 frustum matrix will be written into
- *
- * Returns:
- * dest if specified, a new mat4 otherwise
- */
+     * mat4.ortho
+     * Generates a orthogonal projection matrix with the given bounds
+     *
+     * Params:
+     * left, right - scalar, left and right bounds of the frustum
+     * bottom, top - scalar, bottom and top bounds of the frustum
+     * near, far - scalar, near and far bounds of the frustum
+     * dest - Optional, mat4 frustum matrix will be written into
+     *
+     * Returns:
+     * dest if specified, a new mat4 otherwise
+     */
     mat4.ortho = function(left, right, bottom, top, near, far, dest) {
       if (!dest) {
         dest = mat4.create();
       }
-      var rl = (right - left);
-      var tb = (top - bottom);
-      var fn = (far - near);
+      const rl = (right - left);
+      const tb = (top - bottom);
+      const fn = (far - near);
       dest[0] = 2 / rl;
       dest[1] = 0;
       dest[2] = 0;
@@ -1341,7 +1341,7 @@ WT_DECLARE_WT_MEMBER(
         dest = mat4.create();
       }
 
-      var eyex = eye[0],
+      const eyex = eye[0],
         eyey = eye[1],
         eyez = eye[2],
         upx = up[0],
@@ -1351,11 +1351,11 @@ WT_DECLARE_WT_MEMBER(
         centery = center[1],
         centerz = center[2];
 
-      if (eyex == centerx && eyey == centery && eyez == centerz) {
+      if (eyex === centerx && eyey === centery && eyez === centerz) {
         return mat4.identity(dest);
       }
 
-      var z0, z1, z2, x0, x1, x2, y0, y1, y2, len;
+      let z0, z1, z2, x0, x1, x2, y0, y1, y2, len;
 
       // vec3.direction(eye, center, z);
       z0 = eyex - center[0];
@@ -1422,15 +1422,15 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * mat4.str
- * Returns a string representation of a mat4
- *
- * Params:
- * mat - mat4 to represent as a string
- *
- * Returns:
- * string representation of mat
- */
+     * mat4.str
+     * Returns a string representation of a mat4
+     *
+     * Params:
+     * mat - mat4 to represent as a string
+     *
+     * Returns:
+     * string representation of mat
+     */
     mat4.str = function(mat) {
       return "[" + mat[0] + ", " + mat[1] + ", " + mat[2] + ", " + mat[3] +
         ", " + mat[4] + ", " + mat[5] + ", " + mat[6] + ", " + mat[7] +
@@ -1439,23 +1439,23 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * quat4 - Quaternions
- */
-    var quat4 = {};
+     * quat4 - Quaternions
+     */
+    const quat4 = {};
 
     /*
- * quat4.create
- * Creates a new instance of a quat4 using the default array type
- * Any javascript array containing at least 4 numeric elements can serve as a quat4
- *
- * Params:
- * quat - Optional, quat4 containing values to initialize with
- *
- * Returns:
- * New quat4
- */
+     * quat4.create
+     * Creates a new instance of a quat4 using the default array type
+     * Any javascript array containing at least 4 numeric elements can serve as a quat4
+     *
+     * Params:
+     * quat - Optional, quat4 containing values to initialize with
+     *
+     * Returns:
+     * New quat4
+     */
     quat4.create = function(quat) {
-      var dest = new glMatrixArrayType(4);
+      const dest = new glMatrixArrayType(4);
 
       if (quat) {
         dest[0] = quat[0];
@@ -1468,16 +1468,16 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * quat4.set
- * Copies the values of one quat4 to another
- *
- * Params:
- * quat - quat4 containing values to copy
- * dest - quat4 receiving copied values
- *
- * Returns:
- * dest
- */
+     * quat4.set
+     * Copies the values of one quat4 to another
+     *
+     * Params:
+     * quat - quat4 containing values to copy
+     * dest - quat4 receiving copied values
+     *
+     * Returns:
+     * dest
+     */
     quat4.set = function(quat, dest) {
       dest[0] = quat[0];
       dest[1] = quat[1];
@@ -1488,22 +1488,22 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * quat4.calculateW
- * Calculates the W component of a quat4 from the X, Y, and Z components.
- * Assumes that quaternion is 1 unit in length.
- * Any existing W component will be ignored.
- *
- * Params:
- * quat - quat4 to calculate W component of
- * dest - Optional, quat4 receiving calculated values. If not specified result is written to quat
- *
- * Returns:
- * dest if specified, quat otherwise
- */
+     * quat4.calculateW
+     * Calculates the W component of a quat4 from the X, Y, and Z components.
+     * Assumes that quaternion is 1 unit in length.
+     * Any existing W component will be ignored.
+     *
+     * Params:
+     * quat - quat4 to calculate W component of
+     * dest - Optional, quat4 receiving calculated values. If not specified result is written to quat
+     *
+     * Returns:
+     * dest if specified, quat otherwise
+     */
     quat4.calculateW = function(quat, dest) {
-      var x = quat[0], y = quat[1], z = quat[2];
+      const x = quat[0], y = quat[1], z = quat[2];
 
-      if (!dest || quat == dest) {
+      if (!dest || quat === dest) {
         quat[3] = -Math.sqrt(Math.abs(1.0 - x * x - y * y - z * z));
         return quat;
       }
@@ -1515,18 +1515,18 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * quat4.inverse
- * Calculates the inverse of a quat4
- *
- * Params:
- * quat - quat4 to calculate inverse of
- * dest - Optional, quat4 receiving inverse values. If not specified result is written to quat
- *
- * Returns:
- * dest if specified, quat otherwise
- */
+     * quat4.inverse
+     * Calculates the inverse of a quat4
+     *
+     * Params:
+     * quat - quat4 to calculate inverse of
+     * dest - Optional, quat4 receiving inverse values. If not specified result is written to quat
+     *
+     * Returns:
+     * dest if specified, quat otherwise
+     */
     quat4.inverse = function(quat, dest) {
-      if (!dest || quat == dest) {
+      if (!dest || quat === dest) {
         quat[0] *= 1;
         quat[1] *= 1;
         quat[2] *= 1;
@@ -1540,74 +1540,74 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * quat4.length
- * Calculates the length of a quat4
- *
- * Params:
- * quat - quat4 to calculate length of
- *
- * Returns:
- * Length of quat
- */
+     * quat4.length
+     * Calculates the length of a quat4
+     *
+     * Params:
+     * quat - quat4 to calculate length of
+     *
+     * Returns:
+     * Length of quat
+     */
     quat4.length = function(quat) {
-      var x = quat[0], y = quat[1], z = quat[2], w = quat[3];
+      const x = quat[0], y = quat[1], z = quat[2], w = quat[3];
       return Math.sqrt(x * x + y * y + z * z + w * w);
     };
 
     /*
- * quat4.normalize
- * Generates a unit quaternion of the same direction as the provided quat4
- * If quaternion length is 0, returns [0, 0, 0, 0]
- *
- * Params:
- * quat - quat4 to normalize
- * dest - Optional, quat4 receiving operation result. If not specified result is written to quat
- *
- * Returns:
- * dest if specified, quat otherwise
- */
+     * quat4.normalize
+     * Generates a unit quaternion of the same direction as the provided quat4
+     * If quaternion length is 0, returns [0, 0, 0, 0]
+     *
+     * Params:
+     * quat - quat4 to normalize
+     * dest - Optional, quat4 receiving operation result. If not specified result is written to quat
+     *
+     * Returns:
+     * dest if specified, quat otherwise
+     */
     quat4.normalize = function(quat, dest) {
       if (!dest) {
         dest = quat;
       }
 
-      var x = quat[0], y = quat[1], z = quat[2], w = quat[3];
-      var len = Math.sqrt(x * x + y * y + z * z + w * w);
-      if (len == 0) {
+      const x = quat[0], y = quat[1], z = quat[2], w = quat[3];
+      const len = Math.sqrt(x * x + y * y + z * z + w * w);
+      if (len === 0) {
         dest[0] = 0;
         dest[1] = 0;
         dest[2] = 0;
         dest[3] = 0;
         return dest;
       }
-      len = 1 / len;
-      dest[0] = x * len;
-      dest[1] = y * len;
-      dest[2] = z * len;
-      dest[3] = w * len;
+      const invLen = 1 / len;
+      dest[0] = x * invLen;
+      dest[1] = y * invLen;
+      dest[2] = z * invLen;
+      dest[3] = w * invLen;
 
       return dest;
     };
 
     /*
- * quat4.multiply
- * Performs a quaternion multiplication
- *
- * Params:
- * quat - quat4, first operand
- * quat2 - quat4, second operand
- * dest - Optional, quat4 receiving operation result. If not specified result is written to quat
- *
- * Returns:
- * dest if specified, quat otherwise
- */
+     * quat4.multiply
+     * Performs a quaternion multiplication
+     *
+     * Params:
+     * quat - quat4, first operand
+     * quat2 - quat4, second operand
+     * dest - Optional, quat4 receiving operation result. If not specified result is written to quat
+     *
+     * Returns:
+     * dest if specified, quat otherwise
+     */
     quat4.multiply = function(quat, quat2, dest) {
       if (!dest) {
         dest = quat;
       }
 
-      var qax = quat[0], qay = quat[1], qaz = quat[2], qaw = quat[3];
-      var qbx = quat2[0], qby = quat2[1], qbz = quat2[2], qbw = quat2[3];
+      const qax = quat[0], qay = quat[1], qaz = quat[2], qaw = quat[3];
+      const qbx = quat2[0], qby = quat2[1], qbz = quat2[2], qbw = quat2[3];
 
       dest[0] = qax * qbw + qaw * qbx + qay * qbz - qaz * qby;
       dest[1] = qay * qbw + qaw * qby + qaz * qbx - qax * qbz;
@@ -1618,30 +1618,30 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * quat4.multiplyVec3
- * Transforms a vec3 with the given quaternion
- *
- * Params:
- * quat - quat4 to transform the vector with
- * vec - vec3 to transform
- * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
- *
- * Returns:
- * dest if specified, vec otherwise
- */
+     * quat4.multiplyVec3
+     * Transforms a vec3 with the given quaternion
+     *
+     * Params:
+     * quat - quat4 to transform the vector with
+     * vec - vec3 to transform
+     * dest - Optional, vec3 receiving operation result. If not specified result is written to vec
+     *
+     * Returns:
+     * dest if specified, vec otherwise
+     */
     quat4.multiplyVec3 = function(quat, vec, dest) {
       if (!dest) {
         dest = vec;
       }
 
-      var x = vec[0], y = vec[1], z = vec[2];
-      var qx = quat[0], qy = quat[1], qz = quat[2], qw = quat[3];
+      const x = vec[0], y = vec[1], z = vec[2];
+      const qx = quat[0], qy = quat[1], qz = quat[2], qw = quat[3];
 
       // calculate quat * vec
-      var ix = qw * x + qy * z - qz * y;
-      var iy = qw * y + qz * x - qx * z;
-      var iz = qw * z + qx * y - qy * x;
-      var iw = -qx * x - qy * y - qz * z;
+      const ix = qw * x + qy * z - qz * y;
+      const iy = qw * y + qz * x - qx * z;
+      const iz = qw * z + qx * y - qy * x;
+      const iw = -qx * x - qy * y - qz * z;
 
       // calculate result * inverse quat
       dest[0] = ix * qw + iw * -qx + iy * -qz - iz * -qy;
@@ -1652,38 +1652,38 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * quat4.toMat3
- * Calculates a 3x3 matrix from the given quat4
- *
- * Params:
- * quat - quat4 to create matrix from
- * dest - Optional, mat3 receiving operation result
- *
- * Returns:
- * dest if specified, a new mat3 otherwise
- */
+     * quat4.toMat3
+     * Calculates a 3x3 matrix from the given quat4
+     *
+     * Params:
+     * quat - quat4 to create matrix from
+     * dest - Optional, mat3 receiving operation result
+     *
+     * Returns:
+     * dest if specified, a new mat3 otherwise
+     */
     quat4.toMat3 = function(quat, dest) {
       if (!dest) {
         dest = mat3.create();
       }
 
-      var x = quat[0], y = quat[1], z = quat[2], w = quat[3];
+      const x = quat[0], y = quat[1], z = quat[2], w = quat[3];
 
-      var x2 = x + x;
-      var y2 = y + y;
-      var z2 = z + z;
+      const x2 = x + x;
+      const y2 = y + y;
+      const z2 = z + z;
 
-      var xx = x * x2;
-      var xy = x * y2;
-      var xz = x * z2;
+      const xx = x * x2;
+      const xy = x * y2;
+      const xz = x * z2;
 
-      var yy = y * y2;
-      var yz = y * z2;
-      var zz = z * z2;
+      const yy = y * y2;
+      const yz = y * z2;
+      const zz = z * z2;
 
-      var wx = w * x2;
-      var wy = w * y2;
-      var wz = w * z2;
+      const wx = w * x2;
+      const wy = w * y2;
+      const wz = w * z2;
 
       dest[0] = 1 - (yy + zz);
       dest[1] = xy - wz;
@@ -1701,38 +1701,38 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * quat4.toMat4
- * Calculates a 4x4 matrix from the given quat4
- *
- * Params:
- * quat - quat4 to create matrix from
- * dest - Optional, mat4 receiving operation result
- *
- * Returns:
- * dest if specified, a new mat4 otherwise
- */
+     * quat4.toMat4
+     * Calculates a 4x4 matrix from the given quat4
+     *
+     * Params:
+     * quat - quat4 to create matrix from
+     * dest - Optional, mat4 receiving operation result
+     *
+     * Returns:
+     * dest if specified, a new mat4 otherwise
+     */
     quat4.toMat4 = function(quat, dest) {
       if (!dest) {
         dest = mat4.create();
       }
 
-      var x = quat[0], y = quat[1], z = quat[2], w = quat[3];
+      const x = quat[0], y = quat[1], z = quat[2], w = quat[3];
 
-      var x2 = x + x;
-      var y2 = y + y;
-      var z2 = z + z;
+      const x2 = x + x;
+      const y2 = y + y;
+      const z2 = z + z;
 
-      var xx = x * x2;
-      var xy = x * y2;
-      var xz = x * z2;
+      const xx = x * x2;
+      const xy = x * y2;
+      const xz = x * z2;
 
-      var yy = y * y2;
-      var yz = y * z2;
-      var zz = z * z2;
+      const yy = y * y2;
+      const yz = y * z2;
+      const zz = z * z2;
 
-      var wx = w * x2;
-      var wy = w * y2;
-      var wz = w * z2;
+      const wx = w * x2;
+      const wy = w * y2;
+      const wz = w * z2;
 
       dest[0] = 1 - (yy + zz);
       dest[1] = xy - wz;
@@ -1758,15 +1758,15 @@ WT_DECLARE_WT_MEMBER(
     };
 
     /*
- * quat4.str
- * Returns a string representation of a quaternion
- *
- * Params:
- * quat - quat4 to represent as a string
- *
- * Returns:
- * string representation of quat
- */
+     * quat4.str
+     * Returns a string representation of a quaternion
+     *
+     * Params:
+     * quat - quat4 to represent as a string
+     *
+     * Returns:
+     * string representation of quat
+     */
     quat4.str = function(quat) {
       return "[" + quat[0] + ", " + quat[1] + ", " + quat[2] + ", " + quat[3] + "]";
     };
