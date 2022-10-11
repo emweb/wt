@@ -1,3 +1,5 @@
+/* global tinymce: readonly, tinyMCE: readonly */
+
 /*
  * Copyright (C) 2011 Emweb bv, Herent, Belgium.
  *
@@ -9,12 +11,12 @@
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
   el.wtObj = this;
 
-  var lastW, lastH;
-  var badHeightCount = 0;
+  let lastW, lastH;
+  let badHeightCount = 0;
 
-  var self = this,
-    WT = APP.WT,
-    css;
+  const self = this,
+    WT = APP.WT;
+  let css;
 
   if (!tinymce.dom.Event.domLoaded) {
     tinymce.dom.Event.domLoaded = true;
@@ -43,21 +45,19 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
   };
 
   this.init = function() {
-    var iframe = WT.getElement(el.id + "_ifr");
+    const iframe = WT.getElement(el.id + "_ifr");
 
-    var topLevel, other;
+    let topLevel, other;
 
     if (tinymce.EditorManager.majorVersion < 4) {
-      var row = iframe.parentNode.parentNode,
+      const row = iframe.parentNode.parentNode,
         tbl = row.parentNode.parentNode;
 
       other = tbl;
       topLevel = tbl.parentNode;
     } else {
-      var item = iframe.parentNode,
-        container = item.parentNode,
-        i,
-        il;
+      const item = iframe.parentNode,
+        container = item.parentNode;
 
       topLevel = container.parentNode;
     }
@@ -77,27 +77,22 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
       self.wtResize(el, lastW, lastH, true);
     }
 
-    let doc = iframe.contentDocument;
+    const doc = iframe.contentDocument;
 
     doc.body.addEventListener("paste", function(event) {
-      var clipboardData = event.clipboardData || event.originalEvent.clipboardData,
-        i,
-        il;
+      const clipboardData = event.clipboardData || event.originalEvent.clipboardData;
 
       function isImage(t) {
-        return t.indexOf("image/") == 0;
+        return t.indexOf("image/") === 0;
       }
 
       if (clipboardData && clipboardData.types) {
-        for (i = 0, il = clipboardData.types.length; i < il; ++i) {
-          var t = clipboardData.types[i];
-          if (
-            isImage(clipboardData.types[i]) ||
-            isImage(clipboardData.items[i].type)
-          ) {
-            var file = clipboardData.items[i].getAsFile();
-            var reader = new FileReader();
-            reader.onload = function(evt) {
+        for (let i = 0, il = clipboardData.types.length; i < il; ++i) {
+          const t = clipboardData.types[i];
+          if (isImage(t) || isImage(t.type)) {
+            const file = clipboardData.items[i].getAsFile();
+            const reader = new FileReader();
+            reader.onload = function(_evt) {
               el.ed.insertContent('<img src="' + this.result + '"></img>');
             };
             reader.readAsDataURL(file);
@@ -109,24 +104,24 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
     });
   };
 
-  this.wtResize = function(e, w, h, setSize) {
+  this.wtResize = function(e, w, h, _setSize) {
     if (h < 0) {
       return;
     }
 
-    var iframe = WT.getElement(e.id + "_ifr");
+    const iframe = WT.getElement(e.id + "_ifr");
 
     if (iframe) {
-      var mx = 0, my = 0;
+      let my = 0;
 
-      mx = WT.px(e, "marginLeft") + WT.px(e, "marginRight");
+      // mx = WT.px(e, "marginLeft") + WT.px(e, "marginRight");
       my = WT.px(e, "marginTop") + WT.px(e, "marginBottom");
 
       if (!WT.boxSizing(e)) {
-        mx += WT.px(e, "borderLeftWidth") +
-          WT.px(e, "borderRightWidth") +
-          WT.px(e, "paddingLeft") +
-          WT.px(e, "paddingRight");
+        // mx += WT.px(e, "borderLeftWidth") +
+        //   WT.px(e, "borderRightWidth") +
+        //   WT.px(e, "paddingLeft") +
+        //   WT.px(e, "paddingRight");
         my += WT.px(e, "borderTopWidth") +
           WT.px(e, "borderBottomWidth") +
           WT.px(e, "paddingTop") +
@@ -135,15 +130,13 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
 
       e.style.height = (h - my) + "px";
 
-      var topLevel, other;
+      let topLevel, other;
 
-      var staticStyle = el.style.position !== "absolute";
+      const staticStyle = el.style.position !== "absolute";
 
       if (tinymce.EditorManager.majorVersion < 4) {
-        var row = iframe.parentNode.parentNode,
-          tbl = row.parentNode.parentNode,
-          i,
-          il;
+        const row = iframe.parentNode.parentNode,
+          tbl = row.parentNode.parentNode;
 
         other = tbl;
         topLevel = tbl.parentNode;
@@ -153,16 +146,14 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
         }
 
         // deduct height of all the rest
-        for (i = 0, il = tbl.rows.length; i < il; i++) {
-          if (tbl.rows[i] != row) {
+        for (let i = 0, il = tbl.rows.length; i < il; i++) {
+          if (tbl.rows[i] !== row) {
             h -= tbl.rows[i].offsetHeight;
           }
         }
       } else {
-        var item = iframe.parentNode,
-          container = item.parentNode,
-          i,
-          il;
+        const item = iframe.parentNode,
+          container = item.parentNode;
 
         topLevel = container.parentNode;
 
@@ -171,8 +162,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
         }
 
         // deduct height of all the rest
-        for (i = 0, il = container.childNodes.length; i < il; i++) {
-          if (container.childNodes[i] != item) {
+        for (let i = 0, il = container.childNodes.length; i < il; i++) {
+          if (container.childNodes[i] !== item) {
             h -= container.childNodes[i].offsetHeight + 1;
           }
         }
@@ -182,7 +173,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
 
       if (h < 0) {
         if (badHeightCount < 10) {
-          var timeoutDelay = Math.pow(2, badHeightCount) * 100;
+          const timeoutDelay = Math.pow(2, badHeightCount) * 100;
           setTimeout(function() {
             self.wtResize(el, lastW, lastH, true);
           }, timeoutDelay);
@@ -211,7 +202,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
         topLevel.style.display = "block";
       }
 
-      if (iframe.style.height != h) {
+      if (iframe.style.height !== h) {
         badHeightCount = 0;
         iframe.style.height = h;
         if (APP.layouts2) {
