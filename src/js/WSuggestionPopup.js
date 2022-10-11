@@ -23,21 +23,21 @@ WT_DECLARE_WT_MEMBER(
   ) {
     el.wtObj = this;
 
-    var self = this;
-    var WT = APP.WT;
+    const self = this;
+    const WT = APP.WT;
 
-    var key_tab = 9;
-    var key_enter = 13;
-    var key_escape = 27;
+    const key_tab = 9;
+    const key_enter = 13;
+    const key_escape = 27;
 
-    var key_pup = 33;
-    var key_pdown = 34;
-    var key_left = 37;
-    var key_up = 38;
-    var key_right = 39;
-    var key_down = 40;
+    const key_pup = 33;
+    const key_pdown = 34;
+    const key_left = 37;
+    const key_up = 38;
+    const key_right = 39;
+    const key_down = 40;
 
-    var selId = null,
+    let selId = null,
       editId = null,
       kd = false,
       filter = null,
@@ -56,7 +56,7 @@ WT_DECLARE_WT_MEMBER(
     }
 
     function visible() {
-      return el.style.display != "none";
+      return el.style.display !== "none";
     }
 
     function positionPopup(edit) {
@@ -65,8 +65,8 @@ WT_DECLARE_WT_MEMBER(
     }
 
     function contentClicked(event) {
-      var e = event || window.event;
-      var line = WT.target(e);
+      const e = event || window.event;
+      let line = WT.target(e);
       if (WT.hasTag(line, "UL")) {
         return;
       }
@@ -81,7 +81,7 @@ WT_DECLARE_WT_MEMBER(
     }
 
     function suggestionClicked(line) {
-      var suggestion = line.firstChild.firstChild,
+      const suggestion = line.firstChild.firstChild,
         edit = WT.getElement(editId),
         sText = suggestion.innerHTML,
         sValue = suggestion.getAttribute("sug");
@@ -96,7 +96,7 @@ WT_DECLARE_WT_MEMBER(
       editId = null;
     }
 
-    var keyDownFun = null;
+    let keyDownFun = null;
 
     this.showPopup = function(edit) {
       el.style.display = "block";
@@ -105,23 +105,23 @@ WT_DECLARE_WT_MEMBER(
       lastFilterValue = null;
       keyDownFun = edit.onkeydown;
       edit.onkeydown = function(event) {
-        var e = event || window.event, o = this;
+        const e = event || window.event, o = this;
         self.editKeyDown(o, e);
       };
     };
 
     this.bringToFront = function() {
-      var maxz = WT.maxZIndex();
+      const maxz = WT.maxZIndex();
       if (maxz > el.style["zIndex"]) {
-        var newZIndex = maxz + 1;
+        const newZIndex = maxz + 1;
         el.style["zIndex"] = newZIndex;
       }
     };
 
     function hidePopup() {
       el.style.display = "none";
-      if (editId != null && keyDownFun != null) {
-        var edit = WT.getElement(editId);
+      if (editId !== null && keyDownFun !== null) {
+        const edit = WT.getElement(editId);
         edit.onkeydown = keyDownFun;
         keyDownFun = null;
       }
@@ -134,9 +134,9 @@ WT_DECLARE_WT_MEMBER(
         WT.theme.version === 5
       ) {
         try {
-          var style = getComputedStyle(edit);
-          var widthPx = parseInt(style.backgroundSize.match(/^([0-9]+)px ([0-9]+)px$/)[1], 10);
-          var rightOffsetPx = parseInt(style.backgroundPositionX.match(/^calc[(]100% - ([0-9]+)px[)]$/)[1], 10);
+          const style = getComputedStyle(edit);
+          const widthPx = parseInt(style.backgroundSize.match(/^([0-9]+)px ([0-9]+)px$/)[1], 10);
+          const rightOffsetPx = parseInt(style.backgroundPositionX.match(/^calc[(]100% - ([0-9]+)px[)]$/)[1], 10);
           return widthPx + rightOffsetPx;
         } catch (e) {
           return 28;
@@ -151,7 +151,7 @@ WT_DECLARE_WT_MEMBER(
         return;
       }
 
-      var xy = WT.widgetCoordinates(edit, event);
+      const xy = WT.widgetCoordinates(edit, event);
       if (xy.x > edit.offsetWidth - calcButtonWidth(edit)) {
         if (edit.classList) {
           edit.classList.add("Wt-suggest-dropdown-hover");
@@ -177,9 +177,9 @@ WT_DECLARE_WT_MEMBER(
         return;
       }
 
-      var xy = WT.widgetCoordinates(edit, event);
+      const xy = WT.widgetCoordinates(edit, event);
       if (xy.x > edit.offsetWidth - calcButtonWidth(edit)) {
-        if (editId != edit.id || !visible()) {
+        if (editId !== edit.id || !visible()) {
           self.showAt(edit, "");
         } else {
           hidePopup();
@@ -189,9 +189,9 @@ WT_DECLARE_WT_MEMBER(
     };
 
     function first(down) {
-      var sels = el.childNodes;
-      for (n = down ? sels[0] : sels[sels.length - 1]; n; n = down ? n.nextSibling : n.previousSibling) {
-        if (WT.hasTag(n, "LI") && n.style.display != "none") {
+      const sels = el.childNodes;
+      for (let n = down ? sels[0] : sels[sels.length - 1]; n; n = down ? n.nextSibling : n.previousSibling) {
+        if (WT.hasTag(n, "LI") && n.style.display !== "none") {
           return n;
         }
       }
@@ -202,7 +202,7 @@ WT_DECLARE_WT_MEMBER(
     function next(n, down) {
       for (n = down ? n.nextSibling : n.previousSibling; n; n = down ? n.nextSibling : n.previousSibling) {
         if (WT.hasTag(n, "LI")) {
-          if (n.style.display != "none") {
+          if (n.style.display !== "none") {
             return n;
           }
         }
@@ -216,13 +216,13 @@ WT_DECLARE_WT_MEMBER(
         return true;
       }
 
-      if (editId != edit.id) {
+      if (editId !== edit.id) {
         if (edit.classList.contains("Wt-suggest-onedit")) {
           editId = edit.id;
           droppedDown = false;
         } else if (
           edit.classList.contains("Wt-suggest-dropdown") &&
-          event.keyCode == key_down
+          event.keyCode === key_down
         ) {
           editId = edit.id;
           droppedDown = true;
@@ -233,9 +233,9 @@ WT_DECLARE_WT_MEMBER(
       }
 
       if (visible()) {
-        var sel = selId ? WT.getElement(selId) : null;
+        const sel = selId ? WT.getElement(selId) : null;
 
-        if ((event.keyCode == key_enter) || (event.keyCode == key_tab)) {
+        if ((event.keyCode === key_enter) || (event.keyCode === key_tab)) {
           /*
           * Select currently selectd
           */
@@ -250,20 +250,20 @@ WT_DECLARE_WT_MEMBER(
           }
           return false;
         } else if (
-          event.keyCode == key_down ||
-          event.keyCode == key_up ||
-          event.keyCode == key_pdown ||
-          event.keyCode == key_pup
+          event.keyCode === key_down ||
+          event.keyCode === key_up ||
+          event.keyCode === key_pdown ||
+          event.keyCode === key_pup
         ) {
           /*
           * Handle navigation in list
           */
-          if (event.type.toUpperCase() == "KEYDOWN") {
+          if (event.type.toUpperCase() === "KEYDOWN") {
             kd = true;
             WT.cancelEvent(event, WT.CancelDefaultAction);
           }
 
-          if (event.type.toUpperCase() == "KEYPRESS" && kd == true) {
+          if (event.type.toUpperCase() === "KEYPRESS" && kd === true) {
             WT.cancelEvent(event);
             return false;
           }
@@ -271,19 +271,18 @@ WT_DECLARE_WT_MEMBER(
           /*
           * Find next selected node
           */
-          var n = sel,
-            down = event.keyCode == key_down || event.keyCode == key_pdown;
+          let n = sel;
+          const down = event.keyCode === key_down || event.keyCode === key_pdown;
           if (!n) {
             n = first(down);
             scrollToSelected(n);
           } else {
-            var count = (event.keyCode == key_pdown || event.keyCode == key_pup ?
-                el.clientHeight / sel.offsetHeight :
-                1),
-              i;
+            const count = (event.keyCode === key_pdown || event.keyCode === key_pup ?
+              el.clientHeight / sel.offsetHeight :
+              1);
 
-            for (i = 0; n && i < count; ++i) {
-              var l = next(n, down);
+            for (let i = 0; n && i < count; ++i) {
+              const l = next(n, down);
               if (!l && autoSelectEnabled) {
                 break;
               }
@@ -314,7 +313,7 @@ WT_DECLARE_WT_MEMBER(
           return false;
         }
       }
-      return (event.keyCode != key_enter && event.keyCode != key_tab);
+      return (event.keyCode !== key_enter && event.keyCode !== key_tab);
     };
 
     this.filtered = function(f, partial) {
@@ -324,7 +323,7 @@ WT_DECLARE_WT_MEMBER(
     };
 
     function scrollToSelected(sel) {
-      var p = sel.parentNode;
+      const p = sel.parentNode;
 
       if (sel.offsetTop + sel.offsetHeight > p.scrollTop + p.clientHeight) {
         p.scrollTop = sel.offsetTop + sel.offsetHeight - p.clientHeight;
@@ -343,11 +342,11 @@ WT_DECLARE_WT_MEMBER(
         return;
       }
 
-      var sel = selId ? WT.getElement(selId) : null,
-        edit = WT.getElement(editId),
+      let sel = selId ? WT.getElement(selId) : null;
+      const edit = WT.getElement(editId),
         matcher = matcherJS(edit),
         sels = el.childNodes,
-        text = (isDropDownIconUnfiltered && value != null) ? value : matcher(null);
+        text = (isDropDownIconUnfiltered && value !== null) ? value : matcher(null);
 
       lastFilterValue = isDropDownIconUnfiltered ? value : edit.value;
 
@@ -356,12 +355,12 @@ WT_DECLARE_WT_MEMBER(
           hidePopup();
           return;
         } else {
-          var nf = filterPartial ?
+          const nf = filterPartial ?
             text :
             text.substring(0, Math.max(filter !== null ? filter.length : 0, filterMinLength));
 
-          if (nf != filter) {
-            if (nf != filtering) {
+          if (nf !== filter) {
+            if (nf !== filtering) {
               filtering = nf;
               APP.emit(el, "filter", nf);
             }
@@ -369,44 +368,45 @@ WT_DECLARE_WT_MEMBER(
         }
       }
 
-      var first = null, toselect = null, showall = droppedDown && text.length == 0, i, il;
+      let first = null, toselect = null;
+      const showall = droppedDown && text.length === 0;
 
-      for (i = 0, il = sels.length; i < il; ++i) {
-        var child = sels[i];
+      for (let i = 0, il = sels.length; i < il; ++i) {
+        const child = sels[i];
         if (WT.hasTag(child, "LI")) {
-          var a = child.firstChild;
-          if (child.orig == null) {
+          const a = child.firstChild;
+          if (child.orig === null || typeof child.orig === "undefined") {
             child.orig = a.firstChild.innerHTML;
           }
 
-          var result = matcher(child.orig),
+          const result = matcher(child.orig),
             match = showall || result.match;
 
-          if (result.suggestion != a.firstChild.innerHTML) {
+          if (result.suggestion !== a.firstChild.innerHTML) {
             a.firstChild.innerHTML = result.suggestion;
           }
 
           if (match) {
-            if (child.style.display != "") {
+            if (child.style.display !== "") {
               child.style.display = "";
             }
-            if (first == null) {
+            if (first === null) {
               first = child;
             }
-            if (i == this.defaultValue) {
+            if (i === this.defaultValue) {
               toselect = child;
             }
-          } else if (child.style.display != "none") {
+          } else if (child.style.display !== "none") {
             child.style.display = "none";
           }
 
-          if (child.className != "") {
+          if (child.className !== "") {
             child.className = "";
           }
         }
       }
 
-      if (first == null) {
+      if (first === null) {
         hidePopup();
       } else {
         if (!visible()) {
@@ -415,7 +415,7 @@ WT_DECLARE_WT_MEMBER(
           sel = null;
         }
 
-        if ((autoSelectEnabled || toselect) && (!sel || (sel.style.display == "none"))) {
+        if ((autoSelectEnabled || toselect) && (!sel || (sel.style.display === "none"))) {
           sel = toselect || first;
           sel.parentNode.scrollTop = 0;
           selId = sel.id;
@@ -436,7 +436,7 @@ WT_DECLARE_WT_MEMBER(
     };
 
     this.editKeyUp = function(edit, event) {
-      if (editId == null) {
+      if (editId === null) {
         return;
       }
 
@@ -446,31 +446,31 @@ WT_DECLARE_WT_MEMBER(
 
       if (
         !visible() &&
-        (event.keyCode == key_enter ||
-          event.keyCode == key_tab)
+        (event.keyCode === key_enter ||
+          event.keyCode === key_tab)
       ) {
         return;
       }
 
       if (
-        event.keyCode == key_escape ||
-        event.keyCode == key_left ||
-        event.keyCode == key_right
+        event.keyCode === key_escape ||
+        event.keyCode === key_left ||
+        event.keyCode === key_right
       ) {
         hidePopup();
       } else if (
-        event.keyCode == key_down ||
-        event.keyCode == key_up ||
-        event.keyCode == key_pdown ||
-        event.keyCode == key_pup
+        event.keyCode === key_down ||
+        event.keyCode === key_up ||
+        event.keyCode === key_pdown ||
+        event.keyCode === key_pup
       ) {
         // do nothing
       } else {
-        if (edit.value != lastFilterValue) {
+        if (edit.value !== lastFilterValue) {
           editId = edit.id;
           self.refilter(edit.value);
         } else {
-          var sel = selId ? WT.getElement(selId) : null;
+          const sel = selId ? WT.getElement(selId) : null;
           if (sel) {
             scrollToSelected(sel);
           }
@@ -487,17 +487,17 @@ WT_DECLARE_WT_MEMBER(
     el.onscroll = function() {
       if (delayHideTimeout) {
         clearTimeout(delayHideTimeout);
-        var edit = WT.getElement(editId);
+        const edit = WT.getElement(editId);
         if (edit) {
           edit.focus();
         }
       }
     };
 
-    this.delayHide = function(edit, event) {
+    this.delayHide = function(edit, _event) {
       delayHideTimeout = setTimeout(function() {
         delayHideTimeout = null;
-        if (el && (edit == null || editId == edit.id)) {
+        if (el && (edit === null || editId === edit.id)) {
           hidePopup();
         }
       }, 300);
@@ -519,16 +519,16 @@ WT_DECLARE_WT_MEMBER(
     appendReplacedText
   ) {
     function parseEdit(edit) {
-      var value = edit.value;
-      var pos = edit.selectionStart ? edit.selectionStart : value.length;
+      const value = edit.value;
+      const pos = edit.selectionStart ? edit.selectionStart : value.length;
 
-      var start = listSeparator ?
+      let start = listSeparator ?
         value.lastIndexOf(listSeparator, pos - 1) + 1 :
         0;
 
       while (
         (start < pos) &&
-        (whiteSpace.indexOf(value.charAt(start)) != -1)
+        (whiteSpace.indexOf(value.charAt(start)) !== -1)
       ) {
         ++start;
       }
@@ -537,15 +537,15 @@ WT_DECLARE_WT_MEMBER(
     }
 
     this.match = function(edit) {
-      var range = parseEdit(edit);
-      var value = edit.value.substring(range.start, range.end);
+      const range = parseEdit(edit);
+      const value = edit.value.substring(range.start, range.end);
 
-      var regexp;
-      if (wordRegexp.length == 0) {
-        if (wordSeparators.length != 0) {
+      let regexp;
+      if (wordRegexp.length === 0) {
+        if (wordSeparators.length !== 0) {
           regexp = "(^|(?:[";
-          for (var i = 0; i < wordSeparators.length; ++i) {
-            var hexCode = wordSeparators.charCodeAt(i).toString(16);
+          for (let i = 0; i < wordSeparators.length; ++i) {
+            let hexCode = wordSeparators.charCodeAt(i).toString(16);
             while (hexCode.length < 4) {
               hexCode = "0" + hexCode;
             }
@@ -569,15 +569,15 @@ WT_DECLARE_WT_MEMBER(
           return value;
         }
 
-        var matched = false;
+        let matched = false;
 
         if (value.length) {
-          var highlighted = suggestion.replace(
+          const highlighted = suggestion.replace(
             regexp,
             "$1" + highlightBeginTag + "$2" +
               highlightEndTag
           );
-          if (highlighted != suggestion) {
+          if (highlighted !== suggestion) {
             matched = true;
             suggestion = highlighted;
           }
@@ -588,9 +588,9 @@ WT_DECLARE_WT_MEMBER(
     };
 
     this.replace = function(edit, suggestionText, suggestionValue) {
-      var range = parseEdit(edit);
+      const range = parseEdit(edit);
 
-      var nv = edit.value.substring(0, range.start) + suggestionValue +
+      let nv = edit.value.substring(0, range.start) + suggestionValue +
         appendReplacedText;
 
       if (range.end < edit.value.length) {
