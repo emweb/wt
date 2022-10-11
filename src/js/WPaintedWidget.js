@@ -9,7 +9,7 @@
 WT_DECLARE_WT_MEMBER(10, JavaScriptConstructor, "WPaintedWidget", function(APP, widget) {
   widget.wtObj = this;
 
-  var self = this;
+  const self = this;
 
   this.imagePreloaders = [];
   this.images = [];
@@ -17,8 +17,8 @@ WT_DECLARE_WT_MEMBER(10, JavaScriptConstructor, "WPaintedWidget", function(APP, 
   this.repaint = function() {};
   this.widget = widget;
   this.cancelPreloaders = function() {
-    for (var i = 0; i < self.imagePreloaders.length; ++i) {
-      self.imagePreloaders[i].cancel();
+    for (const imagePreloader of self.imagePreloaders) {
+      imagePreloader.cancel();
     }
     self.imagePreloaders = [];
   };
@@ -30,8 +30,8 @@ WT_DECLARE_WT_MEMBER(
   JavaScriptObject,
   "gfxUtils",
   (function() {
-    var M11 = 0, M12 = 1, M21 = 2, M22 = 3, M13 = 4, M23 = 5;
-    var MOVE_TO = 0,
+    const M11 = 0, M12 = 1, M21 = 2, M22 = 3, M13 = 4, M23 = 5;
+    const MOVE_TO = 0,
       LINE_TO = 1,
       CUBIC_C1 = 2,
       CUBIC_C2 = 3,
@@ -41,7 +41,7 @@ WT_DECLARE_WT_MEMBER(
       ARC_C = 7,
       ARC_R = 8,
       ARC_ANGLE_SWEEP = 9;
-    var ALIGN_LEFT = 0x1,
+    const ALIGN_LEFT = 0x1,
       ALIGN_RIGHT = 0x2,
       ALIGN_CENTER = 0x4,
       ALIGN_JUSTIFY = 0x8, // unsupporetd?
@@ -53,12 +53,12 @@ WT_DECLARE_WT_MEMBER(
       ALIGN_MIDDLE = 0x200,
       ALIGN_BOTTOM = 0x400,
       ALIGN_TEXT_BOTTOM = 0x800; // unsupported?
-    var ALIGN_VERTICAL_MASK = ALIGN_BASELINE | ALIGN_SUB | ALIGN_SUPER | ALIGN_TOP | ALIGN_TEXT_TOP | ALIGN_MIDDLE |
+    const ALIGN_VERTICAL_MASK = ALIGN_BASELINE | ALIGN_SUB | ALIGN_SUPER | ALIGN_TOP | ALIGN_TEXT_TOP | ALIGN_MIDDLE |
       ALIGN_BOTTOM | ALIGN_TEXT_BOTTOM;
-    var ALIGN_HORIZONTAL_MASK = ALIGN_LEFT | ALIGN_RIGHT | ALIGN_CENTER | ALIGN_JUSTIFY;
+    const ALIGN_HORIZONTAL_MASK = ALIGN_LEFT | ALIGN_RIGHT | ALIGN_CENTER | ALIGN_JUSTIFY;
 
     function Utils() {
-      var self = this;
+      const self = this;
 
       this.path_crisp = function(path) {
         return path.map(
@@ -70,7 +70,7 @@ WT_DECLARE_WT_MEMBER(
       this.transform_mult = function(t1, t2) {
         if (t2.length === 2) {
           // WPointF
-          var x = t2[0], y = t2[1];
+          const x = t2[0], y = t2[1];
           return [
             t1[M11] * x + t1[M21] * y + t1[M13],
             t1[M12] * x + t1[M22] * y + t1[M23],
@@ -81,7 +81,7 @@ WT_DECLARE_WT_MEMBER(
             return t2.slice(0); // Don't transform radius
           }
           // WPainterPath component
-          var x = t2[0], y = t2[1];
+          const x = t2[0], y = t2[1];
           return [
             t1[M11] * x + t1[M21] * y + t1[M13],
             t1[M12] * x + t1[M22] * y + t1[M23],
@@ -90,19 +90,19 @@ WT_DECLARE_WT_MEMBER(
         }
         if (t2.length === 4) {
           // WRectF
-          var minX, minY, maxX, maxY, i, p2;
-          var p = self.transform_mult(t1, [t2[0], t2[1]]);
+          let minX, minY, maxX, maxY, p2;
+          const p = self.transform_mult(t1, [t2[0], t2[1]]);
           minX = p[0];
           maxX = p[0];
           minY = p[1];
           maxY = p[1];
 
-          for (i = 0; i < 3; ++i) {
+          for (let i = 0; i < 3; ++i) {
             p2 = self.transform_mult(
               t1,
-              i == 0 ?
+              i === 0 ?
                 [self.rect_left(t2), self.rect_bottom(t2)] :
-                i == 1 ?
+                i === 1 ?
                 [self.rect_right(t2), self.rect_top(t2)] :
                 [self.rect_right(t2), self.rect_bottom(t2)]
             );
@@ -129,20 +129,20 @@ WT_DECLARE_WT_MEMBER(
       };
       // Apply a transform to a path
       this.transform_apply = function(t, path) {
-        var transform_mult = self.transform_mult;
+        const transform_mult = self.transform_mult;
         return path.map(function(p) {
           return transform_mult(t, p);
         });
       };
       this.transform_det = function(t) {
-        var m11 = t[M11],
+        const m11 = t[M11],
           m12 = t[M21],
           m21 = t[M12],
           m22 = t[M22];
         return m11 * m22 - m21 * m12;
       };
       this.transform_adjoint = function(t) {
-        var m11 = t[M11],
+        const m11 = t[M11],
           m12 = t[M21],
           m21 = t[M12],
           m22 = t[M22],
@@ -151,10 +151,10 @@ WT_DECLARE_WT_MEMBER(
         return [m22, -m12, -m21, m11, m32 * m21 - m31 * m22, -(m32 * m11 - m31 * m12)];
       };
       this.transform_inverted = function(t) {
-        var det = self.transform_det(t);
-        if (det != 0) {
-          var adj = self.transform_adjoint(t);
-          var m11 = adj[M11],
+        const det = self.transform_det(t);
+        if (det !== 0) {
+          const adj = self.transform_adjoint(t);
+          const m11 = adj[M11],
             m12 = adj[M21],
             m21 = adj[M12],
             m22 = adj[M22],
@@ -176,18 +176,18 @@ WT_DECLARE_WT_MEMBER(
         t1[5] = t2[5];
       };
       this.transform_equal = function(t1, t2) {
-        return t1[0] == t2[0] &&
-          t1[1] == t2[1] &&
-          t1[2] == t2[2] &&
-          t1[3] == t2[3] &&
-          t1[4] == t2[4] &&
-          t1[5] == t2[5];
+        return t1[0] === t2[0] &&
+          t1[1] === t2[1] &&
+          t1[2] === t2[2] &&
+          t1[3] === t2[3] &&
+          t1[4] === t2[4] &&
+          t1[5] === t2[5];
       };
       this.css_text = function(c) {
         return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + c[3] + ")";
       };
       this.arcPosition = function(cx, cy, rx, ry, angle) {
-        var a = -angle / 180 * Math.PI;
+        const a = -angle / 180 * Math.PI;
 
         return [
           cx + rx * Math.cos(a),
@@ -195,19 +195,19 @@ WT_DECLARE_WT_MEMBER(
         ];
       };
       this.pnpoly = function(p, path) {
-        var res = false;
-        var ax = 0.0, ay = 0.0;
-        var px = p[0], py = p[1];
-        var i, bx, by;
-        for (i = 0; i < path.length; ++i) {
+        let res = false;
+        let ax = 0.0, ay = 0.0;
+        const px = p[0], py = p[1];
+        let bx, by;
+        for (let i = 0; i < path.length; ++i) {
           bx = ax;
           by = ay;
           if (path[i][2] === ARC_C) {
-            var arcPos = self.arcPosition(path[i][0], path[i][1], path[i + 1][0], path[i + 1][1], path[i + 2][0]);
+            const arcPos = self.arcPosition(path[i][0], path[i][1], path[i + 1][0], path[i + 1][1], path[i + 2][0]);
             bx = arcPos[0];
             by = arcPos[1];
           } else if (path[i][2] === ARC_ANGLE_SWEEP) {
-            var arcPos = self.arcPosition(
+            const arcPos = self.arcPosition(
               path[i - 2][0],
               path[i - 2][1],
               path[i - 1][0],
@@ -236,30 +236,30 @@ WT_DECLARE_WT_MEMBER(
       this.rect_intersection = function(rect1, rect2) {
         rect1 = self.rect_normalized(rect1);
         rect2 = self.rect_normalized(rect2);
-        var t = self.rect_top;
-        var b = self.rect_bottom;
-        var l = self.rect_left;
-        var r = self.rect_right;
-        var left = Math.max(l(rect1), l(rect2));
-        var right = Math.min(r(rect1), r(rect2));
-        var top = Math.max(t(rect1), t(rect2));
-        var bottom = Math.min(b(rect1), b(rect2));
-        var width = right - left;
-        var height = bottom - top;
+        const t = self.rect_top;
+        const b = self.rect_bottom;
+        const l = self.rect_left;
+        const r = self.rect_right;
+        const left = Math.max(l(rect1), l(rect2));
+        const right = Math.min(r(rect1), r(rect2));
+        const top = Math.max(t(rect1), t(rect2));
+        const bottom = Math.min(b(rect1), b(rect2));
+        const width = right - left;
+        const height = bottom - top;
         return [left, top, width, height];
       };
       this.drawRect = function(ctx, rect, fill, stroke) {
         rect = self.rect_normalized(rect);
-        var t = self.rect_top(rect),
+        const t = self.rect_top(rect),
           b = self.rect_bottom(rect),
           l = self.rect_left(rect),
           r = self.rect_right(rect);
-        path = [[l, t, MOVE_TO], [r, t, LINE_TO], [r, b, LINE_TO], [l, b, LINE_TO], [l, t, LINE_TO]];
+        const path = [[l, t, MOVE_TO], [r, t, LINE_TO], [r, b, LINE_TO], [l, b, LINE_TO], [l, t, LINE_TO]];
         self.drawPath(ctx, path, fill, stroke, false);
       };
       this.drawPath = function(ctx, path, fill, stroke, clip) {
-        var i = 0, bezier = [], arc = [], quad = [];
-        /*const*/ var THRESHOLD = 0x100000;
+        let i = 0, bezier = [], arc = [], quad = [];
+        const THRESHOLD = 0x100000;
         function x(segment) {
           return segment[0];
         }
@@ -274,7 +274,7 @@ WT_DECLARE_WT_MEMBER(
           ctx.moveTo(0, 0);
         }
         for (i = 0; i < path.length; i++) {
-          var s = path[i];
+          const s = path[i];
 
           switch (type(s)) {
             case MOVE_TO:
@@ -287,8 +287,8 @@ WT_DECLARE_WT_MEMBER(
               break;
             case LINE_TO:
               (function() {
-                var pos = i === 0 ? [0, 0] : path[i - 1];
-                var MARGIN = 50;
+                const pos = i === 0 ? [0, 0] : path[i - 1];
+                const MARGIN = 50;
                 if (
                   !fill && !clip && stroke &&
                   (Math.abs(x(pos)) > THRESHOLD ||
@@ -297,18 +297,18 @@ WT_DECLARE_WT_MEMBER(
                     Math.abs(y(s)) > THRESHOLD)
                 ) {
                   (function() {
-                    var t = ctx.wtTransform ? ctx.wtTransform : [1, 0, 0, 1, 0, 0];
-                    var t_inv = self.transform_inverted(t);
-                    var t_pos = self.transform_mult(t, pos);
-                    var t_s = self.transform_mult(t, s);
-                    var dx = x(t_s) - x(t_pos);
-                    var dy = y(t_s) - y(t_pos);
-                    var w = ctx.canvas.width;
-                    var h = ctx.canvas.height;
-                    var left = -MARGIN;
-                    var right = w + MARGIN;
-                    var top = -MARGIN;
-                    var bottom = h + MARGIN;
+                    const t = ctx.wtTransform ? ctx.wtTransform : [1, 0, 0, 1, 0, 0];
+                    const t_inv = self.transform_inverted(t);
+                    const t_pos = self.transform_mult(t, pos);
+                    const t_s = self.transform_mult(t, s);
+                    const dx = x(t_s) - x(t_pos);
+                    const dy = y(t_s) - y(t_pos);
+                    const w = ctx.canvas.width;
+                    const h = ctx.canvas.height;
+                    const left = -MARGIN;
+                    const right = w + MARGIN;
+                    const top = -MARGIN;
+                    const bottom = h + MARGIN;
 
                     // TODO(Roel): maybe refactor?
 
@@ -320,9 +320,9 @@ WT_DECLARE_WT_MEMBER(
                       return start + k * diff;
                     }
 
-                    var k;
-                    var p1 = null, p2 = null, p3 = null, p4 = null;
-                    var pstart, pend;
+                    let k;
+                    let p1 = null, p2 = null, p3 = null, p4 = null;
+                    let pstart, pend;
                     if (
                       x(t_pos) < left &&
                       x(t_s) > left
@@ -485,7 +485,7 @@ WT_DECLARE_WT_MEMBER(
                 }
 
                 function adjustPostive360(d) {
-                  var result = d % 360.0;
+                  const result = d % 360.0;
                   if (result < 0) {
                     return result + 360.0;
                   } else {
@@ -497,16 +497,16 @@ WT_DECLARE_WT_MEMBER(
                   return d * Math.PI / 180.0;
                 }
 
-                var startAngle = x(s);
-                var spanAngle = y(s);
-                var rStartAngle = deg2rad(adjustPostive360(-startAngle));
-                var rEndAngle;
+                const startAngle = x(s);
+                const spanAngle = y(s);
+                const rStartAngle = deg2rad(adjustPostive360(-startAngle));
+                let rEndAngle;
                 if (spanAngle >= 360.0 || spanAngle <= -360.0) {
                   rEndAngle = rStartAngle - 2.0 * Math.PI * (spanAngle > 0 ? 1.0 : -1.0);
                 } else {
                   rEndAngle = deg2rad(adjustPostive360(-startAngle - adjust360(spanAngle)));
                 }
-                var anticlockwise = spanAngle > 0;
+                const anticlockwise = spanAngle > 0;
                 arc.push(rStartAngle, rEndAngle, anticlockwise);
                 ctx.arc.apply(ctx, arc);
                 arc = [];
@@ -533,7 +533,6 @@ WT_DECLARE_WT_MEMBER(
         }
       };
       this.drawStencilAlongPath = function(ctx, stencil, path, fill, stroke, softClipping) {
-        var i = 0;
         function x(segment) {
           return segment[0];
         }
@@ -543,8 +542,8 @@ WT_DECLARE_WT_MEMBER(
         function type(segment) {
           return segment[2];
         }
-        for (i = 0; i < path.length; i++) {
-          var s = path[i];
+        for (let i = 0; i < path.length; i++) {
+          const s = path[i];
           if (
             softClipping &&
             ctx.wtClipPath &&
@@ -553,10 +552,10 @@ WT_DECLARE_WT_MEMBER(
             continue;
           }
           if (
-            type(s) == MOVE_TO || type(s) == LINE_TO ||
-            type(s) == QUAD_END || type(s) == CUBIC_END
+            type(s) === MOVE_TO || type(s) === LINE_TO ||
+            type(s) === QUAD_END || type(s) === CUBIC_END
           ) {
-            var translatedStencil = self.transform_apply([1, 0, 0, 1, x(s), y(s)], stencil);
+            const translatedStencil = self.transform_apply([1, 0, 0, 1, x(s), y(s)], stencil);
             self.drawPath(ctx, translatedStencil, fill, stroke, false);
           }
         }
@@ -569,9 +568,9 @@ WT_DECLARE_WT_MEMBER(
         ) {
           return;
         }
-        var hAlign = align & ALIGN_HORIZONTAL_MASK;
-        var vAlign = align & ALIGN_VERTICAL_MASK;
-        var x = null, y = null;
+        const hAlign = align & ALIGN_HORIZONTAL_MASK;
+        const vAlign = align & ALIGN_VERTICAL_MASK;
+        let x = null, y = null;
         switch (hAlign) {
           case ALIGN_LEFT:
             ctx.textAlign = "left";
@@ -600,11 +599,11 @@ WT_DECLARE_WT_MEMBER(
             y = self.rect_center(rect).y;
             break;
         }
-        if (x == null || y == null) {
+        if (x === null || y === null) {
           return;
         }
 
-        var oldFillStyle = ctx.fillStyle;
+        const oldFillStyle = ctx.fillStyle;
         ctx.fillStyle = ctx.strokeStyle;
         ctx.fillText(text, x, y);
         ctx.fillStyle = oldFillStyle;
@@ -625,7 +624,6 @@ WT_DECLARE_WT_MEMBER(
         // path: the path that the text should be drawn along, could be transformed and stuff
         // angle: the rotational angle the text should be drawn at, in radians
         // lineHeight: the height of a line, duh
-        var i = 0, j = 0;
         function x(segment) {
           return segment[0];
         }
@@ -635,21 +633,21 @@ WT_DECLARE_WT_MEMBER(
         function type(segment) {
           return segment[2];
         }
-        var tpath = self.transform_apply(transform, path);
-        for (i = 0; i < path.length; i++) {
+        const tpath = self.transform_apply(transform, path);
+        for (let i = 0; i < path.length; i++) {
           if (i >= text.length) {
             break;
           }
-          var seg = path[i];
-          var tseg = tpath[i];
-          var split = text[i].split("\n");
+          const seg = path[i];
+          const tseg = tpath[i];
+          const split = text[i].split("\n");
           if (
-            type(seg) == MOVE_TO || type(seg) == LINE_TO ||
-            type(seg) == QUAD_END || type(seg) == CUBIC_END
+            type(seg) === MOVE_TO || type(seg) === LINE_TO ||
+            type(seg) === QUAD_END || type(seg) === CUBIC_END
           ) {
-            if (angle == 0) {
-              for (j = 0; j < split.length; j++) {
-                var yOffset = self.calcYOffset(j, split.length, lineHeight, align & ALIGN_VERTICAL_MASK);
+            if (angle === 0) {
+              for (let j = 0; j < split.length; j++) {
+                const yOffset = self.calcYOffset(j, split.length, lineHeight, align & ALIGN_VERTICAL_MASK);
                 self.drawText(
                   ctx,
                   [rect[0] + x(tseg), rect[1] + y(tseg) + yOffset, rect[2], rect[3]],
@@ -659,15 +657,15 @@ WT_DECLARE_WT_MEMBER(
                 );
               }
             } else {
-              var radAngle = angle * Math.PI / 180;
-              var r11 = Math.cos(-radAngle);
-              var r12 = -Math.sin(-radAngle);
-              var r21 = -r12;
-              var r22 = r11;
+              const radAngle = angle * Math.PI / 180;
+              const r11 = Math.cos(-radAngle);
+              const r12 = -Math.sin(-radAngle);
+              const r21 = -r12;
+              const r22 = r11;
               ctx.save();
               ctx.transform(r11, r21, r12, r22, x(tseg), y(tseg));
-              for (j = 0; j < split.length; j++) {
-                var yOffset = self.calcYOffset(j, split.length, lineHeight, align & ALIGN_VERTICAL_MASK);
+              for (let j = 0; j < split.length; j++) {
+                const yOffset = self.calcYOffset(j, split.length, lineHeight, align & ALIGN_VERTICAL_MASK);
                 self.drawText(
                   ctx,
                   [rect[0], rect[1] + yOffset, rect[2], rect[3]],
@@ -726,7 +724,7 @@ WT_DECLARE_WT_MEMBER(
         };
       };
       this.rect_normalized = function(rect) {
-        var x, y, w, h;
+        let x, y, w, h;
         if (rect[2] > 0) {
           x = rect[0];
           w = rect[2];
@@ -758,7 +756,7 @@ WT_DECLARE_WT_MEMBER(
             tgt_rect[3]
           );
         } catch (e) {
-          var msg = "Error while drawing image: '" + uri + "': " + e.name;
+          let msg = "Error while drawing image: '" + uri + "': " + e.name;
           if (e.message) {
             msg += ": " + e.message;
           }
