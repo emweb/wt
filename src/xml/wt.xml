@@ -107,9 +107,8 @@
   <!-- From WDialog-center.js: -->
   <message id="Wt.WDialog.CenterJS">
     /* <![CDATA[ */
-(function(d,e,f){function g(){var a,b;if(typeof window.innerWidth==="number"){a=window.innerWidth;b=window.innerHeight}else{a=document.documentElement.clientWidth;b=document.documentElement.clientHeight}return{x:a,y:b}}function c(){var a=document.getElementById(d);if(a.style.display!="none"&&a.style.visibility!="hidden"){var b=g(),h=a.offsetWidth,i=a.offsetHeight;if(e){a.style.left=Math.round((b.x-h)/2)+"px";a.style.marginLeft="0px"}if(f){a.style.top=Math.round((b.y-i)/2)+"px";a.style.marginTop="0px"}a.style.visibility=
-"visible"}}window.addEventListener?window.addEventListener("DOMContentLoaded",c,false):document.attachEvent("onDOMContentLoaded",c)})($el,$centerX,$centerY);
-  /* ]]> */
+      !function(e,t,n){window.addEventListener("DOMContentLoaded",(function(){const i=document.getElementById(e);if("none"!==i.style.display&&"hidden"!==i.style.visibility){const e=function(){let e,t;if("number"==typeof window.innerWidth){e=window.innerWidth;t=window.innerHeight}else{e=document.documentElement.clientWidth;t=document.documentElement.clientHeight}return{x:e,y:t}}(),o=i.offsetWidth,d=i.offsetHeight;if(t){i.style.left=Math.round((e.x-o)/2)+"px";i.style.marginLeft="0px"}if(n){i.style.top=Math.round((e.y-d)/2)+"px";i.style.marginTop="0px"}i.style.visibility="visible"}}),!1)}($el,$centerX,$centerY);
+    /* ]]> */
   </message>
 
   <message id="Wt.WDoubleValidator.NotANumber">Must be a number</message>

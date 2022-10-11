@@ -1,6 +1,7 @@
+/* global $el: readonly, $centerX: readonly, $centerY: readonly */
 (function(id, centerX, centerY) {
   function windowSize() {
-    var x, y;
+    let x, y;
 
     if (typeof (window.innerWidth) === "number") {
       x = window.innerWidth;
@@ -14,10 +15,10 @@
   }
 
   function centerDialog() {
-    var el = document.getElementById(id);
-    if ((el.style.display != "none") && (el.style.visibility != "hidden")) {
-      var ws = windowSize();
-      var w = el.offsetWidth, h = el.offsetHeight;
+    const el = document.getElementById(id);
+    if ((el.style.display !== "none") && (el.style.visibility !== "hidden")) {
+      const ws = windowSize();
+      const w = el.offsetWidth, h = el.offsetHeight;
 
       if (centerX) {
         el.style.left = Math.round((ws.x - w) / 2) + "px";
@@ -33,9 +34,5 @@
     }
   }
 
-  if (window.addEventListener) {
-    window.addEventListener("DOMContentLoaded", centerDialog, false);
-  } else {
-    document.attachEvent("onDOMContentLoaded", centerDialog);
-  }
+  window.addEventListener("DOMContentLoaded", centerDialog, false);
 })($el, $centerX, $centerY);
