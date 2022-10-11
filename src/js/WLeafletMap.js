@@ -1,3 +1,5 @@
+/* global L:readonly */
+
 /*
  * Copyright (C) 2019 Emweb bv, Herent, Belgium.
  *
@@ -14,17 +16,16 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
 
   el.wtObj = this;
 
-  var self = this;
-  var WT = APP.WT;
+  const self = this;
 
   this.map = null;
-  var markers = {};
+  const markers = {};
 
-  var lastZoom = zoom;
-  var lastLatLng = [lat, lng];
+  let lastZoom = zoom;
+  let lastLatLng = [lat, lng];
 
   this.addTileLayer = function(url_template, options_str) {
-    var options = JSON.parse(options_str);
+    const options = JSON.parse(options_str);
     L.tileLayer(url_template, options).addTo(self.map);
   };
 
@@ -39,12 +40,12 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
   };
 
   this.addPolyline = function(points, options_str) {
-    var options = JSON.parse(options_str);
+    const options = JSON.parse(options_str);
     L.polyline(points, options).addTo(self.map);
   };
 
   this.addCircle = function(center, options_str) {
-    var options = JSON.parse(options_str);
+    const options = JSON.parse(options_str);
     L.circle(center, options).addTo(self.map);
   };
 
@@ -54,7 +55,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
   };
 
   this.removeMarker = function(marker_id) {
-    var marker = markers[marker_id];
+    const marker = markers[marker_id];
     if (marker) {
       self.map.removeLayer(marker);
       delete markers[marker_id];
@@ -62,7 +63,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
   };
 
   this.moveMarker = function(marker_id, position) {
-    var marker = markers[marker_id];
+    const marker = markers[marker_id];
     if (marker) {
       marker.setLatLng(position);
     }
@@ -73,9 +74,9 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
   };
 
   el.wtEncodeValue = function() {
-    var center = self.map.getCenter();
-    var position = [center.lat, center.lng];
-    var zoom = self.map.getZoom();
+    const center = self.map.getCenter();
+    const position = [center.lat, center.lng];
+    const zoom = self.map.getZoom();
     return JSON.stringify({
       position: position,
       zoom: zoom,
@@ -83,14 +84,14 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
   };
 
   this.init = function(options_str, position, zoom) {
-    var options = JSON.parse(options_str);
+    const options = JSON.parse(options_str);
     options.center = position;
     options.zoom = zoom;
     self.map = L.map(el, options);
 
-    var baseZIndex = parseInt(
+    const baseZIndex = parseInt(
       (function() {
-        var p = el.parentNode;
+        let p = el.parentNode;
         while (p) {
           if (p.wtPopup) {
             return p.style.zIndex;
@@ -112,17 +113,17 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
     }
 
     self.map.on("zoomend", function() {
-      var zoom = self.map.getZoom();
-      if (zoom != lastZoom) {
+      const zoom = self.map.getZoom();
+      if (zoom !== lastZoom) {
         APP.emit(el, "zoomLevelChanged", zoom);
         lastZoom = zoom;
       }
     });
     self.map.on("moveend", function() {
-      var center = self.map.getCenter();
+      const center = self.map.getCenter();
       if (
-        center.lat != lastLatLng[0] ||
-        center.lng != lastLatLng[1]
+        center.lat !== lastLatLng[0] ||
+        center.lng !== lastLatLng[1]
       ) {
         APP.emit(el, "panChanged", center.lat, center.lng);
         lastLatLng = [center.lat, center.lng];
