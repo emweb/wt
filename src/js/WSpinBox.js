@@ -11,42 +11,31 @@ WT_DECLARE_WT_MEMBER(
   JavaScriptConstructor,
   "WSpinBox",
   function(APP, edit, precision, prefix, suffix, minValue, maxValue, stepValue, decimalPoint, groupSeparator) {
-    /** @const */ var TYPE_INTEGER = 0;
-    /** @const */ var TYPE_FLOAT = 1;
+    const NaNError = "Must be a number";
+    const tooSmallError = "The number must be at least ";
+    const tooLargeError = "The number may be at most ";
 
-    /** @const */ var NaNError = "Must be a number";
-    /** @const */ var tooSmallError = "The number must be at least ";
-    /** @const */ var tooLargeError = "The number may be at most ";
-
-    /** @const */ var CLASS_DOWN = "dn";
-    /** @const */ var CLASS_UP = "up";
-    /** @const */ var CLASS_UNSELECTABLE = "unselectable";
+    const CLASS_DOWN = "dn";
+    const CLASS_UP = "up";
+    const CLASS_UNSELECTABLE = "unselectable";
 
     edit.wtObj = this;
 
-    var self = this, WT = APP.WT, key_up = 38, key_down = 40, CH = "crosshair";
+    const self = this, WT = APP.WT, key_up = 38, key_down = 40, CH = "crosshair";
 
-    var dragStartXY = null, dragStartValue, changed = false;
-    var validator = null;
-    var isDoubleSpinBox = false;
-    var wrapAround = false;
+    let dragStartXY = null, dragStartValue, changed = false;
+    let validator = null;
+    let isDoubleSpinBox = false;
+    let wrapAround = false;
 
     function isReadOnly() {
       return edit.readOnly;
     }
 
-    function addGrouping(input) {
-      var result = "";
-
-      for (var i = 0; i < input.length(); i++) {
-        result += input.charAt(i);
-      }
-    }
-
     function getValue() {
-      var lineEdit = edit.wtLObj;
-      var v = "";
-      if (lineEdit !== undefined) {
+      const lineEdit = edit.wtLObj;
+      let v = "";
+      if (typeof lineEdit !== "undefined") {
         v = lineEdit.getValue();
         if (v === "") {
           v = prefix + "0" + suffix;
@@ -54,13 +43,10 @@ WT_DECLARE_WT_MEMBER(
       } else {
         v = edit.value;
       }
-      if (v.substr(0, prefix.length) == prefix) {
-        v = v.substr(prefix.length);
-        if (
-          v.length > suffix.length &&
-          v.substr(v.length - suffix.length, suffix.length) == suffix
-        ) {
-          v = v.substr(0, v.length - suffix.length);
+      if (v.startsWith(prefix)) {
+        v = v.substring(prefix.length);
+        if (v.endsWith(suffix)) {
+          v = v.substring(0, v.length - suffix.length);
           if (groupSeparator) {
             v = v.split(groupSeparator).join("");
           }
@@ -73,29 +59,29 @@ WT_DECLARE_WT_MEMBER(
     }
 
     function setValue(v) {
-      var lineEdit = edit.wtLObj;
+      const lineEdit = edit.wtLObj;
       if (v > maxValue) {
         if (wrapAround) {
-          range = maxValue - minValue;
+          const range = maxValue - minValue;
           v = minValue + ((v - minValue) % (range + 1));
         } else {
           v = maxValue;
         }
       } else if (v < minValue) {
         if (wrapAround) {
-          range = maxValue - minValue;
+          const range = maxValue - minValue;
           v = maxValue - ((Math.abs(v - minValue) - 1) % (range + 1));
         } else {
           v = minValue;
         }
       }
 
-      var newValue = v.toFixed(precision);
+      let newValue = v.toFixed(precision);
       newValue = newValue.replace(".", decimalPoint);
-      var dotPos = newValue.indexOf(decimalPoint);
-      var result = "";
+      const dotPos = newValue.indexOf(decimalPoint);
+      let result = "";
       if (dotPos !== -1) {
-        for (var i = 0; i < dotPos; i++) {
+        for (let i = 0; i < dotPos; i++) {
           result += newValue.charAt(i);
           if (i < dotPos - 1 && ((dotPos - i - 1) % 3 === 0)) {
             result += groupSeparator;
@@ -106,8 +92,8 @@ WT_DECLARE_WT_MEMBER(
         result = newValue;
       }
 
-      var oldv = edit.value;
-      if (lineEdit !== undefined) {
+      const oldv = edit.value;
+      if (typeof lineEdit !== "undefined") {
         lineEdit.setValue(prefix + result + suffix);
       } else {
         edit.value = prefix + result + suffix;
@@ -118,7 +104,7 @@ WT_DECLARE_WT_MEMBER(
     }
 
     function inc() {
-      var v = getValue();
+      let v = getValue();
       if (v !== null) {
         v += stepValue;
         setValue(v);
@@ -126,7 +112,7 @@ WT_DECLARE_WT_MEMBER(
     }
 
     function dec() {
-      var v = getValue();
+      let v = getValue();
       if (v !== null) {
         v -= stepValue;
         setValue(v);
@@ -151,7 +137,7 @@ WT_DECLARE_WT_MEMBER(
       maxValue = newMaxValue;
       stepValue = newStepValue;
 
-      var useDoubleValidator = (isDoubleSpinBox ||
+      const useDoubleValidator = (isDoubleSpinBox ||
         typeof WT.WIntValidator === "undefined");
       if (useDoubleValidator) {
         validator = new WT.WDoubleValidator(
@@ -180,7 +166,7 @@ WT_DECLARE_WT_MEMBER(
       }
     };
 
-    this.mouseOut = function(o, event) {
+    this.mouseOut = function(_o, _event) {
       edit.classList.remove(CLASS_DOWN, CLASS_UP);
     };
 
@@ -190,13 +176,13 @@ WT_DECLARE_WT_MEMBER(
       }
 
       if (!dragStartXY) {
-        var xy = WT.widgetCoordinates(edit, event);
+        const xy = WT.widgetCoordinates(edit, event);
 
         if (edit.classList.contains(CLASS_DOWN) || edit.classList.contains(CLASS_UP)) {
           edit.classList.remove(CLASS_DOWN, CLASS_UP);
         }
 
-        var bootstrapVersion = -1;
+        let bootstrapVersion = -1;
         if (
           typeof WT.theme === "object" &&
           WT.theme.type === "bootstrap"
@@ -208,7 +194,7 @@ WT_DECLARE_WT_MEMBER(
           xy.x > edit.offsetWidth - 30 &&
           xy.x < edit.offsetWidth - 10
         ) {
-          var mid = edit.offsetHeight / 2;
+          const mid = edit.offsetHeight / 2;
           if (xy.y >= mid - 3 && xy.y <= mid + 3) {
             edit.style.cursor = CH;
           } else {
@@ -220,7 +206,7 @@ WT_DECLARE_WT_MEMBER(
             }
           }
         } else if (bootstrapVersion < 4 && xy.x > edit.offsetWidth - 22) {
-          var mid = edit.offsetHeight / 2;
+          const mid = edit.offsetHeight / 2;
           if (xy.y >= mid - 3 && xy.y <= mid + 3) {
             edit.style.cursor = CH;
           } else {
@@ -232,13 +218,13 @@ WT_DECLARE_WT_MEMBER(
             }
           }
         } else {
-          if (edit.style.cursor != "") {
+          if (edit.style.cursor !== "") {
             edit.style.cursor = "";
           }
         }
       } else {
-        var dy = WT.pageCoordinates(event).y - dragStartXY.y;
-        var v = dragStartValue;
+        const dy = WT.pageCoordinates(event).y - dragStartXY.y;
+        let v = dragStartValue;
         if (v !== null) {
           v = v - dy * stepValue;
           setValue(v);
@@ -252,7 +238,7 @@ WT_DECLARE_WT_MEMBER(
         return;
       }
 
-      if (edit.style.cursor == CH) {
+      if (edit.style.cursor === CH) {
         WT.capture(null);
         WT.capture(edit);
         edit.classList.add(CLASS_UNSELECTABLE);
@@ -260,8 +246,8 @@ WT_DECLARE_WT_MEMBER(
         dragStartXY = WT.pageCoordinates(event);
         dragStartValue = getValue();
       } else {
-        var xy = WT.widgetCoordinates(edit, event);
-        var bootstrapVersion = -1;
+        const xy = WT.widgetCoordinates(edit, event);
+        let bootstrapVersion = -1;
         if (
           typeof WT.theme === "object" &&
           WT.theme.type === "bootstrap"
@@ -274,7 +260,7 @@ WT_DECLARE_WT_MEMBER(
           WT.capture(edit);
           edit.classList.add(CLASS_UNSELECTABLE);
 
-          var mid = edit.offsetHeight / 2;
+          const mid = edit.offsetHeight / 2;
           if (xy.y < mid) {
             WT.eventRepeat(function() {
               inc();
@@ -290,7 +276,7 @@ WT_DECLARE_WT_MEMBER(
           WT.capture(edit);
           edit.classList.add(CLASS_UNSELECTABLE);
 
-          var mid = edit.offsetHeight / 2;
+          const mid = edit.offsetHeight / 2;
           if (xy.y < mid) {
             WT.eventRepeat(function() {
               inc();
@@ -304,13 +290,13 @@ WT_DECLARE_WT_MEMBER(
       }
     };
 
-    this.mouseUp = function(o, event) {
+    this.mouseUp = function(o, _event) {
       edit.classList.remove(CLASS_UNSELECTABLE);
       if (isReadOnly()) {
         return;
       }
 
-      if (changed || dragStartXY != null) {
+      if (changed || dragStartXY !== null) {
         dragStartXY = null;
         changed = false;
         o.onchange();
@@ -324,18 +310,18 @@ WT_DECLARE_WT_MEMBER(
         return;
       }
 
-      if (event.keyCode == key_down) {
+      if (event.keyCode === key_down) {
         WT.eventRepeat(function() {
           dec();
         });
-      } else if (event.keyCode == key_up) {
+      } else if (event.keyCode === key_up) {
         WT.eventRepeat(function() {
           inc();
         });
       }
     };
 
-    this.keyUp = function(o, event) {
+    this.keyUp = function(o, _event) {
       if (isReadOnly()) {
         return;
       }
@@ -356,8 +342,8 @@ WT_DECLARE_WT_MEMBER(
     /*
     * Customized validation function, called from WFormWidget
     */
-    this.validate = function(text) {
-      var v = getValue();
+    this.validate = function(_text) {
+      let v = getValue();
 
       if (v === null) {
         v = "a"; // NaN
