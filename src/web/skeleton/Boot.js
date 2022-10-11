@@ -1,18 +1,36 @@
+/* global
+  _$_AJAX_CANONICAL_URL_$_
+  _$_INTERNAL_PATH_$_
+  _$_PATH_INFO_$_
+  _$_RANDOMSEED_$_
+  _$_RELOAD_IS_NEWSESSION_$_
+  _$_SCRIPT_ID_$_
+  _$_SELF_URL_$_
+  _$_USE_COOKIES_$_
+  _$_$if_COOKIE_CHECKS_$_
+  _$_$if_HYBRID_$_
+  _$_$if_PROGRESS_$_
+  _$_$if_SPLIT_SCRIPT_$_
+  _$_$ifnot_SPLIT_SCRIPT_$_
+  _$_$if_WEBGL_DETECT_$_
+  _$_$endif_$_
+*/
 window.onresize = function() {};
 
+/* eslint-disable-next-line no-implicit-globals */
 function loadScript(url, callback) {
-  var h = document.getElementsByTagName("head")[0];
-  var agent = navigator.userAgent.toLowerCase();
-  var re = /firefox\/(\d+)\./;
-  var m = re.exec(agent);
+  const h = document.getElementsByTagName("head")[0];
+  const agent = navigator.userAgent.toLowerCase();
+  const re = /firefox\/(\d+)\./;
+  const m = re.exec(agent);
 
   if (m && m[1] >= 20) {
-    var async = new XMLHttpRequest();
+    const async = new XMLHttpRequest();
     async.open("GET", url, true);
 
     async.onreadystatechange = function() {
-      if (async.readyState == 4) {
-        var s = document.createElement("script");
+      if (async.readyState === 4) {
+        const s = document.createElement("script");
         s.type = "text/javascript";
         s.innerHTML = async.responseText;
         h.appendChild(s);
@@ -24,11 +42,11 @@ function loadScript(url, callback) {
 
     async.send(null);
   } else {
-    var s = document.createElement("script");
+    const s = document.createElement("script");
     if (callback) {
       if (s.readyState) {
         s.onreadystatechange = function() {
-          if (s.readyState == "loaded" || s.readyState == "complete") {
+          if (s.readyState === "loaded" || s.readyState === "complete") {
             s.onreadystatechange = null;
             callback();
           }
@@ -46,15 +64,16 @@ function loadScript(url, callback) {
 }
 
 _$_$if_PROGRESS_$_();
-var delayedClicks = [];
+window.delayedClicks = [];
+/* eslint-disable-next-line no-implicit-globals */
 function delayClick(e) {
   /* IE8 does not actually do detachEvent() in progressed() ? */
-  var form = document.getElementById("Wt-form");
-  if (form == null) {
+  const form = document.getElementById("Wt-form");
+  if (form === null) {
     return true;
   }
 
-  var ec = {
+  const ec = {
     bubbles: e.bubbles,
     cancelable: e.cancelable,
     detail: e.detail,
@@ -70,7 +89,7 @@ function delayClick(e) {
     targetId: (e.target || e.srcElement).id,
   };
 
-  delayedClicks.push(ec);
+  window.delayedClicks.push(ec);
 
   if (e.stopPropagation) {
     e.stopPropagation();
@@ -83,8 +102,9 @@ function delayClick(e) {
   return false;
 }
 
+/* eslint-disable-next-line no-implicit-globals */
 function setupDelayClick() {
-  var db = document.body;
+  const db = document.body;
   if (!db) {
     setTimeout(setupDelayClick, 1);
   } else {
@@ -99,11 +119,13 @@ _$_$endif_$_();
 
 (function() {
   function doLoad() {
-    var doc = document, win = window;
+    const doc = document, win = window;
 
     try {
       doc.execCommand("BackgroundImageCache", false, true);
-    } catch (err) {}
+    } catch (err) {
+      // Empty block
+    }
 
     function rand() {
       return Math.round(Math.random() * 1000000) + _$_RANDOMSEED_$_;
@@ -118,8 +140,8 @@ _$_$endif_$_();
     }
 
     function hideForm() {
-      var f = doc.getElementById("Wt-form");
-      if (f != null) {
+      const f = doc.getElementById("Wt-form");
+      if (f !== null) {
         f.style.visibility = "hidden";
       } else {
         setTimeout(hideForm, 10);
@@ -127,21 +149,19 @@ _$_$endif_$_();
     }
 
     function getParams() {
-      var queryString = window.location.search;
-      if (queryString.length > 1 && queryString.charAt(0) == "?") {
-        queryString = queryString.substr(1);
+      let queryString = window.location.search;
+      if (queryString.length > 1 && queryString.charAt(0) === "?") {
+        queryString = queryString.substring(1);
       }
 
       return queryString.split("&");
     }
 
     function getParameter(name) {
-      var i, params, tokens, len;
+      const params = getParams();
 
-      params = getParams();
-
-      for (i = 0, len = params.length; i < len; i++) {
-        tokens = params[i].split("=");
+      for (let i = 0, len = params.length; i < len; i++) {
+        const tokens = params[i].split("=");
         if (tokens.length >= 2) {
           if (tokens[0] === name) {
             return unescape(tokens[1]);
@@ -153,12 +173,12 @@ _$_$endif_$_();
     }
 
     function createUrl(name, value) {
-      var i, params, tokens, len, found = false;
+      let found = false;
 
-      params = getParams();
+      const params = getParams();
 
-      for (i = 0, len = params.length; i < len; i++) {
-        tokens = params[i].split("=");
+      for (let i = 0, len = params.length; i < len; i++) {
+        const tokens = params[i].split("=");
         if (tokens.length >= 2) {
           if (tokens[0] === name) {
             tokens[1] = escape(value);
@@ -180,8 +200,8 @@ _$_$endif_$_();
       win.opera.setOverrideHistoryNavigationMode("compatible");
     }
 
-    var pathInfo = _$_PATH_INFO_$_,
-      deployPath = win.location.pathname;
+    const pathInfo = _$_PATH_INFO_$_;
+    let deployPath = win.location.pathname;
 
     if (!win.opera) {
       deployPath = decodeURIComponent(deployPath);
@@ -192,27 +212,27 @@ _$_$endif_$_();
      * /hello/internalpath;jsessionid=xyz
      */
     if (pathInfo.length > 0) {
-      var pathI = deployPath.lastIndexOf(pathInfo);
-      if (pathI != -1) {
-        deployPath = deployPath.substr(0, pathI) +
-          deployPath.substr(pathI + pathInfo.length);
+      const pathI = deployPath.lastIndexOf(pathInfo);
+      if (pathI !== -1) {
+        deployPath = deployPath.substring(0, pathI) +
+          deployPath.substring(pathI + pathInfo.length);
       }
     }
-    var deployPathInfo = "&deployPath=" + encodeURIComponent(deployPath);
+    const deployPathInfo = "&deployPath=" + encodeURIComponent(deployPath);
 
     // ajax support
-    var ajax = (win.XMLHttpRequest || win.ActiveXObject);
+    const ajax = (win.XMLHttpRequest || win.ActiveXObject);
 
-    var no_replace = _$_RELOAD_IS_NEWSESSION_$_;
-    var inOneSecond = new Date();
+    let no_replace = _$_RELOAD_IS_NEWSESSION_$_;
+    const inOneSecond = new Date();
     inOneSecond.setTime(inOneSecond.getTime() + 1000);
 
     _$_$if_COOKIE_CHECKS_$_();
     // client-side cookie support
-    var testcookie = "jscookietest=valid";
+    const testcookie = "jscookietest=valid";
     doc.cookie = testcookie;
     no_replace = no_replace ||
-      (_$_USE_COOKIES_$_ && doc.cookie.indexOf(testcookie) != -1);
+      (_$_USE_COOKIES_$_ && doc.cookie.indexOf(testcookie) !== -1);
     doc.cookie = testcookie + ";expires=Thu, 01 Jan 1970 00:00:00 GMT";
 
     // server-side cookie support
@@ -220,42 +240,45 @@ _$_$endif_$_();
     _$_$endif_$_();
 
     // hash to query
-    var hash = win.location.hash;
+    let hash = win.location.hash;
     if (hash.length > 0) {
-      hash = hash.substr(1);
+      hash = hash.substring(1);
     }
-    var qstart = hash.indexOf("?");
-    if (qstart != -1) {
-      hash = hash.substr(0, qstart);
+    const qstart = hash.indexOf("?");
+    if (qstart !== -1) {
+      hash = hash.substring(0, qstart);
     }
 
     // workaround inconsistencies in hash character encoding
-    var ua = navigator.userAgent.toLowerCase();
-    if ((ua.indexOf("gecko") == -1) || (ua.indexOf("webkit") != -1)) {
+    const ua = navigator.userAgent.toLowerCase();
+    if ((ua.indexOf("gecko") === -1) || (ua.indexOf("webkit") !== -1)) {
       hash = unescape(hash);
     }
 
     // scale (VML)
-    var otherInfo = "";
-    if (screen.deviceXDPI != screen.logicalXDPI) {
+    let otherInfo = "";
+    if (screen.deviceXDPI !== screen.logicalXDPI) {
       otherInfo = "&scale=" + screen.deviceXDPI / screen.logicalXDPI;
     }
 
     _$_$if_WEBGL_DETECT_$_();
     // webgl-check
-    var webGLInfo = "";
     if (window.WebGLRenderingContext) {
-      var canvas = document.createElement("canvas");
-      var ctx = null;
+      const canvas = document.createElement("canvas");
+      let ctx = null;
       try {
         ctx = canvas.getContext("webgl", { antialias: true });
-      } catch (e) {}
-      if (ctx == null) {
+      } catch (e) {
+        // Empty catch
+      }
+      if (ctx === null) {
         try {
           ctx = canvas.getContext("experimental-webgl");
-        } catch (e) {}
+        } catch (e) {
+          // Empty catch
+        }
       }
-      if (ctx != null) {
+      if (ctx !== null) {
         otherInfo += "&webGL=true";
       }
     }
@@ -265,14 +288,14 @@ _$_$endif_$_();
     otherInfo += "&scrW=" + screen.width + "&scrH=" + screen.height;
 
     // determine url
-    var selfUrl = _$_SELF_URL_$_ + "&sid=" + _$_SCRIPT_ID_$_;
+    let selfUrl = _$_SELF_URL_$_ + "&sid=" + _$_SCRIPT_ID_$_;
 
     // determine html history support
-    var htmlHistory = !!(window.history && window.history.pushState),
+    const htmlHistory = !!(window.history && window.history.pushState),
       htmlHistoryInfo = htmlHistory ? "&htmlHistory=true" : "";
 
     // determine time zone offset
-    var tzOffset = (new Date()).getTimezoneOffset();
+    const tzOffset = (new Date()).getTimezoneOffset();
     otherInfo += "&tz=" + (-tzOffset);
 
     // determine time zone name, if available
@@ -285,7 +308,7 @@ _$_$endif_$_();
       otherInfo += "&tzS=" + encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone);
     }
 
-    var needSessionInUrl = !no_replace || !ajax;
+    let needSessionInUrl = !no_replace || !ajax;
 
     if (needSessionInUrl) {
       if (getParameter("wtd") === "_$_SESSION_ID_$_") {
@@ -297,8 +320,8 @@ _$_$endif_$_();
       if (htmlHistory) {
         setUrl(createUrl("wtd", "_$_SESSION_ID_$_"));
       } else {
-        var h;
-        if (hash.length > 1 && hash.charAt(0) == "/") {
+        let h;
+        if (hash.length > 1 && hash.charAt(0) === "/") {
           h = hash;
         } else {
           h = _$_INTERNAL_PATH_$_;
@@ -310,24 +333,24 @@ _$_$endif_$_();
         setUrl(selfUrl);
       }
     } else if (ajax) {
-      var canonicalUrl = _$_AJAX_CANONICAL_URL_$_,
-        hashInfo = "";
+      let canonicalUrl = _$_AJAX_CANONICAL_URL_$_;
+      let hashInfo = "";
       if (!htmlHistory && canonicalUrl.length > 1) {
         _$_$if_HYBRID_$_();
-        var pathcookie = "WtInternalPath=" + escape(_$_INTERNAL_PATH_$_) +
+        const pathcookie = "WtInternalPath=" + escape(_$_INTERNAL_PATH_$_) +
           ";path=/;expires=" + inOneSecond.toGMTString();
         doc.cookie = pathcookie;
         _$_$endif_$_();
         /* Otherwise we do not get a page reload */
-        if (canonicalUrl.charAt(0) == "#") {
+        if (canonicalUrl.charAt(0) === "#") {
           canonicalUrl = "../" + canonicalUrl;
         }
         setUrl(canonicalUrl);
       } else {
-        if (hash.length > 1 && hash.charAt(0) == "/") {
+        if (hash.length > 1 && hash.charAt(0) === "/") {
           hashInfo = "&_=" + encodeURIComponent(hash);
           _$_$if_HYBRID_$_();
-          if (hash != _$_INTERNAL_PATH_$_) {
+          if (hash !== _$_INTERNAL_PATH_$_) {
             setTimeout(hideForm, 10);
           }
           _$_$endif_$_();
@@ -341,7 +364,7 @@ _$_$endif_$_();
         setupDelayClick();
         _$_$endif_$_();
 
-        var allInfo = hashInfo + otherInfo + htmlHistoryInfo + deployPathInfo;
+        const allInfo = hashInfo + otherInfo + htmlHistoryInfo + deployPathInfo;
         _$_$ifnot_SPLIT_SCRIPT_$_();
         loadScript(selfUrl + allInfo + "&request=script&rand=" + rand(), null);
         _$_$endif_$_();
