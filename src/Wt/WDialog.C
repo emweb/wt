@@ -434,14 +434,12 @@ void WDialog::render(WFlags<RenderFlag> flags)
      */
     if (!app->environment().agentIsIElt(9) &&
         !app->environment().ajax()) {
-      std::string js = WString::tr("Wt.WDialog.CenterJS").toUTF8();
+      std::string js = WString::tr("Wt.WDialog.CenterJS").toXhtmlUTF8();
       Utils::replace(js, "$el", "'" + id() + "'");
       Utils::replace(js, "$centerX", centerX ? "1" : "0");
       Utils::replace(js, "$centerY", centerY ? "1" : "0");
 
-      impl_->bindString
-        ("center-script", "<script>" + Utils::htmlEncode(js)
-         + "</script>", TextFormat::UnsafeXHTML);
+      impl_->bindString("center-script", "<script>" + js + "</script>", TextFormat::UnsafeXHTML);
     } else
       impl_->bindEmpty("center-script");
   }
