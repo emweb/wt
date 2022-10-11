@@ -9,10 +9,11 @@
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WStackedWidget", function(APP, widget) {
   widget.wtObj = this;
 
-  var WT = APP.WT, scrollTops = [], scrollLefts = [], lastResizeWidth = null, lastResizeHeight = null;
+  const WT = APP.WT, scrollTops = [], scrollLefts = [];
+  let lastResizeWidth = null, lastResizeHeight = null;
 
   function isProperChild(el) {
-    return el.nodeType == 1 && !el.classList.contains("wt-reparented") && !el.classList.contains("resize-sensor");
+    return el.nodeType === 1 && !el.classList.contains("wt-reparented") && !el.classList.contains("resize-sensor");
   }
 
   this.reApplySize = function() {
@@ -25,7 +26,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WStackedWidget", function(APP, w
     lastResizeWidth = w;
     lastResizeHeight = h;
 
-    var hdefined = h >= 0;
+    const hdefined = h >= 0;
 
     if (setSize) {
       if (hdefined) {
@@ -56,7 +57,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WStackedWidget", function(APP, w
     }
 
     function marginV(el) {
-      var result = WT.px(el, "marginTop");
+      let result = WT.px(el, "marginTop");
       result += WT.px(el, "marginBottom");
 
       if (!WT.boxSizing(el)) {
@@ -69,14 +70,11 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WStackedWidget", function(APP, w
       return result;
     }
 
-    var j, jl, c;
-    for (j = 0, jl = self.childNodes.length; j < jl; ++j) {
-      c = self.childNodes[j];
-
+    for (const c of self.childNodes) {
       if (isProperChild(c)) {
         if (!WT.isHidden(c) && !c.classList.contains("out")) {
           if (hdefined) {
-            var ch = h - marginV(c);
+            const ch = h - marginV(c);
             if (ch > 0) {
               /*
                 to prevent that the first child widget's top margin bleeds
@@ -84,8 +82,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WStackedWidget", function(APP, w
                 and the original work-around 548948b63
               */
               if (c.offsetTop > 0) {
-                var of = WT.css(c, "overflow");
-                if (of === "visible" || of === "") {
+                const overflow = WT.css(c, "overflow");
+                if (overflow === "visible" || overflow === "") {
                   c.style.overflow = "auto";
                 }
               }
@@ -93,8 +91,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WStackedWidget", function(APP, w
               if (c.wtResize) {
                 c.wtResize(c, w, ch, true);
               } else {
-                var cheight = ch + "px";
-                if (c.style.height != cheight) {
+                const cheight = ch + "px";
+                if (c.style.height !== cheight) {
                   c.style.height = cheight;
                   c.lh = true;
                 }
@@ -118,15 +116,14 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WStackedWidget", function(APP, w
   };
 
   this.adjustScroll = function(child) {
-    var j, jl, c;
-    var sl = widget.scrollLeft, st = widget.scrollTop;
+    const sl = widget.scrollLeft, st = widget.scrollTop;
 
-    for (j = 0, jl = widget.childNodes.length; j < jl; ++j) {
-      c = widget.childNodes[j];
+    for (let j = 0, jl = widget.childNodes.length; j < jl; ++j) {
+      const c = widget.childNodes[j];
 
       if (isProperChild(c)) {
-        if (c != child) {
-          if (c.style.display != "none") {
+        if (c !== child) {
+          if (c.style.display !== "none") {
             scrollLefts[j] = sl;
             scrollTops[j] = st;
           }
@@ -144,16 +141,14 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WStackedWidget", function(APP, w
   };
 
   this.setCurrent = function(child) {
-    var j, jl, c;
-
     this.adjustScroll(child);
 
-    for (j = 0, jl = widget.childNodes.length; j < jl; ++j) {
-      c = widget.childNodes[j];
+    for (let j = 0, jl = widget.childNodes.length; j < jl; ++j) {
+      const c = widget.childNodes[j];
 
       if (isProperChild(c)) {
-        if (c != child) {
-          if (c.style.display != "none") {
+        if (c !== child) {
+          if (c.style.display !== "none") {
             c.style.display = "none";
           }
         } else {
@@ -180,26 +175,26 @@ WT_DECLARE_WT_MEMBER(
   JavaScriptPrototype,
   "WStackedWidget.prototype.animateChild",
   function(WT, child, effects, timing, duration, style) {
-    var doAnimateChild = function(WT, child, effects, timing, duration, style) {
-      /* const */ var SlideInFromLeft = 0x1;
-      /* const */ var SlideInFromRight = 0x2;
-      /* const */ var SlideInFromBottom = 0x3;
-      /* const */ var SlideInFromTop = 0x4;
-      /* const */ var Pop = 0x5;
-      /* const */ var Fade = 0x100;
+    const doAnimateChild = function(WT, child, effects, timing, duration, style) {
+      const SlideInFromLeft = 0x1;
+      const SlideInFromRight = 0x2;
+      const SlideInFromBottom = 0x3;
+      const SlideInFromTop = 0x4;
+      const Pop = 0x5;
+      const Fade = 0x100;
 
-      /* const */ var Ease = 0;
-      /* const */ var Linear = 1;
-      /* const */ var EaseIn = 2;
-      /* const */ var EaseOut = 3;
-      /* const */ var EaseInOut = 4;
-      /* const */ var CubicBezier = 5;
+      // const Ease = 0;
+      // const Linear = 1;
+      // const EaseIn = 2;
+      // const EaseOut = 3;
+      // const EaseInOut = 4;
+      // const CubicBezier = 5;
 
-      var timings = ["ease", "linear", "ease-in", "ease-out", "ease-in-out"],
+      const timings = ["ease", "linear", "ease-in", "ease-out", "ease-in-out"],
         inverseTiming = [0, 1, 3, 2, 4, 5],
         prefix = WT.vendorPrefix(WT.styleAttribute("animation-duration"));
 
-      var animationEventEnd = prefix == "Webkit" ?
+      const animationEventEnd = prefix === "Webkit" ?
         "webkitAnimationEnd" :
         "animationend";
 
@@ -211,16 +206,17 @@ WT_DECLARE_WT_MEMBER(
         return;
       }
 
-      var stack = child.parentNode;
-      var reverseIfPrecedes = stack.wtAutoReverse;
+      const stack = child.parentNode;
+      const reverseIfPrecedes = stack.wtAutoReverse;
 
       function getIndexes() {
-        var i, il = stack.childNodes.length, fromI = -1, toI = -1;
+        let i, fromI = -1, toI = -1;
+        const il = stack.childNodes.length;
 
-        for (i = 0; i < il && (fromI == -1 || toI == -1); ++i) {
-          var ch = stack.childNodes[i];
+        for (i = 0; i < il && (fromI === -1 || toI === -1); ++i) {
+          const ch = stack.childNodes[i];
 
-          if (ch == child) {
+          if (ch === child) {
             toI = i;
           } else if (ch.style.display !== "none" && !ch.classList.contains("out")) {
             fromI = i;
@@ -230,15 +226,15 @@ WT_DECLARE_WT_MEMBER(
         return { from: fromI, to: toI };
       }
 
-      var index = getIndexes();
+      const index = getIndexes();
 
-      if (index.from == -1 || index.to == -1 || index.from == index.to) {
+      if (index.from === -1 || index.to === -1 || index.from === index.to) {
         return;
       }
 
-      var from = stack.childNodes[index.from],
-        to = stack.childNodes[index.to],
-        h = stack.scrollHeight,
+      const from = stack.childNodes[index.from],
+        to = stack.childNodes[index.to];
+      let h = stack.scrollHeight,
         w = stack.scrollWidth;
 
       function restoreTo() {
@@ -329,6 +325,7 @@ WT_DECLARE_WT_MEMBER(
       switch (effects & 0xFF) {
         case SlideInFromLeft:
           needReverse = !needReverse;
+          /* fallthrough */
         case SlideInFromRight:
           anim = ["slide"];
           break;
