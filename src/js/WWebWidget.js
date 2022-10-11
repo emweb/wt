@@ -7,40 +7,40 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, effects, timing, duration, display) {
-  var WT = APP.WT;
+  const WT = APP.WT;
 
-  var doAnimateDisplay = function(id, effects, timing, duration, display) {
-    /* const */ var NoEffect = 0x0;
-    /* const */ var SlideInFromLeft = 0x1;
-    /* const */ var SlideInFromRight = 0x2;
-    /* const */ var SlideInFromBottom = 0x3;
-    /* const */ var SlideInFromTop = 0x4;
-    /* const */ var Pop = 0x5;
-    /* const */ var Fade = 0x100;
+  const doAnimateDisplay = function(id, effects, timing, duration, display) {
+    const NoEffect = 0x0;
+    const SlideInFromLeft = 0x1;
+    const SlideInFromRight = 0x2;
+    const SlideInFromBottom = 0x3;
+    const SlideInFromTop = 0x4;
+    const Pop = 0x5;
+    const Fade = 0x100;
 
-    /* const */ var Ease = 0;
-    /* const */ var Linear = 1;
-    /* const */ var EaseIn = 2;
-    /* const */ var EaseOut = 3;
-    /* const */ var EaseInOut = 4;
-    /* const */ var CubicBezier = 5;
+    // const Ease = 0;
+    // const Linear = 1;
+    // const EaseIn = 2;
+    // const EaseOut = 3;
+    // const EaseInOut = 4;
+    // const CubicBezier = 5;
 
-    var timings = ["ease", "linear", "ease-in", "ease-out", "ease-in-out"],
+    const timings = ["ease", "linear", "ease-in", "ease-out", "ease-in-out"],
       inverseTiming = [0, 1, 3, 2, 4, 5];
 
-    var animationPrefix = WT.vendorPrefix(WT.styleAttribute("animation"));
-    var transitionPrefix = WT.vendorPrefix(WT.styleAttribute("transition"));
-    var transformPrefix = WT.vendorPrefix(WT.styleAttribute("transform"));
-    let el = WT.$(id),
-      animationEventEnd = animationPrefix == "Webkit" ?
+    const animationPrefix = WT.vendorPrefix(WT.styleAttribute("animation"));
+    const transitionPrefix = WT.vendorPrefix(WT.styleAttribute("transition"));
+    const transformPrefix = WT.vendorPrefix(WT.styleAttribute("transform"));
+    const el = WT.$(id),
+      animationEventEnd = animationPrefix === "Webkit" ?
         "webkitAnimationEnd" :
         "animationend",
-      transitionEventEnd = transitionPrefix == "Webkit" ?
+      transitionEventEnd = transitionPrefix === "Webkit" ?
         "webkitTransitionEnd" :
         "transitionend";
 
     if (WT.css(el, "display") !== display) {
-      var p = el.parentNode;
+      const p = el.parentNode;
 
       if (p.wtAnimateChild) {
         p.wtAnimateChild(WT, el, effects, timing, duration, { display: display });
@@ -56,24 +56,22 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
 
       el.classList.add("animating");
 
-      var effect = effects & 0xFF,
+      const effect = effects & 0xFF,
         hide = display === "none",
         cssTiming = timings[hide ? inverseTiming[timing] : timing],
         elStyle = {};
 
       function set(el, style, savedStyle) {
-        var i, il;
+        for (const i of Object.keys(style)) {
+          let k = i;
 
-        for (i in style) {
-          var k = i;
-
-          if (k == "animationDuration" && animationPrefix != "") {
+          if (k === "animationDuration" && animationPrefix !== "") {
             k = animationPrefix + k.substring(0, 1).toUpperCase() +
               k.substring(1);
-          } else if (k == "transform" && transformPrefix != "") {
+          } else if (k === "transform" && transformPrefix !== "") {
             k = transformPrefix + k.substring(0, 1).toUpperCase() +
               k.substring(1);
-          } else if (k == "transition" && transitionPrefix != "") {
+          } else if (k === "transition" && transitionPrefix !== "") {
             k = transitionPrefix + k.substring(0, 1).toUpperCase() +
               k.substring(1);
           }
@@ -85,7 +83,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
         }
       }
 
-      var restore = set;
+      const restore = set;
 
       function onEnd() {
         if (el.wtAnimatedHidden) {
@@ -110,13 +108,15 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
       }
 
       function animateStaticVertical() {
-        var targetHeight, currentHeight, elcStyle = {}, elc;
+        let targetHeight, currentHeight;
+        const elcStyle = {};
+        let elc;
 
         if (hide) {
           currentHeight = WT.css(el, "height");
           set(el, { height: currentHeight, overflow: "hidden" }, elStyle);
 
-          if (effect == SlideInFromTop && el.childNodes.length == 1) {
+          if (effect === SlideInFromTop && el.childNodes.length === 1) {
             elc = el.firstChild;
             set(elc, { transform: "translateY(0)" }, elcStyle);
             if (!WT.hasTag(elc, "TABLE")) {
@@ -126,13 +126,13 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
 
           targetHeight = "0px";
         } else {
-          let pStyle = {};
+          const pStyle = {};
 
           set(p, { height: WT.css(p, "height"), overflow: "hidden" }, pStyle);
 
           show();
 
-          if (WT.css(el, "height") == "0px") {
+          if (WT.css(el, "height") === "0px") {
             el.style.height = "auto";
           }
 
@@ -140,7 +140,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
           set(el, { height: "0px", overflow: "hidden" }, elStyle);
           restore(p, pStyle);
 
-          if (effect == SlideInFromTop) {
+          if (effect === SlideInFromTop) {
             set(el, { WebkitBackfaceVisibility: "visible" }, elStyle);
             el.scrollTop = 1000;
           }
@@ -150,7 +150,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
           set(el, { opacity: (hide ? 1 : 0) }, elStyle);
         }
 
-        var currentHeight = el.clientHeight; // force 'absorbing' set height
+        currentHeight = el.clientHeight; // force 'absorbing' set height
 
         setTimeout(function() {
           set(el, { transition: "all " + duration + "ms " + cssTiming, height: targetHeight }, elStyle);
@@ -172,7 +172,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
             }
 
             restore(el, elStyle);
-            if (effect == SlideInFromTop) {
+            if (effect === SlideInFromTop) {
               el.scrollTop = 0;
               if (elc) {
                 restore(elc, elcStyle);
@@ -189,10 +189,10 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
           show();
         }
 
-        var size = WT.px(el, cssSize),
+        const size = WT.px(el, cssSize),
           hiddenU = (WT.px(el, cssOffset) + size) * (topleft ? -1 : 1);
 
-        var targetU;
+        let targetU;
         if (hide) {
           set(el, { transform: "translate" + U + "(0px)" }, elStyle);
           targetU = hiddenU;
@@ -229,11 +229,11 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
       }
 
       function animateAbsoluteVertical() {
-        animateAbsolute("height", effect == SlideInFromTop ? "top" : "bottom", effect == SlideInFromTop, "Y");
+        animateAbsolute("height", effect === SlideInFromTop ? "top" : "bottom", effect === SlideInFromTop, "Y");
       }
 
       function animateAbsoluteHorizontal() {
-        animateAbsolute("width", effect == SlideInFromLeft ? "left" : "right", effect == SlideInFromLeft, "X");
+        animateAbsolute("width", effect === SlideInFromLeft ? "left" : "right", effect === SlideInFromLeft, "X");
       }
 
       function animateTransition() {
@@ -243,7 +243,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
           el.classList.remove("in");
         }
 
-        var cl;
+        let cl;
 
         switch (effect) {
           case Pop:
@@ -282,7 +282,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "animateDisplay", function(APP, id, 
       }
 
       setTimeout(function() {
-        var position = WT.css(el, "position"),
+        const position = WT.css(el, "position"),
           absolute = (position === "absolute" || position === "fixed");
 
         switch (effect) {
@@ -318,6 +318,6 @@ WT_DECLARE_WT_MEMBER(
   2,
   JavaScriptFunction,
   "animateVisible",
-  function(id, effects, timing, duration, visibility, position, top, left) {
+  function(_id, _effects, _timing, _duration, _visibility, _position, _top, _left) {
   }
 );
