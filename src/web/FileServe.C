@@ -67,6 +67,7 @@ void FileServe::streamUntil(WStringStream& out, const std::string& until)
 {
   std::string currentVar;
   bool readingVar = false;
+  bool comment = false;
 
   int start = currentPos_;
   int noMatchConditions = 0;
@@ -126,6 +127,11 @@ void FileServe::streamUntil(WStringStream& out, const std::string& until)
         currentPos_ += 2;
       } else
         currentVar.push_back(*s);
+    } else if (comment) {
+      if (std::strncmp(s, "*/", 2) == 0) {
+        comment = false;
+        ++currentPos_; // Skip over next character
+      }
     } else {
       if (std::strncmp(s, "_$_", 3) == 0) {
         if (!noMatchConditions && (currentPos_ - start > 0))
@@ -134,6 +140,9 @@ void FileServe::streamUntil(WStringStream& out, const std::string& until)
         currentPos_ += 2;
         readingVar = true;
         currentVar.clear();
+      } else if (std::strncmp(s, "/*", 2) == 0) {
+        comment = true;
+        ++currentPos_; // Skip over next character
       }
     }
   }
