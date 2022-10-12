@@ -28,10 +28,8 @@ WT_DECLARE_WT_MEMBER(2, JavaScriptFunction, "setValidationState", function(edit,
   /* const */ var ValidationInvalidStyle = 0x1;
   /* const */ var ValidationValidStyle = 0x2;
 
-  var validStyle = (state == 1) &&
-    ((styles & ValidationValidStyle) != 0);
-  var invalidStyle = (state != 1) &&
-    ((styles & ValidationInvalidStyle) != 0);
+  var validStyle = state && ((styles & ValidationValidStyle) != 0);
+  var invalidStyle = !state && ((styles & ValidationInvalidStyle) != 0);
 
   edit.classList.toggle("Wt-valid", validStyle);
   edit.classList.toggle("Wt-invalid", invalidStyle);

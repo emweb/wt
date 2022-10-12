@@ -518,7 +518,7 @@ void WBootstrap3Theme::applyValidationStyle(WWidget *widget,
   if (app->environment().ajax()) {
     WStringStream js;
     js << WT_CLASS ".setValidationState(" << widget->jsRef() << ","
-       << (validation.state() == ValidationState::Valid ? 1 : 0) << ","
+       << (validation.state() == ValidationState::Valid) << ","
        << validation.message().jsStringLiteral() << ","
        << styles.value() << ");";
 
