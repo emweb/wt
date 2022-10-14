@@ -1,0 +1,49 @@
+env:
+  browser: true
+  es2021: true
+extends: eslint:recommended
+overrides: []
+globals:
+  WT_DECLARE_APP_MEMBER: readonly
+  WT_DECLARE_WT_MEMBER: readonly
+  WT_DECLARE_WT_MEMBER_BIG: readonly
+  JavaScriptFunction: readonly
+  JavaScriptConstructor: readonly
+  JavaScriptObject: readonly
+  JavaScriptPrototype: readonly
+parserOptions:
+  ecmaVersion: latest
+rules:
+  # Possible Problems
+  no-constructor-return:
+    - error
+  no-inner-declarations:
+    - off
+  no-unused-vars:
+    - error
+    - argsIgnorePattern: ^_
+      varsIgnorePattern: ^_
+  # Suggestions
+  consistent-return:
+    - error
+  eqeqeq:
+    - error
+  guard-for-in:
+    - error
+  no-implicit-globals:
+    - error
+  no-sequences:
+    - error
+  no-undefined:
+    - error
+  no-var:
+    - error
+  prefer-const:
+    - error
+  # Layout & Formatting
+  # dprint does not reformat comments,
+  # this catches max-len violations in comments:
+  max-len:
+    - error
+    - code: 120
+      tabWidth: 8

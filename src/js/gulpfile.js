@@ -1,3 +1,4 @@
+/* eslint-env node */
 const gulp = require("gulp");
 const rename = require("gulp-rename");
 const terser = require("gulp-terser");
