@@ -16,6 +16,8 @@ node('wt') {
     group_name = sh(returnStdout: true, script: 'id -gn').trim()
     container_ccache_dir = "/home/${user_name}/.ccache"
     host_ccache_dir = "/local/home/${user_name}/.ccache"
+    container_pnpm_store_dir = "/home/${user_name}/.pnpm-store"
+    host_pnpm_store_dir = "/local/home/${user_name}/.pnpm-store"
 }
 
 def wt_configure(Map args) {
@@ -54,7 +56,10 @@ pipeline {
             label 'wt'
             dir 'jenkins/linux'
             filename 'minimal.Dockerfile'
-            args "--env CCACHE_DIR=${container_ccache_dir} --env CCACHE_MAXSIZE=20G --volume ${host_ccache_dir}:${container_ccache_dir}:z"
+            args """--env CCACHE_DIR=${container_ccache_dir} \
+                    --env CCACHE_MAXSIZE=20G \
+                    --volume ${host_ccache_dir}:${container_ccache_dir}:z
+                    --volume ${host_pnpm_store_dir}:${container_pnpm_store_dir}:z"""
             additionalBuildArgs """--build-arg USER_ID=${user_id} \
                                    --build-arg USER_NAME=${user_name} \
                                    --build-arg GROUP_ID=${group_id} \

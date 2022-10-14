@@ -45,6 +45,10 @@ USER ${USER_ID}
 
 RUN cd "${HOME}" && wget -qO- https://get.pnpm.io/install.sh | bash -
 
-RUN cd "${HOME}" && PNPM_HOME="${HOME}/.local/share/pnpm" PATH="${PNPM_HOME}:${PATH}" pnpm env use --global lts
+RUN export PNPM_HOME="${HOME}/.local/share/pnpm"; \
+    export PATH="${PNPM_HOME}:${PATH}"; \
+    cd "${HOME}" \
+ && pnpm env use --global lts \
+ && pnpm config set store-dir "${HOME}/.pnpm-store"
 
 USER root
