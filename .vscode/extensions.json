@@ -1,6 +1,7 @@
 {
   "recommendations": [
     "dprint.dprint",
-    "EditorConfig.EditorConfig"
+    "EditorConfig.EditorConfig",
+    "dbaeumer.vscode-eslint"
   ]
 }
