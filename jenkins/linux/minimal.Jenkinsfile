@@ -95,6 +95,17 @@ pipeline {
                         }
                     }
                 }
+                stage('Linting') {
+                    steps {
+                        dir('src/js') {
+                            sh '''#!/bin/bash
+                              export PNPM_HOME="${HOME}/.local/share/pnpm"
+                              export PATH="${PNPM_HOME}:${PATH}"
+                              pnpm run lint-junit
+                            '''
+                        }
+                    }
+                }
             }
         }
         stage('Single-threaded') {
@@ -128,6 +139,7 @@ pipeline {
     }
     post {
         always {
+            junit 'eslint-report.xml'
             junit '*_test_log.xml'
         }
         cleanup {

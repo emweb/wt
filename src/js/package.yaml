@@ -6,6 +6,14 @@ scripts:
   lint:
     "cd ../.. && \
     eslint --config ./.eslintrc.yml --ignore-path ./.eslintignore src/js src/web/skeleton"
+  lint-junit:
+    "cd ../.. && \
+    eslint \
+      --config ./.eslintrc.yml \
+      --ignore-path ./.eslintignore \
+      --format junit \
+      --output-file eslint-report.xml \
+      src/js src/web/skeleton"
 author: Emweb bv
 license : GPL-2.0-only
 private: true
