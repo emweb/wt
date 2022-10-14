@@ -56,6 +56,19 @@ pnpm run minify
 
 This will minify all JavaScript in `src/js` and `src/web/skeleton`.
 
+## Linting
+
+We use [ESLint](https://eslint.org) for linting. If you use Visual Studio Code
+to edit the JavaScript, you can use the ESLint extension. You can also run ESLint
+from the command line:
+
+```shell
+cd src/js
+pnpm run lint
+```
+
+This will run the linter on all JavaScript in `src/js` and `src/web/skeleton`.
+
 ## Debugging JavaScript
 
 Configure Wt with `-DDEBUG_JS=ON` to make Wt serve the non-minified JavaScript
