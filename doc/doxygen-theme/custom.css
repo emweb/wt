@@ -1,0 +1,4 @@
+html {
+  /* Allow a bit more extra space for the diagrams */
+  --content-maxwidth: 1250px;
+}
