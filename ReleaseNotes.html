@@ -115,6 +115,23 @@ behaviour.
   </li>
 </ul>
 
+
+<h2>Release 4.8.2 (November 4, 2022)</h2>
+
+<p>
+  Wt 4.8.2 is a patch release that addresses the following issue:
+</p>
+
+<ul>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10970" target="_blank">Issue #10970</a>:
+    Sending an <code>OPTIONS *</code> request could cause an assertion failure when trying
+    to match the request to an entry point. This could cause a crash if assertions are enabled,
+    though they usually aren't in production builds. Since these types of requests are not properly
+    supported by <code>wthttp</code>, <code>OPTIONS *</code> requests are now rejected.
+  </li>
+</ul>
+
 <h2>Release 4.8.1 (September 22, 2022)</h2>
 
 <p>
