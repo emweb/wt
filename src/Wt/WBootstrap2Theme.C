@@ -154,6 +154,8 @@ void WBootstrap2Theme::apply(WWidget *widget,
     child->addStyleClass("accordion-heading");
     break;
   case PanelCollapseButton:
+    child->setFloatSide(Side::Left);
+    // fallthrough
   case PanelTitle:
     child->addStyleClass("accordion-toggle");
     break;

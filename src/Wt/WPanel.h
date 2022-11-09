@@ -66,6 +66,9 @@ public:
    * The default value is \c false: the title bar is not shown unless a
    * title is set or the panel is made collapsible.
    *
+   * If the title bar is hidden, the panel is automatically made
+   * non-collapsible, and expands if it was collapsed.
+   *
    * \sa setTitle(const WString&), setCollapsible(bool)
    */
   void setTitleBar(bool enable);
@@ -96,13 +99,11 @@ public:
    * title bar. This also calls setTitleBar(true) to enable the
    * title bar.
    *
+   * Additionally, the Wt-collapsible class is added to the panel.
+   *
    * The default value is \c false.
    *
    * \sa setTitleBar(bool), setCollapsed(bool), isCollapsed()
-   *
-   * \note It is possible to make a WPanel collapsible with WBootstrap5Theme,
-   * but collapsing and expanding from C++, and the accompanying signals
-   * is not supported.
    */
   void setCollapsible(bool on);
 
@@ -110,7 +111,7 @@ public:
    *
    * \sa setCollapsible(bool)
    */
-  bool isCollapsible() const { return isCollapsible_; }
+  bool isCollapsible() const { return collapseIcon_ != nullptr; }
 
   /*! \brief Sets the panel expanded or collapsed.
    *
@@ -118,6 +119,8 @@ public:
    * expand().
    *
    * The default value is \c false.
+   *
+   * If the panel is collapsed, the Wt-collapsed style class is added.
    *
    * \sa setCollapsible(bool)
    *
@@ -231,6 +234,9 @@ public:
 
   WIconPair *collapseIcon() const { return collapseIcon_; }
 
+protected:
+  void enableAjax() override;
+
 private:
   WIconPair *collapseIcon_;
   WWidget *title_;
@@ -243,9 +249,7 @@ private:
   Signal<bool> collapsedSS_, expandedSS_;
 
   bool wasCollapsed_;
-  bool isCollapsible_;
 
-  void setJsSize();
   void toggleCollapse();
   void doExpand();
   void doCollapse();

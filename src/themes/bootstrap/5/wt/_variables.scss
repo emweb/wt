@@ -17,6 +17,12 @@ $wt-time-edit-feedback-icon-position: $form-select-feedback-icon-position !defau
 $wt-time-edit-feedback-icon-size: $form-select-feedback-icon-size !default;
 $wt-time-edit-feedback-icon-padding-end: $form-select-feedback-icon-padding-end !default;
 
+$wt-panel-collapse-icon: $accordion-button-icon !default;
+$wt-panel-collapse-icon-width: $accordion-icon-width !default;
+$wt-panel-collapse-active-icon: $accordion-button-active-icon !default;
+$wt-panel-collapse-icon-transform: $accordion-icon-transform !default;
+$wt-panel-collapse-icon-transition: $accordion-icon-transition !default;
+
 $wt-spinbox-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1.2em' height='1.2em' viewBox='-5 0 30 16'><path transform='translate(0, -10)' stroke='#6c757d' stroke-width='2' fill-rule='evenodd' d='M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z'/><path transform='translate(0, 10)' fill-rule='evenodd' stroke='#6c757d' stroke-width='2'  d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>") !default;
 $wt-spinbox-icon-up: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1.2em' height='1.2em' viewBox='-5 0 30 16'><path transform='translate(0, -10)' stroke='#343a40' stroke-width='2'  fill-rule='evenodd' d='M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z'/><path transform='translate(0, 10)' fill-rule='evenodd' stroke='#6c757d' stroke-width='2'  d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>") !default;
 $wt-spinbox-icon-down: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1.2em' height='1.2em' viewBox='-5 0 30 16'><path transform='translate(0, -10)' stroke='#6c757d' stroke-width='2'  fill-rule='evenodd' d='M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z'/><path transform='translate(0, 10)' fill-rule='evenodd' stroke='#343a40' stroke-width='2'  d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>") !default;

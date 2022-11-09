@@ -180,14 +180,6 @@ public:
   virtual void apply(WWidget *widget, DomElement& element, int elementRole)
     const = 0;
 
-  /*! \brief Sets the data target for a widget.
-   *
-   * The \p widget is a bootstrap element that requires a data-bs-target
-   * attribute to function (with Bootstrap JS). The \p target is the
-   * element that is targeted by the \p widget.
-   */
-  virtual void setDataTarget(WWidget *widget, WWidget *target) const {};
-
   /*! \brief Returns a generic CSS class name for a disabled element.
    */
   virtual std::string disabledClass() const = 0;
@@ -215,6 +207,12 @@ public:
     = 0;
 
   virtual bool canBorderBoxElement(const DomElement& element) const = 0;
+
+  /*! \brief Returns which side the WPanel collapse icon should be added on
+   *
+   * Side is assumed to be Side::Left or Side::Right, other sides are not supported.
+   */
+  virtual Side panelCollapseIconSide() const;
 };
 
 }

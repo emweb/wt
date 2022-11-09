@@ -136,6 +136,9 @@ void WCssTheme::apply(WWidget *widget, WWidget *child, int widgetRole) const
   case PanelBody:
     child->addStyleClass("body");
     break;
+  case PanelCollapseButton:
+    child->setFloatSide(Side::Left);
+    break;
 
   case AuthWidgets:
     WApplication *app = WApplication::instance();

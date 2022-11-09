@@ -32,4 +32,9 @@ void WTheme::serveCss(WStringStream& out) const
     sheets[i].cssText(out);
 }
 
+Side WTheme::panelCollapseIconSide() const
+{
+  return Side::Left;
+}
+
 }

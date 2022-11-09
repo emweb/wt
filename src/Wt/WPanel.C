@@ -6,13 +6,13 @@
 
 #include <Wt/WApplication.h>
 #include <Wt/WContainerWidget.h>
+#include <Wt/WEnvironment.h>
 #include <Wt/WPushButton.h>
 #include <Wt/WIconPair.h>
 #include <Wt/WPanel.h>
 #include <Wt/WTemplate.h>
 #include <Wt/WText.h>
 #include <Wt/WTheme.h>
-#include <Wt/WBootstrap5Theme.h>
 
 #include "StdWidgetItemImpl.h"
 
@@ -21,8 +21,7 @@ namespace Wt {
 WPanel::WPanel()
   : collapseIcon_(nullptr),
     title_(nullptr),
-    centralWidget_(nullptr),
-    isCollapsible_(false)
+    centralWidget_(nullptr)
 {
   const char *TEMPLATE =
     "${titlebar}"
@@ -125,67 +124,60 @@ WContainerWidget *WPanel::titleBarWidget() const
 
 void WPanel::setTitleBar(bool enable)
 {
-  if (enable && !titleBarWidget()) {
+  if (enable && !titleBar()) {
     impl_->bindWidget("titlebar", std::make_unique<WContainerWidget>());
   } else if (!enable && titleBar()) {
+    if (isCollapsible()) {
+      setCollapsible(false);
+    }
     impl_->bindEmpty("titlebar");
     title_ = nullptr;
-    collapseIcon_ = nullptr;
   }
 }
 
 void WPanel::setCollapsible(bool on)
 {
-  auto app = WApplication::instance();
-  auto bs5Theme = std::dynamic_pointer_cast<WBootstrap5Theme>(app->theme());
+  toggleStyleClass("Wt-collapsible", on);
 
-  if (!bs5Theme) {
-    if (on && !isCollapsible()) {
-      isCollapsible_ = on;
-
-      std::string resources = WApplication::relativeResourcesUrl();
-
-      setTitleBar(true);
-      std::unique_ptr<WIconPair> icon
-        (collapseIcon_ = new WIconPair(resources + "collapse.gif",
-                                       resources + "expand.gif"));
-      collapseIcon_->setFloatSide(Side::Left);
-
-      titleBarWidget()->insertWidget(0, std::move(icon));
-
-      collapseIcon_->icon1Clicked().connect(this, &WPanel::doCollapse);
-      collapseIcon_->icon1Clicked().connect(this, &WPanel::onCollapse);
-      collapseIcon_->icon1Clicked().preventPropagation();
-      collapseIcon_->icon2Clicked().connect(this, &WPanel::doExpand);
-      collapseIcon_->icon2Clicked().connect(this, &WPanel::onExpand);
-      collapseIcon_->icon2Clicked().preventPropagation();
-      collapseIcon_->setState(isCollapsed() ? 1 : 0);
-
-      titleBarWidget()->clicked().connect(this, &WPanel::toggleCollapse);
-
-      app->theme()->apply(this, collapseIcon_, PanelCollapseButton);
-    } else if (!on && collapseIcon_) {
-      isCollapsible_ = on;
-
-      titleBarWidget()->removeWidget(collapseIcon_);
-      collapseIcon_ = nullptr;
-    }
-  } else if (on && !isCollapsible()) {
-    isCollapsible_ = on;
+  if (on && !isCollapsible()) {
+    std::string resources = WApplication::relativeResourcesUrl();
 
     setTitleBar(true);
 
-    if (title_) {
-      auto currentText = dynamic_cast<WText*>(title_)->text();
-      titleBarWidget()->removeWidget(title_);
-      title_ = titleBarWidget()->addWidget(std::make_unique<WPushButton>());
-      dynamic_cast<WPushButton*>(title_)->setText(currentText);
-      app->theme()->apply(this, title_, PanelCollapseButton);
-      app->theme()->apply(this, titleBarWidget(), PanelTitleBar);
-      app->theme()->setDataTarget(title_, centralArea());
+    auto app = WApplication::instance();
+
+    auto icon = std::make_unique<WIconPair>(resources + "collapse.gif",
+                                            resources + "expand.gif");
+
+    collapseIcon_ = icon.get();
+    if (app->theme()->panelCollapseIconSide() == Side::Left) {
+      titleBarWidget()->insertWidget(0, std::move(icon));
+    } else {
+      titleBarWidget()->addWidget(std::move(icon));
     }
-  } else {
-    isCollapsible_ = on;
+
+    collapseIcon_->icon1Clicked().connect(this, &WPanel::doCollapse);
+    collapseIcon_->icon1Clicked().connect(this, &WPanel::onCollapse);
+    collapseIcon_->icon1Clicked().preventPropagation();
+    collapseIcon_->icon2Clicked().connect(this, &WPanel::doExpand);
+    collapseIcon_->icon2Clicked().connect(this, &WPanel::onExpand);
+    collapseIcon_->icon2Clicked().preventPropagation();
+    collapseIcon_->setState(isCollapsed() ? 1 : 0);
+
+    app->theme()->apply(this, collapseIcon_, PanelCollapseButton);
+
+    if (app->environment().ajax()) {
+      // Prevent the title bar from turning into a <button> when JS is not available.
+      // We can click the collapse icon instead.
+      titleBarWidget()->clicked().connect(this, &WPanel::toggleCollapse);
+    }
+  } else if (!on && isCollapsible()) {
+    if (isCollapsed()) {
+      setCollapsed(false);
+    }
+
+    titleBarWidget()->removeWidget(collapseIcon_);
+    collapseIcon_ = nullptr;
   }
 }
 
@@ -214,10 +206,7 @@ bool WPanel::isCollapsed() const
 
 void WPanel::collapse()
 {
-  // With Bootstrap 5 a WPanel can be collapsed
-  // by user interaction, but there is no collapse
-  // icon, and collapse() has no effect
-  if (isCollapsible() && collapseIcon_) {
+  if (isCollapsible()) {
     collapseIcon_->showIcon2();
 
     doCollapse();
@@ -226,10 +215,7 @@ void WPanel::collapse()
 
 void WPanel::expand()
 {
-  // With Bootstrap 5 a WPanel can be collapsed
-  // by user interaction, but there is no collapse
-  // icon, and expand() has no effect
-  if (isCollapsible() && collapseIcon_) {
+  if (isCollapsible()) {
     collapseIcon_->showIcon1();
 
     doExpand();
@@ -238,9 +224,6 @@ void WPanel::expand()
 
 void WPanel::setAnimation(const WAnimation& transition)
 {
-  Wt::WBootstrap5Theme *bs5Theme = dynamic_cast<Wt::WBootstrap5Theme *>(wApp->theme().get());
-  if (bs5Theme)
-    return;
   animation_ = transition;
 
   if (!animation_.empty())
@@ -251,6 +234,7 @@ void WPanel::doCollapse()
 {
   wasCollapsed_ = isCollapsed();
 
+  addStyleClass("Wt-collapsed", true);
   centralArea()->animateHide(animation_);
 
   collapsedSS_.emit(true);
@@ -260,6 +244,7 @@ void WPanel::doExpand()
 {
   wasCollapsed_ = isCollapsed();
 
+  removeStyleClass("Wt-collapsed", true);
   centralArea()->animateShow(animation_);
 
   expandedSS_.emit(true);
@@ -312,6 +297,15 @@ void WPanel::setCentralWidget(std::unique_ptr<WWidget> w)
 WContainerWidget *WPanel::centralArea() const
 {
   return dynamic_cast<WContainerWidget *>(impl_->resolveWidget("contents"));
+}
+
+void WPanel::enableAjax()
+{
+  WCompositeWidget::enableAjax();
+
+  if (isCollapsible()) {
+    titleBarWidget()->clicked().connect(this, &WPanel::toggleCollapse);
+  }
 }
 
 }

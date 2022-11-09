@@ -63,7 +63,6 @@ public:
   std::vector<WLinkedCssStyleSheet> styleSheets() const override;
   void apply(WWidget *widget, WWidget *child, int widgetRole) const override;
   void apply(WWidget *widget, DomElement &element, int elementRole) const override;
-  void setDataTarget(WWidget *widget, WWidget *target) const override;
   std::string disabledClass() const override;
   std::string activeClass() const override;
   std::string utilityCssClass(int utilityCssClassRole) const override;
@@ -72,6 +71,7 @@ public:
                             const Wt::WValidator::Result &validation,
                             WFlags<ValidationStyleFlag> flags) const override;
   bool canBorderBoxElement(const DomElement &element) const override;
+  Side panelCollapseIconSide() const override;
 
 private:
   static std::string classBtn(const WWidget *widget);

@@ -186,6 +186,8 @@ void WBootstrap3Theme::init(WApplication *app) const
     break;
 
   case PanelCollapseButton:
+    child->setFloatSide(Side::Left);
+    // fallthrough
   case PanelTitle:
     child->addStyleClass("accordion-toggle");
     break;

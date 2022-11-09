@@ -1,0 +1,52 @@
+.card.Wt-panel.Wt-collapsible {
+  // When a panel is collapsed, we get a double border at the bottom
+  // To avoid this, we remove the border-bottom from the header and add it
+  // to the card-body.
+  > .card-header {
+    border-bottom: none;
+  }
+  > .card-body {
+    border-top: var(--#{$prefix}card-border-width) solid var(--#{$prefix}card-border-color);
+  }
+
+  // Using flex to put the collapse button on the right, and in the vertical middle
+  > .card-header {
+    display: flex;
+    flex-direction: row;
+
+    > :first-child {
+      flex-grow: 1;
+    }
+  }
+
+  > .card-header > .Wt-collapse-button {
+    display: block;
+    flex: none;
+    align-self: center;
+
+    width: #{$wt-panel-collapse-icon-width};
+    height: #{$wt-panel-collapse-icon-width};
+
+    background-image: #{escape-svg($wt-panel-collapse-icon)};
+    background-repeat: no-repeat;
+    background-size: #{$wt-panel-collapse-icon-width};
+    @include transition(#{$wt-panel-collapse-icon-transition});
+
+    // WIconPair uses img when JS is available,
+    // and input type="image" if JS is not available
+    // Even though the image is empty (1px transparent gif), it is given the
+    // appropriate size to make its clicked signals work properly.
+    > img,
+    > input[type="image"] {
+      width: #{$wt-panel-collapse-icon-width};
+      height: #{$wt-panel-collapse-icon-width};
+    }
+  }
+
+  &:not(.Wt-collapsed) {
+    > .card-header > .Wt-collapse-button {
+      background-image: #{escape-svg($wt-panel-collapse-active-icon)};
+      transform: #{$wt-panel-collapse-icon-transform};
+    }
+  }
+}
