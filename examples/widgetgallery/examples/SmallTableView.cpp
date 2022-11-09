@@ -1,7 +1,8 @@
 #include <Wt/WApplication.h>
 #include <Wt/WStandardItemModel.h>
 #include <Wt/WTableView.h>
-#include "../treeview-dragdrop/CsvUtil.h"
+
+#include "../../treeview-dragdrop/CsvUtil.h"
 
 SAMPLE_BEGIN(SmallTableView)
 auto tableView = std::make_unique<WTableView>();

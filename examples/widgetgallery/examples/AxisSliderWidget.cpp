@@ -12,7 +12,7 @@
 #include <Wt/WShadow.h>
 #include <Wt/WStandardItemModel.h>
 
-#include "../treeview-dragdrop/CsvUtil.h"
+#include "../../treeview-dragdrop/CsvUtil.h"
 
 SAMPLE_BEGIN(AxisSliderWidget)
 

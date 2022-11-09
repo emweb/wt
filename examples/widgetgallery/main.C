@@ -73,8 +73,6 @@ std::unique_ptr<WApplication> createApplication(const Wt::WEnvironment& env)
   app->useStyleSheet("resources/font-awesome/css/font-awesome.min.css");
   app->useStyleSheet("style/widgetgallery.css");
   app->useStyleSheet("style/everywidget.css");
-  app->useStyleSheet("style/dragdrop.css");
-  app->useStyleSheet("style/combostyle.css");
   app->useStyleSheet("style/pygments.css");
   app->useStyleSheet("style/layout.css");
   app->useStyleSheet("style/filedrop.css");

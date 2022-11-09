@@ -9,7 +9,7 @@
 #include <Wt/WStandardItem.h>
 #include <Wt/WTableView.h>
 
-#include "../treeview-dragdrop/CsvUtil.h"
+#include "../../treeview-dragdrop/CsvUtil.h"
 
 SAMPLE_BEGIN(CategoryChart)
 

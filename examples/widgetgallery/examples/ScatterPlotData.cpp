@@ -12,7 +12,7 @@
 #include <Wt/WStandardItemModel.h>
 #include <Wt/WTableView.h>
 
-#include "../treeview-dragdrop/CsvUtil.h"
+#include "../../treeview-dragdrop/CsvUtil.h"
 
 SAMPLE_BEGIN(ScatterPlotData)
 auto container = std::make_unique<WContainerWidget>();

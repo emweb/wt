@@ -1,6 +1,6 @@
 #include <Wt/WAbstractItemModel.h>
 
-#include "Git.h"
+#include "../../gitmodel/Git.h"
 
 class GitModel : public Wt::WAbstractItemModel
 {

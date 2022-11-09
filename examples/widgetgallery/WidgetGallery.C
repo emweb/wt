@@ -1,11 +1,9 @@
 
-#include "EventsDemo.h"
 #include "FormWidgets.h"
 #include "GraphicsWidgets.h"
 #include "Layout.h"
 #include "Media.h"
 #include "Navigation.h"
-//#include "StyleLayout.h"
 #include "TreesTables.h"
 #include "WidgetGallery.h"
 
@@ -59,7 +57,6 @@ WidgetGallery::WidgetGallery()
     ->setPathComponent("trees-tables");
   addToMenu(menu, "Graphics & Charts", std::make_unique<GraphicsWidgets>())
     ->setPathComponent("graphics-charts");
-  //addToMenu(menu, "Events", std::make_unique<EventsDemo>());
   addToMenu(menu, "Media", std::make_unique<Media>());
 
   if (menu->currentIndex() < 0) {

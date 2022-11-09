@@ -120,7 +120,7 @@
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WShadow.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WStandardItemModel.h&gt;</span><span class="cp"></span>
 
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../treeview-dragdrop/CsvUtil.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../../treeview-dragdrop/CsvUtil.h&quot;</span><span class="cp"></span>
 
 
 <span class="k">auto</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
@@ -468,7 +468,7 @@
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WStandardItem.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WTableView.h&gt;</span><span class="cp"></span>
 
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../treeview-dragdrop/CsvUtil.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../../treeview-dragdrop/CsvUtil.h&quot;</span><span class="cp"></span>
 
 
 <span class="k">auto</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
@@ -563,7 +563,7 @@
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/Chart/WCartesian3DChart.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/Chart/WGridData.h&gt;</span><span class="cp"></span>
 
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../treeview-dragdrop/CsvUtil.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../../treeview-dragdrop/CsvUtil.h&quot;</span><span class="cp"></span>
 
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;DataModels.h&quot;</span><span class="cp"></span>
 
@@ -1566,7 +1566,7 @@
   <message id="src-GitModel">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WAbstractItemModel.h&gt;</span><span class="cp"></span>
 
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Git.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../../gitmodel/Git.h&quot;</span><span class="cp"></span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">GitModel</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">Wt</span><span class="o">::</span><span class="n">WAbstractItemModel</span><span class="w"></span>
 <span class="p">{</span><span class="w"></span>
@@ -4808,7 +4808,7 @@
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WStandardItemModel.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WTableView.h&gt;</span><span class="cp"></span>
 
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../treeview-dragdrop/CsvUtil.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../../treeview-dragdrop/CsvUtil.h&quot;</span><span class="cp"></span>
 
 <span class="k">auto</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
 
@@ -4895,7 +4895,7 @@
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WShadow.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WStandardItemModel.h&gt;</span><span class="cp"></span>
 
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../treeview-dragdrop/CsvUtil.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../../treeview-dragdrop/CsvUtil.h&quot;</span><span class="cp"></span>
 
 <span class="k">auto</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
 
@@ -5205,7 +5205,8 @@
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WApplication.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WStandardItemModel.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WTableView.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../treeview-dragdrop/CsvUtil.h&quot;</span><span class="cp"></span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../../treeview-dragdrop/CsvUtil.h&quot;</span><span class="cp"></span>
 
 <span class="k">auto</span><span class="w"> </span><span class="n">tableView</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">WTableView</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
 <span class="n">tableView</span><span class="o">-&gt;</span><span class="n">setModel</span><span class="p">(</span><span class="n">csvToModel</span><span class="p">(</span><span class="n">WApplication</span><span class="o">::</span><span class="n">appRoot</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;table.csv&quot;</span><span class="p">));</span><span class="w"></span>
@@ -6373,52 +6374,8 @@
 <span class="p">}</span><span class="w"></span>
 </pre></div>
   </message>
-  <message id="src-combostyle">
-<div class="highlight"><pre><span></span><span class="p">.</span><span class="nc">combo-red</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">color</span><span class="p">:</span><span class="kc">red</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="p">.</span><span class="nc">combo-green</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">color</span><span class="p">:</span><span class="kc">green</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="p">.</span><span class="nc">combo-blue</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">color</span><span class="p">:</span><span class="kc">blue</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-</pre></div>
-  </message>
-  <message id="src-dragdrop">
-<div class="highlight"><pre><span></span><span class="p">.</span><span class="nc">character</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="kt">px</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="k">margin</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="kt">px</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="k">border</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">px</span><span class="w"> </span><span class="kc">solid</span><span class="w"> </span><span class="mh">#000</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="p">.</span><span class="nc">blue-drop-site</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="kt">px</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="k">margin</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="kt">px</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="k">border</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">px</span><span class="w"> </span><span class="kc">solid</span><span class="w"> </span><span class="mh">#000</span><span class="p">;</span><span class="w"></span>
-
-<span class="w">  </span><span class="k">background-color</span><span class="p">:</span><span class="w"> </span><span class="mh">#e0ecff</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="p">.</span><span class="nc">red-drop-site</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="kt">px</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="k">margin</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="kt">px</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="k">border</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">px</span><span class="w"> </span><span class="kc">solid</span><span class="w"> </span><span class="mh">#000</span><span class="p">;</span><span class="w"></span>
-
-<span class="w">  </span><span class="k">background-color</span><span class="p">:</span><span class="w"> </span><span class="mh">#ffece0</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-</pre></div>
-  </message>
   <message id="src-everywidget">
-<div class="highlight"><pre><span></span><span class="nt">tt</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">font-family</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ludica Console&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Courier</span><span class="p">,</span><span class="w"> </span><span class="kc">monospace</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">color</span><span class="p">:</span><span class="w"> </span><span class="mh">#6c757d</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mi">97</span><span class="kt">%</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="p">.</span><span class="nc">wmediaplayer</span><span class="w"> </span><span class="nt">li</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<div class="highlight"><pre><span></span><span class="p">.</span><span class="nc">wmediaplayer</span><span class="w"> </span><span class="nt">li</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="k">margin</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="kt">px</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="k">line-height</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="kt">%</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>

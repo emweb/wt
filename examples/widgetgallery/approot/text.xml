@@ -12,7 +12,7 @@
     <p>
       The primary method for combining a number of widgets in a composite
       widget is a ${doc-link WContainerWidget}. This widget corresponds to an
-      HTML <tt>&lt;span&gt;</tt> or <tt>&lt;div&gt;</tt> element (depending on
+      HTML <code>&lt;span&gt;</code> or <code>&lt;div&gt;</code> element (depending on
       whether it is inline or not). It can contain any number of children, and
       these children may be added or removed dynamically.
     </p>
@@ -45,7 +45,7 @@
       widgets that are contained can be positioned using <a
       href="#/layout/css">Cascading StyleSheets (CSS)</a> or a <a
       href="#/layout/layout-managers">Layout Manager</a>. CSS, which
-      to most C++ developers will be a new technology, is worthwile
+      to most C++ developers will be a new technology, is worthwhile
       learning as it will allow you to push many layout and style
       aspects of your application into a declarative text file. It
       also works irrespective of JavaScript, which is a clear benefit
@@ -79,8 +79,8 @@
       or markup text to the user interface.
     </p>
     <p>
-      The <tt>WText</tt> widget displays text using an HTML <tt>&lt;span&gt;
-      </tt> or <tt>&lt;div&gt;</tt> element (depending on whether it is inline
+      The <code>WText</code> widget displays text using an HTML <code>&lt;span&gt;
+      </code> or <code>&lt;div&gt;</code> element (depending on whether it is inline
       or not). It can display either XHTML formatted text or plain text.
     </p>
     <p>
@@ -102,7 +102,7 @@
       </ul>
     </p>
     <p>
-      In its most simple form, the <tt>WText</tt> widget displays plain text
+      In its most simple form, the <code>WText</code> widget displays plain text
       (escaping special characters as needed).
     </p>
 
@@ -113,7 +113,7 @@
     </fieldset>
 
     <p>
-      Of course, a <tt>WText</tt> widget may also display XHTML formatted text.
+      Of course, a <code>WText</code> widget may also display XHTML formatted text.
     </p>
 
     <fieldset class="example">
@@ -126,9 +126,9 @@
       XHTML text that is not read from a localized strings interface (which is
       considered inherently safe), is protected against unwanted side effects
       from Cross-Site Scripting (XSS) attacks. The text of an XHTML-formatted
-      <tt>WText</tt> is filtered using an XML parser and all malicious tags are
+      <code>WText</code> is filtered using an XML parser and all malicious tags are
       removed (unless this feature is explicitly by-passed by using the
-      <tt>XHTMLUnsafeText</tt> text format).
+      <code>XHTMLUnsafeText</code> text format).
     </p>
 
     <fieldset class="example">
@@ -152,8 +152,8 @@
 
     <h3>Events</h3>
     <p>
-      The functionality of <tt>WText</tt> is very basic. As this widget derives
-      - like many widgets - from ${doc-link WInteractWidget} it may respond to
+      The functionality of <code>WText</code> is very basic. As this widget derives
+      - like many widgets - from ${doc-link WInteractWidget} it may respond
       to mouse events and also keyboard events if it can be given keyboard
       focus. A few mouse events are demonstrated below.
     </p>
@@ -166,7 +166,7 @@
 
     <h3>ToolTip</h3>
     <p>
-      You may add a tooltip or deferred tooltip to <tt>WText</tt>
+      You may add a tooltip or deferred tooltip to <code>WText</code>
     </p>
 
     <fieldset class="example">
@@ -191,31 +191,31 @@
       A ${doc-link WTemplate} can be used to format a number of widgets within
       an XHTML fragment. This is especially useful as an alternative to a
       container widget if you want to use CSS for style and layout, and when
-      the contents is relatively static: for each placeholder you must bind a
+      the contents are relatively static: for each placeholder you must bind a
       widget or a string (which can be empty).
     </p>
     <p>
-      In a template text, a <tt>$${<i>var</i>}</tt> indicates a place holder
+      In a template text, a <code>$${<i>var</i>}</code> indicates a placeholder
       named <strong>var</strong> which is substituted with a widget or string
       that is bound to that variable. Other syntactical constructs are:
       <dl class="row">
         <dt class="col-sm-2 text-sm-end">arguments</dt>
-        <dd class="col-sm-10"><tt>$${<i>var arg1 arg2</i>}</tt></dd>
+        <dd class="col-sm-10"><code>$${<i>var arg1 arg2</i>}</code></dd>
         <dt class="col-sm-2 text-sm-end">conditions</dt>
-        <dd class="col-sm-10"><tt>$${&lt;<i>condition</i>&gt;} ...
-        $${&lt;/<i>condition</i>&gt;}</tt>
+        <dd class="col-sm-10"><code>$${&lt;<i>condition</i>&gt;} ...
+        $${&lt;/<i>condition</i>&gt;}</code>
         </dd>
         <dt class="col-sm-2 text-sm-end">functions</dt>
-        <dd class="col-sm-10"><tt>$${<i>fun:arg1 arg2</i>}</tt></dd>
+        <dd class="col-sm-10"><code>$${<i>fun:arg1 arg2</i>}</code></dd>
       </dl>
     </p>
     <p>
-      The template text can be provided by a <tt>WString</tt> and is thus
-      easily localized and internalitionalized using a message resource bundle.
+      The template text can be provided by a <code>WString</code> and is thus
+      easily localized and internationalized using a message resource bundle.
     </p>
     <p>
-      Below is an example of a template text, illustrating the use of place
-      holders for a line edit and two buttons.
+      Below is an example of a template text, illustrating the use of
+      placeholders for a line edit and two buttons.
     </p>
 
     <fieldset class="src">
@@ -259,7 +259,7 @@
     <h2 id="grouping">Group box</h2>
     <p>
       A ${doc-link WGroupBox} corresponds to an HTML
-      <tt>&lt;fieldset&gt;</tt> element, and provides a frame and
+      <code>&lt;fieldset&gt;</code> element, and provides a frame and
       title around a group of widgets.
     </p>
 
@@ -308,7 +308,7 @@
     <p>
       Usually, CSS is a sufficient and convenient way to indicate how to
       layout widgets within a container widget, and we recommend to get
-      accustomed with CSS for basic layout and styling.
+      familiarized with CSS for basic layout and styling.
     </p>
     <p>
       There are however several situations when CSS is not effective
@@ -319,7 +319,7 @@
       particular widget while keeping other widgets to their preferred
       size. It is for these reasons that Wt has a comprehensive set of
       layout managers that use JavaScript to compute and apply layout
-      managent to children of a <a
+      management to children of a <a
       href="#/layout/containers">WContainerWidget</a>.
     </p>
     <p>
@@ -342,7 +342,7 @@
       widgets get the same width.
     </p>
     <p>
-      In the example below, a <tt>WHBoxLayout</tt> with default
+      In the example below, a <code>WHBoxLayout</code> with default
       padding (9 pixels) and spacing (6 pixels) is used to manage two
       child widgets. If no stretch factors have been specified, space
       is evenly distributed to all widgets.
@@ -355,7 +355,7 @@
       <p>
         The coloring for this and the following examples are provided
         by a stylesheet that you need to load using
-        <tt>WApplication::useStyleSheet()</tt>:
+        <code>WApplication::useStyleSheet()</code>:
       </p>
       <fieldset class="src">
         <legend>CSS</legend>
@@ -377,13 +377,13 @@
 
     <p>
       The preferred width of a widget is either based on its contents
-      (which for text is the in some cases inpractical assumption of
+      (which for text is the in some cases impractical assumption of
       putting all text on a single line), but can be further
-      controlled using <tt>widget->setWidth()</tt> or CSS
-      <tt>width</tt> settings.
+      controlled using <code>widget->setWidth()</code> or CSS
+      <code>width</code> settings.
     </p>
     <p>
-      The <tt>WVBoxLayout</tt> works in exactly the same way, but
+      The <code>WVBoxLayout</code> works in exactly the same way, but
       stacks children vertically.
     </p>
 
@@ -407,8 +407,8 @@
       intermediate widgets in complex layouts.
     </p>
     <p>
-      In the example below we nest a <tt>WHBoxLayout</tt> containing
-      two items in a <tt>WVBoxLayout</tt> containing one other item.
+      In the example below we nest a <code>WHBoxLayout</code> containing
+      two items in a <code>WVBoxLayout</code> containing one other item.
     </p>
 
     <fieldset class="example">
@@ -422,12 +422,12 @@
     <h3 id="layout-grid">Grid Layout</h3>
     <p>
       This layout manager organizes the contents of a <a
-      href="#/basics/wcontainerwidget"><tt>WContainerWidget</tt></a>
+      href="#/basics/wcontainerwidget"><code>WContainerWidget</code></a>
       in a grid.
     </p>
     <p>
       Like <a
-      href="#/style-and-layout/wboxlayout"><tt>WBoxLayout</tt></a>, a
+      href="#/style-and-layout/wboxlayout"><code>WBoxLayout</code></a>, a
       stretch factor defined for rows or columns is used to distribute
       excess space. In the example below, row 1 and columns 1 and 2
       are given a non-zero stretch factor.
@@ -476,28 +476,28 @@
       <a href="#message-box">WMessageBox</a> dialog.
     </p>
     <p>
-      By default, a <tt>WDialog</tt> is modal. A modal window blocks
+      By default, a <code>WDialog</code> is modal. A modal window blocks
       the user interface, and does not allow the user to interact with
       any other part of the user interface until the dialog is
       closed. With a modeless dialog the window can be left open while
       the user continues in another window of the application. Use
-      <tt>setModal(false)</tt> to create a non-modal dialog.  In the
+      <code>setModal(false)</code> to create a non-modal dialog.  In the
       <a href="#message-box">Message box</a> section below you can
       find an example of a modeless window.
     </p>
     <p>
       Unlike other widgets, a dialog does not need to be added to a parent
       widget, and it is hidden by default. You must use the method
-      <tt>show()</tt> or <tt>setHidden(false)</tt> to show the dialog. The
-      dialog may be closed by calling <tt>accept()</tt>, <tt>reject()</tt> or
-      <tt>done()</tt> (or connecting a signal to one of these methods). This
-      will hide the dialog and emit the <tt>finished()</tt> signal, which you
+      <code>show()</code> or <code>setHidden(false)</code> to show the dialog. The
+      dialog may be closed by calling <code>accept()</code>, <code>reject()</code> or
+      <code>done()</code> (or connecting a signal to one of these methods). This
+      will hide the dialog and emit the <code>finished()</code> signal, which you
       then can listen for to process the dialog result${<if:cpp>} and delete
       the dialog${</if:cpp>}.
-      Typically, an OK button will be connected to <tt>accept()</tt>, and in
-      some cases a Cancel button to <tt>reject()</tt>.
+      Typically, an OK button will be connected to <code>accept()</code>, and in
+      some cases a Cancel button to <code>reject()</code>.
       You can add content to the dialog by adding the content to its container.
-      You can get the container with the <tt>contents()</tt> method.
+      You can get the container with the <code>contents()</code> method.
     </p>
 
     <fieldset class="example">
@@ -512,7 +512,7 @@
       can only be instantiated asynchronously. By preference
       instantiate a dialog asynchronously. The synchronous use of a
       dialog is what is commonly done in desktop applications to show
-      a modal dialog, and involves a call to <tt>exec()</tt> that
+      a modal dialog, and involves a call to <code>exec()</code> that
       starts a local event loop, and returns only when the dialog is
       closed. The draw-back of synchronous use is that the application
       is not scalable to many concurrent sessions, since it blocks a
@@ -530,37 +530,23 @@
     <p>
       A message box is a simple dialog to alert the user with a message. It may
       require an acknowledgment that the message has been read (usually by
-      clicking an "OK" button), or a decision as to whether or not an action
+      clicking an "OK" button), or a decision whether an action
       should proceed (by clicking an "OK" or "Cancel" button).
     </p>
     <p>
-      The usage is similar to instantiating a <tt>WDialog</tt> (or any other
-      widget). You need to connect to the <tt>buttonClicked</tt> signal with a
-      method that interpretes the result${<if:cpp>} and deletes the message
+      The usage is similar to instantiating a <code>WDialog</code> (or any other
+      widget). You need to connect to the <code>buttonClicked</code> signal with a
+      method that interprets the result${<if:cpp>} and deletes the message
       box${</if:cpp>}.
-      You can get the resulting standard button with <tt>buttonResult()</tt>.
+      You can get the resulting standard button with <code>buttonResult()</code>.
     </p>
     <p>
       The buttons of a ${doc-link WMessageBox} may be standard or customized
       type of buttons. Customized buttons should be dealt with using
-      the <tt>result()</tt> method from the parent <tt>WDialog</tt>.
+      the <code>result()</code> method from the parent <code>WDialog</code>.
       The strings used in standard buttons can be translated by overriding the
       default values of localization keys.
     </p>
-<!--    <p>
-      You can include an icon in a <tt>WMessageBox</tt>. You can choose from
-      the following types:
-      <dl class="row">
-        <dt>Information</dt>
-        <dd>An information icon</dd>
-        <dt>Warning</dt>
-        <dd>A warning icon</dd>
-        <dt>Critical</dt>
-        <dd>An critical icon</dd>
-        <dt>Question</dt>
-        <dd>An question icon</dd>
-      </dl>
-    </p>-->
 
     <fieldset class="example">
       <legend>Example</legend>
@@ -569,10 +555,10 @@
     </fieldset>
 
     <p>
-      The following example is much more compact but it has a big disadvantage
-      because the messagebox is instantiated synchronously. The <tt>show()</tt>
+      The following example is much more compact, but it has a big disadvantage
+      because the messagebox is instantiated synchronously. The <code>show()</code>
       method is used statically; this involves the static use of the
-      <tt>exec()</tt> method which blocks the current thread until the user has
+      <code>exec()</code> method which blocks the current thread until the user has
       clicked a button and the result of the messagebox is processed.
       It is highly recommended to use a messagebox asynchronously because there
       is no API call that waits for the messagebox to be processed in that
@@ -586,9 +572,9 @@
     </fieldset>
 
     <p>
-      A <tt>WMessageBox</tt> can be styled using the <tt>Wt-dialog</tt> and
-      <tt>Wt-outset</tt> style classes from it's superclass <tt>WDialog</tt>.
-      Its buttons can be styled using the <tt>Wt-msgbox-buttons</tt> style
+      A <code>WMessageBox</code> can be styled using the <code>Wt-dialog</code> and
+      <code>Wt-outset</code> style classes from it's superclass <code>WDialog</code>.
+      Its buttons can be styled using the <code>Wt-msgbox-buttons</code> style
       class.
     </p>
 
@@ -605,15 +591,15 @@
     </p>
     <p>
       You can set an alternate text using the method
-      <tt>setAlternateText()</tt>. The alternate text should provide a
+      <code>setAlternateText()</code>. The alternate text should provide a
       fallback for browsers that do not display an image, and are also
       important for accessibility. If no sensible fallback text can be
       provided, an empty text is preferred over nonsense.
     </p>
     <p>
       You may listen to events by attaching event listeners to signals such as
-      <tt>clicked()</tt>. Since mouse events pass the coordinates through a
-      A ${doc-link WMouseEvent} object, it is possible to react to clicks in
+      <code>clicked()</code>. Since mouse events pass the coordinates through a
+      ${doc-link WMouseEvent} object, it is possible to react to clicks in
       specific parts of the image.
     </p>
 
@@ -626,10 +612,10 @@
     <p>
       Image also supports a more structural approach to listening for
       events depending on the image location. One can define
-      interactive areas on the image using <tt>addArea()</tt>, which
+      interactive areas on the image using <code>addArea()</code>, which
       also allows to define a custom tool tip (using
-      <tt>WAbstractArea::setToolTip()</tt>) or a different cursor
-      image (using <tt>WAbstractArea::setCursor</tt>) for a certain
+      <code>WAbstractArea::setToolTip()</code>) or a different cursor
+      image (using <code>WAbstractArea::setCursor</code>) for a certain
       image area.
     </p>
 
@@ -645,8 +631,8 @@
       dynamically <a href="#/graphics-charts">painted graphics</a>.
     </p>
     <p>
-      <tt>WImage</tt> is an inline widget. The widget corresponds to the HTML
-      <tt>&lt;img&gt;</tt> tag and doesn't provide styling. It can be styled
+      <code>WImage</code> is an inline widget. The widget corresponds to the HTML
+      <code>&lt;img&gt;</code> tag and doesn't provide styling. It can be styled
       using inline or external CSS as appropriate.
     </p>
 
@@ -669,7 +655,7 @@
         the markup of documents, the requirements for web applications
         are in many ways different. <a
         href="#/layout/layout-managers">Layout Managers</a> are a
-        common technique in desktop applications to layout a UI, and
+        common technique in desktop applications to lay out a UI, and
         this is also available in Wt.</dd>
         <dt class="col-sm-2 text-sm-end">CSS Grids</dt>
         <dd class="col-sm-10">A practical alternative to plain CSS, and to overcome some
@@ -719,14 +705,14 @@
       allow to influence the layout or visual appearance of a widget
       directly, from C++. This is useful if you want programmatic
       control over these properties; for other situations we recommend
-      to use a n external CSS stylesheet.
+      to use an external CSS stylesheet.
     </p>
 
     <p>
       CSS properties that impact layout aspects are made available directly
-      in the <tt>WWidget</tt> API, whereas decorative aspects are available
-      from <tt>WWidget::cssDecorationStyle()</tt>, which returns a reference
-      to a <tt>WCssDecorationStyle</tt> class.
+      in the <code>WWidget</code> API, whereas decorative aspects are available
+      from <code>WWidget::cssDecorationStyle()</code>, which returns a reference
+      to a <code>WCssDecorationStyle</code> class.
     </p>
 
     <p>
@@ -744,88 +730,88 @@
         <tbody>
           <tr>
             <td>${doc-link WWidget}</td>
-            <td><tt>setPositionScheme()</tt></td>
-            <td>CSS <tt>position</tt> property.</td>
+            <td><code>setPositionScheme()</code></td>
+            <td>CSS <code>position</code> property.</td>
           </tr>
           <tr>
             <td>${doc-link WWidget}</td>
-            <td><tt>setOffsets()</tt></td>
-            <td>CSS <tt>top, right, bottom, left</tt> properties.</td>
+            <td><code>setOffsets()</code></td>
+            <td>CSS <code>top, right, bottom, left</code> properties.</td>
           </tr>
           <tr>
             <td>${doc-link WWidget}</td>
-            <td><tt>resize()</tt></td>
-            <td>CSS <tt>width, height</tt> properties.</td>
+            <td><code>resize()</code></td>
+            <td>CSS <code>width, height</code> properties.</td>
           </tr>
           <tr>
             <td>${doc-link WWidget}</td>
-            <td><tt>setMinimumSize()</tt></td>
-            <td>CSS <tt>min-width, min-height</tt> properties.</td>
+            <td><code>setMinimumSize()</code></td>
+            <td>CSS <code>min-width, min-height</code> properties.</td>
           </tr>
           <tr>
             <td>${doc-link WWidget}</td>
-            <td><tt>setMaximumSize()</tt></td>
-            <td>CSS <tt>max-width, max-height</tt> properties.</td>
+            <td><code>setMaximumSize()</code></td>
+            <td>CSS <code>max-width, max-height</code> properties.</td>
           </tr>
           <tr>
             <td>${doc-link WWidget}</td>
-            <td><tt>setLineHeight()</tt></td>
-            <td>CSS <tt>line-height</tt> property.</td>
+            <td><code>setLineHeight()</code></td>
+            <td>CSS <code>line-height</code> property.</td>
           </tr>
           <tr>
             <td>${doc-link WWidget}</td>
-            <td><tt>setFloatSide()</tt></td>
-            <td>CSS <tt>float</tt> property.</td>
+            <td><code>setFloatSide()</code></td>
+            <td>CSS <code>float</code> property.</td>
           </tr>
           <tr>
             <td>${doc-link WWidget}</td>
-            <td><tt>setClearSides()</tt></td>
-            <td>CSS <tt>clear</tt> property.</td>
+            <td><code>setClearSides()</code></td>
+            <td>CSS <code>clear</code> property.</td>
           </tr>
           <tr>
             <td>${doc-link WWidget}</td>
-            <td><tt>setMargin()</tt></td>
-            <td>CSS <tt>margin</tt> property.</td>
+            <td><code>setMargin()</code></td>
+            <td>CSS <code>margin</code> property.</td>
           </tr>
           <tr>
             <td>${doc-link WWidget}</td>
-            <td><tt>setVerticalAlignment()</tt></td>
-            <td>CSS <tt>vertical-align</tt> property.</td>
+            <td><code>setVerticalAlignment()</code></td>
+            <td>CSS <code>vertical-align</code> property.</td>
           </tr>
           <tr>
             <td>${doc-link WWidget}</td>
-            <td><tt>setInline(), setHidden()</tt></td>
-            <td>CSS <tt>display</tt> property.</td>
+            <td><code>setInline(), setHidden()</code></td>
+            <td>CSS <code>display</code> property.</td>
           </tr>
           <tr>
             <td>${doc-link WCssDecorationStyle}</td>
-            <td><tt>setCursor()</tt></td>
-            <td>CSS <tt>cursor</tt> property.</td>
+            <td><code>setCursor()</code></td>
+            <td>CSS <code>cursor</code> property.</td>
           </tr>
           <tr>
             <td>${doc-link WCssDecorationStyle}</td>
-            <td><tt>setBackgroundColor(), setBackgroundImage()</tt></td>
-            <td>CSS <tt>background</tt> property.</td>
+            <td><code>setBackgroundColor(), setBackgroundImage()</code></td>
+            <td>CSS <code>background</code> property.</td>
           </tr>
           <tr>
             <td>${doc-link WCssDecorationStyle}</td>
-            <td><tt>setForegroundColor()</tt></td>
-            <td>CSS <tt>color</tt> property.</td>
+            <td><code>setForegroundColor()</code></td>
+            <td>CSS <code>color</code> property.</td>
           </tr>
           <tr>
             <td>${doc-link WCssDecorationStyle}</td>
-            <td><tt>setBorder()</tt></td>
-            <td>CSS <tt>border</tt> property.</td>
+            <td><code>setBorder()</code></td>
+            <td>CSS <code>border</code> property.</td>
           </tr>
           <tr>
             <td>${doc-link WCssDecorationStyle}</td>
-            <td><tt>setFont()</tt></td>
-            <td>CSS <tt>font</tt> property.</td>
+            <td><code>setFont()</code></td>
+            <td>CSS <code>font</code> property.</td>
           </tr>
           <tr>
             <td>${doc-link WCssDecorationStyle}</td>
-            <td><tt>setTextDecoration()</tt></td>
-            <td>CSS <tt>text-decoration</tt> property.</td>
+            <td><code>setTextDecoration()</code></td>
+            <td>CSS <code>text-decoration</code> property.</td>
           </tr>
         </tbody>
       </table>
@@ -834,9 +820,9 @@
     <h3>The Internal Style Sheet</h3>
 
     <p>
-      The method <tt>WApplication::styleSheet()</tt> returns a
+      The method <code>WApplication::styleSheet()</code> returns a
       reference to the embedded stylesheet (an instance of
-      <tt>WCssStyleSheet</tt>), which can be manipulated dynamically
+      <code>WCssStyleSheet</code>), which can be manipulated dynamically
       to add, modify or removing rules. This is used primarily in some
       advanced composite widgets within Wt (such as <a
       href="#/trees-tables/mvc-table-views">WTableView</a>,
@@ -870,32 +856,32 @@
         <tbody>
           <tr>
             <td>${doc-link WApplication}</td>
-            <td><tt>useStyleSheet()</tt></td>
+            <td><code>useStyleSheet()</code></td>
             <td>Adds an external style sheet</td>
           </tr>
           <tr>
             <td>${doc-link WWidget}</td>
-            <td><tt>setStyleClass()</tt></td>
+            <td><code>setStyleClass()</code></td>
             <td>Sets (one or more) CSS style classes</td>
           </tr>
           <tr>
             <td>${doc-link WWidget}</td>
-            <td><tt>styleClass()</tt></td>
+            <td><code>styleClass()</code></td>
             <td>Returns the CSS style class</td>
           </tr>
           <tr>
             <td>${doc-link WWidget}</td>
-            <td><tt>addStyleClass()</tt></td>
+            <td><code>addStyleClass()</code></td>
             <td>Adds a CSS style class</td>
           </tr>
           <tr>
             <td>${doc-link WWidget}</td>
-            <td><tt>removeStyleClass</tt></td>
+            <td><code>removeStyleClass</code></td>
             <td>Removes a CSS style class</td>
           </tr>
           <tr>
             <td>${doc-link WWidget}</td>
-            <td><tt>toggleStyleClass</tt></td>
+            <td><code>toggleStyleClass</code></td>
             <td>Toggles a CSS style class</td>
           </tr>
         </tbody>
@@ -927,7 +913,7 @@
     <p>
       A theme provides the look and feel of several built-in widgets, using CSS
       style rules. The rules for each CSS theme are defined in the folder
-      <tt>resources/themes/</tt>. There each theme is organized in a subfolder.
+      <code>resources/themes/</code>. There each theme is organized in a sub folder.
     </p>
     <p>
       You can choose from three themes:
@@ -938,7 +924,7 @@
         </dd>
         <dt class="col-sm-2 text-sm-end">polished</dt>
         <dd class="col-sm-10">This theme is also implemented by the ${doc-link WCssTheme} class.
-          You can change to this CSS theme with <tt>setCssTheme("polished")</tt>
+          You can change to this CSS theme with <code>setCssTheme("polished")</code>
           in your ${doc-link WApplication}.
         </dd>
         <dt class="col-sm-2 text-sm-end">bootstrap</dt>
@@ -946,24 +932,23 @@
           <p>
             There are three versions of this theme, implemented through the
             ${doc-link WBootstrap5Theme}, ${doc-link WBootstrap3Theme}, and ${doc-link WBootstrap2Theme}
-            classes. They rely on the <a href="http://getbootstrap.com/">Bootstrap CSS framework</a>.
-            Use <tt>setTheme(std::make_shared&lt;WBootstrap5Theme&gt;())</tt> to use this theme.
+            classes. They rely on the <a href="https://getbootstrap.com/">Bootstrap CSS framework</a>.
+            Use <code>setTheme(std::make_shared&lt;WBootstrap5Theme&gt;())</code> to use this theme.
           </p>
           <p>
             As of version 4.6.0, Bootstrap versions 2, 3, and 5
             are supported. Prior to 4.6.0 there was ${doc-link WBootstrapTheme},
             which is now deprecated in favor of ${doc-link WBootstrap2Theme},
-            ${doc-link WBootstrap3Theme}, ${doc-link WBootstrap4Theme}
-            and ${doc-link WBootstrap5Theme}.
+            ${doc-link WBootstrap3Theme}, and ${doc-link WBootstrap5Theme}.
             The widget gallery has been restyled to use Bootstrap 5.<br/>
             While the theme makes sure that Wt's widgets
             are rendered with the markup expected by bootstrap, there
             are many features that are particular to the layout system
             of bootstrap (and were changed between various versions of
-            Bootstrap). Thus you need to know how bootstrap expects you to
-            layout widgets in order to effectivily use this theme, for
+            Bootstrap). Thus, you need to know how bootstrap expects you to
+            layout widgets in order to effectively use this theme, for
             which we refer to the <a
-            href="http://getbootstrap.com/">Bootstrap
+            href="https://getbootstrap.com/">Bootstrap
             documentation</a>.
           </p>
         </dd>
@@ -1006,7 +991,7 @@
       You can create a simple form by using one or more input widgets like
       ${doc-link WLineEdit} in addition to a ${doc-link WPushButton} to
       process the input.
-      You can add <tt>Validation</tt> to filter the user's input (See also the
+      You can add <code>Validation</code> to filter the user's input (See also the
       menu <a href="#/forms/validation">Validation</a>).
     </p>
 
@@ -1016,12 +1001,12 @@
       ${src SimpleForm}
       <p>
         Here is the corresponding XML template (with
-        <tt>message id="simpleForm-template"</tt>) using style classes from the
+        <code>message id="simpleForm-template"</code>) using style classes from the
         <a href="https://getbootstrap.com/docs/5.0/forms/overview/"
-        target="blank">Bootstrap theme</a>.
+        target="_blank">Bootstrap theme</a>.
         In order to apply validation style to any widget with invalid input,
         you should group the widgets in a div or span section and apply the
-        style <tt>input-group </tt> to it.
+        style <code>input-group </code> to it.
       </p>
       <fieldset class="src">
         <legend>source</legend>
@@ -1048,12 +1033,12 @@
       whether the field is read-only, and its current validation status is
       managed by the model.
       In addition, you will typically specialize the class to customize the
-      validation and application logic. Although it can be setup to use <tt>
-      WValidator</tt> objects for individual fields, you could also create a
+      validation and application logic. Although it can be setup to use <code>
+      WValidator</code> objects for individual fields, you could also create a
       validator to simultaneously validate interdependent fields.
     </p>
     <p>
-      A model is typically used by a view (<tt>WTemplateFormView</tt>) which
+      A model is typically used by a view (<code>WTemplateFormView</code>) which
       renders the fields configured in the model, updates the model values,
       invokes and reflects the validation status. For each model field, the
       view uses a number of conventional variable names to represent the
@@ -1062,25 +1047,25 @@
         <dt class="col-sm-2 text-sm-end">field</dt>
         <dd class="col-sm-10">
           This variable name refers to the <strong>form widget</strong> which
-          contains the value. It is used by <tt>createFormWidget()</tt> at the
+          contains the value. It is used by <code>createFormWidget()</code> at the
           moment that the form is created.
         </dd>
         <dt class="col-sm-2 text-sm-end">field-label</dt>
         <dd class="col-sm-10">
           This variable name refers to the <strong>label</strong>. It is used
-          by <tt>label()</tt>.
+          by <code>label()</code>.
         </dd>
         <dt class="col-sm-2 text-sm-end">field-info</dt>
         <dd class="col-sm-10">
           This variable name refers to <strong>details</strong> on the field. This
           could be input advice (e.g. the format or the range) or a validation
-          message. It is used by <tt>addField()</tt> and <tt>validate()</tt>.
+          message. It is used by <code>addField()</code> and <code>validate()</code>.
         </dd>
         <dt class="col-sm-2 text-sm-end">if:field</dt>
         <dd class="col-sm-10">
           This variable name refers to a condition for the
           <strong>visibility</strong> of the field. It is used by
-          <tt>isVisible()</tt>.
+          <code>isVisible()</code>.
         </dd>
       </dl>
     </p>
@@ -1093,24 +1078,24 @@
       </fieldset>
     </p>
     <p>
-      The view can update the form using several methods. The <tt>updateView()
-      </tt> method updates the view based on a model (e.g. to propagate changed
-      values or validation), while the <tt>updateModel()</tt> method updates a
+      The view can update the form using several methods. The <code>updateView()
+      </code> method updates the view based on a model (e.g. to propagate changed
+      values or validation), while the <code>updateModel()</code> method updates a
       model with values entered in the view.
       The view doesn't have to render all fields of a model. You can call
-      <tt>updateViewField()</tt> and <tt>updateModelField()</tt> to update
+      <code>updateViewField()</code> and <code>updateModelField()</code> to update
       individual model fields.
     </p>
     <p>
       The view is passive. It will not perform any updates by itself if either
       the view or model has changed. To update the form, each view method uses
-      a service method from the model; either <tt>setValue()</tt> to update the
-      model or <tt>value()</tt> to update the view. You will typically bind a
+      a service method from the model; either <code>setValue()</code> to update the
+      model or <code>value()</code> to update the view. You will typically bind a
       method to a button in order to process the form (i.e. update and validate
       the model).
     </p>
     <p>
-      <img src="/pics/model-view.png" alt="model-view picture"></img>
+      <img src="/pics/model-view.png" alt="model-view picture" />
     </p>
     <p>
       The view may render fields of more than one model. Note that there are
@@ -1249,10 +1234,10 @@
     <h2 id="text-editors">Text editors</h2>
     <p>
       Wt provides different kinds of text entry widgets:
-      <a href="#line-edit"><tt>WLineEdit</tt></a>,
-      <a href="#text-area"><tt>WTextArea</tt></a>,
-      <a href="#text-edit"><tt>WTextEdit</tt></a> and
-      <a href="#spin-box"><tt>WSpinBox</tt></a>.
+      <a href="#line-edit"><code>WLineEdit</code></a>,
+      <a href="#text-area"><code>WTextArea</code></a>,
+      <a href="#text-edit"><code>WTextEdit</code></a> and
+      <a href="#spin-box"><code>WSpinBox</code></a>.
     </p>
 
     <h3 id="line-edit">Line edit</h3>
@@ -1261,8 +1246,8 @@
       single line edit.
     </p>
     <p>
-      A <tt>&lt;WLineEdit&gt;</tt> corresponds to an HTML
-      <tt>&lt;input type="text"&gt;</tt> element.
+      A <code>&lt;WLineEdit&gt;</code> corresponds to an HTML
+      <code>&lt;input type="text"&gt;</code> element.
     </p>
     <p>
       You can restrict its input using a validator providing immediate
@@ -1278,9 +1263,9 @@
       ${src LineEdit}
       <p>
         Here is the corresponding XML template (with
-        <tt>message id="lineEdit-template"</tt>) using style classes from the
+        <code>message id="lineEdit-template"</code>) using style classes from the
         <a href="https://getbootstrap.com/docs/5.0/forms/overview/"
-        target="blank">Bootstrap theme</a>.
+        target="_blank">Bootstrap theme</a>.
       </p>
       <fieldset class="src">
       <legend>source</legend>
@@ -1310,7 +1295,7 @@
       ${doc-link WTextArea} is an inline widget that provides a multi-line edit.
     </p>
     <p>
-      A <tt>WTextArea</tt> corresponds to an HTML <tt>&lt;textarea&gt;</tt> element.
+      A <code>WTextArea</code> corresponds to an HTML <code>&lt;textarea&gt;</code> element.
     </p>
     <p>
       Form validators can be used to validate the user's input with immediate
@@ -1394,19 +1379,19 @@
     <h3 id="edit-options">Prepended and appended inputs</h3>
     <p>
       Adding on top of the standard input controls, the
-      <a href="http://twitter.github.com/bootstrap/base-css.html"
-      target="blank">Bootstrap theme</a> includes other useful form components
+      <a href="https://getbootstrap.com" target="_blank">Bootstrap theme</a>
+      includes other useful form components
       like prepended/appended inputs. You can add text or buttons before and/or
-      after any text-based input using the <tt>.input-group-text</tt> class. Note
+      after any text-based input using the <code>.input-group-text</code> class. Note
       that select elements are not supported.
     </p>
 
     <h4>Adding text</h4>
     <p>
-      Wrap an <tt>.input-group-text</tt> and an input control with the
-      <tt>.input-group</tt> class to prepend or append text to an input.
+      Wrap an <code>.input-group-text</code> and an input control with the
+      <code>.input-group</code> class to prepend or append text to an input.
       To prepend and append an input at once you can also use two instances
-      of the <tt>.input-group-text</tt> before and after the input control.
+      of the <code>.input-group-text</code> before and after the input control.
     </p>
 
     <fieldset class="example">
@@ -1415,9 +1400,8 @@
       ${src TextSide}
       <p>
         Here is the corresponding XML template (with
-        <tt>message id="editSide-template"</tt>) using style classes from
-        the <a href="http://twitter.github.com/bootstrap/base-css.html"
-        target="blank">Bootstrap theme</a>.
+        <code>message id="editSide-template"</code>) using style classes from
+        the <a href="https://getbootstrap.com" target="_blank">Bootstrap theme</a>.
       </p>
       <fieldset class="src">
       <legend>source</legend>
@@ -1524,12 +1508,12 @@
       ${doc-link WRadioButton}s which are usually mutually exclusive.
     </p>
     <p>
-      An instance of <tt>WCheckBox</tt> corresponds to an HTML
-      <tt>&lt;input type="checkbox"&gt;</tt> element.
+      An instance of <code>WCheckBox</code> corresponds to an HTML
+      <code>&lt;input type="checkbox"&gt;</code> element.
     </p>
     <p>
       Next to being checked or unchecked, a checkbox can be configured
-      to allow a third state, <tt>Wt::PartiallyChecked</tt>, which can
+      to allow a third state, <code>Wt::PartiallyChecked</code>, which can
       be used to indicate that it isn't <i>entirely</i> checked,
       e.g. if only some of the files in a folder are selected, then
       the checkbox for that folder would be partially checked. In the
@@ -1551,7 +1535,7 @@
     <h3>Stacked check boxes</h3>
     <p>
       Since by default, check boxes are inline, you will need to use
-      <tt>setInline(false)</tt> to let them stack vertically.
+      <code>setInline(false)</code> to let them stack vertically.
     </p>
 
     <fieldset class="example">
@@ -1573,8 +1557,8 @@
       independent on/off options.
     </p>
     <p>
-      An instance of <tt>WRadioButton</tt> corresponds to an HTML
-      <tt>&lt;input type="radio"&gt;</tt> element.
+      An instance of <code>WRadioButton</code> corresponds to an HTML
+      <code>&lt;input type="radio"&gt;</code> element.
     </p>
     <p>
       Use a <a href="#radio-group">WButtonGroup</a> to group together radio
@@ -1584,7 +1568,7 @@
     </p>
     <p>
       By default, radio buttons are inline. You will need to use
-      <tt>setInline(false)</tt> to let them stack vertically.
+      <code>setInline(false)</code> to let them stack vertically.
     </p>
 
     <h3 id="radio-loose">Loose buttons</h3>
@@ -1612,7 +1596,7 @@
     <h3 id="radio-stack">Stacked buttons</h3>
     <p>
       Since by default, radio buttons are inline, you will need to use
-      <tt>setInline(false)</tt> to let them stack vertically.
+      <code>setInline(false)</code> to let them stack vertically.
     </p>
 
     <fieldset class="example">
@@ -1626,11 +1610,11 @@
     <h3 id="radio-events">Events</h3>
     <p>
       You can process a new selection with a signal/slot mechanism. In the
-      example below the signal <tt>checkedChanged()</tt> of the
-      <tt>WButtonGroup</tt> is passed to an inner function passing a
+      example below the signal <code>checkedChanged()</code> of the
+      <code>WButtonGroup</code> is passed to an inner function passing a
       ${doc-link WPushButton}.
       You can see that there are two ways to get the id assigned to a button,
-      namely <tt>group->id(selection)</tt> and <tt>group->checkedId()</tt>.
+      namely <code>group->id(selection)</code> and <code>group->checkedId()</code>.
     </p>
 
     <fieldset class="example">
@@ -1638,10 +1622,6 @@
       ${RadioButtonsActivated}
       ${src RadioButtonsActivated}
     </fieldset>
-
-    <p>
-      <a href="#/events" target="blank">More details on events</a>
-    </p>
 
     <p><a href="#radio-buttons">Top</a></p>
 
@@ -1654,7 +1634,7 @@
       list of options.
     </p>
     <p>
-      A ${doc-link WComboBox} corresponds to an HTML <tt>&lt;select&gt;</tt>
+      A ${doc-link WComboBox} corresponds to an HTML <code>&lt;select&gt;</code>
       element.
     </p>
 
@@ -1669,10 +1649,10 @@
     </fieldset>
 
     <p>
-      <tt>WComboBox</tt> is a View widget (see also
-      <a href="http://www.webtoolkit.eu/widgets/mvc-widgets/" target="_blank">
-      Model-View-Controller</a>) which instantiates its own
-      <tt>WStringListModel</tt> by default. You can use this widget also in
+      <code>WComboBox</code> is a View widget (see also
+      <a href="#/trees-tables/mvc-item-models">Model-View-Controller</a>)
+      which instantiates its own
+      <code>WStringListModel</code> by default. You can use this widget also in
       conjunction with another model.
     </p>
 
@@ -1696,19 +1676,19 @@
 
     <h3 id="model">Model</h3>
     <p>
-      WComboBox is a MVC class (model-view-controller). By default a
+      WComboBox is an MVC class (model-view-controller). By default a
       ${doc-link WStringListModel} is used. With this model you can associate a
       single column of data to the displayed items. The member methods
-      <tt>addItem()</tt>, <tt>insertItem()</tt> and <tt>removeItem()</tt>
-      manipulate the model. You can set the model with <tt>setModel()</tt>.
+      <code>addItem()</code>, <code>insertItem()</code> and <code>removeItem()</code>
+      manipulate the model. You can set the model with <code>setModel()</code>.
     </p>
     <p>
       Item models support different roles like
-      <tt>Wt::ItemDataRole::DisplayRole </tt> and
-      <tt>Wt::ItemDataRole::UserRole</tt>. The text for an item in the
+      <code>Wt::ItemDataRole::DisplayRole </code> and
+      <code>Wt::ItemDataRole::UserRole</code>. The text for an item in the
       drop-down box is associated with a
-      <tt>Wt::ItemDataRole::DisplayRole</tt>. Typically, you will associate the
-      underlying "value" with a <tt>Wt::ItemDataRole::UserRole</tt>). In this
+      <code>Wt::ItemDataRole::DisplayRole</code>. Typically, you will associate the
+      underlying "value" with a <code>Wt::ItemDataRole::UserRole</code>). In this
       way, you can also add additional user roles.
     </p>
     <p>
@@ -1737,35 +1717,34 @@
       one (by default) or <a href="#selection-multiple">more</a> options.
     </p>
     <p>
-      A ${doc-link WSelectionBox} corresponds to an HTML <tt>&lt;select&gt;</tt>
+      A ${doc-link WSelectionBox} corresponds to an HTML <code>&lt;select&gt;</code>
       element.
     </p>
     <p>
-      <tt>WSelectionBox</tt> is a View widget (see also
-      <a href="http://www.webtoolkit.eu/widgets/mvc-widgets/" target="_blank">
-      Model-View-Controller</a>). By default a ${doc-link
-      WStringListModel} is used. With this model you can associate a
+      <code>WSelectionBox</code> is a View widget (see also
+      <a href="#/trees-tables/mvc-item-models"> Model-View-Controller</a>).
+      By default a ${doc-link WStringListModel} is used. With this model you can associate a
       single column of data to the displayed items. The member
-      methods <tt>addItem()</tt>, <tt>insertItem()</tt> and <tt>
-      removeItem()</tt> manipulate the model. You can set the model
-      with <tt>setModel()</tt>. See the Combo box section for an <a
+      methods <code>addItem()</code>, <code>insertItem()</code> and <code>
+      removeItem()</code> manipulate the model. You can set the model
+      with <code>setModel()</code>. See the Combo box section for an <a
       href="#/forms/combo-box">example</a>.
     </p>
     <p>
       A model supports different roles like
-      <tt>Wt::ItemDataRole::DisplayRole </tt> and
-      <tt>Wt::ItemDataRole::UserRole</tt>.  The suggestion text for an
+      <code>Wt::ItemDataRole::DisplayRole </code> and
+      <code>Wt::ItemDataRole::UserRole</code>.  The suggestion text for an
       item in the drop-down box is associated with a
-      <tt>Wt::ItemDataRole::DisplayRole</tt>. The value, which will be
+      <code>Wt::ItemDataRole::DisplayRole</code>. The value, which will be
       inserted in the line-edit, corresponding with a suggestion, is
-      stored as <tt> Wt::ItemDataRole::UserRole</tt>) data. If no
+      stored as <code> Wt::ItemDataRole::UserRole</code>) data. If no
       UserRole data is available, the behaviour defaults to inserting
-      the suggestion text iteself.
+      the suggestion text itself.
     </p>
     <p>
       If you want to associate multiple data columns with an item from the
       combo box then you should assign another model to this control like
-      ${doc-link WStandardItemModel} or an implemention of
+      ${doc-link WStandardItemModel} or an implementation of
       ${doc-link WAbstractTableModel}.
     </p>
     <p>
@@ -1808,19 +1787,19 @@
     <h2 id="auto-complete">Auto complete</h2>
     <p>
       The ${doc-link WSuggestionPopup} class is a widget which pops up to
-      assist in editing a text area or line edit through auto completion.
+      assist in editing a text area or line edit through auto-completion.
       This widget may be associated with one or more ${doc-link WFormWidgets}
       (typically a ${doc-link WLineEdit} or a ${doc-link WTextArea}).    </p>
     <p>
       The popup provides the user with suggestions to enter input. The popup
-      can be used by one or more text editors, using <tt>forEdit()</tt>. The
+      can be used by one or more text editors, using <code>forEdit()</code>. The
       popup will show when the user starts editing the edit field, or when the
-      user opens the suggestions explicitly using a drop down icon or with the
+      user opens the suggestions explicitly using a drop-down icon or with the
       down key. In the example below, the popup positions itself on top of the
       edit field.
     </p>
     <p>
-      The class is initialized with an <tt>Options</tt> struct which configures
+      The class is initialized with an <code>Options</code> struct which configures
       how suggestion filtering and result editing is done. Alternatively, you
       can provide two <a href="#auto-complete-javascript">JavaScript functions
       </a>.
@@ -1831,8 +1810,8 @@
       current selection.
     </p>
     <p>
-      You can also limit the maximum height of the popup by using <tt>
-      setMaximumSize()</tt>. In this case, scrolling is supported (similar to a
+      You can also limit the maximum height of the popup by using <code>
+      setMaximumSize()</code>. In this case, scrolling is supported (similar to a
       combo-box).
     </p>
 
@@ -1848,11 +1827,11 @@
 
     <h3>Model</h3>
     <p>
-      WSuggestionPopup is a MVC class (model-view-controller). By
+      WSuggestionPopup is an MVC class (model-view-controller). By
       default a ${doc-link WStringListModel} is used. The member
-      methods <tt>clearSuggestions()</tt> and <tt>addSuggestion()</tt>
+      methods <code>clearSuggestions()</code> and <code>addSuggestion()</code>
       manipulate this model. You can set another model with
-      <tt>setModel()</tt>. See the Combo box section for an <a
+      <code>setModel()</code>. See the Combo box section for an <a
       href="#/forms/combo-box">example</a>.
     </p>
 
@@ -1862,9 +1841,9 @@
       large datasets, you may enable server-side filtering of suggestions based
       on the input. The server-side filtering may provide a coarse filtering
       using a fixed size prefix of the entered text, and complement the
-      client-side filtering. To enable server-side filtering, use <tt>
-      setFilterLength()</tt> and listen to filter notification using the <tt>
-      modelFilter()</tt> signal. Whenever a filter event is generated you can
+      client-side filtering. To enable server-side filtering, use <code>
+      setFilterLength()</code> and listen to filter notification using the <code>
+      modelFilter()</code> signal. Whenever a filter event is generated you can
       adjust the model's content according to the filter (e.g. using a
       ${doc-link WSortFilterProxyModel}).
     </p>
@@ -1872,12 +1851,12 @@
     <h3 id="auto-complete-javascript">Initializing Options with JavaScript
       functions</h3>
     <p>
-      Usually, the popup class is initialized with an <tt>Options</tt> struct
+      Usually, the popup class is initialized with an <code>Options</code> struct
       which configures how suggestion filtering and result editing is done.
       Alternatively, you can provide two JavaScript functions, one for
-      filtering the suggestions (<tt>generateMatcherJS()</tt>), and one for
-      editing the value of the textarea when a suggestion is selected (<tt>
-      generateReplacerJS()</tt>).
+      filtering the suggestions (<code>generateMatcherJS()</code>), and one for
+      editing the value of the textarea when a suggestion is selected (<code>
+      generateReplacerJS()</code>).
       The matcher function must have the following JavaScript signature:
       ${src matcher}
     </p>
@@ -1890,8 +1869,8 @@
     <h3>Remark</h3>
     <p>
       You can find several more advanced examples in the Wt distribution
-      directory <tt>examples/feature/suggestionpopup/</tt>. In the <tt>
-      SuggestionPopup.C</tt> class you can explore different functions.
+      directory <code>examples/feature/suggestionpopup/</code>. In the <code>
+      SuggestionPopup.C</code> class you can explore different functions.
     </p>
 
     <p><a href="#auto-complete">Top</a></p>
@@ -1918,8 +1897,8 @@
     </fieldset>
 
     <p>
-      You can select multiple dates after passing the flag <tt>
-      ExtendedSelection</tt> to the method <tt>setSelectionMode()</tt>.
+      You can select multiple dates after passing the flag <code>
+      ExtendedSelection</code> to the method <code>setSelectionMode()</code>.
     </p>
 
     <fieldset class="example">
@@ -1933,7 +1912,7 @@
     <h3 id="date-picker">Date entry using a date edit</h3>
     <p>
       The ${doc-link WDateEdit} widget is a line edit with support for
-      date entry, using a <tt>WCalendar</tt> in a popup for editing
+      date entry, using a <code>WCalendar</code> in a popup for editing
       the date. In the future, it is foreseen that this widget can evolve to
       use browser support for easy date entry.
     </p>
@@ -1973,8 +1952,8 @@
     <h3>In place edit with buttons</h3>
     <p>
       By default, the Save and Cancel buttons are shown. To prevent losing the
-      widget, always use <tt>setEmptyText()</tt> in addition to <tt>setText()
-      </tt> or initially setting the text by the constructor.
+      widget, always use <code>setEmptyText()</code> in addition to <code>setText()
+      </code> or initially setting the text by the constructor.
     </p>
 
     <fieldset class="example">
@@ -1989,8 +1968,8 @@
 
     <h3>In place edit without buttons</h3>
     <p>
-      To show the line edit only, call <tt>setButtonsEnabled()</tt> with
-      parameter <tt>enabled</tt> set to false; this hides the buttons. In this
+      To show the line edit only, call <code>setButtonsEnabled()</code> with
+      parameter <code>enabled</code> set to false; this hides the buttons. In this
       mode, any event that causes focus to be lost saves the value while the
       escape key cancels the editing.
     </p>
@@ -2020,7 +1999,7 @@
     <p>
       The default size is 150 x 50 pixels for a horizontal slider, and 50 x 150
       pixels for a vertical slider. The slider size cannot be set explicitly by
-      a CSS style sheet. You should use <tt>resize()</tt> or a layout manager
+      a CSS style sheet. You should use <code>resize()</code> or a layout manager
       for that purpose.
     </p>
 
@@ -2034,8 +2013,8 @@
 
     <h3>Vertical slider</h3>
     <p>
-      You can create a vertical slider using <tt>setOrientation()</tt> with the
-      parameter <tt>orientation</tt> set to Vertical on a default horizontal
+      You can create a vertical slider using <code>setOrientation()</code> with the
+      parameter <code>orientation</code> set to Vertical on a default horizontal
       slider like in the above example or using a more specialized constructor.
     </p>
 
@@ -2054,12 +2033,12 @@
     <p>
       The ${doc-link WProgressBar} can be used to indicate the progress of a
       certain operation. The text displayed in the progress bar can be
-      customized by specializing <tt>text()</tt>.
+      customized by specializing <code>text()</code>.
     </p>
     <p>
       To use the progress bar widget, you need to give it a range (either by
-      <tt>setRange()</tt> or by using <tt>setMinimum()</tt> and
-      <tt>setMaximum()</tt>), and update the progress using <tt>setValue()</tt>.
+      <code>setRange()</code> or by using <code>setMinimum()</code> and
+      <code>setMaximum()</code>), and update the progress using <code>setValue()</code>.
     </p>
 
     <fieldset class="example">
@@ -2087,31 +2066,31 @@
 
     <h3>Signals</h3>
     <p>
-      To properly use this widget you need to handle the <tt>uploaded()</tt>
-      or <tt>fileTooLarge()</tt> signals; even when <tt>upload()</tt> was not
+      To properly use this widget you need to handle the <code>uploaded()</code>
+      or <code>fileTooLarge()</code> signals; even when <code>upload()</code> was not
       called.
     </p>
     <p>
-      An oversized file will result in a <tt>fileTooLarge()</tt> signal. The
+      An oversized file will result in a <code>fileTooLarge()</code> signal. The
       default threshold value (128) for this signal is defined in the general
-      application settings file <tt>wt_config.xml</tt> by the parameter <tt>
-      max-request-size</tt> (Kb). See the <a href=
-      "http://www.webtoolkit.eu/wt/doc/reference/html/overview.html#config_general"
-      target="blank">Library overview</a> for more details.
+      application settings file <code>wt_config.xml</code> by the parameter <code>
+      max-request-size</code> (Kb). See the <a href=
+      "https://www.webtoolkit.eu/wt/doc/reference/html/overview.html#config_general"
+      target="_blank">Library overview</a> for more details.
     </p>
     <p>
-      Also check using <tt>canUpload()</tt> if <tt>upload()</tt> will schedule
+      Also check using <code>canUpload()</code> if <code>upload()</code> will schedule
       a new upload.
       <ul>
         <li>
-          If (!canUpload()) then <tt>upload()</tt> will not have any effect.
+          If (!canUpload()) then <code>upload()</code> will not have any effect.
         </li>
         <li>
-          If (canUpload()), then <tt>upload()</tt> will start a new file
+          If (canUpload()), then <code>upload()</code> will start a new file
           upload.
           <br />
-          If the upload completes succesfully then an <tt>uploaded()
-          </tt>signal will be emitted. Otherwise a <tt>fileTooLarge()</tt>
+          If the upload completes successfully then an <code>uploaded()
+          </code>signal will be emitted. Otherwise a <code>fileTooLarge()</code>
           signal will be emitted.
         </li>
       </ul>
@@ -2147,11 +2126,11 @@
       closing the window.
     </p>
     <p>
-      A <tt>WPushButton</tt> corresponds to an HTML <tt>&lt;button&gt;</tt>
+      A <code>WPushButton</code> corresponds to an HTML <code>&lt;button&gt;</code>
       element.
     </p>
     <p>
-      A push button typically responds to <tt>clicked()</tt> events.
+      A push button typically responds to <code>clicked()</code> events.
     </p>
     <p>
       You may decorate a push button with a background image to create a
@@ -2184,7 +2163,7 @@
     <h3 id="navigation">Navigation button</h3>
     <p>
       You can also associate navigation with a button using
-      <tt>WPushButton::setLink()</tt>. With this method you can change the
+      <code>WPushButton::setLink()</code>. With this method you can change the
       internal path of the application. As a result the button behaves as an
       <a href="#/navigation/anchor">anchor</a>. This is similar to how a
       ${doc-link WMenuWidget} or a ${doc-link WTabWidget} works. See the menu
@@ -2192,13 +2171,13 @@
     </p>
     <p>
       With a push button you can execute an action while navigating to a
-      hyperlink target at the same time using <tt>WPushButton::setLink()</tt>.
+      hyperlink target at the same time using <code>WPushButton::setLink()</code>.
       This method accepts a ${doc-link WLink} as parameter.
     </p>
     <p>
       In the example below, the internal path is changed from
-      <tt>/forms/button</tt> (the path associated with the current web page) to
-      <tt>/navigation/anchor</tt>.
+      <code>/forms/button</code> (the path associated with the current web page) to
+      <code>/navigation/anchor</code>.
     </p>
 
     <fieldset class="example">
@@ -2211,7 +2190,7 @@
 
     <h3 id="dropdown">Drop down button</h3>
     <p>
-      A drop down button is a button with a drop down menu. It could be used to
+      A drop down button is a button with a drop-down menu. It could be used to
       extend a line edit with possible actions on the input. Usually the menu
       items are links.
     </p>
@@ -2226,10 +2205,9 @@
       ${src PushButtonDropdownAppended}
       <p>
         Here is the corresponding XML template (with
-        <tt>message id= "appendedDropdownButton-template"</tt>) using style
+        <code>message id= "appendedDropdownButton-template"</code>) using style
         classes from the
-        <a href= "http://twitter.github.com/bootstrap/base-css.html"
-        target="blank">Bootstrap theme</a>.
+        <a href= "https://getbootstrap.com" target="_blank">Bootstrap theme</a>.
       </p>
       <fieldset class="src">
         <legend>source</legend>
@@ -2243,17 +2221,16 @@
     <p>
       You can add different styles to buttons to change the color, the size,
       the positioning, etc. using style classes from the
-      <a href="http://twitter.github.com/bootstrap/base-css.html"
-      target="blank">Bootstrap theme</a>.
-      Button styles can be applied to anything with the <tt>.btn</tt> class
+      <a href="https://getbootstrap.com" target="_blank">Bootstrap theme</a>.
+      Button styles can be applied to anything with the <code>.btn</code> class
       applied. However, for the best rendering, apply these to hyperlinks
-      (<tt>&lt;a&gt;</tt>) and button controls (<tt>&lt;button&gt;</tt>) only.
+      (<code>&lt;a&gt;</code>) and button controls (<code>&lt;button&gt;</code>) only.
     </p>
 
     <h4 id="color">Button color</h4>
     <p>
       The following table provides an overview of the standard color classes
-      and visualizes the effect on a button. The <tt>.btn</tt> class is applied
+      and visualizes the effect on a button. The <code>.btn</code> class is applied
       to a button control by default; you only have to set additional classes.
     </p>
 
@@ -2267,7 +2244,7 @@
       ${src PushButtonColor}
       <p>
         Here is the corresponding XML template
-        (with <tt>message id="pushButtonColor-template"</tt>). Note that there
+        (with <code>message id="pushButtonColor-template"</code>). Note that there
         is no style applied to the buttons here; this is dealt with in the
         program. As a result it's easy to change the style on-the-fly.
       </p>
@@ -2282,8 +2259,8 @@
     <h4 id="size">Button size</h4>
     <p>
       Instead of using the default size, you can apply a larger or smaller size
-      to a button. Add the style class <tt>.btn-lg</tt> or
-      <tt>.btn-sm</tt> to change the size.
+      to a button. Add the style class <code>.btn-lg</code> or
+      <code>.btn-sm</code> to change the size.
     </p>
 
     <fieldset class="example">
@@ -2296,7 +2273,7 @@
       ${src PushButtonSize}
       <p>
         Here is the corresponding XML template
-        (with <tt>message id="pushButtonSize-template"</tt>). Note that there
+        (with <code>message id="pushButtonSize-template"</code>). Note that there
         is no style applied to the buttons here; this is dealt with in the
         program.
       </p>
@@ -2311,7 +2288,7 @@
     <h4 id="primary">Primary button</h4>
     <p>
       You can create a primary button - one that is more striking - by adding
-      the <tt>.btn-primary</tt> style to it.
+      the <code>.btn-primary</code> style to it.
     </p>
 
     <fieldset class="example">
@@ -2320,12 +2297,12 @@
       ${src PushButtonPrimary}
     </fieldset>
 
-    <p><a href="#push-buttonn">Top</a></p>
+    <p><a href="#push-button">Top</a></p>
 
     <h4 id="action">Buttons in a form</h4>
     <p>
       Usually, a form ends with a group of actions (buttons). When placed within a
-      <tt>.row</tt>, the buttons will automatically indent to line
+      <code>.row</code>, the buttons will automatically indent to line
       up with the form controls (See the example at
       <a href="#/forms/forms">Forms &gt; Form model</a>).
     </p>
@@ -2336,7 +2313,7 @@
       ${src PushButtonAction}
       <p>
         Here is the corresponding XML template
-        (with <tt>message id="pushButtonAction-template"</tt>) showing how to
+        (with <code>message id="pushButtonAction-template"</code>) showing how to
         assign the appropriate style class to the action section.
       </p>
       <fieldset class="src">
@@ -2370,60 +2347,60 @@
         <tbody>
           <tr>
             <td>${button-primary}</td>
-            <td><tt>btn-primary</tt></td>
+            <td><code>btn-primary</code></td>
             <td>Provides extra visual weight and identifies the primary action
                 in a set of buttons</td>
           </tr>
           <tr>
             <td>${button-secondary}</td>
-            <td><tt>btn-secondary</tt></td>
+            <td><code>btn-secondary</code></td>
             <td>Default style configured by the library</td>
           </tr>
           <tr>
             <td>${button-info}</td>
-            <td><tt>btn-info</tt></td>
+            <td><code>btn-info</code></td>
             <td>Used as an alternative to the default styles</td>
           </tr>
           <tr>
             <td>${button-success}</td>
-            <td><tt>btn-success</tt></td>
+            <td><code>btn-success</code></td>
             <td>Indicates a successful or positive action</td>
           </tr>
           <tr>
             <td>${button-warning}</td>
-            <td><tt>btn-warning</tt></td>
+            <td><code>btn-warning</code></td>
             <td>Indicates caution should be taken with this action</td>
           </tr>
           <tr>
             <td>${button-danger}</td>
-            <td><tt>btn-danger</tt></td>
+            <td><code>btn-danger</code></td>
             <td>Indicates a dangerous or potentially negative action</td>
           </tr>
           <tr>
             <td>${button-close}</td>
-            <td><tt>btn-close</tt></td>
+            <td><code>btn-close</code></td>
             <td>Indicates a closing action can be performed</td>
           </tr>
           <tr>
             <td>${button-light}</td>
-            <td><tt>btn-light</tt></td>
+            <td><code>btn-light</code></td>
             <td>A light button</td>
           </tr>
           <tr>
             <td>${button-dark}</td>
-            <td><tt>btn-dark</tt></td>
+            <td><code>btn-dark</code></td>
             <td>A dark button</td>
           </tr>
           <tr>
             <td>${button-outline}</td>
-            <td><tt>btn-outline-primary</tt></td>
-            <td>A button with an outline. This can be used with all of the
-                button types listed before.</td>
+            <td><code>btn-outline-primary</code></td>
+            <td>A button with an outline. This can be used with every
+                button type listed before.</td>
           </tr>
           <tr>
             <td>${button-link}</td>
-            <td><tt>btn-link</tt></td>
-            <td>Deemphasize a button by making it look like a link while
+            <td><code>btn-link</code></td>
+            <td>De-emphasize a button by making it look like a link while
                 maintaining button behavior</td>
           </tr>
         </tbody>
@@ -2457,7 +2434,7 @@
       editing), and server-side validation (to be sure that the client was not
       tampered with). The feed-back given by (client-side and server-side)
       validation is reflected in the style class of the form field: a style
-      class of <tt>Wt-invalid</tt> is set for a field that is invalid.
+      class of <code>Wt-invalid</code> is set for a field that is invalid.
     </p>
     <p>
       The ${doc-link WValidator} only checks that mandatory fields are not
@@ -2475,10 +2452,10 @@
     </p>
     <p>
       If these validators are not suitable, you can inherit from this class,
-      and provide a suitable implementation to <tt>validate()</tt> which does
+      and provide a suitable implementation to <code>validate()</code> which does
       the server-side validation. If you want to provide client-side validation
-      for your own validator, you may also reimplement <tt>javaScriptValidate()
-      </tt>.
+      for your own validator, you may also reimplement <code>javaScriptValidate()
+      </code>.
     </p>
 
     <fieldset class="example">
@@ -2487,12 +2464,11 @@
       ${src Validation}
       <p>
         Here is the corresponding XML template (with
-        <tt>message id= "validation-template"</tt>) using style classes from
-        the <a href= "http://twitter.github.com/bootstrap/base-css.html"
-        target="blank">Bootstrap theme</a>.
+        <code>message id= "validation-template"</code>) using style classes from
+        the <a href= "https://getbootstrap.com" target="_blank">Bootstrap theme</a>.
         In order to apply validation style if the input is not valid, you
         should surround the input widget in a div or span section and apply the
-        style <tt>input-group </tt> to it.
+        style <code>input-group </code> to it.
       </p>
       <fieldset class="src">
         <legend>source</legend>
@@ -2505,9 +2481,9 @@
     <h3>Date validation</h3>
     <p>
       In entirely the same way, a date validator can be used to
-      validate date input with a <tt>WDateEdit</tt> or
-      <tt>WDatePicker</tt>. You can limit the date range of the
-      calendar using <tt> setBottom()</tt> and <tt>setTop()</tt>.
+      validate date input with a <code>WDateEdit</code> or
+      <code>WDatePicker</code>. You can limit the date range of the
+      calendar using <code> setBottom()</code> and <code>setTop()</code>.
     </p>
 
     <fieldset class="example">
@@ -2534,8 +2510,8 @@
       whether the field is read-only, and its current validation status is
       managed by the model.
       In addition, you will typically specialize the class to customize the
-      validation and application logic. Although it can be setup to use <tt>
-      WValidator</tt> objects for individual fields, you could also create a
+      validation and application logic. Although it can be setup to use <code>
+      WValidator</code> objects for individual fields, you could also create a
       validator to simultaneously validate interdependent fields.
     </p>
     <p>
@@ -2548,7 +2524,7 @@
       Here is an example with the same behavior as the previous example. It
       also uses the same XML template. The contents of the variable name
       'age-info' in the template depends on the outcome of the method
-      <tt>validate()</tt> of the model.
+      <code>validate()</code> of the model.
       <ul>
         <li>It holds a confirmation that the value is saved if the input is
           valid.
@@ -2585,7 +2561,7 @@
   <message id="date-template">
     <div class="input-group">
       <label class="form-label col-sm-3" for="${id:birth-date}">
-        Enter your birth-date:
+        Enter your birthdate:
       </label>
       <div class="col-sm-2">${birth-date}</div>
     </div>
@@ -2614,26 +2590,25 @@
       ${FormModel}
       <p>
         The underlying XML template (with
-        <tt>message id="userForm-template"</tt>) uses style classes from the
-        <a href="http://twitter.github.com/bootstrap/base-css.html"
-        target="blank">Bootstrap theme</a>.
+        <code>message id="userForm-template"</code>) uses style classes from the
+        <a href="https://getbootstrap.com" target="_blank">Bootstrap theme</a>.
         In order to apply validation style to any widget with invalid input,
         you should group the widgets in a div or span section and apply the
-        style <tt>input-group </tt> to it.
+        style <code>input-group </code> to it.
       </p>
       <fieldset class="src">
         <legend>source</legend>
         <pre>${userForm-template}</pre>
       </fieldset>
       <p>
-        Here is the implementation of <tt>WFormModel</tt> and <tt>
-        WTemplateFormView</tt>.
+        Here is the implementation of <code>WFormModel</code> and <code>
+        WTemplateFormView</code>.
       </p>
       <p>
         There are created validators for several fields. See the section
         <a href="#/forms/validation">Validation</a> for more details on
         validators, especially a more elaborated example on a
-        <tt>WDateValidator</tt> for a <tt>WDatePicker</tt>.
+        <code>WDateValidator</code> for a <code>WDatePicker</code>.
       </p>
       ${src FormModel}
     </fieldset>
@@ -2656,11 +2631,11 @@
       application: regardless of what the user does, the URL displayed
       in the location bar does not change. Single page applications
       are typically implemented in JavaScript and use Ajax to pull
-      data from the server, while multi-page applications typically
+      data from the server, while multipage applications typically
       require full page refreshes.
     </p>
 
-    <p>Single page appliations have a number of draw-backs:
+    <p>Single page applications have a number of drawbacks:
 
       <dl>
         <dt>Usability</dt>
@@ -2674,7 +2649,7 @@
         application, you should be concerned.</p>
 
         <p>
-          For example, an interactive web application that mimicks a
+          For example, an interactive web application that mimics a
           desktop application with a single window whose content is
           manipulated might be conceptually considered a single page for
           the user.
@@ -2730,7 +2705,7 @@
     <blockquote class="blockquote">
       <p>
         With the help of HTML5's History API, Wt provides a perfect
-        illusion of a multi-page application, but within a single page!
+        illusion of a multipage application, but within a single page!
       </p>
     </blockquote>
 
@@ -2746,7 +2721,7 @@
 
     <p>
       The main benefit of this approach is that internal path changes
-      may also originate from a user navigating using the brower's
+      may also originate from a user navigating using the browser's
       back and forward buttons, may follow such a link in a new window
       (and thus a new session) or may arrive at the internal path
       following a deep link from elsewhere, and this approach
@@ -2757,7 +2732,7 @@
     <p>
       As a corner stone feature in Wt, internal paths are entirely
       supported both in Ajax and plain HTML sessions. For browsers
-      without support for the HTML5 History API, Ajax sesion will fall
+      without support for the HTML5 History API, Ajax session will fall
       back to <i>named anchors</i>. This effectively makes internal
       paths the perfect tool for search engine accessibility of your
       application.
@@ -2767,7 +2742,7 @@
 
     <p>
       For the following widgets you can associate an internal path
-      with the method <tt>setLink()</tt>:
+      with the method <code>setLink()</code>:
       <ul>
         <li>an <a href="#/navigation/anchor">anchor</a> (${doc-link WAnchor})
         or a pushbutton (${doc-link WPushButton}), or</li>
@@ -2777,12 +2752,12 @@
           circle or polygon) which define interactive areas on images.</li>
       </ul>
       In addition, standard item views such as ${doc-link WTableView}
-      will render links for <tt>LinkRole</tt> data.
+      will render links for <code>LinkRole</code> data.
     </p>
 
     <p>
       In the example below, the push button is configured to navigate
-      to the internal path <tt>/navigation/anchor</tt>; the next item
+      to the internal path <code>/navigation/anchor</code>; the next item
       in the menu bar. The button behaves as an <a
       href="#/navigation/anchor">anchor</a>. This is similar to how a
       ${doc-link WMenuWidget} or a ${doc-link WTabWidget} works.
@@ -2808,10 +2783,10 @@
       component that decides what page content needs to be rendered in
       response to a particular request, Wt employs a quite different
       model. Instead, you can react to internal path changes, by
-      listening to the <tt>WApplication::internalPathChanged()</tt>
+      listening to the <code>WApplication::internalPathChanged()</code>
       signal, as you would react to any other event. At any time,
       including when the application is started, the current internal
-      path is available through <tt>WApplication::internalPath()</tt>.
+      path is available through <code>WApplication::internalPath()</code>.
     </p>
 
     <p>
@@ -2838,7 +2813,7 @@
     <h2 id="anchor">Anchor</h2>
     <p>
       An ${doc-link WAnchor} is a widget that represents an HTML
-      <tt>&lt;a&gt;</tt> element, and provides a link to an URL. So, you can
+      <code>&lt;a&gt;</code> element, and provides a link to a URL. So, you can
       use an anchor to provide link to another web page, document, internal
       application path or a resource. The anchor may contain a label text, an
       image, or any other widget (as it inherits from
@@ -2861,14 +2836,14 @@
       When an anchor is activated, by default the browser will replace the Wt
       application with the targeted document or external url. This could
       terminate the application. This may be changed to suggest the browser to
-      follow the link in a new window, using the <tt>setTarget()</tt> method
-      with parameter <tt>Wt::TargetNewWindow</tt>.
+      follow the link in a new window, using the <code>setTarget()</code> method
+      with parameter <code>Wt::TargetNewWindow</code>.
       Even for non-HTML documents, this may be important since pending Ajax
       requests are cancelled if documents are not served within the browser
       window in certain browsers.
     </p>
     <p>
-      <tt>WAnchor</tt> plays an important role for navigation within your
+      <code>WAnchor</code> plays an important role for navigation within your
       application, using Wt's internal paths, since they provide support for
       bookmarks, the browser back/forward buttons, and following links in new
       windows. For example, the <a href="#/navigation/menu">WMenu</a> widget
@@ -2887,14 +2862,14 @@
     </p>
     <p>
       Note that if you set a text or image using one of the API methods like
-      <tt>setText()</tt> or <tt>setImage()</tt> or a constructor, you should
-      not attempt to remove all contents (using <tt>clear()</tt>, or provide a
-      layout (using <tt>setLayout()</tt>), as this will result in undefined
+      <code>setText()</code> or <code>setImage()</code> or a constructor, you should
+      not attempt to remove all contents (using <code>clear()</code>, or provide a
+      layout (using <code>setLayout()</code>), as this will result in undefined
       behaviour. The text or image are simply inserted as widgets into the
       container.
     </p>
     <p>
-      The widget corresponds to the HTML <tt>&lt;a&gt;</tt> tag and does not
+      The widget corresponds to the HTML <code>&lt;a&gt;</code> tag and does not
       provide styling. It can be styled using inline or external CSS as
       appropriate.
     </p>
@@ -2911,14 +2886,14 @@
     </p>
     <p>
       The ${doc-link WStackedWidget} accomplishes this using
-      <tt>setHidden(bool)</tt> on the children. Using <tt>currentIndex()</tt>
-      and <tt>setCurrentIndex(int index)</tt> you can retrieve or set the
+      <code>setHidden(bool)</code> on the children. Using <code>currentIndex()</code>
+      and <code>setCurrentIndex(int index)</code> you can retrieve or set the
       visible widget.
     </p>
     <p>
-      Like its parent ${doc-link WContainerWidget}, <tt>WStackedWidget</tt> is
+      Like its parent ${doc-link WContainerWidget}, <code>WStackedWidget</code> is
       by default not inline. The widget is rendered using an HTML
-      <tt>&lt;div&gt;</tt> tag and does not provide styling. It can be styled
+      <code>&lt;div&gt;</code> tag and does not provide styling. It can be styled
       using inline or external CSS as appropriate.
     </p>
 
@@ -2946,7 +2921,7 @@
       which manages the contents.
     </p>
     <p>
-      The panel at the left is implemented using a <tt>WMenu</tt>.
+      The panel at the left is implemented using a <code>WMenu</code>.
     </p>
 
     <fieldset class="example">
@@ -2960,8 +2935,8 @@
     </fieldset>
 
     <p>
-      You can create items with submenus by using the <tt>WSubMenuItem</tt>
-      rather than the default <tt>WMenuItem</tt>.
+      You can create items with submenus by using the <code>WSubMenuItem</code>
+      rather than the default <code>WMenuItem</code>.
     </p>
     <p>
       A menu has full support for bookmarks and the back button, by rendering
@@ -2970,13 +2945,13 @@
     </p>
     <p>
       By default, the menu does not provide any styling. It can be rendered
-      using HTML <tt>&lt;ul&gt;</tt> and <tt>&lt;li&gt;</tt> elements. It
+      using HTML <code>&lt;ul&gt;</code> and <code>&lt;li&gt;</code> elements. It
       should be styled using CSS. The look and behaviour of menu
       items can be customized by just reimplementing the styling. For example,
       the <a href="#/navigation/tab-widget">WTabWidget</a> is merely a
-      specialized menu. By default the <tt>nav</tt> class from the
-      <a href="http://twitter.github.com/bootstrap/components.html#navs"
-      target="blank">Bootstrap theme</a> is applied.
+      specialized menu. By default the <code>nav</code> class from the
+      <a href="https://getbootstrap.com/docs/5.2/components/navs-tabs/"
+      target="_blank">Bootstrap theme</a> is applied.
     </p>
 
     <p><a href="#navigation-menu">Top</a></p>
@@ -2994,7 +2969,7 @@
       <a href="#/navigation/stacked-widget">WStackedWidget</a> in a tab-like look.
       A tab widget will place the tab bar on top of the contents, and fit the
       contents below it. It is similar to a
-      <a href="#/navigation/navigation-bar">WNavigationBar</a> but with less
+      <a href="#/navigation/navigation-bar">WNavigationBar</a> but with fewer
       options like a title or multiple menus.
     </p>
 
@@ -3010,8 +2985,8 @@
 
     <p>
       The tab widget is styled by the current CSS theme. The look (of the
-      header) can be overridden using the <tt>Wt-tabs</tt> CSS class and
-      addition to selectors like <tt>ul</tt>, <tt>li</tt> and <tt>span</tt>.
+      header) can be overridden using the <code>Wt-tabs</code> CSS class and
+      addition to selectors like <code>ul</code>, <code>li</code> and <code>span</code>.
     </p>
 
     <p><a href="#navigation-tab">Top</a></p>
@@ -3026,29 +3001,29 @@
       Usually, it is anchored to the top of the screen or a window.
     </p>
     <p>
-      A ${doc-link WNavigationBar} consists of one ore more
+      A ${doc-link WNavigationBar} consists of one or more
       <a href="#/navigation/menu">WMenu</a> controls - each working in
       conjunction with a <a href="#/navigation/stacked-widget">WStackedWidget</a> to
       manage its contents.
       You can still add other kind of widgets to the navigation bar with
-      <tt>addWidget()</tt>.
+      <code>addWidget()</code>.
       It is similar to <a href="#/navigation/tab-widget">WTabWidget</a> but
       it has more features like a title and multiple menus in addition to
       a more extensive style class.
     </p>
     <p>
       In the example below, the title and an optional link is set with the
-      method <tt>setTitle()</tt>.
+      method <code>setTitle()</code>.
     </p>
     <p>
       Especially for mobile applications, you can make the navigation bar
-      responsive to the available screen size with <tt>setResponsive()</tt>.
+      responsive to the available screen size with <code>setResponsive()</code>.
       You can see the effect by resizing the window size of your browser.
     </p>
     <p>
-      Use <tt>addMenu()</tt> to add a menu to the navigation bar, e.g. a menu
-      for contents at the left side of the navigation bar and a right menu for
-      help. You could also add a search widget with <tt>addSearch()</tt>. Note
+      Use <code>addMenu()</code> to add a menu to the navigation bar, e.g. a menu
+      for contents on the left side of the navigation bar and a right menu for
+      help. You could also add a search widget with <code>addSearch()</code>. Note
       that if you add several widgets to the right then they are placed from
       right to left.
     </p>
@@ -3062,7 +3037,7 @@
     <h3>Remark</h3>
     <p>
       In some cases, you may want to add a form field to the navigation bar
-      (e.g. for a compact login option) with <tt>addFormField()</tt>.
+      (e.g. for a compact login option) with <code>addFormField()</code>.
     </p>
 
     <p><a href="#navigation-bar">Top</a></p>
@@ -3081,8 +3056,8 @@
       navigation menu for a web application.
     </p>
     <p>
-      When initially created, the menu is invisible, until <tt>popup()</tt> or
-      <tt>exec()</tt> is called. Then, the menu will remain visible until an
+      When initially created, the menu is invisible, until <code>popup()</code> or
+      <code>exec()</code> is called. Then, the menu will remain visible until an
       item is selected, or the user cancels the menu (by pressing the Escape
       key or clicking elsewhere).
     </p>
@@ -3092,17 +3067,17 @@
       selected item.
     </p>
     <p>
-      <tt>WPopupMenu</tt> is similar in use to
+      <code>WPopupMenu</code> is similar in use to
       <a href="#/layout/dialogs">WDialog</a>. So there are two ways of using
-      the menu. The simplest way is to use one of the <tt>exec()</tt> methods,
+      the menu. The simplest way is to use one of the <code>exec()</code> methods,
       apply a reentrant event loop and wait until the user selected an item or
       cancelled the popup menu (by pressing Escape or clicking elsewhere).
     </p>
     <p>
-      Preferably, use one of the <tt>popup()</tt> methods to show the menu and
-      listen to the <tt>aboutToHide</tt> signal where you read the
-      <tt>result()</tt> (the last triggered menu item). If you listen to the
-      <tt>aboutToHide</tt> signal of a parent popup it will also be triggered
+      Preferably, use one of the <code>popup()</code> methods to show the menu and
+      listen to the <code>aboutToHide</code> signal where you read the
+      <code>result()</code> (the last triggered menu item). If you listen to the
+      <code>aboutToHide</code> signal of a parent popup it will also be triggered
       by its child popups.
     </p>
     <p>
@@ -3111,7 +3086,7 @@
         <li>
           You can use the ${doc-link WMenuItem} itself to identify the action,
           perhaps by specialization or by simply by binding custom data using
-          <tt>WMenuItem::setData()</tt>.
+          <code>WMenuItem::setData()</code>.
         </li>
         <li>
           You can use a lambda function to connect to each of the listeners.
@@ -3120,7 +3095,7 @@
         </li>
         <li>
           You can bind a separate method to each item's
-          <tt>WMenuItem::triggered</tt> signal.
+          <code>WMenuItem::triggered</code> signal.
         </li>
       </ul>
     </p>
@@ -3139,11 +3114,11 @@
     <h2 id="split-button">Split button</h2>
     <p>
       A split button is a widget composed of an action button in addition to
-      a drop down button which are shown beside each other.
+      a drop-down button which are shown beside each other.
     </p>
     <p>
       The action button of a ${doc-link WSplitButton} is implemented as a
-      ${doc-link WPushButton} while the drop down button is implemented as a
+      ${doc-link WPushButton} while the drop-down button is implemented as a
       push button with a <a href="#/navigation/popup">WPopupMenu</a>.
     </p>
 
@@ -3182,12 +3157,12 @@
     <p>
       The most direct way to organize widgets in a tabular grid is
       using ${doc-link WTable}. This widget renders as an HTML
-      <tt>&lt;table&gt;</tt> element.
+      <code>&lt;table&gt;</code> element.
     </p>
 
     <p>
       Each table cell is a <a href="#/layout/">Container</a> to which
-      ontents can be added. The table will grow as necessary while you
+      contents can be added. The table will grow as necessary while you
       add data to it.
     </p>
 
@@ -3208,11 +3183,11 @@
       as well consider using a <a
       href="#/layout/html-templates">WTemplate</a> containing the HTML
       markup for a table, and providing the contents (widgets or
-      strings) by substituting place holders.
+      strings) by substituting placeholders.
     </p>
 
     <p>
-      In contrast, the <tt>WTable</tt> class is suitable when the
+      In contrast, the <code>WTable</code> class is suitable when the
       table is to be constructed dynamically, based on information
       that may be variable in size.
     </p>
@@ -3231,7 +3206,7 @@
 
     <p>
       The bootstrap theme provides optional markup for the
-      table. These styles are enabled by adding the <tt>"table"</tt>
+      table. These styles are enabled by adding the <code>"table"</code>
       style class, and other optional style classes. The other styling
       options are enabled by adding one of the following classes:
       <dl class="row">
@@ -3304,7 +3279,7 @@
     <p>
       A more direct approach to showing a table of data is to use a
       ${doc-link WTable} which allows you to directly specify a widget
-      that renders each cell. Compared to this, a <tt>WTableView</tt>
+      that renders each cell. Compared to this, a <code>WTableView</code>
       support virtual scrolling (for both rows and columns !), column
       sorting and resize handles, and the ability to define row
       headers which allow you to scroll through many columns of
@@ -3323,7 +3298,7 @@
 
     <h3>Virtual scrolling</h3>
     <p>
-      A tableview has the capbility todisplay large datasets, by
+      A tableview has the capability to display large datasets, by
       implementing virtual scrolling both horizontally and vertically.
     </p>
 
@@ -3339,7 +3314,7 @@
       ${src LargeTableView}
       </p>
       <span class="label label-info">Note</span>
-      The implementation of <tt>VirtualModel</tt> is shown
+      The implementation of <code>VirtualModel</code> is shown
       <a href="#/trees-tables/mvc-item-models">in the section on item
       models</a>
     </fieldset>
@@ -3360,17 +3335,17 @@
       implementation (${doc-link WItemDelegate}) will
       <ul>
         <li>render <strong>text</strong>,
-            using the data role<tt>DisplayRole</tt>,</li>
+            using the data role<code>DisplayRole</code>,</li>
         <li>render <strong>icons</strong>,
-            using the data role <tt>DecorationRole</tt>,</li>
+            using the data role <code>DecorationRole</code>,</li>
         <li>render <strong>check boxes</strong>,
-            using the data role <tt>CheckStateRole</tt>,</li>
+            using the data role <code>CheckStateRole</code>,</li>
         <li>render <strong>links</strong>,
-            using the data role <tt>LinkRole</tt>,</li>
+            using the data role <code>LinkRole</code>,</li>
         <li>render <strong>tool tips</strong>,
-            using the data role <tt>ToolTipRole</tt>,</li>
+            using the data role <code>ToolTipRole</code>,</li>
         <li>render <strong>style classes</strong>,
-            using the data role <tt>StyleClassRole</tt>.</li>
+            using the data role <code>StyleClassRole</code>.</li>
       </ul>
       If the default item delegate doesn't satisfy, you can reimplement it to
       tailor the rendering, and you can extend models with data for additional
@@ -3389,7 +3364,7 @@
       But an MVC View may also actively participate in editing the
       data. You can define editing triggers (such as a double click)
       and the model can indicate to the view which data can be
-      edited. The default item delegate (<tt>WItemDelegate</tt>) will
+      edited. The default item delegate (<code>WItemDelegate</code>) will
       use a line edit for editing, but this can be customized by
       providing your own item delegate implementation.
     </p>
@@ -3413,7 +3388,7 @@
     <p>
       Especially when displaying datasets with many columns, it may be
       convenient to define a number of columns as row headers (using
-      <tt>WAbstractItemView::setRowHeaderCount()</tt>), which are kept
+      <code>WAbstractItemView::setRowHeaderCount()</code>), which are kept
       in view while scrolling to the columns.
     </p>
 
@@ -3425,7 +3400,7 @@
     <h2 id="mvc-tree-view">MVC Tree Views</h2>
     <p>
       A ${doc-link WTreeView} displays tree data (with additional
-      properties available in extra columns). The archetypical
+      properties available in extra columns). The archetypal
       application is a file system browser: the filesystem tree is
       displayed in the first column, and additional columns annotate
       properties of files.
@@ -3445,7 +3420,7 @@
       href="#/trees-tables/tree-tables">WTreeTable</a> widgets which
       do not enforce this Model/View separation and allow you to directly
       specify the widgets that renders each cell. Compared to this, a
-      <tt>WTreeView</tt> supports virtual scrolling (have you ever
+      <code>WTreeView</code> supports virtual scrolling (have you ever
       seen that for a tree ?), column sorting and resize handles, and
       row headers which allow you to scroll through many columns of
       additional data while keeping the first column within view. Its
@@ -3453,8 +3428,8 @@
     </p>
 
     <p>
-      The example below shows a treeview that is seeded with a custom
-      hierarhical model which displays a revision in a git repository.
+      The example below shows a tree view that is seeded with a custom
+      hierarchical model which displays a revision in a git repository.
     </p>
 
     <fieldset class="example">
@@ -3464,7 +3439,7 @@
       ${src TreeView}
       </p>
       <span class="label label-info">Note</span> The implementation of
-      <tt>GitModel</tt> is discussed in <a
+      <code>GitModel</code> is discussed in <a
       href="#/trees-tables/mvc-item-models">Item Models</a>
     </fieldset>
 
@@ -3528,9 +3503,9 @@
     </p>
 
     <p>
-      Each item may holds different facets of the data, stored as
+      Each item may hold different facets of the data, stored as
       different <strong>Item Data Roles</strong>. If a table has two
-      dimensions (rows an columns), then data roles could be considered
+      dimensions (rows and columns), then data roles could be considered
       as a third dimension.
     </p>
 
@@ -3578,14 +3553,14 @@
     <img src="/pics/tree-models.png" style="max-width: none; float: right; margin: 30px"/>
 
     <p>
-      A tree model is - like a list - a model with a single column. In addition
-      each item may be parent to another list.
+      A tree model is - like a list - a model with a single column. In addition,
+      each item may be the parent of another list.
     </p>
 
     <p>
       At this point it becomes necessary to introduce the concept of
       a ${doc-link WModelIndex} to uniquely identify an item. A model
-      index is a data structucre containing:
+      index is a data structure containing:
 
       <dl class="row no-clear">
         <dt class="col-sm-2 text-sm-end">row</dt>
@@ -3601,7 +3576,7 @@
       The recursion is thus achieved by associating a parent index
       with each item index. By convention, top-level items have an
       <strong>Invalid</strong> index (which is a default constructed
-      <tt>WModelIndex</tt>). To make the recursive definition
+      <code>WModelIndex</code>). To make the recursive definition
       consistent, one can also imagine an invisible root item
       (corresponding to the "invalid" index) which is the parent of
       the top-level items.
@@ -3633,14 +3608,14 @@
         <li>${doc-link WStandardItemModel} can implement any kind of
         item model, being composed of a table of ${doc-link
         WStandardItem}'s, which each can contain itself a nested table
-        of <tt>WStandardItem</tt> items.</li>
+        of <code>WStandardItem</code> items.</li>
         <li>${doc-link WStringListModel} only supports lists with a
         single column, and is thus optimized for list-oriented widgets
         (combo-boxes and the like).</li>
       </ul>
 
       ${<if:cpp>}
-      One particarly useful standard model is the ${doc-link
+      One particularly useful standard model is the ${doc-link
       Dbo-QueryModel} which is a tabular model backed by database
       data.
       ${</if:cpp>}
@@ -3650,9 +3625,9 @@
 
     <p>
       Separating models from views would be not very useful, if it were
-      not of the ablity to implement customized models. These could be
+      not of the ability to implement customized models. These could be
       models that compute some or all data on the fly, or fetch this
-      information from a underlying database or file system, or simply
+      information from an underlying database or file system, or simply
       display information from an existing data structure in a
       tabular/tree-like way.
     </p>
@@ -3676,7 +3651,7 @@
 
     <p>
       As an example of a custom table model, consider the following
-      (non-sensical) model that simply displays row/column information
+      (nonsensical) model that simply displays row/column information
       for each item.
     </p>
 
@@ -3697,7 +3672,7 @@
       A custom tree model involves considerably more work. Each
       internal item (in the first column) which has children, needs to
       be identified by a unique 64-bit value (which may thus be a
-      <tt>long long</tt> or a <tt>void *</tt> pointer). Depending on
+      <code>long long</code> or a <code>void *</code> pointer). Depending on
       the source data, a suitable choice must be made for this data.
     </p>
 
@@ -3788,7 +3763,7 @@
       following methods from ${doc-link WAbstractTableModel}:
       <dl class="row">
         <dt class="col-sm-2 text-sm-end">bool setData()</dt>
-        <dd class="col-sm-10">Updates data. Views typically use the <tt>EditRole</tt>
+        <dd class="col-sm-10">Updates data. Views typically use the <code>EditRole</code>
         for the data used in editing</dd>
         <dt class="col-sm-2 text-sm-end">bool insertColumns()</dt>
         <dd class="col-sm-10">Inserts one or more columns</dd>
@@ -3824,7 +3799,7 @@
       The Wt API provides different classes that provide support for vector
       graphics painting. To use the paint system, you need to specialize
       ${doc-link WPaintedWidget} and use a ${doc-link WPainter} to paint the
-      contents of the widget inside its <tt>WPaintedWidget::paintEvent()</tt>.
+      contents of the widget inside its <code>WPaintedWidget::paintEvent()</code>.
     </p>
     <p>
       In addition, a PDF backend is included in the library, which can be used
@@ -3835,7 +3810,7 @@
     </p>
     <p>
       To use inline SVG, you need to enable XHTML support in your configuration
-      file (<tt>wt_config.xml</tt>) by enabling send-xhtml-mimetype .
+      file (<code>wt_config.xml</code>) by enabling send-xhtml-mimetype .
     </p>
 
     <h3>Vector graphics painting class</h3>
@@ -3855,13 +3830,13 @@
       </ul>
       WSvgImage and WVmlImage are paint devices for rendering using native
       vector graphics. The benefit of vector graphics is a lower bandwidth
-      usage compared to raster images; indepedent of the image size.
+      usage compared to raster images; independent of the image size.
       To start painting on a device, either pass the device through the
-      constructor, or use <tt>begin()</tt>.
+      constructor, or use <code>begin()</code>.
     </p>
     <p>
-      A typical use is to instantiate a <tt>WPainter</tt> from within a
-      specialized <tt>WPaintedWidget::paintEvent()</tt> implementation, to
+      A typical use is to instantiate a <code>WPainter</code> from within a
+      specialized <code>WPaintedWidget::paintEvent()</code> implementation, to
       paint on the given paint device, but you can also use a painter to paint
       directly to a particular paint device of choice, for example to create
       SVG, PDF or PNG images (as resources). A painted widget can dynamically
@@ -3880,20 +3855,20 @@
       The painter maintains the state such a...
       <ul>
         <li>the current <strong>pen</strong>, which you can define with
-            <tt>setPen()</tt>,</li>
+            <code>setPen()</code>,</li>
         <li>the current <strong>brush</strong>, which you can define with
-            <tt>setBrush()</tt>,
+            <code>setBrush()</code>,
         </li>
         <li>the current <strong>font</strong>, which you can define with
-            <tt>setFont()</tt>,
+            <code>setFont()</code>,
         </li>
         <li>the current <strong>world transformation matrix</strong>, which you
-            can get with <tt>worldTransform()</tt>,</li>
-        <li>the <strong>clipping settings</strong> (See <tt>setClipping()</tt>
-            and <tt>setClipPath()</tt>).</li>
+            can get with <code>worldTransform()</code>,</li>
+        <li>the <strong>clipping settings</strong> (See <code>setClipping()</code>
+            and <code>setClipPath()</code>).</li>
       </ul>
-      A particular state can be saved using <tt>save()</tt> and later restored
-      using <tt>restore()</tt>.
+      A particular state can be saved using <code>save()</code> and later restored
+      using <code>restore()</code>.
     </p>
     <p>
       The painting system distinguishes between different coordinate types:
@@ -3906,7 +3881,7 @@
       <dl>
         <dt>The device coordinate system</dt>
         <dd>ranges from (0, 0) in the top left corner of the device, to
-        <tt>device->width().toPixels(), device->height().toPixels()</tt> for
+        <code>device->width().toPixels(), device->height().toPixels()</code> for
             the bottom right corner.</dd>
         <dt>The logical coordinate system</dt>
         <dd>defines a coordinate system that may be chosen independent of the
@@ -3914,8 +3889,8 @@
             the actual device size. </dd>
         <dt>The local coordinate system</dt>
         <dd>may be different from the logical coordinate system because of a
-            transformation (which you can set with <tt>translate()</tt>,
-            <tt>rotate()</tt>, and <tt>scale()</tt>).</dd>
+            transformation (which you can set with <code>translate()</code>,
+            <code>rotate()</code>, and <code>scale()</code>).</dd>
       </dl>
       Initially, the local coordinate system coincides with the logical
       coordinate system, which coincides with the device coordinate system.
@@ -3923,7 +3898,7 @@
     <p>
       The device coordinates are defined in terms of pixels. Even though most
       underlying devices are actual vector graphics formats, when used in
-      conjunction with a <tt>WPaintedWidget</tt>, these vector graphics are
+      conjunction with a <code>WPaintedWidget</code>, these vector graphics are
       rendered by the browser onto a pixel-based canvas (like the rest of the
       user-interface). The coordinates are defined such that integer values
       correspond to an imaginary raster which separates the individual pixels,
@@ -3931,7 +3906,7 @@
     </p>
     <p class="centered">
       <img alt="The device coordinate system for a 6x5 pixel device"
-           src="/pics/WPainter.png"></img> <br/>
+           src="/pics/WPainter.png" /> <br/>
       <strong>The device coordinate system for a 6x5 pixel device</strong>
     </p>
     <p>
@@ -3942,14 +3917,14 @@
     </p>
     <p>
       You can map logical coordinates onto device coordinates by setting a
-      <tt>viewPort()</tt> and a <tt>window()</tt>; this defines a viewPort
+      <code>viewPort()</code> and a <code>window()</code>; this defines a viewPort
       transformation.
     </p>
     <p>
       You can define how the current local coordinates map onto
       logical coordinates by changing the world transformation using
-      <tt>translate()</tt>, <tt>rotate()</tt>, <tt>scale()</tt> and
-      <tt>setWorldTransform()</tt> operations.
+      <code>translate()</code>, <code>rotate()</code>, <code>scale()</code> and
+      <code>setWorldTransform()</code> operations.
     </p>
     <p>
       The painter provides support for clipping using an arbitrary
@@ -3975,35 +3950,35 @@
       drawings:
       <ul>
         <li>
-          <tt>WPainter::save()</tt> to save the current painter state on a
+          <code>WPainter::save()</code> to save the current painter state on a
           stack, and
         </li>
         <li>
-          <tt>WPainter::restore()</tt> to restore a painter state from the
+          <code>WPainter::restore()</code> to restore a painter state from the
           stack.
         </li>
       </ul>
       The <strong>painter state</strong> that is saved is the current pen,
       brush, font, shadow, transformation and clipping settings (See
-      <tt>WPainter::setClipping()</tt> and
-      <tt>WPainter::setClipPath()</tt>).
+      <code>WPainter::setClipping()</code> and
+      <code>WPainter::setClipPath()</code>).
     </p>
 
     <h4>Translate the origin</h4>
     <p>
-      The method <tt>WPainter::translate()</tt> translates the origin of the
+      The method <code>WPainter::translate()</code> translates the origin of the
       logical coordinate system to a new location relative to the current
       logical coordinate system. It's a good practice to save the painter
       state before doing any transformations because usually, it's easier to
-      call <tt>restore()</tt> compared to a reverse translation to return to
-      the oiginal state. In addition, if you're translating in a loop you might
+      call <code>restore()</code> compared to a reverse translation to return to
+      the original state. In addition, if you're translating in a loop you might
       end up missing a part of your drawing because it was drawn outside the
-      the paint device's edge.
+      paint device's edge.
     </p>
 
     <h4>Rotate to the paint device</h4>
     <p>
-      The method <tt>WPainter::rotate()</tt> rotates the logical coordinate
+      The method <code>WPainter::rotate()</code> rotates the logical coordinate
       system around its origin by an angle. The angle is specified in degrees,
       and positive values are clockwise. Use this method to rotate an object
       around its origin before it is drawn on the paint device.
@@ -4011,7 +3986,7 @@
 
     <h4>Scale to the paint device</h4>
     <p>
-      The method <tt>WPainter::scale()</tt> scales the logical coordinate
+      The method <code>WPainter::scale()</code> scales the logical coordinate
       system around its origin, by a factor in the X and Y directions.
       Use this method to scale what you draw on the paint device.
     </p>
@@ -4024,7 +3999,7 @@
 
     <h4>Reset the transformations</h4>
     <p>
-      Use the method <tt>WPainter::resetTransform()</tt> to reset the current
+      Use the method <code>WPainter::resetTransform()</code> to reset the current
       transformation to the identity transformation matrix, so that the logical
       coordinate system coincides with the device coordinate system.
     </p>
@@ -4038,9 +4013,9 @@
       coordinates.
     </p>
     <p>
-      You can set a clipping path with the method <tt>setClipPath()</tt>.
+      You can set a clipping path with the method <code>setClipPath()</code>.
       To apply clipping you still have to enable clipping using
-      <tt>setClipping(true)</tt>.
+      <code>setClipping(true)</code>.
     </p>
 
     <fieldset class="example">
@@ -4069,14 +4044,14 @@
         </li>
         <li>
           rendering <strong>line ends</strong> with the line style
-          <tt>PenCapStyle</tt> (flat, square or round)
+          <code>PenCapStyle</code> (flat, square or round)
         </li>
         <li>
           rendering <strong>line joins</strong> using the style
-          <tt>PenJoinStyle</tt> (miter, bevel or round)
+          <code>PenJoinStyle</code> (miter, bevel or round)
         </li>
         <li>
-          drawing thicker lines using <tt>strokePath()</tt>
+          drawing thicker lines using <code>strokePath()</code>
         </li>
         <li>
           drawing crisp lines - even if the line thickness is an odd integer
@@ -4096,7 +4071,7 @@
     <p>
       One of the more fun features of ${doc-link WPainter} is that you can
       render one or more images on a painting using the method
-      <tt>drawImage()</tt>. Images can be used for dynamic photo compositing or
+      <code>drawImage()</code>. Images can be used for dynamic photo compositing or
       as a background for a drawing (e.g. with shapes, graphs, etc.).
       An image is specified in terms of a URL, and the width and height.
     </p>
@@ -4106,12 +4081,12 @@
         <li>Draw an image at a starting point.</li>
         <li>Draw a part of an image at a starting point.</li>
         <li>
-          Draw an image in a rectangle and scale it to the width and heigth of
+          Draw an image in a rectangle and scale it to the width and height of
           it.
         </li>
         <li>
           Draw a part of an image in a rectangle and scale it to the width and
-          heigth of it.
+          height of it.
         </li>
       </ul>
       Please note that the image can become blurry when scaling up or grainy
@@ -4128,7 +4103,7 @@
 
     <h3>Client side interaction and repainting</h3>
     <p>
-      In order to avoid server roundtrips, it's possible to change some of the
+      In order to avoid server round-trips, it's possible to change some of the
       properties of a ${doc-link WPaintedWidget} and redraw it entirely on the client side.
       The interactive features of ${doc-link WCartesianChart} use this
       functionality, for example.
@@ -4159,8 +4134,8 @@
       points, lines, arcs, cubic splines, text, etc.
     </p>
     <p>
-      The <tt>update()</tt> method of <tt>WPaintedWidget</tt> is called with
-      the <tt>PaintUpdate</tt> rendering flag to update the canvas without
+      The <code>update()</code> method of <code>WPaintedWidget</code> is called with
+      the <code>PaintUpdate</code> rendering flag to update the canvas without
       clearing the previously painted contents (which is the default behavior).
     </p>
     <p>
@@ -4192,8 +4167,8 @@
       <a href="#/graphics/scatter-plot">Scatter plot</a> and
       <a href="#/graphics/pie-chart">Pie chart</a> demonstrate some of the
       capabilities of the
-      <a href="http://www.webtoolkit.eu/wt/doc/reference/html/namespaceWt_1_1Chart.html"
-      target="_new">Wt charting widgets</a>. These widgets are implemented using
+      <a href="https://www.webtoolkit.eu/wt/doc/reference/html/namespaceWt_1_1Chart.html"
+      target="_blank">Wt charting widgets</a>. These widgets are implemented using
       the Wt painting API ${doc-link WPaintedWidget} which provides
       cross-browser native painting, using VML, SVG, or the HTML5 canvas tag.
     </p>
@@ -4201,7 +4176,7 @@
       The two main chart widgets are
       <ul>
         <li>
-          ${doc-link WCartesianChart}, which provides charts with a X and a Y
+          ${doc-link WCartesianChart}, which provides charts with an X and a Y
           axis to show data, and
         </li>
         <li>
@@ -4225,9 +4200,9 @@
       It can display one or multiple data series which may be rendered
       individually using bars, lines, areas, or points.
       To use a cartesian chart, the minimum you need to do is to set a model
-      using <tt>setModel()</tt>, set the model column that holds the X data
-      using <tt>setXSeriesColumn(int modelColumn)</tt>, and add one or more
-      series using <tt>addSeries(const WDataSeries&amp;)</tt>. Each series
+      using <code>setModel()</code>, set the model column that holds the X data
+      using <code>setXSeriesColumn(int modelColumn)</code>, and add one or more
+      series using <code>addSeries(const WDataSeries&amp;)</code>. Each series
       corresponds to one data column that holds Y data.
     </p>
     <p>
@@ -4241,12 +4216,12 @@
       The cartesian chart has support for dual Y axes. Each data series may be
       bound to one of the two Y axes. By default, only the first Y axis is
       displayed. To show the second Y axis you will need to call
-      <tt>chart->axis(Y2Axis).setVisible(true)</tt>
+      <code>chart->axis(Y2Axis).setVisible(true)</code>
       By default a chart has a horizontal X axis and a vertical Y axis, which
-      corresponds to a <tt>Vertical</tt> orientation. The orientation may be
-      changed to <tt>Horizontal</tt> using <tt>setOrientation()</tt>.
+      corresponds to a <code>Vertical</code> orientation. The orientation may be
+      changed to <code>Horizontal</code> using <code>setOrientation()</code>.
       The styling of the data series are defined by a palette which may be set
-      using <tt>setPalette(WChartPalette *)</tt>, but may be overridden by
+      using <code>setPalette(WChartPalette *)</code>, but may be overridden by
       settings in each data series.
     </p>
 
@@ -4299,7 +4274,7 @@
       data on the X axis. By default, these numerical data are mapped linearly
       on the X axis, but may also be log transformed (This can also be
       configured for the Y axes). In addition, there is special support for
-      displaying date series, by means of smart heuristics for chosing the
+      displaying date series, by means of smart heuristics for choosing the
       labels on the X axis.
     </p>
     <p>
@@ -4307,12 +4282,12 @@
       linear scale. The scale for the X axis defaults to a
       <strong>LinearScale</strong>, but this may be changed to a
       <strong>DateScale</strong> when the X series contains dates (of type
-      <tt>WDate</tt>) to create a time series chart, or to a
+      <code>WDate</code>) to create a time series chart, or to a
       <strong>LogScale</strong>. A ScatterPlot supports the same types of data
       series as a CategoryChart, but does not support stacking. In a scatter
       plot, the X series do not need to be ordered in increasing values, and it
-      may be set differently for each dataseries using
-      <tt>WDataSeries::setXSeriesColumn(int modelColumn)</tt>.
+      may be set differently for each data series using
+      <code>WDataSeries::setXSeriesColumn(int modelColumn)</code>.
     </p>
 
     <h3>Scatter plot of a time series</h3>
@@ -4353,9 +4328,9 @@
 
     <h3>Interactive features</h3>
     <p>
-      WCartesianChart supports some forms of interaction that do not require a server roundtrip.
+      WCartesianChart supports some forms of interaction that do not require a server round-trip.
       You can zoom in on the chart below using ctrl+scroll, or with a pinch movement, and pan it
-      with the scrollwheel, click and drag, or touch and drag.
+      with the scroll-wheel, click and drag, or touch and drag.
     </p>
 
     <fieldset class="example">
@@ -4414,7 +4389,7 @@
     <p>
       A pie chart is a circular visualization of a single data series. The pie
       chart is provided by the ${doc-link WPieChart} widget. The class supports
-      both plain 2D pies, as well as a 3D effect (as used below). In the
+      both plain 2D pies, and a 3D effect (as used below). In the
       example the first segment is separated from the pie for emphasis.
     </p>
 
@@ -4438,7 +4413,7 @@
       Leaflet itself does not provide maps. It is a JavaScript library that enables you to use any
       "tile server", like OpenStreetMap's tile server in this example. If you just create a ${doc-link WLeafletMap},
       (and give it a size), then you will be presented with an empty map. You can then add tile layers to the
-      map using <tt>addTileLayer()</tt>.
+      map using <code>addTileLayer()</code>.
     </p>
     <p>
       ${doc-link WLeafletMap} is not exhaustive in its support for Leaflet features. It supports a subset
@@ -4446,10 +4421,10 @@
       (${doc-link WLeafletMap-LeafletMarker}) and widget markers (${doc-link WLeafletMap-WidgetMarker}).
       Using a widget marker, you can place arbitrary widgets on the map. In this case, a ${doc-link WImage} with
       the Emweb logo. If you need direct access to the leaflet map in your own custom JavaScript, you can use
-      <tt>mapJsRef()</tt>.
+      <code>mapJsRef()</code>.
     </p>
     <p>
-      Leaflet itself is not bundled with Wt. Use the <tt>leafletJSURL</tt> and <tt>leafletCSSURL</tt> properties
+      Leaflet itself is not bundled with Wt. Use the <code>leafletJSURL</code> and <code>leafletCSSURL</code> properties
       to configure where the JavaScript and CSS of Leaflet should be loaded from.
     </p>
     <fieldset class="example">
@@ -4464,23 +4439,23 @@
   <message id="graphics-GoogleMap">
     <h2 id="google-map">Google Maps</h2>
     <p>
-      The ${doc-link WGoogleMap} widget displays a google map. It implements a
+      The ${doc-link WGoogleMap} widget displays a Google map. It implements a
       Wt wrapper around the Google Maps functionality.
     </p>
     <p>
       This widget uses the online Google Maps server to display a map. It
-      exposes a part of the google maps API; both version 2 and version 3 are
+      exposes a part of the Google Maps API; both version 2 and version 3 are
       supported. The version 2 API is used by default, to enable the version 3
       API, use the constructor's version argument.
     </p>
     <p>
       To use the map on a public server you will need to obtain a key. The
       widget will look for this key as the configuration property
-      <tt>google_api_key</tt>. If this configuration property has not been
+      <code>google_api_key</code>. If this configuration property has not been
       set, it will use a key that is suitable for localhost.
     </p>
     <p>
-      The ${doc-link WGoogleMap} widget displays a google map. It implements a
+      The ${doc-link WGoogleMap} widget displays a Google map. It implements a
       Wt wrapper around the Google Maps functionality. The following example
       demonstrates multiple controls and shows a polyline representing a road
       description from the Emweb office to the old market of Leuven. We also
@@ -4493,7 +4468,7 @@
       ${src GoogleMap}
       <p>
         Here is the corresponding XML template (with
-        <tt>message id="media-GoogleMap-controls"</tt>) for the controls.
+        <code>message id="media-GoogleMap-controls"</code>) for the controls.
       </p>
       <fieldset class="src">
         <legend>source</legend>
@@ -4550,15 +4525,15 @@
       The rendering process consists of four major parts, which should be implemented by overriding four virtual functions:
     </p>
     <ul>
-      <li><tt>initializeGL()</tt>: This function is executed only once, when the widget is created.</li>
-      <li><tt>resizeGL()</tt>: This function is called whenever the widget is resized</li>
-      <li><tt>updateGL()</tt>: This function allows you to make state changes (e.g. to VBO's, shaders ...).</li>
-      <li><tt>paintGL()</tt>: This function contains all necessary calls to do the actual painting. The effect of <tt>paintGL()</tt> is recorded on the server, but the generated JavaScript is repeatedly executed on the client without requiring client/server requests. This is for example used to rerender a scene client-side after changing the camera position</li>
+      <li><code>initializeGL()</code>: This function is executed only once, when the widget is created.</li>
+      <li><code>resizeGL()</code>: This function is called whenever the widget is resized</li>
+      <li><code>updateGL()</code>: This function allows you to make state changes (e.g. to VBO's, shaders ...).</li>
+      <li><code>paintGL()</code>: This function contains all necessary calls to do the actual painting. The effect of <code>paintGL()</code> is recorded on the server, but the generated JavaScript is repeatedly executed on the client without requiring client/server requests. This is for example used to rerender a scene client-side after changing the camera position</li>
     </ul>
 
     <h3>Server-side Fallback</h3>
     <p>
-      When a browser does not support WebGL (e.g. IE10 or less, mobile browsers ...), ${doc-link WGLWidget} provides a server-side fall-back. The image will then be rendered in the server an sent to the browser as an PNG. Interaction is still possible, but the performance will be determined by the network latency. Also note that for practical scenarios this requires a server with hardware 3D acceleration.
+      When a browser does not support WebGL (e.g. IE10 or less, mobile browsers ...), ${doc-link WGLWidget} provides a server-side fall-back. The image will then be rendered in the server and sent to the browser as an PNG. Interaction is still possible, but the performance will be determined by the network latency. Also note that for practical scenarios this requires a server with hardware 3D acceleration.
     </p>
   </message>
 
@@ -4578,7 +4553,7 @@
 
     <h3>Types of data</h3>
     <p>
-      All data that can be shown in a 3D chart, has to derive from ${doc-link Chart-WAbstractDataSeries3D}. Instances of this class include a model containing the actual data and all logic to draw themselves on the chart. This means all graphical features of the data (color, pointsize ...) are also part of this class.
+      All data that can be shown in a 3D chart, has to derive from ${doc-link Chart-WAbstractDataSeries3D}. Instances of this class include a model containing the actual data and all logic to draw themselves on the chart. This means all graphical features of the data (color, point size ...) are also part of this class.
     </p>
     <p>
       Wt provides three built-in classes representing data:
@@ -4589,13 +4564,13 @@
       </ul>
     </p>
     <p>
-      Each instance of these dataseries has a ${doc-link WAbstractItemModel} backing them. The model for all these dataseries has to be provided as a table. <br />
+      Each instance of these data series has a ${doc-link WAbstractItemModel} backing them. The model for all these data series has to be provided as a table. <br />
       In ${doc-link Chart-WGridData}, the table must contain one column representing the x-axis values and one row representing the y-axis values. All other values then specify the z-axis value belonging to the corresponding (x, y) pair. <br />
-      The backing model for ${doc-link Chart-WEquidistantGridData} is similar, with the difference that no x- and y-axis values are required. These can be specified directly to the class instance using <tt>setXAbscis(double XMinimum, double deltaX)</tt> and <tt>setYAbscis(double YMinimum, double deltaY)</tt>. <br />
+      The backing model for ${doc-link Chart-WEquidistantGridData} is similar, with the difference that no x- and y-axis values are required. These can be specified directly to the class instance using <code>setXAbscis(double XMinimum, double deltaX)</code> and <code>setYAbscis(double YMinimum, double deltaY)</code>. <br />
       The model for ${doc-link Chart-WScatterData} must have three columns containing (x, y, z) values for every point.
     </p>
     <p>
-      All grid-based data has the additional feature that the visualization of the data is determined by its <tt>Series3DType</tt>, which can be either of three values:
+      All grid-based data has the additional feature that the visualization of the data is determined by its <code>Series3DType</code>, which can be either of three values:
       <ul>
         <li>PointSeries3D</li>
         <li>SurfaceSeries3D</li>
@@ -4617,10 +4592,10 @@
     </p>
     <h3>The data</h3>
     <p>
-      A categorical representation is only possible for grid-based data. In terms of the API this means any class deriving ${doc-link WAbstractGridData}. Wt already provides two implementations: ${doc-link WGridData} and ${doc-link WEquidistantGridData}. To create a categorical chart, the chart must be configured as such (by setting the type to <tt>CategoryChart</tt>) and the data which is added to this chart must be of the type <tt>BarSeries3D</tt>.
+      A categorical representation is only possible for grid-based data. In terms of the API this means any class deriving ${doc-link WAbstractGridData}. Wt already provides two implementations: ${doc-link WGridData} and ${doc-link WEquidistantGridData}. To create a categorical chart, the chart must be configured as such (by setting the type to <code>CategoryChart</code>) and the data which is added to this chart must be of the type <code>BarSeries3D</code>.
     </p>
     <p>
-      A categorical chart also allows multiple dataseries to be shown if the dimensions are the same. The different bar-series are then stacked on top of each other.
+      A categorical chart also allows multiple data series to be shown if the dimensions are the same. The different bar-series are then stacked on top of each other.
     </p>
     <fieldset class="example">
       ${CategoryCharts3D}
@@ -4675,43 +4650,20 @@
 
   <message id="scatterdata-config">
     <table class="table">
-      <tr><td>Scatterdata:</td></tr>
-      <tr><td>pointsize</td><td>${pointSize}</td></tr>
-      <tr><td>Enable droplines</td><td>${enableDroplines}</td></tr>
+      <tr><td>Scatter data:</td></tr>
+      <tr><td>point size</td><td>${pointSize}</td></tr>
+      <tr><td>Enable drop-lines</td><td>${enableDroplines}</td></tr>
       <tr><td>Hide data</td><td>${hide}</td></tr>
     </table>
   </message>
 
   <message id="categorydata-config">
     <table class="table">
-      <tr><td>Categoric dataset 1:</td></tr>
+      <tr><td>Categorical dataset 1:</td></tr>
       <tr><td>Bar width X/Y</td><td>${barWidthX}</td><td>${barWidthY}</td></tr>
       <tr><td>Hide data</td><td>${hide}</td></tr>
     </table>
   </message>
-
-<!--EVENTS message blocks-->
-
-  <message id="events-intro">
-    <p class="lead">Events &#8212; making your application dynamic with the signal/slot concept</p>
-  </message>
-
-  <message id="events-Introduction">
-    <h2 id="events">Introduction</h2>
-    <h3></h3>
-    <p>
-
-    </p>
-
-    <h3></h3>
-    <p>
-
-    </p>
-
-    <p><a href="#events">Top</a></p>
-
-  </message>
-
 
 <!--MEDIA message blocks-->
 
@@ -4727,7 +4679,7 @@
     </p>
     <p>
       This widget relies on a third-party JavaScript component
-      <a href="http://www.jplayer.org" target="blank">jPlayer</a>, which is
+      <a href="https://www.jplayer.org" target="blank">jPlayer</a>, which is
       distributed together with Wt.
     </p>
     <p>
@@ -4735,17 +4687,17 @@
       to provide appropriately encoded contents. For audio, at least an MP3 or
       MP4 audio (M4A) encoding should be supplied, while for video the M4V
       encoding should be provided. Additional encodings are beneficial since
-      they increase the chance that native HTML <tt>&lt;video&gt;</tt> or
-      <tt>&lt;audio</tt>&gt; elements can be used (which may be hardware
+      they increase the chance that native HTML <code>&lt;video&gt;</code> or
+      <code>&lt;audio</code>&gt; elements can be used (which may be hardware
       accelerated), instead of the flash player. See <a href=
-      "http://www.jplayer.org/latest/developer-guide/#reference-html5-media"
+      "https://www.jplayer.org/latest/developer-guide/#reference-html5-media"
       target="blank">HTML5 browser media support</a>.
     </p>
     <p>
       You need to specify the encoding types you are going to use when
       instantiating the media player, since based on the chosen encodings, a
       particular suitable implementation will be used. Thus, you need to call
-      <tt>addSource()</tt> immediately, but you may pass empty URLs if you do
+      <code>addSource()</code> immediately, but you may pass empty URLs if you do
       not yet want to load media.
     </p>
     <p>
@@ -4759,9 +4711,9 @@
     <p>
       The default user-interface can be themed using jPlayer themes. The theme
       is global (it applies to all media player instances), and is configured
-      by loading a CSS stylesheet, e.g. <tt>Wt::WApplication::instance()->
+      by loading a CSS stylesheet, e.g. <code>Wt::WApplication::instance()->
       useStyleSheet(WApplication::resourcesUrl() +
-      "jPlayer/skin/jplayer.blue.monday.css"</tt>.
+      "jPlayer/skin/jplayer.blue.monday.css"</code>.
     </p>
     <p>
       The following examples show a video and audio player using the default
@@ -4782,10 +4734,10 @@
 
     <p>
       Alternatively, a custom widget may be set which implements the controls,
-      using <tt>setControlsWidget()</tt>. In this case, you should add to this
-      widget the buttons, text place holders, and progress bars and bind them
-      to the media player using the <tt>setButton()</tt>, <tt>setText()</tt>
-      and <tt>setProgressBar()</tt> methods. The controls widget is integrated
+      using <code>setControlsWidget()</code>. In this case, you should add to this
+      widget the buttons, text placeholders, and progress bars and bind them
+      to the media player using the <code>setButton()</code>, <code>setText()</code>
+      and <code>setProgressBar()</code> methods. The controls widget is integrated
       in the media player, and this has as unique benefit (for a video player)
       that they may also be shown when the video player is maximized.
     </p>
@@ -4804,14 +4756,14 @@
     <h2>Sound</h2>
     <p>
       ${doc-link WSound} is a value class to play a sound effect. It provides a
-      way to play an MP3 sound asynchonously (if the browser supports this). It
+      way to play an MP3 sound asynchronously (if the browser supports this). It
       is intended as a simple way to play event sounds (not quite a media
       center).
     </p>
     <p>
-      The <tt>WSound</tt> class uses a
+      The <code>WSound</code> class uses a
       <a href="#/media/wmediaplayer">WMediaPlayer</a> to play the sound (using
-      HTML <tt>&lt;audio&gt;</tt> or a flash player).
+      HTML <code>&lt;audio&gt;</code> or a flash player).
     </p>
 
     <p>
@@ -4830,7 +4782,7 @@
     <h2 id="audio">Audio</h2>
     <p>
       ${doc-link WAudio} is a widget to play audio. It is a low-level widget,
-      mapping directly onto a <tt>&lt;audio&gt;</tt> element available in HTML5
+      mapping directly onto a <code>&lt;audio&gt;</code> element available in HTML5
       compliant browsers.
     </p>
     <p>
@@ -4858,11 +4810,11 @@
     </fieldset>
 
     <p>
-      Use the method <tt>setAlternativeContent()</tt> to show alternative
+      Use the method <code>setAlternativeContent()</code> to show alternative
       content if the audio cannot be played. The alternative content can be any
       widget; you can set it to an alternative media player (QuickTime, Flash,
       ...), show a Flash movie, an animated gif, a text, a poster image, ... .
-      There are two reasons why the a browser may use the alternative content:
+      There are two reasons why the browser may use the alternative content:
       <ul>
         <li>
           either because the browser does not support the HTML5 audio tag
@@ -4878,7 +4830,7 @@
     </p>
 
     <p>
-      The <tt>addSource()</tt> and <tt>setAlternativeContent()</tt> may not be
+      The <code>addSource()</code> and <code>setAlternativeContent()</code> may not be
       called after the widget is rendered.
     </p>
 
@@ -4891,21 +4843,21 @@
     <p>
       Although the <a href="#/media/wmediaplayer">WMediaPlayer</a> widget
       implements a cross-browser video player, in some cases, you may need
-      direct access to a native HTML <tt>&lt;video&gt;</tt> element. This is
+      direct access to a native HTML <code>&lt;video&gt;</code> element. This is
       provided by the ${doc-link WVideo} widget.
     </p>
     <p>
       The trailer used in the examples below is
-      <a href="http://durian.blender.org/" target="blank">Sintel</a>, &#169;
+      <a href="https://durian.blender.org/" target="blank">Sintel</a>, &#169;
       copyright Blender Foundation | durian.blender.org
     </p>
 
     <h3>Native video</h3>
     <p>
-      In the example below the <tt>WVideo</tt> class is used with a
+      In the example below the <code>WVideo</code> class is used with a
       ${doc-link WImage} (a static JPEG image) as fallback. The video will play
       on browsers (like Firefox, Chrome and Safari) that support MP4 or OGV
-      video streams natively (using HTML <tt>&lt;video&gt;</tt>), but the video
+      video streams natively (using HTML <code>&lt;video&gt;</code>), but the video
       control will show the image on other browsers (Internet Explorer, Opera,
       ...).
     </p>
@@ -4920,7 +4872,7 @@
 
     <h3>Native video with fallback</h3>
     <p>
-      For browsers that support HTML <tt>&lt;video&gt;</tt>, the video below
+      For browsers that support HTML <code>&lt;video&gt;</code>, the video below
       looks exactly like the one above. On other browsers, the player below
       falls back to a Flash player to play the video. If flash is not supported
       on your system, a static image is shown.
@@ -4968,12 +4920,12 @@
   <message id="media-Resources">
     <h2 id="resources">Resources</h2>
     <p>
-      A ${doc-link WResource} is a target for a HTTP request. It specifies
+      A ${doc-link WResource} is a target for an HTTP request. It specifies
       application-dependent content that may be generated by your
       application on demand. This allows you to serve auxiliary objects
       related to a particular application or application session, and perhaps
       dynamically generate the content. There are different type of resources
-      which can serve a HTTP request:
+      which can serve an HTTP request:
       <ul>
         <li><strong>a file</strong>, using ${doc-link WFileResource},</li>
         <li>other <strong>streaming data</strong>, using ${doc-link WStreamResource},</li>
@@ -4997,23 +4949,23 @@
     </p>
     <p>
       By default, a resource is private to an application; access to it is
-      protected by same secret session Id that protects any other access to the
+      protected by same secret session ID that protects any other access to the
       application.
     </p>
     <p>
       You can help the browser to start a suitable helper application to handle
       the downloaded resource, or suggest to the user a suitable filename for
       saving the resource, by setting an appropriate file name using
-      <tt>suggestFileName()</tt>.
+      <code>suggestFileName()</code>.
     </p>
     <p>
       To serve resources that you create on the fly, you need to specialize
-      the <tt>WResource</tt> class and implement <tt>handleRequest()</tt>.
+      the <code>WResource</code> class and implement <code>handleRequest()</code>.
     </p>
     <p>
       Because of the nature of the web, a resource may be requested one time or
       multiple times at the discretion of the browser, and therefore your
-      resource should in general not have any side-effects except for what is
+      resource should in general not have any side effects except for what is
       needed to render its own contents. Unlike event notifications to a Wt
       application, resource requests are not serialized, but are
       <strong>handled concurrently</strong>. You need to grab the application
@@ -5024,8 +4976,8 @@
     <p>
       When deleting a resource, any pending request is cancelled
       first. For this mechanism to work you need to specialize the destructor
-      and call <tt>beingDeleted()</tt>. This method may safely be called
-      multiple times (i.e. from within each destructor in the hierachy).
+      and call <code>beingDeleted()</code>. This method may safely be called
+      multiple times (i.e. from within each destructor in the hierarchy).
     </p>
     ${</if:cpp>}
 
@@ -5045,7 +4997,7 @@
       be needed for machine-to-machine communication, etc.
     </p>
     <p>
-      Use <tt>WServer::addResource()</tt> to deploy static resources.
+      Use <code>WServer::addResource()</code> to deploy static resources.
     </p>
 
     <fieldset class="example">
@@ -5055,7 +5007,7 @@
     </fieldset>
 
     <p>
-      Classes such as <tt>WAnchor</tt> or <tt>WImage</tt> can use a resource
+      Classes such as <code>WAnchor</code> or <code>WImage</code> can use a resource
       instead of a URL to provide their contents. So, in any widget where you
       pass a WLink, you can refer to a resource. You can find several examples
       in the widget gallery:
@@ -5102,7 +5054,7 @@
       </ul>
     </p>
     <p>
-      A <tt>WPdfImage</tt> paint device is typically used in
+      A <code>WPdfImage</code> paint device is typically used in
       conjunction with a ${doc-link WPainter}, which provides a
       high-level unified painting API.
     </p>
@@ -5110,20 +5062,20 @@
       <p>
         The PDF is generated using
         <a href="http://libharu.org/">The Haru Free PDF Library</a>. This class
-        is included in the library only if <tt>libharu</tt> was found during the
+        is included in the library only if <code>libharu</code> was found during the
         build of the library.
       </p>
     ${</if:cpp>}
     ${<if:java>}
       <p>
         The PDF is generated using the <a
-        href="http://pdfjet.com">PDFjet library</a>, and Wt can use
+        href="https://pdfjet.com">PDFjet library</a>, and Wt can use
         either the open source or commercial version.
       </p>
     ${</if:java>}
 
-    <p>The following example shows how to use a <tt>WPdfImage</tt> directly in
-    conjunction with <tt>WPainter</tt>.</p>
+    <p>The following example shows how to use a <code>WPdfImage</code> directly in
+    conjunction with <code>WPainter</code>.</p>
 
     <fieldset class="example">
       <legend>Example</legend>
@@ -5133,7 +5085,7 @@
 
     ${<if:cpp>}
       <p>Another common use-case is to paint the contents of a
-      <tt>WPaintedWidget</tt>, such as a chart, to a PDF :
+      <code>WPaintedWidget</code>, such as a chart, to a PDF :
       </p>
 
       <fieldset class="example">
@@ -5151,14 +5103,14 @@
     <p>
       Font information is embedded in the PDF. Fonts supported are native
       PostScript fonts (Base-14) (only ASCII-7), or true type fonts
-      (Unicode). See <tt>addFontCollection()</tt> for more information on how
+      (Unicode). See <code>addFontCollection()</code> for more information on how
       fonts are located and matched to ${doc-link WFont} descriptions.
     </p>
     <p>
       The paint device has the following limitations:
       <ul>
         <li>
-          Images (cf. <tt>WPainter::drawImage()</tt>) can only be included
+          Images (cf. <code>WPainter::drawImage()</code>) can only be included
           from local files, and only JPG or PNG images can be embedded.
         </li>
         <li>
@@ -5171,9 +5123,9 @@
 
     <h3 id="media/pdf-renderer">Rendering HTML to PDF</h3>
     <p>
-      The class ${doc-link Render-WPdfRenderer} implements a XHTML to
-      PDF renderer. It can be used to create mult-page reports,
-      without the need for programming tedious layouting using a
+      The class ${doc-link Render-WPdfRenderer} implements an XHTML to
+      PDF renderer. It can be used to create multipage reports,
+      without the need for programming tedious lay outing using a
       low-level drawing API.
     </p>
     <p>
@@ -5182,16 +5134,16 @@
     </p>
     <p>
       Although the rendering class itself can render to any
-      <tt>WPaintDevice</tt> (with font-metris), by far the most common
+      <code>WPaintDevice</code> (with font metrics), by far the most common
       use-case is to render to a PDF document using
-      <tt>WPdfImage</tt>. Typically, you will want to adapt the pixel
+      <code>WPdfImage</code>. Typically, you will want to adapt the pixel
       resolution By default it uses a pixel resolution of 72 DPI,
       which is a common default for printed documents, but differs
       from the default used by most browsers (which is 96 DPI and has
       nothing to do with the actual screen resolution). The resolution
-      can be changed using <tt>setDpi()</tt> and has the effect of
+      can be changed using <code>setDpi()</code> and has the effect of
       scaling down (or up) the rendering. This can be used in
-      conjunction with <tt>setFontScale()</tt> to scale the font size
+      conjunction with <code>setFontScale()</code> to scale the font size
       differently than other content.
     </p>
 
