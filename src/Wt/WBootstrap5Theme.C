@@ -54,24 +54,6 @@ namespace skeletons {
 
 namespace {
   const std::string btnClasses[] = {
-    "btn-primary",
-    "btn-secondary",
-    "btn-success",
-    "btn-danger",
-    "btn-warning",
-    "btn-info",
-    "btn-light",
-    "btn-dark",
-    "btn-link",
-    "btn-outline-primary",
-    "btn-outline-secondary",
-    "btn-outline-success",
-    "btn-outline-danger",
-    "btn-outline-warning",
-    "btn-outline-info",
-    "btn-outline-light",
-    "btn-outline-dark",
-    "btn-close",
     "navbar-toggler",
     "accordion-button"
   };
@@ -115,8 +97,7 @@ std::vector<WLinkedCssStyleSheet> WBootstrap5Theme::styleSheets() const
 
   const std::string themeDir = resourcesUrl();
 
-  result.push_back(WLinkedCssStyleSheet(WLink(themeDir + "css/bootstrap.min.css")));
-  result.push_back(WLinkedCssStyleSheet(WLink(themeDir + "wt.css")));
+  result.push_back(WLinkedCssStyleSheet(WLink(themeDir + "main.css")));
 
   return result;
 }
@@ -138,7 +119,7 @@ void WBootstrap5Theme::apply(WWidget *widget, WWidget *child, int widgetRole)
     break;
 
   case MenuItemClose:
-    child->addStyleClass("close");
+    child->addStyleClass("Wt-close-icon");
     ((WText *)child)->setText("&times;");
     break;
 
@@ -310,7 +291,12 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
 
     auto item = dynamic_cast<WMenuItem *>(widget->parent());
     if (item) {
-      element.addPropertyWord(Property::Class, "nav-link");
+      auto popupMenu = dynamic_cast<WPopupMenu* >(item->parentMenu());
+      if (popupMenu) {
+        element.addPropertyWord(Property::Class, "dropdown-item");
+      } else {
+        element.addPropertyWord(Property::Class, "nav-link");
+      }
     }
 
     if (element.getAttribute("href").empty() &&
@@ -340,7 +326,7 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
   case DomElementType::DIV: {
     auto dialog = dynamic_cast<WDialog *>(widget);
     if (dialog) {
-      element.addPropertyWord(Property::Class, "modal-dialog Wt-dialog");
+      element.addPropertyWord(Property::Class, "modal d-block Wt-dialog");
       return;
     }
 
@@ -413,8 +399,12 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
       const bool sectionHeader = item->isSectionHeader();
       if (separator)
         element.addPropertyWord(Property::Class, "dropdown-divider");
-      if (!separator && !sectionHeader)
-        element.addPropertyWord(Property::Class, "nav-item");
+      if (!separator && !sectionHeader) {
+        auto popupMenu = dynamic_cast<WPopupMenu *>(item->parentMenu());
+        if (!popupMenu) {
+          element.addPropertyWord(Property::Class, "nav-item");
+        }
+      }
       if (item->menu()) {
         if (dynamic_cast<WPopupMenu *>(item->parentMenu()))
           element.addPropertyWord(Property::Class, "dropdown");
@@ -426,6 +416,7 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
   case DomElementType::INPUT: {
     if (elementRole == ToggleButtonInput) {
       element.addPropertyWord(Property::Class, "form-check-input");
+      element.addPropertyWord(Property::Class, "Wt-chkbox");
       break;
     } else if (elementRole == FileUploadInput) {
       element.addPropertyWord(Property::Class, "form-control");
@@ -441,7 +432,7 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
       element.addPropertyWord(Property::Class, "form-range");
 
       if (sl->orientation() == Wt::Orientation::Vertical) {
-        element.addPropertyWord(Property::Class, "vertical-slider");
+        element.addPropertyWord(Property::Class, "Wt-native-vertical-slider");
       }
     }
 
@@ -559,7 +550,7 @@ std::string WBootstrap5Theme::utilityCssClass(int utilityCssClassRole) const
   case ToolTipInner:
     return "tooltip-inner";
   case ToolTipOuter:
-    return "tooltip fade top in";
+    return "tooltip fade top in position-absolute";
   default:
     return "";
   }
@@ -622,8 +613,17 @@ bool WBootstrap5Theme::hasButtonStyleClass(const WWidget *widget)
   int size = Utils::sizeofFunction(btnClasses);
 #endif
   for (int i = 0; i < size; ++i) {
-    if (widget->hasStyleClass(btnClasses[i]))
+    if (widget->hasStyleClass(btnClasses[i])) {
       return true;
+    }
+  }
+  const auto classesStr = widget->styleClass().toUTF8();
+  std::vector<std::string> classes;
+  boost::split(classes, classesStr, boost::is_any_of(" "));
+  for (const auto &c : classes) {
+    if (boost::starts_with(c, "btn-")) {
+      return true;
+    }
   }
   return false;
 }

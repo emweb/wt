@@ -1,0 +1,98 @@
+.Wt-cal {
+  table {
+    &.d1 {
+      width: 170px;
+    }
+
+    &.d3 {
+      width: 300px;
+    }
+
+    &.dlong {
+      width: 560px;
+    }
+  }
+
+  .Wt-cal-navbutton {
+    display: block;
+  }
+
+  .Wt-cal-now {
+    background-color: lightgrey;
+  }
+
+  .days {
+    &.d1 td {
+      width: 20px;
+    }
+
+    &.d3 td {
+      width: 35px;
+    }
+
+    &.dlong td {
+      width: 80px;
+    }
+  }
+
+  td,
+  th,
+  td > div {
+    height: 28px;
+    text-align: center;
+    border-radius: 4px;
+  }
+
+  tr:first-child {
+    th {
+      cursor: pointer;
+
+      &:hover {
+        background: #eee;
+      }
+
+      select {
+        width: 125px;
+        margin: 0;
+      }
+
+      input {
+        width: 60px;
+        margin: 0;
+      }
+    }
+  }
+
+  .days td {
+    &:hover {
+      cursor: pointer;
+      background: #eee;
+    }
+
+    .Wt-cal-oom,
+    .Wt-cal-oor {
+      color: #999;
+    }
+
+    .Wt-cal-sel,
+    .Wt-cal-sel:hover {
+      color: #fff;
+      text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+      background-color: $primary;
+      background-image: $gradient;
+    }
+  }
+
+  .form-select {
+    display: inline-block !important;
+  }
+}
+
+.Wt-cal-year .form-control {
+  min-height:1.5em !important;
+  padding: 0 .2em !important;
+}
+
+.Wt-calendar .form-control {
+  display: initial;
+}

@@ -1,0 +1,102 @@
+.Wt-tree {
+  cursor: default;
+
+  ul {
+    padding-left: 20px;
+    margin: 0;
+    list-style: none;
+  }
+
+  div.Wt-root {
+    display: none;
+  }
+
+  ul.Wt-root {
+    padding-left: 0;
+  }
+
+  &.Wt-trunk,
+  .Wt-item.Wt-trunk {
+    background-image: url(#{$wt-resources-prefix}line-trunk.gif);
+    background-repeat: repeat-y;
+  }
+
+  .Wt-item {
+    // Star character?
+    *zoom: 1;
+
+    &.Wt-end {
+      background-image: url(#{$wt-resources-prefix}line-last.gif);
+      background-position: 0 0;
+      background-repeat: no-repeat;
+    }
+  }
+
+  .active {
+    color: #ffffff;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+    cursor: default;
+    background-color: #428bca;
+  }
+
+  .Wt-ctrl {
+    display: block;
+    float: left;
+    width: 19px;
+    height: 19px;
+
+    &.Wt-noexpand {
+      background: url(#{$wt-resources-prefix}line-middle.gif) no-repeat 0 0;
+    }
+
+    img {
+      vertical-align: top;
+    }
+  }
+
+  .cols-row {
+    float: right;
+  }
+
+  .Wt-label {
+    padding: 0 2px;
+    line-height: 150%;
+  }
+}
+
+body.Wt-rtl {
+  .Wt-tree {
+    ul {
+      padding-right: 20px;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    &.Wt-root {
+      padding-right: 0;
+    }
+
+    &.Wt-trunk,
+    .Wt-item.Wt-trunk {
+      background-position: top right;
+    }
+
+    .Wt-item.Wt-end {
+      background-image: url(#{$wt-resources-prefix}line-last-rtl.gif);
+      background-position: top right;
+    }
+
+    .Wt-ctrl {
+      float: right;
+
+      &.Wt-noexpand {
+        background-image: url(#{$wt-resources-prefix}line-middle-rtl.gif);
+        background-position: top right;
+      }
+    }
+
+    .cols-row {
+      float: left;
+    }
+  }
+}

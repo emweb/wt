@@ -1,0 +1,14 @@
+/*
+ * WTreeView and WTableView default paging bar
+ */
+.Wt-pagingbar {
+  height: 35px;
+  padding: 2px;
+  line-height: 35px;
+  text-align: center;
+
+  span,
+  button {
+    margin: 0 4px;
+  }
+}

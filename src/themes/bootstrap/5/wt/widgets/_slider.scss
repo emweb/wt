@@ -1,0 +1,127 @@
+.Wt-slider-h {
+  .Wt-slider-bg {
+    margin: 0 5px;
+  }
+
+  .Wt-w {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    height: .5em;
+    margin-top: -5px;
+    background-color: #dee2e6;
+    border-color: transparent;
+    border-radius: 1rem;
+  }
+
+  .fill {
+    top: 50%;
+    height: 8px;
+    margin-top: -5px;
+    background: $primary;
+    border: 1px solid $primary;
+    border-radius: 4px;
+    display: none;
+  }
+
+  .handle {
+    top: calc(50% - 0.55rem) !important;
+    margin-left: 2px;
+    width: 1rem !important;
+    height: 1rem !important;
+    background-color: $primary;
+    border: 0;
+    border-radius: 1rem;
+
+    &:focus {
+      box-shadow: 0 0 0 1px #fff, 0 0 0 .25rem rgba(red($primary), green($primary), blue($primary), .25);
+    }
+  }
+}
+
+.Wt-slider-h .handle:active,
+.open .dropdown-toggle.Wt-slider-h .handle {
+  opacity: 0.4;
+}
+
+.Wt-slider-h .handle.disabled,
+.Wt-slider-h .handle[disabled],
+fieldset[disabled] .Wt-slider-h .handle,
+.Wt-slider-h .handle.disabled:hover,
+.Wt-slider-h .handle[disabled]:hover,
+fieldset[disabled] .Wt-slider-h .handle:hover,
+.Wt-slider-h .handle.disabled:focus,
+.Wt-slider-h .handle[disabled]:focus,
+fieldset[disabled] .Wt-slider-h .handle:focus,
+.Wt-slider-h .handle.disabled:active,
+.Wt-slider-h .handle[disabled]:active,
+fieldset[disabled] .Wt-slider-h .handle:active {
+  background-color: #ffffff;
+  border-color: #cccccc;
+}
+
+.Wt-slider-v {
+  .Wt-slider-bg {
+    margin: 5px 0;
+  }
+
+  .Wt-w {
+    position: absolute;
+    left: 50%;
+    width: .5em;
+    height: 100%;
+    margin-left: -5px;
+    background-color: #dee2e6;
+    border-color: transparent;
+    border-radius: 1rem;
+  }
+
+  .fill {
+    bottom: 0;
+    left: 50%;
+    width: 8px;
+    margin-left: -5px;
+    background: $primary;
+    border: 1px solid $primary;
+    border-radius: 4px;
+    display: none;
+  }
+
+  .handle {
+    left: calc(50% - 0.55rem) !important;
+    width: 1rem !important;
+    height: 1rem !important;
+    background-color: $primary;
+    border: 0;
+    border-radius: 1rem;
+
+    &:focus {
+      box-shadow: 0 0 0 1px #fff, 0 0 0 .25rem rgba(red($primary), green($primary), blue($primary), .25);
+    }
+
+    &:active {
+      opacity: 0.4;
+    }
+  }
+}
+
+.Wt-slider-v .handle.disabled,
+.Wt-slider-v .handle[disabled],
+fieldset[disabled] .Wt-slider-v .handle,
+.Wt-slider-v .handle.disabled:hover,
+.Wt-slider-v .handle[disabled]:hover,
+fieldset[disabled] .Wt-slider-v .handle:hover,
+.Wt-slider-v .handle.disabled:focus,
+.Wt-slider-v .handle[disabled]:focus,
+fieldset[disabled] .Wt-slider-v .handle:focus,
+.Wt-slider-v .handle.disabled:active,
+.Wt-slider-v .handle[disabled]:active,
+fieldset[disabled] .Wt-slider-v .handle:active {
+  background-color: #ffffff;
+  border-color: #cccccc;
+}
+
+// Use a transform trick to make the native range input vertical
+.Wt-native-vertical-slider {
+  transform: rotate(-90deg)
+}

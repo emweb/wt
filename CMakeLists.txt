@@ -29,6 +29,7 @@ OPTION(BUILD_EXAMPLES "Build examples" ON)
 OPTION(INSTALL_DOCUMENTATION "Install documentation (tutorials and reference)" OFF)
 OPTION(INSTALL_EXAMPLES "Install examples (binaries and source)" OFF)
 OPTION(INSTALL_RESOURCES "Install resources directory" ON)
+option(INSTALL_THEMES "Install the source files for Wt's themes" ON)
 OPTION(ENABLE_SSL "Enable cryptography functions, using OpenSSL" ON)
 OPTION(ENABLE_HARU "Enable Haru Free PDF Library, which is used to provide support for painting to PDF (WPdfImage)" ON)
 OPTION(ENABLE_PANGO "Enable Pango Library, which is used for improved font support (WPdfImage and WRasterImage)" ON)
@@ -505,6 +506,12 @@ IF(INSTALL_RESOURCES)
 INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/resources DESTINATION
     ${CMAKE_INSTALL_PREFIX}/share/Wt/)
 ENDIF(INSTALL_RESOURCES)
+
+if(INSTALL_THEMES)
+  install(DIRECTORY ${PROJECT_SOURCE_DIR}/src/themes
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/Wt/
+          PATTERN "node_modules" EXCLUDE)
+endif()
 
 IF(INSTALL_EXAMPLES)
   INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/examples/ DESTINATION

@@ -3,17 +3,13 @@ scripts:
   minify: gulp
   fmt: cd ../.. && dprint fmt
   checkfmt: cd ../.. && dprint check
-  lint:
-    "cd ../.. && \
-    eslint --config ./.eslintrc.yml --ignore-path ./.eslintignore src/js src/web/skeleton"
-  lint-junit:
-    "cd ../.. && \
-    eslint \
-      --config ./.eslintrc.yml \
-      --ignore-path ./.eslintignore \
-      --format junit \
-      --output-file eslint-report.xml \
-      src/js src/web/skeleton"
+  lint: >-
+    cd ../.. && eslint --config ./.eslintrc.yml --ignore-path ./.eslintignore
+    src/js src/web/skeleton src/themes/bootstrap/5
+  lint-junit: >-
+    cd ../.. && eslint --config ./.eslintrc.yml --ignore-path ./.eslintignore
+    --format junit --output-file eslint-report.xml
+    src/js src/web/skeleton src/themes/bootstrap/5
 author: Emweb bv
 license : GPL-2.0-only
 private: true

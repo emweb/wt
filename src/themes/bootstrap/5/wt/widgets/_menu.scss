@@ -1,0 +1,28 @@
+/*
+ * Nav link cursor fix
+ */
+.nav-link {
+  cursor: pointer;
+}
+
+.nav {
+  // Extend menu support to include sub menus
+  > li > .nav {
+    display: none;
+    margin-left: 2ex;
+  }
+
+  > li.active .nav {
+    display: block;
+  }
+
+  // Make label in any menu item inline
+  li label {
+    display: inline;
+  }
+
+  // Show pointer even if anchor has no href
+  > li > a {
+    cursor: pointer;
+  }
+}

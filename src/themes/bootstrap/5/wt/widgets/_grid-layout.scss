@@ -1,0 +1,24 @@
+.Wt-hrh2,
+.Wt-vsh2 {
+  cursor: row-resize;
+}
+
+.Wt-vrh2,
+.Wt-hsh2 {
+  cursor: col-resize;
+}
+
+.Wt-hrh2 {
+  background: url(#{$wt-theme-prefix}../splitter-v.png) no-repeat 50% 50% #eeeeee;
+}
+
+.Wt-vrh2 {
+  background: url(#{$wt-theme-prefix}../splitter-h.png) no-repeat 50% 50% #eeeeee;
+}
+
+.Wt-hsh2,
+.Wt-vsh2,
+.Wt-vrh2:hover,
+.Wt-hrh2:hover {
+  background-color: #999999;
+}

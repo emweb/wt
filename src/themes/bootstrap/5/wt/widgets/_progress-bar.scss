@@ -1,0 +1,15 @@
+.progress {
+  position: relative;
+  width: 200px;
+  margin-bottom: 0;
+  vertical-align: middle;
+
+  .bar-label {
+    position: absolute;
+    top: 0.1em;
+    left: 0;
+    width: 100%;
+    font-size: 0.8em;
+    text-align: center;
+  }
+}

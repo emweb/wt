@@ -14,7 +14,11 @@
     "arguments.trailingCommas": "never",
     "parameters.trailingCommas": "never"
   },
-  "includes": ["src/js/*.{js}", "src/web/skeleton/*.{js}"],
+  "includes": [
+    "src/js/*.{js}",
+    "src/web/skeleton/*.{js}",
+    "src/themes/bootstrap/5/*.{js}"
+  ],
   "excludes": [
     "**/node_modules",
     "*.min.js",

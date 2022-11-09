@@ -1,0 +1,34 @@
+.Wt-timeedit,
+.Wt-timeedit.form-control {
+  background-image: escape-svg($wt-time-edit-icon);
+  background-repeat: no-repeat;
+  background-position: $wt-time-edit-bg-position;
+  background-size: $wt-time-edit-bg-size;
+
+  &.hover {
+    background-image: escape-svg($wt-time-edit-icon-hover);
+  }
+
+  @if $enable-validation-icons {
+    &.form-control {
+      @each $state, $data in $form-validation-states {
+        @include form-validation-state-selector($state) {
+          padding-right: $wt-time-edit-feedback-icon-padding-end;
+          background-image: escape-svg($wt-time-edit-icon), escape-svg(map-get($data, "icon"));
+          background-position: $wt-time-edit-bg-position, $wt-time-edit-feedback-icon-position;
+          background-size: $wt-time-edit-bg-size, $wt-time-edit-feedback-icon-size;
+
+          &.hover {
+            background-image: escape-svg($wt-time-edit-icon-hover), escape-svg(map-get($data, "icon"));
+          }
+        }
+      }
+    }
+  }
+
+  &.hover,
+  &.active,
+  &:active {
+    cursor: default;
+  }
+}

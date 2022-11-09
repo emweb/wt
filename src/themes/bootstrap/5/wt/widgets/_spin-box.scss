@@ -1,0 +1,35 @@
+.Wt-spinbox {
+  background-image: escape-svg($wt-spinbox-icon);
+  background-repeat: no-repeat;
+  background-position: $wt-spinbox-bg-position;
+  background-size: $wt-spinbox-bg-size;
+
+  &.up {
+    background-image: escape-svg($wt-spinbox-icon-up);
+  }
+
+  &.dn {
+    background-image: escape-svg($wt-spinbox-icon-down);
+  }
+
+  @if $enable-validation-icons {
+    &.form-control {
+      @each $state, $data in $form-validation-states {
+        @include form-validation-state-selector($state) {
+          padding-right: $wt-spinbox-feedback-icon-padding-end;
+          background-image: escape-svg($wt-spinbox-icon), escape-svg(map-get($data, "icon"));
+          background-position: $wt-spinbox-bg-position, $wt-spinbox-feedback-icon-position;
+          background-size: $wt-spinbox-bg-size, $wt-spinbox-feedback-icon-size;
+
+          &.up {
+            background-image: escape-svg($wt-spinbox-icon-up), escape-svg(map-get($data, "icon"));
+          }
+
+          &.dn {
+            background-image: escape-svg($wt-spinbox-icon-down), escape-svg(map-get($data, "icon"));
+          }
+        }
+      }
+    }
+  }
+}

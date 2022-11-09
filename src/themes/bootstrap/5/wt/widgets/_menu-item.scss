@@ -1,0 +1,18 @@
+.Wt-close-icon {
+  position: relative;
+  z-index: 10;
+  float: right;
+  font-size: 23px;
+  font-weight: bold;
+  line-height: 1;
+  color: #000;
+  text-shadow: 0 1px 0 #fff;
+  opacity: 0.2;
+  cursor: pointer;
+  margin-top: -.3em !important;
+  margin-right: 0 !important;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
