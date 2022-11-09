@@ -6,20 +6,18 @@ scripts:
   lint: >-
     cd ../.. && eslint --config ./.eslintrc.yml --ignore-path ./.eslintignore
     src/js src/web/skeleton src/themes/bootstrap/5
-    examples/custom-bs-theme/theme
-    examples/widgetgallery/style
+    examples/custom-bs-theme/theme examples/widgetgallery/style
   lint-junit: >-
     cd ../.. && eslint --config ./.eslintrc.yml --ignore-path ./.eslintignore
-    --format junit --output-file eslint-report.xml
-    src/js src/web/skeleton src/themes/bootstrap/5
-    examples/custom-bs-theme/theme
+    --format junit --output-file eslint-report.xml src/js src/web/skeleton
+    src/themes/bootstrap/5 examples/custom-bs-theme/theme
     examples/widgetgallery/style
 author: Emweb bv
-license : GPL-2.0-only
+license: GPL-2.0-only
 private: true
 devDependencies:
-  dprint: ^0.32.1
-  eslint: ^8.25.0
+  dprint: ^0.32.2
+  eslint: ^8.28.0
   gulp: ^4.0.2
   gulp-rename: ^2.0.0
   gulp-terser: ^2.1.0
