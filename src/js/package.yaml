@@ -6,10 +6,12 @@ scripts:
   lint: >-
     cd ../.. && eslint --config ./.eslintrc.yml --ignore-path ./.eslintignore
     src/js src/web/skeleton src/themes/bootstrap/5
+    examples/custom-bs-theme/theme
   lint-junit: >-
     cd ../.. && eslint --config ./.eslintrc.yml --ignore-path ./.eslintignore
     --format junit --output-file eslint-report.xml
     src/js src/web/skeleton src/themes/bootstrap/5
+    examples/custom-bs-theme/theme
 author: Emweb bv
 license : GPL-2.0-only
 private: true

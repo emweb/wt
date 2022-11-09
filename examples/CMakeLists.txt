@@ -247,6 +247,7 @@ SUBDIRS(
   chart3D
   codeview
   composer
+  custom-bs-theme
   dbo-form
   dialog
   dragdrop

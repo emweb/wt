@@ -1,0 +1,5 @@
+$primary: #07a893;
+
+@import "node_modules/bootstrap/scss/bootstrap";
+// In gulpfile.js, includePaths has been configured to find the themes directory
+@import "themes/bootstrap/5/wt";

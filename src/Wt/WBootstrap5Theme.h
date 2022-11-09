@@ -31,6 +31,21 @@ namespace Wt {
  * layout you are recommended to use WTemplate in conjunction with Bootstrap's CSS classes.
  * For this we refer to Bootstrap's documentation at https://getbootstrap.com.
  *
+ * ## Customizing the theme
+ *
+ * Custom Sass files can be used to make your own derived theme.
+ *
+ * \sa https://getbootstrap.com/docs/5.2/customize/sass/
+ *
+ * If %Wt is installed into `PREFIX` (and the CMake option `INSTALL_THEMES` is set to `ON`), then you can find the
+ * source files in `PREFIX/share/Wt/themes/bootstrap/5`.
+ *
+ * Apart from the variables that Bootstrap defines, %Wt also provides
+ * variables, defined in `wt/_variables.scss`. All of %Wt's variables
+ * start with a `wt-` prefix.
+ *
+ * Refer to the example in `examples/custom-bs-theme` for more information.
+ *
  * \sa WApplication::setTheme()
  */
 class WT_API WBootstrap5Theme : public WTheme {

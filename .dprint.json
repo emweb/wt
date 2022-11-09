@@ -17,7 +17,8 @@
   "includes": [
     "src/js/*.{js}",
     "src/web/skeleton/*.{js}",
-    "src/themes/bootstrap/5/*.{js}"
+    "src/themes/bootstrap/5/*.{js}",
+    "examples/custom-bs-theme/theme/*.{js}"
   ],
   "excludes": [
     "**/node_modules",
