@@ -16,6 +16,7 @@
 
 #include <Wt/WCssTheme.h>
 
+#include "Theme.h"
 #include "WidgetGallery.h"
 
 using namespace Wt;
@@ -38,11 +39,14 @@ std::unique_ptr<WApplication> createApplication(const Wt::WEnvironment& env)
   const std::string *themePtr = env.getParameter("theme");
   std::string theme;
   if (!themePtr)
-    theme = "bootstrap5";
+    theme = "wt";
   else
     theme = *themePtr;
 
-  if (theme == "bootstrap5") {
+  if (theme == "wt" || theme == "jwt") {
+    auto wtTheme = std::make_shared<Theme>(theme);
+    app->setTheme(wtTheme);
+  } else if (theme == "bootstrap5") {
     auto bootstrapTheme = std::make_shared<WBootstrap5Theme>();
     app->setTheme(bootstrapTheme);
   } else if (theme == "bootstrap3") {

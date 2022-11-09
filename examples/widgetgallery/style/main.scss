@@ -1,0 +1,85 @@
+@import "node_modules/bootstrap/scss/functions";
+
+// Wt site inspired color
+$primary: $wg-primary-color;
+$code-color: #6c757d;
+
+@import "node_modules/bootstrap/scss/variables";
+
+$custom-colors: (
+  "blue": $blue,
+  "black": #000
+);
+
+$theme-colors: map-merge($theme-colors, $custom-colors);
+
+@import "node_modules/bootstrap/scss/bootstrap";
+
+$wt-resources-prefix: "../resources/";
+
+@import "../../../src/themes/bootstrap/5/wt";
+
+.wg-wrapper {
+  overflow-x: hidden;
+}
+
+.wg-sidebar {
+  position: fixed;
+  box-sizing: border-box;
+  border-right: 3px solid $primary !important;
+  left: 0;
+  top: 0;
+  width: 250px;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transform: translateX(-100%);
+
+  transition: all 0.3s;
+}
+
+.menu-open .wg-sidebar {
+  transform: translateX(0);
+}
+
+.wg-sidebar {
+  .nav > li > .nav {
+    margin-left: 0;
+
+    a {
+      padding-left: 40px;
+      transition: all 0.8s;
+    }
+
+    a:active,
+    a:hover {
+      background-color: #eee;
+    }
+  }
+
+  .nav a {
+    outline: 0;
+  }
+}
+
+.contents {
+  h1, h2, h3 {
+    color: $primary !important;
+  }
+}
+
+.example > legend {
+  width: auto !important;
+  float: none !important;
+}
+
+.xhtml-output > pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.tabwidget textarea {
+  border-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}

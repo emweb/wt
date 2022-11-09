@@ -8,6 +8,7 @@ SET(WIDGETGALLERY_SOURCES
   Media.h Media.C
   Navigation.h Navigation.C
   Sample.h
+  Theme.h Theme.C
   Topic.h Topic.C
   TopicTemplate.h TopicTemplate.C
   TreesTables.h TreesTables.C

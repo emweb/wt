@@ -3,12 +3,6 @@
     line-height: 100%;
 }
 
-.contents h1,
-.contents h2,
-.contents h3 {
-    color: #007bff;
-}
-
 .submenu {
     overflow: auto;
 }
