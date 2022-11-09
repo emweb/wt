@@ -73,9 +73,65 @@ behaviour.
   </li>
 </ul>
 
+<h4>Changes to WBootstrap5Theme</h4>
+
+<dl>
+  <dt>Collapsible panels</dt>
+  <dd>
+    Since
+    <a href="classWt_1_1WBootstrap5Theme.html">WBootstrap5Theme</a>
+    was introduced in Wt 4.6.0, when a
+    <a href="classWt_1_1WPanel.html">WPanel</a> was made
+    <a href="classWt_1_1WPanel.html#ace945a192f671220a5a2cda671dc37ca">collapsible</a>
+    it would be implemented
+    using an
+    <a href="https://getbootstrap.com/docs/5.2/components/accordion/" target="_blank">accordion</a>,
+    instead of a
+    <a href="https://getbootstrap.com/docs/5.2/components/card/" target="_blank">card</a>.
+    <a href="classWt_1_1WPanel.html#aefd66ff6dd8e2a1108e70efec4eab1b5">WPanel::collapse()</a> and
+    <a href="classWt_1_1WPanel.html#a2ac9a05172675559b6f988083a4fd666">WPanel::expand()</a> would not work with
+    <code>WBootstrap5Theme</code>.
+    We have now changed the implementation to use
+    <a href="https://getbootstrap.com/docs/5.2/components/card/" target="_blank">card</a>
+    again, so that all panels look alike regardless of whether they're collapsible.
+    It's now possible again to query and change the collapsed state of panels.
+    This resolves issue
+    <a href="https://redmine.webtoolkit.eu/issues/10364" target="_blank">#10364</a>.
+  </dd>
+  <dt>Bootstrap 5 theme customization</dt>
+  <dd>
+    We've made it easier to customize the Bootstrap 5 theme.
+    <a href="classWt_1_1WBootstrap5Theme.html">WBootstrap5Theme</a> now loads
+    a single CSS file that is built from
+    <a href="https://sass-lang.com/" target="_blank">Sass</a> source files. The
+    <a href="https://github.com/emweb/wt/tree/master/examples/custom-bs-theme" target="_blank">
+    custom-bs-theme example</a> shows how this allows the theme to be customized.
+    The
+    <a href="https://www.webtoolkit.eu/widgets" target="_blank">widget gallery</a>
+    makes use of this by changing the primary color from Bootstrap's blue to the purple
+    used in Wt's logo and homepage.
+    This resolves issue
+    <a href="https://redmine.webtoolkit.eu/issues/9350" target="_blank">#9350</a>.
+  </dd>
+</dl>
+
 <h3>Other</h3>
 
 <ul>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10395" target="_blank">Issue #10395</a>:
+    <a href="classWt_1_1WPanel.html#a9671893042605eb936c7301f6de09d3f">WPanel::setTitleBar(false)</a>
+    now automatically calls
+    <a href="classWt_1_1WPanel.html#ace945a192f671220a5a2cda671dc37ca">WPanel::setCollapsible(false)</a>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/11067" target="_blank">Issue #11067</a>:
+    <a href="classWt_1_1WWidget.html#af01fbd9de70abd189c2f86171b6a1e02">animateShow()</a> and
+    <a href="classWt_1_1WWidget.html#a0c236e179d5b63c3c6e98cc69e28c9bf">animateHide()</a> were overhauled to use the
+    <a
+      href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API"
+      target="_blank">Web Animations API</a>. This fixes issues with choppy animations.
+  </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/8629" target="_blank">Issue #8629</a>:
     In order to ease maintenance, and make contributing to Wt easier, we changed the JavaScript
