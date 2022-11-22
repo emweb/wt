@@ -29,45 +29,43 @@ class SessionProcess
   : public std::enable_shared_from_this<SessionProcess>
 {
 public:
-  SessionProcess(SessionProcessManager *manager);
+  explicit SessionProcess(SessionProcessManager *manager) noexcept;
   SessionProcess(const SessionProcess&) = delete;
 
-  void stop();
+  void stop() noexcept;
 
   // Execute the session process, and call the onReady callback
   // function when done. The bool passed on to the onReady function
   // indicates success.
   void asyncExec(const Configuration &config,
-                 const std::function<void (bool)>& onReady
-                   = std::function<void (bool)>());
+                 const std::function<void (bool)>& onReady) noexcept;
 
   // Check whether the process is ready to accept connections
-  bool ready() const { return port_ != -1; }
-  int port() const { return port_; }
+  bool ready() const noexcept { return port_ != -1; }
+  int port() const noexcept { return port_; }
 #ifndef WT_WIN32
-  pid_t pid() const { return pid_; }
+  pid_t pid() const noexcept { return pid_; }
 #else // WT_WIN32
-  DWORD pid() const { return processInfo_.dwProcessId; }
-  PROCESS_INFORMATION& processInfo() { return processInfo_; }
+  DWORD pid() const noexcept { return processInfo_.dwProcessId; }
+  PROCESS_INFORMATION& processInfo() noexcept { return processInfo_; }
 #endif // WT_WIN32
 
-  const std::string& sessionId() const { return sessionId_; }
-  void setSessionId(const std::string& sessionId);
+  const std::string& sessionId() const noexcept { return sessionId_; }
+  void setSessionId(const std::string& sessionId) noexcept;
 
   // Get the endpoint to connect to
-  asio::ip::tcp::endpoint endpoint() const;
+  asio::ip::tcp::endpoint endpoint() const noexcept;
 
-  void closeClientSocket();
+  void closeClientSocket() noexcept;
 
 private:
   void exec(const Configuration& config,
-            const std::function<void (bool)>& onReady);
+            const std::function<void (bool)>& onReady) noexcept;
   void acceptHandler(const Wt::AsioWrapper::error_code& err,
-                     const std::function<void (bool)>& onReady);
-  void read();
-  void readHandler(const Wt::AsioWrapper::error_code& err,
-                   std::size_t bytes_transferred);
-  bool handleChildMessage(const std::string& message);
+                     const std::function<void (bool)>& onReady) noexcept;
+  void read() noexcept;
+  void readHandler(const Wt::AsioWrapper::error_code& err) noexcept;
+  bool handleChildMessage(const std::string& message) noexcept;
 
   // Short-lived objects during startup
   asio::io_service& io_service_;
