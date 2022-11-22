@@ -11,7 +11,7 @@
 #endif
 
 #ifndef WT_WIN32
-#include <signal.h>
+#include <csignal>
 #endif // WT_WIN32
 
 #include "Wt/WConfig.h"
@@ -28,7 +28,7 @@ namespace Wt {
 namespace http {
 namespace server {
 
-SessionProcess::SessionProcess(SessionProcessManager *manager)
+SessionProcess::SessionProcess(SessionProcessManager *manager) noexcept
   : io_service_(manager->ioService()),
     socket_(new asio::ip::tcp::socket(io_service_)),
     acceptor_(new asio::ip::tcp::acceptor(io_service_)),
@@ -43,22 +43,22 @@ SessionProcess::SessionProcess(SessionProcessManager *manager)
 #endif // WT_WIN32
 }
 
-void SessionProcess::closeClientSocket()
+void SessionProcess::closeClientSocket() noexcept
 {
-  if (socket_.get()) {
-    Wt::AsioWrapper::error_code ignored_ec;
+  Wt::AsioWrapper::error_code ignored_ec;
+  if (socket_) {
     socket_->shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
-    socket_->close();
-    socket_.reset();
+    socket_->close(ignored_ec);
+    socket_ = nullptr;
   }
-  if (acceptor_.get()) {
-    acceptor_->cancel();
-    acceptor_->close();
-    acceptor_.reset();
+  if (acceptor_) {
+    acceptor_->cancel(ignored_ec);
+    acceptor_->close(ignored_ec);
+    acceptor_ = nullptr;
   }
 }
 
-void SessionProcess::stop()
+void SessionProcess::stop() noexcept
 {
   closeClientSocket();
 #ifdef WT_WIN32
@@ -72,7 +72,7 @@ void SessionProcess::stop()
 }
 
 void SessionProcess::asyncExec(const Configuration &config,
-                               const std::function<void (bool)>& onReady)
+                               const std::function<void (bool)>& onReady) noexcept
 {
   asio::ip::tcp::endpoint endpoint(asio::ip::address_v4::loopback(), 0);
   Wt::AsioWrapper::error_code ec;
@@ -92,10 +92,8 @@ void SessionProcess::asyncExec(const Configuration &config,
 #endif // !WT_WIN32
   if (ec) {
     LOG_ERROR("Couldn't create listening socket: " << ec.message());
-    if (onReady) {
-      onReady(false);
-      return;
-    }
+    onReady(false);
+    return;
   }
   acceptor_->async_accept
     (*socket_, std::bind(&SessionProcess::acceptHandler, shared_from_this(),
@@ -107,27 +105,24 @@ void SessionProcess::asyncExec(const Configuration &config,
 }
 
 void SessionProcess::acceptHandler(const Wt::AsioWrapper::error_code& err,
-                                   const std::function<void (bool)>& onReady)
+                                   const std::function<void (bool)>& onReady) noexcept
 {
   if (!err) {
-    acceptor_.reset();
+    acceptor_ = nullptr;
 
     listeningCallback_ = onReady;
     read();
   }
 }
 
-void SessionProcess::read()
+void SessionProcess::read() noexcept
 {
   asio::async_read_until
     (*socket_, buf_, '\n',
-     std::bind(&SessionProcess::readHandler, shared_from_this(),
-               std::placeholders::_1,
-               std::placeholders::_2));
+     std::bind(&SessionProcess::readHandler, shared_from_this(), std::placeholders::_1));
 }
 
-void SessionProcess::readHandler(const Wt::AsioWrapper::error_code& err,
-                                 std::size_t bytes_transferred)
+void SessionProcess::readHandler(const Wt::AsioWrapper::error_code& err) noexcept
 {
   if (!err) {
     std::istream is(&buf_);
@@ -153,7 +148,7 @@ void SessionProcess::readHandler(const Wt::AsioWrapper::error_code& err,
   }
 }
 
-bool SessionProcess::handleChildMessage(const std::string& message)
+bool SessionProcess::handleChildMessage(const std::string& message) noexcept
 {
   auto idx = message.find_first_of(':');
   if (idx == std::string::npos) {
@@ -182,12 +177,12 @@ bool SessionProcess::handleChildMessage(const std::string& message)
   return true;
 }
 
-void SessionProcess::setSessionId(const std::string& sessionId)
+void SessionProcess::setSessionId(const std::string& sessionId) noexcept
 {
   sessionId_ = sessionId;
 }
 
-asio::ip::tcp::endpoint SessionProcess::endpoint() const
+asio::ip::tcp::endpoint SessionProcess::endpoint() const noexcept
 {
   return asio::ip::tcp::endpoint(asio::ip::address_v4::loopback(), port_);
 }
@@ -197,9 +192,9 @@ namespace {
 
 // Quoting argument function, modified from
 // https://blogs.msdn.microsoft.com/twistylittlepassagesallalike/2011/04/23/everyone-quotes-command-line-arguments-the-wrong-way/
-void appendArgToCmdLine(const std::string &arg, std::wstring &commandLine)
+void appendArgToCmdLine(const std::string &arg, std::wstring &commandLine) noexcept
 {
-  const int argwSize = MultiByteToWideChar(CP_THREAD_ACP, MB_PRECOMPOSED, arg.c_str(), arg.size(), (LPWSTR)0, 0);
+  const int argwSize = MultiByteToWideChar(CP_THREAD_ACP, MB_PRECOMPOSED, arg.c_str(), arg.size(), nullptr, 0);
   std::wstring argw(argwSize, L'\0');
   MultiByteToWideChar(CP_THREAD_ACP, MB_PRECOMPOSED, arg.c_str(), arg.size(), &argw[0], argw.size());
 
@@ -245,13 +240,13 @@ void appendArgToCmdLine(const std::string &arg, std::wstring &commandLine)
 #endif // WT_WIN32
 
 void SessionProcess::exec(const Configuration& config,
-                          const std::function<void (bool)>& onReady)
+                          const std::function<void (bool)>& onReady) noexcept
 {
 #ifndef WT_WIN32
   std::string parentPortOption = std::string("--parent-port=")
     + std::to_string(acceptor_->local_endpoint().port());
   const std::vector<std::string> &options = config.options();
-  const char **c_options = new const char*[options.size() + 2];
+  std::unique_ptr<const char*[]> c_options(new const char*[options.size() + 2]);
   std::size_t i = 0;
   for (; i < options.size(); ++i) {
     c_options[i] = options[i].c_str();
@@ -264,9 +259,7 @@ void SessionProcess::exec(const Configuration& config,
   if (pid_ < 0) {
     LOG_ERROR("failed to fork dedicated session process, error code: " << errno);
     stop();
-    if (onReady)
-      onReady(false);
-    delete[] c_options;
+    onReady(false);
     return;
   } else if (pid_ == 0) {
     /* child process */
@@ -281,54 +274,56 @@ void SessionProcess::exec(const Configuration& config,
      * Close all (possibly) open file descriptors.
      * This could also work on other UNIX flavours...
      */
-    struct rlimit l;
+    struct rlimit l{};
     getrlimit(RLIMIT_NOFILE, &l);
-    for (unsigned i = 3; i < l.rlim_cur; ++i) {
-      close(i);
+    for (unsigned fd = 3; fd < l.rlim_cur; ++fd) {
+      close(static_cast<int>(fd));
     }
 #endif
 
 #ifdef WT_THREADED
     sigset_t mask;
     sigfillset(&mask);
-    pthread_sigmask(SIG_UNBLOCK, &mask, 0);
+    pthread_sigmask(SIG_UNBLOCK, &mask, nullptr);
 #endif // WT_THREADED
 
 
-    execv(c_options[0], const_cast<char *const *>(c_options));
+    execv(c_options[0], const_cast<char *const *>(c_options.get()));
     // An error occurred, this should not be reached
     exit(1);
   }
-
-  delete[] c_options;
 #else // WT_WIN32
   std::wstring commandLine;
 
-  const std::vector<std::string> &options = config.options();
-  for (std::size_t i = 0; i < options.size(); ++i) {
-    appendArgToCmdLine(options[i], commandLine);
+  for (const auto& option : config.options()) {
+    appendArgToCmdLine(option, commandLine);
   }
 
-  std::wstring parentPortOption = std::wstring(L"--parent-port=")
-    + boost::lexical_cast<std::wstring>(acceptor_->local_endpoint().port());
+  std::wstring parentPortOption = std::wstring(L"--parent-port=") + std::to_wstring(acceptor_->local_endpoint().port());
   commandLine += parentPortOption;
 
-  LPWSTR c_commandLine = new wchar_t[commandLine.size() + 1];
-  wcscpy(c_commandLine, commandLine.c_str());
+  std::unique_ptr<WCHAR[]> c_commandLine(new WCHAR[commandLine.size() + 1]);
+  wcscpy(c_commandLine.get(), commandLine.c_str());
 
   STARTUPINFOW startupInfo;
   ZeroMemory(&startupInfo, sizeof(startupInfo));
   startupInfo.cb = sizeof(startupInfo);
 
-  if(!CreateProcessW(0, c_commandLine, 0, 0, true,
-      0, 0, 0, &startupInfo, &processInfo_)) {
+  if(!CreateProcessW(
+        nullptr,
+        c_commandLine.get(),
+        nullptr,
+        nullptr,
+        true,
+        0,
+        nullptr,
+        nullptr,
+        &startupInfo,
+        &processInfo_)) {
     LOG_ERROR("failed to start dedicated session process, error code: " << GetLastError());
     stop();
-    if (onReady) {
-      onReady(false);
-    }
+    onReady(false);
   }
-  delete[] c_commandLine;
 #endif // WT_WIN32
 }
 
