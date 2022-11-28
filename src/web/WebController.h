@@ -148,8 +148,6 @@ public:
   // returns false if removeSocketNotifier was called while processing
   void socketSelected(int descriptor, WSocketNotifier::Type type);
 
-  std::string switchSession(WebSession *session,
-                            const std::string& newSessionId);
   std::string generateNewSessionId(const std::shared_ptr<WebSession>& session);
 
 private:
