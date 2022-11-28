@@ -648,24 +648,7 @@ void WebController::handleRequest(WebRequest *request)
 
   const std::string *requestE = request->getParameter("request");
   if (requestE && *requestE == "redirect") {
-    const std::string *urlE = request->getParameter("url");
-    const std::string *hashE = request->getParameter("hash");
-
-    if (urlE && hashE) {
-      if (*hashE != computeRedirectHash(*urlE))
-        hashE = nullptr;
-    }
-
-    if (urlE && hashE) {
-      request->setRedirect(*urlE);
-    } else {
-      request->setContentType("text/html");
-      request->out()
-        << "<title>Error occurred.</title>"
-        << "<h2>Error occurred.</h2><p>Invalid redirect.</p>" << std::endl;
-    }
-
-    request->flush(WebResponse::ResponseState::ResponseDone);
+    handleRedirect(request);
     return;
   }
 
@@ -814,6 +797,28 @@ void WebController::handleRequest(WebRequest *request)
 
   if (!handled)
     handleRequest(request);
+}
+
+void WebController::handleRedirect(Wt::WebRequest *request)
+{
+  const std::string *urlE = request->getParameter("url");
+  const std::string *hashE = request->getParameter("hash");
+
+  if (urlE && hashE) {
+    if (*hashE != computeRedirectHash(*urlE))
+      hashE = nullptr;
+  }
+
+  if (urlE && hashE) {
+    request->setRedirect(*urlE);
+  } else {
+    request->setContentType("text/html");
+    request->out()
+            << "<title>Error occurred.</title>"
+            << "<h2>Error occurred.</h2><p>Invalid redirect.</p>" << std::endl;
+  }
+
+  request->flush(WebResponse::ResponseState::ResponseDone);
 }
 
 std::unique_ptr<WApplication> WebController
