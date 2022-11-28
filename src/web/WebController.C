@@ -69,8 +69,6 @@ WebController::WebController(WServer& server,
 #endif // WT_THREADED
     server_(server)
 {
-  CgiParser::init();
-
 #ifndef WT_DEBUG_JS
   WObject::seedId(WRandom::get());
 #else

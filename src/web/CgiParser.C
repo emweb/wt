@@ -29,11 +29,7 @@
 #include <fstream>
 #include <stdlib.h>
 
-#ifdef WT_HAVE_GNU_REGEX
-#include <regex.h>
-#else
 #include <regex>
-#endif // WT_HAVE_GNU_REGEX
 
 #include "CgiParser.h"
 #include "WebRequest.h"
@@ -49,7 +45,6 @@ using std::strcpy;
 using std::strtol;
 
 namespace {
-#ifndef WT_HAVE_GNU_REGEX
   const std::regex boundary_e("\\bboundary=(?:(?:\"([^\"]+)\")|(\\S+))",
                               std::regex::icase);
   const std::regex name_e("\\bname=(?:(?:\"([^\"]+)\")|([^\\s:;]+))",
@@ -80,99 +75,11 @@ namespace {
   {
     return std::regex_search(text, e);
   }
-
-#else
-  regex_t boundary_e, name_e, filename_e, content_e,
-    content_disposition_e, content_type_e;
-
-  const char *boundary_ep = "\\bboundary=((\"([^\"]*)\")|([^ \t]*))";
-  const char *name_ep = "\\bname=((\"([^\"]*)\")|([^ \t:;]*))";
-  const char *filename_ep = "\\bfilename=((\"([^\"]*)\")|([^ \t:;]*))";
-  const char *content_ep = "^[ \t]*Content-type:"
-    "[ \t]*((\"([^\"]*)\")|([^ \t:;]*))";
-  const char *content_disposition_ep = "^[ \t]*Content-Disposition:";
-  const char *content_type_ep = "^[ \t]*Content-Type:";
-
-  bool fishValue(const std::string& text,
-                 regex_t& e1, std::string& result)
-  {
-    regmatch_t pmatch[5];
-    int res = regexec(&e1, text.c_str(), 5, pmatch, 0);
-
-    if (res == 0) {
-      if (pmatch[3].rm_so != -1)
-        result = text.substr(pmatch[3].rm_so,
-                             pmatch[3].rm_eo - pmatch[3].rm_so);
-      if (pmatch[4].rm_so != -1)
-        result = text.substr(pmatch[4].rm_so,
-                             pmatch[4].rm_eo - pmatch[4].rm_so);
-
-      return true;
-    } else
-      return false;
-  }
-
-  bool regexMatch(const std::string& text, regex_t& e)
-  {
-    regmatch_t pmatch[1];
-
-    return regexec(&e, text.c_str(), 1, pmatch, 0) == 0;
-  }
-
-  class RegInitializer {
-  protected:
-    static bool regInitialized_;
-
-  public:
-    RegInitializer()
-    {}
-
-    ~RegInitializer() {
-      cleanup();
-    }
-
-    static void setup() {
-      if (!regInitialized_) {
-        regcomp(&boundary_e, boundary_ep, REG_ICASE | REG_EXTENDED);
-        regcomp(&name_e, name_ep, REG_ICASE | REG_EXTENDED);
-        regcomp(&filename_e, filename_ep, REG_ICASE | REG_EXTENDED);
-        regcomp(&content_e, content_ep, REG_ICASE | REG_EXTENDED);
-        regcomp(&content_disposition_e, content_disposition_ep,
-                REG_ICASE | REG_EXTENDED);
-        regcomp(&content_type_e, content_type_ep, REG_ICASE | REG_EXTENDED);
-        regInitialized_ = true;
-      }
-    }
-
-    static void cleanup() {
-      if (regInitialized_) {
-        regfree(&boundary_e);
-        regfree(&name_e);
-        regfree(&filename_e);
-        regfree(&content_e);
-        regfree(&content_disposition_e);
-        regfree(&content_type_e);
-        regInitialized_ = false;
-      }
-    }
-  };
-
-  bool RegInitializer::regInitialized_ = false;
-
-  static RegInitializer regInitializer;
-#endif
 }
 
 namespace Wt {
 
 LOGGER("CgiParser");
-
-void CgiParser::init()
-{
-#ifdef WT_HAVE_GNU_REGEX
-  RegInitializer::setup();
-#endif
-}
 
 CgiParser::CgiParser(::int64_t maxRequestSize, ::int64_t maxFormData)
   : maxFormData_(maxFormData),

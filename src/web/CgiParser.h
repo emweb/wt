@@ -29,8 +29,6 @@ class WT_API CgiParser
 public:
   enum ReadOption { ReadDefault, ReadHeadersOnly, ReadBodyAnyway };
 
-  static void init();
-
   CgiParser(::int64_t maxRequestSize, ::int64_t maxFormData);
 
   /*
