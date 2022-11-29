@@ -707,6 +707,7 @@ protected:
   std::string pathInfo_;
   std::string internalPath_;
   std::string publicDeploymentPath_;
+  std::string redirectSecret_;
 
 #ifndef WT_TARGET_JAVA
   std::unique_ptr<WSslInfo> sslInfo_;
