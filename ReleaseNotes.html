@@ -20,7 +20,7 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.9.0 (November 2022)</h2>
+<h2>Release 4.9.0 (December 2022)</h2>
 
 <h3>Backwards incompatible changes</h3>
 
@@ -191,6 +191,19 @@ behaviour.
     <a href="https://redmine.webtoolkit.eu/issues/10995" target="_blank">Issue #10995</a>:
     fixed an issue with <a href="classWt_1_1WContainerWidget.html">WContainerWidget</a>
     where a session could terminate with the text "WContainerWidget: error parsing: undefined".
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/11105" target="_blank">Issue #11105</a>:
+    Wt has a built-in redirect mechanism that prevents the <code>Referer</code> header from showing
+    the session id (if the session id is in the URL). This mechanism hashes the destination
+    URL with a secret to ensure that this system is not used as an
+    <a
+      href="https://cheatsheetseries.owasp.org/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.html"
+      target="_blank">open redirect endpoint</a>.
+    However, in order to make dedicated session process mode work properly, this secret could be overridden
+    by providing a <code>Redirect-Secret</code> header, creating an open redirect endpoint.
+    We have renamed this header to <code>X-Wt-Redirect-Secret</code> to better indicate the fact that this
+    header is nonstandard, and will only accept this header if it is coming from a trusted reverse proxy.
   </li>
 </ul>
 
