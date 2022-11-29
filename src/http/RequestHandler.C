@@ -121,9 +121,25 @@ ReplyPtr RequestHandler::handleRequest(Request& req,
 
       req.url_params = std::move(bestMatch.urlParams);
 
+      bool isRedirect = false;
+      if (ep.type() != Wt::EntryPointType::StaticResource) {
+        const auto pos = req.request_query.find("request=redirect");
+        // request=redirect should be at the beginning or preceded by '&'
+        if (pos != std::string::npos &&
+            (pos == 0 || req.request_query[pos - 1] == '&')) {
+          // request=redirect should be at the end or be followed by '&'
+          const auto after = pos + (sizeof("request=redirect") - 1);
+          if (after == req.request_query.size() ||
+              req.request_query[after] == '&') {
+            isRedirect = true;
+          }
+        }
+      }
+
       if (wtConfig_.sessionPolicy() != Wt::Configuration::DedicatedProcess ||
           ep.type() == Wt::EntryPointType::StaticResource ||
-          config_.parentPort() != -1) {
+          config_.parentPort() != -1 ||
+          isRedirect) {
         if (!lastWtReply)
           lastWtReply.reset(new WtReply(req, ep, config_));
         else
