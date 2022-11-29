@@ -1097,10 +1097,11 @@ std::string WApplication::encodeUntrustedUrl(const std::string& url) const
     && session_->hasSessionIdInUrl();
 
   if (needRedirect) {
-    WebController *c = session_->controller();
     return "?request=redirect&url=" + Utils::urlEncode(url)
       + "&hash="
-      + Utils::urlEncode(c->computeRedirectHash(url));
+      + Utils::urlEncode(
+              WebController::computeRedirectHash(
+                      environment().redirectSecret_, url));
   } else
     return url;
 }

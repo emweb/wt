@@ -96,6 +96,7 @@ public:
 
   std::unique_ptr<WApplication> doCreateApplication(WebSession *session);
   Configuration& configuration();
+  const Configuration& configuration() const;
 
   void addSession(const std::shared_ptr<WebSession>& session);
   void removeSession(const std::string& sessionId);
@@ -105,7 +106,8 @@ public:
   bool limitPlainHtmlSessions();
   WServer *server() { return &server_; }
 
-  std::string computeRedirectHash(const std::string& url);
+  static std::string computeRedirectHash(const std::string& secret, const std::string& url);
+  std::string redirectSecret(const WebRequest& request) const;
 
 #ifdef WT_TARGET_JAVA
   int getIdForWebSocket();
