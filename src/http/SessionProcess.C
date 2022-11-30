@@ -32,6 +32,7 @@ SessionProcess::SessionProcess(SessionProcessManager *manager) noexcept
   : io_service_(manager->ioService()),
     socket_(new asio::ip::tcp::socket(io_service_)),
     acceptor_(new asio::ip::tcp::acceptor(io_service_)),
+    strand_(io_service_),
     port_(-1),
 #ifndef WT_WIN32
     pid_(0),
@@ -41,6 +42,12 @@ SessionProcess::SessionProcess(SessionProcessManager *manager) noexcept
 #ifdef WT_WIN32
   ZeroMemory(&processInfo_, sizeof(processInfo_));
 #endif // WT_WIN32
+}
+
+void SessionProcess::requestStop() noexcept
+{
+  io_service_.post(strand_.wrap(
+          std::bind(&SessionProcess::stop, shared_from_this())));
 }
 
 void SessionProcess::closeClientSocket() noexcept
@@ -96,8 +103,8 @@ void SessionProcess::asyncExec(const Configuration &config,
     return;
   }
   acceptor_->async_accept
-    (*socket_, std::bind(&SessionProcess::acceptHandler, shared_from_this(),
-                         std::placeholders::_1, onReady));
+    (*socket_, strand_.wrap(
+            std::bind(&SessionProcess::acceptHandler, shared_from_this(), std::placeholders::_1, onReady)));
   LOG_DEBUG("Listening to child process on port "
             << acceptor_->local_endpoint(ec).port());
 
@@ -119,7 +126,8 @@ void SessionProcess::read() noexcept
 {
   asio::async_read_until
     (*socket_, buf_, '\n',
-     std::bind(&SessionProcess::readHandler, shared_from_this(), std::placeholders::_1));
+     strand_.wrap(
+       std::bind(&SessionProcess::readHandler, shared_from_this(), std::placeholders::_1)));
 }
 
 void SessionProcess::readHandler(const Wt::AsioWrapper::error_code& err) noexcept
