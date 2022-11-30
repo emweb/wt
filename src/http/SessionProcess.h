@@ -14,6 +14,10 @@
 
 #include "Configuration.h"
 
+#ifdef WT_THREADED
+#include <mutex>
+#endif // WT_THREADED
+
 #ifndef WT_WIN32
 #include <sys/types.h>
 #endif // WT_WIN32
@@ -30,9 +34,16 @@ class SessionProcess
 {
 public:
   explicit SessionProcess(SessionProcessManager *manager) noexcept;
-  SessionProcess(const SessionProcess&) = delete;
 
-  void stop() noexcept;
+  SessionProcess(const SessionProcess&) = delete;
+  SessionProcess& operator=(const SessionProcess&) = delete;
+  SessionProcess(SessionProcess&&) = delete;
+  SessionProcess& operator=(SessionProcess&&) = delete;
+
+  /*! \internal
+   *  \brief Posts stop() to the io context, guarded with a strand
+   */
+  void requestStop() noexcept;
 
   // Execute the session process, and call the onReady callback
   // function when done. The bool passed on to the onReady function
@@ -56,9 +67,9 @@ public:
   // Get the endpoint to connect to
   asio::ip::tcp::endpoint endpoint() const noexcept;
 
-  void closeClientSocket() noexcept;
-
 private:
+  void stop() noexcept;
+  void closeClientSocket() noexcept;
   void exec(const Configuration& config,
             const std::function<void (bool)>& onReady) noexcept;
   void acceptHandler(const Wt::AsioWrapper::error_code& err,
@@ -67,10 +78,19 @@ private:
   void readHandler(const Wt::AsioWrapper::error_code& err) noexcept;
   bool handleChildMessage(const std::string& message) noexcept;
 
-  // Short-lived objects during startup
   asio::io_service& io_service_;
+  /*! \internal
+   *  \brief Socket used as communication channel from child to parent
+   */
   std::shared_ptr<asio::ip::tcp::socket> socket_;
+  /*! \internal
+   *  \brief Short-lived acceptor used to establish the one connection from child to parent
+   */
   std::shared_ptr<asio::ip::tcp::acceptor> acceptor_;
+  /*! \internal
+   *  \brief All handlers for child to parent communication and the stop() happens on this strand
+   */
+  asio::io_service::strand strand_;
 
   asio::streambuf          buf_;
 

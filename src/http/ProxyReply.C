@@ -47,8 +47,9 @@ ProxyReply::ProxyReply(Request& request,
 
 ProxyReply::~ProxyReply()
 {
-  if (sessionProcess_ && sessionProcess_->sessionId().empty())
-    sessionProcess_->stop();
+  if (sessionProcess_ && sessionProcess_->sessionId().empty()) {
+    sessionProcess_->requestStop();
+  }
 
   closeClientSocket();
 }
@@ -65,8 +66,9 @@ void ProxyReply::closeClientSocket()
 
 void ProxyReply::reset(const Wt::EntryPoint *ep)
 {
-  if (sessionProcess_ && sessionProcess_->sessionId().empty())
-    sessionProcess_->stop();
+  if (sessionProcess_ && sessionProcess_->sessionId().empty()) {
+    sessionProcess_->requestStop();
+  }
   sessionProcess_.reset();
 
   closeClientSocket();
