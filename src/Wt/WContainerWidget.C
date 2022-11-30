@@ -459,12 +459,10 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
     // enable form object to retrieve scroll state
     setFormObject(true);
 
-    //declare javascript function Wt.encodeValue()
-    this->doJavaScript(this->jsRef()
-        + ".wtEncodeValue = function() {"
-        + "return " + this->jsRef() + ".scrollTop"
-        + " + ';' + " + this->jsRef() + ".scrollLeft;"
-        + "};");
+    setJavaScriptMember("wtEncodeValue",
+                        "(self) => {"
+                        "return `${self.scrollTop};${self.scrollLeft}`;"
+                        "}");
 
     flags_.reset(BIT_OVERFLOW_CHANGED);
 
@@ -737,13 +735,15 @@ void WContainerWidget::setFormData(const FormData& formData)
         scrollTop_ = (int)Utils::stod(attributes[0]);
         scrollLeft_ = (int)Utils::stod(attributes[1]);
 
-      }catch (const std::exception& e) {
-        throw WException("WContainerWidget: error parsing: " + formData.values[0] + ": " + e.what());
+      } catch (const std::exception& e) {
+        LOG_ERROR("WContainerWidget " << id() << ": error parsing form data: '" << formData.values[0] <<
+                  "', ignoring value, details: " << e.what());
       }
-    } else
-      throw WException("WContainerWidget: error parsing: " + formData.values[0]);
+    } else {
+      LOG_ERROR("WContainerWidget " << id() << ": error parsing form data: '" << formData.values[0] <<
+                "', ignoring value");
+    }
   }
-
 }
 
 }
