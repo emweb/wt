@@ -23,7 +23,8 @@ WProgressBar::WProgressBar()
   : min_(0),
     max_(100),
     value_(0),
-    changed_(false)
+    changed_(false),
+    valueStyleClassChanged_(false)
 {
   format_ = WString::fromUTF8("%.0f %%");
   setFlexBox(true);
@@ -33,6 +34,8 @@ WProgressBar::WProgressBar()
 void WProgressBar::setValueStyleClass(const std::string& valueStyleClass)
 {
   valueStyleClass_ = valueStyleClass;
+  valueStyleClassChanged_ = true;
+  repaint();
 }
 
 void WProgressBar::setValue(double value)
@@ -167,6 +170,16 @@ void WProgressBar::updateDom(DomElement& element, bool all)
     changed_ = false;
   }
 
+  if (valueStyleClassChanged_)
+  {
+    if (!bar)
+      bar = DomElement::getForUpdate("bar" + id(), DomElementType::DIV);
+
+    bar->setProperty(Property::Class, valueStyleClass_);
+    WApplication::instance()->theme()->apply(this, *bar, ElementThemeRole::ProgressBarBar);
+    valueStyleClassChanged_ = false;
+  }
+
   if (bar)
     element.addChild(bar);
 
@@ -182,6 +195,5 @@ void WProgressBar::propagateRenderOk(bool deep)
 
   WInteractWidget::propagateRenderOk(deep);
 }
-
 }
 
