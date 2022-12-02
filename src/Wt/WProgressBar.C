@@ -176,7 +176,7 @@ void WProgressBar::updateDom(DomElement& element, bool all)
       bar = DomElement::getForUpdate("bar" + id(), DomElementType::DIV);
 
     bar->setProperty(Property::Class, valueStyleClass_);
-    WApplication::instance()->theme()->apply(this, *bar, ElementThemeRole::ProgressBarBar);
+    WApplication::instance()->theme()->apply(this, *bar, ProgressBarBar);
     valueStyleClassChanged_ = false;
   }
 
