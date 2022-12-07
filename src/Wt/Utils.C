@@ -163,6 +163,13 @@ WString htmlEncode(const WString& text, WFlags<HtmlEncodingFlag> flags)
   return WString::fromUTF8(htmlEncode(text.toUTF8(), flags));
 }
 
+std::string htmlAttributeValue(const std::string& text)
+{
+  Wt::WStringStream ss;
+  DomElement::htmlAttributeValue(ss, text);
+  return ss.str();
+}
+
 std::string urlEncode(const std::string& text)
 {
   return DomElement::urlEncodeS(text);

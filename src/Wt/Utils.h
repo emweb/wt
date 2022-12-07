@@ -121,6 +121,23 @@ WT_API extern std::string htmlEncode(const std::string& text,
 WT_API extern WString htmlEncode(const WString& text,
                                  WFlags<HtmlEncodingFlag> flags = None);
 
+/*! \brief Escape the given text for inclusion in an HTML attribute
+ *
+ * This utility function escapes characters so that the \p text can
+ * be used as the value of an HTML attribute between double quotes.
+ *
+ * The double quotes are **not** included in the output.
+ *
+ * \if cpp
+ * Example usage:
+ *
+ * ```cpp
+ * std::string attribute = "name=\"" + htmlAttributeValue(value) + "\"";
+ * ```
+ * \endif
+ */
+WT_API extern std::string htmlAttributeValue(const std::string& text);
+
 /*! \brief Performs Url encoding (aka percentage encoding).
  *
  * This utility function percent encodes a \p text so that it can be
