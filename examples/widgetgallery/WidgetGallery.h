@@ -8,11 +8,11 @@
 #ifndef WIDGET_GALLERY_APPLICATION_H_
 #define WIDGET_GALLERY_APPLICATION_H_
 
-#include <Wt/WTemplate.h>
+#include "BaseTemplate.h"
 
 class Topic;
 
-class WidgetGallery : public Wt::WTemplate
+class WidgetGallery : public BaseTemplate
 {
 public:
   WidgetGallery();

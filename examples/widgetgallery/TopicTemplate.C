@@ -8,21 +8,16 @@
 
 #include "TopicTemplate.h"
 
+#include <Wt/Utils.h>
+#include <Wt/WApplication.h>
 #include <Wt/WStringStream.h>
 
 TopicTemplate::TopicTemplate(const char *trKey)
-  : WTemplate(tr(trKey))
+  : BaseTemplate(trKey)
 {
-  setInternalPathEncoding(true);
-  addFunction("tr", &Functions::tr);
-
 #ifndef WT_TARGET_JAVA
-  setCondition("if:cpp", true);
-  setCondition("if:java", false);
   bindString("doc-url", "//www.webtoolkit.eu/wt/doc/reference/html/");
 #else
-  setCondition("if:cpp", false);
-  setCondition("if:java", true);
   bindString("doc-url", "//www.webtoolkit.eu/"
              "jwt/latest/doc/javadoc/eu/webtoolkit/jwt/");
 #endif
@@ -82,7 +77,7 @@ void TopicTemplate::resolveString(const std::string& varName,
            << tr("src-" + exampleName).toXhtmlUTF8()
            << "</fieldset>";
   } else
-    WTemplate::resolveString(varName, args, result);
+    BaseTemplate::resolveString(varName, args, result);
 }
 
 std::string TopicTemplate::escape(const std::string &name)

@@ -22,18 +22,10 @@ const std::string closeMenuText = "<i class='fa fa-bars' aria-hidden='true'></i>
 }
 
 WidgetGallery::WidgetGallery()
-  : Wt::WTemplate(tr("tpl:widget-gallery")),
+  : BaseTemplate("tpl:widget-gallery"),
     openMenuButton_(nullptr),
     menuOpen_(false) // once applies when responsive UI
 {
-#ifndef WT_TARGET_JAVA
-  setCondition("if:cpp", true);
-  setCondition("if:java", false);
-#else
-  setCondition("if:cpp", false);
-  setCondition("if:java", true);
-#endif
-
   contentsStack_ = bindNew<Wt::WStackedWidget>("contents");
 
   Wt::WAnimation animation(Wt::AnimationEffect::Fade,

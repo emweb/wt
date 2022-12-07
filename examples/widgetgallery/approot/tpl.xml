@@ -5,10 +5,10 @@
       <div class="wg-sidebar">
         <div class="wg-logo">
           ${<if:cpp>}
-            <img src="/icons/wt.png" />
+            ${img src="icons/wt.png"}
           ${</if:cpp>}
           ${<if:java>}
-            <img src="/icons/jwt.png" />
+            ${img src="icons/jwt.png"}
           ${</if:java>}
           <h1>Widget Gallery</h1>
         </div>

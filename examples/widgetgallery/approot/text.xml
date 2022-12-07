@@ -1095,7 +1095,7 @@
       the model).
     </p>
     <p>
-      <img src="/pics/model-view.png" alt="model-view picture" />
+      ${img src="pics/model-view.png" alt="model-view picture"}
     </p>
     <p>
       The view may render fields of more than one model. Note that there are
@@ -3479,8 +3479,7 @@
     </p>
 
     <div>
-      <img src="/pics/modelview.png"
-           style="max-width: none; margin: 5px auto; display: block"/>
+      ${img src="pics/modelview.png" style="max-width: none; margin: 5px auto; display: block"}
     </div>
 
     <h3>The model</h3>
@@ -3496,7 +3495,7 @@
 
     <h4>Lists</h4>
 
-    <img src="/pics/list-models.png" style="max-width: none; float: right; margin: 30px"/>
+    ${img src="pics/list-models.png" style="max-width: none; float: right; margin: 30px"}
 
     <p>In its most simple and perhaps most common form, an item model
     simply stores a list of items. Such a model has only one column.
@@ -3542,7 +3541,7 @@
 
     <h4 style="clear: both">Tables</h4>
 
-    <img src="/pics/table-models.png" style="max-width: none; float: right; margin: 30px"/>
+    ${img src="pics/table-models.png" style="max-width: none; float: right; margin: 30px"}
 
     As a straight forward generalization to lists, tables may include
     more than one more column, and each item can be identified by a
@@ -3550,7 +3549,7 @@
 
     <h4 style="clear: both">Trees</h4>
 
-    <img src="/pics/tree-models.png" style="max-width: none; float: right; margin: 30px"/>
+    ${img src="pics/tree-models.png" style="max-width: none; float: right; margin: 30px"}
 
     <p>
       A tree model is - like a list - a model with a single column. In addition,
@@ -3905,8 +3904,8 @@
       as in the figure below.
     </p>
     <p class="centered">
-      <img alt="The device coordinate system for a 6x5 pixel device"
-           src="/pics/WPainter.png" /> <br/>
+      ${img src="pics/WPainter.png" alt="The device coordinate system for a 6x5 pixel device"}
+      <br />
       <strong>The device coordinate system for a 6x5 pixel device</strong>
     </p>
     <p>
