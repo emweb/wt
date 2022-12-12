@@ -248,7 +248,6 @@ public:
   bool inlineCss() const;
   bool persistentSessions() const;
   bool progressiveBoot(const std::string& internalPath) const;
-  bool splitScript() const;
   float maxPlainSessionsRatio() const;
   bool ajaxPuzzle() const;
   bool sessionIdCookie() const;
@@ -339,7 +338,6 @@ private:
   AgentList       ajaxAgentList_, botList_;
   bool            ajaxAgentWhiteList_;
   bool            persistentSessions_;
-  bool            splitScript_;
   float           maxPlainSessionsRatio_;
   bool            ajaxPuzzle_;
   bool            sessionIdCookie_;

@@ -289,7 +289,6 @@ void Configuration::reset()
   botList_.clear();
   ajaxAgentWhiteList_ = false;
   persistentSessions_ = false;
-  splitScript_ = false;
   maxPlainSessionsRatio_ = 1;
   ajaxPuzzle_ = false;
   sessionIdCookie_ = false;
@@ -538,12 +537,6 @@ bool Configuration::progressiveBoot(const std::string& internalPath) const
   }
 
   return result;
-}
-
-bool Configuration::splitScript() const
-{
-  READ_LOCK;
-  return splitScript_;
 }
 
 float Configuration::maxPlainSessionsRatio() const
@@ -1165,8 +1158,6 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     bootstrapConfig_.front().method = Progressive;
   }
 
-  if (progressive)
-    setBoolean(app, "split-script", splitScript_);
   setBoolean(app, "session-id-cookie", sessionIdCookie_);
   setBoolean(app, "cookie-checks", cookieChecks_);
   setBoolean(app, "webgl-detection", webglDetection_);

@@ -10,15 +10,13 @@
   _$_$if_COOKIE_CHECKS_$_
   _$_$if_HYBRID_$_
   _$_$if_PROGRESS_$_
-  _$_$if_SPLIT_SCRIPT_$_
-  _$_$ifnot_SPLIT_SCRIPT_$_
   _$_$if_WEBGL_DETECT_$_
   _$_$endif_$_
 */
 window.onresize = function() {};
 
 /* eslint-disable-next-line no-implicit-globals */
-function loadScript(url, callback) {
+function loadScript(url) {
   const h = document.getElementsByTagName("head")[0];
   const agent = navigator.userAgent.toLowerCase();
   const re = /firefox\/(\d+)\./;
@@ -34,29 +32,12 @@ function loadScript(url, callback) {
         s.type = "text/javascript";
         s.innerHTML = async.responseText;
         h.appendChild(s);
-        if (callback) {
-          callback();
-        }
       }
     };
 
     async.send(null);
   } else {
     const s = document.createElement("script");
-    if (callback) {
-      if (s.readyState) {
-        s.onreadystatechange = function() {
-          if (s.readyState === "loaded" || s.readyState === "complete") {
-            s.onreadystatechange = null;
-            callback();
-          }
-        };
-      } else {
-        s.onload = function() {
-          callback();
-        };
-      }
-    }
 
     s.setAttribute("src", url);
     h.appendChild(s);
@@ -365,19 +346,7 @@ _$_$endif_$_();
         _$_$endif_$_();
 
         const allInfo = hashInfo + otherInfo + htmlHistoryInfo + deployPathInfo;
-        _$_$ifnot_SPLIT_SCRIPT_$_();
-        loadScript(selfUrl + allInfo + "&request=script&rand=" + rand(), null);
-        _$_$endif_$_();
-        _$_$if_SPLIT_SCRIPT_$_();
-        /* Ideally, we should be able to omit the sessionid too */
-        loadScript(selfUrl + allInfo + "&request=script&skeleton=true", function() {
-          loadScript(
-            selfUrl + allInfo +
-              "&request=script&rand=" + rand(),
-            null
-          );
-        });
-        _$_$endif_$_();
+        loadScript(selfUrl + allInfo + "&request=script&rand=" + rand());
       }
     }
   }

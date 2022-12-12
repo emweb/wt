@@ -1653,17 +1653,11 @@ void WebSession::handleRequest(Handler& handler)
         if (!app_) {
           const std::string *resourceE = request.getParameter("resource");
 
-          if (handler.response()->responseType() ==
-              WebResponse::ResponseType::Script) {
-            if (!request.getParameter("skeleton")) {
-              env_->enableAjax(request);
+          if (handler.response()->responseType() == WebResponse::ResponseType::Script) {
+            env_->enableAjax(request);
 
-              if (!start(handler.response()))
-                throw WException("Could not start application.");
-            } else {
-              serveResponse(handler);
-              return;
-            }
+            if (!start(handler.response()))
+              throw WException("Could not start application.");
           } else if (requestForResource && resourceE && *resourceE == "blank") {
             handler.response()->setContentType("text/html");
             handler.response()->out() <<
@@ -2396,17 +2390,15 @@ void WebSession::notify(const WEvent& event)
         throw WException("Script id mismatch");
       }
 
-      if (!request.getParameter("skeleton")) {
-        if (!env_->ajax()) {
-          env_->enableAjax(request);
-          app_->enableAjax();
-          if (env_->internalPath().length() > 1)
-            changeInternalPath(env_->internalPath(), handler.response());
-        } else {
-          const std::string *hashE = request.getParameter("_");
-          if (hashE)
-            changeInternalPath(*hashE, handler.response());
-        }
+      if (!env_->ajax()) {
+        env_->enableAjax(request);
+        app_->enableAjax();
+        if (env_->internalPath().length() > 1)
+          changeInternalPath(env_->internalPath(), handler.response());
+      } else {
+        const std::string *hashE = request.getParameter("_");
+        if (hashE)
+          changeInternalPath(*hashE, handler.response());
       }
 
       render(handler);
@@ -2844,8 +2836,7 @@ void WebSession::serveResponse(Handler& handler)
      * In any case, flush the style request when we are serving a new
      * page (without Ajax) or the main script (with Ajax).
      */
-    if (handler.response()->responseType() == WebResponse::ResponseType::Script
-        && !handler.request()->getParameter("skeleton")) {
+    if (handler.response()->responseType() == WebResponse::ResponseType::Script) {
 #ifndef WT_TARGET_JAVA
       if (bootStyleResponse_) {
         renderer_.serveLinkedCss(*bootStyleResponse_);

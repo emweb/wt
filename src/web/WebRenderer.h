@@ -130,7 +130,7 @@ private:
   bool cookieUpdateNeeded_;
 
   void setHeaders(WebResponse& request, const std::string mimeType);
-  void setCaching(WebResponse& response, bool allowCache);
+  void addNoCacheHeaders(WebResponse& response);
 
   void serveJavaScriptUpdate(WebResponse& response);
   void serveMainscript(WebResponse& response);
