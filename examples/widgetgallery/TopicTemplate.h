@@ -20,10 +20,13 @@ public:
                              std::ostream& result);
 
 private:
-  std::string docUrl(const std::string& className);
+  std::string docUrl(const std::string& type,
+                     const std::string& className);
   std::string getString(const std::string& varName);
 
   static std::string escape(const std::string& name);
+
+  std::map<std::string, std::string> namespaceToPackage;
 };
 
 #endif // TOPIC_TEMPLATE_H_

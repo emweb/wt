@@ -21,6 +21,9 @@ TopicTemplate::TopicTemplate(const char *trKey)
   bindString("doc-url", "//www.webtoolkit.eu/"
              "jwt/latest/doc/javadoc/eu/webtoolkit/jwt/");
 #endif
+
+  namespaceToPackage["Chart"] = "chart";
+  namespaceToPackage["Render"] = "render";
 }
 
 std::string TopicTemplate::getString(const std::string& varName)
@@ -33,17 +36,21 @@ std::string TopicTemplate::getString(const std::string& varName)
   return ss.str();
 }
 
-std::string TopicTemplate::docUrl(const std::string& className)
+std::string TopicTemplate::docUrl(const std::string& type,
+                                  const std::string& className)
 {
   Wt::WStringStream ss;
 
 #if !defined(WT_TARGET_JAVA)
-  ss << getString("doc-url") << "class" << escape("Wt::" + className)
-     << ".html";
+  ss << getString("doc-url") << type << escape("Wt::" + className) << ".html";
 #else
-  std::string cn = className;
-  boost::replace_all(cn, ".", "/");
-  ss << getString("doc-url") << cn << ".html";
+  if (type == "namespace") {
+    ss << getString("doc-url") << namespaceToPackage[className] << "/package-summary.html";
+  } else {
+    std::string cn = className;
+    boost::replace_all(cn, ".", "/");
+    ss << getString("doc-url") << cn << ".html";
+  }
 #endif
 
   return ss.str();
@@ -55,21 +62,39 @@ void TopicTemplate::resolveString(const std::string& varName,
 {
   if (varName == "doc-link") {
     std::string className = args[0].toUTF8();
+    std::string type = "class";
+    std::string title;
+    for (std::size_t i = 1; i < args.size(); ++i) {
+      std::string arg = args[i].toUTF8();
+      if (boost::starts_with(arg, "type=")) {
+        type = arg.substr(5);
+      } else if (boost::starts_with(arg, "title=")) {
+        title = arg.substr(6);
+      }
+    }
 
 #ifndef WT_TARGET_JAVA
     boost::replace_all(className, "-", "::");
 #else
-    boost::replace_all(className, "Render-", "render.");
+    for (auto it = namespaceToPackage.begin(); it != namespaceToPackage.end(); ++it) {
+      boost::replace_all(className, it->first + "-", it->second + ".");
+    }
 #endif
 
-    result << "<a href=\"" << docUrl(className)
-           << "\" target=\"_blank\">";
+    result << "<a href=\"" << docUrl(type, className) << "\" target=\"_blank\">";
 
-#ifdef WT_TARGET_JAVA
-    boost::replace_all(className, "render.", "");
+    if (title.empty()) {
+      title = className;
+      for (auto it = namespaceToPackage.begin(); it != namespaceToPackage.end(); ++it) {
+#ifndef WT_TARGET_JAVA
+        boost::replace_all(title, it->first + "::", "");
+#else
+        boost::replace_all(title, it->second + ".", "");
 #endif // WT_TARGET_JAVA
+      }
+    }
 
-    result << className << "</a>";
+    result << Wt::Utils::htmlEncode(title) << "</a>";
   } else if (varName == "src") {
     std::string exampleName = args[0].toUTF8();
     result << "<fieldset class=\"src\">"

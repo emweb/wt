@@ -91,9 +91,14 @@
         <li>It is a unicode string (internally store as UTF-8) with an
         API to interact with plain C++ strings.
         </li>
-        <li>It supports localization, when created using <a href=
-        "${doc-url}classWt_1_1WString.html#0afc7dc0f9897456d71b569a86ca26c1"
-        target="_blank">WString::tr()</a>. The actual value
+        <li>It supports localization, when created using
+        ${<if:cpp>}
+        <a href="${doc-url}classWt_1_1WString.html#0afc7dc0f9897456d71b569a86ca26c1" target="_blank">WString::tr()</a>.
+        ${</if:cpp>}
+        ${<if:java>}
+        <a href="${doc-url}WString.html#tr(java.lang.String)" target="_blank">WString#tr()</a>.
+        ${</if:java>}
+        The actual value
         corresponding to a key is retrieved from a ${doc-link
         WLocalizedStrings} instance, taking into account the current
         locale. The default implementation of this interface class
@@ -3327,10 +3332,8 @@
       The rendering of each cell is handled by a ${doc-link
       WAbstractItemDelegate}. An item delegate will typically query
       various properties of an item, which are provided by the model for
-      different <a
-      href="${doc-url}group__modelview.html#ga0ae864e12320f9f89172735e075ed068"
-      target="_blank">data roles</a> (which one can consider pretty
-      much like a 3rd dimension for what otherwise corresponds to
+      different ${doc-link ItemDataRole title="data roles"} (which one can
+      consider pretty much like a 3rd dimension for what otherwise corresponds to
       two-dimensional model organized in rows and columns). The default
       implementation (${doc-link WItemDelegate}) will
       <ul>
@@ -3533,9 +3536,7 @@
         <dd class="col-sm-10">Rendered as style classes</dd>
       </dl>
 
-      See the <a
-      href="${doc-url}group__modelview.html#ga0ae864e12320f9f89172735e075ed068"
-      target="_blank">WItemDataRole</a> enumeration for a more complete
+      See ${doc-link ItemDataRole} for a more complete
       list of standard roles, whose use may depend on the View.
     </p>
 
@@ -4104,7 +4105,7 @@
     <p>
       In order to avoid server round-trips, it's possible to change some of the
       properties of a ${doc-link WPaintedWidget} and redraw it entirely on the client side.
-      The interactive features of ${doc-link WCartesianChart} use this
+      The interactive features of ${doc-link Chart-WCartesianChart} use this
       functionality, for example.
     </p>
 
@@ -4166,8 +4167,8 @@
       <a href="#/graphics/scatter-plot">Scatter plot</a> and
       <a href="#/graphics/pie-chart">Pie chart</a> demonstrate some of the
       capabilities of the
-      <a href="https://www.webtoolkit.eu/wt/doc/reference/html/namespaceWt_1_1Chart.html"
-      target="_blank">Wt charting widgets</a>. These widgets are implemented using
+      ${doc-link Chart type="namespace" title="Wt charting widgets"}.
+      These widgets are implemented using
       the Wt painting API ${doc-link WPaintedWidget} which provides
       cross-browser native painting, using VML, SVG, or the HTML5 canvas tag.
     </p>
@@ -4175,11 +4176,11 @@
       The two main chart widgets are
       <ul>
         <li>
-          ${doc-link WCartesianChart}, which provides charts with an X and a Y
+          ${doc-link Chart-WCartesianChart}, which provides charts with an X and a Y
           axis to show data, and
         </li>
         <li>
-          ${doc-link WPieChart} which provides pie charts.
+          ${doc-link Chart-WPieChart} which provides pie charts.
         </li>
       </ul>
       These widgets are based on the MVC mechanism, and retrieve their data
@@ -4207,9 +4208,9 @@
     <p>
       Many aspects of the charts may be customized. By default, style
       information for rendering data series are taken from a
-      ${doc-link WChartPalette}. It is straightforward to specialize this class
+      ${doc-link Chart-WChartPalette}. It is straightforward to specialize this class
       to provide different styles from the standard styles provided by
-      ${doc-link WStandardPalette}.
+      ${doc-link Chart-WStandardPalette}.
     </p>
     <p>
       The cartesian chart has support for dual Y axes. Each data series may be
@@ -4346,7 +4347,7 @@
     <h2 id="axis-slider-widget">Axis slider widget</h2>
     <p>
       If you have a chart with a long range of X values,
-      and want to easily focus on a particular range, you can use a ${doc-link 'Chart::WAxisSliderWidget'}. You can change
+      and want to easily focus on a particular range, you can use a ${doc-link Chart-WAxisSliderWidget}. You can change
       the size of the focused region by dragging the blue handles, and change the position by dragging
       the selected area. When using touch, the size of this area can also be changed using a pinch movement.
     </p>
@@ -4357,9 +4358,9 @@
     </fieldset>
     <h3>Using an alternative WDataSeries</h3>
     <p>
-      If a series is assigned to a ${doc-link 'Chart::WAxisSliderWidget'}, but is hidden on the chart,
+      If a series is assigned to a ${doc-link Chart-WAxisSliderWidget}, but is hidden on the chart,
       then it will still be drawn on the WAxisSliderWidget. Combined with the
-      zoomRangeChanged method of ${doc-link 'Chart::WAxis'}, this can be used to have a
+      zoomRangeChanged method of ${doc-link Chart-WAxis}, this can be used to have a
       rough version of the data to present in the WAxisSliderWidget, and as the
       user zooms in, present a more detailed version of the data.
     </p>
@@ -4387,7 +4388,7 @@
     <h3>What is a pie chart?</h3>
     <p>
       A pie chart is a circular visualization of a single data series. The pie
-      chart is provided by the ${doc-link WPieChart} widget. The class supports
+      chart is provided by the ${doc-link Chart-WPieChart} widget. The class supports
       both plain 2D pies, and a 3D effect (as used below). In the
       example the first segment is separated from the pie for emphasis.
     </p>
@@ -4591,7 +4592,7 @@
     </p>
     <h3>The data</h3>
     <p>
-      A categorical representation is only possible for grid-based data. In terms of the API this means any class deriving ${doc-link WAbstractGridData}. Wt already provides two implementations: ${doc-link WGridData} and ${doc-link WEquidistantGridData}. To create a categorical chart, the chart must be configured as such (by setting the type to <code>CategoryChart</code>) and the data which is added to this chart must be of the type <code>BarSeries3D</code>.
+      A categorical representation is only possible for grid-based data. In terms of the API this means any class deriving ${doc-link Chart-WAbstractGridData}. Wt already provides two implementations: ${doc-link Chart-WGridData} and ${doc-link Chart-WEquidistantGridData}. To create a categorical chart, the chart must be configured as such (by setting the type to <code>CategoryChart</code>) and the data which is added to this chart must be of the type <code>BarSeries3D</code>.
     </p>
     <p>
       A categorical chart also allows multiple data series to be shown if the dimensions are the same. The different bar-series are then stacked on top of each other.
