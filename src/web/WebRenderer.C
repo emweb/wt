@@ -1435,7 +1435,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
 
   std::string contentType = "text/html; charset=UTF-8";
 
-  setCaching(response, false);
+  addNoCacheHeaders(response);
   response.addHeader("X-Frame-Options", "SAMEORIGIN");
   setHeaders(response, contentType);
 
