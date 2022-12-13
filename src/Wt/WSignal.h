@@ -166,8 +166,10 @@ private:
  * the same parameters in the member function, or less (leaving out
  * parameters at the end).
  *
- * The signal automatically disconnects from the slot when the
- * target is deleted. In addition, the signal may be deleted at any
+ * When the receiver function is an object method, the signal will
+ * automatically be disconnected when the object is deleted, as long
+ * as the object inherits from WObject (or Wt::Core::observable).
+ * In addition, the signal may be deleted at any
  * time, in particular also while it is being emitted.
  *
  * \if cpp
