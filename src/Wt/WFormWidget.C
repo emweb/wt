@@ -13,10 +13,6 @@
 #include "DomElement.h"
 #include "WebUtils.h"
 
-#ifndef WT_DEBUG_JS
-#include "js/WFormWidget.min.js"
-#endif
-
 namespace Wt {
 
 const char *WFormWidget::CHANGE_SIGNAL = "M_change";
@@ -81,69 +77,14 @@ bool WFormWidget::isReadOnly() const
 
 void WFormWidget::setPlaceholderText(const WString& placeholderText)
 {
-  emptyText_ = placeholderText;
-
-  WApplication* app = WApplication::instance();
-  const WEnvironment& env = app->environment();
-  if (!env.agentIsIElt(10) &&
-    (domElementType() == DomElementType::INPUT || domElementType() == DomElementType::TEXTAREA)) {
-    flags_.set(BIT_PLACEHOLDER_CHANGED);
-    repaint();
-  } else {
-    if (env.ajax()) {
-      if (!emptyText_.empty()) {
-        if (!flags_.test(BIT_JS_OBJECT))
-          defineJavaScript();
-        else
-          updateEmptyText();
-
-        if (!removeEmptyText_) {
-          removeEmptyText_.reset(new JSlot(this));
-
-          focussed().connect(*removeEmptyText_);
-          blurred().connect(*removeEmptyText_);
-          keyWentDown().connect(*removeEmptyText_);
-
-          std::string jsFunction =
-            "function(obj, event) {"
-            """" + jsRef() + ".wtObj.applyEmptyText();"
-            "}";
-          removeEmptyText_->setJavaScript(jsFunction);
-        }
-      } else {
-        removeEmptyText_.reset();
-      }
-    } else {
-      setToolTip(placeholderText);
-    }
-  }
-}
-
-void WFormWidget::defineJavaScript(bool force)
-{
-  if (force || !flags_.test(BIT_JS_OBJECT)) {
-    flags_.set(BIT_JS_OBJECT);
-
-    if (!isRendered())
-      return;
-
-    WApplication *app = WApplication::instance();
-
-    LOAD_JAVASCRIPT(app, "js/WFormWidget.js", "WFormWidget", wtjs1);
-
-    setJavaScriptMember(" WFormWidget", "new " WT_CLASS ".WFormWidget("
-                        + app->javaScriptClass() + ","
-                        + jsRef() + ","
-                        + emptyText_.jsStringLiteral() + ");");
-  }
+  placeholderText_ = placeholderText;
+  flags_.set(BIT_PLACEHOLDER_CHANGED);
+  repaint();
 }
 
 void WFormWidget::render(WFlags<RenderFlag> flags)
 {
   if (flags.test(RenderFlag::Full)) {
-    if (flags_.test(BIT_JS_OBJECT))
-      defineJavaScript(true);
-
     if (validator()) {
       WValidator::Result result = validator()->validate(valueText());
       WApplication::instance()->theme()
@@ -155,39 +96,14 @@ void WFormWidget::render(WFlags<RenderFlag> flags)
   WInteractWidget::render(flags);
 }
 
-void WFormWidget::updateEmptyText()
-{
-  WApplication *app = WApplication::instance();
-  const WEnvironment &env = app->environment();
-  if (env.agentIsIElt(10) && isRendered())
-    doJavaScript(jsRef() + ".wtObj"
-                 ".setEmptyText(" + emptyText_.jsStringLiteral() + ");");
-}
-
-void WFormWidget::applyEmptyText()
-{
-  WApplication *app = WApplication::instance();
-  const WEnvironment &env = app->environment();
-  if (env.agentIsIElt(10) && isRendered() && !emptyText_.empty())
-    doJavaScript(jsRef() + ".wtObj.applyEmptyText();");
-}
-
 void WFormWidget::refresh()
 {
-  if (emptyText_.refresh())
-    updateEmptyText();
-
-  WInteractWidget::refresh();
-}
-
-void WFormWidget::enableAjax()
-{
-  if (!emptyText_.empty() && toolTip() == emptyText_) {
-    setToolTip("");
-    setPlaceholderText(emptyText_);
+  if (placeholderText_.refresh()) {
+    flags_.set(BIT_PLACEHOLDER_CHANGED);
+    repaint();
   }
 
-  WInteractWidget::enableAjax();
+  WInteractWidget::refresh();
 }
 
 void WFormWidget::validatorChanged()
@@ -249,13 +165,6 @@ void WFormWidget::updateDom(DomElement& element, bool all)
     if (!all || !isEnabled())
       element.setProperty(Wt::Property::Disabled,
                           isEnabled() ? "false" : "true");
-
-    if (!all && isEnabled() && env.agentIsIE()) {
-      /*
-       * FIXME: implement a workaround for IE, reenabling a checkbox makes
-       * the input box loose interactivity.
-       */
-    }
     flags_.reset(BIT_ENABLED_CHANGED);
   }
 
@@ -267,8 +176,8 @@ void WFormWidget::updateDom(DomElement& element, bool all)
   }
 
   if (flags_.test(BIT_PLACEHOLDER_CHANGED) || all) {
-    if (!all || !emptyText_.empty())
-      element.setProperty(Wt::Property::Placeholder, emptyText_.toUTF8());
+    if (!all || !placeholderText_.empty())
+      element.setProperty(Wt::Property::Placeholder, placeholderText_.toUTF8());
     flags_.reset(BIT_PLACEHOLDER_CHANGED);
   }
 

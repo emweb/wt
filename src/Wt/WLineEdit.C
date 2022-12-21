@@ -70,8 +70,6 @@ void WLineEdit::setText(const WT_USTRING& text)
     repaint();
 
     validate();
-
-    applyEmptyText();
   }
 }
 
