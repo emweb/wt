@@ -116,18 +116,6 @@ public:
    */
   bool isReadOnly() const;
 
-  /*! \brief Sets the placeholder text.
-   *
-   * This sets the text that is shown when the field is empty.
-   */
-  virtual void setPlaceholderText(const WString& placeholder);
-
-  /*! \brief Returns the placeholder text.
-   *
-   * \sa setPlaceholderText()
-   */
-  const WString& placeholderText() const { return placeholderText_; }
-
   /*! \brief %Signal emitted when the value was changed.
    *
    * For a keyboard input, the signal is only emitted when the focus is lost
@@ -159,6 +147,18 @@ protected:
 
   // also used in WAbstractToggleButton
   static const char *CHANGE_SIGNAL;
+
+  /*! \brief Sets the placeholder text.
+   *
+   * This sets the text that is shown when the field is empty.
+   */
+  virtual void setPlaceholderText(const WString& placeholder);
+
+  /*! \brief Returns the placeholder text.
+   *
+   * \sa setPlaceholderText()
+   */
+  const WString& placeholderText() const { return placeholderText_; }
 
   /*! \internal
    * \brief Called whenever the validator is changed

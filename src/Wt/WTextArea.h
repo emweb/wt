@@ -88,6 +88,18 @@ public:
    */
   virtual void setText(const WT_USTRING& text);
 
+  /*! \brief Sets the placeholder text.
+   *
+   * This sets the text that is shown when the field is empty.
+   */
+  using WFormWidget::setPlaceholderText;
+
+  /*! \brief Returns the placeholder text.
+   *
+   * \sa setPlaceholderText()
+   */
+  using WFormWidget::placeholderText;
+
   /*! \brief Returns the current selection start.
    *
    * Returns -1 if there is no selected text.
