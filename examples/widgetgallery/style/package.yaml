@@ -11,8 +11,8 @@ devDependencies:
   gulp-postcss: ^9.0.1
   gulp-sass: ^5.1.0
   gulp-sourcemaps: ^3.0.0
-  postcss: ^8.4.19
-  sass: ^1.56.1
+  postcss: ^8.4.20
+  sass: ^1.57.1
 dependencies:
   '@popperjs/core': ^2.11.6
   bootstrap: ^5.2.3
