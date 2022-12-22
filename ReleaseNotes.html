@@ -28,11 +28,6 @@ behaviour.
 
 <ul>
   <li>
-    <a href="https://redmine.webtoolkit.eu/issues/10995" target="_blank">Issue #10995</a>:
-    fixed an issue with <a href="classWt_1_1WContainerWidget.html">WContainerWidget</a>
-    where a session could terminate with the text "WContainerWidget: error parsing: undefined".
-  </li>
-  <li>
     <a href="https://redmine.webtoolkit.eu/issues/11105" target="_blank">Issue #11105</a>:
     Wt has a built-in redirect mechanism that prevents the <code>Referer</code> header from showing
     the session id (if the session id is in the URL). This mechanism hashes the destination
@@ -44,6 +39,11 @@ behaviour.
     by providing a <code>Redirect-Secret</code> header, creating an open redirect endpoint.
     We have renamed this header to <code>X-Wt-Redirect-Secret</code> to better indicate the fact that this
     header is nonstandard, and will only accept this header if it is coming from a trusted reverse proxy.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10995" target="_blank">Issue #10995</a>:
+    fixed an issue with <a href="classWt_1_1WContainerWidget.html">WContainerWidget</a>
+    where a session could terminate with the text "WContainerWidget: error parsing: undefined".
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/11101" target="_blank">Issue #11101</a>:
