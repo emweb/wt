@@ -20,7 +20,19 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.9.0 (December 2022)</h2>
+<h2>Release 4.9.0 (December 22, 2022)</h2>
+
+<p>
+  Wt 4.9.0 features a lot of changes under the covers: we have painstakingly removed jQuery from Wt,
+  modernized the JavaScript, and added a linter, formatter, and a new minifier in the process.
+</p>
+
+<p>
+  A more directly noticeable change is the fact that we gave the documentation a new lick of paint using the
+  Doxygen Awesome theme. Also, now that we added some tooling to customize WBootstrap5Theme, the
+  <a href="https://webtoolkit.eu/widgets" target="_blank">widget gallery</a>'s
+  primary color was updated to be more in line with Wt's website.
+</p>
 
 <h3>Backwards incompatible changes</h3>
 
@@ -78,25 +90,21 @@ behaviour.
 <dl>
   <dt>Collapsible panels</dt>
   <dd>
-    Since
     <a href="classWt_1_1WBootstrap5Theme.html">WBootstrap5Theme</a>
-    was introduced in Wt 4.6.0, when a
-    <a href="classWt_1_1WPanel.html">WPanel</a> was made
-    <a href="classWt_1_1WPanel.html#ace945a192f671220a5a2cda671dc37ca">collapsible</a>
-    it would be implemented
-    using an
-    <a href="https://getbootstrap.com/docs/5.2/components/accordion/" target="_blank">accordion</a>,
+    has used an
+    <a href="https://getbootstrap.com/docs/5.2/components/accordion/" target="_blank">accordion</a>
     instead of a
-    <a href="https://getbootstrap.com/docs/5.2/components/card/" target="_blank">card</a>.
-    <a href="classWt_1_1WPanel.html#aefd66ff6dd8e2a1108e70efec4eab1b5">WPanel::collapse()</a> and
-    <a href="classWt_1_1WPanel.html#a2ac9a05172675559b6f988083a4fd666">WPanel::expand()</a> would not work with
-    <code>WBootstrap5Theme</code>.
-    We have now changed the implementation to use
     <a href="https://getbootstrap.com/docs/5.2/components/card/" target="_blank">card</a>
-    again, so that all panels look alike regardless of whether they're collapsible.
-    It's now possible again to query and change the collapsed state of panels.
-    This resolves issue
-    <a href="https://redmine.webtoolkit.eu/issues/10364" target="_blank">#10364</a>.
+    for collapsible panels since its introduction in Wt 4.6.0.
+    Now, <a href="classWt_1_1WPanel.html">WPanel</a> always uses a
+    <a href="https://getbootstrap.com/docs/5.2/components/card/" target="_blank">card</a>.
+    This allows all panels to have a consistent appearance, regardless of whether they can be collapsed or not.
+    Additionally, the
+    <a href="classWt_1_1WPanel.html#aefd66ff6dd8e2a1108e70efec4eab1b5">WPanel::collapse()</a> and
+    <a href="classWt_1_1WPanel.html#a2ac9a05172675559b6f988083a4fd666">WPanel::expand()</a> functions will now work
+    as expected with
+    <a href="classWt_1_1WBootstrap5Theme.html">WBootstrap5Theme</a>.
+    This change resolves <a href="https://redmine.webtoolkit.eu/issues/10364" target="_blank">issue #10364</a>.
   </dd>
   <dt>Bootstrap 5 theme customization</dt>
   <dd>
@@ -110,20 +118,28 @@ behaviour.
     <a href="https://www.webtoolkit.eu/widgets" target="_blank">widget gallery</a>
     makes use of this by changing the primary color from Bootstrap's blue to the purple
     used in Wt's logo and homepage.
-    This resolves issue
-    <a href="https://redmine.webtoolkit.eu/issues/9350" target="_blank">#9350</a>.
+    This change resolves <a href="https://redmine.webtoolkit.eu/issues/9350" target="_blank">issue #9350</a>.
   </dd>
 </dl>
 
-<h3>Other</h3>
+<h3>New features</h3>
 
 <ul>
   <li>
-    <a href="https://redmine.webtoolkit.eu/issues/10395" target="_blank">Issue #10395</a>:
-    <a href="classWt_1_1WPanel.html#a9671893042605eb936c7301f6de09d3f">WPanel::setTitleBar(false)</a>
-    now automatically calls
-    <a href="classWt_1_1WPanel.html#ace945a192f671220a5a2cda671dc37ca">WPanel::setCollapsible(false)</a>.
+    Added <a href="classWt_1_1WProgressBar.html#abf8547894af5efc5e5789f9fa56bdc03">
+    WProgressBar::setValueStyleClass()</a>
+    (<a href="https://github.com/emweb/wt/pull/131" target="_blank">PR #131</a>
+    by maximiliank on GitHub).
   </li>
+  <li>
+    Added <a href="namespaceWt_1_1Utils.html#a13d154e4ef34ee6f8c1a90e8aaeec0dc">Wt::Utils::htmlAttributeValue()</a>
+    to escape values if they are put into the value of an HTML tag.
+  </li>
+</ul>
+
+<h3>Other improvements</h3>
+
+<ul>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/11067" target="_blank">Issue #11067</a>:
     <a href="classWt_1_1WWidget.html#af01fbd9de70abd189c2f86171b6a1e02">animateShow()</a> and
@@ -139,11 +155,43 @@ behaviour.
     <a href="https://terser.org/" target="_blank">terser</a>.
   </li>
   <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10966" target="_blank">Issue #10966</a>:
+    Added a JavaScript formatter to format Wt's JavaScript code.
+    Its usage is detailed in the Wt source tree at
+    <a
+      href="https://github.com/emweb/wt/blob/master/doc/development/javascript.md"
+      target="_blank"><code>doc/development/javascript.md</code></a>.
+  </li>
+  <li>
+    We gave our reference documentation a new lick of paint: we're now using the
+    <a href="https://jothepro.github.io/doxygen-awesome-css/" target="_blank">Doxygen Awesome</a> theme,
+    which also has a dark mode.
+  </li>
+  <li>
+    Whereas trying to construct
+    <a href="classWt_1_1WApplication_1_1UpdateLock.html">UpdateLock</a> with a null
+    <a href="classWt_1_1WApplication.html">WApplication</a> pointer would cause a null
+    pointer dereference before, it now simply yields an unsuccessful UpdateLock
+    (<a href="https://github.com/emweb/wt/pull/195" target="_blank">PR #195</a>
+    by Steven K&ouml;hler).
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10395" target="_blank">Issue #10395</a>:
+    <a href="classWt_1_1WPanel.html#a9671893042605eb936c7301f6de09d3f">WPanel::setTitleBar(false)</a>
+    now automatically calls
+    <a href="classWt_1_1WPanel.html#ace945a192f671220a5a2cda671dc37ca">WPanel::setCollapsible(false)</a>.
+  </li>
+  <li>
     <a href="https://redmine.webtoolkit.eu/issues/9570" target="_blank">Issue #9570</a>:
     All uses of <code>WT_CXX14</code> and <code>WT_CXX14ONLY</code> were removed in Wt's
-    source code. <code>WT_CXX14</code> is now always defined, since Wt <strong>requires</strong>
+    source code. <code>WT_CXX14</code> is now always defined, since Wt requires
     C++14. We marked <code>Wt::cpp14::make_unique</code> as deprecated, since this only
     existed because C++11 lacked <code>std::make_unique</code>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10924" target="_blank">Issue #10924</a>:
+    The undocumented <code>split-script</code> configuration property was removed, simplifying
+    Wt's internals.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/10914" target="_blank">Issue #10914</a>:
@@ -157,41 +205,35 @@ behaviour.
     <a href="https://redmine.webtoolkit.eu/issues/9252" target="_blank">Issue #9252</a>:
     Fixed a deprecation warning in the Pango font support implementation.
   </li>
+</ul>
+
+<h3>Bug fixes</h3>
+
+<ul>
   <li>
-    <tt><a href="https://redmine.webtoolkit.eu/issues/9076" target="_blank">Issue #9076</a></tt>:
-    The Wt::WDateEdit gave a javascript error when opening the calendar popup if the application was rendered in widgetset mode.
+    <a href="https://redmine.webtoolkit.eu/issues/9076" target="_blank">Issue #9076</a>:
+    <a href="classWt_1_1WDateEdit.html">WDateEdit</a>
+    gave a javascript error when opening the calendar popup if the
+    application was rendered in
+    <a href="namespaceWt.html#af4b6ed5fd28b4f5fa141b153c1107349accf2281a355c2c9cd4698ac30bea7820">WidgetSet</a>
+    mode.
   </li>
   <li>
-    <a href="https://redmine.webtoolkit.eu/issues/10966" target="_blank">Issue #10966</a>:
-    Added a JavaScript formatter to format Wt's JavaScript code.
-    Its usage is detailed in the Wt source tree at
-    <a
-      href="https://github.com/emweb/wt/blob/master/doc/development/javascript.md"
-      target="_blank"><code>doc/development/javascript.md</code></a>.
-  </li>
-  <li>
-    <a href="https://redmine.webtoolkit.eu/issues/10924" target="_blank">Issue #10924</a>:
-    The undocumented <code>split-script</code> configuration property was removed, simplifying
-    Wt's internals.
-  </li>
-  <li>
-    Added <a href="namespaceWt_1_1Utils.html#a13d154e4ef34ee6f8c1a90e8aaeec0dc">Wt::Utils::htmlAttributeValue()</a>
-    to escape values if they are put into the value of an HTML tag.
+    <a href="https://redmine.webtoolkit.eu/issues/10488" target="_blank">Issue #10488</a>:
+    Long polling requests interrupted on the server side now no longer prevent keep alive requests from being sent,
+    and thus the session from timing out. This was possible when Wt is deployed behind a reverse proxy that has
+    a shorter request timeout than the <code>&lt;server-push-timeout&gt;</code>
+    configured in <code>wt_config.xml</code>.
   </li>
 </ul>
 
-<h2>Release 4.8.3 (December 2022)</h2>
+<h2>Release 4.8.3 (December 22, 2022)</h2>
 
 <p>
   Wt 4.8.3 is a patch release that addresses the following issues:
 </p>
 
 <ul>
-  <li>
-    <a href="https://redmine.webtoolkit.eu/issues/10995" target="_blank">Issue #10995</a>:
-    fixed an issue with <a href="classWt_1_1WContainerWidget.html">WContainerWidget</a>
-    where a session could terminate with the text "WContainerWidget: error parsing: undefined".
-  </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/11105" target="_blank">Issue #11105</a>:
     Wt has a built-in redirect mechanism that prevents the <code>Referer</code> header from showing
@@ -204,6 +246,11 @@ behaviour.
     by providing a <code>Redirect-Secret</code> header, creating an open redirect endpoint.
     We have renamed this header to <code>X-Wt-Redirect-Secret</code> to better indicate the fact that this
     header is nonstandard, and will only accept this header if it is coming from a trusted reverse proxy.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10995" target="_blank">Issue #10995</a>:
+    fixed an issue with <a href="classWt_1_1WContainerWidget.html">WContainerWidget</a>
+    where a session could terminate with the text "WContainerWidget: error parsing: undefined".
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/11101" target="_blank">Issue #11101</a>:
