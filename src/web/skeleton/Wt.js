@@ -505,7 +505,7 @@ if (!window._$_WT_CLASS_$_) {
         p.appendChild(c);
       } else {
         for (let i = 0, j = 0, il = p.childNodes.length; i < il; ++i) {
-          if (p.childNodes[i].classList.contains("wt-reparented")) {
+          if (p.childNodes[i].classList?.contains("wt-reparented")) {
             continue;
           }
           if (j === pos) {
