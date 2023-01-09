@@ -162,7 +162,7 @@ public:
    *
    * \sa setHeaderCount()
    */
-  int headerCount(Orientation orientation = Orientation::Horizontal);
+  int headerCount(Orientation orientation = Orientation::Horizontal) const;
 
   /*! \brief Move a table row from its original position to a new position.
    *

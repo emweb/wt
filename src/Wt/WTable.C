@@ -198,7 +198,7 @@ void WTable::setHeaderCount(int count, Orientation orientation)
     headerColumnCount_ = count;
 }
 
-int WTable::headerCount(Orientation orientation)
+int WTable::headerCount(Orientation orientation) const
 {
   if (orientation == Orientation::Horizontal)
     return headerRowCount_;
