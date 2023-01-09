@@ -66,22 +66,22 @@ WT_DECLARE_WT_MEMBER(3, JavaScriptConstructor, "ScrollVisibility", function(APP)
     if (hasIntersectionObserver) {
       // The element may become visible by a change in the visibility
       // or the display property.
-      for (const p of scrollVisibilityElements) {
-        const visible = isVisible(scrollVisibilityElements[p].el);
+      for (const entry of Object.values(scrollVisibilityElements)) {
+        const visible = isVisible(entry.el);
         if (
-          scrollVisibilityElements[p].visibleIfNotHidden &&
-          scrollVisibilityElements[p].visible !== visible
+          entry.visibleIfNotHidden &&
+          entry.visible !== visible
         ) {
-          scrollVisibilityElements[p].visible = visible;
-          APP.emit(scrollVisibilityElements[p].el, "scrollVisibilityChanged", visible);
+          entry.visible = visible;
+          APP.emit(entry.el, "scrollVisibilityChanged", visible);
         }
       }
     } else {
-      for (const p of scrollVisibilityElements) {
-        const visible = elementIsInView(scrollVisibilityElements[p].el, scrollVisibilityElements[p].margin);
-        if (visible !== scrollVisibilityElements[p].visible) {
-          scrollVisibilityElements[p].visible = visible;
-          APP.emit(scrollVisibilityElements[p].el, "scrollVisibilityChanged", visible);
+      for (const entry of Object.values(scrollVisibilityElements)) {
+        const visible = elementIsInView(entry.el, entry.margin);
+        if (visible !== entry.visible) {
+          entry.visible = visible;
+          APP.emit(entry.el, "scrollVisibilityChanged", visible);
         }
       }
     }
