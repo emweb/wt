@@ -30,6 +30,8 @@
 }
 
 .Wt-dialog.modal {
+  display: block; // .modal automatically adds 'none', but we do visibility differently
+
   height: auto;
   width: auto;
 
