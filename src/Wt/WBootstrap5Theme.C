@@ -302,7 +302,7 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
   case DomElementType::DIV: {
     auto dialog = dynamic_cast<WDialog *>(widget);
     if (dialog) {
-      element.addPropertyWord(Property::Class, "modal d-block Wt-dialog");
+      element.addPropertyWord(Property::Class, "modal Wt-dialog");
       return;
     }
 
