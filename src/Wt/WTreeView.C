@@ -1739,7 +1739,7 @@ bool WTreeView::isExpandedRecursive(const WModelIndex& index) const
     if (index != rootIndex())
       return isExpanded(index.parent());
     else
-      return false;
+      return true;
   } else
     return false;
 }
