@@ -294,6 +294,8 @@ IF(MULTI_THREADED)
   set(WT_THREAD_LIB Threads::Threads)
 ENDIF(MULTI_THREADED)
 
+find_package(Atomics REQUIRED)
+
 IF(NOT BOOST_WT_FOUND)
   SET(ERR
      "Could not find a boost installation in " ${BOOST_PREFIX} ".\n\n"
