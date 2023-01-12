@@ -2616,6 +2616,7 @@ void WebSession::notify(const WEvent& event)
             && handler.response()->responseType() ==
                WebResponse::ResponseType::Page
             && (!env_->ajax() ||
+                suspended() ||
                 !controller_->configuration().reloadIsNewSession())) {
           app_->domRoot()->setRendered(false);
 
