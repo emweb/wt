@@ -28,6 +28,16 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.webtoolkit.eu/issues/11230" target="_blank">Issue #11230</a>:
+    fixed an issue with
+    <a href="classWt_1_1WApplication.html#a5c811d91d3999ac881ce87bebaade864">WApplication::suspend()</a>
+    where widgets would incorrectly believe they were still
+    <a href="classWt_1_1WWidget.html#a7bffb7966160ff8a58fff9d31ef21078">rendered</a> when unsuspending.
+    This would cause problems with e.g. <a href="classWt_1_1WTextEdit.html">WTextEdit</a>
+    inside of a
+    <a href="classWt_1_1WTemplate.html">WTemplate</a>.
+  </li>
+  <li>
     <a href="https://redmine.webtoolkit.eu/issues/11240" target="_blank">Issue #11240</a>:
     fixed an issue where the lazy loading logic breaks when removing and inserting a large
     number of rows in a <a href="classWt_1_1WTreeView.html">WTreeView</a>
