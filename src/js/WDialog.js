@@ -209,14 +209,22 @@ WT_DECLARE_WT_MEMBER(
     function wtResize(ignored, w, h, setSize) {
       if (setSize) {
         if (w > 0) {
-          const leftWidth = WT.px(layoutContainer, "border-left-width");
-          const rightWidth = WT.px(layoutContainer, "border-right-width");
-          layoutContainer.style.width = `${w + rightWidth + leftWidth}px`;
+          if (!WT.boxSizing(layoutContainer)) {
+            w -= WT.px(layoutContainer, "border-left-width");
+            w -= WT.px(layoutContainer, "border-right-width");
+            w -= WT.px(layoutContainer, "padding-left");
+            w -= WT.px(layoutContainer, "padding-right");
+          }
+          layoutContainer.style.width = `${w}px`;
         }
         if (h > 0) {
-          const topWidth = WT.px(layoutContainer, "border-top-width");
-          const bottomWidth = WT.px(layoutContainer, "border-bottom-width");
-          layoutContainer.style.height = `${h + topWidth + bottomWidth}px`;
+          if (!WT.boxSizing(layoutContainer)) {
+            h -= WT.px(layoutContainer, "border-top-width");
+            h -= WT.px(layoutContainer, "border-bottom-width");
+            h -= WT.px(layoutContainer, "padding-top");
+            h -= WT.px(layoutContainer, "padding-bottom");
+          }
+          layoutContainer.style.height = `${h}px`;
         }
       }
 
