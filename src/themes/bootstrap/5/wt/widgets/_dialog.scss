@@ -5,6 +5,11 @@
   width: auto;
 
   > .modal-dialog {
+    // Bootstrap 5's left and right margins make the contents shift right and causes
+    // them to be cut off. The top and bottom margins make it so that resizes don't work
+    // properly. We can make it work properly by unsetting the margins.
+    margin: unset;
+
     // Wt-specific class: movable
     > .modal-content.movable > .modal-header {
       cursor: move;
