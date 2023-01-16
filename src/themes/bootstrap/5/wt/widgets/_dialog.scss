@@ -1,31 +1,31 @@
-// Dialogs are mostly stock Bootstrap, except for a few Wt-specific classes that get specific CSS
-.modal-dialog {
-  // Wt-specific class: movable
-  > .modal-content.movable > .modal-header {
-    cursor: move;
-  }
-
-  // Wt-specific classes: Wt-msgbox-body, Wt-msgbox-icon, Wt-msgbox-text
-  .modal-content > .modal-body.Wt-msgbox-body {
-    > .Wt-msgbox-icon {
-      display: block;
-      float: left;
-      width: 25px;
-      height: 35px;
-      margin: -5px 15px 0 0;
-    }
-
-    > .Wt-msgbox-text {
-      overflow: auto;
-    }
-  }
-}
-
 .Wt-dialog.modal {
   display: block; // .modal automatically adds 'none', but we do visibility differently
 
   height: auto;
   width: auto;
+
+  > .modal-dialog {
+    // Wt-specific class: movable
+    > .modal-content.movable > .modal-header {
+      cursor: move;
+    }
+
+    // WMessageBox
+    // Wt-specific classes: Wt-msgbox-body, Wt-msgbox-icon, Wt-msgbox-text
+    .modal-content > .modal-body.Wt-msgbox-body {
+      > .Wt-msgbox-icon {
+        display: block;
+        float: left;
+        width: 25px;
+        height: 35px;
+        margin: -5px 15px 0 0;
+      }
+
+      > .Wt-msgbox-text {
+        overflow: auto;
+      }
+    }
+  }
 
   &.pop.fade > .modal-dialog {
     // Don't add transform(-50px) when we're doing the pop animation with a Wt dialog
