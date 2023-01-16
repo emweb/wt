@@ -53,10 +53,24 @@ behaviour.
     <a href="https://redmine.webtoolkit.eu/issues/11207" target="_blank">Issue #11207</a>:
     fixes a regression in Wt 4.9.0 where
     <a href="classWt_1_1WWidget.html#a5d403e0390841df77a23445b28044d5d">scroll visibility</a> didn't work anymore.
-  </li><li>
-    <a href="https://redmine.webtoolkit.eu/issues/11233" target="_blank">Issue #11233</a>:
-    fixed a regression in Wt 4.9.0 where a hidden <a href="classWt_1_1WDialog.html">WDialog</a>
-    would remain visible.
+  </li>
+  <li>
+    Fixed a couple of <a href="classWt_1_1WDialog.html">WDialog</a>-related regressions when using
+    <a href="classWt_1_1WBootstrap5Theme.html">WBootstrap5Theme</a>:
+    <ul>
+      <li>
+        <a href="https://redmine.webtoolkit.eu/issues/11233" target="_blank">Issue #11233</a>:
+        hidden <a href="classWt_1_1WDialog.html">WDialog</a>s would remain visible.
+      </li>
+      <li>
+        <a href="https://redmine.webtoolkit.eu/issues/11248" target="_blank">Issue #11248</a>:
+        contents of a dialog could be cut off when
+        <a href="classWt_1_1WWidget.html#afc4bfcc92fa39010cac8775f3332dfa5">setting the width</a>,
+        and
+        <a href="classWt_1_1WDialog.html#a0a3517bffbd049b988e80bb85ae18c46">resizing of dialogs</a>
+        didn't work.
+      </li>
+    </ul>
   </li>
 </ul>
 
