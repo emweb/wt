@@ -21,14 +21,6 @@
   }
 }
 
-// Wt-specific class: .Wt-resizable
-.modal-dialog.Wt-resizable > .modal-content {
-  background-attachment: scroll;
-  background-image: url(#{$wt-resources-prefix}resizable.png);
-  background-position: right bottom;
-  background-repeat: no-repeat;
-}
-
 .Wt-dialog.modal {
   display: block; // .modal automatically adds 'none', but we do visibility differently
 
@@ -38,5 +30,13 @@
   &.pop.fade > .modal-dialog {
     // Don't add transform(-50px) when we're doing the pop animation with a Wt dialog
     transform: none;
+  }
+
+  // Wt-specific class: .Wt-resizable
+  &.Wt-resizable > .modal-dialog > .modal-content {
+    background-attachment: scroll;
+    background-image: url(#{$wt-resources-prefix}resizable.png);
+    background-position: right bottom;
+    background-repeat: no-repeat;
   }
 }
