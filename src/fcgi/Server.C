@@ -7,7 +7,6 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/stat.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/un.h>
@@ -32,6 +31,8 @@
 #include "Wt/WLogger.h"
 
 #include <boost/algorithm/string.hpp>
+
+#include <boost/filesystem.hpp>
 
 using std::exit;
 using std::strcpy;
@@ -546,12 +547,13 @@ void Server::handleRequest(int serverSocket)
      * See if the session is alive.
      */
     if (haveSessionId) {
-      struct stat finfo;
-
       // exists, try to connect (for 1 second)
       std::string path = socketPath(sessionId);
-      if (stat(path.c_str(), &finfo) != -1)
+
+      boost::system::error_code ignored;
+      if (boost::filesystem::exists(path, ignored)) {
         clientSocket = connectToSession(sessionId, path, 10);
+      }
     }
 
     while (clientSocket == -1) {
