@@ -3,6 +3,7 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include <algorithm>
 #include <cstring>
 #include <utility>
 
