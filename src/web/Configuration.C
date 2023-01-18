@@ -12,11 +12,11 @@
 #include "WebUtils.h"
 
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
+
 #ifdef WT_BOOST_CONF_LOCK
 #include <boost/thread.hpp>
 #endif
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <algorithm>
 #include <array>
@@ -1399,9 +1399,11 @@ bool Configuration::registerSessionId(const std::string& oldId,
     if (!newId.empty()) {
       std::string socketPath = sessionSocketPath(newId);
 
-      struct stat finfo;
-      if (stat(socketPath.c_str(), &finfo) != -1)
+      namespace fs = boost::filesystem;
+      boost::system::error_code ignored;
+      if (fs::exists(socketPath, ignored)) {
         return false;
+      }
 
       if (oldId.empty()) {
         if (sessionPolicy_ == SharedProcess) {

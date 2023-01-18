@@ -29,6 +29,10 @@ WT_ADD_EXAMPLE(widgetgallery.wt
   ${WIDGETGALLERY_SOURCES}
 )
 
+if(NOT WIN32)
+  target_link_libraries(widgetgallery.wt ${BOOST_FS_LIB} ${BOOST_SYSTEM_LIB})
+endif()
+
 IF(TARGET Boost::headers)
   TARGET_LINK_LIBRARIES(widgetgallery.wt Boost::headers)
 ENDIF()

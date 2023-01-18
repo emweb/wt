@@ -12,8 +12,8 @@
 #include "WebUtils.h"
 #include "StringUtils.h"
 
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <boost/filesystem.hpp>
+
 #ifndef WT_WIN32
 #include <unistd.h>
 #endif
@@ -436,18 +436,6 @@ Wt::WLogEntry Configuration::log(const std::string& type) const
   return e;
 }
 
-#ifdef _MSC_VER
-static inline bool S_ISREG(unsigned short mode)
-{
-   return (mode & S_IFREG) != 0;
-}
-
-static inline bool S_ISDIR(unsigned short mode)
-{
-   return (mode & S_IFDIR) != 0;
-}
-#endif
-
 void Configuration::checkPath(const po::variables_map& vm,
                               std::string varName,
                               std::string varDescription,
@@ -468,31 +456,36 @@ void Configuration::checkPath(std::string& result,
                               std::string varDescription,
                               int options)
 {
-  struct stat t;
-  if (stat(result.c_str(), &t) != 0) {
-    std::perror("stat");
+  namespace fs = boost::filesystem;
+  boost::system::error_code ec;
+  const auto status = fs::status(result, ec);
+  if (ec) {
     throw Wt::WServer::Exception(varDescription
-                                 + " (\"" + result + "\") not valid.");
+                                 + " (\"" + result + "\") not valid: "
+                                 + ec.message());
+  } else if (!exists(status)) {
+    throw Wt::WServer::Exception(varDescription
+                                 + " (\"" + result + "\") does not exist.");
   } else {
     if (options & Directory) {
       while (result[result.length()-1] == '/')
         result = result.substr(0, result.length() - 1);
 
-      if (!S_ISDIR(t.st_mode)) {
+      if (!is_directory(status)) {
         throw Wt::WServer::Exception(varDescription + " (\"" + result
                                      + "\") must be a directory.");
       }
     }
 
     if (options & RegularFile) {
-      if (!S_ISREG(t.st_mode)) {
+      if (!is_regular_file(status)) {
         throw Wt::WServer::Exception(varDescription + " (\"" + result
                                      + "\") must be a regular file.");
       }
     }
 #ifndef WT_WIN32
     if (options & Private) {
-      if (t.st_mode & (S_IRWXG | S_IRWXO)) {
+      if ((status.permissions() & (fs::perms::group_all | fs::perms::others_all)) != fs::perms::no_perms) {
         throw Wt::WServer::Exception(varDescription + " (\"" + result
                             + "\") must be unreadable for group and others.");
       }

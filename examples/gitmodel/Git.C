@@ -14,8 +14,7 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
-
-#include <sys/stat.h>
+#include <boost/filesystem.hpp>
 
 using namespace Wt;
 
@@ -205,9 +204,9 @@ Git::Git()
 
 void Git::setRepositoryPath(const std::string& repositoryPath)
 {
-  struct stat sb;
-  is_bare_ = !(stat((repositoryPath + "/.git").c_str(), &sb) == 0 &&
-               S_ISDIR(sb.st_mode));
+  namespace fs = boost::filesystem;
+  boost::system::error_code ignored;
+  is_bare_ = !fs::is_directory(fs::path(repositoryPath) / ".git", ignored);
   repository_ = repositoryPath;
   checkRepository();
 }
