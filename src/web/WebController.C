@@ -32,11 +32,6 @@
 #include <magick/api.h>
 #endif
 
-#ifndef WT_HAVE_POSIX_FILEIO
-// boost bug workaround: see WebController constructor
-#include <boost/filesystem.hpp>
-#endif
-
 #include <boost/utility/string_view.hpp>
 
 #include <algorithm>
@@ -83,17 +78,6 @@ WebController::WebController(WServer& server,
 
 #ifdef HAVE_GRAPHICSMAGICK
   InitializeMagick(0);
-#endif
-
-#ifndef WT_HAVE_POSIX_FILEIO
-  // attempted workaround for:
-  // https://svn.boost.org/trac/boost/ticket/6320
-  // https://svn.boost.org/trac/boost/ticket/4889
-  // https://svn.boost.org/trac/boost/ticket/6690
-  // https://svn.boost.org/trac/boost/ticket/6737
-  // Invoking the path constructor here should create the global variables
-  // in boost.filesystem before the threads are started.
-  boost::filesystem::path bugFixFilePath("please-initialize-globals");
 #endif
 
   start();
