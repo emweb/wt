@@ -1104,9 +1104,8 @@ boost::tribool& RequestParser::consume(Request& req, char *it)
     {
       consumeToString(req.headers.back().value, MAX_FIELD_VALUE_SIZE);
       httpState_ = header_value;
-
-      /* fall through */
     }
+    WT_FALLTHROUGH
   case header_value:
     if (input == '\r')
     {

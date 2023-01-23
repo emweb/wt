@@ -925,7 +925,7 @@ void WTableView::render(WFlags<RenderFlag> flags)
         break;
       case RenderState::NeedUpdateModelIndexes:
         updateModelIndexes();
-        /* fallthrough */
+        WT_FALLTHROUGH
       case RenderState::NeedAdjustViewPort:
         adjustToViewport();
         break;

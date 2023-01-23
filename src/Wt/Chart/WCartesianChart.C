@@ -3379,7 +3379,7 @@ void WCartesianChart::renderLegendIcon(WPainter& painter,
     painter.drawLine(pos.x(), pos.y() + offset, pos.x() + 16, pos.y() + offset);
     painter.setShadow(shadow);
   }
-    // no break;
+  WT_FALLTHROUGH
   case SeriesType::Point: {
     WPainterPath path;
     drawMarker(series, path);

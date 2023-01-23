@@ -288,6 +288,8 @@ void WAbstractGridData::updateGL()
     chart_->useProgram(meshProgram_);
     chart_->uniformMatrix4(mesh_mvMatrixUniform_, mvMatrix_);
     chart_->uniformMatrix4(mesh_pMatrix_, chart_->pMatrix());
+    // FIXME: suspicious fallthrough
+    WT_FALLTHROUGH
   case Series3DType::Point:
     chart_->useProgram(colSeriesProgram_);
     chart_->uniformMatrix4(mvMatrixUniform2_, mvMatrix_);

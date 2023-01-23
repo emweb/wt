@@ -102,6 +102,9 @@ std::string addLimitQuery(const std::string& sql, const std::string &orderBy, in
       result = " select * from ( select row_.*, rownum rownum2 from ( " +
         result + " ) row_ where rownum <= ?) where rownum2 > ?";
 
+    // FIXME: suspicious fallthrough
+    WT_FALLTHROUGH
+
   case LimitQuery::OffsetFetch:
     if (offset != -1 || limit != -1) {
       if (orderBy.empty())

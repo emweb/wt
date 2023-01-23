@@ -57,6 +57,7 @@ std::unique_ptr<WLayoutItem> WBoxLayout::removeItem(WLayoutItem *item)
     case LayoutDirection::RightToLeft:
       if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
         index = grid_.columns_.size() - 1 - index;
+      WT_FALLTHROUGH
     case LayoutDirection::LeftToRight: {
         result = std::move(grid_.items_[0][index].item_);
         grid_.columns_.erase(grid_.columns_.begin() + index);
@@ -66,6 +67,7 @@ std::unique_ptr<WLayoutItem> WBoxLayout::removeItem(WLayoutItem *item)
     case LayoutDirection::BottomToTop:
       if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
         index = grid_.rows_.size() - 1 - index;
+      WT_FALLTHROUGH
     case LayoutDirection::TopToBottom: {
         result = std::move(grid_.items_[index][0].item_);
         grid_.rows_.erase(grid_.rows_.begin() + index);
@@ -85,11 +87,13 @@ WLayoutItem *WBoxLayout::itemAt(int index) const
   case LayoutDirection::RightToLeft:
     if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
       index = grid_.columns_.size() - 1 - index;
+    WT_FALLTHROUGH
   case LayoutDirection::LeftToRight:
     return grid_.items_[0][index].item_.get();
   case LayoutDirection::BottomToTop:
     if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
       index = grid_.rows_.size() - 1 - index;
+    WT_FALLTHROUGH
   case LayoutDirection::TopToBottom:
     return grid_.items_[index][0].item_.get();
   }
@@ -207,12 +211,14 @@ void WBoxLayout::setStretchFactor(int i, int stretch)
   case LayoutDirection::RightToLeft:
     if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
       i = grid_.columns_.size() - 1 - i;
+    WT_FALLTHROUGH
   case LayoutDirection::LeftToRight:
     grid_.columns_[i].stretch_ = stretch;
     break;
   case LayoutDirection::BottomToTop:
     if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
       i = grid_.rows_.size() - 1 - i;
+    WT_FALLTHROUGH
   case LayoutDirection::TopToBottom:
     grid_.rows_[i].stretch_ = stretch;
   }
@@ -227,6 +233,7 @@ void WBoxLayout::insertItem(int index, std::unique_ptr<WLayoutItem> item,
   case LayoutDirection::RightToLeft:
     if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
       index = grid_.columns_.size() - index;
+    WT_FALLTHROUGH
   case LayoutDirection::LeftToRight:
     grid_.columns_.insert(grid_.columns_.begin() + index,
                           Impl::Grid::Section(stretch));
@@ -241,6 +248,7 @@ void WBoxLayout::insertItem(int index, std::unique_ptr<WLayoutItem> item,
   case LayoutDirection::BottomToTop:
     if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
       index = grid_.rows_.size() - index;
+    WT_FALLTHROUGH
   case LayoutDirection::TopToBottom:
     if (grid_.columns_.empty()) {
       grid_.columns_.push_back(Impl::Grid::Section());
@@ -285,6 +293,7 @@ void WBoxLayout::setResizable(int index, bool enabled,
   case LayoutDirection::RightToLeft:
     if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
       index = grid_.columns_.size() - 1 - index;
+    WT_FALLTHROUGH
   case LayoutDirection::LeftToRight:
     grid_.columns_[index].resizable_ = enabled;
     grid_.columns_[index].initialSize_ = initialSize;
@@ -292,6 +301,7 @@ void WBoxLayout::setResizable(int index, bool enabled,
   case LayoutDirection::BottomToTop:
     if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
       index = grid_.rows_.size() - 1 - index;
+    WT_FALLTHROUGH
   case LayoutDirection::TopToBottom:
     grid_.rows_[index].resizable_ = enabled;
     grid_.rows_[index].initialSize_ = initialSize;
@@ -306,11 +316,13 @@ bool WBoxLayout::isResizable(int index) const
   case LayoutDirection::RightToLeft:
     if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
       index = grid_.columns_.size() - 1 - index;
+    WT_FALLTHROUGH
   case LayoutDirection::LeftToRight:
     return grid_.columns_[index].resizable_;
   case LayoutDirection::BottomToTop:
     if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
       index = grid_.rows_.size() - 1 - index;
+    WT_FALLTHROUGH
   case LayoutDirection::TopToBottom:
     return grid_.rows_[index].resizable_;
   }

@@ -226,7 +226,7 @@ WDateTime::CharState WTime::handleSpecial(char c, const std::string& v,
         return WDateTime::CharState::CharHandled;
       }
 
-    /* fall through */
+    WT_FALLTHROUGH
 
     default:
       if (!parseLast(v, vi, parse, format))
@@ -668,6 +668,8 @@ WTime::RegExpInfo WTime::formatToRegExp(const WT_USTRING& format)
         result.regexp += f[i];
       else
         inQuote = !inQuote;
+      // FIXME: suspicious fallthrough
+      WT_FALLTHROUGH
     case 'h':
     case 'H':
       formatHourToRegExp(result, f, i, currentGroup);

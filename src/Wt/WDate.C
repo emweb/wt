@@ -682,6 +682,7 @@ bool WDate::writeSpecial(const std::string& f, unsigned& i,
         return true;
       }
     }
+    WT_FALLTHROUGH
   default:
     return false;
   }

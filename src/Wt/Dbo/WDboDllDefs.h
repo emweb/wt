@@ -63,4 +63,14 @@
 #endif
 #endif
 
-#endif // DLLDEFS_H_
+#ifndef WT_FALLTHROUGH
+#if defined(WT_CXX17)
+#define WT_FALLTHROUGH [[fallthrough]];
+#elif defined(__GNUC__)
+#define WT_FALLTHROUGH __attribute__((fallthrough));
+#else
+#define WT_FALLTHROUGH
+#endif
+#endif
+
+#endif // WDBODLLDEFS_H_

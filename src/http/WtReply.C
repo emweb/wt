@@ -359,9 +359,12 @@ bool WtReply::consumeWebSocketMessage(ws_opcode opcode,
 
       setCloseConnection();
 
-      /* fall through */
+      WT_FALLTHROUGH
     case continuation:
       LOG_DEBUG("WtReply::consumeWebSocketMessage(): rx continuation");
+
+      // FIXME: suspicious fallthrough
+      WT_FALLTHROUGH
 
     case text_frame:
       {
@@ -400,7 +403,7 @@ bool WtReply::consumeWebSocketMessage(ws_opcode opcode,
     case binary_frame:
       LOG_ERROR("ws: binary_frame received, don't know what to do.");
 
-      /* fall through */
+      WT_FALLTHROUGH
     case pong:
       {
         LOG_DEBUG("WtReply::consumeWebSocketMessage(): rx pong");
