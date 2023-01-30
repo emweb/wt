@@ -35,6 +35,8 @@ namespace {
     Exception,
   };
 
+  constexpr auto SimulatedWorkTime = std::chrono::milliseconds{500};
+
   class TestResource : public WResource
   {
   public:
@@ -42,6 +44,7 @@ namespace {
       : delaySendingBody_(false),
         haveEverMoreData_(false),
         haveRandomMoreData_(false),
+        simulateWork_(false),
         aborted_(0)
     { }
 
@@ -69,9 +72,17 @@ namespace {
       return aborted_;
     }
 
+    void simulateWork() {
+      simulateWork_ = true;
+    }
+
     virtual void handleRequest(const Http::Request& request,
                                Http::Response& response) override
     {
+      if (simulateWork_) {
+        std::this_thread::sleep_for(SimulatedWorkTime);
+      }
+
       switch (type_) {
       case TestType::Simple:
         return handleSimple(request, response);
@@ -93,6 +104,7 @@ namespace {
     bool delaySendingBody_;
     bool haveEverMoreData_;
     bool haveRandomMoreData_;
+    bool simulateWork_;
     int aborted_;
     TestType type_ = TestType::Simple;
 
@@ -644,5 +656,24 @@ BOOST_AUTO_TEST_CASE( http_wresource_exception )
     BOOST_REQUIRE(client.message().status() == 500);
   }
 }
+
+BOOST_AUTO_TEST_CASE( http_client_server_clean_shutdown )
+{
+  Server server;
+
+  server.resource().setType(TestType::Continuation);
+  server.resource().simulateWork();
+
+  if (server.start()) {
+    Client client;
+    client.get("http://" + server.address() + "/test");
+
+    std::this_thread::sleep_for(SimulatedWorkTime / 2);
+
+    client.abort();
+    client.waitDone();
+  }
+}
+
 
 #endif // WT_THREADED
