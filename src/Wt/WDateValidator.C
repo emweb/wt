@@ -52,9 +52,7 @@ void WDateValidator::setInvalidNotADateText(const WString& text)
 WString WDateValidator::invalidNotADateText() const
 {
   if (!notADateText_.empty()) {
-    WString s = notADateText_;
-    s.arg(formats_[0]);
-    return s;
+    return WString(notADateText_).arg(formats_[0]);
   } else
     return WString::tr("Wt.WDateValidator.WrongFormat").arg(formats_[0]);
 }
@@ -100,9 +98,7 @@ void WDateValidator::setInvalidTooEarlyText(const WString& text)
 WString WDateValidator::invalidTooEarlyText() const
 {
   if (!tooEarlyText_.empty()) {
-    WString s = tooEarlyText_;
-    s.arg(bottom_.toString(formats_[0])).arg(top_.toString(formats_[0]));
-    return s;
+    return WString(tooEarlyText_).arg(bottom_.toString(formats_[0])).arg(top_.toString(formats_[0]));
   } else
     if (bottom_.isNull())
       return WString();
@@ -125,9 +121,7 @@ void WDateValidator::setInvalidTooLateText(const WString& text)
 WString WDateValidator::invalidTooLateText() const
 {
   if (!tooLateText_.empty()) {
-    WString s = tooLateText_;
-    s.arg(bottom_.toString(formats_[0])).arg(top_.toString(formats_[0]));
-    return s;
+    return WString(tooLateText_).arg(bottom_.toString(formats_[0])).arg(top_.toString(formats_[0]));
   } else
     if (top_.isNull())
       return WString();
