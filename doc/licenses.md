@@ -55,10 +55,12 @@ The `wtwithqt` example is licensed under the [MIT License](https://spdx.org/lice
 | Library | Comment | License | Authors |
 | ------- | ------- | ------- | ------- |
 | Font Awesome | | [SIL OFL 1.1](http://scripts.sil.org/OFL) and [MIT License](https://spdx.org/licenses/MIT.html) | Font Awesome by Dave Gandy - http://fontawesome.io |
-| Twitter Bootstrap 2 | `WBootstrapTheme`, when version 2 is used| [Apache License 2.0](https://spdx.org/licenses/Apache-2.0.html) | Copyright 2012 Twitter, Inc |
-| Twitter Bootstrap 3 | `WBootstrapTheme`, when version 3 is used| [MIT License](https://spdx.org/licenses/MIT.html) | Copyright 2011-2019 Twitter, Inc. |
+| Twitter Bootstrap 2 | `WBootstrap2Theme` | [Apache License 2.0](https://spdx.org/licenses/Apache-2.0.html) | Copyright 2012 Twitter, Inc |
+| Bootstrap 3 | `WBootstrap3Theme` | [MIT License](https://spdx.org/licenses/MIT.html) | Copyright 2011-2019 Twitter, Inc. |
+| Bootstrap 5 | `WBootstrap5Theme` | [MIT License](https://spdx.org/licenses/MIT.html) | Copyright &copy; 2011-2023 The Bootstrap Authors |
 | jQuery mobile framework | CSS transitions | [MIT License](https://spdx.org/licenses/MIT.html) | Copyright &copy; jQuery Project |
 | FindSqlite3 | CMake script to find Sqlite3| [BSD 3-Clause "New" or "Revised" License](https://spdx.org/licenses/BSD-3-Clause.html) | Copyright &copy; 2010 Pau Garcia i Quiles |
+| FindAtomics | CMake script to link with `-latomic` if necessary | [BSD 3-Clause "New" or "Revised" License](https://spdx.org/licenses/BSD-3-Clause.html) | Copyright &copy; the JPEG XL Project Authors |
 
 ## Source code included in Wt::Dbo
 
