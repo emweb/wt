@@ -37,9 +37,11 @@ IF(ENABLE_LIBWTTEST)
     utils/Base64Test.C
     utils/EraseWord.C
     utils/HtmlEncode.C
+    utils/InfraUtils.C
     utils/ParseNumber.C
     utils/RoundJsString.C
     utils/XmlUtils.C
+    validators/WEmailValidator.C
     widgets/WContainerWidgetTest.C
     widgets/WDateEditTest.C
     widgets/WSpinBoxTest.C

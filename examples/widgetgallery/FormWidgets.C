@@ -80,6 +80,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::introduction()
 #include "examples/TextEdit.cpp"
 #include "examples/SpinBox.cpp"
 #include "examples/TextSide.cpp"
+#include "examples/EmailEdit.cpp"
 
 std::unique_ptr<Wt::WWidget> FormWidgets::textEditors()
 {
@@ -91,8 +92,11 @@ std::unique_ptr<Wt::WWidget> FormWidgets::textEditors()
   result->bindWidget("SpinBox", SpinBox());
   result->bindWidget("TextSide", TextSide());
   result->bindWidget("InputMask", InputMask());
+  result->bindWidget("EmailEdit", EmailEdit());
 
   // Show the XML-template as text
+  result->bindString("emailEdit-template", reindent(Wt::WString::tr("emailEdit-template")),
+                     Wt::TextFormat::Plain);
   result->bindString("lineEdit-template", reindent(Wt::WString::tr("lineEdit-template")),
                      Wt::TextFormat::Plain);
   result->bindString("editSide-template", reindent(Wt::WString::tr("editSide-template")),
