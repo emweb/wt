@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartMinutes )
     row++;
   }
 
-  plotTimeSeriesChart(model, "minutes.svg", AxisScale::DateTime);
+  plotTimeSeriesChart(model, "out/minutes.svg", AxisScale::DateTime);
 }
   
 BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartHours )
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartHours )
     row++;
   }
 
-  plotTimeSeriesChart(model, "hours.svg", AxisScale::DateTime);
+  plotTimeSeriesChart(model, "out/hours.svg", AxisScale::DateTime);
 }
 
 BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartDays )
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartDays )
     row++;
   }
 
-  plotTimeSeriesChart(model, "days.svg", AxisScale::Date);
+  plotTimeSeriesChart(model, "out/days.svg", AxisScale::Date);
 }
 
   
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartWeeks )
     row++;
   }
 
-  plotTimeSeriesChart(model, "weeks.svg", AxisScale::Date);
+  plotTimeSeriesChart(model, "out/weeks.svg", AxisScale::Date);
 }
   
 BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartMonths )
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartMonths )
     row++;
   }
 
-  plotTimeSeriesChart(model, "months.svg", AxisScale::Date);
+  plotTimeSeriesChart(model, "out/months.svg", AxisScale::Date);
 }
 
 BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChart0Range )
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChart0Range )
     row++;
   }
 
-  double range = plotTimeSeriesChart(model, "0range.svg", AxisScale::Date);
+  double range = plotTimeSeriesChart(model, "out/0range.svg", AxisScale::Date);
 
   std::cerr << "Range: " << range << std::endl;
 
