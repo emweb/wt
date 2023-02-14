@@ -180,6 +180,11 @@ public:
   WString(const std::string& value,
           CharEncoding encoding = CharEncoding::Default);
 
+
+#ifdef __cpp_char8_t
+  WString(const std::u8string& value);
+#endif
+
   /*! \brief Creates a %WString from a C++ string.
    *
    * The C++ string is implicitly converted to unicode. When
@@ -264,6 +269,18 @@ public:
    * string using the current WLocale.
    */
   WString& operator+= (const std::wstring& rhs);
+
+
+  /*! \brief Self-concatenation operator
+   *
+   * Appends a string to the current value. If the string was localized,
+   * this automatically converts it to a literal string, by evaluating the
+   * string using the current WLocale.
+   */
+
+#ifdef __cpp_char8_t
+  WString& operator+= (const std::u8string& rhs);
+#endif
 
 #ifndef WT_TARGET_JAVA
   /*! \brief Self-concatenation operator
@@ -489,6 +506,16 @@ public:
    * Argument place holders are substitued with actual arguments.
    */
   operator std::wstring() const;
+
+  /*! \brief Returns the value as a C++20 u8string.
+ *
+ * A localized string is resolved using the WApplication::localizedStrings().
+ *
+ * Argument place holders are substitued with actual arguments.
+ */
+#ifdef __cpp_char8_t
+  operator std::u8string() const;
+#endif
 
 #ifndef WT_TARGET_JAVA
   /*! \brief Returns the value as a UTF-16 C++ string.
@@ -789,6 +816,15 @@ extern WT_API WString operator+ (const WString& lhs, const WString& rhs);
  */
 extern WT_API WString operator+ (const WString& lhs, const std::wstring& rhs);
 
+
+/*! \brief Conatenate a WString with a C++ u8string
+ *
+ * \relates WString
+ */
+#ifdef __cpp_char8_t
+extern WT_API WString operator+ (const WString& lhs, const std::u8string& rhs);
+#endif
+
 /*! \brief Conatenate a WString with a C++ UTF-16 string
  *
  * \relates WString
@@ -915,6 +951,15 @@ extern WT_API bool operator== (const std::string& lhs, const WString& rhs);
  */
 extern WT_API bool operator== (const std::wstring& lhs, const WString& rhs);
 
+
+/*! \brief Compare a C++ u8string with a WString
+ *
+ * \relates WString
+ */
+#ifdef __cpp_char8_t
+extern WT_API bool operator== (const std::u8string& lhs, const WString& rhs);
+#endif
+
 /*! \brief Compare a C++ UTF-16 string with a WString
  *
  * \relates WString
@@ -962,6 +1007,14 @@ extern WT_API bool operator!= (const std::string& lhs, const WString& rhs);
  * \relates WString
  */
 extern WT_API bool operator!= (const std::wstring& lhs, const WString& rhs);
+
+/*! \brief Compare a C++ wide string with a WString
+ *
+ * \relates WString
+ */
+#ifdef __cpp_char8_t
+extern WT_API bool operator!= (const std::u8string& lhs, const WString& rhs);
+#endif
 
 /*! \brief Compare a C++ UTF-16 string with a WString
  *
