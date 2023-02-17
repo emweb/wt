@@ -43,19 +43,19 @@ typedef std::deque<EntryPoint> EntryPointList;
 struct WT_API EntryPointMatch {
   EntryPointMatch()
     : entryPoint(nullptr),
-      extra(0)
+      extraStartIndex(0)
   { }
 
   EntryPointMatch(
       const EntryPoint *ep,
-      std::size_t x)
+      std::size_t extraStartIndex)
     : entryPoint(ep),
-      extra(x)
+      extraStartIndex(extraStartIndex)
   { }
 
   const EntryPoint *entryPoint;
   std::vector<std::pair<std::string, std::string> > urlParams;
-  std::size_t extra;
+  std::size_t extraStartIndex;
 };
 
 }

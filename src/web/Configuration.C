@@ -877,9 +877,9 @@ EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
       }
     }
     if (it1 == spliterator())
-      result.extra = path.size(); // no extra path
+      result.extraStartIndex = path.size(); // no extra path
     else
-      result.extra = std::distance(path.begin(), it1->begin()) - 1; // there's more
+      result.extraStartIndex = std::distance(path.begin(), it1->begin()) - 1; // there's more
 
     LOG_DEBUG("matchEntryPoint: path '" << path << "' matches dynamic entry point: '" << match->path() << '\'');
     return result;

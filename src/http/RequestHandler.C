@@ -115,9 +115,9 @@ ReplyPtr RequestHandler::handleRequest(Request& req,
       const Wt::EntryPoint& ep = *bestMatch.entryPoint;
 
       if (!ep.path().empty())
-        req.request_extra_path = req.request_path.substr(bestMatch.extra);
+        req.request_extra_path = req.request_path.substr(bestMatch.extraStartIndex);
 
-      req.request_path.resize(bestMatch.extra, '\0');
+      req.request_path.resize(bestMatch.extraStartIndex, '\0');
 
       req.url_params = std::move(bestMatch.urlParams);
 
