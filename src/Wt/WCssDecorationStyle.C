@@ -32,8 +32,7 @@ WCssDecorationStyle::~WCssDecorationStyle()
 { }
 
 WCssDecorationStyle::WCssDecorationStyle(const WCssDecorationStyle& other)
-  : WObject(),
-    widget_(0)
+  : WCssDecorationStyle()
 {
   copy(other);
 }
