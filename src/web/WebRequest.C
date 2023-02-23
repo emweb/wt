@@ -74,6 +74,7 @@ struct WebRequest::AsyncEmulation {
 
 WebRequest::WebRequest()
   : entryPoint_(nullptr),
+    extraStartIndex_(0),
     async_(nullptr),
     responseType_(ResponseType::Page),
     webSocketRequest_(false)
@@ -134,6 +135,21 @@ bool WebRequest::webSocketMessagePending() const
 bool WebRequest::detectDisconnect(const DisconnectCallback& callback)
 {
   return false; /* Not implemented */
+}
+
+boost::string_view WebRequest::entryPointPath() const
+{
+  return boost::string_view(pathInfo()).substr(0, extraStartIndex_);
+}
+
+std::string WebRequest::fullEntryPointPath() const
+{
+  return scriptName() + entryPointPath().to_string();
+}
+
+boost::string_view WebRequest::extraPathInfo() const
+{
+  return boost::string_view(pathInfo()).substr(extraStartIndex_);
 }
 
 const char *WebRequest::userAgent() const

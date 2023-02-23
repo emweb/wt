@@ -38,6 +38,7 @@ HTTPRequest::HTTPRequest(WtReplyPtr reply, const Wt::EntryPoint *entryPoint)
   : reply_(reply)
 {
   entryPoint_ = entryPoint;
+  extraStartIndex_ = reply->request().extra_start_index;
 }
 
 void HTTPRequest::reset(WtReplyPtr reply, const Wt::EntryPoint *entryPoint)
@@ -46,6 +47,7 @@ void HTTPRequest::reset(WtReplyPtr reply, const Wt::EntryPoint *entryPoint)
 
   reply_ = reply;
   entryPoint_ = entryPoint;
+  extraStartIndex_ = reply->request().extra_start_index;
 }
 
 bool HTTPRequest::done() const
@@ -204,11 +206,7 @@ const std::string& HTTPRequest::serverPort() const
 
 const std::string& HTTPRequest::scriptName() const
 {
-  WtReplyPtr p = reply_;
-  if (!p.get())
-    return empty_;
-
-  return p->request().request_path;
+  return empty_;
 }
 
 const char * HTTPRequest::requestMethod() const
@@ -235,7 +233,7 @@ const std::string& HTTPRequest::pathInfo() const
   if (!p.get())
     return empty_;
 
-  return p->request().request_extra_path;
+  return p->request().request_path;
 }
 
 const std::string& HTTPRequest::remoteAddr() const

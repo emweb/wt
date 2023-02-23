@@ -489,7 +489,7 @@ bool WebController::requestDataReceived(WebRequest *request,
       str(request->getParameter("request")),
       str(request->getParameter("resource")),
       request->postDataExceeded(),
-      request->pathInfo(),
+      request->extraPathInfo().to_string(),
       current,
       total
     };
@@ -620,6 +620,7 @@ void WebController::handleRequest(WebRequest *request)
   if (!request->entryPoint_) {
     EntryPointMatch match = getEntryPoint(request);
     request->entryPoint_ = match.entryPoint;
+    request->extraStartIndex_ = match.extraStartIndex;
     if (!request->entryPoint_) {
       request->setStatus(404);
       request->flush();

@@ -95,6 +95,7 @@ public:
 #endif
 
   Request() {
+    extra_start_index = 0;
 #ifdef HTTP_WITH_SSL
     ssl = nullptr;
 #endif
@@ -127,7 +128,7 @@ public:
 
   std::string request_path;
   std::string request_query;
-  std::string request_extra_path;
+  std::size_t extra_start_index;
 
   std::vector<std::pair<std::string, std::string> > url_params;
 

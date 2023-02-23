@@ -154,12 +154,12 @@ std::string Request::serverPort() const
 
 std::string Request::path() const
 {
-  return request_ ? request_->scriptName() : std::string();
+  return request_ ? request_->fullEntryPointPath() : std::string();
 }
 
 std::string Request::pathInfo() const
 {
-  return request_ ? request_->pathInfo() : std::string();
+  return request_ ? request_->extraPathInfo().to_string() : std::string();
 }
 
 std::string Request::queryString() const

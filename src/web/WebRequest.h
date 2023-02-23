@@ -14,6 +14,8 @@
 #include <Wt/WGlobal.h>
 #include <Wt/Http/Request.h>
 
+#include <boost/utility/string_view.hpp>
+
 #include <cstdint>
 #include <functional>
 
@@ -139,10 +141,71 @@ public:
 
   virtual const std::string& serverName() const = 0;
   virtual const std::string& serverPort() const = 0;
+  /*! \internal
+   * \brief Returns the SCRIPT_NAME
+   *
+   * This is equivalent to the SCRIPT_NAME CGI parameter, see:
+   * https://www.rfc-editor.org/rfc/rfc3875#section-4.1.13
+   *
+   * - for wthttp this will be the empty string
+   * - for wtisapi this will be the path up until the DLL file
+   * - for wtfcgi this should be set properly in the server configuration,
+   *   if `^/path(/.*)?$` is routed to the wtfcgi instance, then this should be `/path`.
+   *   SCRIPT_NAME should be empty or start with a forward slash (`/`).
+   */
   virtual const std::string& scriptName() const = 0;
   virtual const char *requestMethod() const = 0;
   virtual const std::string& queryString() const = 0;
+  /*! \internal
+   * \brief Returns the PATH_INFO
+   *
+   * This is equivalent to the PATH_INFO CGI parameter, see:
+   * https://www.rfc-editor.org/rfc/rfc3875#section-4.1.5
+   *
+   * - for wthttp this is the full request path
+   * - for wtisapi this is the part of the request path after the DLL file
+   * - for wtfcgi this should be set properly in the server configuration,
+   *   if `^/path(/.*)?$` is routed to the wtfcgi instance, and the user
+   *   requests `/path/name` then pathInfo() is `/name`.
+   *   PATH_INFO should be empty or start with a forward slash (`/`).
+   */
   virtual const std::string& pathInfo() const = 0;
+  /*! \internal
+   * \brief Returns the part of pathInfo() that corresponds to the entrypoint
+   *
+   * e.g. if `/entry/point` is the request path, and the request matches the entrypoint `/entry`,
+   * then this will return `/entry`.
+   *
+   * If the request did not match an entrypoint (yet), then the result will be the empty string.
+   */
+  boost::string_view entryPointPath() const;
+  /*! \internal
+   * \brief Returns the full path up to and including the entrypoint
+   *
+   * This differs from entryPointPath() in that the scriptName() is prepended.
+   *
+   * - for wthttp this is the same as entryPointPath()
+   * - for wtisapi, if the DLL is deployed at `/hello.dll` and the matched entrypoint is `/entrypoint`,
+   *   then this returns `/hello.dll/entrypoint`
+   * - for wtfcgi, if the scriptName is `/hello.wt` and the matched entrypoint is `/entrypoint`,
+   *   then this returns `/hello.wt/entrypoint`
+   *
+   * For JWt, calls to this function are translated to WebRequest#getScriptName(), yielding the full path
+   * that the servlet is deployed at (context path + servlet path), since JWt has no concept of an "entrypoint".
+   */
+  std::string fullEntryPointPath() const;
+  /*! \internal
+   * \brief Returns the part of pathInfo() that corresponds to the part after the entrypoint
+   *
+   * e.g. if `/entry/point` is the request path, and the request matches the entrypoint `/entry`,
+   * then this will return `/point`.
+   *
+   * If the request did not match an entrypoint (yet), then the result will be the full pathInfo().
+   *
+   * For JWt, calls to this function are translated to WebRequest#getPathInfo(), yielding the part of
+   * the request path that comes after the servlet path, since JWt has no concept of an "entrypoint".
+   */
+  boost::string_view extraPathInfo() const;
   virtual const std::string& remoteAddr() const = 0;
 
   virtual const char *urlScheme() const = 0;
@@ -206,6 +269,7 @@ public:
 
 protected:
   const EntryPoint *entryPoint_;
+  std::size_t extraStartIndex_;
 
   virtual ~WebRequest();
   void reset();

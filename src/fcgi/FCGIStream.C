@@ -183,10 +183,7 @@ namespace {
     virtual const std::string& scriptName() const override
     {
       if (scriptName_.empty()) {
-        if (entryPoint_)
-          scriptName_ = str(envValue("SCRIPT_NAME")) + entryPoint_->path();
-        else
-          scriptName_ = str(envValue("SCRIPT_NAME"));
+        scriptName_ = str(envValue("SCRIPT_NAME"));
       }
 
       return scriptName_;
@@ -225,12 +222,6 @@ namespace {
     {
       if (pathInfo_.empty()) {
         pathInfo_ = str(envValue("PATH_INFO"));
-        if (entryPoint_) {
-          /* Do we actually know what this is supposed to do? */
-          if (pathInfo_.length() >= entryPoint_->path().length()) {
-            pathInfo_ = pathInfo_.substr(entryPoint_->path().length());
-          }
-        }
       }
 
       return pathInfo_;

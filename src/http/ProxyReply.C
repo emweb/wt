@@ -552,7 +552,7 @@ std::string ProxyReply::getSessionId() const
     if (cookieHeader) {
       std::string cookie = cookieHeader->value.str();
       sessionId = Wt::WebController::sessionFromCookie
-        (cookie.c_str(), request_.request_path,
+        (cookie.c_str(), request_.request_path.substr(request_.extra_start_index),
          wtConfiguration.fullSessionIdLength());
     }
   }

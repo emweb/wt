@@ -440,7 +440,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
           reply->addHeader("Sec-WebSocket-Origin", origin->value.str());
 
         std::string location = std::string(req.urlScheme)
-          + "://" + host->value.str() + req.request_path
+          + "://" + host->value.str() + req.request_path.substr(req.extra_start_index)
           + "?" + req.request_query;
         reply->addHeader("Sec-WebSocket-Location", location);
 

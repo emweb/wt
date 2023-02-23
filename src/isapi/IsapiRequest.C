@@ -544,12 +544,7 @@ const char *IsapiRequest::envValue(const char *hdr) const
 
 const std::string &IsapiRequest::scriptName() const {
   std::string *retval = persistentEnvValue("SCRIPT_NAME");
-  if (!retval)
-    return emptyString_;
-  if (entryPoint_) {
-    *retval = *retval + entryPoint_->path();
-  }
-  return *retval;
+  return retval ? *retval : emptyString_;
 }
 
 const std::string &IsapiRequest::serverName() const {
@@ -573,21 +568,8 @@ const std::string &IsapiRequest::serverPort() const {
 }
 
 const std::string &IsapiRequest::pathInfo() const {
-  if (entryPoint_) {
-    std::string *pi = persistentEnvValue("PATH_INFO");
-    if (!pi)
-      return emptyString_;
-    if (pi->size() >= entryPoint_->path().size()) {
-      // assert(boost::starts_with(pi, entryPoint_->path()))
-      *pi = pi->substr(entryPoint_->path().size());
-      return *pi;
-    } else {
-      return *pi;
-    }
-  } else {
-    std::string *retval = persistentEnvValue("PATH_INFO");
-    return retval ? *retval : emptyString_;
-  }
+  std::string *retval = persistentEnvValue("PATH_INFO");
+  return retval ? *retval : emptyString_;
 }
 
 const std::string &IsapiRequest::remoteAddr() const {

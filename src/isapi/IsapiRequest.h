@@ -55,7 +55,7 @@ public:
 
   virtual const char *envValue(const char *name) const;
 
-  virtual const std::string &scriptName() const;
+  const std::string &scriptName() const override;
 
   virtual const std::string &serverName() const;
 

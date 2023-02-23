@@ -144,7 +144,7 @@ WebSession::WebSession(WebController *controller,
    * Obtain the applicationName_ as soon as possible for log().
    */
   if (request)
-    applicationUrl_ = request->scriptName();
+    applicationUrl_ = request->fullEntryPointPath();
   else
     applicationUrl_ = "/";
 
@@ -435,12 +435,13 @@ void WebSession::init(const WebRequest& request)
     bookmarkUrl_ = applicationUrl_;
   }
 
-  std::string path = request.pathInfo();
+  auto extraPathInfo = request.extraPathInfo().to_string();
+  std::string path = extraPathInfo;
   if (path.empty() && hashE)
     path = *hashE;
 
   env_->setInternalPath(path);
-  pagePathInfo_ = request.pathInfo();
+  pagePathInfo_ = std::move(extraPathInfo);
 
   // Cache document root
   docRoot_ = getCgiValue("DOCUMENT_ROOT");
@@ -2426,9 +2427,9 @@ void WebSession::notify(const WEvent& event)
 
       WResource *resource = nullptr;
       if (!requestE) {
-        if (!request.pathInfo().empty())
+        if (!request.extraPathInfo().empty())
           resource = app_->decodeExposedResource
-            ("/path/" + Utils::prepend(request.pathInfo(), '/'));
+            ("/path/" + Utils::prepend(request.extraPathInfo().to_string(), '/'));
 
         if (!resource && hashE)
           resource = app_->decodeExposedResource
@@ -2631,8 +2632,8 @@ void WebSession::notify(const WEvent& event)
 
           if (hashE)
             changeInternalPath(*hashE, handler.response());
-          else if (!handler.request()->pathInfo().empty()) {
-            changeInternalPath(handler.request()->pathInfo(),
+          else if (!handler.request()->extraPathInfo().empty()) {
+            changeInternalPath(handler.request()->extraPathInfo().to_string(),
                                handler.response());
           } else
             changeInternalPath("", handler.response());
@@ -2766,8 +2767,8 @@ bool WebSession::resourceRequest(const WebRequest& request) const
     if (requestE && *requestE == "resource" && resourceE) {
       return true;
     } else if (!requestE && app_) { // check if resource is deployed on internal path
-      if (!request.pathInfo().empty() &&
-          app_->decodeExposedResource("/path/" + Utils::prepend(request.pathInfo(), '/')) != nullptr)
+      if (!request.extraPathInfo().empty() &&
+          app_->decodeExposedResource("/path/" + Utils::prepend(request.extraPathInfo().to_string(), '/')) != nullptr)
         return true;
 
       const std::string *hashE = request.getParameter("_");
@@ -2829,7 +2830,7 @@ void WebSession::serveError(int status, Handler& handler, const std::string& e)
 void WebSession::serveResponse(Handler& handler)
 {
   if (handler.response()->responseType() == WebResponse::ResponseType::Page) {
-    pagePathInfo_ = handler.request()->pathInfo();
+    pagePathInfo_ = handler.request()->extraPathInfo().to_string();
     const std::string *wtdE = handler.request()->getParameter("wtd");
     if (wtdE && *wtdE == sessionId_)
       sessionIdInUrl_ = true;

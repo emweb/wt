@@ -187,6 +187,7 @@ void Request::reset()
   headers.clear();
   request_path.clear();
   request_query.clear();
+  extra_start_index = 0;
 
   contentLength = -1;
   webSocketVersion = -1;

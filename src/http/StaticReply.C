@@ -63,7 +63,7 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
 
   hasRange_ = false;
 
-  std::string request_path = request_.request_path;
+  std::string request_path = request_.request_path.substr(request_.extra_start_index);
 
   // Request path for a static file must be absolute and not contain "..".
   if (request_path.empty() || request_path[0] != '/'
