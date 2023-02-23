@@ -433,10 +433,9 @@ public:
    * This is the internal path with which the application was started.
    *
    * For an application deployed at <tt>"/stuff/app.wt"</tt>, the following
-   * two URLs are considered equivalent, and indicate an internal path
+   * URL indicates an internal path
    * <tt>"/this/there"</tt>:
    * \code
-   * http://www.mydomain.com/stuff/app.wt/this/there
    * http://www.mydomain.com/stuff/app.wt/this/there
    * \endcode
    *
