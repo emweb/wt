@@ -246,8 +246,7 @@ Configuration::Configuration(const std::string& applicationPath,
     runDirectory_(RUNDIR),
     connectorSlashException_(false), // need to use ?_=
     connectorNeedReadBody_(false),
-    connectorWebSockets_(true),
-    defaultEntryPoint_("/")
+    connectorWebSockets_(true)
 {
   reset();
   readConfiguration(false);
@@ -678,10 +677,15 @@ void Configuration::registerEntryPoint(const EntryPoint &ep)
 {
   const std::string &path = ep.path();
 
-  assert(path[0] == '/');
+  assert(path.empty() || path[0] == '/');
 
   // The PathSegment in the routing tree where this entrypoint will end up
   PathSegment *pathSegment = &rootPathSegment_;
+
+  if (path.empty()) {
+    pathSegment->entryPoint = &ep;
+    return;
+  }
 
   typedef boost::split_iterator<std::string::const_iterator> spliterator;
   for (spliterator it = spliterator(path.begin() + 1, path.end(),

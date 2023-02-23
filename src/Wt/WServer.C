@@ -245,16 +245,16 @@ void WServer::schedule(std::chrono::steady_clock::duration duration,
 
 std::string WServer::prependDefaultPath(const std::string& path)
 {
-  assert(!configuration().defaultEntryPoint().empty() &&
-         configuration().defaultEntryPoint()[0] == '/');
-  if (path.empty())
-    return configuration().defaultEntryPoint();
-  else if (path[0] != '/') {
-    const std::string &defaultPath = configuration().defaultEntryPoint();
-    if (defaultPath[defaultPath.size() - 1] != '/')
-      return defaultPath + "/" + path;
-    else
-      return defaultPath + path;
+  const std::string &defaultEntryPoint = configuration().defaultEntryPoint();
+  if (path.empty()) {
+    return defaultEntryPoint;
+  } else if (path[0] != '/') {
+    if (defaultEntryPoint.empty() ||
+        defaultEntryPoint[defaultEntryPoint.size() - 1] != '/') {
+      return defaultEntryPoint + "/" + path;
+    } else {
+      return defaultEntryPoint + path;
+    }
   } else
     return path;
 }
