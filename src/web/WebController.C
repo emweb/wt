@@ -844,7 +844,7 @@ EntryPointMatch WebController::getEntryPoint(WebRequest *request)
   const std::string& scriptName = request->scriptName();
   const std::string& pathInfo = request->pathInfo();
 
-  return conf_.matchEntryPoint(scriptName, pathInfo, false);
+  return conf_.matchEntryPoint(scriptName, pathInfo, true);
 }
 
 std::string
