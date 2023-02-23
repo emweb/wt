@@ -73,8 +73,8 @@ struct WebRequest::AsyncEmulation {
 };
 
 WebRequest::WebRequest()
-  : entryPoint_(0),
-    async_(0),
+  : entryPoint_(nullptr),
+    async_(nullptr),
     responseType_(ResponseType::Page),
     webSocketRequest_(false)
 {
