@@ -41,14 +41,14 @@ private:
 typedef std::deque<EntryPoint> EntryPointList;
 
 struct WT_API EntryPointMatch {
-  EntryPointMatch()
+  EntryPointMatch() noexcept
     : entryPoint(nullptr),
       extraStartIndex(0)
   { }
 
   EntryPointMatch(
       const EntryPoint *ep,
-      std::size_t extraStartIndex)
+      std::size_t extraStartIndex) noexcept
     : entryPoint(ep),
       extraStartIndex(extraStartIndex)
   { }
