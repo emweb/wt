@@ -113,7 +113,6 @@ void WEnvironment::init(const WebRequest& request)
   serverSignature_ = str(request.envValue("SERVER_SIGNATURE"));
   serverSoftware_  = str(request.envValue("SERVER_SOFTWARE"));
   serverAdmin_     = str(request.envValue("SERVER_ADMIN"));
-  pathInfo_        = request.pathInfo();
   redirectSecret_  = session_->controller()->redirectSecret(request);
 
 #ifndef WT_TARGET_JAVA

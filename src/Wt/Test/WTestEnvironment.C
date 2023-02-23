@@ -104,7 +104,6 @@ void WTestEnvironment::init(EntryPointType type)
   serverSignature_ = "None (WTestEnvironment)";
   serverSoftware_ = serverSignature_;
   serverAdmin_ = "your@onyourown.here";
-  pathInfo_ = "";
 
   setUserAgent("Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.0.11) "
                "Gecko/2009060309 Ubuntu/9.04 (jaunty) Firefox/3.0.11");

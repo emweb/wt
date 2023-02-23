@@ -704,7 +704,6 @@ protected:
   std::string serverSoftware_;
   std::string serverAdmin_;
   std::string clientAddress_;
-  std::string pathInfo_;
   std::string internalPath_;
   std::string publicDeploymentPath_;
   std::string redirectSecret_;
