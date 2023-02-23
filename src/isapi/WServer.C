@@ -123,6 +123,11 @@ bool WServer::start()
     return false;
   }
 
+  if (configuration().webSockets()) {
+    LOG_ERROR_S(this, "ISAPI does not support websockets, disabling");
+    configuration().setWebSockets(false);
+  }
+
   impl_->running_ = true;
   webController_ = new Wt::WebController(*this, "", false);
 
