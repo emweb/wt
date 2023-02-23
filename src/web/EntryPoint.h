@@ -53,6 +53,10 @@ struct WT_API EntryPointMatch {
       extraStartIndex(extraStartIndex)
   { }
 
+  bool operator<(const EntryPointMatch& other) const noexcept;
+
+  std::size_t depth() const noexcept;
+
   const EntryPoint *entryPoint;
   std::vector<std::pair<std::string, std::string> > urlParams;
   std::size_t extraStartIndex;

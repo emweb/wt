@@ -773,28 +773,45 @@ void Configuration::setDefaultEntryPoint(const std::string& path)
 }
 
 EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
-                                                 const std::string &path,
-                                                 bool matchAfterSlash) const
+                                               const std::string &path,
+                                               bool matchAfterSlash) const
 {
-  if (!scriptName.empty()) {
-    LOG_DEBUG("matchEntryPoint: matching entry point, scriptName: '" << scriptName << "', path: '" << path << '\'');
-    EntryPointMatch m = matchEntryPoint(EMPTY_STR, scriptName + path, matchAfterSlash);
-    if (m.entryPoint)
-      return m;
-    else
-      return matchEntryPoint(EMPTY_STR, path, matchAfterSlash);
+  if (!(scriptName.empty() || scriptName[0] == '/')) {
+    LOG_ERROR("SCRIPT_NAME should be empty or start with a slash ('/'). If you're using FastCGI, you "
+              "likely misconfigured your web server! "
+              "(SCRIPT_NAME: '" << scriptName << "', PATH_INFO: '" << path << "')");
+    return EntryPointMatch();
   }
-  LOG_DEBUG("matchEntryPoint: matching entry point, path: '" << path << '\'');
+
+  if (!(path.empty() || path[0] == '/')) {
+    LOG_ERROR("PATH_INFO should be empty or start with a slash ('/'). If you're using FastCGI, you "
+              "likely misconfigured your web server! "
+              "(SCRIPT_NAME: '" << scriptName << "', PATH_INFO: '" << path << "')");
+    return EntryPointMatch();
+  }
 
   READ_LOCK;
-  // Only one default entry point.
-  if (entryPoints_.size() == 1
-      && entryPoints_[0].path().empty()) {
-    LOG_DEBUG("matchEntryPoint: only one entry point: matching path '" << path << "' with default entry point");
-    return EntryPointMatch(&entryPoints_[0], 0);
+
+  if (!scriptName.empty()) {
+    LOG_DEBUG("matchEntryPoint: matching entry point, scriptName: '" << scriptName << "', path: '" << path << '\'');
+    auto scriptNameMatch = matchEntryPoint(EMPTY_STR, scriptName + path, matchAfterSlash);
+    if (scriptNameMatch.extraStartIndex < scriptName.size()) {
+      // Discard script name match if the tail of the match is longer than the actual path
+      scriptNameMatch = EntryPointMatch();
+    }
+    auto pathOnlyMatch = matchEntryPoint(EMPTY_STR, path, matchAfterSlash);
+    if (scriptNameMatch < pathOnlyMatch) {
+      if (scriptNameMatch.entryPoint) {
+        // Fix extraStartIndex, so it's an index of path instead of scriptName + path
+        scriptNameMatch.extraStartIndex -= scriptName.size();
+      }
+      return scriptNameMatch;
+    } else {
+      return pathOnlyMatch;
+    }
   }
 
-  assert(path.empty() || path[0] == '/');
+  LOG_DEBUG("matchEntryPoint: matching entry point, path: '" << path << '\'');
 
   const PathSegment *pathSegment = &rootPathSegment_;
 
