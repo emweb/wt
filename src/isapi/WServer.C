@@ -15,6 +15,8 @@
 
 namespace Wt {
 
+LOGGER("WServer/wtisapi");
+
 static WebMain *webMain = 0;
 
 struct WServer::Impl {
@@ -46,7 +48,7 @@ struct WServer::Impl {
     server->setAppRoot(approot);
     server->setConfiguration(configurationFile);
     if (approotLog.str() != "") {
-      server->log("info") << approotLog.str();
+      LOG_INFO_S(server, approotLog.str());
     }
   }
 
@@ -117,7 +119,7 @@ void WServer::setServerConfiguration(const std::string &applicationName,
 bool WServer::start()
 {
   if (isRunning()) {
-    log("error") << "WServer::start() error: server already started!";
+    LOG_ERROR_S(this, "WServer::start() error: server already started!");
     return false;
   }
 
@@ -137,11 +139,11 @@ bool WServer::start()
     webMain = 0;
 
   } catch (std::exception& e) {
-    log("fatal") << "ISAPI server: caught unhandled exception: " << e.what();
+    LOG_ERROR_S(this, "ISAPI server: caught unhandled exception: " << e.what());
 
     throw;
   } catch (...) {
-    log("fatal") << "ISAPI server: caught unknown, unhandled exception.";
+    LOG_ERROR_S(this, "ISAPI server: caught unknown, unhandled exception.");
     throw;
   }
 
@@ -166,7 +168,7 @@ std::string WServer::docRoot() const
 void WServer::stop()
 {
   if (!isRunning()) {
-    std::cerr << "WServer::stop() error: server not yet started!" << std::endl;
+    LOG_ERROR_S(this, "WServer::stop() error: server not yet started!");
     return;
   }
   webMain->shutdown();
@@ -239,7 +241,7 @@ void WServer::run()
 
 void WServer::setSslPasswordCallback(const SslPasswordCallback& cb)
 {
-  log("info") << "setSslPasswordCallback(): has no effect in isapi connector";
+  LOG_INFO_S(this, "setSslPasswordCallback(): has no effect in isapi connector");
 }
 
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
