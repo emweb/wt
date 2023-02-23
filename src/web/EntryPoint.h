@@ -4,14 +4,14 @@
  *
  * All rights reserved.
  */
+#ifndef ENTRYPOINT_H
+#define ENTRYPOINT_H
 
 #include "Wt/WApplication.h"
 #include "Wt/WGlobal.h"
 
 #include <deque>
 
-#ifndef ENTRYPOINT_H
-#define ENTRYPOINT_H
 namespace Wt {
 
 class WT_API EntryPoint {
