@@ -4,6 +4,7 @@ IF(ENABLE_LIBWTTEST)
     any/AnyTest.C
     auth/BCryptTest.C
     auth/SHA1Test.C
+    configuration/EntryPointTest.C
     core/BindTest.C
     core/ObservingPtrTest.C
     chart/WChartTest.C
