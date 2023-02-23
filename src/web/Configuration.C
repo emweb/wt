@@ -1332,6 +1332,10 @@ void Configuration::rereadConfiguration()
 
 void Configuration::readConfiguration(bool silent)
 {
+  if (configurationFile_.empty()) {
+    return;
+  }
+
   std::ifstream s(configurationFile_.c_str(), std::ios::in | std::ios::binary);
 
   if (!s) {

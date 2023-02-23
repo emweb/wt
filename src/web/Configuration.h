@@ -8,6 +8,8 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
+#include "Wt/WConfig.h"
+
 #include <exception>
 #include <iostream>
 #include <string>
