@@ -371,6 +371,7 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
     setJavaScriptMember(WT_RESIZE_JS,
                         "function(self, w, h) {"
                         """let u = self.querySelector('canvas, img');"
+                        """if (u === null) return;"
                         """if (w >= 0) "
                         ""  "u.style.width = `${w}px`;"
                         """else "
