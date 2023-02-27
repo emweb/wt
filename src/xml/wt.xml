@@ -92,6 +92,12 @@
   <message id="Wt.WDateValidator.WrongDateRange">The date must be between {1} and {2}</message>
   <message id="Wt.WDateValidator.WrongFormat">Must be a date in the format '{1}'</message>
 
+  <message id="Wt.WEmailValidator.Invalid">Must be a valid email address</message>
+  <message id="Wt.WEmailValidator.Invalid.Multiple">Must be a comma-separated list of email addresses</message>
+  <message id="Wt.WEmailValidator.NotMatching">Must be an email address matching the pattern '{1}'</message>
+  <message
+    id="Wt.WEmailValidator.NotMatching.Multiple">Must be a comma-separated list of email addresses matching the pattern '{1}'</message>
+
   <message id="Wt.WTimeValidator.TimeTooEarly">The time must be after {1}</message>
   <message id="Wt.WTimeValidator.TimeTooLate">The time must be before {1}</message>
   <message id="Wt.WTimeValidator.WrongTimeRange">The time must be between {1} and {2}</message>

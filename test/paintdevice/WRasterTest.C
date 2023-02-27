@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( raster_test_textRenderer )
     renderer.render(text);
   }
 
-  std::ofstream f("text_render_image_1.png");
+  std::ofstream f("out/text_render_image_1.png");
   rasterImage.write(f);
 }
 
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( raster_test_text_embedded_stylesheet )
     renderer.render(text);
   }
 
-  std::ofstream f("text_render_image_2.png");
+  std::ofstream f("out/text_render_image_2.png");
   rasterImage.write(f);
 }
 
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE( raster_test_dataUriImage )
   }
   
   p.end();
-  std::ofstream f("data_uri_image.png");
+  std::ofstream f("out/data_uri_image.png");
   rasterImage.write(f);
 }
 

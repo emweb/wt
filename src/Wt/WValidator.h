@@ -165,8 +165,6 @@ public:
    * Returns an empty string if the validator does not provide a
    * client-side validation implementationq.
    *
-   * \note The signature and contract changed changed in %Wt 3.1.9.
-   *
    * \sa inputFilter()
    */
   virtual std::string javaScriptValidate() const;

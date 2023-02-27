@@ -1381,6 +1381,36 @@
       ${src InputMask}
     </fieldset>
 
+    <h3 id="spin-box">Email edits</h3>
+    <p>
+      ${doc-link WEmailEdit} can be used if the user needs to enter an email
+      address. A ${doc-link WEmailValidator} will automatically be associated,
+      which will validate the email address according to the WHATWG specification
+      for <code>&lt;input type="email"&gt;</code>.
+    </p>
+
+    <p>
+      In the example below, pressing "Submit" will validate the entered input.
+      You can allow multiple email addresses by checking "Allow multiple" and
+      verify that the email address matches a certain pattern by checking the
+      "Use pattern" checkbox.
+    </p>
+
+    <fieldset class="example">
+      <legend>Example</legend>
+      ${EmailEdit}
+      ${src EmailEdit}
+      <p>
+        Here is the corresponding XML template (with
+        <code>message id="emailEdit-template"</code>) using style classes from the
+        <a href="https://getbootstrap.com" target="_blank">Bootstrap theme</a>.
+      </p>
+      <fieldset class="src">
+        <legend>source</legend>
+        <pre>${emailEdit-template}</pre>
+      </fieldset>
+    </fieldset>
+
     <h3 id="edit-options">Prepended and appended inputs</h3>
     <p>
       Adding on top of the standard input controls, the
@@ -1485,6 +1515,35 @@
       <label class="col-1 col-form-label">${label}</label>
       <div class="col-2">
         ${edit}
+      </div>
+    </div>
+  </message>
+
+  <message id="emailEdit-template">
+    <div class="row">
+      <div class="col-xs-12 col-md-6 col-xl-4">
+        <label class="form-label" for="${id:edit}">${label}</label>
+        <div class="input-group">
+          ${edit}
+          ${submit class="btn-outline-secondary"}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <div class="form-text">
+          ${edit-info}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        ${multiple} ${pattern}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        ${output}
       </div>
     </div>
   </message>

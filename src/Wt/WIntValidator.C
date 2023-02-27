@@ -75,9 +75,7 @@ void WIntValidator::setInvalidTooSmallText(const WString& text)
 WString WIntValidator::invalidTooSmallText() const
 {
   if (!tooSmallText_.empty()) {
-    WString s = tooSmallText_;
-    s.arg(bottom_).arg(top_);
-    return s;
+    return WString(tooSmallText_).arg(bottom_).arg(top_);
   } else
     if (bottom_ == std::numeric_limits<int>::min())
       return WString();
@@ -97,9 +95,7 @@ void WIntValidator::setInvalidTooLargeText(const WString& text)
 WString WIntValidator::invalidTooLargeText() const
 {
   if (!tooLargeText_.empty()) {
-    WString s = tooLargeText_;
-    s.arg(bottom_).arg(top_);
-    return s;
+    return WString(tooLargeText_).arg(bottom_).arg(top_);
   } else
     if (top_ == std::numeric_limits<int>::max())
       return WString();

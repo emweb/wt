@@ -21,6 +21,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptFunction, "validate", function(edit) {
     typeof edit.wtLObj.getValue === "function"
   ) {
     v = edit.wtLObj.getValue();
+  } else if (typeof edit.wtEncodeValue === "function") {
+    v = edit.wtEncodeValue(edit);
   } else {
     v = edit.value;
   }

@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE( svg_test_drawWrappedText )
   }
 
   p.end();
-  std::ofstream f("wrapped_text.svg");
+  std::ofstream f("out/wrapped_text.svg");
   svgImage.write(f);
 }
 
@@ -111,6 +111,6 @@ BOOST_AUTO_TEST_CASE( svg_test_drawSingleText )
   }
 
   p.end();
-  std::ofstream f("singleline_text.svg");
+  std::ofstream f("out/singleline_text.svg");
   svgImage.write(f);
 }
