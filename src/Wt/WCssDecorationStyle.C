@@ -32,8 +32,18 @@ WCssDecorationStyle::~WCssDecorationStyle()
 { }
 
 WCssDecorationStyle::WCssDecorationStyle(const WCssDecorationStyle& other)
-  : WObject(),
-    widget_(0)
+  : widget_(nullptr),
+    cursor_(Cursor::Auto),
+    backgroundImageRepeat_(Orientation::Horizontal | Orientation::Vertical),
+    backgroundImageLocation_(None),
+    textDecoration_(None),
+    cursorChanged_(false),
+    borderChanged_(false),
+    foregroundColorChanged_(false),
+    backgroundColorChanged_(false),
+    backgroundImageChanged_(false),
+    fontChanged_(false),
+    textDecorationChanged_(false)
 {
   copy(other);
 }
