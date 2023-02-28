@@ -49,6 +49,18 @@ behaviour.
     try and fail to establish a WebSockets connection (this is not supported by ISAPI). Wt
     now disables WebSockets (and notifies this in the logs) when using ISAPI.
   </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/11384" target="_blank">Issue #11384</a>:
+    it was possible for
+    <a href="classWt_1_1Mail_1_1Client.html#af7bf43e793d265034c6cb343636b4024">Mail::Client::connect()</a> to
+    throw an exception if the DNS resolver failed to resolve the SMTP server's hostname. We changed this to
+    log an error and return <code>false</code> instead (as indicated by its documentation).
+    <a href="classWt_1_1Mail_1_1Client.html#a958089e2b169f9baed3107b40b958bb9">Mail::Client::send()</a> could
+    cause a null pointer to be dereferenced, either because a TLS connection was attempted while Wt was
+    built without OpenSSL, or because the user did not call
+    <a href="classWt_1_1Mail_1_1Client.html#af7bf43e793d265034c6cb343636b4024">Mail::Client::connect()</a> first.
+    <code>send()</code> was fixed to log an error and return <code>false</code> instead.
+  </li>
 </ul>
 
 <h2>Release 4.9.2 (TBD)</h2>
