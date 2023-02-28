@@ -106,12 +106,16 @@ public:
     // Get a list of endpoints corresponding to the server name.
     tcp::resolver resolver(io_service_);
 
-    tcp::resolver::query query(host, std::to_string(port));
-    tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+    AsioWrapper::error_code error = asio::error::host_not_found;
+    tcp::resolver::iterator endpoint_iterator = resolver.resolve(host, std::to_string(port), error);
+    if (error) {
+      LOG_ERROR("could not resolve: '" << host << ":" << port << "': " << error.message());
+      return;
+    }
     tcp::resolver::iterator end;
 
     // Try each endpoint until we successfully establish a connection.
-    AsioWrapper::error_code error = asio::error::host_not_found;
+    error = asio::error::host_not_found;
     while (error && endpoint_iterator != end) {
       close();
       socket().connect(*endpoint_iterator++, error);
@@ -119,7 +123,7 @@ public:
 
     if (error) {
       close();
-      LOG_ERROR("could not connect to: " << host << ":" << port);
+      LOG_ERROR("could not connect to: '" << host << ":" << port << "': " << error.message());
       return;
     }
 
