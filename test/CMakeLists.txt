@@ -45,6 +45,7 @@ IF(ENABLE_LIBWTTEST)
     widgets/WContainerWidgetTest.C
     widgets/WDateEditTest.C
     widgets/WSpinBoxTest.C
+    widgets/WStackedWidgetTest.C
     widgets/WTextTest.C
     widgets/WTreeViewTest.C
     length/WLengthTest.C
