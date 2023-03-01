@@ -81,7 +81,9 @@ public:
 
   /*! \brief Destructor.
    *
-   * If the transaction is still active, it is rolled back.
+   * Under normal circumstances, the destructor will attempt to \link commit() commit\endlink the transaction
+   * if it is \link isActive() active\endlink. If there's an active exception, or the last commit() threw,
+   * the transaction will be \link rollback() rolled back\endlink.
    */
   virtual ~Transaction() noexcept(false);
 
