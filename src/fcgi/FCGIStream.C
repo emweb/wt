@@ -126,7 +126,7 @@ namespace {
 
     virtual void setRedirect(const std::string& url) override
     {
-      *out_ << "Location: " << url << "\r\n\r\n";
+      addHeader("Location", url);
     }
 
     virtual const char *headerValue(const char *name) const override
