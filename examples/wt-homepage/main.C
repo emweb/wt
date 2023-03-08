@@ -26,11 +26,12 @@ int main(int argc, char **argv)
     std::unique_ptr<Dbo::SqlConnectionPool> blogDb
       = BlogSession::createConnectionPool(server.appRoot() + "blog.db");
 
-    BlogRSSFeed rssFeed(*blogDb, "Wt and JWt blog",
-                        "http://www.webtoolkit.eu/wt/blog",
-                        "We care about our webtoolkits.");
+    auto rssFeed = std::make_shared<BlogRSSFeed>(*blogDb,
+                                                 "Wt and JWt blog",
+                                                 "http://www.webtoolkit.eu/wt/blog",
+                                                 "We care about our webtoolkits.");
 
-    server.addResource(&rssFeed, "/wt/blog/feed/");
+    server.addResource(rssFeed, "/wt/blog/feed/");
 
     server.addEntryPoint(EntryPointType::Application,
                          std::bind(&createJWtHomeApplication, std::placeholders::_1, blogDb.get()),

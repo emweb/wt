@@ -277,6 +277,19 @@ void WServer::addResource(WResource *resource, const std::string& path)
   }
 }
 
+void WServer::addResource(const std::shared_ptr<WResource> &resource,
+                          const std::string &path)
+{
+  bool success = configuration().tryAddResource(EntryPoint(resource, prependDefaultPath(path)));
+  if (success) {
+    resource->setInternalPath(path);
+  } else {
+    WString error(Wt::utf8("WServer::addResource() error: "
+                           "a static resource was already deployed on path '{1}'"));
+    throw WServer::Exception(error.arg(path).toUTF8());
+  }
+}
+
 void WServer::removeEntryPoint(const std::string& path){
   configuration().removeEntryPoint(path);
 }

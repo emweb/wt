@@ -151,7 +151,8 @@ namespace {
             "--docroot", "." 
           };
       setServerConfiguration(argc, (char **)argv);
-      addResource(&resource_, "/test");
+      resource_ = std::make_shared<TestResource>();
+      addResource(resource_, "/test");
     }
 
     std::string address() 
@@ -159,10 +160,10 @@ namespace {
       return "127.0.0.1:" + std::to_string(httpPort());
     }
 
-    TestResource& resource() { return resource_; }
+    TestResource& resource() { return *resource_; }
 
   private:
-    TestResource resource_;
+    std::shared_ptr<TestResource> resource_;
   };
 
   class Client : public Wt::WObject {

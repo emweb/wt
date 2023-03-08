@@ -23,6 +23,14 @@ EntryPoint::EntryPoint(WResource *resource,
     path_(path)
 { }
 
+EntryPoint::EntryPoint(const std::shared_ptr<WResource>& resource, const std::string& path)
+  : type_(EntryPointType::StaticResource),
+    resource_(resource.get()),
+    ownedResource_(resource),
+    appCallback_(nullptr),
+    path_(path)
+{ }
+
 EntryPoint::~EntryPoint() = default;
 
 void EntryPoint::setPath(const std::string& path)

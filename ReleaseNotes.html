@@ -120,6 +120,15 @@ behaviour.
       </li>
     </ul>
   </li>
+  <li>
+    <a href="classWt_1_1WServer.html#aa17f85dc130b616b3fcf63aa857ff579">WServer::addResource()</a>
+    can now take a <code>shared_ptr</code> instead of a raw pointer,
+    enforcing that the resource lives at least as long as the server, unless removed with
+    <a href="classWt_1_1WServer.html#a9f5a82118198a1d2341fb89572fd8693">WServer::removeEntryPoint()</a>.
+    The overload that takes a raw pointer is now deprecated.
+    This also fixes <a href="https://redmine.webtoolkit.eu/issues/11301" target="_blank">issue #11301</a>, where there
+    could be a use-after-free in <code>test.http</code>.
+  </li>
 </ul>
 
 <h2>Release 4.9.2 (TBD)</h2>

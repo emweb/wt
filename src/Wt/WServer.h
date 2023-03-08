@@ -300,8 +300,29 @@ public:
    * public. Use this method to add a public resource with a fixed
    * path.
    *
+   * \throw Exception if an entrypoint was already registered at the given path
+   *
    * \sa removeEntryPoint()
    */
+  WT_API void addResource(const std::shared_ptr<WResource>& resource, const std::string& path);
+
+  /*! \brief Binds a resource to a fixed path.
+   *
+   * Resources may either be private to a single session or
+   * public. Use this method to add a public resource with a fixed
+   * path.
+   *
+   * \note Ownership of the resource is external to %WServer. The resource first needs
+   *       to be \link removeEntryPoint() removed\endlink (while the server is
+   *       \link stop() stopped\endlink) before being destroyed, or has to outlive the %WServer.
+   *
+   * \throw Exception if an entrypoint was already registered at the given path
+   *
+   * \sa removeEntryPoint()
+   *
+   * \deprecated Use addResource(const std::shared_ptr<WResource>&, const std::string&) instead.
+   */
+  WT_DEPRECATED("Use addResource(const std::shared_ptr<WResource>&, const std::string&) instead")
   WT_API void addResource(WResource *resource, const std::string& path);
 
   /*! \brief Removes an entry point.

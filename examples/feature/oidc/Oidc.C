@@ -103,12 +103,12 @@ int main(int argc, char** argv)
   });
 
   Session tokenSession(dbPath);
-  Wt::Auth::OAuthTokenEndpoint tokenEndpoint{tokenSession.users(), deployUrl};
-  server.addResource(&tokenEndpoint, "/oauth2/token");
+  auto tokenEndpoint = std::make_shared<Wt::Auth::OAuthTokenEndpoint>(tokenSession.users(), deployUrl);
+  server.addResource(tokenEndpoint, "/oauth2/token");
 
   Session userInfoSession(dbPath);
-  Wt::Auth::OidcUserInfoEndpoint userInfoEndpoint{userInfoSession.users()};
-  server.addResource(&userInfoEndpoint, "/oidc/userinfo");
+  auto userInfoEndpoint = std::make_shared<Wt::Auth::OidcUserInfoEndpoint>(userInfoSession.users());
+  server.addResource(userInfoEndpoint, "/oidc/userinfo");
 
   Session::configureAuth();
 

@@ -750,8 +750,6 @@ private:
 
   // state
   std::unique_ptr<ServiceImpl> impl_;
-  std::unique_ptr<StaticAcsResource> staticAcsResource_;
-  std::unique_ptr<MetadataResource> metadataResource_;
 
   // configuration
   std::string secret_;

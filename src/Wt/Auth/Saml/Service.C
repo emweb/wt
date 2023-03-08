@@ -391,7 +391,7 @@ std::unique_ptr<Process> Service::createProcess() const
 
 void Service::generateAcsEndpoint()
 {
-  auto resource = std::make_unique<StaticAcsResource>(*this);
+  auto resource = std::make_shared<StaticAcsResource>(*this);
   std::string path = acsPath();
 
   LOG_INFO("deploying endpoint at " << path);
@@ -403,9 +403,7 @@ void Service::generateAcsEndpoint()
     server = WServer::instance();
   }
 
-  server->addResource(resource.get(), path);
-
-  staticAcsResource_ = std::move(resource);
+  server->addResource(resource, path);
 }
 
 void Service::generateMetadataEndpoint()
@@ -413,7 +411,7 @@ void Service::generateMetadataEndpoint()
   if (metadataPath_.empty())
     return;
 
-  metadataResource_ = std::make_unique<MetadataResource>(*this);
+  auto resource = std::make_shared<MetadataResource>(*this);
   WApplication *app = WApplication::instance();
   WServer *server = nullptr;
   if (app) {
@@ -422,7 +420,7 @@ void Service::generateMetadataEndpoint()
     server = WServer::instance();
   }
 
-  server->addResource(metadataResource_.get(), metadataPath_);
+  server->addResource(resource, metadataPath_);
 }
 
 std::string Service::metadata() const

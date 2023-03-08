@@ -337,23 +337,17 @@ int main(int argc, char** argv) {
     bundle->use(server.appRoot() + "fortunes");
     server.setLocalizedStrings(bundle);
 
-    JsonResource jsonResource;
-    server.addResource(&jsonResource, "/json");
+    server.addResource(std::make_shared<JsonResource>(), "/json");
 
-    DbResource dbResource;
-    server.addResource(&dbResource, "/db");
+    server.addResource(std::make_shared<DbResource>(), "/db");
 
-    QueriesResource queriesResource;
-    server.addResource(&queriesResource, "/queries");
+    server.addResource(std::make_shared<QueriesResource>(), "/queries");
 
-    FortuneResource fortuneResource;
-    server.addResource(&fortuneResource, "/fortune");
+    server.addResource(std::make_shared<FortuneResource>(), "/fortune");
 
-    UpdateResource updateResource;
-    server.addResource(&updateResource, "/updates");
+    server.addResource(std::make_shared<UpdateResource>(), "/updates");
 
-    PlaintextResource plaintextResource;
-    server.addResource(&plaintextResource, "/plaintext");
+    server.addResource(std::make_shared<PlaintextResource>(), "/plaintext");
 
     if (server.start()) {
       int sig = Wt::WServer::waitForShutdown();

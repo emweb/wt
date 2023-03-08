@@ -31,6 +31,8 @@
 #include "WebSession.h"
 #include "WebRequest.h"
 
+#include <memory>
+
 #ifdef WT_THREADED
 #include <mutex>
 #endif // WT_THREADED
@@ -608,7 +610,7 @@ struct OAuthService::Impl
     const OAuthService& service_;
   };
 
-  std::unique_ptr<RedirectEndpoint> redirectResource_;
+  std::shared_ptr<RedirectEndpoint> redirectResource_;
   std::string secret_;
 };
 
@@ -693,7 +695,7 @@ void OAuthService::configureRedirectEndpoint() const
     std::unique_lock<std::mutex> guard(impl_->mutex_);
 #endif
     if (!impl_->redirectResource_) {
-      auto r = std::unique_ptr<Impl::RedirectEndpoint>(new Impl::RedirectEndpoint(*this));
+      auto r = std::make_shared<Impl::RedirectEndpoint>(*this);
       std::string path = redirectEndpointPath();
 
       LOG_INFO("deploying endpoint at " << path);
@@ -704,9 +706,9 @@ void OAuthService::configureRedirectEndpoint() const
       else
         server = WServer::instance();
 
-      server->addResource(r.get(), path);
+      server->addResource(r, path);
 
-      impl_->redirectResource_ = std::move(r);
+      impl_->redirectResource_ = r;
     }
   }
 }

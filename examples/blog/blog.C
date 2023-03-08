@@ -44,9 +44,9 @@ int main(int argc, char **argv)
     std::unique_ptr<Wt::Dbo::SqlConnectionPool> blogDb
       = BlogSession::createConnectionPool(server.appRoot() + "blog.db");
 
-    BlogRSSFeed rssFeed(*blogDb, "Wt blog example", "", "It's just an example.");
+    auto rssFeed = std::make_shared<BlogRSSFeed>(*blogDb, "Wt blog example", "", "It's just an example.");
 
-    server.addResource(&rssFeed, FeedUrl);
+    server.addResource(rssFeed, FeedUrl);
     //When the blog application is deployed in ISAPI on the path "/blog"
     //the resources (css+images) are not fetched correctly
     server.addEntryPoint(Wt::EntryPointType::Application,

@@ -45,15 +45,15 @@ public:
 
 int main(int argc, char *argv[])
 {
-  Resource resource;
-
   try {
     Wt::WServer server{argc, argv, WTHTTP_CONFIGURATION};
 
-    server.addResource(&resource, "/users");
-    server.addResource(&resource, "/users/${user}");
-    server.addResource(&resource, "/users/${user}/posts");
-    server.addResource(&resource, "/users/${user}/posts/${post}");
+    auto resource = std::make_shared<Resource>();
+
+    server.addResource(resource, "/users");
+    server.addResource(resource, "/users/${user}");
+    server.addResource(resource, "/users/${user}/posts");
+    server.addResource(resource, "/users/${user}/posts/${post}");
 
     server.run();
   } catch (const Wt::WServer::Exception &e) {

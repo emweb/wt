@@ -20,6 +20,7 @@ public:
              const std::string& path,
              const std::string& favicon);
   EntryPoint(WResource *resource, const std::string& path);
+  EntryPoint(const std::shared_ptr<WResource>& resource, const std::string& path);
   ~EntryPoint();
 
   void setPath(const std::string& path);
@@ -33,6 +34,7 @@ public:
 private:
   EntryPointType type_;
   WResource *resource_;
+  std::shared_ptr<WResource> ownedResource_;
   ApplicationCreator appCallback_;
   std::string path_;
   std::string favicon_;
