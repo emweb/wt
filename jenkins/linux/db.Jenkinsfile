@@ -22,6 +22,7 @@ node('wt') {
 
 def wt_configure(Map args) {
     sh """cmake .. \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DBUILD_EXAMPLES=ON \
@@ -32,14 +33,17 @@ def wt_configure(Map args) {
             -DEXAMPLES_CONNECTOR=wthttp \
             -DENABLE_HARU=OFF \
             -DENABLE_PANGO=OFF \
+            -DWT_WRASTERIMAGE_IMPLEMENTATION=none \
             -DENABLE_QT4=OFF \
             -DENABLE_QT5=OFF \
+            -DENABLE_QT6=OFF \
             -DENABLE_SQLITE=ON \
             -DUSE_SYSTEM_SQLITE3=ON \
             -DENABLE_POSTGRES=ON \
             -DENABLE_FIREBIRD=OFF \
             -DENABLE_MYSQL=ON \
             -DENABLE_MSSQLSERVER=ON \
+            -DENABLE_OPENGL=OFF \
             -DENABLE_SSL=OFF \
             -DHTTP_WITH_ZLIB=OFF \
             -DSHARED_LIBS=${args.shared} \
