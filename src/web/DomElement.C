@@ -367,7 +367,7 @@ void DomElement::setEvent(const char *eventName,
     js << "o=this;";
 
     if (anchorClick)
-      js << "if(e.ctrlKey||e.metaKey||(" WT_CLASS ".button(e) > 1))"
+      js << "if(e.ctrlKey||e.metaKey||e.shiftKey||(" WT_CLASS ".button(e) > 1))"
         "return true;else{";
 
     /*
