@@ -481,17 +481,19 @@ void WDialog::setTitleBarEnabled(bool enable)
 
 void WDialog::setClosable(bool closable)
 {
+  if (closable == this->closable()) {
+    return;
+  }
+
   if (closable) {
-    if (!closeIcon_) {
-      auto theme = WApplication::instance()->theme();
-      if (std::dynamic_pointer_cast<WBootstrap5Theme>(theme)) {
-        closeIcon_ = titleBar_->addNew<WPushButton>();
-      } else {
-        closeIcon_ = titleBar_->insertWidget(0, std::make_unique<WText>());
-      }
-      theme->apply(this, closeIcon_, DialogCloseIcon);
-      closeIcon_->clicked().connect(this, &WDialog::reject);
+    auto theme = WApplication::instance()->theme();
+    if (std::dynamic_pointer_cast<WBootstrap5Theme>(theme)) {
+      closeIcon_ = titleBar_->addNew<WPushButton>();
+    } else {
+      closeIcon_ = titleBar_->insertWidget(0, std::make_unique<WText>());
     }
+    theme->apply(this, closeIcon_, DialogCloseIcon);
+    closeIcon_->clicked().connect(this, &WDialog::reject);
   } else {
     titleBar_->removeWidget(closeIcon_);
     closeIcon_ = nullptr;

@@ -33,6 +33,12 @@ behaviour.
     fixed an issue where 32 bit Linux builds could cause <code>stat()</code> to
     fail with <code>EOVERFLOW</code>.
   </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/11424" target="_blank">Issue #11424</a>:
+    fixed redundant calls of
+    <a href="classWt_1_1WDialog.html#afe7c5f57ddb5fd1bc67334c931401e98">WDialog::setClosable(false)</a>
+    causing a "widget not in container" error to be logged.
+  </li>
 </ul>
 
 <h2>Release 4.9.1 (January 20, 2023)</h2>
