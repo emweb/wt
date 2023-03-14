@@ -3,14 +3,11 @@
 #include "Wt/Json/Object.h"
 #include "Wt/Json/Array.h"
 #include "Wt/Json/Value.h"
-#include "Wt/WWebWidget.h"
 #include "EscapeOStream.h"
 #include "WebUtils.h"
 
+#include <cmath>
 #include <limits>
-#include <set>
-#include "boost/lexical_cast.hpp"
-#include "boost/algorithm/string/replace.hpp"
 
 namespace Wt {
   namespace Json {
