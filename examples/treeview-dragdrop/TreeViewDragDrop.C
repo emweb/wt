@@ -394,6 +394,7 @@ private:
     treeView->setModel(folderModel_);
     treeView->resize(200, WLength::Auto);
     treeView->setSelectionMode(SelectionMode::Single);
+    treeView->setEnabledDropLocations(DropLocation::OnItem);
     treeView->expandToDepth(1);
     treeView->selectionChanged()
       .connect(this, &TreeViewDragDrop::folderChanged);
