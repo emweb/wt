@@ -288,7 +288,8 @@ class MySQLStatement final : public SqlStatement
       } else{
         in_pars_[column].buffer_type = MYSQL_TYPE_DATETIME;
 
-        auto time = cpp20::date::make_time(value - day_tp);
+        const auto us = cpp20::date::floor<std::chrono::microseconds>(value - day_tp);
+        const auto time = cpp20::date::hh_mm_ss<std::chrono::microseconds>(us);
         ts->hour = time.hours().count();
         ts->minute = time.minutes().count();
         ts->second = time.seconds().count();
