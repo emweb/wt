@@ -17,8 +17,7 @@
 #ifndef HTTP_REPLY_HPP
 #define HTTP_REPLY_HPP
 
-#include <time.h>
-
+#include <chrono>
 #include <list>
 #include <string>
 #include <vector>
@@ -153,8 +152,6 @@ protected:
 
   void setRelay(ReplyPtr reply);
   ReplyPtr relay() const { return relay_; }
-
-  static std::string httpDate(time_t t);
 
   ConnectionPtr connection() const { return connection_; }
   bool transmitting() const { return transmitting_; }

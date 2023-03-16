@@ -371,6 +371,7 @@ web/md5.h web/md5.c
 web/sha1.h web/sha1.c
 web/CgiParser.h web/CgiParser.C
 web/Configuration.h web/Configuration.C
+web/DateUtils.h web/DateUtils.C
 web/DomElement.h web/DomElement.C
 web/EntryPoint.h web/EntryPoint.C
 web/EscapeOStream.h web/EscapeOStream.C

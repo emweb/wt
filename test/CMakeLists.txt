@@ -36,6 +36,7 @@ IF(ENABLE_LIBWTTEST)
     utf8/Utf8Test.C
     utf8/XmlTest.C
     utils/Base64Test.C
+    utils/DateUtils.C
     utils/EraseWord.C
     utils/HtmlEncode.C
     utils/InfraUtils.C

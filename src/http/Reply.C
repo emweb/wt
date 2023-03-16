@@ -19,33 +19,14 @@
 #include "Request.h"
 #include "Server.h"
 
-#include <time.h>
+#include "web/DateUtils.h"
+
 #include <cassert>
+#include <chrono>
 #include <string>
-
-namespace {
-
-inline struct tm* my_gmtime_r(const time_t* t, struct tm* r)
-{
-#ifdef WT_WIN32
-  return gmtime_s(r, t) ? 0 : r;
-#else // !WT_WIN32
-  return gmtime_r(t, r);
-#endif // WT_WIN32
-}
-
-}
 
 namespace Wt {
   LOGGER("wthttp");
-}
-
-namespace {
-  inline void pad2(Wt::WStringStream& buf, int value) {
-    if (value < 10)
-      buf << '0';
-    buf << value;
-  }
 }
 
 namespace http {
@@ -58,31 +39,6 @@ template <std::size_t N>
 inline asio::const_buffer asio_cstring_buf(const char (&s) [N])
 {
   return asio::const_buffer(s, N-1);
-}
-
-void httpDateBuf(time_t t, Wt::WStringStream& buf)
-{
-  struct tm td;
-  my_gmtime_r(&t, &td);
-
-  static const char dayOfWeekStr[7][4]
-    = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
-  static const char monthStr[12][4]
-    = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-
-  // Wed, 15 Jan 2014 21:20:01 GMT
-  buf << dayOfWeekStr[td.tm_wday] << ", "
-      << td.tm_mday << ' '
-      << monthStr[td.tm_mon] << ' '
-      << (td.tm_year + 1900) << ' ';
-
-  pad2(buf, td.tm_hour);
-  buf << ':';
-  pad2(buf, td.tm_min);
-  buf << ':';
-  pad2(buf, td.tm_sec);
-  buf << " GMT";
 }
 
 namespace status_strings {
@@ -344,7 +300,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
          * Date header (current time)
          */
         buf_ << "Date: ";
-        httpDateBuf(time(0), buf_);
+        Wt::DateUtils::httpDateBuf(std::chrono::system_clock::now(), buf_);
         buf_ << "\r\n";
       }
 
@@ -546,13 +502,6 @@ asio::const_buffer Reply::buf(const std::string &s)
 {
   bufs_.push_back(s);
   return asio::buffer(bufs_.back());
-}
-
-std::string Reply::httpDate(time_t t)
-{
-  Wt::WStringStream s;
-  httpDateBuf(t, s);
-  return s.str();
 }
 
 #ifdef WTHTTP_WITH_ZLIB

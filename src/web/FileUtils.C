@@ -58,9 +58,9 @@ namespace Wt {
                      std::istreambuf_iterator<char>());
     }
 
-    time_t lastWriteTime(const std::string &file)
+    std::chrono::system_clock::time_point lastWriteTime(const std::string &file)
     {
-      return boost::filesystem::last_write_time(file);
+      return std::chrono::system_clock::from_time_t(boost::filesystem::last_write_time(file));
     }
 
     bool exists(const std::string &file)

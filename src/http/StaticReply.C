@@ -12,8 +12,10 @@
 #include "StockReply.h"
 #include "MimeTypes.h"
 
+#include "DateUtils.h"
 #include "FileUtils.h"
 
+#include "Wt/cpp20/date.hpp"
 #include "Wt/WLogger.h"
 
 using namespace BOOST_SPIRIT_CLASSIC_NS;
@@ -210,7 +212,7 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
 
 std::string StaticReply::computeModifiedDate() const
 {
-  return httpDate(Wt::FileUtils::lastWriteTime(path_));
+  return Wt::DateUtils::httpDate(Wt::FileUtils::lastWriteTime(path_));
 }
 
 std::string StaticReply::computeETag() const
@@ -220,9 +222,7 @@ std::string StaticReply::computeETag() const
 
 std::string StaticReply::computeExpires()
 {
-  time_t t = time(0);
-  t += 3600*24*31;
-  return httpDate(t);
+  return Wt::DateUtils::httpDate(std::chrono::system_clock::now() + Wt::cpp20::date::days(31));
 }
 
 bool StaticReply::consumeData(const char *begin,
