@@ -5,6 +5,7 @@
  */
 #include <boost/test/unit_test.hpp>
 
+#include <Wt/cpp20/date.hpp>
 #include <Wt/Dbo/Dbo.h>
 #include <Wt/Dbo/FixedSqlConnectionPool.h>
 #include <Wt/WDate.h>
@@ -17,6 +18,7 @@
 #include "DboFixture.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <limits>
 #include <iomanip>
@@ -34,10 +36,6 @@
 
 #define DEBUG(x) x
 //#define DEBUG(x)
-
-#ifdef WT_WIN32
-#define timegm _mkgmtime
-#endif
 
 namespace dbo = Wt::Dbo;
 
@@ -309,31 +307,14 @@ public:
 #endif // __has_include(<optional>)
 #endif // WT_CXX17
     if (timepoint  != other.timepoint) {
-      std::time_t t = std::chrono::system_clock::to_time_t(timepoint);
-      std::tm *tm = std::gmtime(&t);
-      char str[100];
-      std::strftime(str, sizeof(str), "%Y-%b-%d %H:%M:%S", tm);
-      std::time_t tother = std::chrono::system_clock::to_time_t(other.timepoint);
-      std::tm *tmother = std::gmtime(&tother);
-      char strother[100];
-      std::strftime(strother, sizeof(strother), "%Y-%b-%d %H:%M:%S", tmother);
-      DEBUG(std::cerr << "ERROR: timepoint = " <<  str << " | " << strother
-            << std::endl);
+#ifdef WT_DATE_TZ_USE_DATE
+      using ::date::operator<<;
+#endif
+      DEBUG(std::cerr << "ERROR: timepoint = " << timepoint << " | " << other.timepoint << std::endl);
     }
     if (timeduration  != other.timeduration) {
-      std::chrono::system_clock::time_point tp(timeduration);
-      std::time_t t = std::chrono::system_clock::to_time_t(tp);
-      std::tm *tm = std::gmtime(&t);
-      char str[100];
-      std::strftime(str, sizeof(str), "%Y-%b-%d %H:%M:%S", tm);
-      std::chrono::system_clock::time_point tpother(other.timeduration);
-      std::time_t tother = std::chrono::system_clock::to_time_t(tpother);
-      std::tm *tmother = std::gmtime(&tother);
-      char strother[100];
-      std::strftime(strother, sizeof(strother), "%Y-%b-%d %H:%M:%S", tmother);
-      std::cout << "Current " << timeduration.count() << " | other " << other.timeduration.count() << std::endl;
-      DEBUG(std::cerr << "ERROR: timeduration = " << str << " | "
-            << strother << std::endl);
+      DEBUG(std::cerr << "ERROR: timeduration = " << timeduration.count() << " | "
+                      << other.timeduration.count() << std::endl);
     }
     if (i != other.i) {
       DEBUG(std::cerr << "ERROR: i = " << i << " | " << other.i << std::endl);
@@ -611,6 +592,8 @@ BOOST_AUTO_TEST_SUITE( DBO_TEST_SUITE_NAME )
 
 BOOST_AUTO_TEST_CASE( dbo_test1 )
 {
+  using namespace std::chrono_literals;
+
   DboFixture f;
 
   dbo::Session *session_ = f.session_;
@@ -631,15 +614,8 @@ BOOST_AUTO_TEST_CASE( dbo_test1 )
   a1.wstring2 = Wt::WString::fromUTF8("Kitty euro\xe2\x82\xac greek \xc6\x94 \xf0\x9f\x90\xb1");
   a1.string = "There";
   a1.string2 = "Big Owl";
-  std::tm timeInfo = std::tm();
-  timeInfo.tm_year = 2005 - 1900;
-  timeInfo.tm_mon = 0; //Jan
-  timeInfo.tm_mday = 1;
-  timeInfo.tm_hour = 1;
-  timeInfo.tm_min = 2;
-  timeInfo.tm_sec = 3;
-  std::time_t t = timegm(&timeInfo);
-  a1.timepoint = std::chrono::system_clock::from_time_t(t);
+  a1.timepoint =
+          static_cast<Wt::cpp20::date::sys_days>(Wt::cpp20::date::year(2005) / 1 / 1) + 1h + 2min + 3s;
   a1.timeduration = std::chrono::hours(1) + std::chrono::seconds(10);
   a1.checked = true;
   a1.i = 42;
@@ -1810,6 +1786,8 @@ BOOST_AUTO_TEST_CASE( dbo_test15 )
 
 BOOST_AUTO_TEST_CASE( dbo_test16 )
 {
+  using namespace std::chrono_literals;
+
   DboFixture f;
 
   dbo::Session *session = f.session_;
@@ -1826,15 +1804,8 @@ BOOST_AUTO_TEST_CASE( dbo_test16 )
     a1.datetime = Wt::WDateTime(Wt::WDate(2009, 10, 1), Wt::WTime(12, 11, 31));
     a1.wstring = "Hello";
     a1.string = "There";
-    std::tm timeInfo = std::tm();
-    timeInfo.tm_year = 2005 - 1900;
-    timeInfo.tm_mon = 0; //Jan
-    timeInfo.tm_mday = 1;
-    timeInfo.tm_hour = 1;
-    timeInfo.tm_min = 2;
-    timeInfo.tm_sec = 3;
-    std::time_t timet = timegm(&timeInfo);
-    a1.timepoint = std::chrono::system_clock::from_time_t(timet);
+    a1.timepoint =
+            static_cast<Wt::cpp20::date::sys_days>(Wt::cpp20::date::year(2005) / 1 / 1) + 1h + 2min + 3s;
     a1.timeduration = std::chrono::hours(1) + std::chrono::seconds(10);
     a1.i = 42;
     a1.i64 = 9223372036854775805LL;
@@ -1876,15 +1847,8 @@ BOOST_AUTO_TEST_CASE( dbo_test16 )
         bin.push_back(255 - i);
       Wt::WString ws("Hey");
       std::string s("Test");
-      std::tm timeInfo = std::tm();
-      timeInfo.tm_year = 2010 - 1900;
-      timeInfo.tm_mon = 8; //Sep
-      timeInfo.tm_mday = 9;
-      timeInfo.tm_hour = 3;
-      timeInfo.tm_min = 2;
-      timeInfo.tm_sec = 1;
-      std::time_t timet = timegm(&timeInfo);
-      std::chrono::system_clock::time_point tp = std::chrono::system_clock::from_time_t(timet);
+      std::chrono::system_clock::time_point tp =
+              static_cast<Wt::cpp20::date::sys_days>(Wt::cpp20::date::year(2010) / 9 / 9) + 3h + 2min + 1s;
       std::chrono::duration<int, std::milli> duration = std::chrono::hours(1) + std::chrono::seconds(10);
       int i = 50;
       ::int64_t i64 = 8223372036854775805LL;;
