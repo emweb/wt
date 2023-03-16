@@ -13,10 +13,15 @@
 #include "Wt/Date/date.h"
 
 #include "WebUtils.h"
-#include <cmath>
 
 namespace {
   std::string WT_WDATE = "Wt.WDate.";
+
+  // Nov 24, 4714 BCE (year(-4713) is 4714 BCE)
+  // Normally Julian days start counting from midday, but since toJulianDay() and fromJulianDay()
+  // use integers, we'll count from midnight instead. This is consistent with
+  // boost::gregorian::date::julian_day(), which is what Wt 3 used.
+  constexpr auto JULIAN_DAY_EPOCH = static_cast<date::sys_days>(date::year(-4713) / 11 / 24);
 }
 
 namespace Wt {
@@ -145,12 +150,7 @@ int WDate::toJulianDay() const
   if (!isValid())
     return 0;
   else {
-    int a = std::floor((14 - month())/12);
-    int nyears = year() + 4800 - a;
-    int nmonths = month() + 12*a -3;
-    return day() + std::floor((153*nmonths + 2)/5)
-      + 365*nyears + std::floor(nyears/4)
-      - std::floor(nyears/100) + std::floor(nyears/400) - 32045;
+    return (static_cast<date::sys_days>(date::year(year()) / month() / day()) - JULIAN_DAY_EPOCH).count();
   }
 }
 
@@ -402,43 +402,8 @@ WDateTime::CharState WDate::handleSpecial(char c, const std::string& v,
 
 WDate WDate::fromJulianDay(int jd)
 {
-  int julian = jd;
-  int day, month, year;
-
-  if (julian < 0) {
-    julian = 0;
-  }
-
-  int a = julian;
-
-  if (julian >= 2299161) {
-    int jadj = (int)(((float)(julian - 1867216) - 0.25) / 36524.25);
-    a += 1 + jadj - (int)(0.25 * jadj);
-  }
-
-  int b = a + 1524;
-  int c = (int)(6680.0 + ((float)(b - 2439870) - 122.1) / 365.25);
-  int d = (int)(365 * c + (0.25 * c));
-  int e = (int)((b - d) / 30.6001);
-
-  day = b - d - (int)(30.6001 * e);
-  month = e - 1;
-
-  if (month > 12) {
-    month -= 12;
-  }
-
-  year = c - 4715;
-
-  if (month > 2) {
-    --year;
-  }
-
-  if (year <= 0) {
-    --year;
-  }
-
-  return WDate(year, month, day);
+  const auto ymd = date::year_month_day(JULIAN_DAY_EPOCH + date::days(jd));
+  return WDate(static_cast<int>(ymd.year()), static_cast<unsigned>(ymd.month()), static_cast<unsigned>(ymd.day()));
 }
 
 static void fatalFormatError(const WString& format, int c, const char* cs)
