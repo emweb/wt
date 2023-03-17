@@ -164,7 +164,7 @@ IF(ENABLE_LIBWTTEST)
     ENDIF(HAVE_FIREBIRD)
 
     IF(HAVE_SQLITE)
-      ADD_EXECUTABLE(       test.sqlite3 ${DBO_TEST_SOURCES})
+      ADD_EXECUTABLE(       test.sqlite3 ${DBO_TEST_SOURCES} dbo/SqliteTest.C)
       TARGET_LINK_LIBRARIES(test.sqlite3 wt wttest wtdbo wtdbosqlite3 ${BOOST_TEST_LIBRARIES})
       SET_TARGET_PROPERTIES(test.sqlite3 PROPERTIES COMPILE_FLAGS "-DSQLITE3")
       IF(MSVC)

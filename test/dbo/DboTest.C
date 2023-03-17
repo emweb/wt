@@ -3481,4 +3481,35 @@ BOOST_AUTO_TEST_CASE( dbo_test47 )
   }
 }
 
+BOOST_AUTO_TEST_CASE( dbo_test_datetime_before_epoch )
+{
+  using namespace std::chrono_literals;
+
+  // Issue #11426: on Windows, with Sqlite3, when we used gmtime, dates and datetimes
+  // before UNIX epoch would not work properly.
+  DboFixture f;
+  dbo::Session &session = *f.session_;
+
+  const auto date = Wt::WDate(1901, 5, 1);
+  const auto datetime = Wt::WDateTime(Wt::WDate(1912, 1, 2), Wt::WTime(13, 10, 15));
+  const auto timepoint =
+          static_cast<Wt::cpp20::date::sys_days>(Wt::cpp20::date::year(1831) / 7 / 21) + 12h + 13min + 14s + 9ms;
+
+  {
+    dbo::Transaction t(session);
+    auto a = session.addNew<A>();
+    a.modify()->date = date;
+    a.modify()->datetime = datetime;
+    a.modify()->timepoint = timepoint;
+  }
+
+  {
+    dbo::Transaction t(session);
+    auto a = session.find<A>().resultValue();
+    BOOST_REQUIRE(a->date == date);
+    BOOST_REQUIRE(a->datetime == datetime);
+    BOOST_REQUIRE(a->timepoint == timepoint);
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
