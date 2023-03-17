@@ -5,6 +5,9 @@
  */
 
 #include "Wt/Dbo/backend/Sqlite3.h"
+
+#include "Wt/Date/date.h"
+
 #include "Wt/Dbo/Exception.h"
 #include "Wt/Dbo/Logger.h"
 #include "Wt/Dbo/StringStream.h"
@@ -13,32 +16,20 @@
 #include <db.h>
 #endif // SQLITE3_BDB
 #include <sqlite3.h>
-#include <ctime>
+
+#include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <math.h>
-
-#ifdef WT_WIN32
-#define timegm _mkgmtime
-#endif
-
-#define USEC_PER_DAY (24.0 * 60 * 60 * 1000 * 1000)
 
 namespace {
-#ifndef WT_WIN32
-  thread_local std::tm local_tm;
-#endif
-
-  std::tm *thread_local_gmtime(const time_t *timep)
-  {
-#ifdef WT_WIN32
-    return std::gmtime(timep); // Already returns thread-local pointer
-#else // !WT_WIN32
-    gmtime_r(timep, &local_tm);
-    return &local_tm;
-#endif // WT_WIN32
-  }
+  using dayDbl = std::chrono::duration<double, date::days::period>;
+  // Nov 24, 4714 BCE 12:00pm (year(-4713) is 4714 BCE)
+  constexpr auto JULIAN_DAY_EPOCH =
+          std::chrono::time_point_cast<dayDbl>(
+                  static_cast<date::sys_days>(date::year(-4713) / 11 / 24) +
+                  std::chrono::hours(12));
+  constexpr auto UNIX_EPOCH = static_cast<date::sys_days>(date::year(1970) / 1 / 1);
 }
 
 namespace Wt {
@@ -47,16 +38,6 @@ namespace Wt {
 LOGGER("Dbo.backend.Sqlite3");
 
     namespace backend {
-
-inline bool isNaN(double d) {
-#ifdef _MSC_VER
-  // received bug reports that on 64 bit windows, MSVC2005
-  // generates wrong code for d != d.
-  return _isnan(d) != 0;
-#else
-  return !(d == d);
-#endif
-}
 
 class Sqlite3Exception : public Exception
 {
@@ -156,7 +137,7 @@ public:
     LOG_DEBUG(this << " bind " << column << " " << value);
 
     int err;
-    if (isNaN(value))
+    if (std::isnan(value))
       err = sqlite3_bind_text(st_, column + 1, "NaN", 3, SQLITE_TRANSIENT);
     else
       err = sqlite3_bind_double(st_, column + 1, value);
@@ -177,63 +158,37 @@ public:
   virtual void bind(int column, const std::chrono::system_clock::time_point& value,
                     SqlDateTimeType type) override
   {
-    DateTimeStorage storageType = db_.dateTimeStorage(type);
-    std::time_t t = std::chrono::system_clock::to_time_t(value);
-    std::tm *tm = thread_local_gmtime(&t);
-    std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(value.time_since_epoch());
-
+    const auto storageType = db_.dateTimeStorage(type);
     switch (storageType) {
     case DateTimeStorage::ISO8601AsText:
     case DateTimeStorage::PseudoISO8601AsText: {
-      std::string v;
-      char str[100];
-      if (type == SqlDateTimeType::Date){
-        std::strftime(str, sizeof(str), "%Y-%m-%d", tm);
-        v = str;
+      if (type == SqlDateTimeType::Date) {
+        const auto days = date::floor<date::days>(value);
+        bind(column, date::format(std::locale::classic(), "%Y-%m-%d", days));
+      } else {
+        const auto ms = date::floor<std::chrono::milliseconds>(value);
+        if (storageType == DateTimeStorage::PseudoISO8601AsText) {
+          bind(column, date::format(std::locale::classic(), "%Y-%m-%d %H:%M:%S", ms));
+        } else {
+          bind(column, date::format(std::locale::classic(), "%Y-%m-%dT%H:%M:%S", ms));
+        }
       }
-      else {
-        std::strftime(str, sizeof(str), "%Y-%m-%dT%H:%M:%S", tm);
-        v = str;
-        std::stringstream ss;
-        ss.imbue(std::locale::classic());
-        ss << "." << std::setfill('0') << std::setw(3) << ms.count()%1000;
-        v.append(ss.str());
-
-        if (storageType == DateTimeStorage::PseudoISO8601AsText)
-          v[v.find('T')] = ' ';
-      }
-
-      bind(column, v);
       break;
     }
     case DateTimeStorage::JulianDaysAsReal: {
-      int a = floor((14 - tm->tm_mon + 1)/12);
-      int nyears = tm->tm_year + 1900 + 4800 - a;
-      int nmonths = tm->tm_mon + 1 + 12*a - 3;
-      int julianday = tm->tm_mday + floor((153*nmonths + 2)/5) + 365*nyears + floor(nyears/4) - floor(nyears/100) + floor(nyears/400) - 32045;
-      if (type == SqlDateTimeType::Date)
-        bind(column, static_cast<double>(julianday));
-      else {
-        long long msec = (tm->tm_hour * 3600 + tm->tm_min * 60 + tm->tm_sec)*1000 + ms.count()%1000;
-        bind(column, julianday
-         + msec / USEC_PER_DAY);
+      std::chrono::time_point<std::chrono::system_clock, dayDbl> days{};
+      if (type == SqlDateTimeType::Date) {
+        const auto date = date::floor<date::days>(value);
+        days = std::chrono::time_point_cast<dayDbl>(date);
+      } else {
+        days = std::chrono::time_point_cast<dayDbl>(value);
       }
+      const auto duration = days - JULIAN_DAY_EPOCH;
+      bind(column, duration.count());
       break;
     }
     case DateTimeStorage::UnixTimeAsInteger:
-      std::tm tmEpoch = std::tm();
-      tmEpoch.tm_mday = 1;
-      tmEpoch.tm_mon = 0;
-      tmEpoch.tm_year = 70;
-      std::time_t tEpoch = timegm(&tmEpoch);
-      std::chrono::system_clock::time_point tpEpoch = std::chrono::system_clock::from_time_t(tEpoch);
-      std::chrono::system_clock::time_point diff = std::chrono::system_clock::time_point(value - tpEpoch);
-      std::time_t tdiff = std::chrono::system_clock::to_time_t(diff);
-      std::tm *tmDiff = thread_local_gmtime(&tdiff);
-      std::chrono::milliseconds millis = std::chrono::duration_cast<std::chrono::milliseconds>(diff.time_since_epoch());
-      bind(column,
-           static_cast<long long>
-       ((tmDiff->tm_hour * 3600 + tmDiff->tm_min * 60 + tmDiff->tm_sec)*1000 + millis.count()%1000));
+      bind(column, static_cast<long long>(date::floor<std::chrono::seconds>(value - UNIX_EPOCH).count()));
       break;
     };
   }
@@ -436,58 +391,48 @@ public:
       if (!getResult(column, &v, -1))
         return false;
 
-      try {
-        if (type == SqlDateTimeType::Date) {
-          int year, month, day;
-          std::sscanf(v.c_str(), "%d-%d-%d", &year, &month, &day);
-          std::tm tm = std::tm();
-          tm.tm_year = year - 1900;
-          tm.tm_mon = month - 1;
-          tm.tm_mday = day;
-          std::time_t t = timegm(&tm);
-          *value = std::chrono::system_clock::from_time_t(t);
+      if (type == SqlDateTimeType::Date) {
+        std::istringstream iss(v);
+        iss.imbue(std::locale::classic());
+        std::chrono::system_clock::time_point result{};
+        iss >> date::parse("%Y-%m-%d", result);
+        if (!iss.fail() && iss.peek() == EOF) {
+          *value = result;
+          return true;
         } else {
-          std::size_t t = v.find('T');
-
-          if (t != std::string::npos)
-            v[t] = ' ';
-          if (v.length() > 0 && v[v.length() - 1] == 'Z')
-            v.erase(v.length() - 1);
-
-          int year, month, day, hour, min, sec, ms;
-          std::sscanf(v.c_str(), "%d-%d-%d %d:%d:%d.%d", &year, &month, &day, &hour, &min, &sec, &ms);
-          std::tm tm = std::tm();
-          tm.tm_year = year - 1900;
-          tm.tm_mon = month - 1;
-          tm.tm_mday = day;
-          tm.tm_hour = hour;
-          tm.tm_min = min;
-          tm.tm_sec = sec;
-          std::time_t timet = timegm(&tm);
-          *value = std::chrono::system_clock::from_time_t(timet);
-          *value += std::chrono::milliseconds(ms);
+          LOG_ERROR("getResult(): failed to parse '" << v << "' as date");
+          return false;
         }
-      } catch (std::exception& e) {
-        LOG_ERROR("Sqlite3::getResult(ptime): " << e.what());
-        return false;
-      }
+      } else {
+        std::size_t t = v.find('T');
+        if (t != std::string::npos)
+          v[t] = ' ';
 
-      return true;
+        if (v.length() > 0 && v[v.length() - 1] == 'Z')
+          v.erase(v.length() - 1);
+
+        std::istringstream iss(v);
+        iss.imbue(std::locale::classic());
+        std::chrono::system_clock::time_point result{};
+        iss >> date::parse("%Y-%m-%d %H:%M:%S", result);
+        if (!iss.fail() && iss.peek() == EOF) {
+          *value = result;
+          return true;
+        } else {
+          LOG_ERROR("getResult(): failed to parse '" << v << "' as datetime");
+          return false;
+        }
+      }
     }
     case DateTimeStorage::JulianDaysAsReal: {
       double v;
       if (!getResult(column, &v))
         return false;
 
-      int vi = static_cast<int>(v);
-
-      if (type == SqlDateTimeType::Date)
-        *value = fromJulianDay(vi);
-      else {
-        double vf = modf(v, &v);
-        std::chrono::system_clock::time_point d = fromJulianDay(vi);
-        d += std::chrono::microseconds((int)(vf * USEC_PER_DAY));
-        *value = d;
+      if (type == SqlDateTimeType::Date) {
+        *value = date::floor<date::days>(JULIAN_DAY_EPOCH + dayDbl(v));
+      } else {
+        *value = date::round<std::chrono::system_clock::duration>(JULIAN_DAY_EPOCH + dayDbl(v));
       }
 
       return true;
@@ -497,20 +442,14 @@ public:
 
       if (!getResult(column, &v))
         return false;
-      std::chrono::system_clock::time_point tp =
-        std::chrono::system_clock::from_time_t(static_cast<std::time_t>(v));
+
+      const auto result = UNIX_EPOCH + std::chrono::seconds(v);
+
       if (type == SqlDateTimeType::Date){
-        std::time_t t = std::chrono::system_clock::to_time_t(tp);
-        std::tm *tm = thread_local_gmtime(&t);
-        std::tm time = std::tm();
-        time.tm_year = tm->tm_year;
-        time.tm_mon = tm->tm_mon;
-        time.tm_mday = tm->tm_mday;
-        std::time_t t2 = timegm(&time);
-        *value = std::chrono::system_clock::from_time_t(t2);
+        *value = date::floor<date::days>(result);
+      } else {
+        *value = result;
       }
-      else
-        *value = tp;
 
       return true;
     }
@@ -560,51 +499,6 @@ private:
 
       throw Sqlite3Exception(msg);
     }
-  }
-
-  std::chrono::system_clock::time_point fromJulianDay(int julian) {
-    int day, month, year;
-
-    if (julian < 0) {
-      julian = 0;
-    }
-
-    int a = julian;
-
-    if (julian >= 2299161) {
-      int jadj = (int)(((float)(julian - 1867216) - 0.25) / 36524.25);
-      a += 1 + jadj - (int)(0.25 * jadj);
-    }
-
-    int b = a + 1524;
-    int c = (int)(6680.0 + ((float)(b - 2439870) - 122.1) / 365.25);
-    int d = (int)(365 * c + (0.25 * c));
-    int e = (int)((b - d) / 30.6001);
-
-    day = b - d - (int)(30.6001 * e);
-    month = e - 1;
-
-  if (month > 12) {
-    month -= 12;
-  }
-
-  year = c - 4715;
-
-  if (month > 2) {
-    --year;
-  }
-
-  if (year <= 0) {
-    --year;
-  }
-
-  std::tm tm = std::tm();
-  tm.tm_year = year - 1900;
-  tm.tm_mon = month - 1;
-  tm.tm_mday = day;
-  std::time_t t = timegm(&tm);
-
-  return std::chrono::system_clock::from_time_t(t);
   }
 };
 
