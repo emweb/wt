@@ -17,13 +17,20 @@ extern "C" {
 
 namespace Wt {
   namespace Dbo {
+    /*! \brief Namespace for %Dbo backends
+     *
+     * \ingroup dbo
+     */
     namespace backend {
 
-/*! \brief Configuration of date time storage.
+/*! \enum DateTimeStorage
+ *  \brief Configuration of date time storage.
  *
- * SQlite3 does not provide real type support for date time. Instead,
+ * The Sqlite3 backend does not provide real type support for date time. Instead,
  * it offers 3 choices for storing a date time, each of these compatible
  * with the use of the built-in arithmetic functions.
+ *
+ * \sa Sqlite3::setDateTimeStorage()
  */
 enum class DateTimeStorage {
   /*!
@@ -37,7 +44,7 @@ enum class DateTimeStorage {
   /*!
    * As 'text' in ISO8601-like format, but using a space (' ') instead
    * of 'T' as a separator character between date and time. This is
-   * the behaviour of Wt::Dbo prior to Wt 3.2.3.
+   * the behaviour of Wt::Dbo prior to %Wt 3.2.3.
    *
    * This also interprets correctly dates stored in the database
    * using the ISO8601AsText format.
