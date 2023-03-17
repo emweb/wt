@@ -80,6 +80,46 @@ behaviour.
     <a href="classWt_1_1WResource.html#a12b871c53120ad1c7c708210f60422be">WResource::internalPath()</a>
     now returns the empty string for static resources, since it doesn't make sense for static resources.
   </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/11426" target="_blank">Issue #11426</a>:
+    <a href="classWt_1_1Dbo_1_1backend_1_1Sqlite3.html">Sqlite3</a>:
+    fixed multiple issues with dates and timestamps:
+    <ul>
+      <li>
+        Timestamps before 1970 would not be saved properly on Windows, because of limitations
+        of the <code>gmtime</code> function on Windows. The new implementation uses the
+        <a href="https://github.com/HowardHinnant/date" target="_blank">date</a>
+        library instead.
+      </li>
+      <li>
+        There was a bug in the conversion to a date time string if
+        <a href="namespaceWt_1_1Dbo_1_1backend.html#a834555b81f67cf1e17b6e73d1a948067">ISO8601AsText</a>
+        was set as the
+        <a href="classWt_1_1Dbo_1_1backend_1_1Sqlite3.html#a571f4019950aafc2b855d46d4e7072d5">date time storage</a>.
+        For timestamps before 1970 the millisecond part would be saved as a negative integer, e.g.
+        December 31, 1969 23:59:59.999 would be saved as
+        <code>1970-01-01T00:00:00.0-1</code> instead of <code>1969-12-31T23:59:59.999</code>.
+      </li>
+      <li>
+        There was a bug in the conversion to and from Julian days if
+        <a href="namespaceWt_1_1Dbo_1_1backend.html#a834555b81f67cf1e17b6e73d1a948067">JulianDaysAsReal</a>
+        was set as the
+        <a href="classWt_1_1Dbo_1_1backend_1_1Sqlite3.html#a571f4019950aafc2b855d46d4e7072d5">date time storage</a>.
+        The decimal part was divided by 1000, and it was ahead by 12 hours due to it using
+        midnight rather than noon 1 January 4713 BCE as the reference timestamp. It is now
+        consistent with SQLite's own
+        <a href="https://sqlite.org/lang_datefunc.html" target="_blank">julianday()</a>
+        function.
+      </li>
+      <li>
+        There was a bug in the conversion to UNIX timestamps if
+        <a href="namespaceWt_1_1Dbo_1_1backend.html#a834555b81f67cf1e17b6e73d1a948067">UnixTimeAsInteger</a>
+        was set as the
+        <a href="classWt_1_1Dbo_1_1backend_1_1Sqlite3.html#a571f4019950aafc2b855d46d4e7072d5">date time storage</a>.
+        The date part was discarded, and the time was saved as a number of milliseconds instead of seconds.
+      </li>
+    </ul>
+  </li>
 </ul>
 
 <h2>Release 4.9.2 (TBD)</h2>
