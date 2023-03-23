@@ -76,7 +76,7 @@ void BlogRSSFeed::handleRequest(const Wt::Http::Request &request,
     response.out() <<
       "    <item>\n"
       "      <title>" << Wt::Utils::htmlEncode(post->title.toUTF8()) << "</title>\n"
-      "      <pubDate>" << post->date.toString("ddd, d MMM yyyy hh:mm:ss UTC")
+      "      <pubDate>" << post->date.toString("ddd, dd MMM yyyy hh:mm:ss 'GMT'")
                    << "</pubDate>\n"
       "      <guid isPermaLink=\"true\">" << Wt::Utils::htmlEncode(permaLink)
                    << "</guid>\n";
