@@ -79,13 +79,13 @@ BOOST_AUTO_TEST_CASE( cookie_render_test )
   cookie.setSameSite(Wt::Http::Cookie::SameSite::Strict);
   BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=value; Version=1; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=Strict;");
   cookie.setExpires(Wt::WDateTime(Wt::WDate(2023, 1, 1)));
-  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=value; Version=1; Expires=Sun, 01-Jan-2023 00:00:00 GMT; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=Strict;");
+  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=value; Version=1; Expires=Sun, 01 Jan 2023 00:00:00 GMT; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=Strict;");
   cookie.setExpires(Wt::WDateTime(Wt::WDate(2023, 1, 1), Wt::WTime(14, 41, 11)));
-  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=value; Version=1; Expires=Sun, 01-Jan-2023 14:41:11 GMT; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=Strict;");
+  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=value; Version=1; Expires=Sun, 01 Jan 2023 14:41:11 GMT; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=Strict;");
   // Test removal
   cookie.setValue("deleted");
   cookie.setMaxAge(std::chrono::seconds(0));
-  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=deleted; Version=1; Expires=Sun, 01-Jan-2023 14:41:11 GMT; Max-Age=0; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=Strict;");
+  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=deleted; Version=1; Expires=Sun, 01 Jan 2023 14:41:11 GMT; Max-Age=0; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=Strict;");
 
   cookie = Wt::Http::Cookie("test", "value", std::chrono::minutes(10));
   auto expires  = Wt::WDateTime::currentDateTime().addSecs(600);

@@ -20,6 +20,7 @@
 #include "Wt/Utils.h"
 
 #include "Configuration.h"
+#include "DateUtils.h"
 #include "DomElement.h"
 #include "EscapeOStream.h"
 #include "FileServe.h"
@@ -78,8 +79,7 @@ namespace {
     if (expires.isNull())
       return "";
 
-    std::string formatString = "ddd, dd-MMM-yyyy hh:mm:ss 'GMT'";
-    return expires.toString(Wt::WString::fromUTF8(formatString), false).toUTF8();
+    return Wt::DateUtils::httpDate(expires.toTimePoint());
   }
 
   std::string renderPath(const Wt::Http::Cookie& cookie)
