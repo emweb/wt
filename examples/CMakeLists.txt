@@ -36,7 +36,7 @@ IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
   IF(WIN32)
     # preamble to make this a toplevel CMakeLists.txt for Windows, intended
     # for being used 
-    CMAKE_MINIMUM_REQUIRED(VERSION 3.1...3.14)
+    CMAKE_MINIMUM_REQUIRED(VERSION 3.13...3.22)
 
     Project(WtExamples)
 
@@ -54,16 +54,19 @@ IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
 
     get_filename_component(WT_INSTALL_DIR "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)
 
-    SET(HAVE_HARU true)
-    add_library(libhpdf SHARED IMPORTED)
-    set_target_properties(libhpdf PROPERTIES
+    set(HAVE_HARU TRUE)
+    add_library(HPDF::HPDF SHARED IMPORTED)
+
+    set_target_properties(HPDF::HPDF PROPERTIES
       IMPORTED_IMPLIB "${WT_INSTALL_DIR}/lib/hpdf.lib"
-      IMPORTED_LOCATION "${WT_INSTALL_DIR}/bin/hpdf.dll")
-    add_library(libhpdfd SHARED IMPORTED)
-    set_target_properties(libhpdfd PROPERTIES
-      IMPORTED_IMPLIB "${WT_INSTALL_DIR}/lib/hpdfd.lib"
-      IMPORTED_LOCATION "${WT_INSTALL_DIR}/bin/hpdfd.dll")
-    SET(HARU_LIB optimized libhpdf debug libhpdfd)
+      IMPORTED_IMPLIB_DEBUG "${WT_INSTALL_DIR}/lib/hpdfd.lib"
+      IMPORTED_LOCATION "${WT_INSTALL_DIR}/bin/hpdf.dll"
+      IMPORTED_LOCATION_DEBUG "${WT_INSTALL_DIR}/bin/hpdfd.dll"
+      INTERFACE_INCLUDE_DIRECTORIES
+        "${WT_INSTALL_DIR}/include"
+      IMPORTED_LINK_INTERFACE_LANGUAGES "C"
+      INTERFACE_COMPILE_DEFINITIONS HPDF_DLL
+    )
 
     SET(EXAMPLES_CONNECTOR Wt::HTTP)
     SET(EXAMPLES_WT_LIB Wt::Wt)
@@ -80,9 +83,6 @@ IF("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
       LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
     ENDIF()
 
-    # We ship libharu as DLL. Compiling/linking against libharu DLL requires
-    # this definition to be set.
-    ADD_DEFINITIONS(-DHPDF_DLL)
     # Windows SDK is always multithreaded
     SET(BOOST_WT_MT_FOUND true)
     SET(MULTI_THREADED true)

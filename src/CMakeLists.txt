@@ -632,15 +632,17 @@ ELSE(HAVE_SSL)
   ENDIF(ENABLE_SSL)
 ENDIF(HAVE_SSL)
 
-IF(HAVE_HARU)
-  TARGET_LINK_LIBRARIES(wt PRIVATE ${HARU_LIBRARIES})
-  INCLUDE_DIRECTORIES(${HARU_INCLUDE_DIRS})
-ELSE(HAVE_HARU)
-  MESSAGE("** Disabling PDF support (WPdfImage, WPdfRenderer): requires libharu.")
-  IF(ENABLE_HARU)
-    MESSAGE("   Indicate the location of your haru library using -DHARU_PREFIX=...")
-  ENDIF(ENABLE_HARU)
-ENDIF(HAVE_HARU)
+if(HAVE_HARU)
+  # Even though WPdfImage.h exposes <hpdf.h>, we mark it as private here, because most users of Wt don't need it.
+  # We don't want to include it in the INTERFACE_LINK_LIBRARIES in the generated wt-target-wt.cmake file, since
+  # FindHPDF.cmake is not a standard find module.
+  target_link_libraries(wt PRIVATE HPDF::HPDF)
+else()
+  message("** Disabling PDF support (WPdfImage, WPdfRenderer): requires libharu.")
+  if(ENABLE_HARU)
+    message("   Indicate the location of your haru library using -DHARU_PREFIX=...")
+  endif()
+endif()
 
 IF("${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "GraphicsMagick")
   TARGET_LINK_LIBRARIES(wt PRIVATE ${GM_LIBRARIES})

@@ -38,8 +38,7 @@ IF(TARGET Boost::headers)
 ENDIF()
 
 if(HAVE_HARU)
-  target_include_directories(widgetgallery.wt PRIVATE ${HARU_INCLUDE_DIRS})
-  target_link_libraries(widgetgallery.wt ${HARU_LIB})
+  target_link_libraries(widgetgallery.wt HPDF::HPDF)
 endif()
 
 #

@@ -245,9 +245,11 @@ INCLUDE(cmake/WtFindMysql.txt)
 INCLUDE(cmake/WtFindPostgresql.txt)
 INCLUDE(cmake/WtFindOdbc.txt)
 INCLUDE(cmake/WtFindAsciidoc.txt)
-INCLUDE(cmake/WtFindHaru.txt)
 INCLUDE(cmake/WtFindGm.txt)
 INCLUDE(cmake/WtFindGL.txt)
+
+set(HPDF_ROOT ${HARU_PREFIX})
+find_package(HPDF)
 
 set(OPENSSL_ROOT_DIR ${SSL_PREFIX})
 find_package(OpenSSL)
@@ -422,9 +424,6 @@ IF(WIN32)
     # is not set, but this is problematic for cygwin
     ADD_DEFINITIONS(-DBOOST_THREAD_USE_LIB)
   ENDIF(BOOST_DYNAMIC)
-  IF(HARU_DYNAMIC)
-    ADD_DEFINITIONS(-DHPDF_DLL)
-  ENDIF(HARU_DYNAMIC)
   ADD_DEFINITIONS(
       -D_CRT_SECURE_NO_WARNINGS
       -D_SCL_SECURE_NO_WARNINGS
@@ -534,10 +533,10 @@ IF(NOT EXISTS ${CONFIGDIR}/wt_config.xml)
   INSTALL(FILES ${WT_BINARY_DIR}/wt_config.xml DESTINATION ${CONFIGDIR})
 ENDIF (NOT EXISTS ${CONFIGDIR}/wt_config.xml)
 
-IF(ENABLE_HARU AND HARU_FOUND)
-  SET(HAVE_HARU ON)
-  SET(WT_HAS_WPDFIMAGE true)
-ENDIF(ENABLE_HARU AND HARU_FOUND)
+if(ENABLE_HARU AND HPDF_FOUND)
+  set(HAVE_HARU ON)
+  set(WT_HAS_WPDFIMAGE true)
+endif()
 
 IF(ENABLE_SSL AND OPENSSL_FOUND)
   SET(HAVE_SSL ON)
