@@ -695,7 +695,7 @@ void OAuthService::configureRedirectEndpoint() const
     std::unique_lock<std::mutex> guard(impl_->mutex_);
 #endif
     if (!impl_->redirectResource_) {
-      auto r = std::make_shared<Impl::RedirectEndpoint>(*this);
+      auto r = std::make_shared<OAuthService::Impl::RedirectEndpoint>(*this);
       std::string path = redirectEndpointPath();
 
       LOG_INFO("deploying endpoint at " << path);
