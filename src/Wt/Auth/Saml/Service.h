@@ -438,7 +438,7 @@ public:
 
   /*! \brief Sets the AllowCreate parameter for the name id policy in the authentication request.
    *
-   * This detauls to true.
+   * This defaults to true.
    *
    * \sa setNameIdPolicyFormat()
    */

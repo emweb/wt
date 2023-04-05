@@ -309,12 +309,17 @@ void Service::setNameIdPolicyFormat(const std::string &format)
 
 void Service::setNameIdPolicyAllowCreate(bool allowCreate)
 {
-  nameIdPolicyAllowCreate_ = true;
+  nameIdPolicyAllowCreate_ = allowCreate;
 }
 
 void Service::setAuthnContextClassRef(const std::string &authnContextClassRef)
 {
   authnContextClassRef_ = authnContextClassRef;
+}
+
+void Service::setAuthnContextComparison(Wt::Auth::Saml::AuthnContextComparison comparison)
+{
+  authnContextComparison_ = comparison;
 }
 
 void Service::setSPEntityId(const std::string &entityID)
