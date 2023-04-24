@@ -117,6 +117,10 @@ public:
   /*! \brief Update the value in the Model
    */
   void updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
+
+  /*! \brief Update the value in the View
+   */
+  void updateViewValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
 };
 
 /*! \brief %Form delegate class for WDateTime

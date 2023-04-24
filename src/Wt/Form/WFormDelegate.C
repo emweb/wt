@@ -107,11 +107,28 @@ std::shared_ptr<Wt::WValidator> WFormDelegate<Wt::WTime, void>::createValidator(
 
 void WFormDelegate<Wt::WTime, void>::updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit)
 {
-  Wt::WTimeEdit *timeEdit = dynamic_cast<Wt::WTimeEdit *>(edit);
-  if (timeEdit) {
-    model->setValue(field, timeEdit->time());
+  if (!edit->valueText().empty()) {
+    Wt::WTime time = Wt::WTime::fromString(edit->valueText(), Wt::WLocale::currentLocale().timeFormat());
+    if (time.isValid()) {
+      model->setValue(field, time);
+    } else {
+      LOG_ERROR("Could not convert '" << edit->valueText() << "' to time");
+
+      std::shared_ptr<Wt::WValidator> validator = edit->validator();
+      if (validator) {
+        model->setValue(field, validator->validate(edit->valueText()));
+      }
+    }
   } else {
-    LOG_ERROR("Could not cast edit to WTimeEdit!");
+    model->setValue(field, Wt::WTime());
+  }
+}
+
+void WFormDelegate<Wt::WTime, void>::updateViewValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit)
+{
+  Wt::cpp17::any v =  model->value(field);
+  if (v.type() != typeid(Wt::WValidator::Result)) {
+    edit->setValueText(Wt::asString(v));
   }
 }
 
