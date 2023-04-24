@@ -65,11 +65,28 @@ std::shared_ptr<Wt::WValidator> WFormDelegate<Wt::WDate, void>::createValidator(
 
 void WFormDelegate<Wt::WDate, void>::updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit)
 {
-  Wt::WDateEdit *dateEdit = dynamic_cast<Wt::WDateEdit *>(edit);
-  if (dateEdit) {
-    model->setValue(field, dateEdit->date());
+  if (!edit->valueText().empty()) {
+    Wt::WDate date = Wt::WDate::fromString(edit->valueText(), Wt::WLocale::currentLocale().dateFormat());
+    if (date.isValid()) {
+      model->setValue(field, date);
+    } else {
+      LOG_ERROR("Could not convert '" << edit->valueText() << "' to date");
+
+      std::shared_ptr<Wt::WValidator> validator = edit->validator();
+      if (validator) {
+        model->setValue(field, validator->validate(edit->valueText()));
+      }
+    }
   } else {
-    LOG_ERROR("Could not cast edit to WDateEdit!");
+    model->setValue(field, Wt::WDate());
+  }
+}
+
+void WFormDelegate<Wt::WDate, void>::updateViewValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit)
+{
+  Wt::cpp17::any v =  model->value(field);
+  if (v.type() != typeid(Wt::WValidator::Result)) {
+    edit->setValueText(Wt::asString(v));
   }
 }
 

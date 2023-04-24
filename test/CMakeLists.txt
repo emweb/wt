@@ -13,6 +13,7 @@ IF(ENABLE_LIBWTTEST)
     json/JsonValueTest.C
     http/CookieTest.C
     http/HttpClientTest.C
+    formdelegate/WFormDelegate.C
     mail/MailClientTest.C
     matrix/MatrixTest.C
     models/WBatchEditProxyModelTest.C
