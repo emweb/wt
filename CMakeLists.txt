@@ -244,11 +244,12 @@ INCLUDE(cmake/WtFindFcgi.txt)
 INCLUDE(cmake/WtFindMysql.txt)
 INCLUDE(cmake/WtFindPostgresql.txt)
 INCLUDE(cmake/WtFindOdbc.txt)
-INCLUDE(cmake/WtFindAsciidoc.txt)
 INCLUDE(cmake/WtFindGm.txt)
 
 find_package(OpenGL)
 find_package(GLEW)
+
+find_package(Asciidoctor)
 
 set(HPDF_ROOT ${HARU_PREFIX})
 find_package(HPDF)
@@ -450,14 +451,24 @@ ELSE(INSTALL_DOCUMENTATION)
   ADD_CUSTOM_TARGET(doc)
 ENDIF(INSTALL_DOCUMENTATION)
 
-IF (ASCIIDOC_FOUND)
-  MACRO (ASCIIDOC_FILE target infile outfile)
-    ADD_CUSTOM_TARGET(${target}
-       ${ASCIIDOC_EXECUTABLE} -a toc -a numbered -a icons -a  theme=emweb -a pygments -a linkcss -o ${outfile} ${infile}
-       COMMENT "Asciidoc ${infile}")
-    ADD_DEPENDENCIES(doc ${target})
-  ENDMACRO (ASCIIDOC_FILE)
-ENDIF (ASCIIDOC_FOUND)
+if(ASCIIDOCTOR_FOUND)
+  macro(ASCIIDOC_FILE target infile outfile)
+    add_custom_target(${target}
+      Asciidoctor::asciidoctor
+        -a toc
+        -a numbered
+        -a icons=font
+        -a source-highlighter=highlight.js
+        -a linkcss
+        -a stylesheet=wt.css
+        -o "${outfile}"
+        "${infile}"
+       DEPENDS "${infile}"
+       BYPRODUCTS "${outfile}"
+       COMMENT "Asciidoctor ${infile}")
+    add_dependencies(doc ${target})
+  endmacro()
+endif()
 
 IF (DOXYGEN_FOUND)
   ADD_CUSTOM_TARGET(doxygen

@@ -55,14 +55,14 @@ Wt::WString asciidoc(const Wt::WString& src)
     srcFile.close();
   }
 
-#if defined(ASCIIDOC_EXECUTABLE)
+#if defined(ASCIIDOCTOR_EXECUTABLE)
 #define xstr(s) str(s)
 #define str(s) #s
-  std::string cmd = xstr(ASCIIDOC_EXECUTABLE);
+  std::string cmd = xstr(ASCIIDOCTOR_EXECUTABLE);
 #else
-  std::string cmd = "asciidoc";
+  std::string cmd = "asciidoctor";
 #endif
-  std::string command = cmd + " -o " + htmlFileName + " -s " + srcFileName;
+  std::string command = cmd + " -a htmlsyntax=xml -o " + htmlFileName + " -s " + srcFileName;
 
 #ifndef WT_WIN32
   /*

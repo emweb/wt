@@ -2,10 +2,6 @@ IF(BOOST_WT_FOUND)
 INCLUDE(CheckFunctionExists)
 INCLUDE(CheckLibraryExists)
 
-IF(ASCIIDOC_EXECUTABLE)
-  ADD_DEFINITIONS(-DASCIIDOC_EXECUTABLE="${ASCIIDOC_EXECUTABLE}")
-ENDIF(ASCIIDOC_EXECUTABLE)
-
 WT_ADD_EXAMPLE(blog.wt
   model/BlogSession.C
   model/BlogUserDatabase.C
@@ -23,6 +19,10 @@ WT_ADD_EXAMPLE(blog.wt
   BlogRSSFeed.C
   blog.C
 )
+
+if(ASCIIDOCTOR_EXECUTABLE)
+  target_compile_definitions(blog.wt PRIVATE ASCIIDOCTOR_EXECUTABLE="${ASCIIDOCTOR_EXECUTABLE}")
+endif()
 
 IF(TARGET Boost::headers)
   TARGET_LINK_LIBRARIES(blog.wt Boost::headers)

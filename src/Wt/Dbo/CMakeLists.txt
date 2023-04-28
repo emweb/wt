@@ -85,11 +85,11 @@ IF(ENABLE_LIBWTDBO)
   INSTALL_FILES(/include/Wt/Dbo "^[^.]+\\.h$")
   INSTALL_FILES(/include/Wt FILES ${WCONFIG_H_PATH})
 
-  IF (ASCIIDOC_FOUND)
+  if(ASCIIDOCTOR_FOUND)
     ASCIIDOC_FILE(dbo-tutorial
-      ${WT_SOURCE_DIR}/doc/tutorial/dbo.doc
+      ${WT_SOURCE_DIR}/doc/tutorial/dbo.adoc
       ${WT_SOURCE_DIR}/doc/tutorial/dbo.html)
-  ENDIF (ASCIIDOC_FOUND)
+  endif()
 
 ELSE (ENABLE_LIBWTDBO)
   MESSAGE("** libwtdbo disabled, not building Wt::Dbo.")
