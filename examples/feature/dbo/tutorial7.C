@@ -33,7 +33,7 @@ namespace Wt {
         return ptr<User>();
       }
 
-      static const char *surrogateIdField() { return 0; }
+      static const char *surrogateIdField() { return nullptr; }
     };
 
   }
@@ -43,15 +43,14 @@ class User {
 public:
   std::string name;
 
-  dbo::collection< dbo::ptr<UserInfo> > infos;
+  dbo::weak_ptr<UserInfo> info;
 
   template<class Action>
   void persist(Action& a)
   {
     dbo::field(a, name, "name");
 
-    // In fact, this is really constrained to hasOne() ...
-    dbo::hasMany(a, infos, dbo::ManyToOne, "user");
+    dbo::hasOne(a, info, "user");
   }
 };
 
@@ -71,9 +70,9 @@ public:
 void run()
 {
   /*
-   * Setup a session, would typically be done once at application startup.
+   * Set up a session, would typically be done once at application startup.
    */
-  std::unique_ptr<dbo::backend::Sqlite3> sqlite3(new dbo::backend::Sqlite3(":memory:"));
+  auto sqlite3 = std::make_unique<dbo::backend::Sqlite3>(":memory:");
   sqlite3->setProperty("show-queries", "true");
   dbo::Session session;
   session.setConnection(std::move(sqlite3));
@@ -89,12 +88,12 @@ void run()
   {
     dbo::Transaction transaction(session);
 
-    std::unique_ptr<User> user{new User()};
+    auto user = std::make_unique<User>();
     user->name = "Joe";
 
     dbo::ptr<User> userPtr = session.add(std::move(user));
 
-    std::unique_ptr<UserInfo> userInfo{new UserInfo()};
+    auto userInfo = std::make_unique<UserInfo>();
     userInfo->user = userPtr;
     userInfo->info = "great guy";
 

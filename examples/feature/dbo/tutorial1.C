@@ -11,6 +11,8 @@
 
 #include <Wt/Dbo/Dbo.h>
 #include <Wt/Dbo/backend/Sqlite3.h>
+
+#include <memory>
 #include <string>
 
 namespace dbo = Wt::Dbo;
@@ -54,7 +56,7 @@ void run()
    * For testing, we'll be using Sqlite3's special :memory: database. You
    * can replace this with an actual filename for actual persistence.
    */
-  std::unique_ptr<dbo::backend::Sqlite3> sqlite3(new dbo::backend::Sqlite3(":memory:"));
+  auto sqlite3 = std::make_unique<dbo::backend::Sqlite3>(":memory:");
   sqlite3->setProperty("show-queries", "true");
   dbo::Session session;
   session.setConnection(std::move(sqlite3));
@@ -69,7 +71,7 @@ void run()
   {
     dbo::Transaction transaction(session);
 
-    std::unique_ptr<User> user{new User()};
+    auto user = std::make_unique<User>();
     user->name = "Joe";
     user->password = "Secret";
     user->role = Role::Visitor;
@@ -99,15 +101,16 @@ void run()
   {
     dbo::Transaction transaction(session);
 
-    typedef dbo::collection< dbo::ptr<User> > Users;
+    using Users = dbo::collection<dbo::ptr<User>>;
 
     Users users = session.find<User>();
 
     std::cerr << "We have " << users.size() << " users:" << std::endl;
 
-    for (const dbo::ptr<User> &user : users)
+    for (const dbo::ptr<User> &user : users) {
       std::cerr << " user " << user->name
                 << " with karma of " << user->karma << std::endl;
+    }
   }
 
   /*****
@@ -133,7 +136,7 @@ void run()
   {
     dbo::Transaction transaction(session);
 
-    dbo::ptr<User> silly = session.add(std::unique_ptr<User>{new User()});
+    dbo::ptr<User> silly = session.addNew<User>();
     silly.modify()->name = "Silly";
     silly.remove();
   }
