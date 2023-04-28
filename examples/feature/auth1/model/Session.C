@@ -6,16 +6,16 @@
 
 #include "Session.h"
 
-#include "Wt/Auth/AuthService.h"
-#include "Wt/Auth/HashFunction.h"
-#include "Wt/Auth/PasswordService.h"
-#include "Wt/Auth/PasswordStrengthValidator.h"
-#include "Wt/Auth/PasswordVerifier.h"
-#include "Wt/Auth/GoogleService.h"
-#include "Wt/Auth/FacebookService.h"
-#include "Wt/Auth/Dbo/AuthInfo.h"
+#include <Wt/Auth/AuthService.h>
+#include <Wt/Auth/HashFunction.h>
+#include <Wt/Auth/PasswordService.h>
+#include <Wt/Auth/PasswordStrengthValidator.h>
+#include <Wt/Auth/PasswordVerifier.h>
+#include <Wt/Auth/GoogleService.h>
+#include <Wt/Auth/FacebookService.h>
+#include <Wt/Auth/Dbo/AuthInfo.h>
 
-#include "Wt/Dbo/backend/Sqlite3.h"
+#include <Wt/Dbo/backend/Sqlite3.h>
 
 using namespace Wt;
 
@@ -33,21 +33,24 @@ void Session::configureAuth()
   myAuthService.setEmailVerificationEnabled(true);
   myAuthService.setEmailVerificationRequired(true);
 
-  std::unique_ptr<Auth::PasswordVerifier> verifier
-      = std::make_unique<Auth::PasswordVerifier>();
+  auto verifier = std::make_unique<Auth::PasswordVerifier>();
   verifier->addHashFunction(std::make_unique<Auth::BCryptHashFunction>(7));
   myPasswordService.setVerifier(std::move(verifier));
   myPasswordService.setAttemptThrottlingEnabled(true);
-  myPasswordService.setStrengthValidator(std::make_unique<Auth::PasswordStrengthValidator>());
+  myPasswordService.setStrengthValidator(
+    std::make_unique<Auth::PasswordStrengthValidator>());
 
-  if (Auth::GoogleService::configured())
+  if (Auth::GoogleService::configured()) {
     myOAuthServices.push_back(std::make_unique<Auth::GoogleService>(myAuthService));
+  }
 
-  if (Auth::FacebookService::configured())
+  if (Auth::FacebookService::configured()) {
     myOAuthServices.push_back(std::make_unique<Auth::FacebookService>(myAuthService));
+  }
 
-  for (unsigned i = 0; i < myOAuthServices.size(); ++i)
-    myOAuthServices[i]->generateRedirectEndpoint();
+  for (const auto& oAuthService : myOAuthServices) {
+    oAuthService->generateRedirectEndpoint();
+  }
 }
 
 Session::Session(const std::string& sqliteDb)
@@ -65,10 +68,10 @@ Session::Session(const std::string& sqliteDb)
 
   try {
     createTables();
-    std::cerr << "Created database." << std::endl;
-  } catch (std::exception& e) {
-    std::cerr << e.what() << std::endl;
-    std::cerr << "Using existing database";
+    std::cerr << "Created database.\n";
+  } catch (Wt::Dbo::Exception& e) {
+    std::cerr << e.what() << '\n';
+    std::cerr << "Using existing database\n";
   }
 
   users_ = std::make_unique<UserDatabase>(*this);
@@ -98,10 +101,11 @@ const Auth::PasswordService& Session::passwordAuth()
   return myPasswordService;
 }
 
-const std::vector<const Auth::OAuthService *> Session::oAuth()
+std::vector<const Auth::OAuthService *> Session::oAuth()
 {
   std::vector<const Auth::OAuthService *> result;
-  for (auto &auth : myOAuthServices) {
+  result.reserve(myOAuthServices.size());
+  for (const auto& auth : myOAuthServices) {
     result.push_back(auth.get());
   }
   return result;

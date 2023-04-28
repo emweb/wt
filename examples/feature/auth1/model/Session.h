@@ -24,7 +24,7 @@ class Session : public dbo::Session
 public:
   static void configureAuth();
 
-  Session(const std::string& sqliteDb);
+  explicit Session(const std::string& sqliteDb);
 
   dbo::ptr<User> user() const;
 
@@ -33,7 +33,7 @@ public:
 
   static const Wt::Auth::AuthService& auth();
   static const Wt::Auth::PasswordService& passwordAuth();
-  static const std::vector<const Wt::Auth::OAuthService *> oAuth();
+  static std::vector<const Wt::Auth::OAuthService *> oAuth();
 
 private:
   std::unique_ptr<UserDatabase> users_;

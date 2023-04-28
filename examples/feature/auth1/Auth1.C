@@ -13,10 +13,9 @@
 
 #include "model/Session.h"
 
-class AuthApplication : public Wt::WApplication
-{
+class AuthApplication : public Wt::WApplication {
 public:
-  AuthApplication(const Wt::WEnvironment& env)
+  explicit AuthApplication(const Wt::WEnvironment& env)
     : WApplication(env),
       session_(appRoot() + "auth.db")
   {
@@ -27,8 +26,8 @@ public:
 
     useStyleSheet("css/style.css");
 
-    std::unique_ptr<Wt::Auth::AuthWidget> authWidget
-        = std::make_unique<Wt::Auth::AuthWidget>(Session::auth(), session_.users(), session_.login());
+    auto authWidget = std::make_unique<Wt::Auth::AuthWidget>(
+            Session::auth(), session_.users(), session_.login());
 
     authWidget->model()->addPasswordAuth(&Session::passwordAuth());
     authWidget->model()->addOAuth(Session::oAuth());
@@ -70,10 +69,10 @@ int main(int argc, char **argv)
 
     server.run();
   } catch (Wt::WServer::Exception& e) {
-    std::cerr << e.what() << std::endl;
+    std::cerr << e.what() << '\n';
   } catch (Wt::Dbo::Exception &e) {
-    std::cerr << "Dbo exception: " << e.what() << std::endl;
+    std::cerr << "Dbo exception: " << e.what() << '\n';
   } catch (std::exception &e) {
-    std::cerr << "exception: " << e.what() << std::endl;
+    std::cerr << "exception: " << e.what() << '\n';
   }
 }

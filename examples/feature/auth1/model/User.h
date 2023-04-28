@@ -10,8 +10,6 @@
 #include <Wt/Dbo/Types.h>
 #include <Wt/WGlobal.h>
 
-namespace dbo = Wt::Dbo;
-
 class User;
 using AuthInfo = Wt::Auth::Dbo::AuthInfo<User>;
 
