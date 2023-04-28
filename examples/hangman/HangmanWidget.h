@@ -8,38 +8,37 @@
 #ifndef HANGMAN_WIDGET_H_
 #define HANGMAN_WIDGET_H_
 
-#include <vector>
-
 #include <Wt/WContainerWidget.h>
 
-class Session;
+#include <vector>
+
 class WordWidget;
 class ImagesWidget;
 class LettersWidget;
 
-class HangmanWidget: public Wt::WContainerWidget
+class HangmanWidget : public Wt::WContainerWidget
 {
 public:
-  HangmanWidget(const std::string &name);
+  explicit HangmanWidget(const std::string &name);
 
   Wt::Signal<int>& scoreUpdated() { return scoreUpdated_; }
 
 private:
-  Wt::WText                 *title_;
+  Wt::WText *title_ = nullptr;
 
-  WordWidget                *word_;
-  ImagesWidget              *images_;
-  LettersWidget             *letters_;
+  WordWidget *word_ = nullptr;
+  ImagesWidget *images_ = nullptr;
+  LettersWidget *letters_ = nullptr;
 
-  Wt::WText                 *statusText_;
-  Wt::WComboBox             *language_;
-  Wt::WPushButton           *newGameButton_;
+  Wt::WText *statusText_ = nullptr;
+  Wt::WComboBox *language_ = nullptr;
+  Wt::WPushButton *newGameButton_ = nullptr;
 
-  Wt::Signal<int>            scoreUpdated_;
+  Wt::Signal<int> scoreUpdated_;
 
-  std::string                name_;
+  std::string name_;
 
-  int                        badGuesses_;
+  int badGuesses_ = 0;
 
   void registerGuess(char c);
 

@@ -12,8 +12,6 @@
 
 #include "Session.h"
 
-using namespace Wt;
-
 namespace Wt {
   class WStackedWidget;
   class WAnchor;
@@ -23,7 +21,7 @@ class HangmanWidget;
 class HighScoresWidget;
 class Session;
 
-class HangmanGame : public WContainerWidget
+class HangmanGame : public Wt::WContainerWidget
 {
 public:
   HangmanGame();
@@ -31,12 +29,12 @@ public:
   void handleInternalPath(const std::string &internalPath);
 
 private:
-  WStackedWidget    *mainStack_;
-  HangmanWidget     *game_;
-  HighScoresWidget  *scores_;
-  WContainerWidget  *links_;
-  WAnchor           *backToGameAnchor_;
-  WAnchor           *scoresAnchor_;
+  Wt::WStackedWidget *mainStack_ = nullptr;
+  HangmanWidget *game_ = nullptr;
+  HighScoresWidget *scores_ = nullptr;
+  WContainerWidget *links_ = nullptr;
+  Wt::WAnchor *backToGameAnchor_ = nullptr;
+  Wt::WAnchor *scoresAnchor_ = nullptr;
 
   Session session_;
 

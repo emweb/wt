@@ -6,26 +6,22 @@
 
 #include "LettersWidget.h"
 
-#include <Wt/WPushButton.h>
-#include <Wt/WTable.h>
 #include <Wt/WApplication.h>
 #include <Wt/WEvent.h>
-#include <Wt/WAny.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTable.h>
 
 using namespace Wt;
 
 LettersWidget::LettersWidget()
-  : WCompositeWidget()
 {
-  impl_ = new WTable();
-  setImplementation(std::unique_ptr<WTable>(impl_));
+  impl_ = setNewImplementation<WTable>();
 
   impl_->resize(13*30, WLength::Auto);
 
   for (unsigned int i = 0; i < 26; ++i) {
     std::string c(1, 'A' + i);
-    WPushButton *character
-        = impl_->elementAt(i / 13, i % 13)->addWidget(std::make_unique<WPushButton>(c));
+    auto character = impl_->elementAt(i / 13, i % 13)->addNew<WPushButton>(c);
     letterButtons_.push_back(character);
     character->resize(WLength(30), WLength::Auto);
 

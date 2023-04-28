@@ -15,24 +15,20 @@
 
 #include <string>
 
-using namespace Wt;
-
 namespace dbo = Wt::Dbo;
 
 class User;
-typedef Auth::Dbo::AuthInfo<User> AuthInfo;
-typedef dbo::collection< dbo::ptr<User> > Users;
+using AuthInfo = Wt::Auth::Dbo::AuthInfo<User>;
+using Users = dbo::collection<dbo::ptr<User>>;
 
 class User
 {
 public:
-  User();
-
   std::string name; /* a copy of auth info's user name */
-  int gamesPlayed;
-  long long score;
-  WDateTime lastGame;
-  dbo::collection<dbo::ptr<AuthInfo>> authInfos;
+  int gamesPlayed = 0;
+  long long score = 0;
+  Wt::WDateTime lastGame;
+  dbo::weak_ptr<AuthInfo> authInfo;
 
   template<class Action>
   void persist(Action& a)
@@ -40,11 +36,10 @@ public:
     dbo::field(a, gamesPlayed, "gamesPlayed");
     dbo::field(a, score, "score");
     dbo::field(a, lastGame, "lastGame");
-
-    dbo::hasMany(a, authInfos, dbo::ManyToOne, "user");
+    dbo::hasOne(a, authInfo, "user");
   }
 };
 
-DBO_EXTERN_TEMPLATES(User);
+DBO_EXTERN_TEMPLATES(User)
 
 #endif // USER_H_

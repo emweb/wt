@@ -3,45 +3,46 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include "Dictionary.h"
 
 #include <Wt/WApplication.h>
-#include <Wt/WStringUtil.h>
 
-#include "Dictionary.h"
 #include <fstream>
 #include <iostream>
-#include <time.h>
-#include <stdlib.h>
+#include <random>
 
-std::wstring RandomWord(Dictionary dictionary)
+std::string randomWord(Dictionary dictionary)
 {
-   std::ifstream dict;
-   if (dictionary == DICT_NL) {
-     dict.open((WApplication::appRoot() + "dict-nl.txt").c_str());
-   } else { // english is default
-     dict.open((WApplication::appRoot() + "dict.txt").c_str());
-   }
+  std::ifstream dict;
+  if (dictionary == Dictionary::Dutch) {
+    dict.open(Wt::WApplication::appRoot() + "dict-nl.txt");
+  } else { // english is default
+    dict.open(Wt::WApplication::appRoot() + "dict.txt");
+  }
 
-   std::string retval;
-   int numwords = 0;
-   while(dict) {
-      getline(dict, retval);
-      numwords++;
-   }
-   dict.clear();
-   dict.seekg(0);
+  std::string retval;
+  int numwords = 0;
+  while (dict) {
+    std::getline(dict, retval);
+    numwords++;
+  }
+  dict.clear();
+  dict.seekg(0);
 
-   srand(time(0));
-   int selection = rand() % numwords; // not entirely uniform, but who cares?
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> distribution(0, numwords);
+  int selection = distribution(gen);
 
-   while(selection--) {
-      getline(dict, retval);
-   }
-   getline(dict, retval);
-   for(unsigned int i = 0; i < retval.size(); ++i)
-      if(retval[i] < 'A' || retval[i] > 'Z')
-         std::cout << "word " << retval
-                   << " contains illegal data at pos " << i << std::endl;
+  while (selection--) {
+    std::getline(dict, retval);
+  }
+  std::getline(dict, retval);
+  for (unsigned int i = 0; i < retval.size(); ++i) {
+    if (retval[i] < 'A' || retval[i] > 'Z') {
+      std::cerr << "word " << retval << " contains illegal data at pos " << i << '\n';
+    }
+  }
 
-   return widen(retval);
+  return retval;
 }

@@ -10,15 +10,13 @@
 
 #include <Wt/WCompositeWidget.h>
 
-using namespace Wt;
-
 namespace Wt {
   class WContainerWidget;
   class WPushButton;
   class WTable;
 }
 
-class LettersWidget : public WCompositeWidget
+class LettersWidget : public Wt::WCompositeWidget
 {
 public:
   LettersWidget();
@@ -26,17 +24,17 @@ public:
 
   void reset();
 
-  Signal<char>& letterPushed() { return letterPushed_; }
+  Wt::Signal<char>& letterPushed() { return letterPushed_; }
 
 private:
-  WTable                     *impl_;
-  std::vector<WPushButton *>  letterButtons_;
+  Wt::WTable *impl_ = nullptr;
+  std::vector<Wt::WPushButton*> letterButtons_;
   std::vector<Wt::Signals::connection> connections_;
 
-  Signal<char>                letterPushed_;
+  Wt::Signal<char> letterPushed_;
 
-  void processButton(WPushButton *b);
-  void processButtonPushed(const WKeyEvent &e, WPushButton *b);
+  void processButton(Wt::WPushButton *b);
+  void processButtonPushed(const Wt::WKeyEvent &e, Wt::WPushButton *b);
 };
 
 #endif //LETTERS_WIDGET_H_

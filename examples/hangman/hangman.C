@@ -23,7 +23,7 @@ std::unique_ptr<WApplication> createApplication(const WEnvironment& env)
 
   app->useStyleSheet("css/hangman.css");
 
-  app->root()->addWidget(std::make_unique<HangmanGame>());
+  app->root()->addNew<HangmanGame>();
 
   return app;
 }

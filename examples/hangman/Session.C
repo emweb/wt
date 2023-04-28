@@ -6,14 +6,14 @@
 
 #include "Session.h"
 
-#include "Wt/Auth/AuthService.h"
-#include "Wt/Auth/HashFunction.h"
-#include "Wt/Auth/PasswordService.h"
-#include "Wt/Auth/PasswordStrengthValidator.h"
-#include "Wt/Auth/PasswordVerifier.h"
-#include "Wt/Auth/GoogleService.h"
-#include "Wt/Auth/Dbo/AuthInfo.h"
-#include "Wt/Auth/Dbo/UserDatabase.h"
+#include <Wt/Auth/AuthService.h>
+#include <Wt/Auth/HashFunction.h>
+#include <Wt/Auth/PasswordService.h>
+#include <Wt/Auth/PasswordStrengthValidator.h>
+#include <Wt/Auth/PasswordVerifier.h>
+#include <Wt/Auth/GoogleService.h>
+#include <Wt/Auth/Dbo/AuthInfo.h>
+#include <Wt/Auth/Dbo/UserDatabase.h>
 
 #include <Wt/WApplication.h>
 #include <Wt/WLogger.h>
@@ -29,7 +29,7 @@
 #endif // _XOPEN_CRYPT
 #endif
 
-namespace dbo = Wt::Dbo;
+using namespace Wt;
 
 namespace {
 
@@ -57,19 +57,9 @@ class UnixCryptHashFunction : public Auth::HashFunction
   };
 #endif // HAVE_CRYPT
 
-  class MyOAuth : public std::vector<const Auth::OAuthService *>
-  {
-  public:
-    ~MyOAuth()
-    {
-      for (unsigned i = 0; i < size(); ++i)
-        delete (*this)[i];
-    }
-  };
-
   Auth::AuthService myAuthService;
   Auth::PasswordService myPasswordService(myAuthService);
-  MyOAuth myOAuthServices;
+  std::vector<std::unique_ptr<const Auth::OAuthService>> myOAuthServices;
 }
 
 void Session::configureAuth()
@@ -77,8 +67,7 @@ void Session::configureAuth()
   myAuthService.setAuthTokensEnabled(true, "hangmancookie");
   myAuthService.setEmailVerificationEnabled(true);
 
-  std::unique_ptr<Auth::PasswordVerifier> verifier
-      = std::make_unique<Auth::PasswordVerifier>();
+  auto verifier = std::make_unique<Auth::PasswordVerifier>();
   verifier->addHashFunction(std::make_unique<Auth::BCryptHashFunction>(7));
 
 #ifdef HAVE_CRYPT
@@ -91,8 +80,9 @@ void Session::configureAuth()
   myPasswordService.setStrengthValidator(std::make_unique<Auth::PasswordStrengthValidator>());
   myPasswordService.setAttemptThrottlingEnabled(true);
 
-  if (Auth::GoogleService::configured())
-    myOAuthServices.push_back(new Auth::GoogleService(myAuthService));
+  if (Auth::GoogleService::configured()) {
+    myOAuthServices.push_back(std::make_unique<Auth::GoogleService>(myAuthService));
+  }
 }
 
 Session::Session()
@@ -125,10 +115,6 @@ Session::Session()
   }
 
   transaction.commit();
-}
-
-Session::~Session()
-{
 }
 
 dbo::ptr<User> Session::user() const
@@ -180,7 +166,7 @@ std::vector<User> Session::topUsers(int limit)
     dbo::ptr<User> user = *i;
     result.push_back(*user);
 
-    dbo::ptr<AuthInfo> auth = *user->authInfos.begin();
+    dbo::ptr<AuthInfo> auth = user->authInfo;
     std::string name = auth->identity(Auth::Identity::LoginName).toUTF8();
 
     result.back().name = name;
@@ -222,7 +208,12 @@ const Auth::AbstractPasswordService& Session::passwordAuth()
   return myPasswordService;
 }
 
-const std::vector<const Auth::OAuthService *>& Session::oAuth()
+std::vector<const Auth::OAuthService *> Session::oAuth()
 {
-  return myOAuthServices;
+  std::vector<const Auth::OAuthService *> result;
+  result.reserve(myOAuthServices.size());
+  for (const auto& service : myOAuthServices) {
+    result.push_back(service.get());
+  }
+  return result;
 }

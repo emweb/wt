@@ -25,28 +25,26 @@ namespace {
 }
 
 HangmanWidget::HangmanWidget(const std::string &name)
-  : WContainerWidget(),
-    name_(name),
-    badGuesses_(0)
+  : name_(name)
 {
   setContentAlignment(AlignmentFlag::Center);
 
-  title_ = addWidget(std::make_unique<WText>(tr("hangman.readyToPlay")));
+  title_ = addNew<WText>(tr("hangman.readyToPlay"));
 
-  word_ = addWidget(std::make_unique<WordWidget>());
-  statusText_ = addWidget(std::make_unique<WText>());
-  images_ = addWidget(std::make_unique<ImagesWidget>(MaxGuesses));
+  word_ = addNew<WordWidget>();
+  statusText_ = addNew<WText>();
+  images_ = addNew<ImagesWidget>(MaxGuesses);
 
-  letters_ = addWidget(std::make_unique<LettersWidget>());
+  letters_ = addNew<LettersWidget>();
   letters_->letterPushed().connect(this, &HangmanWidget::registerGuess);
 
-  language_ = addWidget(std::make_unique<WComboBox>());
+  language_ = addNew<WComboBox>();
   language_->addItem(tr("hangman.englishWords").arg(18957));
   language_->addItem(tr("hangman.dutchWords").arg(1688));
 
-  addWidget(std::make_unique<WBreak>());
+  addNew<WBreak>();
 
-  newGameButton_ = addWidget(std::make_unique<WPushButton>(tr("hangman.newGame")));
+  newGameButton_ = addNew<WPushButton>(tr("hangman.newGame"));
   newGameButton_->clicked().connect(this, &HangmanWidget::newGame);
 
   letters_->hide();
@@ -63,8 +61,8 @@ void HangmanWidget::newGame()
   /*
    * Choose a new secret word and reset the game
    */
-  Dictionary dictionary = (Dictionary) language_->currentIndex();
-  word_->init(RandomWord(dictionary));
+  auto dictionary = static_cast<Dictionary>(language_->currentIndex());
+  word_->init(randomWord(dictionary));
   letters_->reset();
   badGuesses_ = 0;
   images_->showImage(badGuesses_);

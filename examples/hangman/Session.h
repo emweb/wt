@@ -11,6 +11,7 @@
 #include <vector>
 
 #include <Wt/Auth/Login.h>
+#include <Wt/Auth/Dbo/UserDatabase.h>
 
 #include <Wt/Dbo/Session.h>
 #include <Wt/Dbo/ptr.h>
@@ -18,9 +19,7 @@
 
 #include "User.h"
 
-using namespace Wt;
-
-typedef Auth::Dbo::UserDatabase<AuthInfo> UserDatabase;
+using UserDatabase = Wt::Auth::Dbo::UserDatabase<AuthInfo>;
 
 class Session
 {
@@ -28,10 +27,9 @@ public:
   static void configureAuth();
 
   Session();
-  ~Session();
 
-  Auth::AbstractUserDatabase& users();
-  Auth::Login& login() { return login_; }
+  Wt::Auth::AbstractUserDatabase& users();
+  Wt::Auth::Login& login() { return login_; }
 
   std::vector<User> topUsers(int limit);
 
@@ -42,16 +40,16 @@ public:
   int findRanking();
   void addToScore(int s);
 
-  static const Auth::AuthService& auth();
-  static const Auth::AbstractPasswordService& passwordAuth();
-  static const std::vector<const Auth::OAuthService *>& oAuth();
+  static const Wt::Auth::AuthService& auth();
+  static const Wt::Auth::AbstractPasswordService& passwordAuth();
+  static std::vector<const Wt::Auth::OAuthService *> oAuth();
 
 private:
-  mutable Dbo::Session session_;
+  mutable Wt::Dbo::Session session_;
   std::unique_ptr<UserDatabase> users_;
-  Auth::Login login_;
+  Wt::Auth::Login login_;
 
-  Dbo::ptr<User> user() const;
+  Wt::Dbo::ptr<User> user() const;
 };
 
 #endif //SESSION_H_

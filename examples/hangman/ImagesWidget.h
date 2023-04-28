@@ -8,18 +8,16 @@
 #ifndef IMAGES_WIDGET_H_
 #define IMAGES_WIDGET_H_
 
-#include <vector>
-
 #include <Wt/WContainerWidget.h>
 
-using namespace Wt;
+#include <vector>
 
-class ImagesWidget : public WContainerWidget
+class ImagesWidget : public Wt::WContainerWidget
 {
 public:
   static const int HURRAY;
 
-  ImagesWidget(int maxGuesses);
+  explicit ImagesWidget(int maxGuesses);
 
   /*
    * 0 - maxGuesses: corresponds to 0 up to maxGuesses guesses
@@ -29,10 +27,10 @@ public:
   int currentImage() const { return image_; }
 
 private:
-  std::vector<WImage *> images_;
+  std::vector<Wt::WImage*> images_;
   int image_;
 
-  WImage *image(int index) const;
+  Wt::WImage *image(int index) const;
 };
 
 #endif // IMAGES_WIDGET_H_
