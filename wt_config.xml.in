@@ -500,7 +500,7 @@
            not receive an Ajax session regardless of what they report as
            capabilities.
 
-           Possible values for 'mode' or "white-list" or "black-list". A
+           Possible values for 'mode' are "white-list" or "black-list". A
            white-list will only treat the listed agents as supporting Ajax,
            all other agents will be served plain HTML sessions. A black-list
            will always server plain HTML sessions to listed agents and
