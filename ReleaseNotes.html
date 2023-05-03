@@ -129,6 +129,13 @@ behaviour.
     This also fixes <a href="https://redmine.webtoolkit.eu/issues/11301" target="_blank">issue #11301</a>, where there
     could be a use-after-free in <code>test.http</code>.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/11578" target="_blank">Issue #11578</a>:
+    fixed an issue with the <a href="namespaceWt_1_1Form_1_1Dbo.html">Dbo forms</a> not correctly validating
+    invalid <a href="classWt_1_1WDate.html">WDate</a> and <a href="classWt_1_1WTime.html">WTime</a> values
+    causing the forms to clear the values. Now the forms will give a validation error and prompt the user to
+    correct it before saving the form.
+  </li>
 </ul>
 
 <h2>Release 4.9.2 (April 18, 2023)</h2>
