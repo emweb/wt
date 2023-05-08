@@ -21,7 +21,10 @@
 #endif
 
 #include <GL/glew.h>
+
+#ifndef APPLE_GL
 #include <GL/gl.h>
+#endif
 
 #ifdef X11_GL
 #include <X11/Xlib.h>
