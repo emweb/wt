@@ -49,20 +49,20 @@ public:
    */
   void setFormModel(std::shared_ptr<FormModel<C>> model)
   {
-    model_ = model;
+    model_ = std::move(model);
 
     C dummy;
 
     // Automatically generate the form delegates
-    ViewAction action(model->session(), model.get(), formDelegates_);
+    ViewAction action(model_->session(), model_.get(), formDelegates_);
     dummy.persist(action);
 
-    for (const Wt::WFormModel::Field& f : model->fields()) {
+    for (const Wt::WFormModel::Field& f : model_->fields()) {
       setFormWidget(f, formWidget(f));
-      model->setValidator(f, validator(f));
+      model_->setValidator(f, validator(f));
     }
 
-    updateView(model.get());
+    updateView(model_.get());
   }
 
   /*! \brief Sets a custom form delegate
