@@ -10,10 +10,6 @@
 
 namespace Wt {
   namespace Form {
-WAbstractFormDelegate::WAbstractFormDelegate()
-{
-}
-
 std::shared_ptr<Wt::WValidator> WAbstractFormDelegate::createValidator()
 {
   return nullptr;

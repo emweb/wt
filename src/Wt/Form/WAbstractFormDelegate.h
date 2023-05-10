@@ -54,10 +54,6 @@ namespace Wt {
 class WT_API WAbstractFormDelegate
 {
 public:
-  /*! \brief Create a form delegate
-   */
-  WAbstractFormDelegate();
-
   /*! \brief Create the widget to be used in the View
    */
   virtual std::unique_ptr<Wt::WWidget> createFormWidget() = 0;

@@ -26,10 +26,6 @@ template<>
 class WT_API WFormDelegate<Wt::WString, void> : public WAbstractFormDelegate
 {
 public:
-  /*! \brief Create a form delegate
-   */
-  WFormDelegate();
-
   /*! \brief Create WLineEdit to be used in the View
    */
   std::unique_ptr<Wt::WWidget> createFormWidget() override;
@@ -46,10 +42,6 @@ template<>
 class WT_API WFormDelegate<std::string, void> : public WAbstractFormDelegate
 {
 public:
-  /*! \brief Create a form delegate
-   */
-  WFormDelegate();
-
   /*! \brief Create WLineEdit to be used in the View
    */
   std::unique_ptr<Wt::WWidget> createFormWidget() override;
@@ -70,10 +62,6 @@ template<>
 class WT_API WFormDelegate<Wt::WDate, void> : public WAbstractFormDelegate
 {
 public:
-  /*! \brief Create a form delegate
-   */
-  WFormDelegate();
-
   /*! \brief Create WDateEdit to be used in the View
    */
   std::unique_ptr<Wt::WWidget> createFormWidget() override;
@@ -102,10 +90,6 @@ template<>
 class WT_API WFormDelegate<Wt::WTime, void> : public WAbstractFormDelegate
 {
 public:
-  /*! \brief Create a form delegate
-   */
-  WFormDelegate();
-
   /*! \brief Create WTimeEdit to be used in the View
    */
   std::unique_ptr<Wt::WWidget> createFormWidget() override;
@@ -137,10 +121,6 @@ template<>
 class WT_API WFormDelegate<Wt::WDateTime, void> : public WAbstractFormDelegate
 {
 public:
-  /*! \brief Create a form delegate
-   */
-  WFormDelegate();
-
   /*! \brief Create a WLineEdit to be used in the View
    */
   std::unique_ptr<Wt::WWidget> createFormWidget() override;
@@ -161,10 +141,6 @@ template<>
 class WT_API WFormDelegate<bool, void> : public WAbstractFormDelegate
 {
 public:
-  /*! \brief Create a form delegate
-   */
-  WFormDelegate();
-
   /*! \brief Create WCheckBox to be used in the View
    */
   std::unique_ptr<Wt::WWidget> createFormWidget() override;
@@ -190,10 +166,6 @@ template<>
 class WT_API WFormDelegate<int, void> : public WAbstractFormDelegate
 {
 public:
-  /*! \brief Create a form delegate
-   */
-  WFormDelegate();
-
   /*! \brief Create WLineEdit to be used in the View
    */
   std::unique_ptr<Wt::WWidget> createFormWidget() override;
@@ -223,10 +195,6 @@ template<>
 class WT_API WFormDelegate<double, void> : public WAbstractFormDelegate
 {
 public:
-  /*! \brief Create a form delegate
-   */
-  WFormDelegate();
-
   /*! \brief Create WLineEdit to be used in the View
    */
   std::unique_ptr<Wt::WWidget> createFormWidget() override;
