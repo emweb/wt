@@ -46,6 +46,8 @@ public:
    */
   std::unique_ptr<Wt::WWidget> createFormWidget() override;
 
+  using WAbstractFormDelegate::updateModelValue;
+
   /*! \brief Update the value in the Model
    */
   void updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
@@ -70,9 +72,13 @@ public:
    */
   std::shared_ptr<Wt::WValidator> createValidator() override;
 
+  using WAbstractFormDelegate::updateModelValue;
+
   /*! \brief Update the value in the Model
    */
   void updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
+
+  using WAbstractFormDelegate::updateViewValue;
 
   /*! \brief Update the value in the View
    */
@@ -98,9 +104,13 @@ public:
    */
   std::shared_ptr<Wt::WValidator> createValidator() override;
 
+  using WAbstractFormDelegate::updateModelValue;
+
   /*! \brief Update the value in the Model
    */
   void updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
+
+  using WAbstractFormDelegate::updateViewValue;
 
   /*! \brief Update the value in the View
    */
@@ -125,6 +135,8 @@ public:
    */
   std::unique_ptr<Wt::WWidget> createFormWidget() override;
 
+  using WAbstractFormDelegate::updateModelValue;
+
   /*! \brief Update the value in the Model
    */
   void updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
@@ -145,9 +157,13 @@ public:
    */
   std::unique_ptr<Wt::WWidget> createFormWidget() override;
 
+  using WAbstractFormDelegate::updateModelValue;
+
   /*! \brief Update the value in the Model
    */
   void updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
+
+  using WAbstractFormDelegate::updateViewValue;
 
   /*! \brief Update the value in the View
    */
@@ -174,9 +190,13 @@ public:
    */
   std::shared_ptr<Wt::WValidator> createValidator() override;
 
+  using WAbstractFormDelegate::updateModelValue;
+
   /*! \brief Update the value in the Model
    */
   void updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
+
+  using WAbstractFormDelegate::updateViewValue;
 
   /*! \brief Update the value in the View
    */
@@ -203,9 +223,13 @@ public:
    */
   std::shared_ptr<Wt::WValidator> createValidator() override;
 
+  using WAbstractFormDelegate::updateModelValue;
+
   /*! \brief Update the value in the model
    */
   void updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WFormWidget *edit) override;
+
+  using WAbstractFormDelegate::updateViewValue;
 
   /*! \brief Update the value in the View
    */
