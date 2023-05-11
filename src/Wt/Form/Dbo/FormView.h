@@ -254,7 +254,7 @@ private:
     return nullptr;
   }
 
-  /*! \brief Gets the form deleate
+  /*! \brief Gets the form delegate
    */
   std::shared_ptr<Wt::Form::WAbstractFormDelegate> delegate(Wt::WFormModel::Field field)
   {
