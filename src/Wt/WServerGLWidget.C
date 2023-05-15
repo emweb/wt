@@ -1795,6 +1795,7 @@ void WServerGLWidget::render(const std::string& jsRef, WFlags<RenderFlag> flags)
       raster_->setPixel(j, renderHeight_-1-i, pixel);
     }
   }
+  raster_->done();
   std::stringstream sstream;
   raster_->write(sstream);
   std::string tmp = sstream.str();
