@@ -476,19 +476,9 @@ ELSEIF("${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "Direct2D")
   SET(libsources ${libsources} Wt/WRasterImage.h Wt/WRasterImage-d2d1.C)
 ENDIF("${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "GraphicsMagick")
 
-IF(HAVE_GL)
+if(HAVE_GL AND GLEW_FOUND)
   SET(libsources ${libsources} Wt/WServerGLWidget.h Wt/WServerGLWidget.C)
-  IF(NOT USE_SYSTEM_GLEW)
-    ADD_DEFINITIONS(-DGLEW_STATIC)
-    SET(libsources
-      ${libsources}
-      3rdparty/glew-1.10.0/include/GL/glew.h
-      3rdparty/glew-1.10.0/include/GL/glxew.h
-      3rdparty/glew-1.10.0/include/GL/wglew.h
-      3rdparty/glew-1.10.0/src/glew.c
-    )
-  ENDIF(NOT USE_SYSTEM_GLEW)
-ENDIF(HAVE_GL)
+endif()
 
 SET(WT_FONTSUPPORT_SIMPLE false)
 SET(WT_FONTSUPPORT_PANGO false)
@@ -654,15 +644,13 @@ ELSE("${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "GraphicsMagick")
   MESSAGE("** Disabling raster image support (WRasterImage): set WT_WRASTERIMAGE_IMPLEMENTATION to GraphicsMagick or Direct2D.")
 ENDIF("${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "GraphicsMagick")
 
-IF(HAVE_GL)
+if(HAVE_GL AND GLEW_FOUND)
   INCLUDE_DIRECTORIES(${GL_INCLUDE_DIRS})
-  IF(USE_SYSTEM_GLEW)
-    TARGET_LINK_LIBRARIES(wt PRIVATE GLEW)
-  ENDIF(USE_SYSTEM_GLEW)
   TARGET_LINK_LIBRARIES(wt PRIVATE ${GL_LIBRARIES})
-ELSE(HAVE_GL)
+  target_link_libraries(wt PRIVATE GLEW::GLEW)
+else()
   MESSAGE("** Disabling server-side opengl rendering for WGLWidget: requires gl, glew and WRasterImage (GraphicsMagick or Direct2D).")
-ENDIF(HAVE_GL)
+endif()
 
 IF(WT_FONTSUPPORT_SIMPLE)
   ADD_DEFINITIONS(-DWT_FONTSUPPORT_SIMPLE)
