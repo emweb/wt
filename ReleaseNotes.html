@@ -141,6 +141,14 @@ behaviour.
     added a virtual destructor to <a href="classWt_1_1Form_1_1WAbstractFormDelegate.html">WAbstractFormDelegate</a>
     to ensure proper deletion and explicitly removed the copy and move constructor and assignment operator.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/10485" target="_blank">Issue #10485</a>:
+    fixed an issue where Wt would not build on Apple platforms with <code>ENABLE_OPENGL=ON</code>.
+    This changes the CMake setup, so that we now rely on built-in <a href="https://cmake.org/cmake/help/latest/module/FindOpenGL.html" target="_blank">FindOpenGL</a> and <a href="https://cmake.org/cmake/help/latest/module/FindGLEW.html" target="_blank">FindGLEW</a> modules.
+    As a consequence, the bundled GLEW installation was removed. This means that a GLEW installation will need to be
+    provided when building Wt from source. CMake will find GLEW if it is installed in a standard location.
+    The <code>GLEW_ROOT</code> CMake variable can be used if it is installed elsewhere.
+  </li>
 </ul>
 
 <h2>Release 4.9.2 (April 18, 2023)</h2>
