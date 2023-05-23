@@ -35,7 +35,6 @@ The `wtwithqt` example is licensed under the [MIT License](https://spdx.org/lice
 | date | | [MIT License](https://spdx.org/licenses/MIT.html) | Copyright &copy; 2015, 2016, 2017 Howard Hinnant<br>Copyright &copy; 2015 Ville Voutilainen<br>Copyright &copy; 2016, 2017, 2019 Jiangang Zhuang<br>Copyright &copy; 2016 Adrian Colomitchi<br>Copyright &copy; 2016 Alexander Kormanovsky<br>Copyright &copy; 2017, 2018, 2019 Tomasz Kamiński<br>Copyright &copy; 2017 Aaron Bishop<br>Copyright &copy; 2017 Florian Dang<br>Copyright &copy; 2017 Nicolas Veloz Savino<br>Copyright &copy; 2017 Paul Thompson<br>Copyright &copy; 2019 Asad. Gharighi |
 | any | Used to provide `std::any` implementation when C++17 is not available | [Boost Software License 1.0](https://spdx.org/licenses/BSL-1.0.html) | Copyright &copy; 2016 Denilson das Mercês Amorim |
 | signals | Wt's signal/slot implementation is adapted from this | [Creative Commons Zero v1.0 Universal](https://spdx.org/licenses/CC0-1.0.html) | Tim Janik |
-| GLEW | Used for server side rendering of `WGLWidget` | [BSD 3-Clause "New" or "Revised" License](https://spdx.org/licenses/BSD-3-Clause.html) | Copyright &copy; 2002-2008, Milan Ikits <milan ikits[]ieee org><br>Copyright &copy; 2002-2008, Marcelo E. Magallon <mmagallo[]debian org><br>Copyright &copy; 2002, Lev Povalahev |
 | http client example | `Wt::Http::Client` is based on a Boost Asio example | [Boost Software License 1.0](https://spdx.org/licenses/BSL-1.0.html) | Copyright &copy; 2003-2008 Christopher M. Kohlhoff |
 
 ### JavaScript
@@ -99,7 +98,7 @@ Wt source code, their licenses may change.
 | libHaru | PDF rendering, font metrics | [zlib License](https://spdx.org/licenses/Zlib.html) | http://libharu.org/ |
 | Pango   | Improved font selection and rendering (DirectWrite may be used on Windows instead) | [GNU Library General Public License v2 or later](https://spdx.org/licenses/LGPL-2.0-or-later.html) | https://pango.gnome.org/ |
 | GraphicsMagick | `WRasterImage` support (Direct2D may be used on Windows instead) | [MIT License](https://spdx.org/licenses/MIT.html) | http://www.graphicsmagick.org/ |
-| GLEW | Server side rendering for `WGLWidget` (alternative to built-in version) | [BSD 3-Clause "New" or "Revised" License](https://spdx.org/licenses/BSD-3-Clause.html) | http://glew.sourceforge.net/ |
+| GLEW | Server side rendering for `WGLWidget` | [BSD 3-Clause "New" or "Revised" License](https://spdx.org/licenses/BSD-3-Clause.html) | https://github.com/nigels-com/glew |
 | SQLite | Wt::Dbo Sqlite backend (alternative to built-in version) | [Public Domain](https://www.sqlite.org/copyright.html) | https://www.sqlite.org |
 | PostgreSQL | Wt::Dbo PostgreSQL backend | [PostgreSQL License](https://spdx.org/licenses/PostgreSQL.html) | https://www.postgresql.org/ |
 | MariaDB Connector/C | Wt::Dbo MySQL backend | [GNU Lesser General Public License v2.1 or later](https://spdx.org/licenses/LGPL-2.1-or-later.html) | https://downloads.mariadb.org/connector-c/ |
