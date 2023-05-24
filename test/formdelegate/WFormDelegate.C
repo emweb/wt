@@ -18,6 +18,124 @@
 
 #include "Wt/Test/WTestEnvironment.h"
 
+BOOST_AUTO_TEST_CASE( WFormDelegate_WString_createFormWidget )
+{
+  // Testing that createFormWidget returns the expected widget.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::Form::WFormDelegate<Wt::WString> formDelegate;
+  auto widget = formDelegate.createFormWidget();
+
+  BOOST_TEST(dynamic_cast<Wt::WLineEdit*>(widget.get()));
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_WString_createValidator)
+{
+  // Testing that there is no default validator for WString objects.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::Form::WFormDelegate<Wt::WString> formDelegate;
+  BOOST_TEST(!formDelegate.createValidator());
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_WString_updateModelValue )
+{
+  // Testing that the value in the model gets correctly updated
+  // and that the value in view remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("wstring-field");
+  formModel->setValue("wstring-field", "Hello");
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+  edit->setValueText("Hi");
+
+  Wt::Form::WFormDelegate<Wt::WString> formDelegate;
+  formDelegate.updateModelValue(formModel.get(), "wstring-field", edit.get());
+
+  BOOST_TEST(formModel->valueText("wstring-field") == "Hi");
+  BOOST_CHECK(formModel->value("wstring-field").type() == typeid(Wt::WString));
+
+  BOOST_TEST(edit->valueText() == "Hi");
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_WString_updateModelValue_empty )
+{
+  // Testing that an empty value in the view will result in clearing the value in the model
+  // and that the value in the view remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("wstring-field");
+  formModel->setValue("wstring-field", "Hello");
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+
+  Wt::Form::WFormDelegate<Wt::WString> formDelegate;
+  formDelegate.updateModelValue(formModel.get(), "wstring-field", edit.get());
+
+  BOOST_TEST(formModel->valueText("wstring-field").empty());
+  BOOST_CHECK(formModel->value("wstring-field").type() == typeid(Wt::WString));
+
+  BOOST_TEST(edit->valueText().empty());
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_WString_updateViewValue )
+{
+  // Testing that the value in the view gets correctly updated
+  // and that the value in the model remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("wstring-field");
+  formModel->setValue("wstring-field", Wt::WString("Hello"));
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+  edit->setValueText("Hi");
+
+  Wt::Form::WFormDelegate<Wt::WString> formDelegate;
+  formDelegate.updateViewValue(formModel.get(), "wstring-field", edit.get());
+
+  BOOST_TEST(edit->valueText() == "Hello");
+
+  BOOST_TEST(formModel->valueText("wstring-field") == "Hello");
+  BOOST_CHECK(formModel->value("wstring-field").type() == typeid(Wt::WString));
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_WString_updateViewValue_empty )
+{
+  // Testing that an empty value in the model will result in clearing the value in the view
+  // and that the value in the model remains unchanged.
+  // Note that the type of the value in the model isn't checked here, because it's essentially "null".
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("wstring-field");
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+  edit->setValueText("Hi");
+
+  Wt::Form::WFormDelegate<Wt::WString> formDelegate;
+  formDelegate.updateViewValue(formModel.get(), "wstring-field", edit.get());
+
+  BOOST_TEST(edit->valueText().empty());
+
+  BOOST_TEST(formModel->valueText("wstring-field").empty());
+}
+
 BOOST_AUTO_TEST_CASE( WFormDelegate_WDate_updateModelValue_valid_date )
 {
   // Testing that valid string input (correct date format) results in the model containing
