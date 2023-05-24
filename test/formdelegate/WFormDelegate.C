@@ -12,6 +12,7 @@
 #include "Wt/WDateEdit.h"
 #include "Wt/WDateValidator.h"
 #include "Wt/WFormModel.h"
+#include "Wt/WIntValidator.h"
 #include "Wt/WLineEdit.h"
 #include "Wt/WLocale.h"
 #include "Wt/WTime.h"
@@ -619,4 +620,150 @@ BOOST_AUTO_TEST_CASE( WFormDelegate_bool_updateViewValue_unexpected_type )
   formDelegate.updateViewValue(formModel.get(), "bool-field", checkBox.get());
 
   BOOST_TEST(!checkBox->isChecked());
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_int_createFormWidget )
+{
+  // Testing that createFormWidget returns the expected widget.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::Form::WFormDelegate<int> formDelegate;
+  auto widget = formDelegate.createFormWidget();
+
+  BOOST_TEST(dynamic_cast<Wt::WLineEdit*>(widget.get()));
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_int_createValidator )
+{
+  // Testing that createValidator returns the expected validator.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::Form::WFormDelegate<int> formDelegate;
+  auto validator = formDelegate.createValidator();
+
+  BOOST_TEST(dynamic_cast<Wt::WIntValidator*>(validator.get()));
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_int_updateModelValue_valid_int )
+{
+  // Testing that valid input (string can be converted to int) results in the model
+  // containing the corresponding integer and that the value in the view remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("int-field");
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+  edit->setValueText("10");
+
+  Wt::Form::WFormDelegate<int> formDelegate;
+  formDelegate.updateModelValue(formModel.get(), "int-field", edit.get());
+
+  BOOST_TEST(formModel->valueText("int-field") == "10");
+  BOOST_TEST(Wt::cpp17::any_cast<int>(formModel->value("int-field")) == 10);
+  BOOST_CHECK(formModel->value("int-field").type() == typeid(int));
+
+  BOOST_TEST(edit->valueText() == "10");
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_int_updateModelValue_invalid_int )
+{
+  // Testing that an invalid int input (string cannot be converted to int) results in the model
+  // containing the validation result instead of an integer and that the value in the view
+  // remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("int-field");
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+  edit->setValidator(std::make_shared<Wt::WIntValidator>());
+  edit->setValueText("Not an integer");
+
+  Wt::Form::WFormDelegate<int> formDelegate;
+  formDelegate.updateModelValue(formModel.get(), "int-field", edit.get());
+
+  BOOST_CHECK(formModel->value("int-field").type() == typeid(Wt::WValidator::Result));
+  BOOST_CHECK(Wt::cpp17::any_cast<Wt::WValidator::Result>(formModel->value("int-field")).state() == Wt::ValidationState::Invalid);
+
+  BOOST_TEST(edit->valueText() == "Not an integer");
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_int_updateModelValue_widget_empty )
+{
+  // Testing that an empty string results in the model containing 0
+  // and that the value in the view remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("int-field");
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+
+  Wt::Form::WFormDelegate<int> formDelegate;
+  formDelegate.updateModelValue(formModel.get(), "int-field", edit.get());
+
+  BOOST_TEST(formModel->valueText("int-field") == "0");
+  BOOST_TEST(Wt::cpp17::any_cast<int>(formModel->value("int-field")) == 0);
+  BOOST_CHECK(formModel->value("int-field").type() == typeid(int));
+
+  BOOST_TEST(edit->valueText().empty());
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_int_updateViewValue_model_contains_validation_result )
+{
+  // Testing that the view doesn't get updated when the model contains a validation result
+  // and that the value in the model remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("int-field");
+  formModel->setValue("int-field", Wt::WValidator::Result());
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+  edit->setValueText("Not an integer"); // Invalid value is kept in the UI
+
+  Wt::Form::WFormDelegate<int> formDelegate;
+  formDelegate.updateViewValue(formModel.get(), "int-field", edit.get());
+
+  BOOST_TEST(edit->valueText() == "Not an integer");
+
+  BOOST_CHECK(formModel->value("int-field").type() == typeid(Wt::WValidator::Result));
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_int_updateViewValue_model_contains_int )
+{
+  // Testing that the view gets updated with the integer in the model
+  // and that the value in the model remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("int-field");
+  formModel->setValue("int-field", 10);
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+  edit->setValueText("Not an integer");
+
+  Wt::Form::WFormDelegate<int> formDelegate;
+  formDelegate.updateViewValue(formModel.get(), "int-field", edit.get());
+
+  BOOST_TEST(edit->valueText() == "10");
+
+  BOOST_TEST(formModel->valueText("int-field") == "10");
+  BOOST_TEST(Wt::cpp17::any_cast<int>(formModel->value("int-field")) == 10);
+  BOOST_CHECK(formModel->value("int-field").type() == typeid(int));
 }
