@@ -11,6 +11,7 @@
 #include "Wt/WDate.h"
 #include "Wt/WDateEdit.h"
 #include "Wt/WDateValidator.h"
+#include "Wt/WDoubleValidator.h"
 #include "Wt/WFormModel.h"
 #include "Wt/WIntValidator.h"
 #include "Wt/WLineEdit.h"
@@ -486,6 +487,170 @@ BOOST_AUTO_TEST_CASE( WFormDelegate_WTime_updateViewValue_model_contains_null_ti
   formDelegate.updateViewValue(formModel.get(), "time-field", edit.get());
 
   BOOST_TEST(edit->valueText().empty());
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_WDateTime_createFormWidget )
+{
+  // Testing that createFormWidget returns the expected widget.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::Form::WFormDelegate<Wt::WDateTime> formDelegate;
+  auto widget = formDelegate.createFormWidget();
+
+  BOOST_TEST(dynamic_cast<Wt::WLineEdit*>(widget.get()));
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_WDateTime_createValidator )
+{
+  // Testing that there is no default validator for WDateTime objects.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::Form::WFormDelegate<Wt::WString> formDelegate;
+  BOOST_TEST(!formDelegate.createValidator());
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_WDateTime_updateModelValue_valid_format )
+{
+  // Testing that valid string input (correct format) results in the model
+  // containing a valid WDateTime object (i.e. string gets correctly converted to WDateTime)
+  // and that the value in the view remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::WLocale locale;
+  locale.setDateTimeFormat("yyyy-MM-dd HH:mm:ss");
+  app.setLocale(locale);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("datetime-field");
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+  edit->setValueText("2023-05-24 14:45:50");
+
+  Wt::Form::WFormDelegate<Wt::WDateTime> formDelegate;
+  formDelegate.updateModelValue(formModel.get(), "datetime-field", edit.get());
+
+  BOOST_TEST(formModel->valueText("datetime-field") == Wt::WDateTime(Wt::WDate(2023, 5, 24), Wt::WTime(14, 45, 50)).toString("yyyy-MM-dd HH:mm:ss"));
+  BOOST_CHECK(Wt::cpp17::any_cast<Wt::WDateTime>(formModel->value("datetime-field")) == Wt::WDateTime(Wt::WDate(2023, 5, 24), Wt::WTime(14, 45, 50)));
+  BOOST_CHECK(formModel->value("datetime-field").type() == typeid(Wt::WDateTime));
+
+  BOOST_TEST(edit->valueText() == "2023-05-24 14:45:50");
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_WDateTime_updateModelValue_invalid_format )
+{
+  // Testing that invalid string input (incorrect format) results in the model containing
+  // a default constructed WDateTime object and that the value in the view remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::WLocale locale;
+  locale.setDateTimeFormat("yyyy-MM-dd HH:mm:ss");
+  app.setLocale(locale);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("datetime-field");
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+  edit->setValueText("24/05/2023 14:45:50");
+
+  Wt::Form::WFormDelegate<Wt::WDateTime> formDelegate;
+  formDelegate.updateModelValue(formModel.get(), "datetime-field", edit.get());
+
+  BOOST_TEST(formModel->valueText("datetime-field").empty());
+  BOOST_CHECK(Wt::cpp17::any_cast<Wt::WDateTime>(formModel->value("datetime-field")) == Wt::WDateTime());
+  BOOST_CHECK(formModel->value("datetime-field").type() == typeid(Wt::WDateTime));
+
+  BOOST_TEST(edit->valueText() == "24/05/2023 14:45:50");
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_WDateTime_updateModelValue_widget_empty )
+{
+  // Testing that the value in the model remains unchanged when the widget is empty
+  // and that the value in the view remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::WLocale locale;
+  locale.setDateTimeFormat("yyyy-MM-dd HH:mm:ss");
+  app.setLocale(locale);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("datetime-field");
+  formModel->setValue("datetime-field", Wt::WDateTime(Wt::WDate(2023, 5, 24), Wt::WTime(14, 45, 50)));
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+
+  Wt::Form::WFormDelegate<Wt::WDateTime> formDelegate;
+  formDelegate.updateModelValue(formModel.get(), "datetime-field", edit.get());
+
+  BOOST_TEST(formModel->valueText("datetime-field") == Wt::WDateTime(Wt::WDate(2023, 5, 24), Wt::WTime(14, 45, 50)).toString("yyyy-MM-dd HH:mm:ss"));
+  BOOST_CHECK(Wt::cpp17::any_cast<Wt::WDateTime>(formModel->value("datetime-field")) == Wt::WDateTime(Wt::WDate(2023, 5, 24), Wt::WTime(14, 45, 50)));
+  BOOST_CHECK(formModel->value("datetime-field").type() == typeid(Wt::WDateTime));
+
+  BOOST_TEST(edit->valueText().empty());
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_WDateTime_updateViewValue_model_contains_WDateTime )
+{
+  // Testing that the view gets updated when the model contains a valid WDateTime object
+  // and that the value in the model remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::WLocale locale;
+  locale.setDateTimeFormat("yyyy-MM-dd HH:mm:ss");
+  app.setLocale(locale);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("datetime-field");
+  formModel->setValue("datetime-field", Wt::WDateTime(Wt::WDate(2023, 5, 24), Wt::WTime(14, 45, 50)));
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+
+  Wt::Form::WFormDelegate<Wt::WDateTime> formDelegate;
+  formDelegate.updateViewValue(formModel.get(), "datetime-field", edit.get());
+
+  BOOST_TEST(edit->valueText() == Wt::WDateTime(Wt::WDate(2023, 5, 24), Wt::WTime(14, 45, 50)).toString("yyyy-MM-dd HH:mm:ss"));
+
+  BOOST_TEST(formModel->valueText("datetime-field") == Wt::WDateTime(Wt::WDate(2023, 5, 24), Wt::WTime(14, 45, 50)).toString("yyyy-MM-dd HH:mm:ss"));
+  BOOST_CHECK(Wt::cpp17::any_cast<Wt::WDateTime>(formModel->value("datetime-field")) == Wt::WDateTime(Wt::WDate(2023, 5, 24), Wt::WTime(14, 45, 50)));
+  BOOST_CHECK(formModel->value("datetime-field").type() == typeid(Wt::WDateTime));
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_WDateTime_updateViewValue_model_contains_string)
+{
+  // Testing that there's no validation on what the model contains, so the view gets updated even
+  // though the model doesn't contain a WDateTime object and that the value in the model remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::WLocale locale;
+  locale.setDateTimeFormat("yyyy-MM-dd HH:mm:ss");
+  app.setLocale(locale);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("datetime-field");
+  formModel->setValue("datetime-field", "Not a timestamp");
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+
+  Wt::Form::WFormDelegate<Wt::WDateTime> formDelegate;
+  formDelegate.updateViewValue(formModel.get(), "datetime-field", edit.get());
+
+  BOOST_TEST(edit->valueText() == "Not a timestamp");
+
+  BOOST_TEST(formModel->valueText("datetime-field") == "Not a timestamp");
+  BOOST_CHECK(formModel->value("datetime-field").type() == typeid(const char*));
 }
 
 BOOST_AUTO_TEST_CASE( WFormDelegate_bool_createFormWidget )
