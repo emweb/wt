@@ -8,6 +8,7 @@
 #include "Wt/Form/WFormDelegate.h"
 
 #include "Wt/WDate.h"
+#include "Wt/WDateEdit.h"
 #include "Wt/WDateValidator.h"
 #include "Wt/WFormModel.h"
 #include "Wt/WLineEdit.h"
@@ -134,6 +135,32 @@ BOOST_AUTO_TEST_CASE( WFormDelegate_WString_updateViewValue_empty )
   BOOST_TEST(edit->valueText().empty());
 
   BOOST_TEST(formModel->valueText("wstring-field").empty());
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_WDate_createFormWidget )
+{
+  // Testing that createFormWidget returns the expected widget.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::Form::WFormDelegate<Wt::WDate> formDelegate;
+  auto widget = formDelegate.createFormWidget();
+
+  BOOST_TEST(dynamic_cast<Wt::WDateEdit*>(widget.get()));
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_WDate_createValidator)
+{
+  // Testing that createValidator returns the expected validator.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::Form::WFormDelegate<Wt::WDate> formDelegate;
+  auto validator = formDelegate.createValidator();
+
+  BOOST_TEST(dynamic_cast<Wt::WDateValidator*>(validator.get()));
 }
 
 BOOST_AUTO_TEST_CASE( WFormDelegate_WDate_updateModelValue_valid_date )
