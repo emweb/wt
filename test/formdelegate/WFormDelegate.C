@@ -14,6 +14,7 @@
 #include "Wt/WLineEdit.h"
 #include "Wt/WLocale.h"
 #include "Wt/WTime.h"
+#include "Wt/WTimeEdit.h"
 #include "Wt/WTimeValidator.h"
 #include "Wt/WValidator.h"
 
@@ -309,6 +310,32 @@ BOOST_AUTO_TEST_CASE( WFormDelegate_WDate_updateViewValue_model_contains_null_da
   formDelegate.updateViewValue(formModel.get(), "date-field", edit.get());
 
   BOOST_TEST(edit->valueText().empty());
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_WTime_createFormWidget )
+{
+  // Testing that createFormWidget returns the expected widget.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::Form::WFormDelegate<Wt::WTime> formDelegate;
+  auto widget = formDelegate.createFormWidget();
+
+  BOOST_TEST(dynamic_cast<Wt::WTimeEdit*>(widget.get()));
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_WTime_createValidator)
+{
+  // Testing that createValidator returns the expected validator.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::Form::WFormDelegate<Wt::WTime> formDelegate;
+  auto validator = formDelegate.createValidator();
+
+  BOOST_TEST(dynamic_cast<Wt::WTimeValidator*>(validator.get()));
 }
 
 BOOST_AUTO_TEST_CASE( WFormDelegate_WTime_updateModelValue_valid_time )
