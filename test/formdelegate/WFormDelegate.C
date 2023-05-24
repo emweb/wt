@@ -7,6 +7,7 @@
 
 #include "Wt/Form/WFormDelegate.h"
 
+#include "Wt/WCheckBox.h"
 #include "Wt/WDate.h"
 #include "Wt/WDateEdit.h"
 #include "Wt/WDateValidator.h"
@@ -484,4 +485,138 @@ BOOST_AUTO_TEST_CASE( WFormDelegate_WTime_updateViewValue_model_contains_null_ti
   formDelegate.updateViewValue(formModel.get(), "time-field", edit.get());
 
   BOOST_TEST(edit->valueText().empty());
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_bool_createFormWidget )
+{
+  // Testing that createFormWidget returns the expected widget.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::Form::WFormDelegate<bool> formDelegate;
+  auto widget = formDelegate.createFormWidget();
+
+  BOOST_TEST(dynamic_cast<Wt::WCheckBox*>(widget.get()));
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_bool_createValidator )
+{
+  // Testing that there is no default validator for bool objects.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::Form::WFormDelegate<bool> formDelegate;
+  BOOST_TEST(!formDelegate.createValidator());
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_bool_updateModelValue )
+{
+  // Testing that the value in the model gets correctly updated
+  // and that the value in the view remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("bool-field");
+  formModel->setValue("bool-field", false);
+
+  auto checkBox = std::make_unique<Wt::WCheckBox>();
+  checkBox->setChecked(true);
+
+  Wt::Form::WFormDelegate<bool> formDelegate;
+  formDelegate.updateModelValue(formModel.get(), "bool-field", checkBox.get());
+
+  BOOST_CHECK(formModel->value("bool-field").type() == typeid(bool));
+  BOOST_TEST(Wt::cpp17::any_cast<bool>(formModel->value("bool-field")));
+
+  BOOST_TEST(checkBox->isChecked());
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_bool_updateModelValue_unexpected_widget )
+{
+  // Testing that the value in the model remains unchanged if we're passing an unexpected
+  // widget to updateModelValue (i.e.: no WCheckBox).
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("bool-field");
+  formModel->setValue("bool-field", false);
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+
+  Wt::Form::WFormDelegate<bool> formDelegate;
+  formDelegate.updateModelValue(formModel.get(), "bool-field", edit.get());
+
+  BOOST_CHECK(formModel->value("bool-field").type() == typeid(bool));
+  BOOST_TEST(!Wt::cpp17::any_cast<bool>(formModel->value("bool-field")));
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_bool_updateViewValue )
+{
+  // Testing that the value in the view gets correctly updated
+  // and that the value in the model remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("bool-field");
+  formModel->setValue("bool-field", false);
+
+  auto checkBox = std::make_unique<Wt::WCheckBox>();
+  checkBox->setChecked(true);
+
+  Wt::Form::WFormDelegate<bool> formDelegate;
+  formDelegate.updateViewValue(formModel.get(), "bool-field", checkBox.get());
+
+  BOOST_TEST(!checkBox->isChecked());
+
+  BOOST_CHECK(formModel->value("bool-field").type() == typeid(bool));
+  BOOST_TEST(!Wt::cpp17::any_cast<bool>(formModel->value("bool-field")));
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_bool_updateViewValue_unexpected_widget )
+{
+  // Testing that the value in the view remains unchanged if we're passing an unexpected
+  // widget to updateViewValue (i.e.: no WCheckBox).
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("bool-field");
+  formModel->setValue("bool-field", false);
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+
+  Wt::Form::WFormDelegate<bool> formDelegate;
+  formDelegate.updateViewValue(formModel.get(), "bool-field", edit.get());
+
+  BOOST_TEST(edit->valueText().empty());
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_bool_updateViewValue_unexpected_type )
+{
+  // Testing that the value in the view is set to false if the model contains a different
+  // type for the value (i.e.: no bool).
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("bool-field");
+  formModel->setValue("bool-field", "Not a boolean");
+
+  auto checkBox = std::make_unique<Wt::WCheckBox>();
+  checkBox->setChecked(true);
+
+  Wt::Form::WFormDelegate<bool> formDelegate;
+  formDelegate.updateViewValue(formModel.get(), "bool-field", checkBox.get());
+
+  BOOST_TEST(!checkBox->isChecked());
 }
