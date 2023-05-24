@@ -932,3 +932,149 @@ BOOST_AUTO_TEST_CASE( WFormDelegate_int_updateViewValue_model_contains_int )
   BOOST_TEST(Wt::cpp17::any_cast<int>(formModel->value("int-field")) == 10);
   BOOST_CHECK(formModel->value("int-field").type() == typeid(int));
 }
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_double_createFormWidget )
+{
+  // Testing that createFormWidget returns the expected widget.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::Form::WFormDelegate<double> formDelegate;
+  auto widget = formDelegate.createFormWidget();
+
+  BOOST_TEST(dynamic_cast<Wt::WLineEdit*>(widget.get()));
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_double_createValidator )
+{
+  // Testing that createValidator returns the expected validator.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  Wt::Form::WFormDelegate<double> formDelegate;
+  auto validator = formDelegate.createValidator();
+
+  BOOST_TEST(dynamic_cast<Wt::WDoubleValidator*>(validator.get()));
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_double_updateModelValue_valid_double )
+{
+  // Testing that valid input (string can be converted to double) results in the model
+  // containing the corresponding double and that the value in the view remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("double-field");
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+  edit->setValueText("10.5");
+
+  Wt::Form::WFormDelegate<double> formDelegate;
+  formDelegate.updateModelValue(formModel.get(), "double-field", edit.get());
+
+  BOOST_TEST(formModel->valueText("double-field") == "10.5");
+  BOOST_TEST(Wt::cpp17::any_cast<double>(formModel->value("double-field")) == 10.5);
+  BOOST_CHECK(formModel->value("double-field").type() == typeid(double));
+
+  BOOST_TEST(edit->valueText() == "10.5");
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_double_updateModelValue_invalid_double )
+{
+  // Testing that an invalid double input (string cannot be converted to double) results in the model
+  // containing the validation result instead of an double and that the value in the view remains
+  // unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("double-field");
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+  edit->setValidator(std::make_shared<Wt::WDoubleValidator>());
+  edit->setValueText("Not a double");
+
+  Wt::Form::WFormDelegate<double> formDelegate;
+  formDelegate.updateModelValue(formModel.get(), "double-field", edit.get());
+
+  BOOST_CHECK(formModel->value("double-field").type() == typeid(Wt::WValidator::Result));
+  BOOST_CHECK(Wt::cpp17::any_cast<Wt::WValidator::Result>(formModel->value("double-field")).state() == Wt::ValidationState::Invalid);
+
+  BOOST_TEST(edit->valueText() == "Not a double");
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_double_updateModelValue_widget_empty )
+{
+  // Testing that an empty string results in the model containing 0
+  // and that the value in the view remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("double-field");
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+
+  Wt::Form::WFormDelegate<double> formDelegate;
+  formDelegate.updateModelValue(formModel.get(), "double-field", edit.get());
+
+  BOOST_TEST(formModel->valueText("double-field") == "0");
+  BOOST_TEST(Wt::cpp17::any_cast<double>(formModel->value("double-field")) == 0.0);
+  BOOST_CHECK(formModel->value("double-field").type() == typeid(double));
+
+  BOOST_TEST(edit->valueText().empty());
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_double_updateViewValue_model_contains_validation_result )
+{
+  // Testing that the view doesn't get updated when the model contains a validation result
+  // and that the value in the model remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("double-field");
+  formModel->setValue("double-field", Wt::WValidator::Result());
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+  edit->setValueText("Not a double"); // Invalid value is kept in the UI
+
+  Wt::Form::WFormDelegate<double> formDelegate;
+  formDelegate.updateViewValue(formModel.get(), "double-field", edit.get());
+
+  BOOST_TEST(edit->valueText() == "Not a double");
+
+  BOOST_CHECK(formModel->value("double-field").type() == typeid(Wt::WValidator::Result));
+}
+
+BOOST_AUTO_TEST_CASE( WFormDelegate_double_updateViewValue_model_contains_double )
+{
+  // Testing that the view gets updated with the double in the model
+  // and that the value in the model remains unchanged.
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto formModel = std::make_unique<Wt::WFormModel>();
+  formModel->addField("double-field");
+  formModel->setValue("double-field", 10.5);
+
+  auto edit = std::make_unique<Wt::WLineEdit>();
+  edit->setValueText("Not a double");
+
+  Wt::Form::WFormDelegate<double> formDelegate;
+  formDelegate.updateViewValue(formModel.get(), "double-field", edit.get());
+
+  BOOST_TEST(edit->valueText() == "10.5");
+
+  BOOST_TEST(formModel->valueText("double-field") == "10.5");
+  BOOST_TEST(Wt::cpp17::any_cast<double>(formModel->value("double-field")) == 10.5);
+  BOOST_CHECK(formModel->value("double-field").type() == typeid(double));
+}
