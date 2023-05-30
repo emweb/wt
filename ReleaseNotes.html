@@ -20,23 +20,22 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.10.0 (TBD)</h2>
+<h2>Release 4.10.0 (May 30, 2023)</h2>
+
+<p>
+  Wt 4.10.0 mainly features back-end improvements and some new features that provide some convenience.
+  There were some issues with persisting dates and time in Sqlite3.
+</p>
+
+<p>
+  In some cases user will have to change some things about their CMake set-up:
+  If users wish to use <code>OpenGL</code>, they may need to provide a <code>GLEW</code> installation with <code>GLEW_ROOT</code>,
+  since <code>GLEW</code> is no longer bundled with Wt.
+</p>
+
+<h3>New features</h3>
 
 <ul>
-  <li>
-    <a href="https://redmine.emweb.be/issues/11210" target="_blank">Issue #11210</a>:
-    <a href="classWt_1_1WTable.html#a03df7cedfb502dcc010493d4a71ee53c">WTable::headerCount()</a>
-    has been made <code>const</code>.
-  </li>
-  <li>
-    The obsolete CMake options
-    <code>ENABLE_EXT</code>, <code>WT_NO_STD_LOCALE</code> and <code>WT_NO_STD_WSTRING</code>
-    were removed.
-  </li>
-  <li>
-    <a href="https://redmine.webtoolkit.eu/issues/7814" target="_blank">Issue #7814</a>:
-    The <code>SameSite</code> attribute of the <code>Set-Cookie</code> HTTP header is now rendered by Wt. To avoid adding yet another parameter to the <code>WApplication::setCookie()</code> method, the class <a href="classWt_1_1Http_1_1Cookie.html">Http::Cookie</a> was introducted that allows configuring all cookie attributes using setters. Objects of this type can be passed to the new <a href="classWt_1_1WApplication.html#a5a76e2ae72a7ba5624c3dc12897728f5">setCookie()</a> and <a href="classWt_1_1WApplication.html#add89ecede3de74cb2338337ca730b2dc">removeCookie()</a> methods in <code>WApplication</code>.
-  </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/7279">Issue #7279</a>:
     added <a href="classWt_1_1WEmailEdit.html">WEmailEdit</a> and
@@ -44,11 +43,20 @@ behaviour.
     a <code>&lt;input type="email"&gt;</code>.
   </li>
   <li>
-    <a href="https://redmine.webtoolkit.eu/issues/11377" target="_blank">Issue #11377</a>:
-    when using wtisapi with WebSockets enabled in the <code>wt_config.xml</code>, Wt would
-    try and fail to establish a WebSockets connection (this is not supported by ISAPI). Wt
-    now disables WebSockets (and notifies this in the logs) when using ISAPI.
+    <a href="https://redmine.webtoolkit.eu/issues/8760" target="_blank">Issue #8760</a>:
+    extended <a href="classWt_1_1Auth_1_1AuthWidget.html">Auth::AuthWidget</a> with the option to resend verificiation emails. When email verification is configured to be required and the email somehow got lost, the user would be stuck not being able to log in.
+    When the user tries to log in now, an info message will be shown saying they need to verify their email first along with a new button to resend the verification email. The user must then enter the email address again in a dialog before the email is sent.<br/>
+    The virtual methods <a href="classWt_1_1Auth_1_1AuthWidget.html#a42f87508868746e5ccef5695fcbd8763">AuthWidget::letResendEmailVerification()</a> and <a href="classWt_1_1Auth_1_1AuthWidget.html#af45dea06ac5751e96499d62507fea69d">AuthWidget::createResendEmailVerificationView()</a> can be used to customize the UI.
   </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7814" target="_blank">Issue #7814</a>:
+    The <code>SameSite</code> attribute of the <code>Set-Cookie</code> HTTP header is now rendered by Wt. To avoid adding yet another parameter to the <code>WApplication::setCookie()</code> method, the class <a href="classWt_1_1Http_1_1Cookie.html">Http::Cookie</a> was introduced that allows configuring all cookie attributes using setters. Objects of this type can be passed to the new <a href="classWt_1_1WApplication.html#a5a76e2ae72a7ba5624c3dc12897728f5">setCookie()</a> and <a href="classWt_1_1WApplication.html#add89ecede3de74cb2338337ca730b2dc">removeCookie()</a> methods in <code>WApplication</code>.
+  </li>
+</ul>
+
+<h3>Other improvements</h3>
+
+<ul>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/11384" target="_blank">Issue #11384</a>:
     it was possible for
@@ -62,24 +70,48 @@ behaviour.
     <code>send()</code> was fixed to log an error and return <code>false</code> instead.
   </li>
   <li>
-    <a href="https://redmine.webtoolkit.eu/issues/11376" target="_blank">Issue #11376</a>:
-    fixed an issue with redirects when using wtfcgi.
-  </li>
-  <li>
-    <a href="https://redmine.webtoolkit.eu/issues/8760" target="_blank">Issue #8760</a>:
-    extended <a href="classWt_1_1Auth_1_1AuthWidget.html">Auth::AuthWidget</a> with the option to resend verificiation emails. When email verification is configured to be required and the email somehow got lost, the user would be stuck not being able to log in.
-    When the user tries to log in now, an info message will be shown saying they need to verify their email first along with a new button to resend the verification email. The user must then enter the email address again in a dialog before the email is sent.<br/>
-    The virtual methods <a href="classWt_1_1Auth_1_1AuthWidget.html#a42f87508868746e5ccef5695fcbd8763">AuthWidget::letResendEmailVerification()</a> and <a href="classWt_1_1Auth_1_1AuthWidget.html#af45dea06ac5751e96499d62507fea69d">AuthWidget::createResendEmailVerificationView()</a> can be used to customize the UI.
+    <a href="classWt_1_1WServer.html#aa17f85dc130b616b3fcf63aa857ff579">WServer::addResource()</a>
+    can now take a <code>shared_ptr</code> instead of a raw pointer,
+    enforcing that the resource lives at least as long as the server, unless removed with
+    <a href="classWt_1_1WServer.html#a9f5a82118198a1d2341fb89572fd8693">WServer::removeEntryPoint()</a>.
+    The overload that takes a raw pointer is now deprecated.
+    This also fixes <a href="https://redmine.webtoolkit.eu/issues/11301" target="_blank">issue #11301</a>, where there
+    could be a use-after-free in <code>test.http</code>.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/11412" target="_blank">Issue #11412</a>:
     shift-click to open a new window did not work for links to internal paths. Shift-click is now handled by the browser, like ctrl- and meta-click.
   </li>
   <li>
-    <a href="https://redmine.webtoolkit.eu/issues/11423" target="_blank">Issue #11423</a>:
-    <a href="classWt_1_1WResource.html#a12b871c53120ad1c7c708210f60422be">WResource::internalPath()</a>
-    now returns the empty string for static resources, since it doesn't make sense for static resources.
+    <a href="https://redmine.emweb.be/issues/11604" target="_blank">Issue #11604</a>:
+    added a virtual destructor to <a href="classWt_1_1Form_1_1WAbstractFormDelegate.html">WAbstractFormDelegate</a>
+    to ensure proper deletion and explicitly removed the copy and move constructor and assignment operator.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/11562" target="_blank">Issue #11562</a>:
+    The tutorials
+    (<a href="../../tutorial/wt.html" target="_blank">Wt</a>,
+    <a href="../../tutorial/dbo.html" target="_blank">Dbo</a>, and
+    <a href="../../tutorial/auth.html" target="_blank">Auth</a>)
+    were updated to be built with Asciidoctor instead of the legacy Python implementation,
+    its style was updated to match the JWt website style, and the text was brought up to
+    date a bit. The blog example was likewise updated to use Asciidoctor.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/11210" target="_blank">Issue #11210</a>:
+    <a href="classWt_1_1WTable.html#a03df7cedfb502dcc010493d4a71ee53c">WTable::headerCount()</a>
+    has been made <code>const</code>.
+  </li>
+  <li>
+    The obsolete CMake options
+    <code>ENABLE_EXT</code>, <code>WT_NO_STD_LOCALE</code> and <code>WT_NO_STD_WSTRING</code>
+    were removed.
+  </li>
+</ul>
+
+<h3>Bug fixes</h3>
+
+<ul>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/11426" target="_blank">Issue #11426</a>:
     <a href="classWt_1_1Dbo_1_1backend_1_1Sqlite3.html">Sqlite3</a>:
@@ -121,15 +153,6 @@ behaviour.
     </ul>
   </li>
   <li>
-    <a href="classWt_1_1WServer.html#aa17f85dc130b616b3fcf63aa857ff579">WServer::addResource()</a>
-    can now take a <code>shared_ptr</code> instead of a raw pointer,
-    enforcing that the resource lives at least as long as the server, unless removed with
-    <a href="classWt_1_1WServer.html#a9f5a82118198a1d2341fb89572fd8693">WServer::removeEntryPoint()</a>.
-    The overload that takes a raw pointer is now deprecated.
-    This also fixes <a href="https://redmine.webtoolkit.eu/issues/11301" target="_blank">issue #11301</a>, where there
-    could be a use-after-free in <code>test.http</code>.
-  </li>
-  <li>
     <a href="https://redmine.emweb.be/issues/11578" target="_blank">Issue #11578</a>:
     fixed an issue with the <a href="namespaceWt_1_1Form_1_1Dbo.html">Dbo forms</a> not correctly validating
     invalid <a href="classWt_1_1WDate.html">WDate</a> and <a href="classWt_1_1WTime.html">WTime</a> values
@@ -137,9 +160,15 @@ behaviour.
     correct it before saving the form.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/11604" target="_blank">Issue #11604</a>:
-    added a virtual destructor to <a href="classWt_1_1Form_1_1WAbstractFormDelegate.html">WAbstractFormDelegate</a>
-    to ensure proper deletion and explicitly removed the copy and move constructor and assignment operator.
+    <a href="https://redmine.webtoolkit.eu/issues/11377" target="_blank">Issue #11377</a>:
+    when using wtisapi with WebSockets enabled in the <code>wt_config.xml</code>, Wt would
+    try and fail to establish a WebSockets connection (this is not supported by ISAPI). Wt
+    now disables WebSockets (and notifies this in the logs) when using ISAPI.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/11423" target="_blank">Issue #11423</a>:
+    <a href="classWt_1_1WResource.html#a12b871c53120ad1c7c708210f60422be">WResource::internalPath()</a>
+    now returns the empty string for static resources, since it doesn't make sense for static resources.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/10485" target="_blank">Issue #10485</a>:
@@ -150,14 +179,8 @@ behaviour.
     The <code>GLEW_ROOT</code> CMake variable can be used if it is installed elsewhere.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/11562" target="_blank">Issue #11562</a>:
-    The tutorials
-    (<a href="../../tutorial/wt.html" target="_blank">Wt</a>,
-    <a href="../../tutorial/dbo.html" target="_blank">Dbo</a>, and
-    <a href="../../tutorial/auth.html" target="_blank">Auth</a>)
-    were updated to be built with Asciidoctor instead of the legacy Python implementation,
-    its style was updated to match the JWt website style, and the text was brought up to
-    date a bit. The blog example was likewise updated to use Asciidoctor.
+    <a href="https://redmine.webtoolkit.eu/issues/11376" target="_blank">Issue #11376</a>:
+    fixed an issue with redirects when using wtfcgi.
   </li>
 </ul>
 
