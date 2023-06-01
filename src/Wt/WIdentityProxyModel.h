@@ -128,7 +128,7 @@ public:
    * Forwards the result indicating success from the source model.
    */
   bool setHeaderData(int section, Orientation orientation,
-                     const cpp17::any& value, ItemDataRole role = ItemDataRole::Edit);
+                     const cpp17::any& value, ItemDataRole role = ItemDataRole::Edit) override;
 
 private:
   std::vector<Wt::Signals::connection> modelConnections_;
