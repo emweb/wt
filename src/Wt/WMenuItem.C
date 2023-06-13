@@ -354,7 +354,7 @@ void WMenuItem::setDisabled(bool disabled)
   WContainerWidget::setDisabled(disabled);
 
   if (disabled)
-    if (menu_)
+    if (menu_ && !menu_->isDisabled())
       menu_->onItemHidden(menu_->indexOf(this), true);
 }
 
@@ -364,7 +364,7 @@ void WMenuItem::setHidden(bool hidden,
   WContainerWidget::setHidden(hidden, animation);
 
   if (hidden)
-    if (menu_)
+    if (menu_ && !menu_->isHidden())
       menu_->onItemHidden(menu_->indexOf(this), true);
 }
 
