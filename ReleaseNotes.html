@@ -69,6 +69,14 @@ behaviour.
     <a href="https://redmine.webtoolkit.eu/issues/11769">Issue #11769</a>:
     The MySQL backend will now correctly catch the <a href="https://dev.mysql.com/doc/mysql-errors/8.0/en/server-error-reference.html#error_er_client_interaction_timeout">ER_CLIENT_INTERACTION_TIMEOUT</a> error.
   </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10512">Issue #10512</a>:
+    ensures that the disabled state of any <a href="classWt_1_1WWebWidget.html">WWebWidget</a> or <a href="classWt_1_1WCompositeWidget.html">WCompositeWidget</a> is correctly propagated to its children.
+    Before, if a user set a widget as disabled that contained children like a <a href="classWt_1_1WMenu.html">WMenu</a>, a new <a href="classWt_1_1WMenuItem.html">WMenuItem</a> could be added, that was enabled.
+    For some of the affected widgets, this meant that the new item could not be selected, since the signal was not exposed, but in some cases, like with a <code>WMenu</code> this was still possible.
+    The disabled state of a widget now propagates to its children so that a disabled state can be set consistently for a parent. This doesn't actually set <a href="classWt_1_1WCompositeWidget.html#af0186120a0adf80edbc11bc600913ce0">setDisabled()</a> of the children.
+    This state can be set separately to manage the child's disabled state without regard to its parent.
+  </li>
 </ul>
 
 <h2>Release 4.10.0 (May 30, 2023)</h2>
