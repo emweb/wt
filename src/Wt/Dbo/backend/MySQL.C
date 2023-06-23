@@ -28,6 +28,7 @@
 
 #include <mysql.h>
 #include <errmsg.h>
+#include <mysqld_error.h>
 
 #define BYTEAOID 17
 
@@ -1030,7 +1031,8 @@ void MySQL::checkConnection()
     err = std::string(mysql_error(impl_->mysql));
   }
   if (err_nb == CR_SERVER_GONE_ERROR ||
-      err_nb == CR_SERVER_LOST) {
+      err_nb == CR_SERVER_LOST ||
+      err_nb == ER_CLIENT_INTERACTION_TIMEOUT) {
     clearStatementCache();
     mysql_close(impl_->mysql);
     impl_->mysql = nullptr;
