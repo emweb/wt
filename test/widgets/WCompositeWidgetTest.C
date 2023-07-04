@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( WCompositeWidget_WMenu_addItem_when_setDisabled )
   menuPtr->createSDomElement(&app);
 
   BOOST_REQUIRE(!menuItem->isDisabled());
-  BOOST_REQUIRE(!menuItem->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(menuItem->hasStyleClass("Wt-disabled"));
 
   menuPtr->setDisabled(false);
 
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE( WCompositeWidget_WTabWidget_addTab_when_setDisabled )
   tabPtr->createSDomElement(&app);
 
   BOOST_REQUIRE(!tabItem->isDisabled());
-  BOOST_REQUIRE(!tabItem->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(tabItem->hasStyleClass("Wt-disabled"));
 
   tabPtr->setDisabled(false);
 
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( WCompositeWidget_WToolBar_addButton_when_setDisabled )
   toolbarPtr->createSDomElement(&app);
 
   BOOST_REQUIRE(!toolbarPtr->widget(1)->isDisabled());
-  BOOST_REQUIRE(!toolbarPtr->widget(1)->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(toolbarPtr->widget(1)->hasStyleClass("Wt-disabled"));
 
 
   toolbarPtr->setDisabled(false);
@@ -298,7 +298,7 @@ BOOST_AUTO_TEST_CASE( WCompositeWidget_WTreeView_setModel_when_setDisabled )
 
   for (int index = 0; index < model->rowCount(); ++index) {
     BOOST_REQUIRE(!treeViewPtr->itemWidget(model->index(index))->isDisabled());
-    BOOST_REQUIRE(!treeViewPtr->itemWidget(model->index(index))->hasStyleClass("Wt-disabled"));
+    BOOST_REQUIRE(treeViewPtr->itemWidget(model->index(index))->hasStyleClass("Wt-disabled"));
   }
 
   treeViewPtr->setDisabled(false);
@@ -383,7 +383,7 @@ BOOST_AUTO_TEST_CASE( WCompositeWidget_WTableView_setModel_when_setDisabled )
 
   for (int index = 0; index < model->rowCount(); ++index) {
     BOOST_REQUIRE(!tableViewPtr->itemWidget(model->index(index))->isDisabled());
-    BOOST_REQUIRE(!tableViewPtr->itemWidget(model->index(index))->hasStyleClass("Wt-disabled"));
+    BOOST_REQUIRE(tableViewPtr->itemWidget(model->index(index))->hasStyleClass("Wt-disabled"));
   }
 
   tableViewPtr->setDisabled(false);
@@ -459,7 +459,7 @@ BOOST_AUTO_TEST_CASE( WCompositeWidget_WTree_addChildNode_when_setDisabled )
   treePtr->createSDomElement(&app);
 
   BOOST_REQUIRE(!treePtr->treeRoot()->childNodes()[1]->isDisabled());
-  BOOST_REQUIRE(!treePtr->treeRoot()->childNodes()[1]->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(treePtr->treeRoot()->childNodes()[1]->hasStyleClass("Wt-disabled"));
 
   treePtr->setDisabled(false);
 
@@ -530,7 +530,7 @@ BOOST_AUTO_TEST_CASE( WCompositeWidget_WTreeTable_addChildNode_when_setDisabled 
   treeTablePtr->createSDomElement(&app);
 
   BOOST_REQUIRE(!treeTablePtr->treeRoot()->childNodes()[1]->isDisabled());
-  BOOST_REQUIRE(!treeTablePtr->treeRoot()->childNodes()[1]->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(treeTablePtr->treeRoot()->childNodes()[1]->hasStyleClass("Wt-disabled"));
 
   treeTablePtr->setDisabled(false);
 

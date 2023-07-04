@@ -1643,6 +1643,13 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     }
   }
 
+  if (transientImpl_) {
+    // Propagate the disabled state to its children #10512
+    if (parent() && parent()->isDisabled()) {
+      propagateSetEnabled(false);
+    }
+  }
+
   if (all || flags_.test(BIT_SELECTABLE_CHANGED)) {
     if (flags_.test(BIT_SET_UNSELECTABLE)) {
       element.addPropertyWord(Property::Class, "unselectable");
