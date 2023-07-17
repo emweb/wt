@@ -200,8 +200,14 @@ bool WAnchor::renderHRef(WInteractWidget *widget,
 {
   WApplication *app = WApplication::instance();
 
-  if (linkState.link.isNull() || widget->isDisabled())
-    element.removeAttribute("href");
+  if (linkState.link.isNull() || widget->isDisabled()) {
+    // WT-7645: Specific empty href attribute  for JS loaded content to avoid tab chain breaking
+    if (app->environment().javaScript()) {
+      element.setAttribute("href", "javascript:void(0);");
+    } else {
+      element.removeAttribute("href");
+    }
+  }
   else {
     std::string url = linkState.link.resolveUrl(app);
 
