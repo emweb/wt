@@ -39,6 +39,14 @@ namespace {
       "jos@example.com.be", Single | Multiple
     },
     {
+      // Valid email address, special character in name
+      "jo-s@example.com", Single | Multiple | Pattern
+    },
+    {
+      // Valid email address, special character in domain
+      "jos@exa-mple.com", Single | Multiple
+    },
+    {
       // Multiple valid email addresses
       "jos@example.com,jos.bosmans@example.com", Multiple | Pattern
     },
