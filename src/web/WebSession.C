@@ -899,14 +899,17 @@ bool WebSession::Handler::haveLock() const
 
 void WebSession::Handler::unlock()
 {
-#ifndef WT_TARGET_JAVA
   if (haveLock()) {
+#ifndef WT_TARGET_JAVA
     Utils::erase(session_->handlers_, this);
 #ifdef WT_THREADED
     lock_.unlock();
 #endif // WT_THREADED
-  }
 #endif // WT_TARGET_JAVA
+#ifdef WT_TARGET_JAVA
+    session_->mutex().unlock();
+#endif
+  }
 }
 
 void WebSession::Handler::init()
