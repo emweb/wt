@@ -40,7 +40,7 @@ WT_DECLARE_WT_MEMBER(
     const emailRegex = (() => {
       const atext = "[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+";
       const let_dig = "[a-zA-Z0-9]";
-      const ldh_str = "[a-zA-Z0-9]{0,61}";
+      const ldh_str = "[a-zA-Z0-9-]{0,61}";
       const label = let_dig + "(?:" + ldh_str + let_dig + ")?";
       const email = "^" + atext + "@" + label + "(?:\\." + label + ")*" + "$";
       return new RegExp(email, "u");
