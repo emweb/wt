@@ -49,6 +49,7 @@ Configuration::Configuration(Wt::WLogger& logger, bool silent)
     compression_(true),
     gdb_(false),
     configPath_(),
+    staticCacheControl_("max-age=3600"),
     httpPort_("80"),
     httpsPort_("443"),
     sslCertificateChainFile_(),
@@ -147,6 +148,10 @@ void Configuration::createOptions(po::options_description& options,
       "variable $WT_CONFIG_XML is used, or else the built-in default "
       "(" + std::string(WT_CONFIG_XML) + ") is tried, or else built-in "
       "defaults are used").c_str())
+
+    ("static-cache-control",
+     po::value<std::string>(&staticCacheControl_)->default_value(staticCacheControl_),
+     "Cache-Control header value for static files (defaults to max-age=3600)")
 
     ("max-memory-request-size",
      po::value< ::int64_t >(&maxMemoryRequestSize_)
