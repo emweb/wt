@@ -29,6 +29,19 @@
 #include <cstring>
 #include <ctime>
 
+/* While <charconv> is part of C++17, it can be used by earlier versions as an extension.
+ * This entails that it is possible some implementations lack features. Hence the
+ * #ifdef __cpp_lib_to_chars additional check.
+ */
+#if defined __has_include
+#  if __has_include (<charconv>)
+#    include <charconv>
+#    ifdef __cpp_lib_to_chars
+#      define WT_CPP_LIB_TO_CHARS
+#    endif
+#  endif
+#endif
+
 #include <boost/config/warning_disable.hpp>
 #include <boost/spirit/include/karma.hpp>
 #include <boost/spirit/include/qi_parse.hpp>
@@ -106,6 +119,17 @@ namespace {
 
   static inline std::string double_to_s(const double d)
   {
+#ifdef WT_CPP_LIB_TO_CHARS
+    std::array<char, 30> buf;
+    auto returnValue = std::to_chars(buf.begin(), buf.end(), d);
+
+    if (returnValue.ec != std::errc()) {
+      throw std::invalid_argument(
+                "double_to_s: to_chars failed for double (as to_string() '" +
+          std::to_string(d)  + "'), err: " + std::error_condition(returnValue.ec).message());
+    }
+    return std::string(buf.data(), returnValue.ptr - buf.data());
+#else
     char buf[30];
     char *p = buf;
     if (d != 0) {
@@ -115,10 +139,22 @@ namespace {
     }
     *p = '\0';
     return std::string(buf, p);
+#endif
   }
 
   static inline std::string float_to_s(const float f)
   {
+#ifdef WT_CPP_LIB_TO_CHARS
+    std::array<char, 30> buf;
+    auto returnValue = std::to_chars(buf.begin(), buf.end(), f);
+
+    if (returnValue.ec != std::errc()) {
+      throw std::invalid_argument(
+                "float_to_s: to_chars failed for float (as to_string() '" +
+          std::to_string(f)  + "'), err: " + std::error_condition(returnValue.ec).message());
+    }
+    return std::string(buf.data(), returnValue.ptr - buf.data());
+#else
     char buf[30];
     char *p = buf;
     if (f != 0) {
@@ -128,6 +164,7 @@ namespace {
     }
     *p = '\0';
     return std::string(buf, p);
+#endif
   }
 }
 
@@ -553,12 +590,31 @@ public:
     if (PQgetisnull(result_, row_, column))
       return false;
 
+
+#ifdef WT_CPP_LIB_TO_CHAR
+    std::string result_s = PQgetvalue(result_, row_, column);
+
+    // try to convert with from_chars which has good round-trip properties
+    auto returnValue = std::from_chars(result_s.data(), result_s.data() + result_s.size(), *value);
+
+    // fall-back to boost::spirit for "out of range", e.g. subnormals in some implementations
+    if (returnValue.ec == std::errc::result_out_of_range) {
+      try {
+        *value = std::stof(PQgetvalue(result_, row_, column));
+      } catch (std::out_of_range&) {
+        *value = convert<float>("stof", boost::spirit::float_, PQgetvalue(result_, row_, column));
+      }
+    } else if (returnValue.ec != std::errc()) {
+      throw PostgresException(std::string("getResult: from_chars (float) of '") +
+          result_s + "' failed, err: " + std::error_condition(returnValue.ec).message());
+    }
+#else
     try {
       *value = std::stof(PQgetvalue(result_, row_, column));
     } catch (std::out_of_range&) {
       *value = convert<float>("stof", boost::spirit::float_, PQgetvalue(result_, row_, column));
     }
-
+#endif
     LOG_DEBUG(this << " result float " << column << " " << *value);
 
     return true;
@@ -569,12 +625,31 @@ public:
     if (PQgetisnull(result_, row_, column))
       return false;
 
+
+#ifdef WT_CPP_LIB_TO_CHAR
+    std::string result_s = PQgetvalue(result_, row_, column);
+
+    // try to convert with from_chars which has good round-trip properties
+    auto returnValue = std::from_chars(result_s.data(), result_s.data() + result_s.size(), *value);
+
+    // fall-back to boost::spirit for "out of range", e.g. subnormals in some implementations
+    if (retutnValue.ec == std::errc::result_out_of_range) {
+      try {
+        *value = std::stod(PQgetvalue(result_, row_, column));
+      } catch (std::out_of_range&) {
+        *value = convert<double>("stod", boost::spirit::double_, PQgetvalue(result_, row_, column));
+      }
+    } else if (returnValue.ec != std::errc()) {
+      throw PostgresException(std::string("getResult: from_chars (float) of '") +
+          result_s + "' failed, err: " + std::error_condition(returnValue.ec).message());
+    }
+#else
     try {
       *value = std::stod(PQgetvalue(result_, row_, column));
     } catch (std::out_of_range&) {
       *value = convert<double>("stod", boost::spirit::double_, PQgetvalue(result_, row_, column));
     }
-
+#endif
     LOG_DEBUG(this << " result double " << column << " " << *value);
 
     return true;

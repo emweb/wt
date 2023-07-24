@@ -3556,6 +3556,7 @@ BOOST_AUTO_TEST_CASE( dbo_float_retrieval )
     }
   }
 }
+
 BOOST_AUTO_TEST_CASE( dbo_double_retrieval )
 {
   // Tests whether the Dbo can correctly retrieve double values without
@@ -3602,6 +3603,479 @@ BOOST_AUTO_TEST_CASE( dbo_double_retrieval )
       BOOST_CHECK_EQUAL(in_value.as_string, out_value.as_string);
       // The retrieved double value should also match
       BOOST_CHECK_EQUAL(in_value.as_double, out_value.as_double);
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE( dbo_precision_test )
+{
+  // WT-9595 & WT-9596
+  // There is a small precision loss on Postgres
+  // Test data originates from:
+  // https://raw.githubusercontent.com/postgres/postgres/REL_12_9/src/test/regress/sql/float4.sql
+  // This is distributed under: https://raw.githubusercontent.com/postgres/postgres/REL_12_9/COPYRIGHT
+    DboFixture f;
+  float quiet_nan = std::nanf("");
+  static const uint32_t quiet_nan_hex = *(reinterpret_cast<uint32_t*>(&quiet_nan));
+  float positive_infinity = std::numeric_limits<float>::infinity();
+  static const uint32_t positive_infinity_hex = *(reinterpret_cast<uint32_t*>(&positive_infinity));
+  float negative_infinity = -std::numeric_limits<float>::infinity();
+  static const uint32_t negative_infinity_hex = *(reinterpret_cast<uint32_t*>(&negative_infinity));
+  static const uint32_t hex_values[] {
+    // some special values
+#ifdef POSTGRES
+    quiet_nan_hex,
+    positive_infinity_hex,
+    negative_infinity_hex,
+#endif
+#ifdef MYSQL
+    0x7f7fffee,
+#endif
+    // small subnormals
+    0x00000001,
+    0x00000002, 0x00000003,
+    0x00000010, 0x00000011, 0x00000100, 0x00000101,
+    0x00004000, 0x00004001, 0x00080000, 0x00080001,
+    // stress values
+    0x0053c4f4,  // 7693e-42
+    0x006c85c4,  // 996622e-44
+    0x0041ca76,  // 60419369e-46
+    0x004b7678,  // 6930161142e-48
+    // taken from upstream testsuite
+    0x00000007,
+    0x00424fe2,
+    // borderline between subnormal and normal
+    0x007ffff0, 0x007ffff1, 0x007ffffe, 0x007fffff,
+    // additional tests
+    0x00000000,
+    // smallest normal values
+    0x00800000, 0x00800001, 0x00800004, 0x00800005,
+    0x00800006,
+    // small normal values chosen for short vs. long output
+    0x008002f1, 0x008002f2, 0x008002f3,
+    0x00800e17, 0x00800e18, 0x00800e19,
+    // assorted values (random mantissae)
+    0x01000001, 0x01102843, 0x01a52c98,
+    0x0219c229, 0x02e4464d, 0x037343c1, 0x03a91b36,
+    0x047ada65, 0x0496fe87, 0x0550844f, 0x05999da3,
+    0x060ea5e2, 0x06e63c45, 0x07f1e548, 0x0fc5282b,
+    0x1f850283, 0x2874a9d6,
+    // values around 5e-08
+    0x3356bf94, 0x3356bf95, 0x3356bf96,
+    // around 1e-07
+    0x33d6bf94, 0x33d6bf95, 0x33d6bf96,
+    // around 3e-07 .. 1e-04
+    0x34a10faf, 0x34a10fb0, 0x34a10fb1,
+    0x350637bc, 0x350637bd, 0x350637be,
+    0x35719786, 0x35719787, 0x35719788,
+    0x358637bc, 0x358637bd, 0x358637be,
+    0x36a7c5ab, 0x36a7c5ac, 0x36a7c5ad,
+    0x3727c5ab, 0x3727c5ac, 0x3727c5ad,
+    // format crossover at 1e-04
+    0x38d1b714, 0x38d1b715, 0x38d1b716,
+    0x38d1b717, 0x38d1b718, 0x38d1b719,
+    0x38d1b71a, 0x38d1b71b, 0x38d1b71c,
+    0x38d1b71d,
+    0x38dffffe, 0x38dfffff, 0x38e00000,
+    0x38efffff, 0x38f00000, 0x38f00001,
+    0x3a83126e, 0x3a83126f, 0x3a831270,
+    0x3c23d709, 0x3c23d70a, 0x3c23d70b,
+    0x3dcccccc, 0x3dcccccd, 0x3dccccce,
+    // chosen to need 9 digits for 3dcccd70
+    0x3dcccd6f, 0x3dcccd70, 0x3dcccd71,
+    0x3effffff, 0x3f000000, 0x3f000001,
+    0x3f333332, 0x3f333333, 0x3f333334,
+    // approach 1.0 with increasing numbers of 9s
+    0x3f666665, 0x3f666666, 0x3f666667,
+    0x3f7d70a3, 0x3f7d70a4, 0x3f7d70a5,
+    0x3f7fbe76, 0x3f7fbe77, 0x3f7fbe78,
+    0x3f7ff971, 0x3f7ff972, 0x3f7ff973,
+    0x3f7fff57, 0x3f7fff58, 0x3f7fff59,
+    0x3f7fffee, 0x3f7fffef,
+    // values very close to 1
+    0x3f7ffff0, 0x3f7ffff1, 0x3f7ffff2,
+    0x3f7ffff3, 0x3f7ffff4, 0x3f7ffff5,
+    0x3f7ffff6, 0x3f7ffff7, 0x3f7ffff8,
+    0x3f7ffff9, 0x3f7ffffa, 0x3f7ffffb,
+    0x3f7ffffc, 0x3f7ffffd, 0x3f7ffffe,
+    0x3f7fffff,
+    0x3f800000,
+    0x3f800001, 0x3f800002, 0x3f800003,
+    0x3f800004, 0x3f800005, 0x3f800006,
+    0x3f800007, 0x3f800008, 0x3f800009,
+    // values 1 to 1.1
+    0x3f80000f, 0x3f800010, 0x3f800011,
+    0x3f800012, 0x3f800013, 0x3f800014,
+    0x3f800017, 0x3f800018, 0x3f800019,
+    0x3f80001a, 0x3f80001b, 0x3f80001c,
+    0x3f800029, 0x3f80002a, 0x3f80002b,
+    0x3f800053, 0x3f800054, 0x3f800055,
+    0x3f800346, 0x3f800347, 0x3f800348,
+    0x3f8020c4, 0x3f8020c5, 0x3f8020c6,
+    0x3f8147ad, 0x3f8147ae, 0x3f8147af,
+    0x3f8ccccc, 0x3f8ccccd, 0x3f8cccce,
+    0x3fc90fdb, // pi/2
+    0x402df854, // e
+    0x40490fdb, // pi
+    0x409fffff, 0x40a00000, 0x40a00001,
+    0x40afffff, 0x40b00000, 0x40b00001,
+    0x411fffff, 0x41200000, 0x41200001,
+    0x42c7ffff, 0x42c80000, 0x42c80001,
+    0x4479ffff, 0x447a0000, 0x447a0001,
+    0x461c3fff, 0x461c4000, 0x461c4001,
+    0x47c34fff, 0x47c35000, 0x47c35001,
+    0x497423ff, 0x49742400, 0x49742401,
+    0x4b18967f, 0x4b189680, 0x4b189681,
+    0x4cbebc1f, 0x4cbebc20, 0x4cbebc21,
+    0x4e6e6b27, 0x4e6e6b28, 0x4e6e6b29,
+    0x501502f8, 0x501502f9, 0x501502fa,
+    0x51ba43b6, 0x51ba43b7, 0x51ba43b8,
+    // stress values
+    0x1f6c1e4a,  // 5e-20
+    0x59be6cea,  // 67e14
+    0x5d5ab6c4,  // 985e15
+    0x2cc4a9bd,  // 55895e-16
+    0x15ae43fd,  // 7038531e-32
+    0x2cf757ca,  // 702990899e-20
+    0x665ba998,  // 25933168707e13
+    0x743c3324,  // 596428896559e20
+    // exercise fixed-point memmoves
+    0x47f1205a,
+    0x4640e6ae,
+    0x449a5225,
+    0x42f6e9d5,
+    0x414587dd,
+    0x3f9e064b,
+    // these cases come from the upstream's testsuite
+    // BoundaryRoundEven
+    0x4c000004,
+    0x50061c46,
+    0x510006a8,
+    // ExactValueRoundEven
+    0x48951f84,
+    0x45fd1840,
+    // LotsOfTrailingZeros
+    0x39800000,
+    0x3b200000,
+    0x3b900000,
+    0x3bd00000,
+    // Regression
+    0x63800000,
+    0x4b000000,
+    0x4b800000,
+    0x4c000001,
+    0x4c800b0d,
+    0x00d24584,
+    0x00d90b88,
+    0x45803f34,
+    0x4f9f24f7,
+    0x3a8722c3,
+    0x5c800041,
+    0x15ae43fd,
+    0x5d4cccfb,
+    0x4c800001,
+    0x57800ed8,
+    0x5f000000,
+    0x700000f0,
+    0x5f23e9ac,
+    0x5e9502f9,
+    0x5e8012b1,
+    0x3c000028,
+    0x60cde861,
+    0x03aa2a50,
+    0x43480000,
+    0x4c000000,
+    // LooksLikePow5
+    0x5D1502F9,
+    0x5D9502F9,
+    0x5E1502F9,
+    // OutputLength
+    0x3f99999a,
+    0x3f9d70a4,
+    0x3f9df3b6,
+    0x3f9e0419,
+    0x3f9e0610,
+    0x3f9e064b,
+    0x3f9e0651,
+    0x03d20cfe
+  };
+  for (int i = 0; i < sizeof hex_values / sizeof hex_values[0]; ++i) {
+    auto hex_value = hex_values[i];
+    float fl = *(reinterpret_cast<float*>(&hex_value));
+    char buf[100];
+    snprintf(buf, sizeof buf, "%.9g", fl);
+    BOOST_TEST_MESSAGE ("hex_value: " << std::hex << hex_value << std::dec << ", value: " << buf );
+    float fl_from_database = 0.0f;
+    std::string exception_msg;
+    try {
+      {
+        dbo::Transaction t(*f.session_);
+        auto a = f.session_->addNew<A>();
+        a.modify()->i = i;
+        a.modify()->f = fl;
+      }
+#ifdef POSTGRES
+      {
+        dbo::Transaction t(*f.session_);
+        std::string fl_from_database_s = f.session_->query<std::string>(
+          "SELECT \"f\" FROM " SCHEMA "\"table_a\" WHERE \"i\"=?"
+        ).bind(i).resultValue();
+        BOOST_TEST_MESSAGE ("PG text value: " << fl_from_database_s );
+      }
+#endif
+      {
+        dbo::Transaction t(*f.session_);
+        auto a = f.session_->find<A>().where("\"i\" = ?").bind(i).resultValue();
+        fl_from_database = a->f;
+      }
+    } catch (std::exception& e) {
+      exception_msg = std::string("unexpected exception: ") + e.what();
+    }
+    BOOST_TEST(exception_msg.empty(), exception_msg);
+    if (exception_msg.empty()) {
+      if (std::isnan(fl)) {
+        BOOST_CHECK(std::isnan(fl_from_database));
+      }
+      else if (std::isinf(fl)) {
+        BOOST_CHECK(std::isinf(fl_from_database));
+        BOOST_CHECK_EQUAL(fl_from_database, fl);
+      }
+      else if (std::fpclassify(fl) == FP_SUBNORMAL) {
+        // kludge to improve warning (highlighting that it is a subnormal)
+        float subnormal_fl = fl;
+        BOOST_CHECK_CLOSE(fl_from_database, subnormal_fl, 1e-5);
+        // only warn if subnormals do not match, since implementations/support may vary
+        BOOST_WARN_EQUAL(fl_from_database, subnormal_fl);
+      }
+      else {
+        BOOST_CHECK_CLOSE(fl_from_database, fl, 1e-5);
+        BOOST_CHECK_EQUAL(fl_from_database, fl);
+      }
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE( dbo_precision_test2 )
+{
+  // https://raw.githubusercontent.com/postgres/postgres/REL_12_9/src/test/regress/sql/float8.sql
+  // See license: https://raw.githubusercontent.com/postgres/postgres/REL_12_9/COPYRIGHT
+  DboFixture f;
+  double quiet_nan = std::nan("");
+  static const uint64_t quiet_nan_hex = *(reinterpret_cast<uint64_t*>(&quiet_nan));
+  double positive_infinity = std::numeric_limits<double>::infinity();
+  static const uint64_t positive_infinity_hex = *(reinterpret_cast<uint64_t*>(&positive_infinity));
+  double negative_infinity = -std::numeric_limits<double>::infinity();
+  static const uint64_t negative_infinity_hex = *(reinterpret_cast<uint64_t*>(&negative_infinity));
+  static const uint64_t hex_values[] {
+    // some special values
+#ifdef POSTGRES
+    quiet_nan_hex,
+    positive_infinity_hex,
+    negative_infinity_hex,
+#endif
+#ifdef MYSQL
+    0x7f7fffee,
+#endif
+    // small subnormals
+    0x0000000000000001,
+    0x0000000000000002, 0x0000000000000003,
+    0x0000000000001000, 0x0000000100000000,
+    0x0000010000000000, 0x0000010100000000,
+    0x0000400000000000, 0x0000400100000000,
+    0x0000800000000000, 0x0000800000000001,
+    // these values taken from upstream testsuite
+    0x00000000000f4240,
+    0x00000000016e3600,
+    0x0000008cdcdea440,
+    // borderline between subnormal and normal
+    0x000ffffffffffff0, 0x000ffffffffffff1,
+    0x000ffffffffffffe, 0x000fffffffffffff,
+    // additional tests
+    0x0000000000000000,
+    // smallest normal values
+    0x0010000000000000, 0x0010000000000001,
+    0x0010000000000002, 0x0018000000000000,
+    0x3ddb7cdfd9d7bdba, 0x3ddb7cdfd9d7bdbb, 0x3ddb7cdfd9d7bdbc,
+    0x3e112e0be826d694, 0x3e112e0be826d695, 0x3e112e0be826d696,
+    0x3e45798ee2308c39, 0x3e45798ee2308c3a, 0x3e45798ee2308c3b,
+    0x3e7ad7f29abcaf47, 0x3e7ad7f29abcaf48, 0x3e7ad7f29abcaf49,
+    0x3eb0c6f7a0b5ed8c, 0x3eb0c6f7a0b5ed8d, 0x3eb0c6f7a0b5ed8e,
+    0x3ee4f8b588e368ef, 0x3ee4f8b588e368f0, 0x3ee4f8b588e368f1,
+    0x3f1a36e2eb1c432c, 0x3f1a36e2eb1c432d, 0x3f1a36e2eb1c432e,
+    0x3f50624dd2f1a9fb, 0x3f50624dd2f1a9fc, 0x3f50624dd2f1a9fd,
+    0x3f847ae147ae147a, 0x3f847ae147ae147b, 0x3f847ae147ae147c,
+    0x3fb9999999999999, 0x3fb999999999999a, 0x3fb999999999999b,
+    // values very close to 1
+    0x3feffffffffffff0, 0x3feffffffffffff1, 0x3feffffffffffff2,
+    0x3feffffffffffff3, 0x3feffffffffffff4, 0x3feffffffffffff5,
+    0x3feffffffffffff6, 0x3feffffffffffff7, 0x3feffffffffffff8,
+    0x3feffffffffffff9, 0x3feffffffffffffa, 0x3feffffffffffffb,
+    0x3feffffffffffffc, 0x3feffffffffffffd, 0x3feffffffffffffe,
+    0x3fefffffffffffff,
+    0x3ff0000000000000,
+    0x3ff0000000000001, 0x3ff0000000000002, 0x3ff0000000000003,
+    0x3ff0000000000004, 0x3ff0000000000005, 0x3ff0000000000006,
+    0x3ff0000000000007, 0x3ff0000000000008, 0x3ff0000000000009,
+    0x3ff921fb54442d18,
+    0x4005bf0a8b14576a,
+    0x400921fb54442d18,
+    0x4023ffffffffffff, 0x4024000000000000, 0x4024000000000001,
+    0x4058ffffffffffff, 0x4059000000000000, 0x4059000000000001,
+    0x408f3fffffffffff, 0x408f400000000000, 0x408f400000000001,
+    0x40c387ffffffffff, 0x40c3880000000000, 0x40c3880000000001,
+    0x40f869ffffffffff, 0x40f86a0000000000, 0x40f86a0000000001,
+    0x412e847fffffffff, 0x412e848000000000, 0x412e848000000001,
+    0x416312cfffffffff, 0x416312d000000000, 0x416312d000000001,
+    0x4197d783ffffffff, 0x4197d78400000000, 0x4197d78400000001,
+    0x41cdcd64ffffffff, 0x41cdcd6500000000, 0x41cdcd6500000001,
+    0x4202a05f1fffffff, 0x4202a05f20000000, 0x4202a05f20000001,
+    0x42374876e7ffffff, 0x42374876e8000000, 0x42374876e8000001,
+    0x426d1a94a1ffffff, 0x426d1a94a2000000, 0x426d1a94a2000001,
+    0x42a2309ce53fffff, 0x42a2309ce5400000, 0x42a2309ce5400001,
+    0x42d6bcc41e8fffff, 0x42d6bcc41e900000, 0x42d6bcc41e900001,
+    0x430c6bf52633ffff, 0x430c6bf526340000, 0x430c6bf526340001,
+    0x4341c37937e07fff, 0x4341c37937e08000, 0x4341c37937e08001,
+    0x4376345785d89fff, 0x4376345785d8a000, 0x4376345785d8a001,
+    0x43abc16d674ec7ff, 0x43abc16d674ec800, 0x43abc16d674ec801,
+    0x43e158e460913cff, 0x43e158e460913d00, 0x43e158e460913d01,
+    0x4415af1d78b58c3f, 0x4415af1d78b58c40, 0x4415af1d78b58c41,
+    0x444b1ae4d6e2ef4f, 0x444b1ae4d6e2ef50, 0x444b1ae4d6e2ef51,
+    0x4480f0cf064dd591, 0x4480f0cf064dd592, 0x4480f0cf064dd593,
+    0x44b52d02c7e14af5, 0x44b52d02c7e14af6, 0x44b52d02c7e14af7,
+    0x44ea784379d99db3, 0x44ea784379d99db4, 0x44ea784379d99db5,
+    0x45208b2a2c280290, 0x45208b2a2c280291, 0x45208b2a2c280292,
+    0x7feffffffffffffe, 0x7fefffffffffffff,
+    // round to even tests (+ve)
+    0x4350000000000002,
+    0x4350000000002e06,
+    0x4352000000000003,
+    0x4352000000000004,
+    0x4358000000000003,
+    0x4358000000000004,
+    0x435f000000000020,
+    // round to even tests (-ve)
+    0xc350000000000002,
+    0xc350000000002e06,
+    0xc352000000000003,
+    0xc352000000000004,
+    0xc358000000000003,
+    0xc358000000000004,
+    0xc35f000000000020,
+    // exercise fixed-point memmoves
+    0x42dc12218377de66,
+    0x42a674e79c5fe51f,
+    0x4271f71fb04cb74c,
+    0x423cbe991a145879,
+    0x4206fee0e1a9e061,
+    0x41d26580b487e6b4,
+    0x419d6f34540ca453,
+    0x41678c29dcd6e9dc,
+    0x4132d687e3df217d,
+    0x40fe240c9fcb68c8,
+    0x40c81cd6e63c53d3,
+    0x40934a4584fd0fdc,
+    0x405edd3c07fb4c93,
+    0x4028b0fcd32f7076,
+    0x3ff3c0ca428c59f8,
+    // these cases come from the upstream's testsuite
+    // LotsOfTrailingZeros)
+    0x3e60000000000000,
+    // Regression
+    0xc352bd2668e077c4,
+    0x434018601510c000,
+    0x43d055dc36f24000,
+    0x43e052961c6f8000,
+    0x3ff3c0ca2a5b1d5d,
+    // LooksLikePow5
+    0x4830f0cf064dd592,
+    0x4840f0cf064dd592,
+    0x4850f0cf064dd592,
+    // OutputLength
+    0x3ff3333333333333,
+    0x3ff3ae147ae147ae,
+    0x3ff3be76c8b43958,
+    0x3ff3c083126e978d,
+    0x3ff3c0c1fc8f3238,
+    0x3ff3c0c9539b8887,
+    0x3ff3c0ca2a5b1d5d,
+    0x3ff3c0ca4283de1b,
+    0x3ff3c0ca43db770a,
+    0x3ff3c0ca428abd53,
+    0x3ff3c0ca428c1d2b,
+    0x3ff3c0ca428c51f2,
+    0x3ff3c0ca428c58fc,
+    0x3ff3c0ca428c59dd,
+    0x3ff3c0ca428c59f8,
+    0x3ff3c0ca428c59fb,
+    // 32-bit chunking
+    0x40112e0be8047a7d,
+    0x40112e0be815a889,
+    0x40112e0be826d695,
+    0x40112e0be83804a1,
+    0x40112e0be84932ad,
+    // MinMaxShift
+    0x0040000000000000,
+    0x007fffffffffffff,
+    0x0290000000000000,
+    0x029fffffffffffff,
+    0x4350000000000000,
+    0x435fffffffffffff,
+    0x1330000000000000,
+    0x133fffffffffffff,
+    0x3a6fa7161a4d6e0c
+  };
+  for (int i = 0; i < sizeof hex_values / sizeof hex_values[0]; ++i) {
+    auto hex_value = hex_values[i];
+    double dbl = *(reinterpret_cast<double*>(&hex_value));
+    char buf[100];
+    snprintf(buf, sizeof buf, "%.17g", dbl);
+    BOOST_TEST_MESSAGE ("hex_value: " << std::hex << hex_value << std::dec << ", value: " << buf );
+    double dbl_from_database = 0.0;
+    std::string exception_msg;
+    try {
+      {
+        dbo::Transaction t(*f.session_);
+        auto a = f.session_->addNew<A>();
+        a.modify()->i = i;
+        a.modify()->d = dbl;
+      }
+#ifdef POSTGRES
+      {
+        dbo::Transaction t(*f.session_);
+        std::string dbl_from_database_s = f.session_->query<std::string>(
+          "SELECT \"d\" FROM " SCHEMA "\"table_a\" WHERE \"i\"=?"
+        ).bind(i).resultValue();
+        BOOST_TEST_MESSAGE ("PG text value: " << dbl_from_database_s );
+      }
+#endif
+      {
+        dbo::Transaction t(*f.session_);
+        auto a = f.session_->find<A>().where("\"i\" = ?").bind(i).resultValue();
+        dbl_from_database = a->d;
+      }
+    } catch (std::exception& e) {
+      exception_msg = std::string("unexpected exception: ") + e.what();
+    }
+    BOOST_TEST(exception_msg.empty(), exception_msg);
+    if (exception_msg.empty()) {
+      if (std::isnan(dbl)) {
+        BOOST_CHECK(std::isnan(dbl_from_database));
+      }
+      else if (std::isinf(dbl)) {
+        BOOST_CHECK(std::isinf(dbl_from_database));
+        BOOST_CHECK_EQUAL(dbl_from_database, dbl);
+      }
+      else if (std::fpclassify(dbl) == FP_SUBNORMAL) {
+        // kludge to improve warning (highlighting that it is a subnormal)
+        double subnormal_dbl = dbl;
+        BOOST_CHECK_CLOSE(dbl_from_database, subnormal_dbl, 2e-14);
+        // only warn if subnormals do not match, since implementations/support may vary
+        BOOST_WARN_EQUAL(dbl_from_database, subnormal_dbl);
+      }
+      else {
+        BOOST_CHECK_CLOSE(dbl_from_database, dbl, 2e-14);
+        BOOST_CHECK_EQUAL(dbl_from_database, dbl);
+      }
     }
   }
 }
