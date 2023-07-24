@@ -553,7 +553,11 @@ public:
     if (PQgetisnull(result_, row_, column))
       return false;
 
-    *value = convert<float>("stof", boost::spirit::float_, PQgetvalue(result_, row_, column));
+    try {
+      *value = std::stof(PQgetvalue(result_, row_, column));
+    } catch (std::out_of_range&) {
+      *value = convert<float>("stof", boost::spirit::float_, PQgetvalue(result_, row_, column));
+    }
 
     LOG_DEBUG(this << " result float " << column << " " << *value);
 
@@ -565,7 +569,11 @@ public:
     if (PQgetisnull(result_, row_, column))
       return false;
 
-    *value = convert<double>("stod", boost::spirit::double_, PQgetvalue(result_, row_, column));
+    try {
+      *value = std::stod(PQgetvalue(result_, row_, column));
+    } catch (std::out_of_range&) {
+      *value = convert<double>("stod", boost::spirit::double_, PQgetvalue(result_, row_, column));
+    }
 
     LOG_DEBUG(this << " result double " << column << " " << *value);
 

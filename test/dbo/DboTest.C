@@ -3512,4 +3512,98 @@ BOOST_AUTO_TEST_CASE( dbo_test_datetime_before_epoch )
   }
 }
 
+BOOST_AUTO_TEST_CASE( dbo_float_retrieval )
+{
+  // Tests whether the Dbo can correctly retrieve float values without
+  // any loss of precision.
+
+  // WT-9596: float precision is off in boost::spirit see:
+  //   https://github.com/boostorg/spirit/issues/668)
+  using FloatWithString = std::tuple<float, std::string>;
+
+  DboFixture f;
+  std::vector<FloatWithString> values = {
+    { 3.354194e-37f, "3.354194e-37" },
+    { 0.000100000005, "0.000100000005" },
+    { 0.000106811516, "0.000106811516" },
+    { 0.98999995, "0.98999995" },
+    { 2.7182817, "2.7182817" }
+  };
+
+  for (const auto& flts : values) {
+    {
+      struct {
+        float as_float;
+        std::string as_string;
+      } in_value, out_value;
+
+      std::tie(in_value.as_float, in_value.as_string) = flts;
+
+      dbo::Transaction t(*f.session_);
+      std::tie(out_value.as_float, out_value.as_string) = f.session_->query<FloatWithString>(
+          // Ensure Dbo backend compatibility (FLOAT(24))
+#ifndef MYSQL
+          "SELECT CAST('" + in_value.as_string + "' AS FLOAT(24)) AS value,'" + in_value.as_string + "'"
+#else
+          "SELECT CAST('" + in_value.as_string + "' AS FLOAT),'" + in_value.as_string + "'"
+#endif
+      ).resultValue();
+
+      // Sanity check: the string version of the float should be unchanged
+      BOOST_CHECK_EQUAL(in_value.as_string, out_value.as_string);
+      // The retrieved float value should also match
+      BOOST_CHECK_EQUAL(in_value.as_float, out_value.as_float);
+    }
+  }
+}
+BOOST_AUTO_TEST_CASE( dbo_double_retrieval )
+{
+  // Tests whether the Dbo can correctly retrieve double values without
+  // any loss of precision.
+
+  // WT-9596: float precision is off in boost::spirit see:
+  //   https://github.com/boostorg/spirit/issues/668)
+  using DoubleWithString = std::tuple<double, std::string>;
+
+  DboFixture f;
+  std::vector<DoubleWithString> values = {
+#ifndef SQLITE3 //loss of precision after 15th decimal
+    { 9.999999999999999e-05, "9.999999999999999e-05" },
+    { 0.9999999999999999, "0.9999999999999999" },
+    { 1.0000000000000007, "1.0000000000000007" },
+    { 1000.0000000000001, "1000.0000000000001" },
+    { 99999999.99999999, "99999999.99999999" },
+#endif
+    { 9.999999999999999e+17, "9.999999999999999e+17" },
+    { 1.0000000000000001e+18, "1.0000000000000001e+18" }
+  };
+
+  for (const auto& dbls : values) {
+    {
+      struct {
+        double as_double;
+        std::string as_string;
+      } in_value, out_value;
+
+      std::tie(in_value.as_double, in_value.as_string) = dbls;
+
+      dbo::Transaction t(*f.session_);
+      std::tie(out_value.as_double, out_value.as_string) = f.session_->query<DoubleWithString>(
+          // Ensure Dbo backend compatibility (FLOAT(53))
+#ifndef MYSQL
+          "SELECT CAST('" + in_value.as_string + "' AS FLOAT(53)) AS value, '" + in_value.as_string + "'"
+#else
+          // MariaDB only has 7 places of precision for any FLOAT, use DOUBLE here instead
+          "SELECT CAST('" + in_value .as_string + "' AS DOUBLE) AS VALUE, '" + in_value.as_string + "'"
+#endif
+      ).resultValue();
+
+      // Sanity check: the string version of the double should be unchanged
+      BOOST_CHECK_EQUAL(in_value.as_string, out_value.as_string);
+      // The retrieved double value should also match
+      BOOST_CHECK_EQUAL(in_value.as_double, out_value.as_double);
+    }
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
