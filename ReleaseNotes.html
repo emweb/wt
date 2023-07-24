@@ -54,6 +54,12 @@ behaviour.
     <a href="https://redmine.webtoolkit.eu/issues/11848">Issue #11848</a>:
     this corrects an edge-case in <a href="classWt_1_1WSuggestionPopup.html">WSuggestionPopup</a> where displaying the pop-up via C++ code when the dropdown would be forced to be unfiltered.
   </li>
+  <li>
+    This is a combination of <a href="https://redmine.webtoolkit.eu/issues/9595">Issue #9595</a> and <a href="https://redmine.webtoolkit.eu/issues/9596">Issue #9596</a>:
+    where the Postgres backend will again rely on standard library functionality (which was substituted in <a href="https://redmine.webtoolkit.eu/issues/9490">Issue #9490</a> for <a href="https://www.boost.org/doc/libs/1_65_0/libs/spirit/doc/html/spirit/introduction.html">boost::spirit</a>).
+    This implementation, however, caused the loss of some precision with floats and doubles. The conversion from and to string now happens with the standard library <a href="https://en.cppreference.com/w/cpp/header/charconv">charconv</a>, which is available in C++17 (or in C++14 as an extension).
+    In case this library is not available, Wt will fall back to <a href="https://en.cppreference.com/w/cpp/string/basic_string/stof">std::stof</a> and <a href="https://en.cppreference.com/w/cpp/string/basic_string/stof">std::stoi</a>, but will still use <code>boost::spirit</code> in case of subnormals (which would result in an out_of_range exception).
+  </li>
 </ul>
 
 <h2>Release 4.10.0 (May 30, 2023)</h2>
