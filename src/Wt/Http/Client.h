@@ -19,6 +19,7 @@
 
 #include <chrono>
 #include <string>
+#include <mutex>
 
 #ifndef WT_TARGET_JAVA
 #ifdef WT_ASIO_IS_BOOST_ASIO
@@ -501,6 +502,9 @@ private:
   Wt::AsioWrapper::asio::io_service *ioService_;
   class Impl;
   std::weak_ptr<Impl> impl_;
+#ifdef WT_THREADED
+  std::recursive_mutex implementationMutex_;
+#endif
   std::chrono::steady_clock::duration timeout_;
   std::size_t maximumResponseSize_;
   bool verifyEnabled_;
