@@ -10,6 +10,7 @@
 #include <Wt/WGlobal.h>
 #include <Wt/WAny.h>
 
+#include <atomic>
 #include <mutex>
 
 namespace Wt {
@@ -98,7 +99,8 @@ private:
   WResource *resource_;
   WebResponse *response_;
   cpp17::any data_;
-  bool waiting_, readyToContinue_;
+  std::atomic_bool waiting_;
+  bool readyToContinue_;
 
   ResponseContinuation(WResource *resource, WebResponse *response);
   ResponseContinuation(const ResponseContinuation&);
