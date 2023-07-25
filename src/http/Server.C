@@ -393,8 +393,8 @@ void Server::addTcpEndpoint(const asio::ip::tcp::endpoint &endpoint,
                             const std::string &address,
                             Wt::AsioWrapper::error_code &errc)
 {
-  tcp_listeners_.push_back(TcpListener(asio::ip::tcp::acceptor(wt_.ioService()), TcpConnectionPtr()));
-  asio::ip::tcp::acceptor &tcp_acceptor = tcp_listeners_.back().acceptor;
+  tcp_listeners_.push_back(std::make_shared<TcpListener>(asio::ip::tcp::acceptor(wt_.ioService()), TcpConnectionPtr()));
+  asio::ip::tcp::acceptor &tcp_acceptor = tcp_listeners_.back()->acceptor;
   tcp_acceptor.open(endpoint.protocol());
   tcp_acceptor.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 #ifndef WT_WIN32
@@ -406,7 +406,7 @@ void Server::addTcpEndpoint(const asio::ip::tcp::endpoint &endpoint,
 
     LOG_INFO_S(&wt_, "started server: " << addressString("http", endpoint, address));
 
-    tcp_listeners_.back().new_connection.reset
+    tcp_listeners_.back()->new_connection.reset
       (new TcpConnection(wt_.ioService(), this, connection_manager_,
                          request_handler_));
   } else {
@@ -450,8 +450,8 @@ void Server::addSslEndpoint(const asio::ip::tcp::endpoint &endpoint,
                             const std::string &address,
                             Wt::AsioWrapper::error_code &errc)
 {
-  ssl_listeners_.push_back(SslListener(asio::ip::tcp::acceptor(wt_.ioService()), SslConnectionPtr()));
-  asio::ip::tcp::acceptor &ssl_acceptor = ssl_listeners_.back().acceptor;
+  ssl_listeners_.push_back(std::make_shared<SslListener>(asio::ip::tcp::acceptor(wt_.ioService()), SslConnectionPtr()));
+  asio::ip::tcp::acceptor &ssl_acceptor = ssl_listeners_.back()->acceptor;
   ssl_acceptor.open(endpoint.protocol());
   ssl_acceptor.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 #ifndef WT_WIN32
@@ -463,7 +463,7 @@ void Server::addSslEndpoint(const asio::ip::tcp::endpoint &endpoint,
 
     LOG_INFO_S(&wt_, "started server: " << addressString("https", endpoint, address));
 
-    ssl_listeners_.back().new_connection.reset
+    ssl_listeners_.back()->new_connection.reset
       (new SslConnection(wt_.ioService(), this, ssl_context_, connection_manager_,
                          request_handler_));
   } else {
@@ -481,13 +481,13 @@ int Server::httpPort() const
     if (ssl_listeners_.empty())
       return -1;
     else
-      return ssl_listeners_.front().acceptor.local_endpoint().port();
+      return ssl_listeners_.front()->acceptor.local_endpoint().port();
 #else // HTTP_WITH_SSL
     return -1;
 #endif // HTTP_WITH_SSL
   }
 
-  return tcp_listeners_.front().acceptor.local_endpoint().port();
+  return tcp_listeners_.front()->acceptor.local_endpoint().port();
 }
 
 void Server::startAccept()
@@ -502,23 +502,23 @@ void Server::startAccept()
    * need to access the ConnectionManager mutex in any case).
    */
   for (std::size_t i = 0; i < tcp_listeners_.size(); ++i) {
-    asio::ip::tcp::acceptor &acceptor = tcp_listeners_[i].acceptor;
-    TcpConnectionPtr &new_connection = tcp_listeners_[i].new_connection;
+    asio::ip::tcp::acceptor &acceptor = tcp_listeners_[i]->acceptor;
+    TcpConnectionPtr &new_connection = tcp_listeners_[i]->new_connection;
     acceptor.async_accept(new_connection->socket(),
                           accept_strand_.wrap(
                             std::bind(&Server::handleTcpAccept, this,
-                                        &tcp_listeners_[i],
+                                        tcp_listeners_[i],
                                         std::placeholders::_1)));
   }
 
 #ifdef HTTP_WITH_SSL
   for (std::size_t i = 0; i < ssl_listeners_.size(); ++i) {
-    asio::ip::tcp::acceptor &acceptor = ssl_listeners_[i].acceptor;
-    SslConnectionPtr &new_connection = ssl_listeners_[i].new_connection;
+    asio::ip::tcp::acceptor &acceptor = ssl_listeners_[i]->acceptor;
+    SslConnectionPtr &new_connection = ssl_listeners_[i]->new_connection;
     acceptor.async_accept(new_connection->socket(),
                           accept_strand_.wrap(
                             std::bind(&Server::handleSslAccept, this,
-                                        &ssl_listeners_[i],
+                                        ssl_listeners_[i],
                                         std::placeholders::_1)));
   }
 #endif // HTTP_WITH_SSL
@@ -539,7 +539,7 @@ void Server
   if (!err) {
     // tcp_listeners_.front() should be fine here:
     // it should be the only acceptor when this is a session process
-    auto port = tcp_listeners_.front().acceptor.local_endpoint().port();
+    auto port = tcp_listeners_.front()->acceptor.local_endpoint().port();
     Wt::WStringStream ss;
     ss << "port:" << port << "\n";
     auto buf = std::make_shared<std::string>(ss.str());
@@ -595,57 +595,63 @@ void Server::resume()
 void Server::handleResume()
 {
   for (std::size_t i = 0; i < tcp_listeners_.size(); ++i)
-    tcp_listeners_[i].acceptor.close();
+    tcp_listeners_[i]->acceptor.close();
   tcp_listeners_.clear();
 
 #ifdef HTTP_WITH_SSL
   for (std::size_t i = 0; i < ssl_listeners_.size(); ++i)
-    ssl_listeners_[i].acceptor.close();
+    ssl_listeners_[i]->acceptor.close();
   ssl_listeners_.clear();
 #endif // HTTP_WITH_SSL
 
   start();
 }
 
-void Server::handleTcpAccept(TcpListener *listener, const Wt::AsioWrapper::error_code& e)
+void Server::handleTcpAccept(const std::weak_ptr<TcpListener>& listener, const Wt::AsioWrapper::error_code& e)
 {
-  if (!e) {
-    connection_manager_.start(listener->new_connection);
-    listener->new_connection.reset(new TcpConnection(wt_.ioService(), this,
-                                                     connection_manager_, request_handler_));
-  } else if (!listener->acceptor.is_open()) {
+  auto l = listener.lock();
+  if (!l || (e && !l->acceptor.is_open())) {
     // server shutdown
-    LOG_DEBUG("handleTcpAccept: async_accept error (acceptor closed, probably server shutdown): " << e.message());
+    LOG_DEBUG("handleTcpAccept: async_accept error (no listener, probably server shutdown): " << e.message());
     return;
+  }
+
+  if (!e) {
+    connection_manager_.start(l->new_connection);
+    l->new_connection.reset(new TcpConnection(wt_.ioService(), this,
+                                              connection_manager_, request_handler_));
   } else {
     LOG_ERROR("handleTcpAccept: async_accept error: " << e.message());
   }
 
-  listener->acceptor.async_accept(listener->new_connection->socket(),
-                                  accept_strand_.wrap(
-                                          std::bind(&Server::handleTcpAccept, this,
-                                                    listener, std::placeholders::_1)));
+  l->acceptor.async_accept(l->new_connection->socket(),
+                           accept_strand_.wrap(
+                                   std::bind(&Server::handleTcpAccept, this,
+                                       listener, std::placeholders::_1)));
 }
 
 #ifdef HTTP_WITH_SSL
-void Server::handleSslAccept(SslListener *listener, const Wt::AsioWrapper::error_code& e)
+void Server::handleSslAccept(const std::weak_ptr<SslListener>& listener, const Wt::AsioWrapper::error_code& e)
 {
-  if (!e) {
-    connection_manager_.start(listener->new_connection);
-    listener->new_connection.reset(new SslConnection(wt_.ioService(), this,
-                                                     ssl_context_, connection_manager_, request_handler_));
-  } else if (!listener->acceptor.is_open()) {
+  auto l = listener.lock();
+  if (!l || (e && !l->acceptor.is_open())) {
     // server shutdown
-    LOG_DEBUG("handleSslAccept: async_accept error (acceptor closed, probably server shutdown): " << e.message());
+    LOG_DEBUG("handleSslAccept: async_accept error (no listener, probably server shutdown): " << e.message());
     return;
+  }
+
+  if (!e) {
+    connection_manager_.start(l->new_connection);
+    l->new_connection.reset(new SslConnection(wt_.ioService(), this,
+                                              ssl_context_, connection_manager_, request_handler_));
   } else {
     LOG_ERROR("handleSslAccept: async_accept error: " << e.message());
   }
 
-  listener->acceptor.async_accept(listener->new_connection->socket(),
-                                  accept_strand_.wrap(
-                                          std::bind(&Server::handleSslAccept, this,
-                                                    listener, std::placeholders::_1)));
+  l->acceptor.async_accept(l->new_connection->socket(),
+                           accept_strand_.wrap(
+                                   std::bind(&Server::handleSslAccept, this,
+                                             listener, std::placeholders::_1)));
 }
 #endif // HTTP_WITH_SSL
 
@@ -663,12 +669,12 @@ void Server::handleStop()
   // operations. Once all operations have finished the io_service::run() call
   // will exit.
   for (std::size_t i = 0; i < tcp_listeners_.size(); ++i)
-    tcp_listeners_[i].acceptor.close();
+    tcp_listeners_[i]->acceptor.close();
   tcp_listeners_.clear();
 
 #ifdef HTTP_WITH_SSL
   for (std::size_t i = 0; i < ssl_listeners_.size(); ++i)
-    ssl_listeners_[i].acceptor.close();
+    ssl_listeners_[i]->acceptor.close();
   ssl_listeners_.clear();
 #endif // HTTP_WITH_SSL
 

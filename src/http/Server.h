@@ -31,6 +31,8 @@
 
 #include "Wt/WLogger.h"
 
+#include <memory>
+
 namespace http {
 namespace server {
 
@@ -110,7 +112,7 @@ private:
   void closeParentConnection();
 
   /// Handle completion of an asynchronous accept operation.
-  void handleTcpAccept(TcpListener *listener, const Wt::AsioWrapper::error_code& e);
+  void handleTcpAccept(const std::weak_ptr<TcpListener>& listener, const Wt::AsioWrapper::error_code& e);
 
   /// Handle a request to stop the server.
   void handleStop();
@@ -134,7 +136,7 @@ private:
   Wt::AsioWrapper::strand accept_strand_;
 
   /// Acceptors used to listen for incoming http connections.
-  std::vector<TcpListener> tcp_listeners_;
+  std::vector<std::shared_ptr<TcpListener>> tcp_listeners_;
 
 #ifdef HTTP_WITH_SSL
   struct SslListener {
@@ -149,7 +151,7 @@ private:
   asio::ssl::context ssl_context_;
 
   /// Acceptors used to listen for incoming https connections
-  std::vector<SslListener> ssl_listeners_;
+  std::vector<std::shared_ptr<SslListener>> ssl_listeners_;
 
   /// Add new SSL listener, called from start()
   void addSslListener(asio::ip::tcp::resolver &resolver,
@@ -162,7 +164,7 @@ private:
                       Wt::AsioWrapper::error_code &errc);
 
   /// Handle completion of an asynchronous SSL accept operation.
-  void handleSslAccept(SslListener *listener, const Wt::AsioWrapper::error_code& e);
+  void handleSslAccept(const std::weak_ptr<SslListener>& listener, const Wt::AsioWrapper::error_code& e);
 #endif // HTTP_WITH_SSL
 
   void handleTimeout(asio::steady_timer *timer,
