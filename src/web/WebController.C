@@ -63,6 +63,7 @@ WebController::WebController(WServer& server,
     plainHtmlSessions_(0),
     ajaxSessions_(0),
     zombieSessions_(0),
+    running_(false),
 #ifdef WT_THREADED
     socketNotifier_(this),
 #endif // WT_THREADED

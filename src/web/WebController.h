@@ -11,6 +11,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <atomic>
 
 #include <Wt/WDllDefs.h>
 #include <Wt/WServer.h>
@@ -159,7 +160,7 @@ private:
   int plainHtmlSessions_, ajaxSessions_;
   volatile int zombieSessions_;
   std::string redirectSecret_;
-  bool running_;
+  std::atomic_bool running_;
 
 #ifdef WT_THREADED
   std::mutex uploadProgressUrlsMutex_;
