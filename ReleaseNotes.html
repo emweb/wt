@@ -32,6 +32,10 @@ behaviour.
     when closing a HTTP socket, it was possible that the server just started handling a TCP/SSL request. This resulted in a free-after-use for the listener.
     The listener is now first checked, so we do not get this race condition.
   </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/11408">Issue #11408</a>:
+    fixed several concurrency issues in the wthttp library.
+  </li>
 </ul>
 
 
