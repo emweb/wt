@@ -29,6 +29,8 @@
 
 #include "Wt/WFlags.h"
 
+#include <atomic>
+
 namespace http {
 namespace server {
 
@@ -185,7 +187,7 @@ private:
   /// Indicates that we're waiting for a response while invoking a
   /// Reply function and thus that Reply function should not start a
   /// write response but simply indicate haveResponse_
-  bool waitingResponse_;
+  std::atomic_bool waitingResponse_;
 
   /// Indicates that we can send a response
   bool haveResponse_;
