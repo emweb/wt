@@ -215,8 +215,10 @@ namespace {
         doneCondition_.wait(guard);
     }
 
-    bool isDone() const
+    bool isDone()
     {
+      std::unique_lock<std::mutex> guard(doneMutex_);
+
       return done_;
     }
 
