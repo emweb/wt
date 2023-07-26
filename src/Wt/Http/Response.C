@@ -11,6 +11,8 @@
 #include "WebRequest.h"
 #include "WebUtils.h"
 
+#include <mutex>
+
 namespace Wt {
   namespace Http {
 
@@ -43,8 +45,12 @@ ResponseContinuation *Response::createContinuation()
   if (!continuation_) {
     ResponseContinuation *c = new ResponseContinuation(resource_, response_);
     continuation_ = resource_->addContinuation(c);
-  } else
+  } else {
+#ifdef WT_THREADED
+    std::unique_lock<std::recursive_mutex> lock(*resource_->mutex_);
+#endif
     continuation_->resource_ = resource_;
+  }
 
   return continuation_.get();
 }
