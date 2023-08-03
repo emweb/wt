@@ -171,6 +171,9 @@ WT_DECLARE_WT_MEMBER(
       hidePopup();
       editId = edit.id;
       droppedDown = true;
+      if (typeof value === "undefined") {
+        value = "";
+      }
       self.refilter(value);
     };
 
@@ -348,7 +351,6 @@ WT_DECLARE_WT_MEMBER(
         matcher = matcherJS(edit),
         sels = el.childNodes,
         text = (isDropDownIconUnfiltered && value !== null) ? value : matcher(null);
-
       lastFilterValue = isDropDownIconUnfiltered ? value : edit.value;
 
       if (filterMinLength > 0 || filterMore) {
