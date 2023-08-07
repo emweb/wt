@@ -42,6 +42,11 @@ behaviour.
     The server side regex was correct, but nevertheless the case has been added to the tests.
   </li>
   <li>
+    <a href="https://redmine.webtoolkit.eu/issues/11852">Issue #11852</a>:
+    the <a href="classWt_1_1Mail_1_1Message.html">Message</a>'s date header was corrected. In case that a localized abbreviation was defined for the month or day, this string was placed in the header.
+    Some providers / exchanges may reject these emails, since they follow RFC-5322 (<a href="https://www.rfc-editor.org/rfc/rfc5322#page-14">see here</a>) and expect English names.
+  </li>
+  <li>
     <a href="https://redmine.webtoolkit.eu/issues/7645">Issue #7645</a>:
     a <a href="classWt_1_1WAnchor.html">WAnchor</a> loaded through JavaScript, with progressive bootstrap will correctly add an empty "href" attribute.
     This allows the item to be selected on the page by pressing the Tab button, allowing keyboard navigation.
