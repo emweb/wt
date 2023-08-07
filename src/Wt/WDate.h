@@ -47,9 +47,9 @@ namespace Wt {
  * WApplication::instance() does not return 0), the date strings
  * can be localized by overriding the default values for
  * the localized string keys in the resource bundles of the WApplication:
- * - Short day names: Wt.WDate.Mon through Wt.WDate.Sun
+ * - Short day names: Wt.WDate.3.Mon through Wt.WDate.3.Sun
  * - Long day names: Wt.WDate.Monday through Wt.WDate.Sunday
- * - Short month names: Wt.WDate.Jan through Wt.WDate.Dec
+ * - Short month names: Wt.WDate.3.Jan through Wt.WDate.3.Dec
  * - Long month names: Wt.WDate.January through Wt.WDate.December
  *
  * If the thread using a WDate is not bound to a WApplication (i.e.
@@ -371,8 +371,8 @@ public:
    * "Mon" (1),<br> "Tue" (2),<br> "Wed" (3),<br>
    * "Thu" (4),<br> "Fri" (5),<br> "Sat" (6),<br> "Sun" (7).
    *
-   * The result is affected by localization using the "Wt.WDate.Mon" to
-   * "Wt.WDate.Sun" keys.
+   * The result is affected by localization using the "Wt.WDate.3.Mon"
+   * to "Wt.WDate.3.Sun" keys.
    *
    * \sa longDayName()
    */
@@ -386,8 +386,8 @@ public:
    * "Jul" (7),<br> "Aug" (8),<br> "Sep" (9),<br>
    * "Oct" (10),<br> "Nov" (11),<br> "Dec" (12)<br>.
    *
-   * The result is affected by localization using the "Wt.WDate.Jan" to
-   * "Wt.WDate.Dec" keys.
+   * The result is affected by localization using the "Wt.WDate.3.Jan"
+   * to "Wt.WDate.3.Dec" keys.
    *
    * \sa longMonthName()
    */
