@@ -432,16 +432,16 @@ WString WDateTime::toString() const
   return toString(defaultFormat());
 }
 
-WString WDateTime::toString(const WString& format, bool localized) const
+WString WDateTime::toString(const WString& format, bool localizedString) const
 {
   WDate d = date();
   WTime t = time();
 
-  return toString(&d, &t, format, localized, 0);
+  return toString(&d, &t, format, localizedString, 0);
 }
 
 WString WDateTime::toString(const WDate *date, const WTime *time,
-                            const WString& format, bool localized,
+                            const WString& format, bool localizedString,
                             int zoneOffset)
 {
   if ((date && !date->isValid()) || (time && !time->isValid())) {
@@ -486,7 +486,7 @@ WString WDateTime::toString(const WDate *date, const WTime *time,
     if (!inQuote) {
       bool handled = false;
       if (date)
-        handled = date->writeSpecial(f, i, result, localized);
+        handled = date->writeSpecial(f, i, result, localizedString);
       if (!handled && time)
         handled = time->writeSpecial(f, i, result, useAmPm, zoneOffset);
 

@@ -368,7 +368,7 @@ public:
    *
    * \sa longDayName()
    */
-  static Wt::WString shortDayName(int weekday, bool localized = true);
+  static Wt::WString shortDayName(int weekday, bool localizedString = true);
 
   /*! \brief Returns the short month name.
    *
@@ -383,7 +383,7 @@ public:
    *
    * \sa longMonthName()
    */
-  static Wt::WString shortMonthName(int month, bool localized = true);
+  static Wt::WString shortMonthName(int month, bool localizedString = true);
 
   /*! \brief Returns the long day name.
    *
@@ -396,7 +396,7 @@ public:
    *
    * \sa shortDayName()
    */
-  static Wt::WString longDayName(int weekday, bool localized = true);
+  static Wt::WString longDayName(int weekday, bool localizedString = true);
 
   /*! \brief Returns the long month name.
    *
@@ -411,7 +411,7 @@ public:
    *
    * \sa shortDayName()
    */
-  static Wt::WString longMonthName(int month, bool localized = true);
+  static Wt::WString longMonthName(int month, bool localizedString = true);
 
   static std::string extFormat(const WT_USTRING& format);
 
@@ -444,7 +444,7 @@ private:
                                             const WString& format);
 
   bool writeSpecial(const std::string& f, unsigned& i, WStringStream& result,
-                    bool localized = true)
+                    bool localizedString = true)
     const;
 
   static int parseShortMonthName(const std::string& v, unsigned& pos);

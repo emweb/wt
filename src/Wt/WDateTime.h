@@ -293,9 +293,17 @@ public:
    * The \p format is a string which mixes the format for WDate and
    * WTime.
    *
+   * The \p localizedString allows for the potential strings that are
+   * created to be localized or not.
+   *
+   * E.g. If "ddd" is part of the format, the abbreviated day is used.
+   * If \p localizedString is true, and if the abbreviations are
+   * defined in a resource bundle (overwriting the default
+   * "Wt.WDate.3.Mon" for example), they will be used.
+   *
    * \sa WDate::toString(), WTime::toString()
    */
-  WT_USTRING toString(const WT_USTRING& format, bool localized = true) const;
+  WT_USTRING toString(const WT_USTRING& format, bool localizedString = true) const;
 
   /*! \brief Parses a string to a time using a default format.
    *
@@ -343,7 +351,7 @@ private:
   static void fromString(WDate *date, WTime *time, const WString& s,
                          const WString& format);
   static WString toString(const WDate *date, const WTime *time,
-                          const WString& format, bool localized,
+                          const WString& format, bool localizedString,
                           int zoneOffset);
 
   friend class WDate;

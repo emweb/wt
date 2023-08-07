@@ -221,12 +221,12 @@ WDate WDate::currentDate()
   return WLocalDateTime::currentDateTime().date();
 }
 
-WString WDate::shortDayName(int weekday, bool localized)
+WString WDate::shortDayName(int weekday, bool localizedString)
 {
   static const char *v[]
     = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 
-  if (localized && WApplication::instance())
+  if (localizedString && WApplication::instance())
     return WString::tr(WT_WDATE + "3." + v[weekday - 1]);
   else
     return WString::fromUTF8(v[weekday - 1]);
@@ -249,13 +249,13 @@ int WDate::parseShortDayName(const std::string& v, unsigned& pos)
   return -1;
 }
 
-WString WDate::longDayName(int weekday, bool localized)
+WString WDate::longDayName(int weekday, bool localizedString)
 {
   static const char *v[]
     = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
        "Sunday" };
 
-  if (localized && WApplication::instance())
+  if (localizedString && WApplication::instance())
     return WString::tr(WT_WDATE + v[weekday - 1]);
   else
     return WString::fromUTF8(v[weekday - 1]);
@@ -278,12 +278,12 @@ int WDate::parseLongDayName(const std::string& v, unsigned& pos)
   return -1;
 }
 
-WString WDate::shortMonthName(int month, bool localized)
+WString WDate::shortMonthName(int month, bool localizedString)
 {
   static const char *v[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
                             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
-  if (localized && WApplication::instance())
+  if (localizedString && WApplication::instance())
     return WString::tr(WT_WDATE + "3." + v[month - 1]);
   else
     return WString::fromUTF8(v[month - 1]);
@@ -306,13 +306,13 @@ int WDate::parseShortMonthName(const std::string& v, unsigned& pos)
   return -1;
 }
 
-WString WDate::longMonthName(int month, bool localized)
+WString WDate::longMonthName(int month, bool localizedString)
 {
   static const char *v[] = {"January", "February", "March", "April", "May",
                             "June", "July", "August", "September",
                             "October", "November", "December" };
 
-  if (localized && WApplication::instance())
+  if (localizedString && WApplication::instance())
     return WString::tr(WT_WDATE + v[month - 1]);
   else
     return WString::fromUTF8(v[month - 1]);
@@ -580,7 +580,7 @@ WString WDate::toString(const WString& format) const
 }
 
 bool WDate::writeSpecial(const std::string& f, unsigned& i,
-                         WStringStream& result, bool localized) const
+                         WStringStream& result, bool localizedString) const
 {
   char buf[30];
 
@@ -591,11 +591,11 @@ bool WDate::writeSpecial(const std::string& f, unsigned& i,
         if (f[i + 3] == 'd') {
           // 4 d's
           i += 3;
-          result << longDayName(dayOfWeek(), localized).toUTF8();
+          result << longDayName(dayOfWeek(), localizedString).toUTF8();
         } else {
           // 3 d's
           i += 2;
-          result << shortDayName(dayOfWeek(), localized).toUTF8();
+          result << shortDayName(dayOfWeek(), localizedString).toUTF8();
         }
       } else {
         // 2 d's
@@ -614,11 +614,11 @@ bool WDate::writeSpecial(const std::string& f, unsigned& i,
         if (f[i + 3] == 'M') {
           // 4 M's
           i += 3;
-          result << longMonthName(month(), localized).toUTF8();
+          result << longMonthName(month(), localizedString).toUTF8();
         } else {
           // 3 M's
           i += 2;
-          result << shortMonthName(month(), localized).toUTF8();
+          result << shortMonthName(month(), localizedString).toUTF8();
         }
       } else {
         // 2 M's
