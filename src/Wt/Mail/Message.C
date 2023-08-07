@@ -7,8 +7,11 @@
 #include <stdlib.h>
 
 #include "Message.h"
+#include "Wt/WDate.h"
+#include "Wt/WDateTime.h"
 #include "Wt/WException.h"
 #include "Wt/WStringStream.h"
+#include "Wt/WTime.h"
 #include "base64.h"
 
 #ifndef WT_WIN32
@@ -178,8 +181,11 @@ void Message::write(std::ostream& out) const
 
   from_.write("From", out);
 
-  if (!date_.isNull())
-    out << "Date: " << date_.toString("ddd, dd MMM yyyy HH:mm:ss Z") << "\r\n";
+  if (!date_.isNull()) {
+    Wt::WDate date = date_.date();
+    Wt::WTime time = date_.time();
+    out << "Date: " << WDateTime::toString(&date, &time, "ddd, dd MMM yyyy HH:mm:ss Z", false, date_.timeZoneOffset()) << "\r\n";
+  }
 
   if (!replyTo_.empty())
     replyTo_.write("Reply-To", out);

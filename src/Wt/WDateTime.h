@@ -357,6 +357,7 @@ private:
   friend class WDate;
   friend class WTime;
   friend class WLocalDateTime;
+  friend class Mail::Message;
 };
 
 }

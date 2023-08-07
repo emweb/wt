@@ -15,6 +15,7 @@ IF(ENABLE_LIBWTTEST)
     http/HttpClientTest.C
     formdelegate/WFormDelegate.C
     mail/MailClientTest.C
+    mail/MailMessageTest.C
     matrix/MatrixTest.C
     models/WBatchEditProxyModelTest.C
     models/WFormModelTest.C
