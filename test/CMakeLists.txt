@@ -34,6 +34,7 @@ IF(ENABLE_LIBWTTEST)
     render/SpecificityTest.C
     render/WTextRendererTest.C
     strings/WStringTest.C
+    types/WDateTest.C
     types/WDateTimeTest.C
     utf8/Utf8Test.C
     utf8/XmlTest.C

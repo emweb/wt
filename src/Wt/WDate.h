@@ -283,9 +283,17 @@ public:
    *  <tr><td>'MM': MM, 'd': d, 'yyyy': yyyy</td><td>MM: 08, d: 3, yyyy: 2007</td></tr>
    * </table>
    *
+   * The \p localizedString allows for the potential strings that are
+   * created to be localized or not.
+   *
+   * E.g. If "ddd" is part of the format, the abbreviated day is used.
+   * If \p localizedString is true, and if the abbreviations are
+   * defined in a resource bundle (overwriting the default
+   * "Wt.WDate.3.Mon" for example), they will be used.
+   *
    * \sa fromString(const WString& value, const WString& format)
    */
-  WT_USTRING toString(const WT_USTRING& format) const;
+  WT_USTRING toString(const WT_USTRING& format, bool localizedString = true) const;
 
   std::chrono::system_clock::time_point toTimePoint() const;
 

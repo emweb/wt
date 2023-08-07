@@ -574,9 +574,9 @@ WString WDate::toString() const
   return WDate::toString(defaultFormat());
 }
 
-WString WDate::toString(const WString& format) const
+WString WDate::toString(const WString& format, bool localizedString) const
 {
-  return WDateTime::toString(this, nullptr, format, true, 0);
+  return WDateTime::toString(this, nullptr, format, localizedString, 0);
 }
 
 bool WDate::writeSpecial(const std::string& f, unsigned& i,
