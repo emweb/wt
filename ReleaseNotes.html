@@ -26,6 +26,15 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7228" target="_blank">Issue #7228</a>:
+    Wt now supports native HTML5 input types for <a href="classWt_1_1WDateTime.html" target="_blank">WDateEdit</a> and <a href="classWt_1_1WTimeEdit.html" target="_blank">WTimeEdit</a>.
+    You can enable it by using <a href="classWt_1_1WDateEdit.html#a388105e077d60a7225564572cae51a93" target="_blank">WDateEdit::setNativeControl(true)</a> or
+    <a href="classWt_1_1WTimeEdit.html#a747741116664abc07f820122d05a535f" target="_blank">WTimeEdit::setNativeControl(true)</a>
+    for <code>WDateEdit</code> and <code>WTimeEdit</code> respectively. Both are set to false by default.
+    Native controls will use the locale of the browser to determine the format displayed to the client.
+    They have a better responsive design than Wt's widgets, often deferring to a pop-up on small screens for example.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/12789" target="_blank">Issue #12789</a>:
     this feature allows you to force the tooltip from a
     <a href="classWt_1_1WWebWidget.html">WWebWidget</a> to be shown by calling
