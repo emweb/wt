@@ -3,6 +3,8 @@
 #include "WebController.h"
 #include "Wt/WServer.h"
 
+#include <boost/thread.hpp>
+
 #include "Android.h"
 
 #include <stdlib.h>
@@ -37,11 +39,14 @@ void preventRemoveOfSymbolsDuringLinking() {
           std::string env = s.substr(2);
           size_t index = env.find("=");
           if (index != std::string::npos) {
-            if (!putenv(env.c_str()))
-              std::cerr
-                << "WtAndroid::startwt putenv() failed on: "
-                << env
-                << std::endl;
+              std::string key = env.substr(0, index);
+              std::string value = env.substr(index + 1);
+              if (setenv(key.c_str(), value.c_str(), 1) != 0) {
+                std::cerr 
+                  << "WtAndroid::startwt setenv() failed on: " 
+                  << env 
+                  << std::endl;
+              }
           } else {
             std::cerr
               << "WtAndroid::startwt invalid environment variable definition: "
