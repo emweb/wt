@@ -60,6 +60,10 @@ behaviour.
     This implementation, however, caused the loss of some precision with floats and doubles. The conversion from and to string now happens with the standard library <a href="https://en.cppreference.com/w/cpp/header/charconv">charconv</a>, which is available in C++17 (or in C++14 as an extension).
     In case this library is not available, Wt will fall back to <a href="https://en.cppreference.com/w/cpp/string/basic_string/stof">std::stof</a> and <a href="https://en.cppreference.com/w/cpp/string/basic_string/stof">std::stoi</a>, but will still use <code>boost::spirit</code> in case of subnormals (which would result in an out_of_range exception).
   </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/11769">Issue #11769</a>:
+    The MySQL backend will now correctly catch the <a href="https://dev.mysql.com/doc/mysql-errors/8.0/en/server-error-reference.html#error_er_client_interaction_timeout">ER_CLIENT_INTERACTION_TIMEOUT</a> error.
+  </li>
 </ul>
 
 <h2>Release 4.10.0 (May 30, 2023)</h2>
