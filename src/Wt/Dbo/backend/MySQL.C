@@ -1030,9 +1030,16 @@ void MySQL::checkConnection()
     err_nb = mysql_errno(impl_->mysql);
     err = std::string(mysql_error(impl_->mysql));
   }
+  // Not every MySQL backend has this (new since 8.0.24).
+  // MariaDB does not have this value.
+#ifdef ER_CLIENT_INTERACTION_TIMEOUT
   if (err_nb == CR_SERVER_GONE_ERROR ||
       err_nb == CR_SERVER_LOST ||
       err_nb == ER_CLIENT_INTERACTION_TIMEOUT) {
+#else
+  if (err_nb == CR_SERVER_GONE_ERROR ||
+      err_nb == CR_SERVER_LOST) {
+#endif
     clearStatementCache();
     mysql_close(impl_->mysql);
     impl_->mysql = nullptr;
