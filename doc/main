@@ -947,6 +947,8 @@ General options:
                                         avoid DoS
   --gdb                                 do not shutdown when receiving Ctrl-C 
                                         (and let gdb break instead)
+  --static-cache-control                Cache-Control header value for static
+                                        files (defaults to max-age=3600)
 
 HTTP/WebSocket server options:
   --http-listen arg                     address/port pair to listen on. If no 
