@@ -19,6 +19,11 @@ void preventRemoveOfSymbolsDuringLinking() {
 #ifdef ANDROID
   extern "C" {
     int main(int argc, const char** argv);
+    
+    void runMainAndCleanup(int argc, const char** argv) {
+        main(argc, argv);
+        delete[] argv;
+    }
 
     JNIEXPORT
     jint
@@ -33,7 +38,9 @@ void preventRemoveOfSymbolsDuringLinking() {
       args.reserve(argsCount);
       for (i = 0; i < argsCount; i++) {
         jstring jstr = (jstring)env->GetObjectArrayElement(strArray, i);
-        std::string s = std::string(env->GetStringUTFChars(jstr, 0));
+        const char* rawChars = env->GetStringUTFChars(jstr, 0);
+        std::string s = std::string(rawChars);
+        env->ReleaseStringUTFChars(jstr, rawChars);
         env->DeleteLocalRef(jstr);
 
         if (boost::starts_with(s, "-D")) {
@@ -68,7 +75,7 @@ void preventRemoveOfSymbolsDuringLinking() {
       try {
         if (Wt::WServer::instance())
           return Wt::WServer::instance()->httpPort();
-        boost::thread mainThread(&main, argc, argv);
+        boost::thread mainThread(&runMainAndCleanup, argc, argv);
         while (true) {
           if (Wt::WServer::instance()) {
             int httpPort = Wt::WServer::instance()->httpPort();
