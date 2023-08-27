@@ -29,7 +29,8 @@ void preventRemoveOfSymbolsDuringLinking() {
       unsigned i;
 
       jsize argsCount = env->GetArrayLength(strArray);
-      std::vector<std::string> args(argsCount);
+      std::vector<std::string> args;
+      args.reserve(argsCount);
       for (i = 0; i < argsCount; i++) {
         jstring jstr = (jstring)env->GetObjectArrayElement(strArray, i);
         std::string s = std::string(env->GetStringUTFChars(jstr, 0));
