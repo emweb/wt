@@ -1525,14 +1525,14 @@
       <div class="row row-fluid col-sm-12 span7">
         <div class="col-sm-3 span3">
           <label class="form-label"  for="${id:from}">
-            From (format ${from-format})
+            From ${<if:show-format>}(format ${from-format})${</if:show-format>}
           </label>
           ${from}
         </div>
 
         <div class="col-sm-3 offset1 span3">
           <label class="form-label" for="${id:to}">
-            To (format ${to-format})
+            To ${<if:show-format>}(format ${to-format})${</if:show-format>}
           </label>
           ${to}
         </div>
@@ -2035,6 +2035,20 @@
         <legend>Example</legend>
         ${DateTimeEdit}
         ${src DateTimeEdit}
+    </fieldset>
+    <p><a href="#date-entry">Top</a></p>
+
+    <h3 id="datetimeNative-edit">Datetime entry using a native edit</h3>
+    <p>
+      The ${doc-link WDateTimeEdit} widget can be converted to a native datetime edit.
+      This essentially uses an input of the <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/datetime-local" target="_blank">type `datetime-local`</a>.
+      This will render a widget specific to the brower (and thus may look different on different browsers). This widget will always use the locale of the browser to format its content.
+    </p>
+
+    <fieldset class="example">
+        <legend>Example</legend>
+        ${DateTimeNativeEdit}
+        ${src DateTimeNativeEdit}
     </fieldset>
     <p><a href="#date-entry">Top</a></p>
   </message>

@@ -11,6 +11,7 @@ SAMPLE_BEGIN(DateTimeEdit)
 
 auto form = std::make_unique<Wt::WTemplate>(Wt::WString::tr("dateTimeEdit-template"));
 form->addFunction("id", &Wt::WTemplate::Functions::id);
+form->setCondition("if:show-format", true);
 
 auto dte1 = form->bindWidget("from", std::make_unique<Wt::WDateTimeEdit>());
 dte1->setDateTime(Wt::WDateTime::currentDateTime());
