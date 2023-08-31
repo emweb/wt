@@ -101,7 +101,7 @@ std::string cssNames_[] =
     "border-collapse",
     "page-break-before", "page-break-after",
     "zoom", "visibility", "display",
-    "box-sizing", "flex", "flex-flow", "align-self", "justify-content"};
+    "box-sizing", "flex", "flex-direction", "flex-flow", "align-self", "justify-content"};
 
 std::string cssCamelNames_[] =
   { "cssText", "width", "position",

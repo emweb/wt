@@ -1328,8 +1328,13 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       else if (flags_.test(BIT_FLEX_BOX_CHANGED) && !display)
         display = Empty;
 
-      if (display)
+      if (display) {
         element.setProperty(Property::StyleDisplay, display);
+
+        if (element.type() == DomElementType::FIELDSET) {
+          element.setProperty(Property::StyleFlexDirection, "column");
+        }
+      }
     } else
       element.setProperty(Property::StyleDisplay, "none");
   }

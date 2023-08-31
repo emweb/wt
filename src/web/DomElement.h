@@ -85,6 +85,7 @@ enum class Property { InnerHTML, AddedInnerHTML,
                       /* CSS 3 */
                       StyleBoxSizing,
                       StyleFlex,
+                      StyleFlexDirection,
                       StyleFlexFlow,
                       StyleAlignSelf,
                       StyleJustifyContent,
