@@ -35,6 +35,11 @@ behaviour.
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/11974">Issue #11974</a>: when dynamically making a field visible in <a href="classWt_1_1Form_1_1Dbo_1_1FormView.html">FormView</a> the form would only show the label and not the corresponding widget. This has now been corrected by having <code>FormView</code> override <a href="classWt_1_1WTemplateFormView.html#ab8ba5bda25fbf612903e5e0fa52f75ae">createFormWidget</a>.
   </li>
+  </li>
+    <a href="https://redmine.emweb.be/issues/11882">Issue #11882</a>:
+    the <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/fieldset">fieldset</a> element, used by <a href="classWt_1_1WGroupBox.html">WGroupBox</a> has been corrected when using Bootstrap 5.
+    A default HTML value was used here, which caused the content to not be rendered correctly.
+  </li>
 </ul>
 
 <h2>Release 4.10.1 (September 20, 2023)</h2>
