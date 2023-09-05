@@ -75,11 +75,6 @@ void WPopupWidget::setHidden(bool hidden, const WAnimation& animation)
   if (!hidden && anchorWidget_)
     positionAt(anchorWidget_.get(), orientation_);
 
-  if (hidden)
-    this->hidden().emit();
-  else
-    this->shown().emit();
-
   if (!WWebWidget::canOptimizeUpdates() || isRendered()) {
     if (hidden)
       doJavaScript("var o = " + jsRef() + ";"
@@ -87,7 +82,13 @@ void WPopupWidget::setHidden(bool hidden, const WAnimation& animation)
     else
       doJavaScript("var o = " + jsRef() + ";"
                    "if (o && o.wtPopup) o.wtPopup.shown();");
+
   }
+
+  if (hidden)
+    this->hidden().emit();
+  else
+    this->shown().emit();
 }
 
 void WPopupWidget::defineJS()
