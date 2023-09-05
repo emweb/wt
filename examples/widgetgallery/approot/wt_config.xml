@@ -28,6 +28,7 @@
           </trusted-proxies>
         </trusted-proxy-config>
 
+        <log-config>* -info:wthttp</log-config>
         <bootstrap-method>
           <for path="*">progressive</for>
           <for path="/forms/check-boxes">default</for>

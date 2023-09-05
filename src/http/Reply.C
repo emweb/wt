@@ -19,6 +19,7 @@
 #include "Request.h"
 #include "Server.h"
 
+#include "Wt/WLogger.h"
 #include "web/DateUtils.h"
 
 #include <cassert>
@@ -477,25 +478,22 @@ void Reply::logReply(Wt::WLogger& logger)
   if (relay_.get())
     return relay_->logReply(logger);
 
-  if (logger.logging("")) {
-    Wt::WLogEntry e = logger.entry("");
+  Wt::WStringStream e;
+  e << request_.remoteIP << " "
+    << /* rfc931 << */ " "
+    << /* authuser << */ " "
+    << request_.method.str() << ' '
+    << request_.uri.str() << " HTTP/"
+    << request_.http_version_major << '.'
+    << request_.http_version_minor << " "
+    << status_ << " "
+    << std::to_string(contentSent_);
+  LOG_INFO(e.str());
 
-    e << request_.remoteIP << Wt::WLogger::sep
-      << /* rfc931 << */ Wt::WLogger::sep
-      << /* authuser << */ Wt::WLogger::sep
-      << Wt::WLogger::timestamp << Wt::WLogger::sep
-      << request_.method.str() << ' '
-      << request_.uri.str() << " HTTP/"
-      << request_.http_version_major << '.'
-      << request_.http_version_minor << Wt::WLogger::sep
-      << status_ << Wt::WLogger::sep
-      << contentSent_;
-
-    /*
-       if (gzipEncoding_)
-       std::cerr << " <" << contentOriginalSize_ << ">";
-       */
-  }
+  /*
+     if (gzipEncoding_)
+     std::cerr << " <" << contentOriginalSize_ << ">";
+     */
 }
 
 asio::const_buffer Reply::buf(const std::string &s)
