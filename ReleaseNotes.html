@@ -35,6 +35,11 @@ behaviour.
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/11974">Issue #11974</a>: when dynamically making a field visible in <a href="classWt_1_1Form_1_1Dbo_1_1FormView.html">FormView</a> the form would only show the label and not the corresponding widget. This has now been corrected by having <code>FormView</code> override <a href="classWt_1_1WTemplateFormView.html#ab8ba5bda25fbf612903e5e0fa52f75ae">createFormWidget</a>.
   </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/11890">Issue #11890</a>:
+    if a user were to delete a <a href="classWt_1_1WPopupWidget.html">WPopupWidget</a>, which they can do as detailed in the <a href="classWt_1_1WPopupWidget.html#details">documentation</a>, they would encounter a use-after-free.
+    This has been corrected, so that the content of a <code>WPopupWidget</code> can be removed when being hidden.
+  </li>
   </li>
     <a href="https://redmine.emweb.be/issues/11882">Issue #11882</a>:
     the <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/fieldset">fieldset</a> element, used by <a href="classWt_1_1WGroupBox.html">WGroupBox</a> has been corrected when using Bootstrap 5.
