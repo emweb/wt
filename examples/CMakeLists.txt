@@ -270,6 +270,7 @@ SUBDIRS(
   qrlogin
   simplechat
   style
+  tableview-dragdrop
   te-benchmark
   treelist
   treeview
