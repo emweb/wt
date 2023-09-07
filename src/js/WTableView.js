@@ -123,7 +123,7 @@ WT_DECLARE_WT_MEMBER(
 
       let t = WT.target(event);
 
-      while (t) {
+      while (t && typeof t.classList !== "undefined") {
         if (t.classList.contains("Wt-tv-contents")) {
           break;
         } else if (t.classList.contains("Wt-tv-c")) {
@@ -427,6 +427,9 @@ WT_DECLARE_WT_MEMBER(
       }
 
       const item = getItem(event);
+      if (item.ele === null) {
+        return;
+      }
 
       if (!item.selected && item.drop && itemDropsEnabled) {
         if (action === "drop") {
