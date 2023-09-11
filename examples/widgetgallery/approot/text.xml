@@ -1472,7 +1472,7 @@
 
           <div class="col-sm-3 offset1 span3">
             <label class="form-label" for="${id:to}">
-              To (format dd MM yyyy)
+              To ${<if:is-not-native>}(format dd MM yyyy)${</if:is-not-native>}
             </label>
             ${to}
           </div>
@@ -1951,6 +1951,20 @@
         <legend>Example</legend>
         ${DateEdit}
         ${src DateEdit}
+    </fieldset>
+    <p><a href="#date-entry">Top</a></p>
+
+    <h3 id="date-picker-native">Date entry using a native widget</h3>
+    <p>
+      The ${doc-link WDateEdit} widget can be rendered as a completely
+      native widget, managed by the browser. This is often a better choice
+      for UX on mobile.
+    </p>
+
+    <fieldset class="example">
+        <legend>Example</legend>
+        ${DateEditNative}
+        ${src DateEditNative}
     </fieldset>
     <p><a href="#date-entry">Top</a></p>
 

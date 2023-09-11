@@ -7,18 +7,20 @@
 #include <Wt/WTemplate.h>
 #include <Wt/WString.h>
 
-SAMPLE_BEGIN(DateEdit)
+SAMPLE_BEGIN(DateEditNative)
 
 auto form = std::make_unique<Wt::WTemplate>(Wt::WString::tr("dateEdit-template"));
 form->addFunction("id", &Wt::WTemplate::Functions::id);
 
 auto de1 = form->bindWidget("from", std::make_unique<Wt::WDateEdit>());
 de1->setDate(Wt::WDate::currentServerDate().addDays(1));
+de1->setNativeControl(true);
 
 auto de2 = form->bindWidget("to", std::make_unique<Wt::WDateEdit>());
 de2->setFormat("dd MM yyyy"); // Apply a different date format.
 de2->calendar()->setHorizontalHeaderFormat(Wt::CalendarHeaderFormat::SingleLetterDayNames);
 de2->setBottom(de1->date());
+de2->setNativeControl(true);
 
 auto button = form->bindWidget("save", std::make_unique<Wt::WPushButton>("Save"));
 
@@ -52,9 +54,6 @@ button->clicked().connect([=] {
             out->setText("Invalid period!");
     }
 });
-
-// Native variant shouldn't have formatting info
-form->setCondition("if:is-not-native", true);
 
 SAMPLE_END(return std::move(form))
 
