@@ -20,6 +20,20 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 4.10.2 (TBD)</h2>
+
+<p>
+  Wt 4.10.2 is a patch release that addresses the following issues:
+</p>
+
+<ul>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/11932">Issue #11932</a>:
+    when calling <a href="classWt_1_1WPushButton.html#ae919cb76993211553b50a996bdf80fe9">WPushButton::setMenu</a> after a <a href="classWt_1_1WPopupMenu.html">WPopupMenu</a> had already been added,
+    the second menu wasn't added to the button, and both <code>WPopupMenu</code>s were removed. Now, the new <code>WPopupMenu</code> is correctly added to the button.
+  </li>
+</ul>
+
 <h2>Release 4.10.1 (September 20, 2023)</h2>
 
 <p>
