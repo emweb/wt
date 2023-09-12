@@ -144,4 +144,12 @@ WText *WTreeTable::header(int column) const
     return dynamic_cast<WText *>(headerContainer_->children()[column - 1]);
 }
 
+void WTreeTable::setDisabled(bool isDisabled)
+{
+  if (tree_) {
+    tree_->setDisabled(isDisabled);
+  }
+  WCompositeWidget::setDisabled(isDisabled);
+}
+
 }

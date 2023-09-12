@@ -162,6 +162,8 @@ public:
    */
   WWidget *headerWidget() const;
 
+  void setDisabled(bool isDisabled) override;
+
 protected:
   virtual void render(WFlags<RenderFlag> flags) override;
 

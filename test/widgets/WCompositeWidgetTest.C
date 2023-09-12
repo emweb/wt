@@ -525,8 +525,7 @@ BOOST_AUTO_TEST_CASE( WCompositeWidget_WTreeTable_addChildNode_when_setDisabled 
 
   treeTablePtr->treeRoot()->addChildNode(std::make_unique<Wt::WTreeTableNode>("Item 2"));
 
-  // Add the item to the DOM
-  treeTablePtr->createSDomElement(&app);
+  // Do not update DOM, this is done through WTreeNode::update()
 
   BOOST_REQUIRE(!treeTablePtr->treeRoot()->childNodes()[1]->isDisabled());
   BOOST_REQUIRE(treeTablePtr->treeRoot()->childNodes()[1]->hasStyleClass("Wt-disabled"));
