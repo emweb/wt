@@ -235,6 +235,10 @@ void WCompositeWidget::setDisabled(bool disabled)
 
 bool WCompositeWidget::isDisabled() const
 {
+  if (!impl_) {
+    return false;
+  }
+
   return impl_->isDisabled();
 }
 
