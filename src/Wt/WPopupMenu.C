@@ -55,8 +55,9 @@ WPopupMenu::~WPopupMenu()
 {
   if (button_) {
     WPushButton *b = dynamic_cast<WPushButton *>(button_);
-    if (b)
+    if (b && b->menu() == this) {
       b->setMenu(nullptr);
+    }
   }
 
   if (isGlobalWidget()) {
