@@ -7,21 +7,24 @@
 #include <Wt/WTemplate.h>
 #include <Wt/WString.h>
 
-SAMPLE_BEGIN(TimeEdit)
+SAMPLE_BEGIN(TimeEditNative)
 auto form = std::make_unique<Wt::WTemplate>(Wt::WString::tr("timeEdit-template"));
 form->addFunction("id", &Wt::WTemplate::Functions::id);
 
 auto te1 = form->bindWidget("from", std::make_unique<Wt::WTimeEdit>());
 form->bindString("from-format", te1->format());
 te1->setTime(Wt::WTime::currentTime());
+te1->setNativeControl(true);
 
 auto te2 = form->bindWidget("to", std::make_unique<Wt::WTimeEdit>());
+// The format can either be HH:mm:ss or HH:mm, setting another will result in HH:mm
 #ifndef WT_TARGET_JAVA
 te2->setFormat("h:mm:ss.zzz AP");
 #else
 te2->setFormat("h:mm:ss.SSS a");
 #endif
 te2->setTime(Wt::WTime::currentTime().addSecs(60*15));
+te2->setNativeControl(true);
 form->bindString("to-format", te2->format());
 
 auto button = form->bindWidget("save", std::make_unique<Wt::WPushButton>("Save"));
@@ -55,9 +58,6 @@ button->clicked().connect([=] {
              .arg(te2->time().toString()));
     }
 });
-
-// Native variant shouldn't have formatting info
-form->setCondition("if:is-not-native", true);
 
 SAMPLE_END(return std::move(form))
 

@@ -1495,14 +1495,14 @@
         <div class="row row-fluid col-sm-12 span7">
           <div class="col-sm-3 span3">
             <label class="form-label"  for="${id:from}">
-              From (format ${from-format})
+              From ${<if:is-not-native>}(format ${from-format})${</if:is-not-native>}
             </label>
             ${from}
           </div>
 
           <div class="col-sm-3 offset1 span3">
             <label class="form-label" for="${id:to}">
-              To (format ${to-format})
+              To ${<if:is-not-native>}(format ${to-format})${</if:is-not-native>}
             </label>
             ${to}
           </div>
@@ -1978,6 +1978,20 @@
         <legend>Example</legend>
         ${TimeEdit}
         ${src TimeEdit}
+    </fieldset>
+    <p><a href="#date-entry">Top</a></p>
+
+    <h3 id="time-picker-native">Time entry using a native widget</h3>
+    <p>
+      The ${doc-link WTimeEdit} widget can be rendered as a completely
+      native widget, managed by the browser. This is often a better choice
+      for UX on mobile.
+    </p>
+
+    <fieldset class="example">
+        <legend>Example</legend>
+        ${TimeEditNative}
+        ${src TimeEditNative}
     </fieldset>
     <p><a href="#date-entry">Top</a></p>
   </message>
