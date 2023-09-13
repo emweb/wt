@@ -1141,6 +1141,14 @@ std::unique_ptr<WWidget> WAbstractItemView::createHeaderWidget(int column)
   i->addStyleClass("Wt-label");
   contents->addWidget(std::move(i));
 
+  // Fix #10512: Disable the header if the view is disabled
+  if (isDisabled()) {
+    contents->addStyleClass("Wt-disabled");
+    for (auto child : contents->children()) {
+      child->addStyleClass("Wt-disabled");
+    }
+  }
+
   int headerLevel = model_ ? this->headerLevel(column) : 0;
 
   contents->setMargin(headerLevel * headerLineHeight_.toPixels(), Side::Top);
@@ -1225,6 +1233,14 @@ std::unique_ptr<WWidget> WAbstractItemView::createHeaderWidget(int column)
                     info.id, std::placeholders::_1));
 
   result->addWidget(std::move(main));
+
+  // Fix #10512: Disable the header if the view is disabled
+  if (isDisabled()) {
+    result->addStyleClass("Wt-disabled");
+    for (auto child : result->children()) {
+      child->addStyleClass("Wt-disabled");
+    }
+  }
 
   WT_USTRING sc = asString(index.data(ItemDataRole::StyleClass));
   if (!sc.empty())
