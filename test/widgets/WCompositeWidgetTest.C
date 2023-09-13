@@ -293,7 +293,8 @@ BOOST_AUTO_TEST_CASE( WCompositeWidget_WTreeView_setModel_when_setDisabled )
 
   treeViewPtr->setModel(model);
 
-  // "Refresh" the widget
+  // This actually needs to call a rerender, to ensure that the items are not
+  // constructed again, but updated, leading to an update of itrs root node.
   treeViewPtr->createSDomElement(&app);
 
   for (int index = 0; index < model->rowCount(); ++index) {
