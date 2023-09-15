@@ -6,6 +6,7 @@
 
 #include "Wt/WFont.h"
 #include "Wt/WFontMetrics.h"
+#include "Wt/WLogger.h"
 #include "Wt/WPointF.h"
 #include "Wt/WRectF.h"
 #include "Wt/WTransform.h"
@@ -251,13 +252,22 @@ std::string FontSupport::fontPath(PangoFont *font)
   PANGO_LOCK;
 
   PangoFcFont *f = (PangoFcFont *)font;
-  FT_Face face = pango_fc_font_lock_face(f);
+
+  // Fix #7196: pango_fc_font_lock_face is deprecated, and to be
+  // changed to pango_font_get_hb_font() and hb_ft_font_lock_face().
+  // However, this lacks an FT_Face. This face is to be retrieved
+  // with a fontconfig call.
+
+  char* filename;
+  if (FcPatternGetString(f->font_pattern, FC_FILE, 0, (FcChar8 **)(void*)&filename) != FcResultMatch) {
+    Wt::log("error") << "FontSupport: Pango - No Font face to be found for "
+                     << std::string(pango_font_description_get_family(f->description));
+  }
 
   std::string result;
-  if (face->stream->pathname.pointer)
-    result = (const char *)face->stream->pathname.pointer;
-
-  pango_fc_font_unlock_face(f);
+  if (filename != nullptr) {
+    result = std::string(filename);
+  }
 
   return result;
 }
