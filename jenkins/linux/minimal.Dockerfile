@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     cmake \
     ccache \
     libunwind-dev \
+    tzdata \
  && rm -rf /var/lib/apt/lists/*
 
 RUN BOOST_VERSION=1.71.0 ;\
