@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE( Message_header_RFC5322 )
   // format. Meaning the name of the day and month are in English.
   Wt::Test::WTestEnvironment environment;
   Wt::WLocale locale = environment.locale();
-  locale.setTimeZone(::date::locate_zone("GB"));
+  locale.setTimeZone(Wt::cpp20::date::locate_zone("GB"));
   environment.setLocale(locale);
 
   Wt::WApplication app(environment);
