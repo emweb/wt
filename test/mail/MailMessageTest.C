@@ -28,6 +28,9 @@ BOOST_AUTO_TEST_CASE( Message_header_RFC5322 )
 {
   // Tests whether the mail message header is in the RFC 5322 compliant
   // format. Meaning the name of the day and month are in English.
+#ifdef WT_WIN32
+  Wt::cpp20::date::set_install("./tzdata");
+#endif
   Wt::Test::WTestEnvironment environment;
   Wt::WLocale locale = environment.locale();
   locale.setTimeZone(Wt::cpp20::date::locate_zone("GB"));
