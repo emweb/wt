@@ -3801,7 +3801,7 @@ BOOST_AUTO_TEST_CASE( dbo_precision_test )
     0x3f9e0651,
     0x03d20cfe
   };
-  for (int i = 0; i < sizeof hex_values / sizeof hex_values[0]; ++i) {
+  for (int i = 0; i < static_cast<int>(sizeof hex_values / sizeof hex_values[0]); ++i) {
     auto hex_value = hex_values[i];
     float fl = *(reinterpret_cast<float*>(&hex_value));
     char buf[100];
@@ -4028,7 +4028,7 @@ BOOST_AUTO_TEST_CASE( dbo_precision_test2 )
     0x133fffffffffffff,
     0x3a6fa7161a4d6e0c
   };
-  for (int i = 0; i < sizeof hex_values / sizeof hex_values[0]; ++i) {
+  for (int i = 0; i < static_cast<int>(sizeof hex_values / sizeof hex_values[0]); ++i) {
     auto hex_value = hex_values[i];
     double dbl = *(reinterpret_cast<double*>(&hex_value));
     char buf[100];

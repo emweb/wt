@@ -81,7 +81,7 @@ void FileDropApplication::handleDrop(std::vector<Wt::WFileDropWidget::File *> fi
 
 void FileDropApplication::cancelUpload()
 {
-  if (drop_->uploads().size() == drop_->currentIndex())
+  if (drop_->uploads().size() == static_cast<size_t>(drop_->currentIndex()))
     return;
 
   Wt::WFileDropWidget::File *currentFile = drop_->uploads()[drop_->currentIndex()];
@@ -128,7 +128,7 @@ void FileDropApplication::saveFile(Wt::WFileDropWidget::File *file)
 void FileDropApplication::updateProgressListener()
 {
   // if there is a next file listen for progress
-  if (drop_->currentIndex() < drop_->uploads().size()) {
+  if (static_cast<size_t>(drop_->currentIndex()) < drop_->uploads().size()) {
     Wt::WFileDropWidget::File *file = drop_->uploads()[drop_->currentIndex()];
     file->dataReceived().connect(this, &FileDropApplication::showProgress);
     std::string fileName = Wt::Utils::htmlEncode(file->clientFileName());

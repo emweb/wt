@@ -139,7 +139,7 @@ int WToolBar::count() const
 
 WWidget *WToolBar::widget(int index) const
 {
-  if (index < widgets_.size())
+  if (index < static_cast<int>(widgets_.size()))
     return widgets_[index];
   else
     return nullptr;

@@ -19,7 +19,7 @@ namespace Wt {
 LOGGER("Dbo.SqlConnection");
 
 namespace {
-  static const std::size_t WARN_NUM_STATEMENTS_THRESHOLD = 10;
+  static const long int WARN_NUM_STATEMENTS_THRESHOLD = 10;
 }
 
 SqlConnection::SqlConnection()

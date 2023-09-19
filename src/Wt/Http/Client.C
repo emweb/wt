@@ -538,7 +538,7 @@ private:
       haveBodyData(text);
 
       return (contentLength_ >= 0) &&
-        (response_.body().size() >= contentLength_);
+        (static_cast<int>(response_.body().size()) >= contentLength_);
     }
   }
 
