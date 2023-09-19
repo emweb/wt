@@ -4770,7 +4770,7 @@
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="w"> </span><span class="n">link</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="n">textResource</span><span class="p">);</span><span class="w"></span>
 <span class="n">link</span><span class="p">.</span><span class="n">setTarget</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">LinkTarget</span><span class="o">::</span><span class="n">NewWindow</span><span class="p">);</span><span class="w"></span>
-<span class="n">Wt</span><span class="o">::</span><span class="n">WAnchor</span><span class="w"> </span><span class="o">*</span><span class="n">anchor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WAnchor</span><span class="o">&gt;</span><span class="p">(</span><span class="n">link</span><span class="p">,</span><span class="s">&quot;Download file&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WAnchor</span><span class="o">&gt;</span><span class="p">(</span><span class="n">link</span><span class="p">,</span><span class="s">&quot;Download file&quot;</span><span class="p">);</span><span class="w"></span>
 </pre></div>
   </message>
   <message id="src-Resources">

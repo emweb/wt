@@ -2695,8 +2695,6 @@ EventType WebSession::getEventType(const WEvent& event) const
   if (event.impl_.renderOnly || !handler.request())
     return EventType::Other;
 
-  const std::string *requestE = request.getParameter("request");
-
   const std::string *pageIdE = handler.request()->getParameter("pageId");
   if (pageIdE && *pageIdE != std::to_string(renderer_.pageId()))
     return EventType::Other;

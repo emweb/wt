@@ -632,7 +632,6 @@ WBarSelection WAbstractGridData::pickBar(int x, int y) const
     invTransform.inverted();
   WVector4 camera;
   camera = invTransform * camera;
-  WVector3 camera3 = WVector3(camera);
 
   int Nx = nbXPoints();
   int Ny = nbYPoints();

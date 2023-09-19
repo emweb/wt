@@ -368,7 +368,6 @@ static int is_word_based(const passwdqc_params_qc_t *params,
         char word[7];
         char *unified;
         unsigned int i;
-        int length;
         int mode;
 
         if (!params->match_length)      /* disabled */

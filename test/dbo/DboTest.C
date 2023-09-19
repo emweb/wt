@@ -3614,13 +3614,15 @@ BOOST_AUTO_TEST_CASE( dbo_precision_test )
   // Test data originates from:
   // https://raw.githubusercontent.com/postgres/postgres/REL_12_9/src/test/regress/sql/float4.sql
   // This is distributed under: https://raw.githubusercontent.com/postgres/postgres/REL_12_9/COPYRIGHT
-    DboFixture f;
+  DboFixture f;
+#ifdef POSTGRES
   float quiet_nan = std::nanf("");
   static const uint32_t quiet_nan_hex = *(reinterpret_cast<uint32_t*>(&quiet_nan));
   float positive_infinity = std::numeric_limits<float>::infinity();
   static const uint32_t positive_infinity_hex = *(reinterpret_cast<uint32_t*>(&positive_infinity));
   float negative_infinity = -std::numeric_limits<float>::infinity();
   static const uint32_t negative_infinity_hex = *(reinterpret_cast<uint32_t*>(&negative_infinity));
+#endif
   static const uint32_t hex_values[] {
     // some special values
 #ifdef POSTGRES
@@ -3860,12 +3862,14 @@ BOOST_AUTO_TEST_CASE( dbo_precision_test2 )
   // https://raw.githubusercontent.com/postgres/postgres/REL_12_9/src/test/regress/sql/float8.sql
   // See license: https://raw.githubusercontent.com/postgres/postgres/REL_12_9/COPYRIGHT
   DboFixture f;
+#ifdef POSTGRES
   double quiet_nan = std::nan("");
   static const uint64_t quiet_nan_hex = *(reinterpret_cast<uint64_t*>(&quiet_nan));
   double positive_infinity = std::numeric_limits<double>::infinity();
   static const uint64_t positive_infinity_hex = *(reinterpret_cast<uint64_t*>(&positive_infinity));
   double negative_infinity = -std::numeric_limits<double>::infinity();
   static const uint64_t negative_infinity_hex = *(reinterpret_cast<uint64_t*>(&negative_infinity));
+#endif
   static const uint64_t hex_values[] {
     // some special values
 #ifdef POSTGRES

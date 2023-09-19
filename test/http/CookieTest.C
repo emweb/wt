@@ -94,7 +94,6 @@ BOOST_AUTO_TEST_CASE( cookie_render_test )
   BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie, session) == "test=deleted; Version=1; Expires=Sun, 01 Jan 2023 14:41:11 GMT; Max-Age=0; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=Strict;");
 
   cookie = Wt::Http::Cookie("test", "value", std::chrono::minutes(10));
-  auto expires  = Wt::WDateTime::currentDateTime().addSecs(600);
   std::string expected = "test=value; Version=1; Max-Age=600; Path=/; httponly; SameSite=Lax;";
   BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie, session) == expected);
   // Test removal

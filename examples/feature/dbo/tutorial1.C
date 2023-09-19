@@ -94,7 +94,7 @@ void run()
     dbo::ptr<User> joe2 = session.query< dbo::ptr<User> >
       ("select u from user u").where("name = ?").bind("Joe");
 
-    int count = session.query<int>("select count(1) from user")
+    WT_MAYBE_UNUSED int count = session.query<int>("select count(1) from user")
       .where("name = ?").bind("Joe");
   }
 

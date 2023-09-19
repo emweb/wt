@@ -234,7 +234,6 @@ BOOST_AUTO_TEST_CASE( WCompositeWidget_WTreeView_setDisabled )
   auto model = std::make_shared<Wt::WStringListModel>();
   std::vector<Wt::WString> data = { "Item 1", "Item 2", "Item 3" };
   model->setStringList(data);
-  auto index = model->index(0);
 
   auto treeview = std::make_unique<Wt::WTreeView>();
   treeview->setModel(model);
