@@ -99,9 +99,6 @@ private:
   //  Window win_;
   GLXPbuffer pbuffer_;
   GLXFBConfig bestFbc_;
-  Colormap cmap_;
-  XVisualInfo *vi_;
-  XSetWindowAttributes swa_;
 #endif
 #ifdef APPLE_GL
   CGLContextObj context_;

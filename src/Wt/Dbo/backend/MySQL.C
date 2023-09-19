@@ -788,7 +788,6 @@ class MySQLStatement final : public SqlStatement
   private:
     MySQL& conn_;
     std::string sql_;
-    char name_[64];
     bool has_truncation_;
     MYSQL_RES *result_;
     MYSQL_STMT* stmt_;
