@@ -73,4 +73,17 @@
 #endif
 #endif
 
+#ifndef WT_MAYBE_UNUSED
+#  ifndef WT_CNOR
+#    if defined(WT_CXX17)
+#      define WT_MAYBE_UNUSED [[maybe_unused]]
+#    elif defined(__GNUC__)
+#      define WT_MAYBE_UNUSED __attribute__((unused))
+#    endif
+#  endif
+#  ifndef WT_MAYBE_UNUSED
+#    define WT_MAYBE_UNUSED
+#  endif
+#endif
+
 #endif // WDBODLLDEFS_H_
