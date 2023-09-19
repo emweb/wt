@@ -793,11 +793,21 @@ void WRasterImage::getPixels(void *data)
 
 WColor WRasterImage::getPixel(int x, int y)
 {
-  PixelPacket pixel = GetOnePixel(impl_->image_, x, y);
-  return WColor(ScaleQuantumToChar(pixel.red),
-                ScaleQuantumToChar(pixel.green),
-                ScaleQuantumToChar(pixel.blue),
-                ScaleQuantumToChar(TransparentOpacity - pixel.opacity));
+  ExceptionInfo exception;
+  GetExceptionInfo(&exception);
+  PixelPacket pixel = AcquireOnePixel(impl_->image_, x, y, &exception);
+
+  if (exception.description == nullptr) {
+    return WColor(ScaleQuantumToChar(pixel.red),
+                  ScaleQuantumToChar(pixel.green),
+                  ScaleQuantumToChar(pixel.blue),
+                  ScaleQuantumToChar(TransparentOpacity - pixel.opacity));
+  } else {
+    std::string desc = std::string("WRasterImage::getPixel(): error: ") + exception.description;
+    DestroyExceptionInfo(&exception);
+    throw WException(desc);
+  }
+  DestroyExceptionInfo(&exception);
 }
 
 void WRasterImage::Impl::drawPlainPath(const WPainterPath& path)
