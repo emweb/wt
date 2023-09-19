@@ -45,7 +45,7 @@ void readObj(const std::string &fname,
         for (unsigned i = 1; i < splitLine.size(); ++i) {
           std::vector<std::string> faceLine;
           boost::split(faceLine, splitLine[i], boost::is_any_of("/"), boost::algorithm::token_compress_off);
-          int v, t, n;
+          WT_MAYBE_UNUSED int v, t, n;
           v = Wt::asNumber(faceLine[0]);
           if (faceLine[1] != "") {
             t = Wt::asNumber(faceLine[1]);

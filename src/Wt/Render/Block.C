@@ -3158,15 +3158,12 @@ void Block::renderText(const std::string& text, WTextRenderer& renderer,
         double x = rect.left();
 
         int wordStart = 0;
-        double wordTotal = 0;
         for (int j = 0; j <= ib.utf8Count; ++j) {
           if (j == ib.utf8Count || isWhitespace(text[ib.utf8Pos + j])) {
             if (j > wordStart) {
               WString word = WString::fromUTF8
                 (text.substr(ib.utf8Pos + wordStart, j - wordStart));
               double wordWidth = device->measureText(word).width();
-
-              wordTotal += wordWidth;
 
               painter.drawText(WRectF(x, rect.top(),
                                       wordWidth, rect.height()),
