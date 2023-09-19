@@ -4614,6 +4614,8 @@ void WCartesianChart::renderLegend(WPainter& painter) const
           xOffset += 5;
         }
         break;
+      default:
+        break;
       }
     } else {
       switch (legendSide()) {
@@ -4628,6 +4630,8 @@ void WCartesianChart::renderLegend(WPainter& painter) const
         break;
       case Side::Right:
         xOffset = -5;
+        break;
+      default:
         break;
       }
     }
