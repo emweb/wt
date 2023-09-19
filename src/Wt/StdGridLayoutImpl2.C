@@ -26,7 +26,7 @@
 
 namespace Wt {
 
-LOGGER("WGridLayout2");
+WT_MAYBE_UNUSED LOGGER("WGridLayout2");
 
 StdGridLayoutImpl2::StdGridLayoutImpl2(WLayout *layout, Impl::Grid& grid)
   : StdLayoutImpl(layout),

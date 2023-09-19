@@ -27,7 +27,7 @@
 
 namespace Wt {
 
-LOGGER("WFileUpload");
+WT_MAYBE_UNUSED LOGGER("WFileUpload");
 
 class WFileUploadResource final : public WResource {
 public:

@@ -74,7 +74,7 @@ namespace {
 
 namespace Wt {
 
-LOGGER("WSslCertificate");
+WT_MAYBE_UNUSED LOGGER("WSslCertificate");
 
 WSslCertificate::WSslCertificate(const std::vector<DnAttribute> &subjectDn,
            const std::vector<DnAttribute> &issuerDn,

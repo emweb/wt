@@ -79,7 +79,7 @@ namespace {
 
 namespace Wt {
 
-LOGGER("CgiParser");
+WT_MAYBE_UNUSED LOGGER("CgiParser");
 
 CgiParser::CgiParser(::int64_t maxRequestSize, ::int64_t maxFormData)
   : maxFormData_(maxFormData),

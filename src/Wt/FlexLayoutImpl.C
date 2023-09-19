@@ -22,7 +22,7 @@
 
 namespace Wt {
 
-LOGGER("FlexLayout");
+WT_MAYBE_UNUSED LOGGER("FlexLayout");
 
 FlexLayoutImpl::FlexLayoutImpl(WLayout *layout, Impl::Grid& grid)
   : StdLayoutImpl(layout),

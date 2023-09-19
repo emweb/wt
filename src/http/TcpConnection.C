@@ -19,7 +19,7 @@
 #include "Wt/WLogger.h"
 
 namespace Wt {
-  LOGGER("wthttp/async");
+  WT_MAYBE_UNUSED LOGGER("wthttp/async");
 }
 
 namespace http {

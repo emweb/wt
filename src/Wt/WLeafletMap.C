@@ -32,7 +32,7 @@
 
 namespace Wt {
 
-LOGGER("WLeafletMap");
+WT_MAYBE_UNUSED LOGGER("WLeafletMap");
 
 const std::string WLeafletMap::WIDGETMARKER_CONTAINER_RULENAME = "WLeafletMap::WidgetMarker::container";
 const std::string WLeafletMap::WIDGETMARKER_CONTAINER_CHILDREN_RULENAME = "WLeafletMap::WidgetMarker::container-children";

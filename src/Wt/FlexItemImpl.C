@@ -17,7 +17,7 @@
 
 namespace Wt {
 
-LOGGER("WWidgetItem");
+WT_MAYBE_UNUSED LOGGER("WWidgetItem");
 
 FlexItemImpl::FlexItemImpl(WWidgetItem *item)
   : item_(item)

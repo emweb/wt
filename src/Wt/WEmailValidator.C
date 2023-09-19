@@ -30,7 +30,7 @@
 
 namespace Wt {
 
-LOGGER("WEmailValidator");
+WT_MAYBE_UNUSED LOGGER("WEmailValidator");
 
 WEmailValidator::WEmailValidator()
   : multiple_(false)

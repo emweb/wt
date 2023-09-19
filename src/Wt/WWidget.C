@@ -22,7 +22,7 @@ namespace Wt {
 const char *WWidget::WT_RESIZE_JS = "wtResize";
 const char *WWidget::WT_GETPS_JS = "wtGetPS";
 
-LOGGER("WWidget");
+WT_MAYBE_UNUSED LOGGER("WWidget");
 
 WWidget::WWidget()
   : parent_(nullptr)

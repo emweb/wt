@@ -26,7 +26,7 @@
 
 namespace Wt {
 
-LOGGER("WEmailEdit");
+WT_MAYBE_UNUSED LOGGER("WEmailEdit");
 
 const char *WEmailEdit::INPUT_SIGNAL = "input";
 

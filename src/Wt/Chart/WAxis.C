@@ -108,7 +108,7 @@ namespace {
 
 namespace Wt {
 
-LOGGER("Chart.WAxis");
+WT_MAYBE_UNUSED LOGGER("Chart.WAxis");
 
   namespace Chart {
 

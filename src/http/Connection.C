@@ -409,7 +409,7 @@ void Connection::startWriteResponse(ReplyPtr reply)
   std::vector<asio::const_buffer> buffers;
   responseDone_ = reply->nextBuffers(buffers);
 
-  unsigned s = 0;
+  WT_MAYBE_UNUSED unsigned s = 0;
 #ifdef DEBUG
   for (unsigned i = 0; i < buffers.size(); ++i) {
     int size = asio::buffer_size(buffers[i]);

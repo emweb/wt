@@ -24,7 +24,7 @@
 
 namespace Wt {
 
-LOGGER("WAbstractItemView");
+WT_MAYBE_UNUSED LOGGER("WAbstractItemView");
 
 class DefaultPagingBar : public WContainerWidget
 {

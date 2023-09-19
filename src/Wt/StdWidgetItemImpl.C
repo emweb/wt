@@ -21,7 +21,7 @@
 
 namespace Wt {
 
-LOGGER("WWidgetItem");
+WT_MAYBE_UNUSED LOGGER("WWidgetItem");
 
 StdWidgetItemImpl::StdWidgetItemImpl(WWidgetItem *item)
   : item_(item)

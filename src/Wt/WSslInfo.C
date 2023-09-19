@@ -14,7 +14,7 @@
 
 namespace Wt {
 
-LOGGER("WSslInfo");
+WT_MAYBE_UNUSED LOGGER("WSslInfo");
 
 WSslInfo::WSslInfo(const WSslCertificate &clientCertificate,
                    const std::vector<WSslCertificate> &clientCertificateChain,
