@@ -587,7 +587,7 @@ void WTreeNode::update()
   // Fix #10512: Disable newly added children visually if the main tree is disabled.
   if (tree() && tree()->isDisabled() && tree()->treeRoot()) {
     const auto root = tree()->treeRoot();
-    for (const auto node : root->childNodes()) {
+    for (WTreeNode* node : root->childNodes()) {
       if (!node->hasStyleClass("Wt-disabled")) {
         node->addStyleClass("Wt-disabled");
         node->label()->addStyleClass("Wt-disabled");

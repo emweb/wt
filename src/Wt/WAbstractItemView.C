@@ -1144,7 +1144,7 @@ std::unique_ptr<WWidget> WAbstractItemView::createHeaderWidget(int column)
   // Fix #10512: Disable the header if the view is disabled
   if (isDisabled()) {
     contents->addStyleClass("Wt-disabled");
-    for (auto child : contents->children()) {
+    for (WWidget* child : contents->children()) {
       child->addStyleClass("Wt-disabled");
     }
   }
@@ -1237,7 +1237,7 @@ std::unique_ptr<WWidget> WAbstractItemView::createHeaderWidget(int column)
   // Fix #10512: Disable the header if the view is disabled
   if (isDisabled()) {
     result->addStyleClass("Wt-disabled");
-    for (auto child : result->children()) {
+    for (WWidget* child : result->children()) {
       child->addStyleClass("Wt-disabled");
     }
   }
