@@ -88,6 +88,18 @@ public:
     }
   }
 
+  /*! \brief Creates a form widget
+   *
+   * This method is to ensure that the correct widget is used in the form for the given
+   * field, i.e. the widget defined by the form delegate.
+   *
+   * \sa WAbstractFormDelegate::createFormWidget
+   */
+  std::unique_ptr<Wt::WWidget> createFormWidget(Wt::WFormModel::Field field) override
+  {
+    return formWidget(field);
+  }
+
   /*! \brief Updates a value in the Model
    *
    * The default implementation first calls updateModelValue(WFormModel *, WFormModel::Field, WWidget *).
