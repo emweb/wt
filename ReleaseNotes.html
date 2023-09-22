@@ -32,6 +32,9 @@ behaviour.
     when calling <a href="classWt_1_1WPushButton.html#ae919cb76993211553b50a996bdf80fe9">WPushButton::setMenu</a> after a <a href="classWt_1_1WPopupMenu.html">WPopupMenu</a> had already been added,
     the second menu wasn't added to the button, and both <code>WPopupMenu</code>s were removed. Now, the new <code>WPopupMenu</code> is correctly added to the button.
   </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/11974">Issue #11974</a>: when dynamically making a field visible in <a href="classWt_1_1Form_1_1Dbo_1_1FormView.html">FormView</a> the form would only show the label and not the corresponding widget. This has now been corrected by having <code>FormView</code> override <a href="classWt_1_1WTemplateFormView.html#ab8ba5bda25fbf612903e5e0fa52f75ae">createFormWidget</a>.
+  </li>
 </ul>
 
 <h2>Release 4.10.1 (September 20, 2023)</h2>
