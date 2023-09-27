@@ -116,6 +116,8 @@ private:
   std::vector<WString> displayData_;
   std::vector<DataMap> *otherData_;
   std::vector<WFlags<ItemFlag> > flags_;
+
+  void createOtherDataMap();
 };
 
 }

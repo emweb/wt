@@ -122,19 +122,17 @@ bool WStringListModel::setData(const WModelIndex& index,
   if (role == ItemDataRole::Edit)
     role = ItemDataRole::Display;
 
-  if (role == ItemDataRole::Display)
+  if (role == ItemDataRole::Display) {
     displayData_[index.row()] = asString(value);
+    if (!otherData_) {
+      createOtherDataMap();
+    }
+    (*otherData_)[index.row()][ItemDataRole::Edit] = value;
+  }
   else {
     if (!otherData_) {
-#ifndef WT_TARGET_JAVA
-      otherData_ = new std::vector<DataMap>(displayData_.size());
-#else
-      otherData_ = new std::vector<DataMap>();
-      for (int i = 0; i < displayData_.size(); ++i)
-        otherData_->push_back(DataMap());
-#endif
+      createOtherDataMap();
     }
-
     (*otherData_)[index.row()][role] = value;
   }
 
@@ -248,4 +246,15 @@ void WStringListModel::sort(int column, SortOrder order)
   layoutChanged().emit();
 }
 
+void WStringListModel::createOtherDataMap()
+{
+#ifndef WT_TARGET_JAVA
+  otherData_ = new std::vector<DataMap>(displayData_.size());
+#else
+  otherData_ = new std::vector<DataMap>();
+  for (int i = 0; i < displayData_.size(); ++i) {
+    otherData_->push_back(DataMap());
+  }
+#endif
+}
 }
