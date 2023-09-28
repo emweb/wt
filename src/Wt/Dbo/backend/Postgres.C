@@ -20,6 +20,7 @@
 
 #include <libpq-fe.h>
 #include <algorithm>
+#include <array>
 #include <cerrno>
 #include <cstdio>
 #include <iostream>
