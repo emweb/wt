@@ -32,6 +32,11 @@ behaviour.
     this corrects a mistake in <a href="https://redmine.webtoolkit.eu/issues/7814">Issue #7814</a>, where the cookie path was not correctly set.
   </li>
   <li>
+    <a href="https://redmine.webtoolkit.eu/issues/11934">Issue #11934</a>:
+    this corrects the rendering of a vertical <a href="classWt_1_1WSlider.html">WSlider</a> for all themes. Additionally an improvement was made that introduces <a href="classWt_1_1WSlider.html#a0405e2a5aeb71db1b112fa2ca1428cdc">WSlider::setTickLength</a>, that allows users to set the length (width or height of the line, depending on whether the <code>WSlider</code> is <code>Orientation::Horizontal</code> or <code>Orientation::Vertical</code>) of the ticks.
+    For the native slider, ticks have also been enabled. Although both the positioning (on which side) they are placed and their length cannot be changed. Only their interval can be manipulated through <a href="classWt_1_1WSlider.html#a3497303ace2820b3bd457119cec35411">WSlider::setTickInterval</a>.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/12022">Issue #12022</a>:
     solves a case where a JavaScript error can occur if an invisible element on the page receives an update. This is related to <a href="https://redmine.emweb.be/issues/11669">Issue #11669</a>.
   </li>
