@@ -4,14 +4,15 @@
  * See the LICENSE file for terms of use.
  */
 #include "Wt/WApplication.h"
+#include "Wt/WBootstrap5Theme.h"
 #include "Wt/WContainerWidget.h"
+#include "Wt/WCssTheme.h"
 #include "Wt/WEnvironment.h"
 #include "Wt/WPaintDevice.h"
 #include "Wt/WPaintedWidget.h"
 #include "Wt/WPainter.h"
 #include "Wt/WSlider.h"
 #include "Wt/WStringStream.h"
-#include "Wt/WBootstrap5Theme.h"
 
 #include "DomElement.h"
 #include "WebUtils.h"
@@ -182,12 +183,22 @@ void PaintedSlider::updateState()
 
   Orientation o = slider_->orientation();
 
+  // Have 5px margin for the handle VS the slider
+  const int handleOffset = 5;
+  const int widgetLength = o == Orientation::Horizontal ? h() : w();
+  int calculatedOffset = -(widgetLength / 2) + slider_->handleWidth() + handleOffset;
+  auto theme = Wt::WApplication::instance()->theme();
+  auto cssTheme = std::dynamic_pointer_cast<WCssTheme>(theme);
+  if (cssTheme && cssTheme->name() == "polished") {
+    calculatedOffset = 0;
+  }
+
   if (o == Orientation::Horizontal) {
     handle_->resize(slider_->handleWidth(), h());
-    handle_->setOffsets(0, Side::Top);
+    handle_->setOffsets(calculatedOffset, Side::Top);
   } else {
     handle_->resize(w(), slider_->handleWidth());
-    handle_->setOffsets(0, Side::Left);
+    handle_->setOffsets(calculatedOffset, Side::Left);
   }
 
   double l = o == Orientation::Horizontal ? w() : h();
