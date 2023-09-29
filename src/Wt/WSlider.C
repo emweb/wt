@@ -461,18 +461,7 @@ void WSlider::setNativeControl(bool nativeControl)
 
 void WSlider::resize(const WLength& width, const WLength& height)
 {
-  // Quick transform rotate fix
-  if (orientation() == Orientation::Vertical) {
-    auto app = WApplication::instance();
-    auto bs5Theme = std::dynamic_pointer_cast<WBootstrap5Theme>(app->theme());
-    if (bs5Theme) {
-      WLength w = width, h = height;
-      WLength size = WLength(std::max(w.toPixels(), h.toPixels()));
-      WFormWidget::resize(size, size);
-    }
-  } else {
-    WFormWidget::resize(width, height);
-  }
+  WFormWidget::resize(width, height);
 
   if (paintedSlider_)
     paintedSlider_->sliderResized(width, height);
