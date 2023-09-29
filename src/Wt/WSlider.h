@@ -108,7 +108,7 @@ public:
    * configured using setNativeControl(), this method returns whether
    * a native control is actually being used.
    */
-  bool nativeControl() const;
+  bool nativeControl() const { return preferNative_; }
 
   /*! \brief Sets the slider orientation.
    *

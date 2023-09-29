@@ -101,42 +101,44 @@ std::string cssNames_[] =
     "border-collapse",
     "page-break-before", "page-break-after",
     "zoom", "visibility", "display",
+    "-webkit-appearance",
     "box-sizing", "flex", "flex-direction", "flex-flow", "align-self", "justify-content"};
 
 std::string cssCamelNames_[] =
-  { "cssText", "width", "position",
-    "zIndex", "cssFloat", "clear",
-    "width", "height", "lineHeight",
-    "minWidth", "minHeight",
-    "maxWidth", "maxHeight",
-    "left", "right", "top", "bottom",
-    "verticalAlign", "textAlign",
-    "padding",
-    "paddingTop", "paddingRight",
-    "paddingBottom", "paddingLeft",
-    "margin",
-    "marginTop", "marginRight",
-    "marginBottom", "marginLeft",
-    "cursor",
-    "borderTop", "borderRight",
-    "borderBottom", "borderLeft",
-    "borderColorTop", "borderColorRight",
-    "borderColorBottom", "borderColorLeft",
-    "borderWidthTop", "borderWidthRight",
-    "borderWidthBottom", "borderWidthLeft",
-    "color", "overflowX", "overflowY",
-    "opacity",
-    "fontFamily", "fontStyle", "fontVariant",
-    "fontWeight", "fontSize",
-    "backgroundColor", "backgroundImage", "backgroundRepeat",
-    "backgroundAttachment", "backgroundPosition",
-    "textDecoration", "whiteSpace",
-    "tableLayout", "borderSpacing",
-    "border-collapse",
-    "pageBreakBefore", "pageBreakAfter",
-    "zoom", "visibility", "display",
-    "boxSizing", "flex", "flexFlow", "alignSelf", "justifyContent"
-  };
+{ "cssText", "width", "position",
+  "zIndex", "cssFloat", "clear",
+  "width", "height", "lineHeight",
+  "minWidth", "minHeight",
+  "maxWidth", "maxHeight",
+  "left", "right", "top", "bottom",
+  "verticalAlign", "textAlign",
+  "padding",
+  "paddingTop", "paddingRight",
+  "paddingBottom", "paddingLeft",
+  "margin",
+  "marginTop", "marginRight",
+  "marginBottom", "marginLeft",
+  "cursor",
+  "borderTop", "borderRight",
+  "borderBottom", "borderLeft",
+  "borderColorTop", "borderColorRight",
+  "borderColorBottom", "borderColorLeft",
+  "borderWidthTop", "borderWidthRight",
+  "borderWidthBottom", "borderWidthLeft",
+  "color", "overflowX", "overflowY",
+  "opacity",
+  "fontFamily", "fontStyle", "fontVariant",
+  "fontWeight", "fontSize",
+  "backgroundColor", "backgroundImage", "backgroundRepeat",
+  "backgroundAttachment", "backgroundPosition",
+  "textDecoration", "whiteSpace",
+  "tableLayout", "borderSpacing",
+  "border-collapse",
+  "pageBreakBefore", "pageBreakAfter",
+  "zoom", "visibility", "display",
+  "webKitAppearance", // Not functional
+  "boxSizing", "flex", "flexFlow", "alignSelf", "justifyContent"
+};
 
 const std::string unsafeChars_ = " $&+,:;=?@'\"<>#%{}|\\^~[]`/";
 
@@ -1057,6 +1059,10 @@ void DomElement::asHTML(EscapeOStream& out,
       break;
     case Property::Placeholder:
       out << " placeholder=";
+      fastHtmlAttributeValue(out, attributeValues, i->second);
+      break;
+    case Property::Orient:
+      out << " orient=";
       fastHtmlAttributeValue(out, attributeValues, i->second);
       break;
     default:

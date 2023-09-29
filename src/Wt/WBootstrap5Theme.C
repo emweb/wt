@@ -401,7 +401,7 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
     auto fu = dynamic_cast<WFileUpload *>(widget);
     if (!(tb || sl || fu))
       element.addPropertyWord(Property::Class, "form-control");
-    else if (sl) {
+    else if (sl && !sl->nativeControl()) {
       element.addPropertyWord(Property::Class, "form-range");
 
       if (sl->orientation() == Wt::Orientation::Vertical) {

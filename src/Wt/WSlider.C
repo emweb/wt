@@ -448,28 +448,6 @@ void WSlider::setNativeControl(bool nativeControl)
   preferNative_ = nativeControl;
 }
 
-bool WSlider::nativeControl() const
-{
-  if (preferNative_) {
-    const WEnvironment& env = WApplication::instance()->environment();
-    if ((env.agentIsChrome() &&
-         static_cast<unsigned int>(env.agent()) >=
-         static_cast<unsigned int>(UserAgent::Chrome5))
-        || (env.agentIsSafari() &&
-            static_cast<unsigned int>(env.agent()) >=
-            static_cast<unsigned int>(UserAgent::Safari4))
-        || (env.agentIsOpera() &&
-            static_cast<unsigned int>(env.agent()) >=
-      static_cast<unsigned int>(UserAgent::Opera10))
-  || (env.agentIsGecko() &&
-      static_cast<unsigned int>(env.agent()) >=
-      static_cast<unsigned int>(UserAgent::Firefox5_0)))
-      return true;
-  }
-
-  return false;
-}
-
 void WSlider::resize(const WLength& width, const WLength& height)
 {
   // Quick transform rotate fix
@@ -625,6 +603,18 @@ void WSlider::render(WFlags<RenderFlag> flags)
 
 void WSlider::updateDom(DomElement& element, bool all)
 {
+  if (preferNative_) {
+    if (orientation() == Orientation::Horizontal) {
+      element.removeProperty(Property::Orient);
+      element.removeProperty(Property::StyleWebkitAppearance);
+    } else {
+      // Firefox
+      element.setProperty(Property::Orient, "vertical");
+      // Chrome/Safari
+      element.setProperty(Property::StyleWebkitAppearance, "slider-vertical");
+    }
+  }
+
   if (paintedSlider_)
     paintedSlider_->doUpdateDom(element, all);
   else {
