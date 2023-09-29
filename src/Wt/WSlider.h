@@ -33,6 +33,7 @@ class PaintedSlider;
  * scaleSlider->setValue(10);
  * scaleSlider->setTickInterval(5);
  * scaleSlider->setTickPosition(Wt::WSlider::TicksBothSides);
+ * scaleSlider->setTickLength(Wt::WLength(10));
  * scaleSlider->resize(300, 50);
  * scaleSlider->valueChanged().connect(this, &ThisClass::scaleShape);
  * \endcode
@@ -153,6 +154,21 @@ public:
    * \sa setTickPosition(), setTickInterval()
    */
   WFlags<TickPosition> tickPosition() const { return tickPosition_; }
+
+  /*! \brief Sets the length of the ticks to be drawn.
+   *
+   * This length will be either the width or height when the slider is
+   * oriented vertically or horizontally respectively.
+   *
+   * \sa tickLength()
+   */
+  void setTickLength(const Wt::WLength& length);
+
+  /*! \brief Returns the tick length.
+   *
+   * \sa setTickLength()
+   */
+  const Wt::WLength& tickLength() const { return tickLength_; }
 
   /*! \brief Sets the slider value.
    *
@@ -288,6 +304,7 @@ private:
   Orientation          orientation_;
   int                  tickInterval_;
   WFlags<TickPosition> tickPosition_;
+  WLength tickLength_;
   bool                 preferNative_, changed_, changedConnected_, inputConnected_;
   int                  handleWidth_;
 

@@ -500,6 +500,15 @@ void WSlider::setTickInterval(int tickInterval)
     paintedSlider_->updateState();
 }
 
+void WSlider::setTickLength(const Wt::WLength& length)
+{
+  tickLength_ = length;
+
+  if (paintedSlider_) {
+    paintedSlider_->updateState();
+  }
+}
+
 void WSlider::setHandleWidth(int handleWidth)
 {
   handleWidth_ = handleWidth;
@@ -700,6 +709,12 @@ void WSlider::paintTick(WPainter& painter, int value, int x, int y)
     int y2 = h / 2 - 4;
     int y3 = h / 2 + 4;
     int y4 = h - h/4;
+
+    // Apply tick length if not default
+    if (!tickLength().isAuto()) {
+      y1 = y2 - tickLength().toPixels();
+      y4 = y3 + tickLength().toPixels();
+    }
 
     switch (orientation_) {
     case Orientation::Horizontal:
