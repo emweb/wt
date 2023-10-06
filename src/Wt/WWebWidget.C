@@ -915,6 +915,10 @@ void WWebWidget::setJavaScriptMember(const std::string& name,
       OtherImpl::Member m;
       m.name = name;
       m.value = value;
+      // Bug #12006: For safety always append semicolon
+      if (value.back() != ';') {
+        m.value += ";";
+      }
       members.push_back(m);
     } else {
       members[index].value = value;
