@@ -508,10 +508,15 @@ void DomElement::callJavaScript(const std::string& jsCode,
                                 bool evenWhenDeleted)
 {
   ++numManipulations_;
+  // Bug #12006: For safety always append semicolon
+  std::string terminatedJsCode = jsCode;
+  if (jsCode.back() != ';') {
+    terminatedJsCode += ";";
+  }
   if (!evenWhenDeleted)
-    javaScript_ << jsCode << '\n';
+    javaScript_ << terminatedJsCode << '\n';
   else
-    javaScriptEvenWhenDeleted_ += jsCode;
+    javaScriptEvenWhenDeleted_ += terminatedJsCode;
 }
 
 void DomElement::setProperties(const PropertyMap& properties)
