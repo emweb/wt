@@ -58,6 +58,10 @@ behaviour.
     A default HTML value was used here, which caused the content to not be rendered correctly.
   </li>
   <li>
+    <a href="https://redmine.webtoolkit.eu/issues/12006">Issue #12006</a>
+    a JavaScript error could occur if no semicolon was added to the JS code when called by <a href="classWt_1_1WWidget.html#ab876fc1b7d2e4e5dfc631e380d406ae2">setJavaScriptMember</a> or <a href="classWt_1_1DomElement.html#a76e75e4259fee4d00f15170eb464682e">callJavaScript</a>.
+  </li>
+  <li>
     <a href="https://redmine.webtoolkit.eu/issues/11897">Issue #11897</a>:
     fixed a log that was not configurable. The response to a HTTP request was always logged (like <code>GET /path contentlength</code>).
     All logs should be configurable, hence it is now logged under <code>info:wthttp</code>.
