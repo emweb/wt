@@ -346,6 +346,7 @@ private:
 
   void update();
   void onChange();
+  void updateSliderProperties();
 
   friend class PaintedSlider;
 };

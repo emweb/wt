@@ -302,6 +302,9 @@ void PaintedSlider::updateState()
   computeD << "var objh = " << handle_->jsRef() << ","
            <<     "objf = " << fill_->jsRef() << ","
            <<     "objb = " << slider_->jsRef() << ","
+           <<     "minVal = " << slider_->minimum() << ","
+           <<     "maxVal = " << slider_->maximum() << ","
+           <<     "stepVal = " << slider_->step() << ","
            <<     "page_u = WT.pageCoordinates(event)." << u << ","
            <<     "widget_page_u = WT.widgetPageCoordinates(objb)." << u << ","
            <<     "pos = page_u - widget_page_u,"
@@ -310,6 +313,20 @@ void PaintedSlider::updateState()
            <<     "if (rtl && horizontal)";
   computeD <<       "pos = " << Utils::round_js_str(l, 3, buf) << " - pos;";
   computeD <<     "var d = pos - down;";
+  // Get max d value and make D relative against the slider's value
+  computeD <<     "let sliderV = Math.abs(maxVal - minVal);";
+  computeD <<     "let scaleFactor = " << Utils::round_js_str(max, 3, buf) << " / sliderV;";
+  computeD <<     "let scaledD = d / scaleFactor;";
+  computeD <<     "let absD = Math.abs(scaledD);";
+  computeD <<     "let signD = scaledD < 0 ? -1 : 1;";
+  computeD <<     "let lowDelta = absD - (absD % stepVal);";
+  computeD <<     "let highDelta = lowDelta + stepVal;";
+  computeD <<     "if (absD- lowDelta < highDelta - absD) {";
+  computeD <<       "d = lowDelta * signD;";
+  computeD <<     "} else {";
+  computeD <<       "d = highDelta *signD;";
+  computeD <<     "}";
+  computeD <<     "d = d * scaleFactor;";
 
   WStringStream mouseMovedJS;
   mouseMovedJS << "var down = obj.getAttribute('down');"
@@ -675,8 +692,16 @@ void WSlider::signalConnectionsChanged()
 
 void WSlider::onChange()
 {
+  updateSliderProperties();
   valueChanged_.emit(value_);
   sliderMoved_.emit(value_);
+}
+
+void WSlider::updateSliderProperties()
+{
+  if (preferNative_) {
+    scheduleRender();
+  }
 }
 
 DomElementType WSlider::domElementType() const
@@ -731,6 +756,8 @@ void WSlider::updateDom(DomElement& element, bool all)
 
       element.setAttribute("list", id() + "dl");
     }
+    element.setAttribute("step", std::to_string(step()));
+    element.setAttribute("value", std::to_string(value()));
   }
 
   if (paintedSlider_)
