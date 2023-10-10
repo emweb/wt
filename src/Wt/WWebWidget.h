@@ -50,6 +50,7 @@ enum class DomElementType {
   AUDIO, VIDEO, SOURCE,
 
   B, STRONG, EM, I, HR,
+  DATALIST,
   UNKNOWN,
   OTHER
 };

@@ -12,6 +12,7 @@
 
 namespace Wt {
 
+class TickList;
 class PaintedSlider;
 
 /*! \class WSlider Wt/WSlider.h Wt/WSlider.h
@@ -145,6 +146,8 @@ public:
    * The tick position indicates if and where ticks are placed around the
    * slider groove.
    *
+   * This function has no effect if the native widget is used.
+   *
    * \sa tickPosition(), setTickInterval()
    */
   void setTickPosition(WFlags<TickPosition> tickPosition);
@@ -159,6 +162,8 @@ public:
    *
    * This length will be either the width or height when the slider is
    * oriented vertically or horizontally respectively.
+   *
+   * This function has no effect if the native widget is used.
    *
    * \sa tickLength()
    */
@@ -315,6 +320,7 @@ private:
   JSignal<int>         sliderMoved_;
 
   std::unique_ptr<PaintedSlider> paintedSlider_;
+  std::unique_ptr<TickList> tickList_;
 
   void update();
   void onChange();

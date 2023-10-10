@@ -42,7 +42,9 @@ std::string elementNames_[] =
 
     "audio", "video", "source",
 
-    "b", "strong", "em", "i", "hr"
+    "b", "strong", "em", "i", "hr",
+
+    "datalist"
   };
 
 bool defaultInline_[] =
@@ -67,7 +69,9 @@ bool defaultInline_[] =
 
     false, false, false,
 
-    true, true, true, true, false
+    true, true, true, true, false,
+
+    false
   };
 
 std::string cssNames_[] =
@@ -307,7 +311,8 @@ void DomElement::addChild(DomElement *child)
   if (child->mode() == Mode::Create) {
     numManipulations_ += 2; // cannot be short-cutted
 
-    if (wasEmpty_ && canWriteInnerHTML(WApplication::instance())) {
+    // Omit self closing tags from adding immediate HTML children, add them later
+    if (wasEmpty_ && canWriteInnerHTML(WApplication::instance()) && !isSelfClosingTag(type())) {
       child->asHTML(childrenHtml_, javaScript_, timeouts_);
       delete child;
     } else {
@@ -1091,8 +1096,13 @@ void DomElement::asHTML(EscapeOStream& out,
      * XHTML recommendation, back-wards compatibility with HTML: C.2, C.3:
      * do not use minimized forms when content is empty like <p />, and use
      * minimized forms for certain elements like <br />
+     *
+     * The additional case is for the native WSlider, which requires the
+     * `datalist` element to be present. This is "forcibly" added, since
+     * normally an `input` is selfclosing.
      */
-    if (!isSelfClosingTag(renderedType)) {
+    if (!isSelfClosingTag(renderedType)
+        || renderedType == DomElementType::INPUT && !childrenToAdd_.empty() && childrenToAdd_[0].child->type() == DomElementType::DATALIST) {
       out << '>';
       for (unsigned i = 0; i < childrenToAdd_.size(); ++i)
         childrenToAdd_[i].child->asHTML(out, javaScript, timeouts);

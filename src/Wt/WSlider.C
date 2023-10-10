@@ -23,10 +23,62 @@
  * FIXME: move styling to the theme classes
  */
 namespace Wt {
+LOGGER("WSlider");
 
 const Wt::WFlags<WSlider::TickPosition> WSlider::NoTicks = None;
 const Wt::WFlags<WSlider::TickPosition> WSlider::TicksBothSides
   = WSlider::TickPosition::TicksAbove | WSlider::TickPosition::TicksBelow;
+
+class TickList final : public WWebWidget
+{
+public:
+  TickList(WSlider* slider)
+    : slider_(slider)
+  {
+  }
+
+  void doUpdateDom(DomElement& element, bool all)
+  {
+    if (all) {
+      // Container for all the options
+      DomElement *list = DomElement::createNew(domElementType());
+      list->setId(element.id() + "dl");
+
+      int tickInterval = slider_->tickInterval();
+      int range = slider_->maximum() - slider_->minimum();
+      if (range == 0) {
+        return;
+      }
+
+      if (tickInterval == 0) {
+        tickInterval = range / 2;
+      }
+
+      int numTicks =  range / tickInterval + 1;
+
+      if (numTicks < 1) {
+        return;
+      }
+
+      for (int i = 0; i < numTicks; ++i) {
+        int value = slider_->minimum() + i * tickInterval;
+
+        DomElement *option = DomElement::createNew(DomElementType::OPTION);
+        option->setProperty(Property::Value, std::to_string(value));
+        list->addChild(option);
+      }
+      element.addChild(list);
+    }
+  }
+
+  DomElementType domElementType() const
+  {
+    return DomElementType::DATALIST;
+  }
+
+private:
+  WSlider* slider_ = nullptr;
+};
 
 const char *WSlider::INPUT_SIGNAL = "input";
 
@@ -441,6 +493,7 @@ WSlider::WSlider(Orientation orientation)
 WSlider::~WSlider()
 {
   manageWidget(paintedSlider_, std::unique_ptr<PaintedSlider>());
+  manageWidget(tickList_, std::unique_ptr<TickList>());
 }
 
 EventSignal<>& WSlider::input()
@@ -486,6 +539,11 @@ void WSlider::setOrientation(Orientation orientation)
 
 void WSlider::setTickPosition(WFlags<TickPosition> tickPosition)
 {
+  if (nativeControl()) {
+    LOG_WARN("setTickLength(): Cannot set the tick length of a native widget.");
+    return;
+  }
+
   tickPosition_ = tickPosition;
 
   if (paintedSlider_)
@@ -502,6 +560,11 @@ void WSlider::setTickInterval(int tickInterval)
 
 void WSlider::setTickLength(const Wt::WLength& length)
 {
+  if (nativeControl()) {
+    LOG_WARN("setTickLength(): Cannot set the tick length of a native widget.");
+    return;
+  }
+
   tickLength_ = length;
 
   if (paintedSlider_) {
@@ -601,6 +664,9 @@ void WSlider::render(WFlags<RenderFlag> flags)
         manageWidget(paintedSlider_, std::move(paintedSlider));
         paintedSlider_->sliderResized(width(), height());
       }
+    } else {
+      auto tickList = std::make_unique<TickList>(this);
+      manageWidget(tickList_, std::move(tickList));
     }
 
     setLayoutSizeAware(!useNative);
@@ -621,6 +687,14 @@ void WSlider::updateDom(DomElement& element, bool all)
       element.setProperty(Property::Orient, "vertical");
       // Chrome/Safari
       element.setProperty(Property::StyleWebkitAppearance, "slider-vertical");
+    }
+
+    if (tickList_) {
+      // Get parent of widget, since the native version is an `input`,
+      // which is a type that cannot have children.
+      tickList_->doUpdateDom(element, all);
+
+      element.setAttribute("list", id() + "dl");
     }
   }
 
