@@ -965,6 +965,8 @@ void WTreeViewNode::updateDom(DomElement& element, bool all)
       widget->addStyleClass("Wt-disabled");
     }
   }
+
+  WContainerWidget::updateDom(element, all);
 }
 
 WTreeView::WTreeView()
