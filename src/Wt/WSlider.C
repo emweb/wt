@@ -8,6 +8,7 @@
 #include "Wt/WContainerWidget.h"
 #include "Wt/WCssTheme.h"
 #include "Wt/WEnvironment.h"
+#include "Wt/WLogger.h"
 #include "Wt/WPaintDevice.h"
 #include "Wt/WPaintedWidget.h"
 #include "Wt/WPainter.h"
@@ -18,6 +19,22 @@
 #include "WebUtils.h"
 
 #include <memory>
+
+namespace {
+  int getClosestNumberByStep(int value, int step)
+  {
+    int absValue = std::abs(value);
+    int sign = value < 0 ? -1 : 1;
+    int lowDelta = absValue - (absValue % step);
+    int highDelta = lowDelta + step;
+
+    if (absValue - lowDelta < highDelta - absValue) {
+      return lowDelta * sign;
+    } else {
+      return highDelta * sign;
+    }
+  }
+}
 
 /*
  * FIXME: move styling to the theme classes
@@ -429,6 +446,8 @@ void PaintedSlider::onSliderReleased(int u)
                                slider_->minimum()
                                + (int)((double)u / pixelsPerUnit + 0.5)));
 
+  v = getClosestNumberByStep(static_cast<int>(v), slider_->step());
+
   // TODO changed() ?
   slider_->sliderMoved().emit(static_cast<int>(v));
 
@@ -466,6 +485,7 @@ WSlider::WSlider()
     minimum_(0),
     maximum_(99),
     value_(0),
+    step_(1),
     sliderMoved_(this, "moved", true)
 {
   resize(150, 50);
@@ -482,6 +502,7 @@ WSlider::WSlider(Orientation orientation)
     minimum_(0),
     maximum_(99),
     value_(0),
+    step_(1),
     sliderMoved_(this, "moved", true)
 {
   if (orientation == Orientation::Horizontal)
@@ -617,6 +638,20 @@ void WSlider::setRange(int minimum, int maximum)
   value_ = std::min(maximum_, std::max(minimum_, value_));
 
   update();
+}
+
+void WSlider::setStep(int step)
+{
+  if (step <= 0) {
+    LOG_WARN("setStep() is called with a bad step value. This must be greater than 0.");
+    return;
+  }
+
+  step_ = step;
+  value_ = getClosestNumberByStep(value(), step);
+
+  update();
+  onChange();
 }
 
 void WSlider::setValue(int value)

@@ -228,6 +228,27 @@ public:
    */
   void setRange(int minimum, int maximum);
 
+  /*! \brief Return the step value.
+   *
+   * The default value of the step is \c 1.
+   *
+   * \sa setStep(int)
+   */
+  int step() const { return step_; }
+
+  /*! \brief Sets the step value.
+   *
+   * This is a positive integer value that indicates by which step the
+   * slider moves between the minimum and maximum.
+   *
+   * It is not necessary that the slider's range can be neatly divided
+   * by the step value. Meaning a range of 50 (0 - 50), with a step of
+   * 7, is possible, but will never reach the maximum value.
+   *
+   * \sa step()
+   */
+  void setStep(int step);
+
   /*! \brief %Signal emitted when the user has changed the value of the
    *         slider.
    *
@@ -315,6 +336,7 @@ private:
 
   int                  minimum_, maximum_;
   int                  value_;
+  int                  step_;
 
   Signal<int>          valueChanged_;
   JSignal<int>         sliderMoved_;
