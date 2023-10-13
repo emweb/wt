@@ -1187,8 +1187,16 @@ void WebRenderer::serveMainAjax(WStringStream& out)
   setRendered(true);
   setJSSynced(true);
 
-  preLearnStateless(app, collectedJS1_);
-
+  // Bugs: #12022 & #11669 (related to #9076)
+  // When rendering, we first collect changes for actual DOM elements.
+  // This ensures that all created items are updated.
+  // Only after that do we collect prelearn stateless slots.
+  //
+  // This avoids an issue where if prelearn stuff is gathered first, while
+  // `visibleOnly_` is `true`, the widget is ignored. Only when we then
+  // collect invisible changes, which calls `preLearnStateless` as well,
+  // but for invisible items, the widget's update JS is wrongly appended
+  // here.
   if (visibleOnly_) {
     preCollectInvisibleChanges();
     if (twoPhaseThreshold_ > 0 && invisibleJS_.length() < static_cast<unsigned>(twoPhaseThreshold_)) {
@@ -1201,6 +1209,8 @@ void WebRenderer::serveMainAjax(WStringStream& out)
                     << "._p_.update(null, 'none', null, false);";
     }
   }
+
+  preLearnStateless(app, collectedJS1_);
 
   LOG_DEBUG("js: " << collectedJS1_.str());
 
@@ -1676,6 +1686,18 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
 
     collectJS(&out);
 
+    // Bugs: #12022 & #11669 (related to #9076)
+    // When rendering visible changes first, and after that the
+    // invisible ones, the invisible changes are wrongly appended
+    // to prelearned stateless slots. So we first collect changes
+    // to invisible items, and only the go over the stateless slots.
+    if (visibleOnly_) {
+      preCollectInvisibleChanges();
+      if (twoPhaseThreshold_ > 0 && invisibleJS_.length() < static_cast<unsigned>(twoPhaseThreshold_)) {
+        collectedJS1_ << invisibleJS_.str();
+        invisibleJS_.clear();
+      }
+    }
     /*
      * Now, as we have cleared and recorded all JavaScript changes that were
      * caused by the actual code, we can learn stateless code and collect
