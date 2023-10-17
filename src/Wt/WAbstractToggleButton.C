@@ -12,6 +12,10 @@
 #include "DomElement.h"
 #include "WebUtils.h"
 
+#include <boost/algorithm/string.hpp>
+
+#include <algorithm>
+
 namespace Wt {
 
 LOGGER("WAbstractToggleButton");
@@ -322,6 +326,32 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
       element.addChild(input);
       element.addChild(span);
     }
+  }
+
+  // Update missing styleclass, since a new DomElement may have been constructed
+  // Bug: #12036: Check and radio boxes have missing classes added to the widget
+  std::string currentClasses = element.getProperty(Property::Class);
+  std::string previousClasses = styleClass().toUTF8();
+
+  // Vector of previous classes
+  std::vector<std::string> previousClassesVec;
+  boost::split(previousClassesVec, previousClasses, boost::is_any_of(" "));
+
+  // Vector of current classes
+  std::vector<std::string> currentClassesVec;
+  boost::split(currentClassesVec, currentClasses, boost::is_any_of(" "));
+
+  // Find the classes that are part of the previous selection, and missing
+  // from the current widget.
+  std::vector<std::string> missingClasses;
+  for (const auto& styleClass : previousClassesVec) {
+    if (std::find(currentClassesVec.begin(), currentClassesVec.end(), styleClass) == currentClassesVec.end()) {
+      missingClasses.push_back(styleClass);
+    }
+  }
+
+  for (const auto& styleClass : missingClasses) {
+    element.addPropertyWord(Property::Class, styleClass);
   }
 }
 
