@@ -115,7 +115,7 @@ void WBootstrap5Theme::apply(WWidget *widget, WWidget *child, int widgetRole)
     break;
 
   case MenuItemCheckBox:
-    child->setStyleClass("Wt-chkbox");
+    child->addStyleClass("Wt-chkbox");
     ((WFormWidget *)child)->label()->addStyleClass("form-checkbox");
     break;
 
