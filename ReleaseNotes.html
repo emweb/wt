@@ -20,7 +20,7 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.10.2 (TBD)</h2>
+<h2>Release 4.10.2 (November 8, 2023)</h2>
 
 <p>
   Wt 4.10.2 is a patch release that addresses the following issues:
@@ -37,7 +37,7 @@ behaviour.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/11984">Issue #11984</a>:
-    corrected a <a href="classWt_1_1WTableView.html">WTableView</a>'s drag &amp; drop functionality. When a <a href="classWt_1_1WAbstractItemModel.html">WAbstractItemModel</a>'s items have the flags for drag &amp; drop enabled (found in <a href="group__modelview.html#ga1d77c4de293aebfacbdde124de06b8b0">ItemFlag</a>), the <a href"classWt_1_1WAbstractItemView.html">WAbstractItemView</a> has <a href="classWt_1_1WAbstractItemView.html#a0ca99b835708d990b90000917045738e">setDragEnabled(true)</a> and <a href="classWt_1_1WAbstractItemView.html#a5469c23ea1e9066e98e832ec9da2af21">setEnabledDropLocations()</a> set to <a href="namespaceWt.html#a46e584f830f2d8c9f5b16fcee7affc9b">DropLocation::BetweenRows</a>, the view will now correctly drop the items at the location indicated by the cursor, and will no longer cause an issue when moving the cursor out of the table when dragging.
+    corrected <a href="classWt_1_1WTableView.html">WTableView</a>'s drag &amp; drop functionality. When a <a href="classWt_1_1WAbstractItemModel.html">WAbstractItemModel</a>'s items have the flags for drag &amp; drop enabled (found in <a href="group__modelview.html#ga1d77c4de293aebfacbdde124de06b8b0">ItemFlag</a>), the <a href"classWt_1_1WAbstractItemView.html">WAbstractItemView</a> has <a href="classWt_1_1WAbstractItemView.html#a0ca99b835708d990b90000917045738e">setDragEnabled(true)</a> and <a href="classWt_1_1WAbstractItemView.html#a5469c23ea1e9066e98e832ec9da2af21">setEnabledDropLocations()</a> set to <a href="namespaceWt.html#a46e584f830f2d8c9f5b16fcee7affc9b">DropLocation::BetweenRows</a>, the view will now correctly drop the items at the location indicated by the cursor, and will no longer cause an issue when moving the cursor out of the table when dragging.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/11890">Issue #11890</a>:
