@@ -902,7 +902,16 @@ void WWebWidget::setJavaScriptMember(const std::string& name,
   std::vector<OtherImpl::Member>& members = *otherImpl_->jsMembers_;
   int index = indexOfJavaScriptMember(name);
 
-  if (index != -1 && (members[index].value == value))
+  // Bug #12006: For safety always append semicolon
+  std::string terminatedValue = value;
+  // Do not escape the value if it is a "default" placeholder.
+  // A value of "0" (or any value of length 1) is converted to an empty
+  // string in setImplementLayoutSizeAware.
+  if (!terminatedValue.empty() && terminatedValue.back() != ';' && terminatedValue != "0") {
+    terminatedValue += ";";
+  }
+
+  if (index != -1 && (members[index].value == terminatedValue))
     return;
 
   if (value.empty()) {
@@ -914,14 +923,10 @@ void WWebWidget::setJavaScriptMember(const std::string& name,
     if (index == -1) {
       OtherImpl::Member m;
       m.name = name;
-      m.value = value;
-      // Bug #12006: For safety always append semicolon
-      if (value.back() != ';') {
-        m.value += ";";
-      }
+      m.value = terminatedValue;
       members.push_back(m);
     } else {
-      members[index].value = value;
+      members[index].value = terminatedValue;
     }
   }
 
