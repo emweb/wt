@@ -1942,10 +1942,15 @@ void WWebWidget::declareJavaScriptMember(DomElement& element,
     if (name == WT_RESIZE_JS && otherImpl_->resized_) {
       WStringStream combined;
       if (value.length() > 1) {
+        // #12006 & #12143: No semicolon for self invoking functions
+        std::string unterminatedValue = value;
+        if (unterminatedValue.back() == ';') {
+          unterminatedValue.pop_back();
+        }
         combined << name << "=function(s,w,h) {"
                  << WApplication::instance()->javaScriptClass()
                  << "._p_.propagateSize(s,w,h);"
-                 << "(" << value << ")(s,w,h);"
+                 << "(" << unterminatedValue << ")(s,w,h);"
                  << "}";
       } else
         combined << name << "="
