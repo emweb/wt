@@ -266,7 +266,11 @@ WT_API extern std::string hmac_md5(const std::string& text, const std::string& k
  *
  * \sa hmac()
  */
+#ifndef WT_TARGET_JAVA
 WT_API extern std::string hmac_sha1(const std::string& text, const std::string& key);
+#else
+WT_API extern std::string hmac_sha1(long text, const std::string& key);
+#endif // WT_TARGET_JAVA
 
 }
 

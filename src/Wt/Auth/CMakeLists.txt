@@ -14,3 +14,5 @@ endif()
 if(WT_HAS_SAML)
   add_subdirectory(Saml)
 endif()
+
+add_subdirectory(Mfa)

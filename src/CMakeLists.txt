@@ -273,6 +273,7 @@ Wt/WWebWidget.h Wt/WWebWidget.C
 Wt/WWidget.h Wt/WWidget.C
 Wt/WWidgetItem.h Wt/WWidgetItem.C
 Wt/WWidgetItemImpl.h Wt/WWidgetItemImpl.C
+Wt/Auth/Mfa/Totp.h Wt/Auth/Mfa/Totp.C
 Wt/Auth/AbstractPasswordService.h Wt/Auth/AbstractPasswordService.C
 Wt/Auth/AbstractUserDatabase.h Wt/Auth/AbstractUserDatabase.C
 Wt/Auth/AuthModel.h Wt/Auth/AuthModel.C
