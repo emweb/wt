@@ -147,4 +147,27 @@
       <b>${user-name}</b> ${logout}
     </div>
   </message>
+
+  <message id="Wt.Auth.template.totp">
+    <div class="Wt-form Wt-auth-login">
+      <h2>${tr:Wt.Auth.totp-title}</h2>
+      <p>${tr:Wt.Auth.totp-info}</p>
+
+      <div class="Wt-fields">
+        ${<if:no-secret-key>}
+          ${qr-code}
+          ${tr:Wt.Auth.totp-qr-code-explanation}
+          <p> Secret key: ${secret-key}</p>
+        ${</if:no-secret-key>}
+        <label for="${id:totp-code}">${tr:Wt.Auth.totp-code}
+          <span class="Wt-info">${totp-code-info}</span>
+        </label>
+        ${totp-code}
+      </div>
+
+      <div class="Wt-buttons">
+        ${login}
+      </div>
+    </div>
+  </message>
 </messages>

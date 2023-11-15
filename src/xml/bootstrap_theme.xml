@@ -189,4 +189,34 @@
     </div>
   </message>
 
+  <message id="Wt.Auth.template.totp">
+    <div class="span8 offset2 Wt-auth-login">
+      <legend>${tr:Wt.Auth.totp-title}</legend>
+      <p>${tr:Wt.Auth.totp-info}</p>
+
+      <div class="form-horizontal">
+        ${<if:no-secret-key>}
+          ${qr-code}
+          ${tr:Wt.Auth.totp-qr-code-explanation}
+          <p> Secret key: ${secret-key}</p>
+        ${</if:no-secret-key>}
+        <div class="control-group ${label}">
+          <label for="${id:totp-code}" class="control-label">
+            ${tr:Wt.Auth.totp-code}
+          </label>
+          <div class="controls">
+            ${totp-code}
+            <span class="form-text help-inline help-block">
+              <span>${totp-code-info}</span>
+            </span>
+          </div>
+        </div>
+	${block:Wt.Auth.field remember-me}
+      </div>
+
+      <div class="form-actions">
+        <p>${login class="btn-primary"}</p>
+      </div>
+    </div>
+  </message>
 </messages>

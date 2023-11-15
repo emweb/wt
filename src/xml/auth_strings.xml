@@ -83,6 +83,7 @@
     <plural case="0">Keeps login for one week</plural>
     <plural case="1">Keeps login for {1} weeks</plural>
   </message>
+  <message id="Wt.Auth.remember-me-info.dynamic">Keeps login for {1}</message>
   <message id="Wt.Auth.lost-password">Lost password</message>
   <message id="Wt.Auth.login">Login</message>
   <message id="Wt.Auth.logout">Logout</message>
@@ -273,4 +274,10 @@ The Wt team.
     <p>The Wt team.</p>
   </message>
 
+  <message id="Wt.Auth.totp-title">TOTP Verification</message>
+  <message id="Wt.Auth.totp-info">Use your authenticator app/extension to generate a TOTP code.</message>
+  <message id="Wt.Auth.totp-qr-code-explanation">This QR code can be scanned by an authenticator app. It will allow you to generate TOTP codes. This will serve as an additional layer of security.</message>
+  <message id="Wt.Auth.totp-code">Code</message>
+  <message id="Wt.Auth.totp-code-info">Enter the TOTP code</message>
+  <message id="Wt.Auth.totp-code-info-invalid">Invalid TOTP code</message>
 </messages>
