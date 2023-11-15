@@ -346,8 +346,6 @@ void AuthWidget::onLoginChange()
   if (!(isRendered() || created_))
     return;
 
-  clear();
-
   if (login_.loggedIn()) {
 #ifndef WT_TARGET_JAVA
     if (created_) // do not do this if onLoginChange() is called from create()

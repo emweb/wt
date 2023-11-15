@@ -45,6 +45,15 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.webtoolkit.eu/issues/11705">Issue #11705</a>:
+    MFA (Multi-Factor Authentication) is now supported by means of a default implementation of TOTP (Time-Based One-Time Password). This feature can be enabled by <a href="classWt_1_1Auth_1_1AuthService.html#aad075b232ddafe52a4953f3c341e6e75" target="_blank">AuthService::setMfaProvider()</a>, and the length of the expected code can be managed via <a href="classWt_1_1Auth_1_1AuthService.html#a8a1821d0e0824a648aee4c509a2bc7d1" target="_blank">AuthService::setMFACodeLength()</a>.
+    Once enabled, users are allowed (but not forced) to use MFA. A developer will have to create a way that allows users to set their secret key, or override the functionality that decides whether the MFA step ought to be shown to the user during the login process (<a href="classWt_1_1Auth_1_1AuthModel.html#af2083a59fc1458c1fb0020bec0cdf959" target="_blank">AuthModel::hasMfaStep()</a>). Alternatively, they can also set <a href="classWt_1_1Auth_1_1AuthService.html#a5c708962311456a67c07e25c03247b23" target="_blank">AuthService::setMFARequired()</a> to <code>true</code>, which will force all users to have MFA enabled.
+    If enabled and required, a user will see the <a href="classWt_1_1Auth_1_1Mfa_1_1TotpProcess.html" target="_blank">TotpProcess</a> when they pass the regular login. This will happen after password login. Developers can use this process to enable MFA on a per-user manner, without globally enforcing it.
+    This widget shows them a QR code and a secret key initially for them to store in an authenticator app or browser extension. Once stored, it will no longer show them this code or key, unless invalidated (by means of <a href="classWt_1_1Auth_1_1User.html#ac65b7e7277df1d8cd4805e0b4d13b29d" target="_blank">User::removeIdentity()</a>, which will take the same name as the <code>setMfaProvider()</code>).
+
+    <p>The above approach will be the default flow that Wt uses if MFA is enabled (and/or required). Developers are able to provide a custom implementation as well, using the <a href="classWt_1_1Auth_1_1Mfa_1_1AbstractMfaProcess.html" target="_blank">AbstractMfaProcess</a> class. It is encouraged to look at the examples under <code>examples/authentication/mfa</code> in the source code, to have a concrete idea on how to use the class correctly.</p>
+  </li>
+  <li>
     <a href="https://redmine.webtoolkit.eu/issues/12461" target="_blank">Issue #12461</a>:
     Developers are now able to connect to a public or private resource using the <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API" target="_blank">WebSocket protocol</a>. While WebSockets were already integrated into Wt, they were only used to stream updates between the server and the client as an alternative to long-polling.
     Now they can actually be used by developers for custom purposes. The <a href="classWt_1_1WWebSocketResource.html" target="_blank">WWebSocketResource</a> is used to create a new endpoint. This can be global (static), when linked to the WServer itself, or session-private (dynamic) when exposed in the WApplication.
