@@ -591,7 +591,12 @@ void AuthWidget::processEnvironment()
     case EmailTokenState::EmailConfirmed:
       displayInfo(tr("Wt.Auth.info-email-confirmed"));
       User user = result.user();
-      model_->loginUser(login_, user);
+
+      LoginState state = LoginState::Strong;
+      if (model_->hasMfaStep(user)) {
+        state = LoginState::RequiresMfa;
+      }
+      model_->loginUser(login_, user, state);
     }
 
     /*
