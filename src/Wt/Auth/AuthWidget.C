@@ -3,6 +3,8 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include "Wt/Auth/Mfa/AbstractMfaProcess.h"
+#include "Wt/Auth/Mfa/TotpProcess.h"
 
 #include "Wt/Auth/AbstractUserDatabase.h"
 #include "Wt/Auth/AuthModel.h"
@@ -322,8 +324,19 @@ void AuthWidget::onLoginChange()
     if (created_) // do not do this if onLoginChange() is called from create()
       WApplication::instance()->changeSessionId();
 #endif // WT_TARGET_JAVA
-
-    createLoggedInView();
+    if (login_.state() == LoginState::RequiresMfa) {
+      setTemplateText("<div>${mfa}</div>");
+      auto mfaWidget = std::make_unique<Mfa::TotpProcess>(*model()->baseAuth(), model()->users(), login());
+      const User& user = login_.user();
+      const WString& mfaSecretKey = user.identity(mfaWidget->provider());
+      if (mfaSecretKey.empty()) {
+        bindWidget("mfa", mfaWidget->createSetupView());
+      } else {
+        bindWidget("mfa", mfaWidget->createInputView());
+      }
+    } else {
+      createLoggedInView();
+    }
   } else {
     if (login_.state() != LoginState::Disabled) {
       if (model_->baseAuth()->authTokensEnabled()) {

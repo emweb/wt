@@ -106,6 +106,11 @@ public:
    * validate().
    *
    * Returns whether the user could be logged in.
+   *
+   * By default the user will be logged into a LoginState::Strong state,
+   * but if a second factor is required, the state will be
+   * LoginState::RequiresMfa. This indicates additional authentication is
+   * required.
    */
   virtual bool login(Login& login);
 
@@ -144,6 +149,34 @@ public:
    * email was lost.
    */
   bool showResendEmailVerification() const;
+
+  /*! \brief Determines whether the MFA step is necessary for the \p user.
+   *
+   * After the user has logged in, and the MFA step would be shown, this
+   * functionality can be changed to determine whether the MFA step is to
+   * be shown. If so, LoginState::RequiresMfa will be set to indicate this
+   * to the framework.
+   *
+   * If this state is set, the AuthWidget::createMfaView() will be called,
+   * which constructs the MFA widget with AuthWidget::createMfaProcess().
+   * If the created widget implements the Mfa::AbstractMfaProcess
+   * interface, the default flow of showing the setup/input views is
+   * taken.
+   *
+   * If it does not adhere to the interface, and features a completely
+   * custom implementation, developers should override
+   * AuthWidget::createMfaProcess() and AuthWidget::createMfaView().
+   *
+   * By default this will return \p true iff:
+   *  - the MFA step is both enabled (AuthService::mfaEnabled()), and
+   *    also required (AuthService::mfaRequired()).
+   *  - MFA is enabled (AuthService::mfaEnabled()) and the \p user's MFA
+   *    identity will be checked. If an identity is found for the provider
+   *    the widget in AuthWidget::createMfaProcess() specifies, %Wt will
+   *    interpret this as a valid MFA configuration, and show the MFA step
+   *    to the user.
+   */
+  virtual bool hasMfaStep(const User& user) const;
 
 private:
   int throttlingDelay_;

@@ -204,7 +204,19 @@ bool AuthModel::login(Login& login)
     User user = users().findWithIdentity(Identity::LoginName,
                                          valueText(LoginNameField));
     cpp17::any v = value(RememberMeField);
-    if (loginUser(login, user)) {
+    LoginState state = LoginState::Strong;
+    // Either MFA is enabled and required, or it is enabled and the user
+    // has a secret key attached to it.
+    WString totpSecretKey;
+    if (user.isValid()) {
+      totpSecretKey = user.identity(baseAuth()->mfaProvider());
+    }
+
+    if (hasMfaStep(user)) {
+      state = LoginState::RequiresMfa;
+    }
+
+    if (loginUser(login, user, state)) {
       reset();
 
       if (cpp17::any_has_value(v) && cpp17::any_cast<bool>(v) == true)
@@ -285,5 +297,20 @@ bool AuthModel::showResendEmailVerification() const
   return user.isValid() && user.email().empty();
 }
 
+bool AuthModel::hasMfaStep(const User& user) const
+{
+  WString totpSecretKey;
+  if (user.isValid()) {
+    totpSecretKey = user.identity(baseAuth()->mfaProvider());
+  }
+
+  if (baseAuth()->mfaEnabled() && !baseAuth()->mfaRequired() &&totpSecretKey.empty()) {
+    LOG_WARN("hasMfaStep(): MFA is enabled (but not required), and no valid identity was found. The MFA step is skipped for user: " << user.id());
+  }
+
+  return ((baseAuth()->mfaEnabled() && !totpSecretKey.empty())
+          || (baseAuth()->mfaEnabled() && baseAuth()->mfaRequired()));
+
+}
   }
 }

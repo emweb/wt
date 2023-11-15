@@ -48,7 +48,17 @@ enum class LoginState {
 
   /*! \brief A user is strongly authenticated.
    */
-  Strong
+  Strong,
+
+  /*! \brief Requires multiple factors in the authentication process.
+   *
+   * After logging in through a primary method, like password, or if the
+   * authentication was remembered through a cookie, the user will be
+   * prompted with an additional authentication request.
+   *
+   * Using %Wt's default implementation, this will ask for the TOTP code.
+   */
+  RequiresMfa
 };
 
 /*! \class Login Wt/Auth/Login.h
