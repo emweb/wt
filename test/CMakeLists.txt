@@ -69,6 +69,23 @@ IF(ENABLE_LIBWTTEST)
     web/DomElementTest.C
   )
 
+  set(thirdpartysources
+    test.C
+    thirdparty/qrcodegen/QrCode.C
+  )
+
+  add_executable(thirdpartytest.wt ${thirdpartysources})
+  set_target_properties(thirdpartytest.wt PROPERTIES FOLDER "test/thirdparty")
+  target_link_libraries(thirdpartytest.wt PRIVATE wt wttest ${BOOST_TEST_LIBRARIES})
+
+  if(TARGET Boost::headers)
+    target_link_libraries(thirdpartytest.wt PRIVATE Boost::headers)
+  endif()
+
+  if(WT_WITH_SSL)
+    target_link_libraries(thirdpartytest.wt PRIVATE ${OPENSSL_LIBRARIES})
+  endif()
+
   IF (WT_HAS_WRASTERIMAGE)
      SET(TEST_SOURCES ${TEST_SOURCES}
        paintdevice/WRasterTest.C

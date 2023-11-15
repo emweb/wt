@@ -7,6 +7,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_BINARY_DIR} # for WConfig.h
   ${BOOST_INCLUDE_DIRS}
   Wt/Dbo/backend/amalgamation # for sqlite3.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/qrcodegen # QR code generation for MFA
 )
 
 LINK_DIRECTORIES(${BOOST_LIB_DIRS})
@@ -273,7 +274,9 @@ Wt/WWebWidget.h Wt/WWebWidget.C
 Wt/WWidget.h Wt/WWidget.C
 Wt/WWidgetItem.h Wt/WWidgetItem.C
 Wt/WWidgetItemImpl.h Wt/WWidgetItemImpl.C
+thirdparty/qrcodegen/QrCode.hpp thirdparty/qrcodegen/QrCode.cpp
 Wt/Auth/Mfa/Totp.h Wt/Auth/Mfa/Totp.C
+Wt/Auth/Mfa/TotpQrCode.h Wt/Auth/Mfa/TotpQrCode.C
 Wt/Auth/AbstractPasswordService.h Wt/Auth/AbstractPasswordService.C
 Wt/Auth/AbstractUserDatabase.h Wt/Auth/AbstractUserDatabase.C
 Wt/Auth/AuthModel.h Wt/Auth/AuthModel.C
