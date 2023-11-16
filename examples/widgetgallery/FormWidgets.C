@@ -206,12 +206,14 @@ std::unique_ptr<Wt::WWidget> FormWidgets::inPlaceEdit()
 
 #include "examples/Slider.cpp"
 #include "examples/SliderVertical.cpp"
+#include "examples/SliderSteps.cpp"
 
 std::unique_ptr<Wt::WWidget> FormWidgets::slider()
 {
   auto result = std::make_unique<TopicTemplate>("forms-slider");
   result->bindWidget("Slider", Slider());
   result->bindWidget("SliderVertical", SliderVertical());
+  result->bindWidget("SliderSteps", SliderSteps());
 
   return std::move(result);
 }

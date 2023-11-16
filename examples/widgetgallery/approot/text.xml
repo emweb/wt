@@ -2090,6 +2090,22 @@
 
     <p><a href="#slider">Top</a></p>
 
+    <h3>Slider steps</h3>
+    <p>
+      A slider is customizable in that its size of steps can be specified. The steps
+      define how much the value of a slider changed with each interaction.
+
+      For example, if set to <code>1</code>, dragging the slider slightly to the left or
+      right will decrease of increase its value by <code>1</code>.
+    </p>
+
+    <fieldset class="example">
+      <legend>Example</legend>
+      ${SliderSteps}
+      ${src SliderSteps}
+    </fieldset>
+
+    <p><a href="#slider">Top</a></p>
   </message>
 
   <message id="forms-progressBar">

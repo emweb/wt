@@ -328,77 +328,6 @@
 <span class="n">layout</span><span class="o">-&gt;</span><span class="n">addWidget</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">item</span><span class="p">),</span><span class="w"> </span><span class="n">Wt</span><span class="o">::</span><span class="n">LayoutPosition</span><span class="o">::</span><span class="n">Center</span><span class="p">);</span><span class="w"></span>
 </pre></div>
   </message>
-  <message id="src-CSS">
-<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WApplication.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPushButton.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WText.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WTable.h&gt;</span><span class="cp"></span>
-
-<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">Wt</span><span class="p">;</span><span class="w"></span>
-
-<span class="c1">// Add an external style sheet to the application.</span>
-<span class="n">Wt</span><span class="o">::</span><span class="n">WApplication</span><span class="o">::</span><span class="n">instance</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">useStyleSheet</span><span class="p">(</span><span class="s">&quot;style/CSSexample.css&quot;</span><span class="p">);</span><span class="w"></span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
-<span class="c1">// The style sheet should be applied to this container only.</span>
-<span class="c1">// The class .CSS-example is used as selector.</span>
-<span class="n">container</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;CSS-example&quot;</span><span class="p">);</span><span class="w"></span>
-
-<span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="w"> </span><span class="o">*</span><span class="n">allB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Set all classes&quot;</span><span class="p">);</span><span class="w"></span>
-
-<span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="w"> </span><span class="o">*</span><span class="n">removeB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Remove info class&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">removeB</span><span class="o">-&gt;</span><span class="n">setMargin</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">Wt</span><span class="o">::</span><span class="n">Side</span><span class="o">::</span><span class="n">Left</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Wt</span><span class="o">::</span><span class="n">Side</span><span class="o">::</span><span class="n">Right</span><span class="p">);</span><span class="w"></span>
-<span class="n">removeB</span><span class="o">-&gt;</span><span class="n">disable</span><span class="p">();</span><span class="w"></span>
-
-<span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="w"> </span><span class="o">*</span><span class="n">toggleB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Toggle compact&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">disable</span><span class="p">();</span><span class="w"></span>
-
-<span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="w"> </span><span class="o">*</span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
-<span class="n">text</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;&lt;p&gt;These are the most import API classes and methods for&quot;</span><span class="w"></span>
-<span class="w">              </span><span class="s">&quot; working with CSS:&lt;/p&gt;&quot;</span><span class="p">);</span><span class="w"></span>
-
-<span class="n">Wt</span><span class="o">::</span><span class="n">WTable</span><span class="w"> </span><span class="o">*</span><span class="n">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WTable</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
-<span class="n">table</span><span class="o">-&gt;</span><span class="n">setHeaderCount</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
-<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Method&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Description&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;WApplication::useStyleSheet()&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Adds an external style sheet&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;WWidget::setStyleClass()&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Sets (one or more) CSS style classes&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;WWidget::removeStyleClass()&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Removes a CSS style class&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;WWidget::toggleStyleClass()&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Toggles a CSS style class&quot;</span><span class="p">);</span><span class="w"></span>
-
-<span class="n">allB</span><span class="o">-&gt;</span><span class="n">clicked</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="c1">// Set style classes for the complete table.</span>
-<span class="w">    </span><span class="n">table</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;table table-bordered&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="c1">// Set the info style class for the first row after the header.</span>
-<span class="w">    </span><span class="n">table</span><span class="o">-&gt;</span><span class="n">rowAt</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;info&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="c1">// Set a style class for the methods (first column, the header excluded).</span>
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">table</span><span class="o">-&gt;</span><span class="n">rowCount</span><span class="p">();</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"></span>
-<span class="w">        </span><span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;code&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">removeB</span><span class="o">-&gt;</span><span class="n">enable</span><span class="p">();</span><span class="w"></span>
-<span class="w">    </span><span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">enable</span><span class="p">();</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
-
-<span class="n">removeB</span><span class="o">-&gt;</span><span class="n">clicked</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">table</span><span class="o">-&gt;</span><span class="n">rowAt</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">removeStyleClass</span><span class="p">(</span><span class="s">&quot;info&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">removeB</span><span class="o">-&gt;</span><span class="n">disable</span><span class="p">();</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
-
-<span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">clicked</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">text</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;Toggle compact&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">table</span><span class="o">-&gt;</span><span class="n">toggleStyleClass</span><span class="p">(</span><span class="s">&quot;table-sm&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;Toggle expanded&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">table</span><span class="o">-&gt;</span><span class="n">toggleStyleClass</span><span class="p">(</span><span class="s">&quot;table-sm&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
-<span class="w">        </span><span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;Toggle compact&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
-</pre></div>
-  </message>
   <message id="src-CalendarExtended">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WCalendar.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
@@ -656,16 +585,6 @@
 <span class="n">cb</span><span class="o">-&gt;</span><span class="n">setCheckState</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">CheckState</span><span class="o">::</span><span class="n">PartiallyChecked</span><span class="p">);</span><span class="w"></span>
 </pre></div>
   </message>
-  <message id="src-ComboBox">
-<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WComboBox.h&gt;</span><span class="cp"></span>
-
-
-<span class="k">auto</span><span class="w"> </span><span class="n">cb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WComboBox</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
-<span class="n">cb</span><span class="o">-&gt;</span><span class="n">addItem</span><span class="p">(</span><span class="s">&quot;Heavy&quot;</span><span class="p">);</span><span class="w">   </span><span class="c1">// &#39;Heavy&#39; (index 0) is shown by default.</span>
-<span class="n">cb</span><span class="o">-&gt;</span><span class="n">addItem</span><span class="p">(</span><span class="s">&quot;Medium&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">cb</span><span class="o">-&gt;</span><span class="n">addItem</span><span class="p">(</span><span class="s">&quot;Light&quot;</span><span class="p">);</span><span class="w"></span>
-</pre></div>
-  </message>
   <message id="src-ComboBoxActivated">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WComboBox.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
@@ -688,6 +607,16 @@
 <span class="w">    </span><span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WString</span><span class="p">(</span><span class="s">&quot;You selected {1}.&quot;</span><span class="p">)</span><span class="w"></span>
 <span class="w">                 </span><span class="p">.</span><span class="n">arg</span><span class="p">(</span><span class="n">cb</span><span class="o">-&gt;</span><span class="n">currentText</span><span class="p">()));</span><span class="w"></span>
 <span class="p">});</span><span class="w"></span>
+</pre></div>
+  </message>
+  <message id="src-ComboBox">
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WComboBox.h&gt;</span><span class="cp"></span>
+
+
+<span class="k">auto</span><span class="w"> </span><span class="n">cb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WComboBox</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="n">cb</span><span class="o">-&gt;</span><span class="n">addItem</span><span class="p">(</span><span class="s">&quot;Heavy&quot;</span><span class="p">);</span><span class="w">   </span><span class="c1">// &#39;Heavy&#39; (index 0) is shown by default.</span>
+<span class="n">cb</span><span class="o">-&gt;</span><span class="n">addItem</span><span class="p">(</span><span class="s">&quot;Medium&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">cb</span><span class="o">-&gt;</span><span class="n">addItem</span><span class="p">(</span><span class="s">&quot;Light&quot;</span><span class="p">);</span><span class="w"></span>
 </pre></div>
   </message>
   <message id="src-ComboBoxModel">
@@ -856,6 +785,77 @@
 <span class="w">    </span><span class="c1">// A widget can be added to a container by using addWidget()</span>
 <span class="w">    </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WString</span><span class="p">(</span><span class="s">&quot;&lt;p&gt;Text {1}&lt;/p&gt;&quot;</span><span class="p">).</span><span class="n">arg</span><span class="p">(</span><span class="n">i</span><span class="p">));</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
+</pre></div>
+  </message>
+  <message id="src-CSS">
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WApplication.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPushButton.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WText.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WTable.h&gt;</span><span class="cp"></span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">Wt</span><span class="p">;</span><span class="w"></span>
+
+<span class="c1">// Add an external style sheet to the application.</span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">WApplication</span><span class="o">::</span><span class="n">instance</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">useStyleSheet</span><span class="p">(</span><span class="s">&quot;style/CSSexample.css&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="c1">// The style sheet should be applied to this container only.</span>
+<span class="c1">// The class .CSS-example is used as selector.</span>
+<span class="n">container</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;CSS-example&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="w"> </span><span class="o">*</span><span class="n">allB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Set all classes&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="w"> </span><span class="o">*</span><span class="n">removeB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Remove info class&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">removeB</span><span class="o">-&gt;</span><span class="n">setMargin</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">Wt</span><span class="o">::</span><span class="n">Side</span><span class="o">::</span><span class="n">Left</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Wt</span><span class="o">::</span><span class="n">Side</span><span class="o">::</span><span class="n">Right</span><span class="p">);</span><span class="w"></span>
+<span class="n">removeB</span><span class="o">-&gt;</span><span class="n">disable</span><span class="p">();</span><span class="w"></span>
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="w"> </span><span class="o">*</span><span class="n">toggleB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Toggle compact&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">disable</span><span class="p">();</span><span class="w"></span>
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="w"> </span><span class="o">*</span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="n">text</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;&lt;p&gt;These are the most import API classes and methods for&quot;</span><span class="w"></span>
+<span class="w">              </span><span class="s">&quot; working with CSS:&lt;/p&gt;&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">WTable</span><span class="w"> </span><span class="o">*</span><span class="n">table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WTable</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="n">table</span><span class="o">-&gt;</span><span class="n">setHeaderCount</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Method&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Description&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;WApplication::useStyleSheet()&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Adds an external style sheet&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;WWidget::setStyleClass()&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Sets (one or more) CSS style classes&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;WWidget::removeStyleClass()&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Removes a CSS style class&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;WWidget::toggleStyleClass()&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Toggles a CSS style class&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">allB</span><span class="o">-&gt;</span><span class="n">clicked</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Set style classes for the complete table.</span>
+<span class="w">    </span><span class="n">table</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;table table-bordered&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Set the info style class for the first row after the header.</span>
+<span class="w">    </span><span class="n">table</span><span class="o">-&gt;</span><span class="n">rowAt</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;info&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Set a style class for the methods (first column, the header excluded).</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">table</span><span class="o">-&gt;</span><span class="n">rowCount</span><span class="p">();</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">table</span><span class="o">-&gt;</span><span class="n">elementAt</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;code&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">removeB</span><span class="o">-&gt;</span><span class="n">enable</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">enable</span><span class="p">();</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+
+<span class="n">removeB</span><span class="o">-&gt;</span><span class="n">clicked</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">table</span><span class="o">-&gt;</span><span class="n">rowAt</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">removeStyleClass</span><span class="p">(</span><span class="s">&quot;info&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">removeB</span><span class="o">-&gt;</span><span class="n">disable</span><span class="p">();</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+
+<span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">clicked</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">text</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;Toggle compact&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">table</span><span class="o">-&gt;</span><span class="n">toggleStyleClass</span><span class="p">(</span><span class="s">&quot;table-sm&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;Toggle expanded&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">table</span><span class="o">-&gt;</span><span class="n">toggleStyleClass</span><span class="p">(</span><span class="s">&quot;table-sm&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">toggleB</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;Toggle compact&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
 </pre></div>
   </message>
   <message id="src-DataModels">
@@ -2227,28 +2227,6 @@
 <span class="n">hbox</span><span class="o">-&gt;</span><span class="n">addWidget</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">item</span><span class="p">));</span><span class="w"></span>
 </pre></div>
   </message>
-  <message id="src-Image">
-<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WImage.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WLink.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WText.h&gt;</span><span class="cp"></span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
-
-<span class="n">Wt</span><span class="o">::</span><span class="n">WImage</span><span class="w"> </span><span class="o">*</span><span class="n">image</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WImage</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="s">&quot;icons/wt.png&quot;</span><span class="p">));</span><span class="w"></span>
-<span class="n">image</span><span class="o">-&gt;</span><span class="n">setAlternateText</span><span class="p">(</span><span class="s">&quot;Wt logo&quot;</span><span class="p">);</span><span class="w"></span>
-
-<span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="w"> </span><span class="o">*</span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
-<span class="n">out</span><span class="o">-&gt;</span><span class="n">setMargin</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">Wt</span><span class="o">::</span><span class="n">Side</span><span class="o">::</span><span class="n">Left</span><span class="p">);</span><span class="w"></span>
-
-<span class="n">image</span><span class="o">-&gt;</span><span class="n">clicked</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Wt</span><span class="o">::</span><span class="n">WMouseEvent</span><span class="o">&amp;</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;You clicked the Wt logo at &quot;</span><span class="w"></span>
-<span class="w">                 </span><span class="s">&quot;(&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">widget</span><span class="p">().</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
-<span class="w">                 </span><span class="s">&quot;,&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">widget</span><span class="p">().</span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
-<span class="w">                 </span><span class="s">&quot;).&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="p">});</span><span class="w"></span>
-</pre></div>
-  </message>
   <message id="src-ImageArea">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WBreak.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WCircleArea.h&gt;</span><span class="cp"></span>
@@ -2310,17 +2288,26 @@
 <span class="p">});</span><span class="w"></span>
 </pre></div>
   </message>
-  <message id="src-InPlaceEdit">
+  <message id="src-Image">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WInPlaceEdit.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WImage.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WLink.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WText.h&gt;</span><span class="cp"></span>
-
 
 <span class="k">auto</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
 
-<span class="n">Wt</span><span class="o">::</span><span class="n">WInPlaceEdit</span><span class="w"> </span><span class="o">*</span><span class="n">ipe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WInPlaceEdit</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;This is editable text&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">ipe</span><span class="o">-&gt;</span><span class="n">setPlaceholderText</span><span class="p">(</span><span class="s">&quot;Enter something&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">ipe</span><span class="o">-&gt;</span><span class="n">setButtonsEnabled</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">WImage</span><span class="w"> </span><span class="o">*</span><span class="n">image</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WImage</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="s">&quot;icons/wt.png&quot;</span><span class="p">));</span><span class="w"></span>
+<span class="n">image</span><span class="o">-&gt;</span><span class="n">setAlternateText</span><span class="p">(</span><span class="s">&quot;Wt logo&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="w"> </span><span class="o">*</span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="n">out</span><span class="o">-&gt;</span><span class="n">setMargin</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">Wt</span><span class="o">::</span><span class="n">Side</span><span class="o">::</span><span class="n">Left</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">image</span><span class="o">-&gt;</span><span class="n">clicked</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Wt</span><span class="o">::</span><span class="n">WMouseEvent</span><span class="o">&amp;</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;You clicked the Wt logo at &quot;</span><span class="w"></span>
+<span class="w">                 </span><span class="s">&quot;(&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">widget</span><span class="p">().</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
+<span class="w">                 </span><span class="s">&quot;,&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">widget</span><span class="p">().</span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
+<span class="w">                 </span><span class="s">&quot;).&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
 </pre></div>
   </message>
   <message id="src-InPlaceEditButtons">
@@ -2333,6 +2320,19 @@
 
 <span class="k">auto</span><span class="w"> </span><span class="n">ipe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WInPlaceEdit</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;This is editable text&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="n">ipe</span><span class="o">-&gt;</span><span class="n">setPlaceholderText</span><span class="p">(</span><span class="s">&quot;Enter something&quot;</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+  </message>
+  <message id="src-InPlaceEdit">
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WInPlaceEdit.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WText.h&gt;</span><span class="cp"></span>
+
+
+<span class="k">auto</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">WInPlaceEdit</span><span class="w"> </span><span class="o">*</span><span class="n">ipe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WInPlaceEdit</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;This is editable text&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">ipe</span><span class="o">-&gt;</span><span class="n">setPlaceholderText</span><span class="p">(</span><span class="s">&quot;Enter something&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">ipe</span><span class="o">-&gt;</span><span class="n">setButtonsEnabled</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
 </pre></div>
   </message>
   <message id="src-InputMask">
@@ -3871,16 +3871,6 @@
 <span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">TransformationsWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
 </pre></div>
   </message>
-  <message id="src-Panel">
-<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPanel.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WText.h&gt;</span><span class="cp"></span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">panel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPanel</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
-<span class="n">panel</span><span class="o">-&gt;</span><span class="n">addStyleClass</span><span class="p">(</span><span class="s">&quot;centered-example&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">panel</span><span class="o">-&gt;</span><span class="n">setTitle</span><span class="p">(</span><span class="s">&quot;Terrific panel&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">panel</span><span class="o">-&gt;</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;This is a panel with a title.&quot;</span><span class="p">));</span><span class="w"></span>
-</pre></div>
-  </message>
   <message id="src-PanelCollapsible">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WAnimation.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPanel.h&gt;</span><span class="cp"></span>
@@ -3899,6 +3889,16 @@
 <span class="n">panel</span><span class="o">-&gt;</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;This panel can be collapsed.&quot;</span><span class="p">));</span><span class="w"></span>
 </pre></div>
   </message>
+  <message id="src-Panel">
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPanel.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WText.h&gt;</span><span class="cp"></span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">panel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPanel</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="n">panel</span><span class="o">-&gt;</span><span class="n">addStyleClass</span><span class="p">(</span><span class="s">&quot;centered-example&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">panel</span><span class="o">-&gt;</span><span class="n">setTitle</span><span class="p">(</span><span class="s">&quot;Terrific panel&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">panel</span><span class="o">-&gt;</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;This is a panel with a title.&quot;</span><span class="p">));</span><span class="w"></span>
+</pre></div>
+  </message>
   <message id="src-PanelNoTitle">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPanel.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WText.h&gt;</span><span class="cp"></span>
@@ -3906,14 +3906,6 @@
 <span class="k">auto</span><span class="w"> </span><span class="n">panel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPanel</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
 <span class="n">panel</span><span class="o">-&gt;</span><span class="n">addStyleClass</span><span class="p">(</span><span class="s">&quot;centered-example&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="n">panel</span><span class="o">-&gt;</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;This is a default panel.&quot;</span><span class="p">));</span><span class="w"></span>
-</pre></div>
-  </message>
-  <message id="src-Path">
-<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WLink.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPushButton.h&gt;</span><span class="cp"></span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">button</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Next&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">button</span><span class="o">-&gt;</span><span class="n">setLink</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">LinkType</span><span class="o">::</span><span class="n">InternalPath</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/navigation/anchor&quot;</span><span class="p">));</span><span class="w"></span>
 </pre></div>
   </message>
   <message id="src-PathChange">
@@ -3964,6 +3956,14 @@
 <span class="n">handlePathChange</span><span class="p">(</span><span class="n">out</span><span class="p">);</span><span class="w"></span>
 </pre></div>
   </message>
+  <message id="src-Path">
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WLink.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPushButton.h&gt;</span><span class="cp"></span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">button</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Next&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">button</span><span class="o">-&gt;</span><span class="n">setLink</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">LinkType</span><span class="o">::</span><span class="n">InternalPath</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/navigation/anchor&quot;</span><span class="p">));</span><span class="w"></span>
+</pre></div>
+  </message>
   <message id="src-PdfImage">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPainter.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPdfImage.h&gt;</span><span class="cp"></span>
@@ -4004,6 +4004,21 @@
 
 <span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="w"> </span><span class="o">*</span><span class="n">button</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Create pdf&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="n">button</span><span class="o">-&gt;</span><span class="n">setLink</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WLink</span><span class="p">(</span><span class="n">pdf</span><span class="p">));</span><span class="w"></span>
+</pre></div>
+  </message>
+  <message id="src-pdfImageWrite">
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/Chart/WCartesianChart.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPdfImage.h&gt;</span><span class="cp"></span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">chart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Chart</span><span class="o">::</span><span class="n">WCartesianChart</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+
+<span class="n">WPdfImage</span><span class="w"> </span><span class="nf">pdfImage</span><span class="p">(</span><span class="s">&quot;4cm&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;3cm&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">WPainter</span><span class="w"> </span><span class="nf">p</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pdfImage</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">chart</span><span class="o">-&gt;</span><span class="n">paint</span><span class="p">(</span><span class="n">p</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="n">std</span><span class="o">::</span><span class="n">ofstream</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="s">&quot;chart.pdf&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">out</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">binary</span><span class="p">);</span><span class="w"></span>
+<span class="n">pdfImage</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">);</span><span class="w"></span>
 </pre></div>
   </message>
   <message id="src-PdfRenderer">
@@ -4410,21 +4425,6 @@
 <span class="p">});</span><span class="w"></span>
 </pre></div>
   </message>
-  <message id="src-PushButton">
-<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPushButton.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WTemplate.h&gt;</span><span class="cp"></span>
-
-
-<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WTemplate</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
-
-<span class="n">result</span><span class="o">-&gt;</span><span class="n">setTemplateText</span><span class="p">(</span><span class="s">&quot;&lt;div&gt; ${pb1} ${pb2} &lt;/div&gt;&quot;</span><span class="p">);</span><span class="w"></span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">pb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;pb1&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Click me!&quot;</span><span class="p">));</span><span class="w">  </span><span class="c1">// By default the button is enabled.</span>
-
-<span class="n">pb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;pb2&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Try to click me...&quot;</span><span class="p">));</span><span class="w"></span>
-<span class="n">pb</span><span class="o">-&gt;</span><span class="n">setEnabled</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span><span class="w">          </span><span class="c1">// The second button is disabled.</span>
-</pre></div>
-  </message>
   <message id="src-PushButtonAction">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPushButton.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WTemplate.h&gt;</span><span class="cp"></span>
@@ -4489,6 +4489,21 @@
 <span class="n">button</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="n">button</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;btn-close&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;button-close&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">button</span><span class="p">));</span><span class="w"></span>
+</pre></div>
+  </message>
+  <message id="src-PushButton">
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPushButton.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WTemplate.h&gt;</span><span class="cp"></span>
+
+
+<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WTemplate</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+
+<span class="n">result</span><span class="o">-&gt;</span><span class="n">setTemplateText</span><span class="p">(</span><span class="s">&quot;&lt;div&gt; ${pb1} ${pb2} &lt;/div&gt;&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">pb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;pb1&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Click me!&quot;</span><span class="p">));</span><span class="w">  </span><span class="c1">// By default the button is enabled.</span>
+
+<span class="n">pb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="o">-&gt;</span><span class="n">bindWidget</span><span class="p">(</span><span class="s">&quot;pb2&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPushButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Try to click me...&quot;</span><span class="p">));</span><span class="w"></span>
+<span class="n">pb</span><span class="o">-&gt;</span><span class="n">setEnabled</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span><span class="w">          </span><span class="c1">// The second button is disabled.</span>
 </pre></div>
   </message>
   <message id="src-PushButtonDropdownAppended">
@@ -4625,31 +4640,6 @@
 <span class="n">group</span><span class="o">-&gt;</span><span class="n">setSelectedButtonIndex</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// Select the first button by default.</span>
 </pre></div>
   </message>
-  <message id="src-RadioButtonStack">
-<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WButtonGroup.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WRadioButton.h&gt;</span><span class="cp"></span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WButtonGroup</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
-<span class="n">Wt</span><span class="o">::</span><span class="n">WRadioButton</span><span class="w"> </span><span class="o">*</span><span class="n">button</span><span class="p">;</span><span class="w"></span>
-
-<span class="n">button</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WRadioButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Radio me!&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">button</span><span class="o">-&gt;</span><span class="n">setInline</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
-<span class="n">group</span><span class="o">-&gt;</span><span class="n">addButton</span><span class="p">(</span><span class="n">button</span><span class="p">);</span><span class="w"></span>
-
-<span class="n">button</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WRadioButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;No, radio me!&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">button</span><span class="o">-&gt;</span><span class="n">setInline</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
-<span class="n">group</span><span class="o">-&gt;</span><span class="n">addButton</span><span class="p">(</span><span class="n">button</span><span class="p">);</span><span class="w"></span>
-
-<span class="n">button</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WRadioButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Nono, radio me!&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">button</span><span class="o">-&gt;</span><span class="n">setInline</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
-<span class="n">group</span><span class="o">-&gt;</span><span class="n">addButton</span><span class="p">(</span><span class="n">button</span><span class="p">);</span><span class="w"></span>
-
-<span class="n">group</span><span class="o">-&gt;</span><span class="n">setSelectedButtonIndex</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// Select the first button by default.</span>
-</pre></div>
-  </message>
   <message id="src-RadioButtonsActivated">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WButtonGroup.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
@@ -4721,6 +4711,31 @@
 <span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WRadioButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Radio me too!&quot;</span><span class="p">);</span><span class="w"></span>
 </pre></div>
   </message>
+  <message id="src-RadioButtonStack">
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WButtonGroup.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WRadioButton.h&gt;</span><span class="cp"></span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WButtonGroup</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">WRadioButton</span><span class="w"> </span><span class="o">*</span><span class="n">button</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">button</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WRadioButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Radio me!&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">button</span><span class="o">-&gt;</span><span class="n">setInline</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
+<span class="n">group</span><span class="o">-&gt;</span><span class="n">addButton</span><span class="p">(</span><span class="n">button</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">button</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WRadioButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;No, radio me!&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">button</span><span class="o">-&gt;</span><span class="n">setInline</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
+<span class="n">group</span><span class="o">-&gt;</span><span class="n">addButton</span><span class="p">(</span><span class="n">button</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">button</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WRadioButton</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Nono, radio me!&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">button</span><span class="o">-&gt;</span><span class="n">setInline</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
+<span class="n">group</span><span class="o">-&gt;</span><span class="n">addButton</span><span class="p">(</span><span class="n">button</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">group</span><span class="o">-&gt;</span><span class="n">setSelectedButtonIndex</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// Select the first button by default.</span>
+</pre></div>
+  </message>
   <message id="src-ResourceCustom">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WAnchor.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
@@ -4758,6 +4773,16 @@
 <span class="n">Wt</span><span class="o">::</span><span class="n">WAnchor</span><span class="w"> </span><span class="o">*</span><span class="n">anchor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WAnchor</span><span class="o">&gt;</span><span class="p">(</span><span class="n">link</span><span class="p">,</span><span class="s">&quot;Download file&quot;</span><span class="p">);</span><span class="w"></span>
 </pre></div>
   </message>
+  <message id="src-Resources">
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WText.h&gt;</span><span class="cp"></span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="w"> </span><span class="o">*</span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;&lt;p&gt;Resources&lt;/p&gt;&quot;</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+  </message>
   <message id="src-ResourceStatic">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPainter.h&gt;</span><span class="cp"></span>
@@ -4770,16 +4795,6 @@
 <span class="c1">//auto resource = std::make_shared&lt;SamplePdfResource&gt;();</span>
 
 <span class="c1">//WServer::addResource(resource, &quot;/media/static-resource&quot;);</span>
-</pre></div>
-  </message>
-  <message id="src-Resources">
-<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WText.h&gt;</span><span class="cp"></span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
-
-<span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="w"> </span><span class="o">*</span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
-<span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;&lt;p&gt;Resources&lt;/p&gt;&quot;</span><span class="p">);</span><span class="w"></span>
 </pre></div>
   </message>
   <message id="src-ScatterPlotCurve">
@@ -5215,6 +5230,33 @@
 
 <span class="n">slider</span><span class="o">-&gt;</span><span class="n">valueChanged</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;I was born in the year &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">slider</span><span class="o">-&gt;</span><span class="n">valueText</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;.&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+</pre></div>
+  </message>
+  <message id="src-SliderSteps">
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WBreak.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WSlider.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WText.h&gt;</span><span class="cp"></span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+
+<span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Try to select &#39;7&#39;. I bet you can&#39;t.&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WBreak</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+
+<span class="n">Wt</span><span class="o">::</span><span class="n">WSlider</span><span class="w"> </span><span class="o">*</span><span class="n">slider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WSlider</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="n">slider</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">);</span><span class="w"></span>
+<span class="n">slider</span><span class="o">-&gt;</span><span class="n">setTickPosition</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WSlider</span><span class="o">::</span><span class="n">TicksBothSides</span><span class="p">);</span><span class="w"></span>
+<span class="n">slider</span><span class="o">-&gt;</span><span class="n">setRange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">);</span><span class="w"></span>
+<span class="n">slider</span><span class="o">-&gt;</span><span class="n">setStep</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WBreak</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="w"> </span><span class="o">*</span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addNew</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="n">out</span><span class="o">-&gt;</span><span class="n">setMargin</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">Wt</span><span class="o">::</span><span class="n">Side</span><span class="o">::</span><span class="n">Left</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">slider</span><span class="o">-&gt;</span><span class="n">valueChanged</span><span class="p">().</span><span class="n">connect</span><span class="p">([</span><span class="o">=</span><span class="p">]</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">out</span><span class="o">-&gt;</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;That&#39;s a failure, you selected: &#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
+<span class="w">                 </span><span class="n">slider</span><span class="o">-&gt;</span><span class="n">valueText</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39;!&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="p">});</span><span class="w"></span>
 </pre></div>
   </message>
@@ -5728,6 +5770,27 @@
 <span class="w">                    </span><span class="s">&quot;&lt;p&gt;A warning is printed in the logs.&lt;/p&gt;&quot;</span><span class="p">);</span><span class="w"></span>
 </pre></div>
   </message>
+  <message id="src-theme">
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WApplication.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WEnvironment.h&gt;</span><span class="cp"></span>
+
+<span class="c1">// Main application class</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ThemeExample</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">Wt</span><span class="o">::</span><span class="n">WApplication</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Constructor</span>
+<span class="w">    </span><span class="n">ThemeExample</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Wt</span><span class="o">::</span><span class="n">WEnvironment</span><span class="w"> </span><span class="o">&amp;</span><span class="n">env</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="n">Wt</span><span class="o">::</span><span class="n">WApplication</span><span class="p">(</span><span class="n">env</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">setCssTheme</span><span class="p">(</span><span class="s">&quot;polished&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">        </span><span class="cm">/*</span>
+<span class="cm">         *  Create UI, Set initial values, ...</span>
+<span class="cm">         */</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+  </message>
   <message id="src-TimeEdit">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WCalendar.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WDate.h&gt;</span><span class="cp"></span>
@@ -5941,46 +6004,6 @@
 <span class="n">treeView</span><span class="o">-&gt;</span><span class="n">setEditTriggers</span><span class="p">(</span><span class="n">EditTrigger</span><span class="o">::</span><span class="n">None</span><span class="p">);</span><span class="w"></span>
 </pre></div>
   </message>
-  <message id="src-VBoxLayout">
-<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WText.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WVBoxLayout.h&gt;</span><span class="cp"></span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
-<span class="n">container</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span><span class="w"> </span><span class="mi">150</span><span class="p">);</span><span class="w"></span>
-<span class="n">container</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;yellow-box centered&quot;</span><span class="p">);</span><span class="w"></span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">vbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">setLayout</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WVBoxLayout</span><span class="o">&gt;</span><span class="p">());</span><span class="w"></span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Item 1&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">item</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;green-box&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">vbox</span><span class="o">-&gt;</span><span class="n">addWidget</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">item</span><span class="p">));</span><span class="w"></span>
-
-<span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Item 2&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">item</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;blue-box&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">vbox</span><span class="o">-&gt;</span><span class="n">addWidget</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">item</span><span class="p">));</span><span class="w"></span>
-</pre></div>
-  </message>
-  <message id="src-VBoxLayoutStretch">
-<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WText.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WVBoxLayout.h&gt;</span><span class="cp"></span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
-<span class="n">container</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span><span class="w"> </span><span class="mi">150</span><span class="p">);</span><span class="w"></span>
-<span class="n">container</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;yellow-box centered&quot;</span><span class="p">);</span><span class="w"></span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">vbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">setLayout</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WVBoxLayout</span><span class="o">&gt;</span><span class="p">());</span><span class="w"></span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Item 1&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">item</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;green-box&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">vbox</span><span class="o">-&gt;</span><span class="n">addWidget</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">item</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
-
-<span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Item 2&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">item</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;blue-box&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">vbox</span><span class="o">-&gt;</span><span class="n">addWidget</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">item</span><span class="p">));</span><span class="w"></span>
-</pre></div>
-  </message>
   <message id="src-Validation">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WIntValidator.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WLineEdit.h&gt;</span><span class="cp"></span>
@@ -6154,6 +6177,46 @@
 
 
 <span class="k">auto</span><span class="w"> </span><span class="n">view</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">AgeFormView</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+</pre></div>
+  </message>
+  <message id="src-VBoxLayout">
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WText.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WVBoxLayout.h&gt;</span><span class="cp"></span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="n">container</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span><span class="w"> </span><span class="mi">150</span><span class="p">);</span><span class="w"></span>
+<span class="n">container</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;yellow-box centered&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">vbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">setLayout</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WVBoxLayout</span><span class="o">&gt;</span><span class="p">());</span><span class="w"></span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Item 1&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">item</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;green-box&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">vbox</span><span class="o">-&gt;</span><span class="n">addWidget</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">item</span><span class="p">));</span><span class="w"></span>
+
+<span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Item 2&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">item</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;blue-box&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">vbox</span><span class="o">-&gt;</span><span class="n">addWidget</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">item</span><span class="p">));</span><span class="w"></span>
+</pre></div>
+  </message>
+  <message id="src-VBoxLayoutStretch">
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WText.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WVBoxLayout.h&gt;</span><span class="cp"></span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WContainerWidget</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<span class="n">container</span><span class="o">-&gt;</span><span class="n">resize</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span><span class="w"> </span><span class="mi">150</span><span class="p">);</span><span class="w"></span>
+<span class="n">container</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;yellow-box centered&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">vbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">setLayout</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WVBoxLayout</span><span class="o">&gt;</span><span class="p">());</span><span class="w"></span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Item 1&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">item</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;green-box&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">vbox</span><span class="o">-&gt;</span><span class="n">addWidget</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">item</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;Item 2&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">item</span><span class="o">-&gt;</span><span class="n">setStyleClass</span><span class="p">(</span><span class="s">&quot;blue-box&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">vbox</span><span class="o">-&gt;</span><span class="n">addWidget</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">item</span><span class="p">));</span><span class="w"></span>
 </pre></div>
   </message>
   <message id="src-Video">
@@ -6332,42 +6395,6 @@
 <span class="w">    </span><span class="c1">// a widget can be added to a container by passing the container as</span>
 <span class="w">    </span><span class="c1">// the last constructor argument</span>
 <span class="w">    </span><span class="n">container</span><span class="o">-&gt;</span><span class="n">addWidget</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">WText</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;&lt;p&gt;Text &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&lt;/p&gt;&quot;</span><span class="p">));</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-</pre></div>
-  </message>
-  <message id="src-pdfImageWrite">
-<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/Chart/WCartesianChart.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPdfImage.h&gt;</span><span class="cp"></span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">chart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">Chart</span><span class="o">::</span><span class="n">WCartesianChart</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
-
-<span class="n">WPdfImage</span><span class="w"> </span><span class="nf">pdfImage</span><span class="p">(</span><span class="s">&quot;4cm&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;3cm&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">WPainter</span><span class="w"> </span><span class="nf">p</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pdfImage</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">chart</span><span class="o">-&gt;</span><span class="n">paint</span><span class="p">(</span><span class="n">p</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-<span class="n">std</span><span class="o">::</span><span class="n">ofstream</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="s">&quot;chart.pdf&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">out</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">binary</span><span class="p">);</span><span class="w"></span>
-<span class="n">pdfImage</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">);</span><span class="w"></span>
-</pre></div>
-  </message>
-  <message id="src-theme">
-<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WApplication.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WEnvironment.h&gt;</span><span class="cp"></span>
-
-<span class="c1">// Main application class</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">ThemeExample</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">Wt</span><span class="o">::</span><span class="n">WApplication</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="k">public</span><span class="o">:</span><span class="w"></span>
-<span class="w">    </span><span class="c1">// Constructor</span>
-<span class="w">    </span><span class="n">ThemeExample</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Wt</span><span class="o">::</span><span class="n">WEnvironment</span><span class="w"> </span><span class="o">&amp;</span><span class="n">env</span><span class="p">)</span><span class="w"></span>
-<span class="w">        </span><span class="o">:</span><span class="w"> </span><span class="n">Wt</span><span class="o">::</span><span class="n">WApplication</span><span class="p">(</span><span class="n">env</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">setCssTheme</span><span class="p">(</span><span class="s">&quot;polished&quot;</span><span class="p">);</span><span class="w"></span>
-
-<span class="w">        </span><span class="cm">/*</span>
-<span class="cm">         *  Create UI, Set initial values, ...</span>
-<span class="cm">         */</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </pre></div>
   </message>
