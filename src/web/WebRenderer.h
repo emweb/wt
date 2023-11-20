@@ -97,7 +97,7 @@ public:
   void setStatelessSlotNotStateless() { currentStatelessSlotIsActuallyStateless_ = false; }
 
 #ifndef WT_TARGET_JAVA
-  static std::string renderCookieHttpHeader(const Http::Cookie& cookie);
+  static std::string renderCookieHttpHeader(const Http::Cookie& cookie, WebSession& session);
 #endif
 
 private:

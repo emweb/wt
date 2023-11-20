@@ -83,16 +83,15 @@ namespace {
     return Wt::DateUtils::httpDate(expires.toTimePoint());
   }
 
-  std::string renderPath(const Wt::Http::Cookie& cookie)
+  std::string renderPath(const Wt::Http::Cookie& cookie, const std::string& publicDeploymentPath, const std::string& deploymentPath)
   {
     if (!cookie.path().empty()) {
       return cookie.path();
     } else {
-      auto app = Wt::WApplication::instance();
-      if (app) {
-        return app->environment().deploymentPath();
+      if (!publicDeploymentPath.empty()) {
+        return publicDeploymentPath;
       } else {
-        return "";
+        return deploymentPath;
       }
     }
   }
@@ -549,7 +548,7 @@ void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
 {
   for (const auto& cookie : cookiesToSet_) {
 #ifndef WT_TARGET_JAVA
-    response.addHeader("Set-Cookie", renderCookieHttpHeader(cookie));
+    response.addHeader("Set-Cookie", renderCookieHttpHeader(cookie, session_));
 #else
     response.addCookie(cookie);
 #endif
@@ -644,6 +643,7 @@ void WebRenderer::updateMultiSessionCookie(const WebRequest &request)
 {
   Configuration &conf = session_.controller()->configuration();
   Http::Cookie cookie("ms" + request.scriptName(), session_.multiSessionId());
+
 #ifndef WT_TARGET_JAVA
   cookie.setMaxAge(std::chrono::seconds(conf.multiSessionCookieTimeout()));
 #else
@@ -1309,7 +1309,7 @@ void WebRenderer::setJSSynced(bool invisibleToo)
 }
 
 #ifndef WT_TARGET_JAVA
-std::string WebRenderer::renderCookieHttpHeader(const Http::Cookie& cookie)
+std::string WebRenderer::renderCookieHttpHeader(const Http::Cookie& cookie, WebSession& session)
 {
   Wt::WStringStream header;
 
@@ -1326,7 +1326,7 @@ std::string WebRenderer::renderCookieHttpHeader(const Http::Cookie& cookie)
     header << " Domain=" << cookie.domain() << ';';
   }
 
-  auto path = renderPath(cookie);
+  auto path = renderPath(cookie, session.env().publicDeploymentPath_, session.env().deploymentPath());
   if (!path.empty())
     header << " Path=" << path << ';';
 

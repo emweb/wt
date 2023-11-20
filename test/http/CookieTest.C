@@ -65,45 +65,50 @@ BOOST_AUTO_TEST_CASE( cookie_construction_test )
 
 BOOST_AUTO_TEST_CASE( cookie_render_test )
 {
-  Wt::Http::Cookie cookie("test", "value");
+  // Tests whether the cookie is rendered correctly with the right attributes.
+  // This tests whether the defaults are correct, and if certain values (like Path)
+  // are always present.
 
-  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=value; Version=1; httponly; SameSite=Lax;");
+  Wt::Http::Cookie cookie("test", "value");
+  Wt::Test::WTestEnvironment env;
+  Wt::WebSession& session = *env.theSession_.get();
+
+  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie, session) == "test=value; Version=1; Path=/; httponly; SameSite=Lax;");
   cookie.setDomain("test.example.com");
-  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=value; Version=1; Domain=test.example.com; httponly; SameSite=Lax;");
+  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie, session) == "test=value; Version=1; Domain=test.example.com; Path=/; httponly; SameSite=Lax;");
   cookie.setPath("/docs");
-  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=value; Version=1; Domain=test.example.com; Path=/docs; httponly; SameSite=Lax;");
+  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie, session) == "test=value; Version=1; Domain=test.example.com; Path=/docs; httponly; SameSite=Lax;");
   cookie.setSecure(true);
-  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=value; Version=1; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=Lax;");
+  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie, session) == "test=value; Version=1; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=Lax;");
   cookie.setSameSite(Wt::Http::Cookie::SameSite::None);
-  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=value; Version=1; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=None;");
+  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie, session) == "test=value; Version=1; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=None;");
   cookie.setSameSite(Wt::Http::Cookie::SameSite::Strict);
-  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=value; Version=1; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=Strict;");
+  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie, session) == "test=value; Version=1; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=Strict;");
   cookie.setExpires(Wt::WDateTime(Wt::WDate(2023, 1, 1)));
-  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=value; Version=1; Expires=Sun, 01 Jan 2023 00:00:00 GMT; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=Strict;");
+  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie, session) == "test=value; Version=1; Expires=Sun, 01 Jan 2023 00:00:00 GMT; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=Strict;");
   cookie.setExpires(Wt::WDateTime(Wt::WDate(2023, 1, 1), Wt::WTime(14, 41, 11)));
-  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=value; Version=1; Expires=Sun, 01 Jan 2023 14:41:11 GMT; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=Strict;");
+  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie, session) == "test=value; Version=1; Expires=Sun, 01 Jan 2023 14:41:11 GMT; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=Strict;");
   // Test removal
   cookie.setValue("deleted");
   cookie.setMaxAge(std::chrono::seconds(0));
-  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=deleted; Version=1; Expires=Sun, 01 Jan 2023 14:41:11 GMT; Max-Age=0; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=Strict;");
+  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie, session) == "test=deleted; Version=1; Expires=Sun, 01 Jan 2023 14:41:11 GMT; Max-Age=0; Domain=test.example.com; Path=/docs; httponly; secure; SameSite=Strict;");
 
   cookie = Wt::Http::Cookie("test", "value", std::chrono::minutes(10));
   auto expires  = Wt::WDateTime::currentDateTime().addSecs(600);
-  std::string expected = "test=value; Version=1; Max-Age=600; httponly; SameSite=Lax;";
-  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == expected);
+  std::string expected = "test=value; Version=1; Max-Age=600; Path=/; httponly; SameSite=Lax;";
+  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie, session) == expected);
   // Test removal
   cookie.setValue("deleted");
   cookie.setMaxAge(std::chrono::seconds(0));
-  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=deleted; Version=1; Max-Age=0; httponly; SameSite=Lax;");
+  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie, session) == "test=deleted; Version=1; Max-Age=0; Path=/; httponly; SameSite=Lax;");
 
   // Test "Path" for an application with a deployment path
-  Wt::Test::WTestEnvironment env;
   env.setDeploymentPath("/app/");
   Wt::WApplication app(env);
   cookie = Wt::Http::Cookie("test", "value");
-  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=value; Version=1; Path=/app/; httponly; SameSite=Lax;");
+  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie, session) == "test=value; Version=1; Path=/app/; httponly; SameSite=Lax;");
   // Test removal
   cookie.setValue("deleted");
   cookie.setMaxAge(std::chrono::seconds(0));
-  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie) == "test=deleted; Version=1; Max-Age=0; Path=/app/; httponly; SameSite=Lax;");
+  BOOST_TEST(Wt::WebRenderer::renderCookieHttpHeader(cookie, session) == "test=deleted; Version=1; Max-Age=0; Path=/app/; httponly; SameSite=Lax;");
 }

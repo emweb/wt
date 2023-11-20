@@ -14,6 +14,10 @@
 #include <Wt/WEnvironment.h>
 #include <Wt/WServer.h>
 
+#ifndef WT_TARGET_JAVA
+class cookie_render_test;
+#endif
+
 namespace Wt {
 
 class WebController;
@@ -335,6 +339,10 @@ private:
   virtual bool isTest() const override;
 
   void init(EntryPointType type);
+
+#ifndef WT_TARGET_JAVA
+  friend class ::cookie_render_test;
+#endif
 };
 
 }
