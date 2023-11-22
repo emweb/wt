@@ -135,6 +135,50 @@ pipeline {
                 }
             }
         }
+        stage ('Selenium Widget Gallery, Chrome') {
+            steps {
+                dir ('build-mt-http') {
+                    sh "cd examples/widgetgallery && make -j${thread_count}"
+                }
+                dir ('examples/widgetgallery') {
+                    script {
+                        withEnv(['JENKINS_NODE_COOKIE=dontKillMe']) {
+                            // Start widget gallery, in a disowned process, so that it keeps on running as a background job.
+                            // For convenience the log is placed on the selenium directory.
+                            sh "../../build-mt-http/examples/widgetgallery/widgetgallery.wt --docroot=docroot --approot=approot --http-address 0.0.0.0 --http-port 9090 --resources-dir=../../resources &"
+                        }
+                    }
+                }
+                dir ('selenium') {
+                    warnError('Selenium Chrome failed') {
+                        sh "python3 testWidgetGallery.py chrome http://localhost:9090"
+                    }
+                    sh "ps aux | grep [w]idgetgallery | awk '{ print \$2; }' | xargs kill"
+                }
+            }
+        }
+        stage ('Selenium Widget Gallery, Firefox') {
+            steps {
+                dir ('build-mt-http') {
+                    sh "cd examples/widgetgallery && make -j${thread_count}"
+                }
+                dir ('examples/widgetgallery') {
+                    script {
+                        withEnv(['JENKINS_NODE_COOKIE=dontKillMe']) {
+                            // Start widget gallery, in a disowned process, so that it keeps on running as a background job.
+                            // For convenience the log is placed on the selenium directory.
+                            sh "../../build-mt-http/examples/widgetgallery/widgetgallery.wt --docroot=docroot --approot=approot --http-address 0.0.0.0 --http-port 9090 --resources-dir=../../resources &"
+                        }
+                    }
+                }
+                dir ('selenium') {
+                    warnError('Selenium Firefox failed') {
+                        sh "python3 testWidgetGallery.py firefox http://localhost:9090 \$(which geckodriver)"
+                    }
+                    sh "ps aux | grep [w]idgetgallery | awk '{ print \$2; }' | xargs kill"
+                }
+            }
+        }
     }
     post {
         always {
