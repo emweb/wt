@@ -8,6 +8,7 @@
 #define WAPPLICATION_
 
 #include <chrono>
+#include <unordered_map>
 #include <vector>
 #include <string>
 #include <set>
@@ -466,6 +467,54 @@ public:
    * \sa setHtmlClass()
    */
   std::string htmlClass() const { return htmlClass_; }
+
+  /*! \brief Sets an attribute for the entire page &lt;html&gt; element.
+   *
+   * This allows you to set any of the global attributes (see:
+   * https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes)
+   * on the &lt;html&gt; tag. As well as any tags specific to that tag
+   * (see: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/html).
+   *
+   * \note If the \p value contains more complex JavaScript, make sure
+   * that \p " and \p ' are properly escaped. Otherwise you may encounter
+   * JavaScript errors.
+   *
+   * \note This can control the &lt;html&gt;'s \p class, \p dir, and
+   * \p lang as well, but this should generally be avoided, since the
+   * application manages that separately.
+   *
+   * \sa htmlAttribute(), setBodyAttribute()
+   */
+  void setHtmlAttribute(const std::string& name, const std::string& value);
+
+  /*! \brief Returns the current &lt;html&gt; element attribute value of
+   * the specified \p name.
+   *
+   * \sa setHtmlAttribute(), bodyAttribute()
+   */
+  WString htmlAttribute(const std::string& name) const;
+
+  /*! \brief Sets an attribute for the entire page &lt;body&gt; element.
+   *
+   * This allows you to set any of the global attributes (see:
+   * https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes)
+   * on the &lt;body&gt; tag. As well as any tags specific to that tag
+   * (see: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/body).
+   *
+   * \note If the \p value contains more complex JavaScript, make sure
+   * that \p " and \p ' are properly escaped. Otherwise you may encounter
+   * JavaScript errors.
+   *
+   * \sa bodyAttribute(), setHtmlAttribute()
+   */
+  void setBodyAttribute(const std::string& name, const std::string& value);
+
+  /*! \brief Returns the current &lt;body&gt; element attribute value of
+   * the specified \p name.
+   *
+   * \sa setBodyAttribute(), htmlAttribute()
+   */
+  WString bodyAttribute(const std::string& name) const;
   //!@}
 
   /*! \brief Sets the window title.
@@ -2345,6 +2394,9 @@ private:
   std::string focusId_;
   int selectionStart_, selectionEnd_;
   LayoutDirection layoutDirection_;
+  std::unordered_map<std::string, std::string> htmlAttributes_;
+  std::unordered_map<std::string, std::string> bodyAttributes_;
+  bool htmlAttributeChanged_, bodyAttributeChanged_;
 
   std::vector<ScriptLibrary> scriptLibraries_;
   int scriptLibrariesAdded_;
@@ -2386,6 +2438,9 @@ private:
 
   WContainerWidget *timerRoot() const { return timerRoot_; }
   WEnvironment& env(); // short-hand for session_->env()
+
+  const std::unordered_map<std::string, std::string>& htmlAttributes() const { return htmlAttributes_; }
+  const std::unordered_map<std::string, std::string>& bodyAttributes() const { return bodyAttributes_; }
 
   /*
    * Functions for exposed signals, resources, and objects

@@ -115,6 +115,8 @@ WApplication::WApplication(const WEnvironment& env
     selectionStart_(-1),
     selectionEnd_(-1),
     layoutDirection_(LayoutDirection::LeftToRight),
+    htmlAttributeChanged_(true),
+    bodyAttributeChanged_(true),
     scriptLibrariesAdded_(0),
     theme_(nullptr),
     styleSheetsAdded_(0),
@@ -985,6 +987,52 @@ void WApplication::setHtmlClass(const std::string& styleClass)
 {
   htmlClass_ = styleClass;
   bodyHtmlClassChanged_ = true;
+}
+
+void WApplication::setHtmlAttribute(const std::string& name, const std::string& value)
+{
+  std::unordered_map<std::string, std::string>::const_iterator i
+    = htmlAttributes_.find(name);
+
+  if (i != htmlAttributes_.end() && i->second == value)
+    return;
+
+  htmlAttributes_[name] = value;
+  htmlAttributeChanged_ = true;
+}
+
+WString WApplication::htmlAttribute(const std::string& name) const
+{
+  std::unordered_map<std::string, std::string>::const_iterator i
+    = htmlAttributes_.find(name);
+
+  if (i != htmlAttributes_.end())
+    return i->second;
+
+  return WString();
+}
+
+void WApplication::setBodyAttribute(const std::string& name, const std::string& value)
+{
+  std::unordered_map<std::string, std::string>::const_iterator i
+    = bodyAttributes_.find(name);
+
+  if (i != bodyAttributes_.end() && i->second == value)
+    return;
+
+  bodyAttributes_[name] = value;
+  bodyAttributeChanged_ = true;
+}
+
+WString WApplication::bodyAttribute(const std::string& name) const
+{
+  std::unordered_map<std::string, std::string>::const_iterator i
+    = bodyAttributes_.find(name);
+
+  if (i != bodyAttributes_.end())
+    return i->second;
+
+  return WString();
 }
 
 EventSignal<WKeyEvent>& WApplication::globalKeyWentDown()
