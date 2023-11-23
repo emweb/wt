@@ -850,6 +850,20 @@ void WebRenderer::collectJavaScript()
     collectedJS1_ << "');";
   }
 
+  if (app->htmlAttributeChanged_) {
+    for (std::unordered_map<std::string, std::string>::const_iterator i = app->htmlAttributes().begin(); i != app->htmlAttributes().end(); ++i) {
+      collectedJS1_ << "document.documentElement.setAttribute('" << i->first << "', '" << i->second << "');\n";
+    }
+    app->htmlAttributeChanged_ = false;
+  }
+
+  if (app->bodyAttributeChanged_) {
+    for (std::unordered_map<std::string, std::string>::const_iterator i = app->bodyAttributes().begin(); i != app->bodyAttributes().end(); ++i) {
+      collectedJS1_ << "document.body.setAttribute('" << i->first << "', '" << i->second << "');\n";
+    }
+    app->bodyAttributeChanged_ = false;
+  }
+
   if (visibleOnly_) {
     preCollectInvisibleChanges();
     if (twoPhaseThreshold_ > 0 && invisibleJS_.length() < static_cast<unsigned>(twoPhaseThreshold_)) {
@@ -1165,6 +1179,20 @@ void WebRenderer::serveMainAjax(WStringStream& out)
     else
       out << "RTL";
     out << "');";
+  }
+
+  if (app->htmlAttributeChanged_) {
+    for (std::unordered_map<std::string, std::string>::const_iterator i = app->htmlAttributes().begin(); i != app->htmlAttributes().end(); ++i) {
+      out << "document.documentElement.setAttribute('" << i->first << "', '" << i->second << "');\n";
+    }
+    app->htmlAttributeChanged_ = false;
+  }
+
+  if (app->bodyAttributeChanged_) {
+    for (std::unordered_map<std::string, std::string>::const_iterator i = app->bodyAttributes().begin(); i != app->bodyAttributes().end(); ++i) {
+      out << "document.body.setAttribute('" << i->first << "', '" << i->second << "');\n";
+    }
+    app->bodyAttributeChanged_ = false;
   }
 
 #ifdef WT_DEBUG_ENABLED
