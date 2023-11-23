@@ -7,6 +7,7 @@
 #include <boost/algorithm/string.hpp>
 #include <regex>
 #include <map>
+#include <unordered_map>
 
 #include "Wt/WApplication.h"
 #include "Wt/WDate.h"
@@ -315,6 +316,12 @@ void WebRenderer::setPageVars(FileServe& page)
     htmlAttr = " class=\"" + app->htmlClass_ + "\"";
   }
 
+  if (app && !app->htmlAttributes().empty()) {
+    for (std::unordered_map<std::string, std::string>::const_iterator i = app->htmlAttributes().begin(); i != app->htmlAttributes().end(); ++i) {
+      htmlAttr += " " + i->first + "=\"" + i->second + "\"";
+    }
+  }
+
   if (session_.env().agentIsIE())
     page.setVar("HTMLATTRIBUTES",
                 "xmlns:v=\"urn:schemas-microsoft-com:vml\""
@@ -331,6 +338,11 @@ void WebRenderer::setPageVars(FileServe& page)
   if (app && app->layoutDirection() == LayoutDirection::RightToLeft)
     attr += " dir=\"RTL\"";
 
+  if (app && !app->bodyAttributes().empty()) {
+    for (std::unordered_map<std::string, std::string>::const_iterator i = app->bodyAttributes().begin(); i != app->bodyAttributes().end(); ++i) {
+      attr += " " + i->first + "=\"" + i->second + "\"";
+    }
+  }
   page.setVar("BODYATTRIBUTES", attr);
 
   page.setVar("HEADDECLARATIONS", headDeclarations());
