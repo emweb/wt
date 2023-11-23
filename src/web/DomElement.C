@@ -1179,9 +1179,9 @@ bool DomElement::canWriteInnerHTML(WApplication *app) const
    * BUG: Internet Explorer Fails to Set the innerHTML Property of the
    * SelectionFlag::Select Object. Seems to affect at least up to IE6.0
    */
-  if ((app->environment().agentIsIE()
-       || app->environment().agent() == UserAgent::Konqueror)
-      && (   type_ == DomElementType::TBODY
+  if (((app->environment().agentIsIE()
+        || app->environment().agent() == UserAgent::Konqueror)
+       && (   type_ == DomElementType::TBODY
           || type_ == DomElementType::THEAD
           || type_ == DomElementType::TABLE
           || type_ == DomElementType::COLGROUP
@@ -1189,6 +1189,7 @@ bool DomElement::canWriteInnerHTML(WApplication *app) const
           || type_ == DomElementType::SELECT
           || type_ == DomElementType::TD
           || type_ == DomElementType::OPTGROUP))
+       || mode_ == Mode::Update)
     return false;
 
   return true;
