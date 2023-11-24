@@ -345,7 +345,14 @@ void WAbstractToggleButton::updateDom(DomElement& element, bool all)
   // from the current widget.
   std::vector<std::string> missingClasses;
   for (const auto& styleClass : previousClassesVec) {
-    if (std::find(currentClassesVec.begin(), currentClassesVec.end(), styleClass) == currentClassesVec.end()) {
+    bool alreadyHasClass = false;
+    for (const auto& currentStyleClass : currentClassesVec) {
+      if (currentStyleClass == styleClass) {
+        alreadyHasClass = true;
+        break;
+      }
+    }
+    if (!alreadyHasClass) {
       missingClasses.push_back(styleClass);
     }
   }
