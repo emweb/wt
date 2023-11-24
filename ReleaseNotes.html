@@ -20,6 +20,23 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 4.10.4 (TBD)</h2>
+
+<p>
+  Wt 4.10.4 is a patch release that addresses the following issues:
+</p>
+
+<ul>
+  <li>
+    <a href="https://redmine.emweb.be/issues/11685">Issue #11685</a>:
+    render child widgets differently when updating an existing widget. The JavaScript code that is being called by the framework to dynamically add children to an HTML element was changed so that it always appends them. This is to avoid a widget that was added in JavaScript (with no C++ counterpart) from being overwritten if the HTML of the parent would be written to.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/12352" target="_blank">Issues #12352</a>:
+    this corrects a potential crash in Boost spirit, where a grammar parser could encounter a floating point exception, when trying to evaluate unsafe divisions.
+  </li>
+</ul>
+
 <h2>Release 4.10.3 (December 20, 2023)</h2>
 
 <p>
