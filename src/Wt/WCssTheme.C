@@ -329,7 +329,7 @@ void WCssTheme::applyValidationStyle(WWidget *widget,
   }
 }
 
-bool WCssTheme::canBorderBoxElement(const DomElement& element) const
+bool WCssTheme::canBorderBoxElement(WT_MAYBE_UNUSED const DomElement& element) const
 {
   return true;
 }

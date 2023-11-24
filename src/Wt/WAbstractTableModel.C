@@ -15,13 +15,13 @@ WAbstractTableModel::WAbstractTableModel()
 WAbstractTableModel::~WAbstractTableModel()
 { }
 
-WModelIndex WAbstractTableModel::parent(const WModelIndex& index) const
+WModelIndex WAbstractTableModel::parent(WT_MAYBE_UNUSED const WModelIndex& parent) const
 {
   return WModelIndex();
 }
 
 WModelIndex WAbstractTableModel::index(int row, int column,
-                                       const WModelIndex& parent) const
+                                       WT_MAYBE_UNUSED const WModelIndex& index) const
 {
   return createIndex(row, column, (void*)nullptr);
 }

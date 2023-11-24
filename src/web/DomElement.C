@@ -580,7 +580,7 @@ void DomElement::processProperties(WApplication *app) const
   }
 }
 
-void DomElement::processEvents(WApplication *app) const
+void DomElement::processEvents(WT_MAYBE_UNUSED WApplication* app) const
 {
   DomElement *self = const_cast<DomElement *>(this);
 

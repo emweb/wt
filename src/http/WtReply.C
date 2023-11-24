@@ -460,7 +460,7 @@ void WtReply::writeDone(bool success)
 }
 
 void WtReply::send(const Wt::WebRequest::WriteCallback& callBack,
-                   bool responseComplete)
+                   WT_MAYBE_UNUSED bool responseComplete)
 {
   LOG_DEBUG("WtReply::send(): " << sending_);
 

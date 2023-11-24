@@ -240,7 +240,7 @@ namespace {
   {
     // not 'nan', but 'NaN'
     template <typename CharEncoding, typename Tag, typename OutputIterator>
-    static bool nan (OutputIterator& sink, T n, bool force_sign)
+    static bool nan (OutputIterator& sink, WT_MAYBE_UNUSED T n, WT_MAYBE_UNUSED bool forceSign)
     {
       return string_inserter<CharEncoding, Tag>::call(sink, "NaN");
     }
@@ -363,8 +363,8 @@ std::string urlEncode(const std::string& url, const std::string& allowed)
   return DomElement::urlEncodeS(url, allowed);
 }
 
-std::string dataUrlDecode(const std::string& url,
-                          std::vector<unsigned char> &data)
+std::string dataUrlDecode(WT_MAYBE_UNUSED const std::string& url,
+                          WT_MAYBE_UNUSED std::vector<unsigned char>& data)
 {
   return std::string();
 }

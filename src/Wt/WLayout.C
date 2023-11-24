@@ -142,7 +142,7 @@ void WLayout::itemRemoved(WLayoutItem *item)
   item->setParentLayout(nullptr);
 }
 
-void WLayout::update(WLayoutItem *item)
+void WLayout::update(WT_MAYBE_UNUSED WLayoutItem* item)
 {
   if (impl_)
     impl_->update();

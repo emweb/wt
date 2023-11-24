@@ -403,8 +403,8 @@ void WSortFilterProxyModel::sourceColumnsAboutToBeInserted
   beginInsertColumns(mapFromSource(parent), start, end);
 }
 
-void WSortFilterProxyModel::sourceColumnsInserted(const WModelIndex& parent,
-                                                  int start, int end)
+void WSortFilterProxyModel::sourceColumnsInserted(WT_MAYBE_UNUSED const WModelIndex& parent,
+                                                  WT_MAYBE_UNUSED int start, WT_MAYBE_UNUSED int end)
 {
   endInsertColumns();
 }
@@ -415,14 +415,14 @@ void WSortFilterProxyModel::sourceColumnsAboutToBeRemoved
   beginRemoveColumns(mapFromSource(parent), start, end);
 }
 
-void WSortFilterProxyModel::sourceColumnsRemoved(const WModelIndex& parent,
-                                                 int start, int end)
+void WSortFilterProxyModel::sourceColumnsRemoved(WT_MAYBE_UNUSED const WModelIndex& parent,
+                                                 WT_MAYBE_UNUSED int start, WT_MAYBE_UNUSED int end)
 {
   endRemoveColumns();
 }
 
 void WSortFilterProxyModel::sourceRowsAboutToBeInserted
-  (const WModelIndex& parent, int start, int end)
+  (const WModelIndex& parent, WT_MAYBE_UNUSED int start, WT_MAYBE_UNUSED int end)
 {
   if (inserting_)
     return;

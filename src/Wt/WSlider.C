@@ -826,7 +826,7 @@ void WSlider::setDisabled(bool disabled)
     paintedSlider_->updateState();
 }
 
-void WSlider::paintTick(WPainter& painter, int value, int x, int y)
+void WSlider::paintTick(WPainter& painter, WT_MAYBE_UNUSED int value, int x, int y)
 {
   if (!tickPosition_.empty()) {
     int h = 0;

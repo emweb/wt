@@ -150,10 +150,10 @@ Reply::~Reply()
 #endif // WTHTTP_WITH_ZLIB
 }
 
-void Reply::writeDone(bool success)
+void Reply::writeDone(WT_MAYBE_UNUSED bool success)
 { }
 
-void Reply::reset(const Wt::EntryPoint *ep)
+void Reply::reset(WT_MAYBE_UNUSED const Wt::EntryPoint* ep)
 {
 #ifdef WTHTTP_WITH_ZLIB
   if (gzipBusy_) {
@@ -179,10 +179,8 @@ void Reply::setStatus(status_type status)
   status_ = status;
 }
 
-bool Reply::consumeWebSocketMessage(ws_opcode opcode,
-                                    const char* begin,
-                                    const char* end,
-                                    Request::State state)
+bool Reply::consumeWebSocketMessage(WT_MAYBE_UNUSED ws_opcode opcode, WT_MAYBE_UNUSED const char* begin,
+                                    WT_MAYBE_UNUSED const char* end, WT_MAYBE_UNUSED Request::State state)
 {
   LOG_ERROR("Reply::consumeWebSocketMessage() is pure virtual");
   assert(false);

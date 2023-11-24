@@ -362,7 +362,7 @@ std::unique_ptr<WContainerWidget> WPieChart::createLabelWidget(std::unique_ptr<W
 
 void WPieChart::drawLabel(WPainter* painter, const WRectF& rect,
                          WFlags<AlignmentFlag> alignmentFlags,
-                         const WString& text, int row) const
+                         const WString& text, WT_MAYBE_UNUSED int row) const
 {
   painter->drawText(rect, alignmentFlags, text);
 }
@@ -657,7 +657,7 @@ void WPieChart::drawSlices(WPainter& painter,
   }
 }
 
-void WPieChart::addDataPointArea(int row, int column,
+void WPieChart::addDataPointArea(WT_MAYBE_UNUSED int row , WT_MAYBE_UNUSED int column,
                                  std::unique_ptr<WAbstractArea> area) const
 {
   (const_cast<WPieChart *>(this))->addArea(std::move(area));

@@ -66,7 +66,7 @@ void SoundManager::play(WSound *sound, int loops)
   WMediaPlayer::play();
 }
 
-void SoundManager::stop(WSound *sound)
+void SoundManager::stop(WT_MAYBE_UNUSED WSound* sound)
 {
   WMediaPlayer::stop();
 

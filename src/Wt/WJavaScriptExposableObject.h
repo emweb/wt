@@ -80,7 +80,7 @@ public:
    */
   std::string jsRef() const;
 
-  bool closeTo(const WJavaScriptExposableObject& other) const { return false; }
+  bool closeTo(WT_MAYBE_UNUSED const WJavaScriptExposableObject& other) const { return false; }
 
 protected:
   bool sameBindingAs(const WJavaScriptExposableObject &rhs) const;

@@ -22,52 +22,52 @@ WString WAbstractChartModel::displayData(int row, int column) const
   return boost::lexical_cast<std::string>(data(row, column));
 }
 
-WString WAbstractChartModel::headerData(int column) const
+WString WAbstractChartModel::headerData(WT_MAYBE_UNUSED int column) const
 {
   return Wt::WString();
 }
 
-WString WAbstractChartModel::toolTip(int row, int column) const
+WString WAbstractChartModel::toolTip(WT_MAYBE_UNUSED int row, WT_MAYBE_UNUSED int column) const
 {
   return Wt::WString();
 }
 
-WFlags<ItemFlag> WAbstractChartModel::flags(int row, int column) const
+WFlags<ItemFlag> WAbstractChartModel::flags(WT_MAYBE_UNUSED int row, WT_MAYBE_UNUSED int column) const
 {
   return None;
 }
 
-WLink *WAbstractChartModel::link(int row, int column) const
+WLink *WAbstractChartModel::link(WT_MAYBE_UNUSED int row, WT_MAYBE_UNUSED int column) const
 {
   return nullptr;
 }
 
-const WColor *WAbstractChartModel::markerPenColor(int row, int column) const
+const WColor *WAbstractChartModel::markerPenColor(WT_MAYBE_UNUSED int row, WT_MAYBE_UNUSED int column) const
 {
   return nullptr;
 }
 
-const WColor *WAbstractChartModel::markerBrushColor(int row, int column) const
+const WColor *WAbstractChartModel::markerBrushColor(WT_MAYBE_UNUSED int row, WT_MAYBE_UNUSED int column) const
 {
   return nullptr;
 }
 
-const MarkerType *WAbstractChartModel::markerType(int row, int column) const
+const MarkerType *WAbstractChartModel::markerType(WT_MAYBE_UNUSED int row, WT_MAYBE_UNUSED int column) const
 {
   return nullptr;
 }
 
-const WColor *WAbstractChartModel::barPenColor(int row, int column) const
+const WColor *WAbstractChartModel::barPenColor(WT_MAYBE_UNUSED int row, WT_MAYBE_UNUSED int column) const
 {
   return nullptr;
 }
 
-const WColor *WAbstractChartModel::barBrushColor(int row, int column) const
+const WColor *WAbstractChartModel::barBrushColor(WT_MAYBE_UNUSED int row, WT_MAYBE_UNUSED int column) const
 {
   return nullptr;
 }
 
-const double *WAbstractChartModel::markerScaleFactor(int row, int column) const
+const double *WAbstractChartModel::markerScaleFactor(WT_MAYBE_UNUSED int row, WT_MAYBE_UNUSED int column) const
 {
   return nullptr;
 }

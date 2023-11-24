@@ -311,7 +311,7 @@ std::string WFont::cssSize(bool all) const
   return std::string();
 }
 
-std::string WFont::cssFamily(bool all) const
+std::string WFont::cssFamily(bool) const
 {
   std::string family = specificFamilies_.toUTF8();
 

@@ -42,7 +42,7 @@ void unMarshal(const JavaScriptEvent& jse, int argi, WString& s) {
   s = WString::fromUTF8(v);
 }
 
-void unMarshal(const JavaScriptEvent& jse, int argi, NoClass& nc) {
+void unMarshal(const JavaScriptEvent& jse, int argi, WT_MAYBE_UNUSED NoClass& nc) {
   if ((unsigned)argi < jse.userEventArgs.size()) {
     Wt::log("error") << "JSignal: redundant JavaScript argument: '"
                      << jse.userEventArgs[argi] << "'";

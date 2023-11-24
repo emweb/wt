@@ -124,7 +124,7 @@ namespace Wt {
         return sql_value_traits<std::string>::type(conn, size);
       }
 
-      static void bind(Pet p, SqlStatement *statement, int column, int size)
+      static void bind(Pet p, SqlStatement *statement, int column, WT_MAYBE_UNUSED int size)
       {
         statement->bind(column, petToString(p));
       }

@@ -327,7 +327,7 @@ void LoadDbAction<C>::actId(V& value, const std::string& name, int size)
 
 template<class C>
 template<class D>
-void LoadDbAction<C>::actId(ptr<D>& value, const std::string& name, int size,
+void LoadDbAction<C>::actId(ptr<D>& value, const std::string& name, WT_MAYBE_UNUSED int size,
                             int fkConstraints)
 {
   actPtr(PtrRef<D>(value, name, fkConstraints));
@@ -349,14 +349,13 @@ void SaveBaseAction::visitAuxIds(C& obj)
 }
 
 template<typename V>
-void SaveBaseAction::actId(V& value, const std::string& name, int size)
+void SaveBaseAction::actId(WT_MAYBE_UNUSED V& value, const std::string&, int)
 {
   /* Only used from within visitAuxIds() */
 }
 
 template<class D>
-void SaveBaseAction::actId(ptr<D>& value, const std::string& name, int size,
-                           int fkConstraints)
+void SaveBaseAction::actId(WT_MAYBE_UNUSED ptr<D>& value, WT_MAYBE_UNUSED const std::string& name, WT_MAYBE_UNUSED int size, WT_MAYBE_UNUSED int fkConstraints)
 {
   /* Only used from within visitAuxIds() */
 }
@@ -586,7 +585,7 @@ void SaveDbAction<C>::actId(V& value, const std::string& name, int size)
 
 template<class C>
 template<class D>
-void SaveDbAction<C>::actId(ptr<D>& value, const std::string& name, int size,
+void SaveDbAction<C>::actId(ptr<D>& value, const std::string& name, WT_MAYBE_UNUSED int size,
                            int fkConstraints)
 {
   actPtr(PtrRef<D>(value, name, fkConstraints));
@@ -615,7 +614,7 @@ void TransactionDoneAction::actId(V& value, const std::string& name, int size)
 
 template<class C>
 void TransactionDoneAction::actId(ptr<C>& value, const std::string& name,
-                                  int size, int fkConstraints)
+                                  WT_MAYBE_UNUSED int size, int fkConstraints)
 {
   actPtr(PtrRef<C>(value, name, fkConstraints));
 }
@@ -676,7 +675,7 @@ void SessionAddAction::actId(V& value, const std::string& name, int size)
 
 template<class C>
 void SessionAddAction::actId(ptr<C>& value, const std::string& name,
-                             int size, int fkConstraints)
+                             WT_MAYBE_UNUSED int size, int fkConstraints)
 {
   actPtr(PtrRef<C>(value, name, fkConstraints));
 }
@@ -721,7 +720,7 @@ void SetReciproceAction::actId(V& value, const std::string& name, int size)
 
 template<class C>
 void SetReciproceAction::actId(ptr<C>& value, const std::string& name,
-                               int size, int fkConstraints)
+                               WT_MAYBE_UNUSED int size, int fkConstraints)
 {
   actPtr(PtrRef<C>(value, name, fkConstraints));
 }
@@ -802,7 +801,7 @@ void ToAnysAction::actId(V& value, const std::string& name, int size)
 
 template<class C>
 void ToAnysAction::actId(ptr<C>& value, const std::string& name,
-                         int size, int fkConstraints)
+                         WT_MAYBE_UNUSED int size, int fkConstraints)
 {
   actPtr(PtrRef<C>(value, name, fkConstraints));
 }
@@ -883,7 +882,7 @@ void FromAnyAction::actId(V& value, const std::string& name, int size)
 }
 
 template<class C>
-void FromAnyAction::actId(ptr<C>& value, const std::string& name, int size,
+void FromAnyAction::actId(ptr<C>& value, const std::string& name, WT_MAYBE_UNUSED int size,
                           int fkConstraints)
 {
   actPtr(PtrRef<C>(value, name, fkConstraints));

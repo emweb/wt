@@ -251,7 +251,7 @@ void WPushButton::updateDom(DomElement& element, bool all)
   WFormWidget::updateDom(element, all);
 }
 
-void WPushButton::renderHRef(DomElement& element)
+void WPushButton::renderHRef(WT_MAYBE_UNUSED DomElement& element)
 {
   if (!linkState_.link.isNull() && !isDisabled()) {
     WApplication *app = WApplication::instance();
@@ -340,7 +340,7 @@ WT_USTRING WPushButton::valueText() const
   return WT_USTRING();
 }
 
-void WPushButton::setValueText(const WT_USTRING& value)
+void WPushButton::setValueText(WT_MAYBE_UNUSED const WT_USTRING& value)
 { }
 
 void WPushButton::refresh()

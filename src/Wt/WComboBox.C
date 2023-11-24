@@ -63,7 +63,7 @@ void WComboBox::setModel(const std::shared_ptr<WAbstractItemModel> model)
   refresh();
 }
 
-void WComboBox::rowsRemoved(const WModelIndex &index, int from, int to)
+void WComboBox::rowsRemoved(WT_MAYBE_UNUSED const WModelIndex&, int from, int to)
 {
   itemsChanged_ = true;
   repaint(RepaintFlag::SizeAffected);
@@ -81,7 +81,7 @@ void WComboBox::rowsRemoved(const WModelIndex &index, int from, int to)
   }
 }
 
-void WComboBox::rowsInserted(const WModelIndex &index, int from, int to)
+void WComboBox::rowsInserted(WT_MAYBE_UNUSED const WModelIndex&, int from, int to)
 {
   itemsChanged_ = true;
   repaint(RepaintFlag::SizeAffected);

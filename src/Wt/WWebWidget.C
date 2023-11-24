@@ -117,7 +117,7 @@ WWebWidget::OtherImpl::JavaScriptStatement::JavaScriptStatement
     data(aData)
 { }
 
-WWebWidget::OtherImpl::OtherImpl(WWebWidget *const self)
+WWebWidget::OtherImpl::OtherImpl(WT_MAYBE_UNUSED WWebWidget* const self)
   : elementTagName_(nullptr),
     tabIndex_(std::numeric_limits<int>::min()),
     scrollVisibilityMargin_(0)
@@ -288,7 +288,7 @@ void WWebWidget::setDecorationStyle(const WCssDecorationStyle& style)
 #endif // WT_TARGET_JAVA
 }
 
-void WWebWidget::iterateChildren(const HandleWidgetMethod& method) const
+void WWebWidget::iterateChildren(WT_MAYBE_UNUSED const HandleWidgetMethod& method) const
 { }
 
 std::string WWebWidget::renderRemoveJs(bool recursive)
@@ -2092,7 +2092,7 @@ void WWebWidget::getFormObjects(FormObjectsMap& formObjects)
 }
 
 void WWebWidget::getDomChanges(std::vector<DomElement *>& result,
-                               WApplication *app)
+                               WT_MAYBE_UNUSED WApplication* app)
 {
   DomElement *e = DomElement::getForUpdate(this, domElementType());
   updateDom(*e, false);

@@ -246,7 +246,7 @@ inline std::string sql_value_traits<Json::Object, void>::type(
 }
 
 inline void sql_value_traits<Json::Object, void>
-::bind(const Json::Object& v, SqlStatement *statement, int column, int size)
+::bind(const Json::Object& v, SqlStatement *statement, int column, WT_MAYBE_UNUSED int size)
 {
   statement->bind(column, Json::serialize(v,false));
 }
@@ -277,7 +277,7 @@ inline std::string sql_value_traits<Json::Array, void>::type(
 }
 
 inline void sql_value_traits<Json::Array, void>
-::bind(const Json::Array& v, SqlStatement *statement, int column, int size)
+::bind(const Json::Array& v, SqlStatement *statement, int column, WT_MAYBE_UNUSED int size)
 {
   statement->bind(column, Json::serialize(v,false));
 }

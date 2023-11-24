@@ -66,7 +66,7 @@ WBrush WStandardPalette::brush(int index) const
   return WBrush(color(index));
 }
 
-WPen WStandardPalette::borderPen(int index) const
+WPen WStandardPalette::borderPen(WT_MAYBE_UNUSED int index) const
 {
   WPen p(WColor(0x44, 0x44, 0x44));
   p.setCapStyle(PenCapStyle::Square);

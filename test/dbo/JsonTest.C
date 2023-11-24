@@ -58,7 +58,7 @@ public:
 class Empty {
 public:
   template<class Action>
-  void persist(Action& a)
+  void persist(WT_MAYBE_UNUSED Action& a)
   {
   }
 };

@@ -155,7 +155,7 @@ void WTestEnvironment::setCookies(const CookieMap& cookies)
   cookies_ = cookies;
 }
 
-void WTestEnvironment::setHeaderValue(const std::string& value)
+void WTestEnvironment::setHeaderValue(WT_MAYBE_UNUSED const std::string& value)
 {
   // FIXME
 }

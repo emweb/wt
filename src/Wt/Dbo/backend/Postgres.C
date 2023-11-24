@@ -91,7 +91,7 @@ namespace {
   {
     // not 'nan', but 'NaN'
     template <typename CharEncoding, typename Tag, typename OutputIterator>
-    static bool nan (OutputIterator& sink, T n, bool force_sign)
+    static bool nan (OutputIterator& sink, T, bool)
     {
       return karma::string_inserter<CharEncoding, Tag>::call(sink, "NaN");
     }
@@ -530,7 +530,7 @@ public:
     return columnCount_;
   }
 
-  virtual bool getResult(int column, std::string *value, int size) override
+  virtual bool getResult(int column, std::string *value, WT_MAYBE_UNUSED int size) override
   {
     if (PQgetisnull(result_, row_, column))
       return false;
@@ -711,7 +711,7 @@ public:
   }
 
   virtual bool getResult(int column, std::vector<unsigned char> *value,
-                         int size) override
+                         WT_MAYBE_UNUSED int size) override
   {
     if (PQgetisnull(result_, row_, column))
       return false;
@@ -1059,15 +1059,15 @@ std::string Postgres::autoincrementSql() const
 }
 
 std::vector<std::string>
-Postgres::autoincrementCreateSequenceSql(const std::string &table,
-                                         const std::string &id) const
+Postgres::autoincrementCreateSequenceSql(WT_MAYBE_UNUSED const std::string& table,
+                                         WT_MAYBE_UNUSED const std::string& id) const
 {
   return std::vector<std::string>();
 }
 
 std::vector<std::string>
-Postgres::autoincrementDropSequenceSql(const std::string &table,
-                                       const std::string &id) const
+Postgres::autoincrementDropSequenceSql(WT_MAYBE_UNUSED const std::string& table,
+                                       WT_MAYBE_UNUSED const std::string& id) const
 {
   return std::vector<std::string>();
 }

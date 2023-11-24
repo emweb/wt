@@ -454,7 +454,7 @@ void WPaintedWidget::propagateRenderOk(bool deep)
 }
 
 void WPaintedWidget::getDomChanges(std::vector<DomElement *>& result,
-                                   WApplication *app)
+                                   WT_MAYBE_UNUSED WApplication* app)
 {
   DomElement *e = DomElement::getForUpdate(this, DomElementType::DIV);
   updateDom(*e, false);
@@ -761,7 +761,7 @@ WWidgetRasterPainter::~WWidgetRasterPainter()
 { }
 
 std::unique_ptr<WPaintDevice> WWidgetRasterPainter
-::createPaintDevice(bool paintUpdate)
+::createPaintDevice(WT_MAYBE_UNUSED bool paintUpdate)
 {
 #ifdef WT_HAS_WRASTERIMAGE
   return std::unique_ptr<WPaintDevice>

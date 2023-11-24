@@ -44,39 +44,36 @@ WModelIndex WReadOnlyProxyModel::index(int row, int column,
   return sourceModel()->index(row, column, parent);
 }
 
-bool WReadOnlyProxyModel::setData(const WModelIndex& index, const cpp17::any& value,
-                                  ItemDataRole role)
+bool WReadOnlyProxyModel::setData(WT_MAYBE_UNUSED const WModelIndex& index, WT_MAYBE_UNUSED const cpp17::any& value,
+                                  WT_MAYBE_UNUSED ItemDataRole role)
 {
   return false;
 }
 
-bool WReadOnlyProxyModel::setItemData(const WModelIndex& index,
-                                      const DataMap& values)
+bool WReadOnlyProxyModel::setItemData(WT_MAYBE_UNUSED const WModelIndex& index,
+                                     WT_MAYBE_UNUSED  const DataMap& values)
 {
   return false;
 }
 
-bool WReadOnlyProxyModel::setHeaderData(int section, Orientation orientation,
-                                        const cpp17::any& value, ItemDataRole role)
+bool WReadOnlyProxyModel::setHeaderData(WT_MAYBE_UNUSED int section, WT_MAYBE_UNUSED Orientation orientation,
+                                        WT_MAYBE_UNUSED const cpp17::any& value, WT_MAYBE_UNUSED ItemDataRole role)
 {
   return false;
 }
 
-bool WReadOnlyProxyModel::insertColumns(int column, int count,
-                                        const WModelIndex& parent)
+bool WReadOnlyProxyModel::insertColumns(WT_MAYBE_UNUSED int column, WT_MAYBE_UNUSED int count, WT_MAYBE_UNUSED const WModelIndex& parent)
 {
   return false;
 }
 
-bool WReadOnlyProxyModel::removeColumns(int column, int count,
-                                        const WModelIndex& parent)
+bool WReadOnlyProxyModel::removeColumns(WT_MAYBE_UNUSED int column, WT_MAYBE_UNUSED int count, WT_MAYBE_UNUSED const WModelIndex& parent)
 {
   return false;
 }
 
-void WReadOnlyProxyModel::dropEvent(const WDropEvent& e, DropAction action,
-                                    int row, int column,
-                                    const WModelIndex& parent)
+void WReadOnlyProxyModel::dropEvent(WT_MAYBE_UNUSED const WDropEvent& e, WT_MAYBE_UNUSED DropAction action,
+                                    WT_MAYBE_UNUSED int row, WT_MAYBE_UNUSED int column, WT_MAYBE_UNUSED const WModelIndex& parent)
 { }
 
 }

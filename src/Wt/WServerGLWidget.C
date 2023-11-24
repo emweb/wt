@@ -676,34 +676,34 @@ void WServerGLWidget::blendFuncSeparate(WGLWidget::GLenum srcRGB,
   SERVERGLDEBUG;
 }
 
-void WServerGLWidget::bufferData(WGLWidget::GLenum target,
-                                 WGLWidget::ArrayBuffer res,
-                                 unsigned bufferResourceOffset,
-                                 unsigned bufferResourceSize,
-                                 WGLWidget::GLenum usage)
+void WServerGLWidget::bufferData(WT_MAYBE_UNUSED WGLWidget::GLenum target,
+                                 WT_MAYBE_UNUSED WGLWidget::ArrayBuffer res,
+                                 WT_MAYBE_UNUSED unsigned bufferResourceOffset,
+                                 WT_MAYBE_UNUSED unsigned bufferResourceSize,
+                                 WT_MAYBE_UNUSED WGLWidget::GLenum usage)
 {
   throw WException("WServerGLWidget: this operation is not supported in server-side rendering");
 }
 
-void WServerGLWidget::bufferData(WGLWidget::GLenum target,
-                                 WGLWidget::ArrayBuffer res,
-                                 WGLWidget::GLenum usage)
+void WServerGLWidget::bufferData(WT_MAYBE_UNUSED WGLWidget::GLenum target,
+                                 WT_MAYBE_UNUSED WGLWidget::ArrayBuffer res,
+                                 WT_MAYBE_UNUSED WGLWidget::GLenum usage)
 {
   throw WException("WServerGLWidget: this operation is not supported in server-side rendering");
 }
 
-void WServerGLWidget::bufferSubData(Wt::WGLWidget::GLenum target,
-                                    unsigned offset,
-                                    WGLWidget::ArrayBuffer res)
+void WServerGLWidget::bufferSubData(WT_MAYBE_UNUSED WGLWidget::GLenum target,
+                                    WT_MAYBE_UNUSED unsigned offset,
+                                    WT_MAYBE_UNUSED WGLWidget::ArrayBuffer res)
 {
   throw WException("WServerGLWidget: this operation is not supported in server-side rendering");
 }
 
-void WServerGLWidget::bufferSubData(Wt::WGLWidget::GLenum target,
-                                    unsigned offset,
-                                    WGLWidget::ArrayBuffer res,
-                                    unsigned bufferResourceOffset,
-                                    unsigned bufferResourceSize)
+void WServerGLWidget::bufferSubData(WT_MAYBE_UNUSED WGLWidget::GLenum target,
+                                    WT_MAYBE_UNUSED unsigned offset,
+                                    WT_MAYBE_UNUSED WGLWidget::ArrayBuffer res,
+                                    WT_MAYBE_UNUSED unsigned bufferResourceOffset,
+                                    WT_MAYBE_UNUSED unsigned bufferResourceSize)
 {
   throw WException("WServerGLWidget: this operation is not supported in server-side rendering");
 }
@@ -715,7 +715,7 @@ void WServerGLWidget::bufferData(WGLWidget::GLenum target, int size,
   SERVERGLDEBUG;
 }
 
-void WServerGLWidget::bufferDatafv(WGLWidget::GLenum target, const FloatBuffer &buffer, WGLWidget::GLenum usage, bool binary)
+void WServerGLWidget::bufferDatafv(WGLWidget::GLenum target, const FloatBuffer &buffer, WGLWidget::GLenum usage, WT_MAYBE_UNUSED bool binary)
 {
   glBufferData(serverGLenum(target), buffer.size()*4, &buffer[0],
                serverGLenum(usage));
@@ -724,7 +724,7 @@ void WServerGLWidget::bufferDatafv(WGLWidget::GLenum target, const FloatBuffer &
 
 void WServerGLWidget::bufferDataiv(WGLWidget::GLenum target,
                                    IntBuffer &buffer, WGLWidget::GLenum usage,
-                                   WGLWidget::GLenum type)
+                                   WT_MAYBE_UNUSED WGLWidget::GLenum type)
 {
   std::vector<short> shortbuffer;
   for (unsigned i = 0; i < buffer.size(); i++) {
@@ -737,7 +737,7 @@ void WServerGLWidget::bufferDataiv(WGLWidget::GLenum target,
 }
 
 void WServerGLWidget::bufferSubDatafv(WGLWidget::GLenum target, unsigned offset,
-                                      const FloatBuffer &buffer, bool binary)
+                                      const FloatBuffer &buffer, WT_MAYBE_UNUSED bool binary)
 {
   glBufferSubData(serverGLenum(target), (GLintptr)offset, buffer.size()*4,
                   &buffer[0]);
@@ -745,7 +745,7 @@ void WServerGLWidget::bufferSubDatafv(WGLWidget::GLenum target, unsigned offset,
 
 void WServerGLWidget::bufferSubDataiv(WGLWidget::GLenum target,
                                       unsigned offset, IntBuffer &buffer,
-                                      WGLWidget::GLenum type)
+                                      WT_MAYBE_UNUSED WGLWidget::GLenum type)
 {
   std::vector<short> shortbuffer;
   for (unsigned i = 0; i < buffer.size(); i++) {
@@ -839,7 +839,7 @@ WGLWidget::Buffer WServerGLWidget::createBuffer()
   return WGLWidget::Buffer((int)id[0]);
 }
 
-WGLWidget::ArrayBuffer WServerGLWidget::createAndLoadArrayBuffer(const std::string &url)
+WGLWidget::ArrayBuffer WServerGLWidget::createAndLoadArrayBuffer(WT_MAYBE_UNUSED const std::string& url)
 {
   throw WException("WServerGLWidget: this operation is not supported in server-side rendering");
 }
@@ -991,7 +991,7 @@ void WServerGLWidget::drawArrays(WGLWidget::GLenum mode, int first, unsigned cou
 }
 
 void WServerGLWidget::drawElements(WGLWidget::GLenum mode, unsigned count,
-                                   WGLWidget::GLenum type, unsigned offset)
+                                   WGLWidget::GLenum type, WT_MAYBE_UNUSED unsigned offset)
 {
   glDrawElements(serverGLenum(mode), count, serverGLenum(type), nullptr);
   SERVERGLDEBUG;
@@ -1193,28 +1193,30 @@ void WServerGLWidget::texImage2D(WGLWidget::GLenum target,
   SERVERGLDEBUG;
 }
 
-void WServerGLWidget::texImage2D(WGLWidget::GLenum target, int level,
-                                 WGLWidget::GLenum internalformat,
-                                 WGLWidget::GLenum format,
-                                 WGLWidget::GLenum type,
-                                 WImage *image)
+void WServerGLWidget::texImage2D(WT_MAYBE_UNUSED WGLWidget::GLenum target,
+                                 WT_MAYBE_UNUSED int level,
+                                 WT_MAYBE_UNUSED WGLWidget::GLenum internalFormat,
+                                 WT_MAYBE_UNUSED WGLWidget::GLenum format,
+                                 WT_MAYBE_UNUSED WGLWidget::GLenum type,
+                                 WT_MAYBE_UNUSED WImage* image)
+{
+  throw WException("WServerGLWidget: this operation is not supported in server-side rendering");
+}
+
+void WServerGLWidget::texImage2D(WT_MAYBE_UNUSED WGLWidget::GLenum target,
+                                 WT_MAYBE_UNUSED int level,
+                                 WT_MAYBE_UNUSED WGLWidget::GLenum internalFormat,
+                                 WT_MAYBE_UNUSED WGLWidget::GLenum format,
+                                 WT_MAYBE_UNUSED WGLWidget::GLenum type,
+                                 WT_MAYBE_UNUSED WVideo* video)
 {
   throw WException("WServerGLWidget: this operation is not supported in server-side rendering");
 }
 
 void WServerGLWidget::texImage2D(WGLWidget::GLenum target, int level,
-                                 WGLWidget::GLenum internalformat,
-                                 WGLWidget::GLenum format,
-                                 WGLWidget::GLenum type,
-                                 WVideo *video)
-{
-  throw WException("WServerGLWidget: this operation is not supported in server-side rendering");
-}
-
-void WServerGLWidget::texImage2D(WGLWidget::GLenum target, int level,
-                                 WGLWidget::GLenum internalformat,
-                                 WGLWidget::GLenum format,
-                                 WGLWidget::GLenum type,
+                                 WT_MAYBE_UNUSED WGLWidget::GLenum internalFormat,
+                                 WT_MAYBE_UNUSED WGLWidget::GLenum format,
+                                 WT_MAYBE_UNUSED WGLWidget::GLenum type,
                                  std::string imgFilename)
 {
   WPainter::Image image(WApplication::instance()->docRoot().append("/")
@@ -1245,9 +1247,9 @@ void WServerGLWidget::texImage2D(WGLWidget::GLenum target, int level,
 }
 
 void WServerGLWidget::texImage2D(WGLWidget::GLenum target, int level,
-                                 WGLWidget::GLenum internalformat,
-                                 WGLWidget::GLenum format,
-                                 WGLWidget::GLenum type,
+                                 WT_MAYBE_UNUSED WGLWidget::GLenum internalFormat,
+                                 WT_MAYBE_UNUSED WGLWidget::GLenum format,
+                                 WT_MAYBE_UNUSED WGLWidget::GLenum type,
                                  WPaintDevice *paintdevice)
 {
   WRasterImage *rpd = dynamic_cast<WRasterImage*>(paintdevice);
@@ -1571,7 +1573,7 @@ void WServerGLWidget::vertexAttrib4f(WGLWidget::AttribLocation location,
 void WServerGLWidget::vertexAttribPointer(WGLWidget::AttribLocation location,
                                           int size, WGLWidget::GLenum type,
                                           bool normalized, unsigned stride,
-                                          unsigned offset)
+                                          WT_MAYBE_UNUSED unsigned oofset)
 {
   glVertexAttribPointer(location.getId(), size, serverGLenum(type),
                         normalized, stride, nullptr);
@@ -1809,10 +1811,10 @@ void WServerGLWidget::render(const std::string& jsRef, WFlags<RenderFlag> flags)
   glInterface_->doJavaScript(ss.str());
 }
 
-void WServerGLWidget::injectJS(const std::string & jsString)
+void WServerGLWidget::injectJS(WT_MAYBE_UNUSED const std::string& jsString)
 { }
 
-void WServerGLWidget::restoreContext(const std::string &jsRef)
+void WServerGLWidget::restoreContext(WT_MAYBE_UNUSED const std::string& jsRef)
 { }
 
 }

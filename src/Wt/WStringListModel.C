@@ -194,7 +194,7 @@ bool WStringListModel::removeRows(int row, int count, const WModelIndex& parent)
     return false;
 }
 
-void WStringListModel::sort(int column, SortOrder order)
+void WStringListModel::sort(WT_MAYBE_UNUSED int column, SortOrder order)
 {
   layoutAboutToBeChanged().emit();
 

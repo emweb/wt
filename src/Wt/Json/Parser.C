@@ -74,8 +74,6 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
     currentValue_ = &result_;
   }
 
-  typedef boost::iterator_range<std::string::const_iterator> StrValue;
-
   void startObject(bool &pass)
   {
     refCurrent();
@@ -135,7 +133,7 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
       >> lit('}')[endObject]
       ;
 
-    const auto setMemberName = [this](const StrValue &value)
+    const auto setMemberName = [this]()
     {
       assert(state() == State::InObject);
 
@@ -163,7 +161,7 @@ struct json_grammar : public qi::grammar<Iterator, ascii::space_type>
       >> lit(']')[endArray]
       ;
 
-    const auto setStringValue = [this](const StrValue &value)
+    const auto setStringValue = [this]()
     {
       refCurrent();
 

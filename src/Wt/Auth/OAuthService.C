@@ -304,7 +304,7 @@ void OAuthProcess::connectStartAuthenticate(EventSignalBase &s)
 }
 #endif
 
-void OAuthProcess::getIdentity(const OAuthAccessToken& token)
+void OAuthProcess::getIdentity(WT_MAYBE_UNUSED const OAuthAccessToken& token)
 {
   throw WException("OAuth::Process::Identity(): not specialized");
 }

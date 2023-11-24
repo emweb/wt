@@ -529,28 +529,28 @@ WFlags<HeaderFlag> WAggregateProxyModel::headerFlags(int section,
 }
 
 void WAggregateProxyModel::sourceColumnsAboutToBeInserted
-  (const WModelIndex& parent, int start, int end)
+  (WT_MAYBE_UNUSED const WModelIndex& parent, WT_MAYBE_UNUSED int start, WT_MAYBE_UNUSED int end)
 {
   throw WException("WAggregateProxyModel does not support "
                    "source model column insertion");
 }
 
-void WAggregateProxyModel::sourceColumnsInserted(const WModelIndex& parent,
-                                                 int start, int end)
+void WAggregateProxyModel::sourceColumnsInserted(WT_MAYBE_UNUSED const WModelIndex& parent,
+                                                 WT_MAYBE_UNUSED int start, WT_MAYBE_UNUSED int end)
 {
   throw WException("WAggregateProxyModel does not support "
                    "source model column insertion");
 }
 
 void WAggregateProxyModel::sourceColumnsAboutToBeRemoved
-  (const WModelIndex& parent, int start, int end)
+  (WT_MAYBE_UNUSED const WModelIndex& parent, WT_MAYBE_UNUSED int start, WT_MAYBE_UNUSED int end)
 {
   throw WException("WAggregateProxyModel does not support "
                    "source model column removal");
 }
 
-void WAggregateProxyModel::sourceColumnsRemoved(const WModelIndex& parent,
-                                                int start, int end)
+void WAggregateProxyModel::sourceColumnsRemoved(WT_MAYBE_UNUSED const WModelIndex& parent,
+                                                WT_MAYBE_UNUSED int start, WT_MAYBE_UNUSED int end)
 {
   throw WException("WAggregateProxyModel does not support "
                    "source model column removal");
@@ -566,7 +566,7 @@ void WAggregateProxyModel::sourceRowsAboutToBeInserted
 }
 
 void WAggregateProxyModel::sourceRowsInserted(const WModelIndex& parent,
-                                              int start, int end)
+                                              WT_MAYBE_UNUSED int start, WT_MAYBE_UNUSED int end)
 {
   WModelIndex proxyParent = mapFromSource(parent);
 
@@ -584,7 +584,7 @@ void WAggregateProxyModel::sourceRowsAboutToBeRemoved
 }
 
 void WAggregateProxyModel::sourceRowsRemoved(const WModelIndex& parent,
-                                              int start, int end)
+                                              WT_MAYBE_UNUSED int start, WT_MAYBE_UNUSED int end)
 {
   WModelIndex proxyParent = mapFromSource(parent);
 

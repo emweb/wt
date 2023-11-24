@@ -90,7 +90,7 @@ const std::vector<unsigned char> WMemoryResource::data() const
     return *data;
 }
 
-void WMemoryResource::handleRequest(const Http::Request& request,
+void WMemoryResource::handleRequest(WT_MAYBE_UNUSED const Http::Request& request,
                                     Http::Response& response)
 {
   DataPtr data;

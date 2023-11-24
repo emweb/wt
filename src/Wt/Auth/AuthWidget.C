@@ -106,7 +106,7 @@ void AuthWidget::onPathChange(const std::string& path)
   handleRegistrationPath(path);
 }
 
-bool AuthWidget::handleRegistrationPath(const std::string& path)
+bool AuthWidget::handleRegistrationPath(WT_MAYBE_UNUSED const std::string& path)
 {
   if (!basePath_.empty()) {
     WApplication *app = WApplication::instance();

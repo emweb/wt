@@ -66,10 +66,10 @@ const std::string WObject::id() const
   return uniqueId();
 }
 
-void WObject::setFormData(const FormData& formData)
+void WObject::setFormData(WT_MAYBE_UNUSED const FormData& formData)
 { }
 
-void WObject::setRequestTooLarge(::int64_t size)
+void WObject::setRequestTooLarge(WT_MAYBE_UNUSED ::int64_t size)
 { }
 
 void WObject::signalConnectionsChanged()
@@ -91,7 +91,7 @@ void WObject::resetLearnedSlot(Method method)
   }
 }
 
-WStatelessSlot *WObject::getStateless(Method method)
+WStatelessSlot *WObject::getStateless( WT_MAYBE_UNUSED Method method)
 {
   return nullptr;
 }

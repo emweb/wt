@@ -278,7 +278,7 @@ void RegistrationWidget::doRegister()
     t->commit();
 }
 
-void RegistrationWidget::registerUserDetails(User& user)
+void RegistrationWidget::registerUserDetails(WT_MAYBE_UNUSED User& user)
 { }
 
 void RegistrationWidget::close()

@@ -294,7 +294,7 @@ void WServer::removeEntryPoint(const std::string& path){
   configuration().removeEntryPoint(path);
 }
 
-void WServer::restart(int argc, char **argv, char **envp)
+void WServer::restart(WT_MAYBE_UNUSED int argc, char **argv, char **envp)
 {
 #ifndef WT_WIN32
   char *path = realpath(argv[0], 0);

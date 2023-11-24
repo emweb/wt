@@ -222,7 +222,7 @@ void WLineEdit::setValueText(const WT_USTRING& value)
   setText(value);
 }
 
-int WLineEdit::boxPadding(Orientation orientation) const
+int WLineEdit::boxPadding(WT_MAYBE_UNUSED Orientation orientation) const
 {
   const WEnvironment& env = WApplication::instance()->environment();
 
@@ -239,7 +239,7 @@ int WLineEdit::boxPadding(Orientation orientation) const
     return 1;
 }
 
-int WLineEdit::boxBorder(Orientation orientation) const
+int WLineEdit::boxBorder(WT_MAYBE_UNUSED Orientation orientation) const
 {
   const WEnvironment& env = WApplication::instance()->environment();
 

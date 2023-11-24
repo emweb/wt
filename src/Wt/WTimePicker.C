@@ -27,7 +27,7 @@ WTimePicker::WTimePicker(WTimeEdit *timeEdit)
   init();
 }
 
-void WTimePicker::init(const WTime &time)
+void WTimePicker::init(WT_MAYBE_UNUSED const WTime& time)
 {
     WTemplate *container = new WTemplate();
     setImplementation(std::unique_ptr<WTemplate>(container));

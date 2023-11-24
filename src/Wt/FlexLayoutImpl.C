@@ -43,7 +43,7 @@ FlexLayoutImpl::FlexLayoutImpl(WLayout *layout, Impl::Grid& grid)
   }
 }
 
-bool FlexLayoutImpl::itemResized(WLayoutItem *item)
+bool FlexLayoutImpl::itemResized(WT_MAYBE_UNUSED WLayoutItem* item)
 {
   /*
    * Actually, we should only return true if the direct child's
@@ -184,7 +184,7 @@ void FlexLayoutImpl::update()
   }
 }
 
-int FlexLayoutImpl::count(Orientation orientation) const
+int FlexLayoutImpl::count(WT_MAYBE_UNUSED Orientation orientation) const
 {
   return grid_.rows_.size() * grid_.columns_.size();
 }
@@ -206,7 +206,8 @@ Impl::Grid::Item& FlexLayoutImpl::item(Orientation orientation, int i)
 }
 
 DomElement *FlexLayoutImpl::createDomElement(DomElement *parent,
-                                             bool fitWidth, bool fitHeight,
+                                             WT_MAYBE_UNUSED bool fitWidth,
+                                             WT_MAYBE_UNUSED bool fitHeight,
                                              WApplication *app)
 {
   addedItems_.clear();

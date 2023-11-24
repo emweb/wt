@@ -56,7 +56,7 @@ DropSchema::DropSchema(Session& session,
   tablesDropped_.insert(mapping.tableName);
 }
 
-void DropSchema::actMapping(Impl::MappingInfo *mapping)
+void DropSchema::actMapping(WT_MAYBE_UNUSED Impl::MappingInfo* mapping)
 { }
 
 void DropSchema::drop(const std::string& table)
@@ -96,7 +96,7 @@ DboAction::DboAction(MetaDboBase& dbo, Impl::MappingInfo& mapping)
     setIdx_(0)
 { }
 
-void DboAction::actMapping(Impl::MappingInfo *mapping)
+void DboAction::actMapping(WT_MAYBE_UNUSED Impl::MappingInfo* mapping)
 { }
 
 bool DboAction::getsValue() const { return false; }
@@ -205,7 +205,7 @@ SetReciproceAction::SetReciproceAction(Session *session,
     value_(value)
 { }
 
-void SetReciproceAction::actMapping(Impl::MappingInfo *mapping)
+void SetReciproceAction::actMapping(WT_MAYBE_UNUSED Impl::MappingInfo* mapping)
 { }
 
 bool SetReciproceAction::getsValue() const { return false; }
@@ -217,7 +217,7 @@ ToAnysAction::ToAnysAction(std::vector<cpp17::any>& result)
     result_(result)
 { }
 
-void ToAnysAction::actMapping(Impl::MappingInfo *mapping)
+void ToAnysAction::actMapping(WT_MAYBE_UNUSED Impl::MappingInfo* mapping)
 { }
 
 bool ToAnysAction::getsValue() const { return true; }
@@ -230,7 +230,7 @@ FromAnyAction::FromAnyAction(int& index, const cpp17::any& value)
     value_(value)
 { }
 
-void FromAnyAction::actMapping(Impl::MappingInfo *mapping)
+void FromAnyAction::actMapping(WT_MAYBE_UNUSED Impl::MappingInfo* mapping)
 { }
 
 bool FromAnyAction::getsValue() const { return false; }

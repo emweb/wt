@@ -260,7 +260,7 @@ void WResource::handle(WebRequest *webRequest, WebResponse *webResponse,
   }
 }
 
-void WResource::handleAbort(const Http::Request& request)
+void WResource::handleAbort(WT_MAYBE_UNUSED const Http::Request& request)
 { }
 
 void WResource::suggestFileName(const WString& name,

@@ -393,7 +393,7 @@ struct error_handler
 {
   template<typename Iterator, typename Exception, typename Context>
   x3::error_handler_result on_error(
-      Iterator &first, Iterator const &last,
+      WT_MAYBE_UNUSED Iterator& first, WT_MAYBE_UNUSED Iterator const& last,
       Exception const &x, Context const &context)
   {
     auto& error_handler = x3::get<x3::error_handler_tag>(context).get();

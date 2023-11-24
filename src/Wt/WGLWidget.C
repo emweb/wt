@@ -301,7 +301,7 @@ void WGLWidget::paintGL()
 {
 }
 
-void WGLWidget::resizeGL(int width, int height)
+void WGLWidget::resizeGL(WT_MAYBE_UNUSED int width, WT_MAYBE_UNUSED int height)
 {
 }
 

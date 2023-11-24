@@ -142,7 +142,7 @@ void WIdentityProxyModel
 }
 
 void WIdentityProxyModel
-::sourceColumnsInserted(const WModelIndex &parent, int start, int end)
+::sourceColumnsInserted(WT_MAYBE_UNUSED const WModelIndex&, WT_MAYBE_UNUSED int start, WT_MAYBE_UNUSED int end)
 {
   endInsertColumns();
 }
@@ -154,7 +154,7 @@ void WIdentityProxyModel
 }
 
 void WIdentityProxyModel
-::sourceColumnsRemoved(const WModelIndex &parent, int start, int end)
+::sourceColumnsRemoved(WT_MAYBE_UNUSED const WModelIndex&, WT_MAYBE_UNUSED int start, WT_MAYBE_UNUSED int end)
 {
   endRemoveColumns();
 }
@@ -166,7 +166,7 @@ void WIdentityProxyModel
 }
 
 void WIdentityProxyModel
-::sourceRowsInserted(const WModelIndex &parent, int start, int end)
+::sourceRowsInserted(WT_MAYBE_UNUSED const WModelIndex&, WT_MAYBE_UNUSED int start, WT_MAYBE_UNUSED int end)
 {
   endInsertRows();
 }
@@ -178,7 +178,7 @@ void WIdentityProxyModel
 }
 
 void WIdentityProxyModel
-::sourceRowsRemoved(const WModelIndex &parent, int start, int end)
+::sourceRowsRemoved(WT_MAYBE_UNUSED const WModelIndex&, WT_MAYBE_UNUSED int start, WT_MAYBE_UNUSED int end)
 {
   endRemoveRows();
 }

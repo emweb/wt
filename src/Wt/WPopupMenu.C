@@ -309,7 +309,7 @@ void WPopupMenu::setAutoHide(bool enabled, int autoHideDelay)
     autoHideDelay_ = -1;
 }
 
-void WPopupMenu::renderSelected(WMenuItem *item, bool selected)
+void WPopupMenu::renderSelected(WT_MAYBE_UNUSED WMenuItem* item, WT_MAYBE_UNUSED bool selected)
 { }
 
 void WPopupMenu::getSDomChanges(std::vector<DomElement *> &result, WApplication *app)
@@ -323,7 +323,7 @@ void WPopupMenu::render(WFlags<RenderFlag> flags)
   willPopup_ = false;
 }
 
-std::string WPopupMenu::renderRemoveJs(bool recursive)
+std::string WPopupMenu::renderRemoveJs(WT_MAYBE_UNUSED bool recursive)
 {
   // Removal of WPopupMenu may not be simplified, because
   // it may have been reparented by JavaScript

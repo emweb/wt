@@ -124,7 +124,7 @@ void WTextArea::setValueText(const WT_USTRING& value)
   setText(value);
 }
 
-int WTextArea::boxPadding(Orientation orientation) const
+int WTextArea::boxPadding(WT_MAYBE_UNUSED Orientation orientation) const
 {
   const WEnvironment& env = WApplication::instance()->environment();
 
@@ -140,7 +140,7 @@ int WTextArea::boxPadding(Orientation orientation) const
     return 1;
 }
 
-int WTextArea::boxBorder(Orientation orientation) const
+int WTextArea::boxBorder(WT_MAYBE_UNUSED Orientation orientation) const
 {
   const WEnvironment& env = WApplication::instance()->environment();
 

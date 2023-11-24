@@ -125,7 +125,7 @@ void WCssRule::modified()
     sheet_->ruleModified(this);
 }
 
-bool WCssRule::updateDomElement(DomElement& cssRuleElement, bool all)
+bool WCssRule::updateDomElement(WT_MAYBE_UNUSED DomElement& cssRuleElement, WT_MAYBE_UNUSED bool all)
 {
   return false;
 }

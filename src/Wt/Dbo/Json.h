@@ -78,7 +78,7 @@ public:
     }
 
     template<typename T>
-    void actId(ptr<T>& value, const std::string& name, int size, int fkConstraints) {
+    void actId(ptr<T>& value, const std::string& name, int size, WT_MAYBE_UNUSED int fkConstraints) {
       field(*this, value, name, size);
     }
 

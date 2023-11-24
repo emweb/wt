@@ -199,7 +199,7 @@ void WTabWidget::setInternalBasePath(const std::string& path)
   menu_->setInternalBasePath(path);
 }
 
-void WTabWidget::onItemSelected(WMenuItem *item)
+void WTabWidget::onItemSelected(WT_MAYBE_UNUSED WMenuItem* item)
 {
   currentChanged_.emit(menu_->currentIndex());
 }

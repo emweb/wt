@@ -122,7 +122,7 @@ void WebRequest::reset()
   urlParams_.clear();
 }
 
-void WebRequest::readWebSocketMessage(const ReadCallback& callback)
+void WebRequest::readWebSocketMessage(WT_MAYBE_UNUSED const ReadCallback& callback)
 {
   throw WException("should not get here");
 }
@@ -132,7 +132,7 @@ bool WebRequest::webSocketMessagePending() const
   throw WException("should not get here");
 }
 
-bool WebRequest::detectDisconnect(const DisconnectCallback& callback)
+bool WebRequest::detectDisconnect(WT_MAYBE_UNUSED const DisconnectCallback& callback)
 {
   return false; /* Not implemented */
 }

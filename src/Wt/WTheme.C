@@ -21,7 +21,7 @@ std::string WTheme::resourcesUrl() const
 WTheme::~WTheme()
 { }
 
-void WTheme::init(WApplication *app) const
+void WTheme::init(WT_MAYBE_UNUSED WApplication* app) const
 { }
 
 void WTheme::serveCss(WStringStream& out) const

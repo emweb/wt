@@ -240,8 +240,7 @@ WebRenderer::AckState WebRenderer::ackUpdate(unsigned int updateId)
     return BadAck;
 }
 
-void WebRenderer::letReloadJS(WebResponse& response, bool newSession,
-                              bool embedded)
+void WebRenderer::letReloadJS(WebResponse& response, WT_MAYBE_UNUSED bool newSession, bool embedded)
 {
   if (!embedded) {
     addNoCacheHeaders(response);
@@ -1777,7 +1776,7 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
   }
 }
 
-void WebRenderer::updateFormObjects(WWebWidget *source, bool checkDescendants)
+void WebRenderer::updateFormObjects(WT_MAYBE_UNUSED WWebWidget* source, WT_MAYBE_UNUSED bool checkDescendants)
 {
   formObjectsChanged_ = true;
 }

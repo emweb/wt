@@ -151,7 +151,8 @@ std::unique_ptr<WImage> WVirtualImage
 }
 
 std::unique_ptr<WResource> WVirtualImage
-::render(::int64_t x, ::int64_t y, int width, int height)
+::render(WT_MAYBE_UNUSED ::int64_t x, WT_MAYBE_UNUSED ::int64_t y,
+         WT_MAYBE_UNUSED int width, WT_MAYBE_UNUSED int height)
 {
   throw WException("You should reimplement WVirtualImage::render()");
 }

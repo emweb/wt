@@ -2759,7 +2759,7 @@ void Block::clearFloats(PageState &ps, double minWidth)
 double Block::positionFloat(double x, PageState &ps,
                             double lineHeight, double width,
                             bool canIncreaseWidth,
-                            const WTextRenderer& renderer,
+                            WT_MAYBE_UNUSED const WTextRenderer& renderer,
                             FloatSide floatSide)
 {
   if (!ps.floats.empty()) {

@@ -14,13 +14,13 @@ namespace Wt {
 
 template <typename V, class Enable>
 void sql_value_traits<V, Enable>::bind(const char *v, SqlStatement *statement,
-                                       int column, int size)
+                                       int column, WT_MAYBE_UNUSED int size)
 {
   statement->bind(column, v);
 }
 
 template <typename Result>
-void query_result_traits<Result>::getFields(Session& session,
+void query_result_traits<Result>::getFields(WT_MAYBE_UNUSED Session& session,
                                           std::vector<std::string> *aliases,
                                           std::vector<FieldInfo>& result)
 {
@@ -44,7 +44,7 @@ void query_result_traits<Result>::getFields(Session& session,
 }
 
 template <typename Result>
-Result query_result_traits<Result>::load(Session& session,
+Result query_result_traits<Result>::load(WT_MAYBE_UNUSED Session& session,
                                          SqlStatement& statement,
                                          int& column)
 {
@@ -76,23 +76,23 @@ Result query_result_traits<Result>::create()
 }
 
 template <typename Result>
-void query_result_traits<Result>::add(Session& session, Result& result)
+void query_result_traits<Result>::add(WT_MAYBE_UNUSED Session& session, WT_MAYBE_UNUSED Result& result)
 {
 }
 
 template <typename Result>
-void query_result_traits<Result>::remove(Result& result)
+void query_result_traits<Result>::remove(WT_MAYBE_UNUSED Result& result)
 {
 }
 
 template <typename Result>
-long long query_result_traits<Result>::id(const Result& result)
+long long query_result_traits<Result>::id(WT_MAYBE_UNUSED const Result& result)
 {
   return -1;
 }
 
 template <typename Result>
-Result query_result_traits<Result>::findById(Session& session, long long id)
+Result query_result_traits<Result>::findById(WT_MAYBE_UNUSED Session& session, WT_MAYBE_UNUSED long long id)
 {
   return Result();
 }

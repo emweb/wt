@@ -553,7 +553,7 @@ void Server
 }
 
 void Server
-::handleMessageSent(const std::shared_ptr<std::string>& buf,
+::handleMessageSent(WT_MAYBE_UNUSED const std::shared_ptr<std::string>& buf,
                     const Wt::AsioWrapper::error_code& err)
 {
   if (err) {

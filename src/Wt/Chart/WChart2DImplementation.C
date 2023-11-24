@@ -14,8 +14,8 @@
 namespace Wt {
   namespace Chart {
 
-bool ExtremesIterator::startSeries(const WDataSeries& series, double groupWidth,
-                                   int numBarGroups, int currentBarGroup)
+bool ExtremesIterator::startSeries(const WDataSeries& series, WT_MAYBE_UNUSED double groupWidth,
+                                   WT_MAYBE_UNUSED int numBarGroups, WT_MAYBE_UNUSED int currentBarGroup)
 {
   if (axis_ == Axis::X) {
     return series.xAxis() == xAxis_;
@@ -24,9 +24,9 @@ bool ExtremesIterator::startSeries(const WDataSeries& series, double groupWidth,
   }
 }
 
-void ExtremesIterator::newValue(const WDataSeries& series, double x, double y,
-                                double stackY, int xRow, int xColumn,
-                                int yRow, int yColumn)
+void ExtremesIterator::newValue(const WDataSeries&, double x, double y,
+                                WT_MAYBE_UNUSED double stackY, WT_MAYBE_UNUSED int xRow, WT_MAYBE_UNUSED int xColumn,
+                                WT_MAYBE_UNUSED int yRow, WT_MAYBE_UNUSED int yColumn)
 {
   double v = axis_ == Axis::X ? x : y;
 
@@ -55,7 +55,7 @@ int WChart2DImplementation::axisPadding() const
   return chart_->axisPadding();
 }
 
-int WChart2DImplementation::numberOfCategories(Axis axis) const
+int WChart2DImplementation::numberOfCategories(WT_MAYBE_UNUSED Axis axis) const
 {
   if (chart_->model())
     return chart_->model()->rowCount();
@@ -68,7 +68,7 @@ Orientation WChart2DImplementation::orientation() const
   return chart_->orientation();
 }
 
-WString WChart2DImplementation::categoryLabel(int u, Axis axis) const
+WString WChart2DImplementation::categoryLabel(int u, WT_MAYBE_UNUSED Axis axis) const
 {
   if (chart_->XSeriesColumn() != -1) {
     if (u < chart_->model()->rowCount())

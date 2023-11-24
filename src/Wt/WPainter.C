@@ -74,12 +74,12 @@ public:
       rect_(rect)
   { }
 
-  virtual double pageWidth(int page) const override
+  virtual double pageWidth(WT_MAYBE_UNUSED int page) const override
   {
     return rect_.right();
   }
 
-  virtual double pageHeight(int page) const override
+  virtual double pageHeight(WT_MAYBE_UNUSED int page) const override
   {
     return 1E9;
   }
@@ -102,11 +102,11 @@ public:
     return painter_.device();
   }
 
-  virtual void endPage(WPaintDevice *device) override
+  virtual void endPage(WT_MAYBE_UNUSED WPaintDevice* device) override
   {
   }
 
-  virtual WPainter *getPainter(WPaintDevice *device) override
+  virtual WPainter *getPainter(WT_MAYBE_UNUSED WPaintDevice* device) override
   {
     return &painter_;
   }

@@ -278,7 +278,7 @@ LOGGER("Dbo.backend.Firebird");
           return columnCount_;
         }
 
-        void getString(int column, std::string *value, int size)
+        void getString(int column, std::string *value, WT_MAYBE_UNUSED int size)
         {
           m_stmt->Get(column, *value);
         }

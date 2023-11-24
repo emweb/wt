@@ -1554,7 +1554,7 @@ void WTableView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
 }
 
 void WTableView::modelRowsRemoved(const WModelIndex& parent,
-                                  int start, int end)
+                                  WT_MAYBE_UNUSED int start, WT_MAYBE_UNUSED int end)
 {
   if (parent != rootIndex())
     return;
@@ -1847,22 +1847,22 @@ void WTableView::handleTouchEnded(const WTouchEvent& event)
   handleTouchEnd(indices, event);
 }
 
-void WTableView::handleRootSingleClick(int u, const WMouseEvent& event)
+void WTableView::handleRootSingleClick(WT_MAYBE_UNUSED int u, const WMouseEvent& event)
 {
   handleClick(WModelIndex(), event);
 }
 
-void WTableView::handleRootDoubleClick(int u, const WMouseEvent& event)
+void WTableView::handleRootDoubleClick(WT_MAYBE_UNUSED int u, const WMouseEvent& event)
 {
   handleDoubleClick(WModelIndex(), event);
 }
 
-void WTableView::handleRootMouseWentDown(int u, const WMouseEvent& event)
+void WTableView::handleRootMouseWentDown(WT_MAYBE_UNUSED int u, const WMouseEvent& event)
 {
   handleMouseDown(WModelIndex(), event);
 }
 
-void WTableView::handleRootMouseWentUp(int u, const WMouseEvent& event)
+void WTableView::handleRootMouseWentUp(WT_MAYBE_UNUSED int u, const WMouseEvent& event)
 {
   handleMouseUp(WModelIndex(), event);
 }

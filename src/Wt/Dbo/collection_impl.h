@@ -20,7 +20,7 @@ namespace Wt {
       template <class C>
       struct Helper {
         static void skipIfRemoved
-        (typename collection<C>::iterator::shared_impl& it)
+        (WT_MAYBE_UNUSED typename collection<C>::iterator::shared_impl& it)
         { }
       };
 

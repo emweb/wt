@@ -73,7 +73,7 @@ void WTemplateFormView
 }
 
 std::unique_ptr<WWidget> WTemplateFormView
-::createFormWidget(WFormModel::Field field)
+::createFormWidget(WT_MAYBE_UNUSED WFormModel::Field field)
 {
   return std::unique_ptr<WWidget>();
 }
@@ -96,9 +96,9 @@ void WTemplateFormView::updateViewValue(WFormModel *model,
     edit->setValueText(model->valueText(field));
 }
 
-bool WTemplateFormView::updateViewValue(WFormModel *model,
+bool WTemplateFormView::updateViewValue(WT_MAYBE_UNUSED WFormModel* model,
                                         WFormModel::Field field,
-                                        WWidget *edit)
+                                        WT_MAYBE_UNUSED WWidget* edit)
 {
   FieldMap::const_iterator fi = fields_.find(field);
 
@@ -164,7 +164,7 @@ void WTemplateFormView::updateViewField(WFormModel *model,
   }
 }
 
-void WTemplateFormView::indicateValidation(WFormModel::Field field,
+void WTemplateFormView::indicateValidation(WT_MAYBE_UNUSED WFormModel::Field field,
                                            bool validated,
                                            WText *info,
                                            WWidget *edit,
@@ -212,9 +212,9 @@ void WTemplateFormView::updateModelValue(WFormModel *model,
     model->setValue(field, edit->valueText());
 }
 
-bool WTemplateFormView::updateModelValue(WFormModel *model,
+bool WTemplateFormView::updateModelValue(WT_MAYBE_UNUSED WFormModel* model,
                                          WFormModel::Field field,
-                                         WWidget *edit)
+                                         WT_MAYBE_UNUSED WWidget* edit)
 {
   FieldMap::const_iterator fi = fields_.find(field);
 

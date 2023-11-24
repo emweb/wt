@@ -229,7 +229,7 @@ bool WLeafletMap::Marker::needsUpdate() const
   return false;
 }
 
-void WLeafletMap::Marker::update(WStringStream &js)
+void WLeafletMap::Marker::update(WT_MAYBE_UNUSED WStringStream& js)
 { }
 
 WLeafletMap::WidgetMarker::WidgetMarker(const Coordinate &pos,

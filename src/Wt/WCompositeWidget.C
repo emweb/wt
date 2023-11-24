@@ -450,7 +450,7 @@ bool WCompositeWidget::canReceiveFocus() const
   return impl_->canReceiveFocus();
 }
 
-void WCompositeWidget::setFocus(bool focus)
+void WCompositeWidget::setFocus(WT_MAYBE_UNUSED bool focus)
 {
   impl_->setFocus(true);
 }

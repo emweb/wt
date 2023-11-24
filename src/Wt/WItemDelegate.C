@@ -290,7 +290,7 @@ IndexCheckBox *WItemDelegate::checkBox(WidgetRef& w, const WModelIndex& index,
   return checkBox;
 }
 
-IndexText *WItemDelegate::textWidget(WidgetRef& w, const WModelIndex &index)
+IndexText *WItemDelegate::textWidget(WidgetRef& w, WT_MAYBE_UNUSED const WModelIndex& index)
 {
   return dynamic_cast<IndexText *>(w.w->find("t"));
 }
@@ -445,7 +445,7 @@ void WItemDelegate::doCloseEditor(WWidget *editor, bool save) const
   closeEditor().emit(editor, save);
 }
 
-cpp17::any WItemDelegate::editState(WWidget *editor, const WModelIndex& index)
+cpp17::any WItemDelegate::editState(WWidget *editor, WT_MAYBE_UNUSED const WModelIndex& index)
   const
 {
   IndexContainerWidget *w =
@@ -455,7 +455,7 @@ cpp17::any WItemDelegate::editState(WWidget *editor, const WModelIndex& index)
   return cpp17::any(lineEdit->text());
 }
 
-void WItemDelegate::setEditState(WWidget *editor, const WModelIndex& index,
+void WItemDelegate::setEditState(WWidget *editor, WT_MAYBE_UNUSED const WModelIndex& index,
                                  const cpp17::any& value) const
 {
   IndexContainerWidget *w =

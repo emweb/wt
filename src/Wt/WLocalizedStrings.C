@@ -16,9 +16,9 @@ WLocalizedStrings::~WLocalizedStrings()
 void WLocalizedStrings::hibernate()
 { }
 
-LocalizedString WLocalizedStrings::resolvePluralKey(const WLocale& locale,
-                                         const std::string& key,
-                                         ::uint64_t amount)
+LocalizedString WLocalizedStrings::resolvePluralKey(WT_MAYBE_UNUSED const WLocale& locale,
+                                                    WT_MAYBE_UNUSED const std::string& key,
+                                                    WT_MAYBE_UNUSED ::uint64_t amount)
 {
   throw WException("WLocalizedStrings::resolvePluralKey is not supported");
 }

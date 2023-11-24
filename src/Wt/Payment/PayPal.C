@@ -513,7 +513,7 @@ void PayPalExpressCheckout::saveCustomerDetails(Http::ParameterMap &params)
   impl_->customer_.setShippingAddress(adderss);
 }
 
-Signal<Result>& PayPalExpressCheckout::completePayment(const Money& totalAmount)
+Signal<Result>& PayPalExpressCheckout::completePayment(WT_MAYBE_UNUSED const Money& money)
 {
   impl_->httpClient_ = impl_->service_.createHttpClient();
   auto client = impl_->httpClient_.get();

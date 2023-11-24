@@ -42,9 +42,8 @@ int FlexItemImpl::minimumHeight() const
     return static_cast<int>(item_->widget()->minimumHeight().toPixels());
 }
 
-DomElement *FlexItemImpl::createDomElement(DomElement *parent,
-                                           bool fitWidth, bool fitHeight,
-                                           WApplication *app)
+DomElement *FlexItemImpl::createDomElement(WT_MAYBE_UNUSED DomElement* parent, WT_MAYBE_UNUSED bool fitWidth,
+                                           WT_MAYBE_UNUSED bool fitHeight, WApplication *app)
 {
   WWidget *w = item_->widget();
 

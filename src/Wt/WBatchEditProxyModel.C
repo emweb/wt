@@ -512,7 +512,7 @@ void WBatchEditProxyModel::sourceColumnsAboutToBeRemoved
 }
 
 void WBatchEditProxyModel::sourceColumnsRemoved(const WModelIndex& parent,
-                                                int start, int end)
+                                                WT_MAYBE_UNUSED int start, WT_MAYBE_UNUSED int end)
 {
   if (isRemoved(parent))
     return;
@@ -578,7 +578,7 @@ void WBatchEditProxyModel::sourceRowsRemoved(const WModelIndex& parent,
 }
 
 void WBatchEditProxyModel::sourceRowsAboutToBeInserted
-(const WModelIndex& parent, int start, int end)
+(WT_MAYBE_UNUSED const WModelIndex& parent, WT_MAYBE_UNUSED int start, WT_MAYBE_UNUSED int end)
 { }
 
 void WBatchEditProxyModel::sourceRowsInserted(const WModelIndex& parent,
@@ -931,7 +931,7 @@ bool WBatchEditProxyModel::removeColumns(int column, int count,
   return true;
 }
 
-void WBatchEditProxyModel::insertIndexes(Item *item,
+void WBatchEditProxyModel::insertIndexes(WT_MAYBE_UNUSED Item* item,
                                          std::vector<int>& ins,
                                          std::vector<Item *> *rowItems,
                                          int index, int count)

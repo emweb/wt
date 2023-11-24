@@ -14,28 +14,26 @@ WAbstractItemDelegate::WAbstractItemDelegate()
 WAbstractItemDelegate::~WAbstractItemDelegate()
 { }
 
-void WAbstractItemDelegate::updateModelIndex(WWidget *widget,
-                                             const WModelIndex& index)
+void WAbstractItemDelegate::updateModelIndex(WT_MAYBE_UNUSED WWidget* widget, WT_MAYBE_UNUSED const WModelIndex&)
 { }
 
-cpp17::any WAbstractItemDelegate::editState(WWidget *widget,
-                                         const WModelIndex& index) const
+cpp17::any WAbstractItemDelegate::editState(WT_MAYBE_UNUSED WWidget* widget, WT_MAYBE_UNUSED const WModelIndex&) const
 {
   return cpp17::any();
 }
 
-void WAbstractItemDelegate::setEditState(WWidget *widget,
-                                         const WModelIndex& index,
-                                         const cpp17::any& value) const
+void WAbstractItemDelegate::setEditState(WT_MAYBE_UNUSED WWidget* widget,
+                                         WT_MAYBE_UNUSED const WModelIndex&,
+                                         WT_MAYBE_UNUSED const cpp17::any& value) const
 { }
 
-void WAbstractItemDelegate::setModelData(const cpp17::any& editState,
-                                         WAbstractItemModel *model,
-                                         const WModelIndex& index) const
+void WAbstractItemDelegate::setModelData(WT_MAYBE_UNUSED const cpp17::any& editState,
+                                         WT_MAYBE_UNUSED WAbstractItemModel* model,
+                                         WT_MAYBE_UNUSED const WModelIndex&) const
 { }
 
-ValidationState WAbstractItemDelegate::validate(const WModelIndex& index,
-                                                const cpp17::any& editState)
+ValidationState WAbstractItemDelegate::validate(WT_MAYBE_UNUSED const WModelIndex&,
+                                                WT_MAYBE_UNUSED const cpp17::any& editState)
   const
 {
   return ValidationState::Valid;

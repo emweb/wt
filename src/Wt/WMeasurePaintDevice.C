@@ -71,9 +71,9 @@ void WMeasurePaintDevice::drawArc(const WRectF& rect, double startAngle,
 }
 
 void WMeasurePaintDevice::drawImage(const WRectF& rect,
-                                    const std::string& imageUri,
-                                    int imgWidth, int imgHeight,
-                                    const WRectF& sourceRect)
+                                    WT_MAYBE_UNUSED const std::string& imageUri,
+                                    WT_MAYBE_UNUSED int imgWidth, WT_MAYBE_UNUSED int imgHeight,
+                                    WT_MAYBE_UNUSED const WRectF& sourceRect)
 {
   expandBounds(rect);
 }

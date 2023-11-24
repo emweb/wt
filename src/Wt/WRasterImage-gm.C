@@ -312,7 +312,7 @@ void WRasterImage::Impl::internalDone()
   }
 }
 
-void WRasterImage::handleRequest(const Http::Request &request,
+void WRasterImage::handleRequest(WT_MAYBE_UNUSED const Http::Request& request,
                                  Http::Response &response)
 {
   std::size_t size = 0;
@@ -660,7 +660,7 @@ void WRasterImage::drawArc(const WRectF& rect,
 }
 
 void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
-                             int imgWidth, int imgHeight,
+                             WT_MAYBE_UNUSED int imgWidth, WT_MAYBE_UNUSED int imgHeight,
                              const WRectF& srect)
 {
   ImageInfo info;

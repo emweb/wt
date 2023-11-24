@@ -559,7 +559,7 @@ void WBootstrap5Theme::applyValidationStyle(WWidget *widget,
   }
 }
 
-bool WBootstrap5Theme::canBorderBoxElement(const DomElement& element) const
+bool WBootstrap5Theme::canBorderBoxElement(WT_MAYBE_UNUSED const DomElement& element) const
 {
   // Irrelevant, is used for old IE versions
   return true;

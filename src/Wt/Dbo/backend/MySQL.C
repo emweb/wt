@@ -493,7 +493,7 @@ class MySQLStatement final : public SqlStatement
       return columnCount_;
     }
 
-    virtual bool getResult(int column, std::string *value, int size) override
+    virtual bool getResult(int column, std::string *value, WT_MAYBE_UNUSED int size) override
     {
       if (*(out_pars_[column].is_null) == 1)
         return false;
@@ -748,7 +748,7 @@ class MySQLStatement final : public SqlStatement
     }
 
     virtual bool getResult(int column, std::vector<unsigned char> *value,
-                           int size) override
+                           WT_MAYBE_UNUSED int size) override
     {
       if (*(out_pars_[column].is_null) == 1)
         return false;
@@ -1085,20 +1085,20 @@ std::string MySQL::autoincrementSql() const
   return "AUTO_INCREMENT";
 }
 
-std::string MySQL::autoincrementInsertSuffix(const std::string &id) const
+std::string MySQL::autoincrementInsertSuffix(WT_MAYBE_UNUSED const std::string& id) const
 {
   return std::string();
 }
 
 std::vector<std::string>
-MySQL::autoincrementCreateSequenceSql(const std::string &table,
-                                      const std::string &id) const{
+MySQL::autoincrementCreateSequenceSql(WT_MAYBE_UNUSED const std::string& table,
+                                      WT_MAYBE_UNUSED const std::string& id) const{
   return std::vector<std::string>();
 }
 
 std::vector<std::string>
-MySQL::autoincrementDropSequenceSql(const std::string &table,
-                             const std::string &id) const{
+MySQL::autoincrementDropSequenceSql(WT_MAYBE_UNUSED const std::string& table,
+                             WT_MAYBE_UNUSED const std::string& id) const{
 
   return std::vector<std::string>();
 }

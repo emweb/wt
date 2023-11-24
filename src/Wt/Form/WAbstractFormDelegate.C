@@ -24,7 +24,7 @@ void WAbstractFormDelegate::updateModelValue(Wt::WFormModel *model, Wt::WFormMod
   model->setValue(field, edit->valueText());
 }
 
-bool WAbstractFormDelegate::updateModelValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WWidget *edit)
+bool WAbstractFormDelegate::updateModelValue(WT_MAYBE_UNUSED Wt::WFormModel* model, WT_MAYBE_UNUSED Wt::WFormModel::Field field, WT_MAYBE_UNUSED Wt::WWidget* edit)
 {
   return false;
 }
@@ -34,7 +34,7 @@ void WAbstractFormDelegate::updateViewValue(Wt::WFormModel *model, Wt::WFormMode
   edit->setValueText(model->valueText(field));
 }
 
-bool WAbstractFormDelegate::updateViewValue(Wt::WFormModel *model, Wt::WFormModel::Field field, Wt::WWidget *edit)
+bool WAbstractFormDelegate::updateViewValue(WT_MAYBE_UNUSED Wt::WFormModel* model, WT_MAYBE_UNUSED Wt::WFormModel::Field field, WT_MAYBE_UNUSED Wt::WWidget* edit)
 {
   return false;
 }

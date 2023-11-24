@@ -80,28 +80,25 @@ namespace Impl {
   struct helper<-1, Ts...>
   {
     typedef typename std::tuple<Ts...> TupleType;
-    static void getFields(Session& session,
-                          std::vector<std::string> *aliases,
-                          std::vector<FieldInfo>& result)
+    static void getFields(WT_MAYBE_UNUSED Session& session, WT_MAYBE_UNUSED std::vector<std::string>* aliases, WT_MAYBE_UNUSED std::vector<FieldInfo>& result)
     { }
 
-    static void load(Session& session, SqlStatement& statement,
-                     int& column, TupleType& result)
+    static void load(WT_MAYBE_UNUSED Session& session, WT_MAYBE_UNUSED SqlStatement& statement, WT_MAYBE_UNUSED int& column, WT_MAYBE_UNUSED TupleType& type)
     { }
 
-    static void getValues(const TupleType& result, std::vector<cpp17::any>& values)
+    static void getValues(WT_MAYBE_UNUSED const TupleType& type, WT_MAYBE_UNUSED std::vector<cpp17::any>& values)
     { }
 
-    static void setValue(TupleType& result, int& index, const cpp17::any& value)
+    static void setValue(WT_MAYBE_UNUSED TupleType& type, int&, WT_MAYBE_UNUSED const cpp17::any& value)
     { }
 
-    static void create(TupleType& result)
+    static void create(WT_MAYBE_UNUSED TupleType& type)
     { }
 
-    static void add(Session& session, TupleType& result)
+    static void add(WT_MAYBE_UNUSED Session& session, WT_MAYBE_UNUSED TupleType& type)
     { }
 
-    static void remove(TupleType& result)
+    static void remove(WT_MAYBE_UNUSED TupleType& type)
     { }
   };
 
@@ -185,14 +182,14 @@ void query_result_traits<std::tuple<T...>>::remove(std::tuple<T...>& t)
 }
 
 template <typename... T>
-long long query_result_traits<std::tuple<T...>>::id(const std::tuple<T...>& t)
+long long query_result_traits<std::tuple<T...>>::id(WT_MAYBE_UNUSED const std::tuple<T...>& t)
 {
   return -1;
 }
 
 template <typename... T>
 std::tuple<T...> query_result_traits<std::tuple<T...>>
-::findById(Session& session, long long id)
+::findById(WT_MAYBE_UNUSED Session& session, WT_MAYBE_UNUSED long long id)
 {
   return std::tuple<T...>();
 }

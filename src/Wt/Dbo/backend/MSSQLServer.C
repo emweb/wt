@@ -730,7 +730,7 @@ public:
   virtual bool getResult(
     int column,
     std::vector<unsigned char> *value,
-    int size) override
+    WT_MAYBE_UNUSED int size) override
   {
     MSSQLServer::Impl::ResultBuffer &resultBuffer = conn_.impl_->resultBuffer;
     std::size_t resultBufferPos = 0;
@@ -1017,12 +1017,12 @@ std::string MSSQLServer::autoincrementSql() const
   return "IDENTITY(1,1)";
 }
 
-std::vector<std::string> MSSQLServer::autoincrementCreateSequenceSql(const std::string &table, const std::string &id) const
+std::vector<std::string> MSSQLServer::autoincrementCreateSequenceSql(WT_MAYBE_UNUSED const std::string& table, WT_MAYBE_UNUSED const std::string& id) const
 {
   return std::vector<std::string>();
 }
 
-std::vector<std::string> MSSQLServer::autoincrementDropSequenceSql(const std::string &table, const std::string &id) const
+std::vector<std::string> MSSQLServer::autoincrementDropSequenceSql(WT_MAYBE_UNUSED const std::string& table, WT_MAYBE_UNUSED const std::string& id) const
 {
   return std::vector<std::string>();
 }
@@ -1037,7 +1037,7 @@ std::string MSSQLServer::autoincrementInsertInfix(const std::string &id) const
   return " OUTPUT Inserted.\"" + id + "\"";
 }
 
-std::string MSSQLServer::autoincrementInsertSuffix(const std::string &id) const
+std::string MSSQLServer::autoincrementInsertSuffix(WT_MAYBE_UNUSED const std::string& id) const
 {
   return "";
 }

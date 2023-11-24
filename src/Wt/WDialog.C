@@ -100,7 +100,7 @@ public:
   }
 
 protected:
-  virtual void render(WFlags<RenderFlag> flags) final override {
+  virtual void render(WT_MAYBE_UNUSED WFlags<RenderFlag> flags) final override {
     if (dialogs_.empty())
       topDialogId_.clear();
     else

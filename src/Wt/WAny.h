@@ -222,8 +222,7 @@ template <typename Type> void registerType()
 }
 
 template <typename Type>
-WString any_traits<Type>::asString(const Type& value,
-                                         const WString& format)
+WString any_traits<Type>::asString(const Type& value, WT_MAYBE_UNUSED const WString& format)
 {
   std::stringstream ss;
   ss << value;

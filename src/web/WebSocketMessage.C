@@ -22,8 +22,7 @@ WebSocketMessage::WebSocketMessage(WebSession *session)
   queryString_ = "wtd=" + session_->sessionId() + "&request=jsupdate";
 }
 
-void WebSocketMessage::flush(ResponseState state,
-                             const WriteCallback& callback)
+void WebSocketMessage::flush(ResponseState state, WT_MAYBE_UNUSED const WriteCallback& callback)
 {
   if (state != ResponseState::ResponseDone)
     error("flush(" + std::to_string(static_cast<unsigned int>(state))
@@ -34,7 +33,7 @@ void WebSocketMessage::flush(ResponseState state,
   delete this;
 }
 
-void WebSocketMessage::setWebSocketMessageCallback(const ReadCallback& callback)
+void WebSocketMessage::setWebSocketMessageCallback(WT_MAYBE_UNUSED const ReadCallback& callback)
 {
   error("setWebSocketMessageCallback() not supported");
 }
@@ -60,12 +59,12 @@ std::ostream& WebSocketMessage::err()
   return webSocket()->err();
 }
 
-void WebSocketMessage::setRedirect(const std::string& url)
+void WebSocketMessage::setRedirect(WT_MAYBE_UNUSED const std::string& url)
 {
   error("setRedirect() not supported");
 }
 
-void WebSocketMessage::setStatus(int status)
+void WebSocketMessage::setStatus(WT_MAYBE_UNUSED int status)
 {
   error("setStatus() not supported");
 }
@@ -76,13 +75,13 @@ void WebSocketMessage::setContentType(const std::string& value)
     error("setContentType(): text/javascript expected");
 }
 
-void WebSocketMessage::setContentLength(::int64_t length)
+void WebSocketMessage::setContentLength(WT_MAYBE_UNUSED ::int64_t length)
 {
   // We have no use for it, web socket messages are framed
 }
 
-void WebSocketMessage::addHeader(const std::string& name,
-                                 const std::string& value)
+void WebSocketMessage::addHeader(WT_MAYBE_UNUSED const std::string& name,
+                                 WT_MAYBE_UNUSED const std::string& value)
 {
   error("addHeader(): not supported");
 }

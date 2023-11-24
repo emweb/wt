@@ -60,7 +60,7 @@ std::unique_ptr<WLayoutItem> WFitLayout::removeItem(WLayoutItem *item)
     return std::unique_ptr<WLayoutItem>();
 }
 
-WLayoutItem *WFitLayout::itemAt(int index) const
+WLayoutItem *WFitLayout::itemAt(WT_MAYBE_UNUSED int index) const
 {
   return grid_.items_[0][0].item_.get();
 }

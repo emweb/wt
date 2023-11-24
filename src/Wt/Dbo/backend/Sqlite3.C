@@ -282,7 +282,7 @@ public:
     return sqlite3_column_count(st_);
   }
 
-  virtual bool getResult(int column, std::string *value, int size) override
+  virtual bool getResult(int column, std::string *value, WT_MAYBE_UNUSED int size) override
   {
     if (sqlite3_column_type(st_, column) == SQLITE_NULL)
       return false;
@@ -461,7 +461,7 @@ public:
 
 
   virtual bool getResult(int column, std::vector<unsigned char> *value,
-                         int size) override
+                         WT_MAYBE_UNUSED int size) override
   {
     if (sqlite3_column_type(st_, column) == SQLITE_NULL)
       return false;
@@ -573,20 +573,20 @@ std::string Sqlite3::autoincrementSql() const
 }
 
 std::vector<std::string>
-Sqlite3::autoincrementCreateSequenceSql(const std::string &table,
-                                        const std::string &id) const
+Sqlite3::autoincrementCreateSequenceSql(WT_MAYBE_UNUSED const std::string& table,
+                                        WT_MAYBE_UNUSED const std::string& id) const
 {
   return std::vector<std::string>();
 }
 
 std::vector<std::string>
-Sqlite3::autoincrementDropSequenceSql(const std::string &table,
-                                      const std::string &id) const
+Sqlite3::autoincrementDropSequenceSql(WT_MAYBE_UNUSED const std::string& table,
+                                      WT_MAYBE_UNUSED const std::string& id) const
 {
   return std::vector<std::string>();
 }
 
-std::string Sqlite3::autoincrementInsertSuffix(const std::string& id) const
+std::string Sqlite3::autoincrementInsertSuffix(WT_MAYBE_UNUSED const std::string& id) const
 {
   return std::string();
 }

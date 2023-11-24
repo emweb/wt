@@ -208,9 +208,8 @@ void WAbstractProxyModel::startShiftModelIndexes(const WModelIndex& sourceParent
     endShiftModelIndexes(sourceParent, start, count, items);
 }
 
-void WAbstractProxyModel::endShiftModelIndexes(const WModelIndex& sourceParent,
-                                               int start, int count,
-                                               ItemMap& items)
+void WAbstractProxyModel::endShiftModelIndexes(WT_MAYBE_UNUSED const WModelIndex& sourceParent, WT_MAYBE_UNUSED int start,
+                                               WT_MAYBE_UNUSED int count, ItemMap& items)
 {
   for (unsigned i = 0; i < itemsToShift_.size(); ++i)
     items[itemsToShift_[i]->sourceIndex_] = itemsToShift_[i];

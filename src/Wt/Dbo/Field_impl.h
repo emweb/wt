@@ -193,7 +193,7 @@ void auxId(Action& action, V& value, const std::string& name,
 
 template <class Action, class C>
 void auxId(Action& action, ptr<C>& value, const std::string& name,
-           ForeignKeyConstraint constraint, int size)
+           ForeignKeyConstraint constraint, WT_MAYBE_UNUSED int size)
 {
   action.actPtr(PtrRef<C>(value, name, constraint.value(), PtrRef<C>::AuxId));
 }

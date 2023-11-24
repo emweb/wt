@@ -220,7 +220,7 @@ void WTextEdit::propagateSetEnabled(bool enabled)
   setReadOnly(!enabled);
 }
 
-void WTextEdit::setPlaceholderText(const WString& placeholder)
+void WTextEdit::setPlaceholderText(WT_MAYBE_UNUSED const WString& placeholder)
 {
   throw WException("WTextEdit::setPlaceholderText() is not implemented.");
 }
@@ -342,12 +342,12 @@ bool WTextEdit::domCanBeSaved() const
   return false;
 }
 
-int WTextEdit::boxPadding(Orientation orientation) const
+int WTextEdit::boxPadding(WT_MAYBE_UNUSED Orientation orientation) const
 {
   return 0;
 }
 
-int WTextEdit::boxBorder(Orientation orientation) const
+int WTextEdit::boxBorder(WT_MAYBE_UNUSED Orientation orientation) const
 {
   return 0;
 }

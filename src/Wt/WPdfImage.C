@@ -606,7 +606,7 @@ void WPdfImage::drawPlainPath(const WPainterPath& path)
 
 void WPdfImage::drawText(const WRectF& rect,
                          WFlags<AlignmentFlag> flags,
-                         TextFlag textFlag,
+                         WT_MAYBE_UNUSED TextFlag textFlag,
                          const WString& text,
                          const WPointF *clipPoint)
 {
@@ -738,7 +738,7 @@ WTextItem WPdfImage::measureText(const WString& text, double maxWidth,
   }
 }
 
-void WPdfImage::handleRequest(const Http::Request& request,
+void WPdfImage::handleRequest(WT_MAYBE_UNUSED const Http::Request& request,
                               Http::Response& response)
 {
   HPDF_SaveToStream(pdf_);

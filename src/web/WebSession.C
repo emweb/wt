@@ -464,7 +464,7 @@ bool WebSession::useUglyInternalPaths() const
 #endif
 }
 
-std::string WebSession::bootstrapUrl(const WebResponse& response,
+std::string WebSession::bootstrapUrl(WT_MAYBE_UNUSED const WebResponse& response,
                                      BootstrapOption option) const
 {
   switch (option) {

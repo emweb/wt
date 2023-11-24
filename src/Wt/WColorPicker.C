@@ -76,7 +76,7 @@ DomElementType WColorPicker::domElementType() const
   return DomElementType::INPUT;
 }
 
-void WColorPicker::propagateRenderOk(bool deep)
+void WColorPicker::propagateRenderOk(WT_MAYBE_UNUSED bool deep)
 {
   colorChanged_ = false;
 }

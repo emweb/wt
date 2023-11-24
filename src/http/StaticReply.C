@@ -225,9 +225,7 @@ std::string StaticReply::computeExpires()
   return Wt::DateUtils::httpDate(std::chrono::system_clock::now() + Wt::cpp20::date::days(31));
 }
 
-bool StaticReply::consumeData(const char *begin,
-                              const char *end,
-                              Request::State state)
+bool StaticReply::consumeData(WT_MAYBE_UNUSED const char* begin, WT_MAYBE_UNUSED const char* end, Request::State state)
 {
   if (state != Request::Partial)
     send();

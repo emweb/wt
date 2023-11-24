@@ -30,21 +30,20 @@ WAbstractItemModel::WAbstractItemModel()
 WAbstractItemModel::~WAbstractItemModel()
 { }
 
-bool WAbstractItemModel::canFetchMore(const WModelIndex& parent) const
+bool WAbstractItemModel::canFetchMore(WT_MAYBE_UNUSED const WModelIndex& parent) const
 {
   return false;
 }
 
-void WAbstractItemModel::fetchMore(const WModelIndex& parent)
+void WAbstractItemModel::fetchMore(WT_MAYBE_UNUSED const WModelIndex& parent)
 { }
 
-WFlags<ItemFlag> WAbstractItemModel::flags(const WModelIndex& index) const
+WFlags<ItemFlag> WAbstractItemModel::flags(WT_MAYBE_UNUSED const WModelIndex& index) const
 {
   return ItemFlag::Selectable;
 }
 
-WFlags<HeaderFlag> WAbstractItemModel::headerFlags(int section,
-                                                   Orientation orientation)
+WFlags<HeaderFlag> WAbstractItemModel::headerFlags(WT_MAYBE_UNUSED int section, WT_MAYBE_UNUSED Orientation orientation)
   const
 {
   return None;
@@ -88,8 +87,7 @@ cpp17::any WAbstractItemModel::data(int row, int column, ItemDataRole role,
   return data(index(row, column, parent), role);
 }
 
-cpp17::any WAbstractItemModel::headerData(int section, Orientation orientation,
-                                       ItemDataRole role) const
+cpp17::any WAbstractItemModel::headerData(WT_MAYBE_UNUSED int section, WT_MAYBE_UNUSED Orientation orientation, ItemDataRole role) const
 {
   if (role == ItemDataRole::Level)
     return cpp17::any((int)0);
@@ -97,47 +95,41 @@ cpp17::any WAbstractItemModel::headerData(int section, Orientation orientation,
     return cpp17::any();
 }
 
-void WAbstractItemModel::sort(int column, SortOrder order)
+void WAbstractItemModel::sort(WT_MAYBE_UNUSED int column, WT_MAYBE_UNUSED SortOrder order)
 { }
 
-void WAbstractItemModel::expandColumn(int column)
+void WAbstractItemModel::expandColumn(WT_MAYBE_UNUSED int column)
 { }
 
-void WAbstractItemModel::collapseColumn(int column)
+void WAbstractItemModel::collapseColumn(WT_MAYBE_UNUSED int column)
 { }
 
-bool WAbstractItemModel::insertColumns(int column, int count,
-                                       const WModelIndex& parent)
+bool WAbstractItemModel::insertColumns(WT_MAYBE_UNUSED int column, WT_MAYBE_UNUSED int count, WT_MAYBE_UNUSED const WModelIndex& parent)
 {
   return false;
 }
 
-bool WAbstractItemModel::insertRows(int row, int count,
-                                    const WModelIndex& parent)
+bool WAbstractItemModel::insertRows(WT_MAYBE_UNUSED int column, WT_MAYBE_UNUSED int count, WT_MAYBE_UNUSED const WModelIndex& parent)
 {
   return false;
 }
 
-bool WAbstractItemModel::removeColumns(int column, int count,
-                                       const WModelIndex& parent)
+bool WAbstractItemModel::removeColumns(WT_MAYBE_UNUSED int column, WT_MAYBE_UNUSED int count, WT_MAYBE_UNUSED const WModelIndex& parent)
 {
   return false;
 }
 
-bool WAbstractItemModel::removeRows(int row, int count,
-                                    const WModelIndex& parent)
+bool WAbstractItemModel::removeRows(WT_MAYBE_UNUSED int column, WT_MAYBE_UNUSED int count, WT_MAYBE_UNUSED const WModelIndex& parent)
 {
   return false;
 }
 
-bool WAbstractItemModel::setData(const WModelIndex& index,
-                                 const cpp17::any& value, ItemDataRole role)
+bool WAbstractItemModel::setData(WT_MAYBE_UNUSED const WModelIndex& index, WT_MAYBE_UNUSED const cpp17::any& value, WT_MAYBE_UNUSED ItemDataRole role)
 {
   return false;
 }
 
-bool WAbstractItemModel::setHeaderData(int section, Orientation orientation,
-                                       const cpp17::any& value, ItemDataRole role)
+bool WAbstractItemModel::setHeaderData(WT_MAYBE_UNUSED int section, WT_MAYBE_UNUSED Orientation orientation, WT_MAYBE_UNUSED const cpp17::any& value, WT_MAYBE_UNUSED ItemDataRole role)
 {
   return false;
 }
@@ -210,12 +202,12 @@ WModelIndex WAbstractItemModel::createIndex(int row, int column, ::uint64_t id)
   return WModelIndex(row, column, this, id);
 }
 
-void *WAbstractItemModel::toRawIndex(const WModelIndex& index) const
+void *WAbstractItemModel::toRawIndex(WT_MAYBE_UNUSED const WModelIndex& index) const
 {
   return nullptr;
 }
 
-WModelIndex WAbstractItemModel::fromRawIndex(void *rawIndex) const
+WModelIndex WAbstractItemModel::fromRawIndex(WT_MAYBE_UNUSED void* rawIndex) const
 {
   return WModelIndex();
 }
@@ -249,7 +241,7 @@ void WAbstractItemModel::copyData(const WModelIndex& sIndex,
 }
 
 void WAbstractItemModel::dropEvent(const WDropEvent& e, DropAction action,
-                                   int row, int column,
+                                   int row, WT_MAYBE_UNUSED int column,
                                    const WModelIndex& parent)
 {
   // TODO: For now, we assumes selectionBehavior() == RowSelection !

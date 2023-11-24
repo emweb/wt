@@ -188,7 +188,7 @@ void WServer::setServerConfiguration(int argc, char *argv[],
 
 void WServer::setServerConfiguration(const std::string &applicationPath,
                                      const std::vector<std::string> &args,
-                                     const std::string &wtConfigurationFile)
+                                     WT_MAYBE_UNUSED const std::string& wtConfigurationFile)
 {
   bool isRelayServer = args.size() < 1 || args[0] != "client";
 
@@ -277,7 +277,7 @@ void WServer::resume()
   }
 }
 
-void WServer::setSslPasswordCallback(const std::function<std::string
+void WServer::setSslPasswordCallback(WT_MAYBE_UNUSED const std::function<std::string
                          (std::size_t max_length, int purpose)>& cb)
 {
   LOG_INFO_S(this,

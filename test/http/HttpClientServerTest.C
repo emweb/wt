@@ -95,7 +95,7 @@ namespace {
       }
     }
 
-    virtual void handleAbort(const Http::Request& request) override
+    virtual void handleAbort(WT_MAYBE_UNUSED const Http::Request& request) override
     {
       ++aborted_;
     }
@@ -108,7 +108,7 @@ namespace {
     int aborted_;
     TestType type_ = TestType::Simple;
 
-    void handleSimple(const Http::Request& request,
+    void handleSimple(WT_MAYBE_UNUSED const Http::Request& request,
                       Http::Response& response)
     {
       response.setStatus(200);
@@ -123,7 +123,7 @@ namespace {
     }
 
     void handleWithContinuation(const Http::Request& request,
-                                Http::Response& response) 
+                                Http::Response& response)
     {
       if (request.continuation()) {
         response.out() << "Hello";
@@ -233,13 +233,13 @@ namespace {
       doneCondition_.notify_one();
     }
 
-    void onHeadersReceived(const Http::Message& m)
+    void onHeadersReceived(WT_MAYBE_UNUSED const Http::Message& m)
     {
       if (abortAfterHeaders_)
         abort();
     }
 
-    void onDataReceived(const std::string& d)
+    void onDataReceived(WT_MAYBE_UNUSED const std::string& d)
     {
     }
 

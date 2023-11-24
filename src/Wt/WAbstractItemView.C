@@ -684,7 +684,7 @@ WText *WAbstractItemView::headerSortIconWidget(int column)
     return nullptr;
 }
 
-std::unique_ptr<WWidget> WAbstractItemView::createExtraHeaderWidget(int column)
+std::unique_ptr<WWidget> WAbstractItemView::createExtraHeaderWidget(WT_MAYBE_UNUSED int column)
 {
   return std::unique_ptr<WWidget>();
 }
@@ -771,8 +771,7 @@ int WAbstractItemView::visibleColumnCount() const
   return result;
 }
 
-WAbstractItemView::ColumnInfo WAbstractItemView::createColumnInfo(int column)
-  const
+WAbstractItemView::ColumnInfo WAbstractItemView::createColumnInfo(WT_MAYBE_UNUSED int column) const
 {
   return ColumnInfo(this, nextColumnId_++);
 }

@@ -45,7 +45,7 @@ int pangoUnitsFromDouble(const double u)
 
 static Wt::FontSupport::EnabledFontFormats enabledFontFormats = Wt::FontSupport::AnyFont;
 
-void addTrueTypePattern(FcPattern *pattern, gpointer data)
+void addTrueTypePattern(FcPattern *pattern, WT_MAYBE_UNUSED gpointer data)
 {
   if (enabledFontFormats == Wt::FontSupport::TrueTypeOnly) {
     FcChar8 font_format[] = "TrueType";
@@ -232,8 +232,8 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& f) const
   return FontMatch(match, desc);
 }
 
-void FontSupport::addFontCollection(const std::string& directory,
-                                    bool recursive)
+void FontSupport::addFontCollection(WT_MAYBE_UNUSED const std::string& directory,
+                                    WT_MAYBE_UNUSED bool recursive)
 {
 }
 

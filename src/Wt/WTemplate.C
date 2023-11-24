@@ -435,7 +435,7 @@ void WTemplate::applyArguments(WWidget *w, const std::vector<WString>& args)
 }
 
 void WTemplate::handleUnresolvedVariable(const std::string& varName,
-                                         const std::vector<WString>& args,
+                                         WT_MAYBE_UNUSED const std::vector<WString>& args,
                                          std::ostream& result)
 {
   result << "??" << varName << "??";

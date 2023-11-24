@@ -175,7 +175,7 @@ void WTable::repaintRow(WTableRow *row)
   repaint(RepaintFlag::SizeAffected);
 }
 
-void WTable::repaintColumn(WTableColumn *column)
+void WTable::repaintColumn(WT_MAYBE_UNUSED WTableColumn* column)
 {
   flags_.set(BIT_COLUMNS_CHANGED);
   repaint(RepaintFlag::SizeAffected);
@@ -206,17 +206,17 @@ int WTable::headerCount(Orientation orientation) const
     return headerColumnCount_;
 }
 
-std::unique_ptr<WTableCell> WTable::createCell(int row, int column)
+std::unique_ptr<WTableCell> WTable::createCell(WT_MAYBE_UNUSED int row, WT_MAYBE_UNUSED int column)
 {
   return std::unique_ptr<WTableCell>(new WTableCell());
 }
 
-std::unique_ptr<WTableRow> WTable::createRow(int row)
+std::unique_ptr<WTableRow> WTable::createRow(WT_MAYBE_UNUSED int row)
 {
   return std::unique_ptr<WTableRow>(new WTableRow());
 }
 
-std::unique_ptr<WTableColumn> WTable::createColumn(int column)
+std::unique_ptr<WTableColumn> WTable::createColumn(WT_MAYBE_UNUSED int column)
 {
   return std::unique_ptr<WTableColumn>(new WTableColumn());
 }

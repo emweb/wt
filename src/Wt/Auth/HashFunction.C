@@ -112,7 +112,7 @@ std::string BCryptHashFunction::compute(const std::string& msg,
 }
 
 bool BCryptHashFunction::verify(const std::string& msg,
-                                const std::string& salt,
+                                WT_MAYBE_UNUSED const std::string& salt,
                                 const std::string& hash) const
 {
   char result[64];

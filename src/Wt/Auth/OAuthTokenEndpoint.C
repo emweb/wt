@@ -214,7 +214,7 @@ void OAuthTokenEndpoint::handleRequest(const Http::Request &request, Http::Respo
 }
 
 const std::string OAuthTokenEndpoint::idTokenPayload(const std::string &clientId,
-                                                     const std::string &scope,
+                                                     WT_MAYBE_UNUSED const std::string& scope,
                                                      const User &user)
 {
   Json::Object root;

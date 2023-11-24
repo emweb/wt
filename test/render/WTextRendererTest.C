@@ -12,12 +12,12 @@
 
 class MyTextRenderer : public Wt::Render::WTextRenderer
 {
-  virtual double pageWidth(int page) const override {return 0;}
-  virtual double pageHeight(int page) const override {return 0;}
-  virtual double margin(Wt::Side side) const override {return 0;}
-  virtual Wt::WPaintDevice *startPage(int page) override{return 0;}
-  virtual void endPage(Wt::WPaintDevice *device) override{}
-  virtual Wt::WPainter *getPainter(Wt::WPaintDevice *device) override{return 0;}
+  virtual double pageWidth(WT_MAYBE_UNUSED int page) const override {return 0;}
+  virtual double pageHeight(WT_MAYBE_UNUSED int page) const override {return 0;}
+  virtual double margin(WT_MAYBE_UNUSED Wt::Side side) const override {return 0;}
+  virtual Wt::WPaintDevice *startPage(WT_MAYBE_UNUSED int page) override{return 0;}
+  virtual void endPage(WT_MAYBE_UNUSED Wt::WPaintDevice* device) override{}
+  virtual Wt::WPainter *getPainter(WT_MAYBE_UNUSED Wt::WPaintDevice* device) override{return 0;}
 };
 
 BOOST_AUTO_TEST_CASE( WTextRenderer_testStylesheet )

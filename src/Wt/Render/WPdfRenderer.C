@@ -59,7 +59,7 @@ void WPdfRenderer::addFontCollection(const std::string& directory,
   fontCollections_.push_back(c);
 }
 
-HPDF_Page WPdfRenderer::createPage(int page)
+HPDF_Page WPdfRenderer::createPage(WT_MAYBE_UNUSED int page)
 {
 #ifndef WT_TARGET_JAVA
   HPDF_Page result = HPDF_AddPage(pdf_);
@@ -94,12 +94,12 @@ double WPdfRenderer::margin(Side side) const
   }
 }
 
-double WPdfRenderer::pageWidth(int page) const
+double WPdfRenderer::pageWidth(WT_MAYBE_UNUSED int page) const
 {
   return HPDF_Page_GetWidth(page_) * dpi_ / 72.0;
 }
 
-double WPdfRenderer::pageHeight(int page) const
+double WPdfRenderer::pageHeight(WT_MAYBE_UNUSED int page) const
 {
   return HPDF_Page_GetHeight(page_) * dpi_ / 72.0;
 }

@@ -178,7 +178,7 @@ private:
 class RowSpacer final : public Wt::WWebWidget
 {
 public:
-  RowSpacer(Wt::WTreeViewNode *node, int height)
+  RowSpacer(Wt::WTreeViewNode *node, WT_MAYBE_UNUSED int height)
     : node_(node),
       height_(0)
   {
@@ -476,7 +476,7 @@ void WTreeViewNode::updateGraphics(bool isLast, bool isEmpty)
   nodeWidget_->toggleStyleClass("Wt-trunk", !isLast);
 }
 
-void WTreeViewNode::insertColumns(int column, int count)
+void WTreeViewNode::insertColumns(WT_MAYBE_UNUSED int column, WT_MAYBE_UNUSED int count)
 {
   WContainerWidget *row = nodeWidget_->resolve<WContainerWidget *>("cols-row");
 
@@ -502,7 +502,7 @@ void WTreeViewNode::insertColumns(int column, int count)
   update(0, view_->columnCount() - 1);
 }
 
-void WTreeViewNode::removeColumns(int column, int count)
+void WTreeViewNode::removeColumns(WT_MAYBE_UNUSED int column, WT_MAYBE_UNUSED int count)
 {
   insertColumns(0, 0);
 }
@@ -1622,7 +1622,7 @@ void WTreeView::onViewportChange(WScrollEvent e)
   contentsSizeChanged(0, e.viewportHeight());
 }
 
-void WTreeView::contentsSizeChanged(int width, int height)
+void WTreeView::contentsSizeChanged(WT_MAYBE_UNUSED int width, int height)
 {
   viewportHeight_
     = static_cast<int>(std::ceil(height / rowHeight().toPixels()));
@@ -1733,7 +1733,7 @@ WModelIndex WTreeView::calculateModelIndex(std::string nodeAndColumnId)
 }
 
 int WTreeView::subTreeHeight(const WModelIndex& index,
-                             int lowerBound, int upperBound) const
+                             WT_MAYBE_UNUSED int lowerBound, int upperBound) const
 {
   int result = 0;
 
@@ -2439,7 +2439,7 @@ void WTreeView::renderedRowsChanged(int row, int count)
   scheduleRerender(RenderState::NeedAdjustViewPort);
 }
 
-void WTreeView::adjustToViewport(WTreeViewNode *changed)
+void WTreeView::adjustToViewport(WT_MAYBE_UNUSED WTreeViewNode* changed)
 {
   //assert(rootNode_->rowCount() == 1);
 

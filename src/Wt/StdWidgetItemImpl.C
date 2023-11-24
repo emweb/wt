@@ -83,8 +83,9 @@ const std::string StdWidgetItemImpl::id() const
   return item_->widget()->id();
 }
 
-DomElement *StdWidgetItemImpl::createDomElement(DomElement *parent,
-                                                bool fitWidth, bool fitHeight,
+DomElement *StdWidgetItemImpl::createDomElement(WT_MAYBE_UNUSED DomElement* parent,
+                                                WT_MAYBE_UNUSED bool fitWidth,
+                                                WT_MAYBE_UNUSED bool fitHeight,
                                                 WApplication *app)
 {
   WWidget *w = item_->widget();

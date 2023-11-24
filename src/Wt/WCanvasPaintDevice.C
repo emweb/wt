@@ -324,7 +324,7 @@ int WCanvasPaintDevice::createImage(const std::string& imgUri)
 
 void WCanvasPaintDevice::drawImage(const WRectF& rect,
                                    const std::string& imageUri,
-                                   int imgWidth, int imgHeight,
+                                   WT_MAYBE_UNUSED int imgWidth, WT_MAYBE_UNUSED int imgHeight,
                                    const WRectF& sourceRect)
 {
   renderStateChanges(true);

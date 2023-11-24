@@ -290,14 +290,12 @@ StockReply::StockReply(Request& request,
   setStatus(status);
 }
 
-void StockReply::reset(const Wt::EntryPoint *ep)
+void StockReply::reset(WT_MAYBE_UNUSED const Wt::EntryPoint* ep)
 {
   assert(false);
 }
 
-bool StockReply::consumeData(const char *begin,
-                             const char *end,
-                             Request::State state)
+bool StockReply::consumeData(WT_MAYBE_UNUSED const char* begin, WT_MAYBE_UNUSED const char* end, Request::State state)
 {
   if (state != Request::Partial)
     send();
