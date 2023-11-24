@@ -166,7 +166,7 @@ namespace Wt {
   namespace Dbo {
 
     template <class Action>
-    void field(Action& action, JsonDboTest::Coordinate& coordinate, const std::string& name, int size = -1)
+    void field(Action& action, JsonDboTest::Coordinate& coordinate, const std::string& name, WT_MAYBE_UNUSED int size = -1)
     {
       field(action, coordinate.x, name + "_x");
       field(action, coordinate.y, name + "_y");

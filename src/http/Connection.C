@@ -284,7 +284,7 @@ bool Connection::closed() const
   return !self->socket().is_open();
 }
 
-void Connection::handleError(const Wt::AsioWrapper::error_code& e)
+void Connection::handleError(WT_MAYBE_UNUSED const Wt::AsioWrapper::error_code& e)
 {
   LOG_DEBUG(native() << ": error: " << e.message());
 
@@ -468,7 +468,7 @@ void Connection::handleWriteResponse(ReplyPtr reply)
 
 void Connection::handleWriteResponse0(ReplyPtr reply,
                                       const Wt::AsioWrapper::error_code& e,
-                                      std::size_t bytes_transferred)
+                                      WT_MAYBE_UNUSED std::size_t bytes_transferred)
 {
   LOG_DEBUG(native() << ": handleWriteResponse0(): "
             << bytes_transferred << " ; " << e.message());

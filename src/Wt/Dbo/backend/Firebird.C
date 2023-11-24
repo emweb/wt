@@ -394,7 +394,7 @@ LOGGER("Dbo.backend.Firebird");
           case SqlDateTimeType::Time:
             break;
           }
-          std::time_t t = std::chrono::system_clock::to_time_t(*value);
+          WT_MAYBE_UNUSED std::time_t t = std::chrono::system_clock::to_time_t(*value);
           LOG_DEBUG("getResult " << column << " " << std::ctime(&t));
 
           return true;

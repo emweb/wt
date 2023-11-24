@@ -58,7 +58,7 @@ namespace Wt
   namespace Dbo
   {
     template<class Action>
-      void field(Action &action, PageKeys &Keys, const std::string &name, int size = -1)
+      void field(Action &action, PageKeys &Keys, const std::string &name, WT_MAYBE_UNUSED int size = -1)
       {
         field(action, Keys.id, name + "_page_id");
         belongsTo(action, Keys.ModulePtr, name + "_Module", Wt::Dbo::OnDeleteCascade | Wt::Dbo::OnUpdateCascade | Wt::Dbo::NotNull);

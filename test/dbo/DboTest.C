@@ -109,8 +109,7 @@ namespace Wt {
   namespace Dbo {
 
     template <class Action>
-    void field(Action& action, Coordinate& coordinate, const std::string& name,
-               int size = -1)
+    void field(Action& action, Coordinate& coordinate, const std::string& name, WT_MAYBE_UNUSED int size = -1)
     {
       field(action, coordinate.x, name + "_x", 1000);
       field(action, coordinate.y, name + "_y", 1000);

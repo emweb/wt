@@ -109,13 +109,13 @@ public:
     : model_(model)
   { }
 
-  virtual int columnCount(const WModelIndex& parent = WModelIndex()) const
+  virtual int columnCount(WT_MAYBE_UNUSED const WModelIndex& parent = WModelIndex()) const
     override
   {
     return model_->columnCount();
   }
 
-  virtual int rowCount(const WModelIndex& parent = WModelIndex()) const
+  virtual int rowCount(WT_MAYBE_UNUSED const WModelIndex& parent = WModelIndex()) const
     override
   {
     return 1;
