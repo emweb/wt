@@ -24,6 +24,12 @@ Money::Money(long long valueInCents, const std::string &currency):
 
 }
 
+Money::Money(const Money& other)
+  : valueInCents_(other.valueInCents_),
+    currency_(other.currency_)
+{
+}
+
 const std::string Money::toString() const
 {
   WStringStream ans;

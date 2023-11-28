@@ -27,6 +27,9 @@ public:
   //! Destructor
   ~WVector3() = default;
 
+  //! Copy assignment operator
+  WVector3&  operator=(const WVector3& other);
+
   const double &x() const;
   const double &y() const;
   const double &z() const;

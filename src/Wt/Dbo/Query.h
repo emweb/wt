@@ -44,6 +44,7 @@ namespace Wt {
         QueryBase(Session& session, const std::string& sql);
         QueryBase(Session& session, const std::string& table,
                   const std::string& where);
+        QueryBase(const QueryBase& other);
 
         virtual ~QueryBase() = default;
         QueryBase& operator=(const QueryBase& other);

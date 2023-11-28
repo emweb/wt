@@ -79,6 +79,14 @@ QueryBase<Result>::QueryBase(Session& session, const std::string& table,
 }
 
 template <class Result>
+QueryBase<Result>::QueryBase(const QueryBase<Result>& other)
+  : session_(other.session_),
+    sql_(other.sql_),
+    selectFieldLists_(other.selectFieldLists_)
+{
+}
+
+template <class Result>
 QueryBase<Result>& QueryBase<Result>::operator=(const QueryBase<Result>& other)
 {
   session_ = other.session_;

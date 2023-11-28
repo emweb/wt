@@ -75,6 +75,9 @@ public:
   //! Destructor
   ~WBrush() = default;
 
+  //! Copy constructor
+  WBrush(const WBrush& other);
+
 #ifdef WT_TARGET_JAVA
   /*! \brief Clone method.
    *

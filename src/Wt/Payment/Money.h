@@ -43,6 +43,9 @@ public:
    */
   Money(long long value, int cents, const std::string& currency);
 
+  //! Copy constructor
+  Money(const Money& other);
+
   //! Destructor
   ~Money() = default;
 

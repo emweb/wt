@@ -74,6 +74,9 @@ public:
     impl() = m;
   }
 
+  //! Copy assignment operator
+  WMatrix4x4& operator=(const WMatrix4x4& other);
+
   /*! \brief Construct for a WGenericMatrix
    *
    * Creates the identity transformation matrix. As we inherit from

@@ -46,6 +46,14 @@ WVector3::WVector3(const WGenericMatrix<double, 3, 1> &other)
   : WGenericMatrix<double, 3, 1>(other)
 {}
 
+WVector3& WVector3::operator=(const WVector3& other)
+{
+  (*this)(0, 0) = other.x();
+  (*this)(1, 0) = other.y();
+  (*this)(2, 0) = other.z();
+  return *this;
+}
+
 const double &WVector3::x() const
 {
   return (*this)(0, 0);

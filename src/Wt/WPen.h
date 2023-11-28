@@ -105,6 +105,9 @@ public:
    */
   WPen(const WGradient& gradient);
 
+  //! Copy constructor
+  WPen(const WPen& other);
+
   //! Destructor
   ~WPen() = default;
 

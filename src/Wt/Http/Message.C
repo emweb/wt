@@ -54,6 +54,14 @@ Message::Message(const Message& other)
   body_ << other.body_.str();
 }
 
+Message& Message::operator=(const Message& other)
+{
+  status_ = other.status_;
+  headers_ = other.headers_;
+  body_ = other.body_;
+  return *this;
+}
+
 void Message::setStatus(int status)
 {
   status_ = status;

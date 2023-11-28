@@ -94,6 +94,9 @@ public:
   //! Destructor
   ~Message() = default;
 
+  //! Copy assignment operator
+  Message& operator=(const Message& other);
+
   /*! \brief Sets the status code.
    *
    * \note This method is probably not useful to you, since for a request

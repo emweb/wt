@@ -42,6 +42,17 @@ WBrush::WBrush(const WGradient& gradient)
     gradient_(gradient)
 { }
 
+WBrush::WBrush(const WBrush& other)
+  : WJavaScriptExposableObject(other),
+    style_(other.style_),
+    color_(other.color_),
+    gradient_(other.gradient_)
+{
+  if (other.isJavaScriptBound()) {
+    assignBinding(other);
+  }
+}
+
 #ifdef WT_TARGET_JAVA
 WBrush WBrush::clone() const
 {

@@ -77,11 +77,9 @@ public:
    */
   WRectF(const WPointF& topLeft, const WPointF& bottomRight);
 
-#ifdef WT_TARGET_JAVA
   /*! \brief Internal assign method.
    */
-  WRectF& operator= (const WRectF& rhs);
-#endif // WT_TARGET_JAVA
+  WRectF& operator=(const WRectF& rhs);
 
 #ifdef WT_TARGET_JAVA
   WRectF clone() const;

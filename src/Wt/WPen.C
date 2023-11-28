@@ -59,6 +59,19 @@ WPen::WPen(const WGradient& gradient)
   gradient_ = gradient;
 }
 
+WPen::WPen(const WPen& other)
+  : WJavaScriptExposableObject(other),
+    penStyle_(other.penStyle_),
+    penCapStyle_(other.penCapStyle_),
+    penJoinStyle_(other.penJoinStyle_),
+    width_(other.width_),
+    color_(other.color_)
+{
+  if (other.isJavaScriptBound()) {
+    assignBinding(other);
+  }
+}
+
 #ifdef WT_TARGET_JAVA
 WPen WPen::clone() const
 {

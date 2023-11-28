@@ -45,7 +45,6 @@ WRectF::WRectF(const WRectF& other)
     height_(other.height())
 { }
 
-#ifdef WT_TARGET_JAVA
 WRectF& WRectF::operator=(const WRectF& rhs)
 {
   WJavaScriptExposableObject::operator=(rhs);
@@ -57,7 +56,6 @@ WRectF& WRectF::operator=(const WRectF& rhs)
 
   return *this;
 }
-#endif // WT_TARGET_JAVA
 
 #ifdef WT_TARGET_JAVA
 WRectF WRectF::clone() const

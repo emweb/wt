@@ -55,6 +55,27 @@ WMatrix4x4::WMatrix4x4(const WGenericMatrix<double, 4, 4> &other)
   : WGenericMatrix<double, 4, 4>(other)
 {}
 
+WMatrix4x4& WMatrix4x4::operator=(const WMatrix4x4& other)
+{
+  (*this)(0, 0) = other.at(0, 0);
+  (*this)(0, 1) = other.at(0, 1);
+  (*this)(0, 2) = other.at(0, 2);
+  (*this)(0, 3) = other.at(0, 3);
+  (*this)(1, 0) = other.at(1, 0);
+  (*this)(1, 1) = other.at(1, 1);
+  (*this)(1, 2) = other.at(1, 2);
+  (*this)(1, 3) = other.at(1, 3);
+  (*this)(2, 0) = other.at(2, 0);
+  (*this)(2, 1) = other.at(2, 1);
+  (*this)(2, 2) = other.at(2, 2);
+  (*this)(2, 3) = other.at(2, 3);
+  (*this)(3, 0) = other.at(3, 0);
+  (*this)(3, 1) = other.at(3, 1);
+  (*this)(3, 2) = other.at(3, 2);
+  (*this)(3, 3) = other.at(3, 3);
+  return *this;
+}
+
 void WMatrix4x4::flipCoordinates()
 {
   scale(1, -1, -1);
