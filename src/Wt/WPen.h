@@ -105,6 +105,9 @@ public:
    */
   WPen(const WGradient& gradient);
 
+  //! Destructor
+  ~WPen() = default;
+
 #ifdef WT_TARGET_JAVA
   /*! \brief Clone method.
    *

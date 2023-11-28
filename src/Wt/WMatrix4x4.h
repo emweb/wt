@@ -99,6 +99,9 @@ public:
              double m31, double m32, double m33, double m34,
              double m41, double m42, double m43, double m44);
 
+  //! Destructor
+  ~WMatrix4x4() = default;
+
   /*! \brief Returns the determinant.
    */
   double determinant() const;

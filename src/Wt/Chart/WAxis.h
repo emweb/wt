@@ -1084,6 +1084,7 @@ private:
 
     Segment();
     Segment(const Segment &other); // Explicit copy constructor for JWt
+    ~Segment() = default;
   };
 
   std::vector<Segment> segments_;

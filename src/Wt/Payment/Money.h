@@ -43,6 +43,9 @@ public:
    */
   Money(long long value, int cents, const std::string& currency);
 
+  //! Destructor
+  ~Money() = default;
+
   /*! \brief Returns the int part of money.
    *
    * Returns the int part of money (money with no cents).

@@ -24,6 +24,9 @@ public:
   explicit WVector3(double *d);
   WVector3(double x, double y, double z);
 
+  //! Destructor
+  ~WVector3() = default;
+
   const double &x() const;
   const double &y() const;
   const double &z() const;

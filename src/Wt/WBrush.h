@@ -72,6 +72,9 @@ public:
    */
   WBrush(const WGradient& gradient);
 
+  //! Destructor
+  ~WBrush() = default;
+
 #ifdef WT_TARGET_JAVA
   /*! \brief Clone method.
    *

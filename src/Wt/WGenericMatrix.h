@@ -106,6 +106,9 @@ public:
     }
   }
 
+  //! \brief Destructor
+  virtual ~WGenericMatrix() = default;
+
   /*! \brief Returns a const pointer to the internal data store.
    *
    * The array can be indexed with []. You can iterate over the
