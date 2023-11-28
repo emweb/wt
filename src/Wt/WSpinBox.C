@@ -121,7 +121,7 @@ std::unique_ptr<WValidator> WSpinBox::createValidator()
   std::unique_ptr<WIntValidator> validator(new WIntValidator());
   validator->setMandatory(true);
   validator->setRange(min_, max_);
-  return std::move(validator);
+  return validator;
 }
 
 WT_USTRING WSpinBox::textFromValue() const

@@ -211,7 +211,7 @@ std::unique_ptr<WWidget> AuthWidget::createRegistrationView(const Identity& id)
 
   std::unique_ptr<RegistrationWidget> w(new RegistrationWidget(this));
   w->setModel(std::move(model));
-  return std::move(w);
+  return w;
 }
 
 void AuthWidget::letResendEmailVerification()
@@ -371,7 +371,7 @@ std::unique_ptr<WWidget> AuthWidget::createFormWidget(WFormModel::Field field)
     result.reset(new WCheckBox());
   }
 
-  return std::move(result);
+  return result;
 }
 
 void AuthWidget::updatePasswordLoginView()

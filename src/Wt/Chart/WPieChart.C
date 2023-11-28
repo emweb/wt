@@ -175,7 +175,7 @@ WPieChart::createLegendItemWidget(int index, WFlags<LabelOption> options)
     }
   }
 
-  return std::move(legendItem);
+  return legendItem;
 }
 
 void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const

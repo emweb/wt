@@ -277,7 +277,7 @@ std::unique_ptr<WWidget> WBoxLayout::createSpacer(const WLength& size)
       spacer->setMinimumSize(WLength::Auto, size);
   }
 
-  return std::move(spacer);
+  return spacer;
 }
 
 void WBoxLayout::setResizable(int index, bool enabled,

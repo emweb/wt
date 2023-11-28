@@ -111,7 +111,7 @@ std::unique_ptr<WWidget> UpdatePasswordWidget
     result.reset(p);
   }
 
-  return std::move(result);
+  return result;
 }
 
 void UpdatePasswordWidget::checkPassword()

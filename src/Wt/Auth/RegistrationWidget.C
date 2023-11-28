@@ -92,7 +92,7 @@ std::unique_ptr<WWidget> RegistrationWidget
     result.reset(p);
   }
 
-  return std::move(result);
+  return result;
 }
 
 void RegistrationWidget::update()

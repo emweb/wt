@@ -1206,7 +1206,7 @@ std::unique_ptr<WResource> WClientGLWidget::rpdToMemResource(WRasterImage *rpd)
   std::unique_ptr<WMemoryResource> mr(new WMemoryResource("image/png"));
   mr->setData(reinterpret_cast<const unsigned char*>(ss.str().c_str()),
               ss.str().size());
-  return std::move(mr);
+  return mr;
 }
 #endif
 

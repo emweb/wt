@@ -1976,7 +1976,7 @@ std::unique_ptr<WWidget> WCartesianChart::createLegendItemWidget(int index)
   label->setVerticalAlignment(AlignmentFlag::Top);
   legendItem->addWidget(std::move(label));
 
-  return std::move(legendItem);
+  return legendItem;
 }
 
 void WCartesianChart::addDataPointArea(WT_MAYBE_UNUSED const WDataSeries& series,

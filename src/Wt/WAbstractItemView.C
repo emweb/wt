@@ -1245,7 +1245,7 @@ std::unique_ptr<WWidget> WAbstractItemView::createHeaderWidget(int column)
   if (!sc.empty())
     result->addStyleClass(sc);
 
-  return std::move(result);
+  return result;
 }
 
 void WAbstractItemView::enableAjax()

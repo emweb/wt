@@ -127,11 +127,7 @@ std::unique_ptr<WValidator> WDoubleSpinBox::createValidator()
   std::unique_ptr<WDoubleValidator> validator(new WDoubleValidator());
   validator->setMandatory(true);
   validator->setRange(min_, max_);
-#ifndef WT_TARGET_JAVA
-  return std::move(validator); // FreeBSD wanted this std::move
-#else // WT_TARGET_JAVA
   return validator;
-#endif // WT_TARGET_JAVA
 }
 
 WT_USTRING WDoubleSpinBox::textFromValue() const

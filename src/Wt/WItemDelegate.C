@@ -437,7 +437,7 @@ std::unique_ptr<WWidget> WItemDelegate
                      WLength(100, LengthUnit::Percentage)); //for Konqueror
   result->addWidget(std::move(lineEdit));
 
-  return std::move(result);
+  return result;
 }
 
 void WItemDelegate::doCloseEditor(WWidget *editor, bool save) const
