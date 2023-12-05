@@ -401,6 +401,7 @@ web/XSSFilter.h web/XSSFilter.C
 web/XSSUtils.h web/XSSUtils.C
 web/SslUtils.h web/SslUtils.C
 web/UriUtils.h web/UriUtils.C
+web/base32.h web/base32.cpp
 web/base64.h web/base64.cpp
 Plain_html.C
 Boot_html.C

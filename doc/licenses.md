@@ -36,6 +36,7 @@ The `wtwithqt` example is licensed under the [MIT License](https://spdx.org/lice
 | any | Used to provide `std::any` implementation when C++17 is not available | [Boost Software License 1.0](https://spdx.org/licenses/BSL-1.0.html) | Copyright &copy; 2016 Denilson das Mercês Amorim |
 | signals | Wt's signal/slot implementation is adapted from this | [Creative Commons Zero v1.0 Universal](https://spdx.org/licenses/CC0-1.0.html) | Tim Janik |
 | http client example | `Wt::Http::Client` is based on a Boost Asio example | [Boost Software License 1.0](https://spdx.org/licenses/BSL-1.0.html) | Copyright &copy; 2003-2008 Christopher M. Kohlhoff |
+| base32 encoding/decoding | This is based on the base64 implementation | [zlib License](https://spdx.org/licenses/Zlib.html) | Copyright &copy; 2002 Ryan Petrie |
 
 ### JavaScript
 

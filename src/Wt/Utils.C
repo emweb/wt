@@ -21,6 +21,7 @@
 #include "Wt/Utils.h"
 #include "DomElement.h"
 #include "md5.h"
+#include "base32.h"
 #include "base64.h"
 #include "ImageUtils.h"
 
@@ -103,6 +104,30 @@ std::string sha1(const std::string& text)
 
     return std::string(hash, hash + SHA1_LENGTH);
   }
+}
+
+std::string base32Encode(const std::string& data, bool crlf)
+{
+  std::vector<char> v;
+
+  // base32 encoded value will be 8/5 larger than original value
+  v.reserve(static_cast<std::size_t>(data.size() * 1.6));
+
+  base32::encode(data.begin(), data.end(), std::back_inserter(v), crlf);
+
+  return std::string(v.begin(), v.end());
+}
+
+std::string base32Decode(const std::string& data)
+{
+  std::vector<char> v;
+
+  // decoded value will be 5/8 smaller than encoded value
+  v.reserve((std::size_t)(data.size() * 0.625));
+
+  base32::decode(data.begin(), data.end(), std::back_inserter(v));
+
+  return std::string(v.begin(), v.end());
 }
 
 std::string base64Encode(const std::string& data, bool crlf)

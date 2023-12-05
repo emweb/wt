@@ -39,6 +39,7 @@ IF(ENABLE_LIBWTTEST)
     types/WDateTimeTest.C
     utf8/Utf8Test.C
     utf8/XmlTest.C
+    utils/Base32Test.C
     utils/Base64Test.C
     utils/DateUtils.C
     utils/EraseWord.C

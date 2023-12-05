@@ -57,6 +57,33 @@ WT_API extern std::string sha1(const std::string& data);
 WT_API extern std::vector<unsigned char> sha1(const std::string& data);
 #endif
 
+/*! \brief Performs Base32-encoding of data.
+ *
+ * This utility function implements a Base32 encoding (RFC 4648) of
+ * the \p data.
+ *
+ * When the crlf argument is true, a CRLF character will be added
+ * after each sequence of 76 characters.
+ *
+ * \sa base32Decode()
+ */
+WT_API extern std::string base32Encode(const std::string& data,
+                                       bool crlf = true);
+
+/*! \brief Performs Base32-decoding of data.
+ *
+ * This utility function implements a Base32 decoding (RFC 4328) of
+ * the \p data. Illegal characters are discarded and skipped.
+ *
+ * \sa base32Encode()
+ */
+#ifndef WT_TARGET_JAVA
+WT_API extern std::string base32Decode(const std::string& data);
+#else
+WT_API extern std::vector<unsigned char> base32Decode(const std::string& data);
+WT_API extern std::string base32DecodeS(const std::string& data);
+#endif
+
 
 /*! \brief Performs Base64-encoding of data.
  *
