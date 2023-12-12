@@ -5,6 +5,8 @@
  */
 #include <cstdio>
 #include <sstream>
+#include <stdexcept>
+#include <string>
 
 #include "Wt/WObject.h"
 #include "Wt/WApplication.h"
@@ -74,75 +76,157 @@ bool defaultInline_[] =
     false
   };
 
-std::string cssNames_[] =
-  { "position",
-    "z-index", "float", "clear",
-    "width", "height", "line-height",
-    "min-width", "min-height",
-    "max-width", "max-height",
-    "left", "right", "top", "bottom",
-    "vertical-align", "text-align",
-    "padding",
-    "padding-top", "padding-right",
-    "padding-bottom", "padding-left",
-    "margin",
-    "margin-top", "margin-right",
-    "margin-bottom", "margin-left", "cursor",
-    "border-top", "border-right",
-    "border-bottom", "border-left",
-    "border-color-top", "border-color-right",
-    "border-color-bottom", "border-color-left",
-    "border-width-top", "border-width-right",
-    "border-width-bottom", "border-width-left",
-    "color", "overflow-x", "overflow-y",
-    "opacity",
-    "font-family", "font-style", "font-variant",
-    "font-weight", "font-size",
-    "background-color", "background-image", "background-repeat",
-    "background-attachment", "background-position",
-    "text-decoration", "white-space",
-    "table-layout", "border-spacing",
-    "border-collapse",
-    "page-break-before", "page-break-after",
-    "zoom", "visibility", "display",
-    "-webkit-appearance",
-    "box-sizing", "flex", "flex-direction", "flex-flow", "align-self", "justify-content"};
+std::unordered_map<Wt::Property, std::string> cssNamesMap_ =
+{
+  { Wt::Property::StylePosition, "position" },
+  { Wt::Property::StyleZIndex, "z-index" },
+  { Wt::Property::StyleFloat, "float" },
+  { Wt::Property::StyleClear, "clear" },
+  { Wt::Property::StyleWidth, "width" },
+  { Wt::Property::StyleHeight, "height" },
+  { Wt::Property::StyleLineHeight, "line-height" },
+  { Wt::Property::StyleMinWidth, "min-width" },
+  { Wt::Property::StyleMinHeight, "min-height" },
+  { Wt::Property::StyleMaxWidth, "max-width" },
+  { Wt::Property::StyleMaxHeight, "max-height" },
+  { Wt::Property::StyleLeft, "left" },
+  { Wt::Property::StyleRight, "right" },
+  { Wt::Property::StyleTop, "top" },
+  { Wt::Property::StyleBottom, "bottom" },
+  { Wt::Property::StyleVerticalAlign, "vertical-align" },
+  { Wt::Property::StyleTextAlign, "text-align" },
+  { Wt::Property::StylePadding, "padding" },
+  { Wt::Property::StylePaddingTop, "padding-top" },
+  { Wt::Property::StylePaddingRight, "padding-right" },
+  { Wt::Property::StylePaddingBottom, "padding-bottom" },
+  { Wt::Property::StylePaddingLeft, "padding-left" },
+  { Wt::Property::StyleMargin, "margin" },
+  { Wt::Property::StyleMarginTop, "margin-top" },
+  { Wt::Property::StyleMarginRight, "margin-right" },
+  { Wt::Property::StyleMarginBottom, "margin-bottom" },
+  { Wt::Property::StyleMarginLeft, "margin-left" },
+  { Wt::Property::StyleCursor, "cursor" },
+  { Wt::Property::StyleBorderTop, "border-top" },
+  { Wt::Property::StyleBorderRight, "border-right" },
+  { Wt::Property::StyleBorderBottom, "border-bottom" },
+  { Wt::Property::StyleBorderLeft, "border-left" },
+  { Wt::Property::StyleBorderColorTop, "border-color-top" },
+  { Wt::Property::StyleBorderColorRight, "border-color-right" },
+  { Wt::Property::StyleBorderColorBottom, "border-color-bottom" },
+  { Wt::Property::StyleBorderColorLeft, "border-color-left" },
+  { Wt::Property::StyleBorderWidthTop, "border-width-top" },
+  { Wt::Property::StyleBorderWidthRight, "border-width-right" },
+  { Wt::Property::StyleBorderWidthBottom, "border-width-bottom" },
+  { Wt::Property::StyleBorderWidthLeft, "border-width-left" },
+  { Wt::Property::StyleColor, "color" },
+  { Wt::Property::StyleOverflowX, "overflow-x" },
+  { Wt::Property::StyleOverflowY, "overflow-y" },
+  { Wt::Property::StyleOpacity, "opacity" },
+  { Wt::Property::StyleFontFamily, "font-family" },
+  { Wt::Property::StyleFontStyle, "font-style" },
+  { Wt::Property::StyleFontVariant, "font-variant" },
+  { Wt::Property::StyleFontWeight, "font-weight" },
+  { Wt::Property::StyleFontSize, "font-size" },
+  { Wt::Property::StyleBackgroundColor, "background-color" },
+  { Wt::Property::StyleBackgroundImage, "background-image" },
+  { Wt::Property::StyleBackgroundRepeat, "background-repeat" },
+  { Wt::Property::StyleBackgroundAttachment, "background-attachment" },
+  { Wt::Property::StyleBackgroundPosition, "background-position" },
+  { Wt::Property::StyleTextDecoration, "text-decoration" },
+  { Wt::Property::StyleWhiteSpace, "white-space" },
+  { Wt::Property::StyleTableLayout, "table-layout" },
+  { Wt::Property::StyleBorderSpacing, "border-spacing" },
+  { Wt::Property::StyleBorderCollapse, "border-collapse" },
+  { Wt::Property::StylePageBreakBefore, "page-break-before" },
+  { Wt::Property::StylePageBreakAfter, "page-break-after" },
+  { Wt::Property::StyleZoom, "zoom" },
+  { Wt::Property::StyleVisibility, "visibility" },
+  { Wt::Property::StyleDisplay, "display" },
+  { Wt::Property::StyleWebkitAppearance, "-webkit-appearance" },
+  { Wt::Property::StyleBoxSizing, "box-sizing" },
+  { Wt::Property::StyleFlex, "flex" },
+  { Wt::Property::StyleFlexDirection, "flex-direction" },
+  { Wt::Property::StyleFlexFlow, "flex-flow" },
+  { Wt::Property::StyleAlignSelf, "align-self" },
+  { Wt::Property::StyleJustifyContent, "justify-content" },
+};
 
-std::string cssCamelNames_[] =
-  { "cssText", "width", "position",
-    "zIndex", "cssFloat", "clear",
-    "width", "height", "lineHeight",
-    "minWidth", "minHeight",
-    "maxWidth", "maxHeight",
-    "left", "right", "top", "bottom",
-    "verticalAlign", "textAlign",
-    "padding",
-    "paddingTop", "paddingRight",
-    "paddingBottom", "paddingLeft",
-    "margin",
-    "marginTop", "marginRight",
-    "marginBottom", "marginLeft",
-    "cursor",
-    "borderTop", "borderRight",
-    "borderBottom", "borderLeft",
-    "borderColorTop", "borderColorRight",
-    "borderColorBottom", "borderColorLeft",
-    "borderWidthTop", "borderWidthRight",
-    "borderWidthBottom", "borderWidthLeft",
-    "color", "overflowX", "overflowY",
-    "opacity",
-    "fontFamily", "fontStyle", "fontVariant",
-    "fontWeight", "fontSize",
-    "backgroundColor", "backgroundImage", "backgroundRepeat",
-    "backgroundAttachment", "backgroundPosition",
-    "textDecoration", "whiteSpace",
-    "tableLayout", "borderSpacing",
-    "border-collapse",
-    "pageBreakBefore", "pageBreakAfter",
-    "zoom", "visibility", "display",
-    "webKitAppearance", // Not functional
-    "boxSizing", "flex", "flexDirection", "flexFlow", "alignSelf", "justifyContent"
-  };
+std::unordered_map<Wt::Property, std::string> cssCamelNamesMap_ =
+{
+  { Wt::Property::Style, "cssText" },
+  { Wt::Property::Style, "width" },
+  { Wt::Property::StylePosition, "position" },
+  { Wt::Property::StyleZIndex, "zIndex" },
+  { Wt::Property::StyleFloat, "cssFloat" },
+  { Wt::Property::StyleClear, "clear" },
+  { Wt::Property::StyleWidth, "width" },
+  { Wt::Property::StyleHeight, "height" },
+  { Wt::Property::StyleLineHeight, "lineHeight" },
+  { Wt::Property::StyleMinWidth, "minWidth" },
+  { Wt::Property::StyleMinHeight, "minHeight" },
+  { Wt::Property::StyleMaxWidth, "maxWidth" },
+  { Wt::Property::StyleMaxHeight, "maxHeight" },
+  { Wt::Property::StyleLeft, "left" },
+  { Wt::Property::StyleRight, "right" },
+  { Wt::Property::StyleTop, "top" },
+  { Wt::Property::StyleBottom, "bottom" },
+  { Wt::Property::StyleVerticalAlign, "verticalAlign" },
+  { Wt::Property::StyleTextAlign, "textAlign" },
+  { Wt::Property::StylePadding, "padding" },
+  { Wt::Property::StylePaddingTop, "paddingTop" },
+  { Wt::Property::StylePaddingRight, "paddingRight" },
+  { Wt::Property::StylePaddingBottom, "paddingBottom" },
+  { Wt::Property::StylePaddingLeft, "paddingLeft" },
+  { Wt::Property::StyleMargin, "margin" },
+  { Wt::Property::StyleMarginTop, "marginTop" },
+  { Wt::Property::StyleMarginRight, "marginRight" },
+  { Wt::Property::StyleMarginBottom, "marginBottom" },
+  { Wt::Property::StyleMarginLeft, "marginLeft" },
+  { Wt::Property::StyleCursor, "cursor" },
+  { Wt::Property::StyleBorderTop, "borderTop" },
+  { Wt::Property::StyleBorderRight, "borderRight" },
+  { Wt::Property::StyleBorderBottom, "borderBottom" },
+  { Wt::Property::StyleBorderLeft, "borderLeft" },
+  { Wt::Property::StyleBorderColorTop, "borderColorTop" },
+  { Wt::Property::StyleBorderColorRight, "borderColorRight" },
+  { Wt::Property::StyleBorderColorBottom, "borderColorBottom" },
+  { Wt::Property::StyleBorderColorLeft, "borderColorLeft" },
+  { Wt::Property::StyleBorderWidthTop, "borderWidthTop" },
+  { Wt::Property::StyleBorderWidthRight, "borderWidthRight" },
+  { Wt::Property::StyleBorderWidthBottom, "borderWidthBottom" },
+  { Wt::Property::StyleBorderWidthLeft, "borderWidthLeft" },
+  { Wt::Property::StyleColor, "color" },
+  { Wt::Property::StyleOverflowX, "overflowX" },
+  { Wt::Property::StyleOverflowY, "overflowY" },
+  { Wt::Property::StyleOpacity, "opacity" },
+  { Wt::Property::StyleFontFamily, "fontFamily" },
+  { Wt::Property::StyleFontStyle, "fontStyle" },
+  { Wt::Property::StyleFontVariant, "fontVariant" },
+  { Wt::Property::StyleFontWeight, "fontWeight" },
+  { Wt::Property::StyleFontSize, "fontSize" },
+  { Wt::Property::StyleBackgroundColor, "backgroundColor" },
+  { Wt::Property::StyleBackgroundImage, "backgroundImage" },
+  { Wt::Property::StyleBackgroundRepeat, "backgroundRepeat" },
+  { Wt::Property::StyleBackgroundAttachment, "backgroundAttachment" },
+  { Wt::Property::StyleBackgroundPosition, "backgroundPosition" },
+  { Wt::Property::StyleTextDecoration, "textDecoration" },
+  { Wt::Property::StyleWhiteSpace, "whiteSpace" },
+  { Wt::Property::StyleTableLayout, "tableLayout" },
+  { Wt::Property::StyleBorderSpacing, "borderSpacing" },
+  { Wt::Property::StyleBorderCollapse, "border-collapse" },
+  { Wt::Property::StylePageBreakBefore, "pageBreakBefore" },
+  { Wt::Property::StylePageBreakAfter, "pageBreakAfter" },
+  { Wt::Property::StyleZoom, "zoom" },
+  { Wt::Property::StyleVisibility, "visibility" },
+  { Wt::Property::StyleDisplay, "display" },
+  { Wt::Property::StyleWebkitAppearance, "webKitAppearance" },
+  { Wt::Property::StyleBoxSizing, "boxSizing" },
+  { Wt::Property::StyleFlex, "flex" },
+  { Wt::Property::StyleFlexDirection, "flexDirection" },
+  { Wt::Property::StyleFlexFlow, "flexFlow" },
+  { Wt::Property::StyleAlignSelf, "alignSelf" },
+  { Wt::Property::StyleJustifyContent, "justifyContent" },
+};
 
 const std::string unsafeChars_ = " $&+,:;=?@'\"<>#%{}|\\^~[]`/";
 
@@ -714,8 +798,7 @@ std::string DomElement::cssStyle() const
     else if ((p >= static_cast<unsigned int>(Property::StylePosition)) &&
              (p < static_cast<unsigned int>(Property::LastPlusOne))) {
       if (!j->second.empty()) {
-        style << cssNames_[p -
-                            static_cast<unsigned int>(Property::StylePosition)]
+        style << cssName(j->first)
               << ':' << j->second << ';';
         if (p >= static_cast<unsigned int>(Property::StyleBoxSizing)) {
           WApplication *app = WApplication::instance();
@@ -727,8 +810,7 @@ std::string DomElement::cssStyle() const
               style << "-webkit-";
           }
 
-          style << cssNames_[p -
-                              static_cast<unsigned int>(Property::StylePosition)]
+          style << cssName(j->first)
                 << ':' << j->second << ';';
         }
       }
@@ -1714,11 +1796,11 @@ void DomElement::setJavaScriptProperties(EscapeOStream& out,
            * ignored, but we want this information client-side. (Still, really ?)
            */
           out << var_ << ".style['"
-              << cssNames_[p - static_cast<unsigned int>(Property::StylePosition)]
+              << cssName(i->first)
               << "']='" << i->second << "';";
         } else {
           out << var_ << ".style."
-              << cssCamelNames_[p - static_cast<unsigned int>(Property::Style)]
+              << cssJavaScriptName(i->first)
               << "='" << i->second << "';";
         }
       }
@@ -1802,16 +1884,22 @@ std::string DomElement::tagName(DomElementType type)
   return elementNames_[static_cast<unsigned int>(type)];
 }
 
-const std::string& DomElement::cssName(Property property)
+std::string DomElement::cssName(Property property)
 {
-  return cssNames_[static_cast<unsigned int>(property) -
-                   static_cast<unsigned int>(Property::StylePosition)];
+  try {
+    return cssNamesMap_.at(property);
+  } catch (std::out_of_range& exc) {
+    return "";
+  }
 }
 
-const std::string& DomElement::cssJavaScriptName(Property property)
+std::string DomElement::cssJavaScriptName(Property property)
 {
-  return cssCamelNames_[static_cast<unsigned int>(property) -
-                   static_cast<unsigned int>(Property::Style)];
+  try {
+    return cssCamelNamesMap_.at(property);
+  } catch (std::out_of_range& exc) {
+    return "";
+  }
 }
 
 void DomElement::setGlobalUnfocused(bool b)
