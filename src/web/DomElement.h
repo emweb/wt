@@ -492,6 +492,10 @@ public:
    */
   static const std::string& cssName(Property property);
 
+  /*! \brief Returns the name for a JavaScript DOM style property, as a string.
+   */
+  static const std::string& cssJavaScriptName(Property property);
+
   /*! \brief Returns whether a paritcular element is by default inline.
    */
   static bool isDefaultInline(DomElementType type);

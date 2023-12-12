@@ -64,6 +64,7 @@ IF(ENABLE_LIBWTTEST)
     testenvironment/TestEnvironmentTest.C
     signals/SignalTest.C
     wdatetime/WDateTimeTest.C
+    web/DomElementTest.C
   )
 
   IF (WT_HAS_WRASTERIMAGE)

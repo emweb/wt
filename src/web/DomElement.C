@@ -1808,6 +1808,12 @@ const std::string& DomElement::cssName(Property property)
                    static_cast<unsigned int>(Property::StylePosition)];
 }
 
+const std::string& DomElement::cssJavaScriptName(Property property)
+{
+  return cssCamelNames_[static_cast<unsigned int>(property) -
+                   static_cast<unsigned int>(Property::Style)];
+}
+
 void DomElement::setGlobalUnfocused(bool b)
 {
   globalUnfocused_ = b;
