@@ -51,3 +51,13 @@ BOOST_AUTO_TEST_CASE( css_camel_name_test )
     BOOST_REQUIRE_EQUAL(Wt::DomElement::cssJavaScriptName(static_cast<Wt::Property>(i)), cssCamelNames[i - static_cast<int>(Wt::Property::Style)]);
   }
 }
+
+BOOST_AUTO_TEST_CASE ( css_name_nonexistent_test )
+{
+  BOOST_REQUIRE_EQUAL(Wt::DomElement::cssName(Wt::Property::Style), "");
+}
+
+BOOST_AUTO_TEST_CASE ( css_camel_name_nonexistent_test )
+{
+  BOOST_REQUIRE_EQUAL(Wt::DomElement::cssJavaScriptName(Wt::Property::Src), "");
+}

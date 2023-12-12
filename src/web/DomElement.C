@@ -243,6 +243,8 @@ static_assert(sizeof(defaultInline_) / sizeof(defaultInline_[0]) == static_cast<
 
 namespace Wt {
 
+LOGGER("DomElement");
+
 #if defined(WT_THREADED) || defined(WT_TARGET_JAVA)
   std::atomic<unsigned> DomElement::nextId_(0);
 #else
@@ -1889,6 +1891,7 @@ std::string DomElement::cssName(Property property)
   try {
     return cssNamesMap_.at(property);
   } catch (std::out_of_range& exc) {
+    LOG_WARN("DomElement::cssName(): the name cannot be retrieved.");
     return "";
   }
 }
@@ -1898,6 +1901,7 @@ std::string DomElement::cssJavaScriptName(Property property)
   try {
     return cssCamelNamesMap_.at(property);
   } catch (std::out_of_range& exc) {
+    LOG_WARN("DomElement::cssJavaScriptName(): the name cannot be retrieved.");
     return "";
   }
 }
