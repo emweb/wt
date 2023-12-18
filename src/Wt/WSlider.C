@@ -21,22 +21,6 @@
 #include <cmath>
 #include <memory>
 
-namespace {
-  int getClosestNumberByStep(int value, int step)
-  {
-    int absValue = std::abs(value);
-    int sign = value < 0 ? -1 : 1;
-    int lowDelta = absValue - (absValue % step);
-    int highDelta = lowDelta + step;
-
-    if (absValue - lowDelta < highDelta - absValue) {
-      return lowDelta * sign;
-    } else {
-      return highDelta * sign;
-    }
-  }
-}
-
 /*
  * FIXME: move styling to the theme classes
  */
@@ -130,6 +114,8 @@ private:
 
   void onSliderClick(const WMouseEvent& event);
   void onSliderReleased(int u);
+
+  int getClosestNumberByStep(int value, int step);
 };
 
 void PaintedSlider::paintEvent(WPaintDevice *paintDevice)
@@ -490,6 +476,20 @@ void PaintedSlider::updateSliderPosition()
     fill_->setHeight(u + slider_->handleWidth() / 2);
   }
   handle_->setFocus(true);
+}
+
+int PaintedSlider::getClosestNumberByStep(int value, int step)
+{
+  int absValue = std::abs(value);
+  int sign = value < 0 ? -1 : 1;
+  int lowDelta = absValue - (absValue % step);
+  int highDelta = lowDelta + step;
+
+  if (absValue - lowDelta < highDelta - absValue) {
+    return lowDelta * sign;
+  } else {
+    return highDelta * sign;
+  }
 }
 
 WSlider::WSlider()
@@ -870,4 +870,17 @@ void WSlider::paintTick(WPainter& painter, int value, int x, int y)
   }
 }
 
+int WSlider::getClosestNumberByStep(int value, int step)
+{
+  int absValue = std::abs(value);
+  int sign = value < 0 ? -1 : 1;
+  int lowDelta = absValue - (absValue % step);
+  int highDelta = lowDelta + step;
+
+  if (absValue - lowDelta < highDelta - absValue) {
+    return lowDelta * sign;
+  } else {
+    return highDelta * sign;
+  }
+}
 }

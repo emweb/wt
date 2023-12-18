@@ -347,6 +347,7 @@ private:
   void update();
   void onChange();
   void updateSliderProperties();
+  int getClosestNumberByStep(int value, int step);
 
   friend class PaintedSlider;
 };
