@@ -241,7 +241,7 @@ void PaintedSlider::updateState()
 
   // Have 5px margin for the handle VS the slider
   const int handleOffset = 5;
-  const int widgetLength = o == Orientation::Horizontal ? h() : w();
+  const int widgetLength = o == Orientation::Horizontal ? static_cast<int>(h()) : static_cast<int>(w());
   int calculatedOffset = -(widgetLength / 2) + slider_->handleWidth() + handleOffset;
   auto theme = Wt::WApplication::instance()->theme();
   auto cssTheme = std::dynamic_pointer_cast<WCssTheme>(theme);
@@ -849,8 +849,8 @@ void WSlider::paintTick(WPainter& painter, int value, int x, int y)
 
     // Apply tick length if not default
     if (!tickLength().isAuto()) {
-      y1 = y2 - tickLength().toPixels();
-      y4 = y3 + tickLength().toPixels();
+      y1 = y2 - static_cast<int>(tickLength().toPixels());
+      y4 = y3 + static_cast<int>(tickLength().toPixels());
     }
 
     switch (orientation_) {
