@@ -18,6 +18,7 @@
 #include "DomElement.h"
 #include "WebUtils.h"
 
+#include <cmath>
 #include <memory>
 
 namespace {
