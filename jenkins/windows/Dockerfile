@@ -19,15 +19,19 @@ RUN powershell `
       -Command "(New-Object System.Net.WebClient).DownloadFile('https://aka.ms/vscollect.exe', 'C:\TEMP\collect.exe')"
 
 # Download channel for fixed install.
-ARG CHANNEL_URL=https://aka.ms/vs/17/release/channel
+# This targets a specific version, since the global current channel version is updated regularly.
+# Which can lead to an incompatibility issue in the builds. Now we target an LTSC channel for stability.
+ARG CHANNEL_URL=https://aka.ms/vs/17/release.ltsc.17.6/channel
 RUN powershell `
       -NoProfile `
       -ExecutionPolicy Bypass `
       -Command "(New-Object System.Net.WebClient).DownloadFile(\"$env:CHANNEL_URL\", 'C:\TEMP\VisualStudio.chman')"
 
 # Download and install Build Tools for Visual Studio 2022 for native desktop workload,
-# including 14.1 (VS 2017) and 14.2 (VS 2019) components
-ARG BUILDTOOLS_URL=https://aka.ms/vs/17/release/vs_buildtools.exe
+# including 14.1 (VS 2017) and 14.2 (VS 2019) components.
+# This targets a specific version, since the global current channel version is updated regularly.
+# Which can lead to an incompatibility issue in the builds. Now we target an LTSC channel for stability.
+ARG BUILDTOOLS_URL=https://aka.ms/vs/17/release.ltsc.17.6/vs_buildtools.exe
 RUN powershell `
     -NoProfile `
     -ExecutionPolicy Bypass `
