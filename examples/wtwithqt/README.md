@@ -1,5 +1,5 @@
-Wt/Qt interopability example
-----------------------------
+Wt/Qt interoperability example
+------------------------------
 
 This is an example that illustrates some aspects of using Qt code in a
 Wt application.
@@ -15,9 +15,9 @@ See the README in the parent directory.
 What it illustrates
 -------------------
 
-- the use of the wtwithqt interopability layer
+- the use of the wtwithqt interoperability layer
 
-IMPORTANT! The Wt/Qt interopability example and library are licensed
+IMPORTANT! The Wt/Qt interoperability example and library are licensed
 under the MIT License. This license is different from the license that
 covers the Wt libraries and other examples, AND ONLY APPLIES TO FILES
 IN THIS DIRECTORY. See below for the complete license terms.

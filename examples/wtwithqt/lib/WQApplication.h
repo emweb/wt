@@ -38,10 +38,10 @@ class QString;
 namespace Wt {
 
 /*! \class WQApplication WQApplication WQApplication
- *  \brief An application class that provides interopability between
+ *  \brief An application class that provides interoperability between
  *         Wt and Qt.
  *
- * This class provides interopability between the Wt's multi threading
+ * This class provides interoperability between the Wt's multi threading
  * model and Qt's threading requirements for QObject. This is needed
  * because Qt's object model, which defines a hierarchy of QObjects,
  * requires that every QObject in the hierarchy is created from within
@@ -103,7 +103,7 @@ protected:
    *         QThread context.
    *
    * Reimplement this method to construct your Wt widget and Qt object
-   * hierarchy within the context of the dedicatd QThread.
+   * hierarchy within the context of the dedicated QThread.
    *
    * This method is called from within the library after your
    * application is created.
