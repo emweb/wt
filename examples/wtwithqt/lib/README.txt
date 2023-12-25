@@ -1,10 +1,10 @@
-Wt/Qt interopability library
-============================
+Wt/Qt interoperability library
+==============================
 
-This library contains interopability classes for using Wt in
+This library contains interoperability classes for using Wt in
 conjunction with Qt4 (http://trolltech.com/products/qt).
 
-IMPORTANT! The Wt/Qt interopability library is licensed under the MIT
+IMPORTANT! The Wt/Qt interoperability library is licensed under the MIT
 License. This license is different from the license that covers the Wt
 libraries and other examples, and AND ONLY APPLIES TO FILES IN THIS
 DIRECTORY. See below for the complete license terms.

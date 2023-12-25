@@ -73,7 +73,7 @@ Requirements
 
   2 Additional and optional requirements for some of the examples
 
-     * Qt, for the libwtwithqt interopability layer
+     * Qt, for the libwtwithqt interoperability layer
      __________________________________________________________________
 
 Building and installing the Wt library
