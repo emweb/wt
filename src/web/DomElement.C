@@ -515,6 +515,11 @@ void DomElement::callJavaScript(const std::string& jsCode,
                                 bool evenWhenDeleted)
 {
   ++numManipulations_;
+  // Bug #12283: Ensure the js string isn't empty (for back())
+  if (jsCode.empty()) {
+    return;
+  }
+
   // Bug #12006: For safety always append semicolon
   std::string terminatedJsCode = jsCode;
   if (jsCode.back() != ';') {
