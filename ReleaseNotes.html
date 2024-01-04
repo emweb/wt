@@ -32,6 +32,10 @@ behaviour.
     render child widgets differently when updating an existing widget. The JavaScript code that is being called by the framework to dynamically add children to an HTML element was changed so that it always appends them. This is to avoid a widget that was added in JavaScript (with no C++ counterpart) from being overwritten if the HTML of the parent would be written to.
   </li>
   <li>
+    <a href="https://redmine.webtoolkit.eu/issues/12283" target="_blank">Issue #12283</a>:
+    this corrects an additional mistake, made in top of <a href="https://redmine.webtoolkit.eu/issues/12006" target="_blank">Issue #12006</a>.
+  </li>
+  <li>
     <a href="https://redmine.webtoolkit.eu/issues/12352" target="_blank">Issues #12352</a>:
     this corrects a potential crash in Boost spirit, where a grammar parser could encounter a floating point exception, when trying to evaluate unsafe divisions.
   </li>
