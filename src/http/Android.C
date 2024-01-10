@@ -1,3 +1,4 @@
+#ifdef WT_THREADED
 #include "Server.h"
 #include "Configuration.h"
 #include "WebController.h"
@@ -98,3 +99,4 @@ void preventRemoveOfSymbolsDuringLinking() {
   }
 
 #endif //ANDROID
+#endif //WT_THREADED
