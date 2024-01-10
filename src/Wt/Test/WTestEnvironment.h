@@ -15,7 +15,7 @@
 #include <Wt/WServer.h>
 
 #ifndef WT_TARGET_JAVA
-class cookie_render_test;
+struct cookie_render_test;
 #endif
 
 namespace Wt {
@@ -341,7 +341,7 @@ private:
   void init(EntryPointType type);
 
 #ifndef WT_TARGET_JAVA
-  friend class ::cookie_render_test;
+  friend struct ::cookie_render_test;
 #endif
 };
 
