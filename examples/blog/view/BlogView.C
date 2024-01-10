@@ -304,7 +304,7 @@ private:
       userEditor_->switchUser(target);
       panel_->setCurrentWidget(userEditor_);
     }
-    catch (Wt::Dbo::ObjectNotFoundException) {
+    catch (Wt::Dbo::ObjectNotFoundException&) {
       if (!invalidUser_){
         invalidUser_ =
             panel_->addWidget(std::make_unique<Wt::WTemplate>(tr("blog-invaliduser")));
@@ -400,7 +400,7 @@ private:
         lower.setDate(year, 1, 1);
         upper = lower.addYears(1);
       }
-    } catch (std::invalid_argument &) {
+    } catch (std::invalid_argument&) {
       showError(tr("blog-no-post"));
       return;
     }
