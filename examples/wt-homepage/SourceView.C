@@ -100,7 +100,7 @@ std::unique_ptr<WWidget> SourceView::renderView()
     // no content
     auto result = std::make_unique<WText>();
     result->setInline(false);
-    return std::move(result);
+    return result;
   }
 
   /*
@@ -197,7 +197,7 @@ std::unique_ptr<WWidget> SourceView::renderView()
   result->setInline(false);
   WApplication::instance()
     ->doJavaScript(result->jsRef() + ".parentNode.scrollTop = 0;");
-  return std::move(result);
+  return result;
 }
 
 std::string SourceView::imageExtension(const std::string& fileName)
