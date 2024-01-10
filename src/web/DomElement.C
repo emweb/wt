@@ -1202,7 +1202,7 @@ void DomElement::asHTML(EscapeOStream& out,
      * normally an `input` is selfclosing.
      */
     if (!isSelfClosingTag(renderedType)
-        || renderedType == DomElementType::INPUT && !childrenToAdd_.empty() && childrenToAdd_[0].child->type() == DomElementType::DATALIST) {
+        || (renderedType == DomElementType::INPUT && !childrenToAdd_.empty() && childrenToAdd_[0].child->type() == DomElementType::DATALIST)) {
       out << '>';
       for (unsigned i = 0; i < childrenToAdd_.size(); ++i)
         childrenToAdd_[i].child->asHTML(out, javaScript, timeouts);
