@@ -55,6 +55,3 @@ public:
 private:
   int rows_, columns_;
 };
-
-SAMPLE_BEGIN(virtualModel)
-SAMPLE_END(return nullptr)

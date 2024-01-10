@@ -14,6 +14,8 @@
  * See crypt_blowfish.c for more information.
  */
 
+#include <Wt/WDllDefs.h>
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -81,7 +83,7 @@ static int _crypt_data_alloc(void **data, int *size, int need)
 	return 0;
 }
 
-static char *_crypt_retval_magic(char *retval, const char *setting,
+WT_MAYBE_UNUSED static char *_crypt_retval_magic(char *retval, const char *setting,
 	char *output, int size)
 {
 	if (retval)

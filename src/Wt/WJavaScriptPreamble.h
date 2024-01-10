@@ -60,7 +60,7 @@ public:
 #define WT_DECLARE_WT_MEMBER(i, type, name, ...)                        \
   namespace {                                                           \
   using namespace Wt;                                                   \
-  WJavaScriptPreamble wtjs##i() {                                       \
+  WT_MAYBE_UNUSED WJavaScriptPreamble wtjs##i() {                                       \
     return WJavaScriptPreamble(WtClassScope, type, name, #__VA_ARGS__); \
   }                                                                     \
   }
