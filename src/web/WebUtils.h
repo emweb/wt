@@ -14,6 +14,7 @@
 #include <set>
 #include <string>
 #include <sstream>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 #include <cstdlib>
@@ -240,8 +241,22 @@ inline V& access(std::map<K, V>& m, const T& key)
   return m[key];
 }
 
+template <typename K, typename V, typename T>
+inline V& access(std::unordered_map<K, V>& m, const T& key)
+{
+  return m.at(key);
+}
+
 template <typename K, typename V>
 inline void insert(std::map<K, V>& m, const K& key, const V& value)
+{
+#ifndef WT_TARGET_JAVA
+  m.insert(std::make_pair(key, value));
+#endif // WT_TARGET_JAVA
+}
+
+template <typename K, typename V>
+inline void insert(std::unordered_map<K, V>& m, const K& key, const V& value)
 {
 #ifndef WT_TARGET_JAVA
   m.insert(std::make_pair(key, value));
