@@ -137,7 +137,8 @@ AuthService::AuthService()
     authTokenUpdateEnabled_(true),
     authTokenValidity_(14 * 24 * 60),  // two weeks
     mfaRequired_(false),
-    mfaCodeLength_(6)
+    mfaCodeLength_(6),
+    mfaTokenValidity_(90 * 24 * 60)    // 90 days
 {
   redirectInternalPath_ = "/auth/mail/";
 }
@@ -175,6 +176,9 @@ void AuthService::setAuthTokensEnabled(bool enabled, const std::string& cookieNa
   authTokens_ = enabled;
   authTokenCookieName_ = cookieName;
   authTokenCookieDomain_ = cookieDomain;
+
+  setMfaTokenCookieName(cookieName + "-mfa");
+  setMfaTokenCookieDomain(cookieDomain);
 }
 
 User AuthService::identifyUser(const Identity& identity,
@@ -479,5 +483,20 @@ void AuthService::setMfaCodeLength(int length)
 {
   mfaCodeLength_ = length;
 }
-  }
+
+void AuthService::setMfaTokenCookieName(const std::string& name)
+{
+  mfaTokenCookieName_ = name;
+}
+
+void AuthService::setMfaTokenCookieDomain(const std::string& domain)
+{
+  mfaTokenCookieDomain_ = domain;
+}
+
+void AuthService::setMfaTokenValidity(int validity)
+{
+  mfaTokenValidity_ = validity;
+}
+}
 }

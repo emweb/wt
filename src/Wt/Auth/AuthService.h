@@ -10,6 +10,7 @@
 #include <Wt/WString.h>
 
 #include <Wt/Auth/User.h>
+#include <Wt/Auth/WAuthGlobal.h>
 
 namespace Wt {
   namespace Mail {
@@ -105,8 +106,8 @@ enum class EmailTokenState {
 /*! \brief Enumeration that describes an auth token validation state.
  */
 enum class AuthTokenState {
-  Invalid, //!< The presented auth token could be used to identify a user.
-  Valid    //!< The presented auth token was invalid
+  Invalid, //!< The presented auth token was invalid
+  Valid    //!< The presented auth token could be used to identify a user.
 };
 
 /*! \class EmailTokenResult Wt/Auth/AuthService.h Wt/Auth/AuthService.h
@@ -244,6 +245,10 @@ private:
  *    - lostPassword()
  *    - verifyEmailAddress()
  *    - processEmailToken()
+ *  - MFA tokens, used by multi-factor authentication functionality:
+ *    - setMfaTokenCookieName()
+ *    - setMfaTokenValidity()
+ *    - processAuthToken()
  *
  * \ingroup auth
  */
@@ -321,6 +326,10 @@ public:
    *
    * Authentication tokens are disabled by default.
    *
+   * The default name for these cookies is \p wtauth, and if MFA is
+   * enabled, their corresponding name will be \p wtauth-mfa. The name
+   * of these tokens can be changed (setMfaTokenCookieName()).
+   *
    * \sa setTokenHashFunction(), setAuthTokenValidity()
    */
   void setAuthTokensEnabled(bool enabled,
@@ -345,8 +354,11 @@ public:
    * unless the AbstractUserDatabase implementation takes this into account
    * (e.g. keeps the old token valid for a little bit longer)
    *
-   * The default Dbo UserDatabase does not handle concurrent token updates well,
+   * The default Dbo::UserDatabase does not handle concurrent token updates well,
    * so disable this option if you want to prevent that issue.
+   *
+   * \note If using MFA, processAuthToken() will also use this
+   * functionality.
    *
    * \sa processAuthToken()
    * \sa authTokenUpdateEnabled()
@@ -407,11 +419,15 @@ public:
 
   /*! \brief Processes an authentication token.
    *
-   * This verifies an authentication token, and considers whether it matches
-   * with a token hash value stored in database. If it matches and auth token
-   * update is enabled, the token is updated with a new hash.
+   * This verifies an authentication token, and considers whether it
+   * matches with a token hash value stored in database. This indicates
+   * that the cookie a User has in their browser is still valid, and can
+   * be used to uniquely identify them.
    *
-   * \sa setAuthTokenUpdateEnabled()
+   * If it matches and auth token update is enabled
+   * (setAuthTokenUpdateEnabled()), the token is updated with a new hash.
+   *
+   * \sa setAuthTokensEnabled()
    * \sa AbstractUserDatabase::updateAuthToken()
    */
   virtual AuthTokenResult processAuthToken(const std::string& token,
@@ -570,7 +586,7 @@ public:
   virtual void sendMail(const Mail::Message& message) const;
   //!@}
 
-  /** @name Multi-factor authentication.
+  /** @name Multi-factor authentication (Time-Based One-Time Password).
    */
   //!@{
   /*! \brief Sets whether multiple factors are enabled when logging in.
@@ -680,6 +696,71 @@ public:
    * \sa setMfaCodeLength()
    */
   int mfaCodeLength() const { return mfaCodeLength_; }
+
+  /*! \brief Sets the name of the cookie used for MFA "remember-me".
+   *
+   * This name can be changed to any name the developer desires, that is
+   * a valid name for a cookie. By default this name is the same name as
+   * authTokenCookieName() with "-mfa" appended. If this name is not
+   * changed from the default, this will result in the "wtauth-mfa"
+   * name.
+   *
+   * \note No check is performed for clashing names, so this can
+   * potentially override existing cookies.
+   *
+   * \sa setMfaTokenValidity(), setAuthTokensEnabled()
+   */
+  void setMfaTokenCookieName(const std::string& name);
+
+  /*! \brief Returns the name of the MFA "remember-me" cookie.
+   *
+   * This can be configured by the developer, or otherwise uses the same
+   * name  as authTokenCookieName() with the "-mfa" suffix. If nothing is
+   * changed, the default is "wtauth-mfa".
+   */
+  const std::string& mfaTokenCookieName() const { return mfaTokenCookieName_; }
+
+  /*! \brief Returns the domain of the MFA "remember-me" cookie.
+   *
+   * This can be configured by the developer, or otherwise uses the same
+   * name as authTokenCookieDomain(). If nothing is changed, the default
+   * is an empty string.
+   *
+   * This should best be used if multiple applications are living on the
+   * same
+   */
+  void setMfaTokenCookieDomain(const std::string& domain);
+
+  /*! \brief Returns the MFA token cookie domain.
+   *
+   * \sa setMfaTokenCookieDomain()
+   */
+  const std::string& mfaTokenCookieDomain() const { return mfaTokenCookieDomain_; }
+
+  /*! \brief Sets the validity duration of the MFA "remember-me" cookie
+   *
+   * The duration is specified in minutes. So a validity of 1440 will
+   * keep the cookie valid for a whole day. This ensures that there is
+   * a limit on how long the User's MFA verification can be bypassed.
+   *
+   * From a security aspect, this value should be kept on the lower side
+   * so that a user will be required to demonstrate a TOTP code often to
+   * the application, by which they validate their identity.
+   *
+   * \sa Mfa::AbstractMfaProcess.
+   *
+   * The default duration is 90 days.
+   *
+   * \note There are limits on the validity of a cookie in some browsers,
+   * so it cannot be guaranteed that "forever" is actually applicable.
+   */
+  void setMfaTokenValidity(int validity);
+
+  /*! \brief Returns the validity span of the MFA "remember-me" cookie.
+   *
+   * \sa setMfaTokenValidity()
+   */
+  int mfaTokenValidity() const { return mfaTokenValidity_; }
   //!@}
 
 protected:
@@ -740,6 +821,10 @@ private:
   std::string mfaProvider_;
   bool mfaRequired_;
   int mfaCodeLength_;
+  bool mfaTokens_;
+  int mfaTokenValidity_;  // minutes
+  std::string mfaTokenCookieName_;
+  std::string mfaTokenCookieDomain_;
 };
 
   }

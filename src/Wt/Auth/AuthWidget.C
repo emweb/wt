@@ -332,6 +332,7 @@ void AuthWidget::onLoginChange()
       if (mfaSecretKey.empty()) {
         bindWidget("mfa", mfaWidget->createSetupView());
       } else {
+        mfaWidget->createInputView();
         bindWidget("mfa", mfaWidget->createInputView());
       }
     } else {
@@ -610,8 +611,11 @@ void AuthWidget::processEnvironment()
   }
 
   User user = model_->processAuthToken();
-  model_->loginUser(login_, user, LoginState::Weak);
+  LoginState state = LoginState::Weak;
+  if (model_->hasMfaStep(user)) {
+    state = LoginState::RequiresMfa;
+  }
+  model_->loginUser(login_, user, state);
 }
-
   }
 }

@@ -9,6 +9,8 @@
 
 #include <Wt/WDateTime.h>
 
+#include <Wt/Auth/WAuthGlobal.h>
+
 namespace Wt {
   namespace Auth {
 
@@ -24,6 +26,15 @@ namespace Wt {
  * using a cryptographic hash function, and only save this hash in the
  * session or database for later verification. This avoids that a
  * compromised database would leak all the authentication tokens.
+ *
+ * The token can be used for multiple purposes, denoted by the token's
+ * name in the browser. In both cases it is used for "remember-me"
+ * functionality. For regular authentication this is for the normal
+ * username/password combination login. For MFA authentication this
+ * is used in a similar fashion to remember the MFA verification. That
+ * means a User will not have to submit a TOTP code each time they log
+ * in. But only as often as the developer desires (managed by
+ * AuthService::setMfaTokenValidity()).
  *
  * \sa User::addAuthToken()
  * \sa User::setEmailToken()

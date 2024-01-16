@@ -8,6 +8,7 @@
 #define WT_AUTH_DBO_AUTH_INFO_H_
 
 #include <Wt/Auth/User.h>
+#include <Wt/Auth/WAuthGlobal.h>
 
 #ifndef WT_AUTH_DBO_EXTERN_TEMPLATES
 #include <Wt/Dbo/Dbo.h>
@@ -290,6 +291,8 @@ private:
  *  \brief A default implementation for an authentication token in %Wt::%Dbo
  *
  * This class is used by AuthInfo, and stores authentication tokens.
+ * These tokens are used for "remember-me" functionality. Which can be
+ * found in AuthWidget and Mfa::TotpProcess.
  *
  * \sa AuthInfo
  *
@@ -306,7 +309,10 @@ public:
   /*! \brief Constructor.
    */
   AuthToken(const std::string& value, const Wt::WDateTime& expires)
-    : value_(value), expires_(expires) { }
+    : value_(value),
+      expires_(expires)
+  {
+  }
 
   /*! \brief Returns the token owner.
    */

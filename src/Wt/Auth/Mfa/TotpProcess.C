@@ -29,6 +29,15 @@ namespace Wt {
   {
   }
 
+  void TotpProcess::processEnvironment()
+  {
+    User user = processMfaToken();
+    if (user.isValid()) {
+      login().login(user, LoginState::Weak);
+      authenticated_.emit(AuthenticationResult(AuthenticationStatus::Success));
+    }
+  }
+
   std::unique_ptr<WTemplate> TotpProcess::createBaseView()
   {
     auto baseView = std::make_unique<WTemplate>(WTemplate::tr("Wt.Auth.template.totp"));
@@ -43,6 +52,7 @@ namespace Wt {
     auto setupView = createBaseView();
     bindQRCode(setupView.get());
     bindCodeInput(setupView.get());
+    bindRememberMe(setupView.get());
     bindLoginButton(setupView.get());
     return setupView;
   }
@@ -51,6 +61,7 @@ namespace Wt {
   {
     auto inputView = createBaseView();
     bindCodeInput(inputView.get());
+    bindRememberMe(inputView.get());
     bindLoginButton(inputView.get());
     return inputView;
   }
@@ -94,6 +105,20 @@ namespace Wt {
     login->clicked().connect(std::bind(&TotpProcess::verifyCode, this, view));
   }
 
+  void TotpProcess::bindRememberMe(WTemplate* view)
+  {
+    view->setCondition("if:remember-me", true);
+    rememberMeField_ = view->bindNew<WCheckBox>("remember-me");
+
+    int days = baseAuth().mfaTokenValidity() / 24 / 60;
+
+    WDateTime currentDateTime = WDateTime::currentDateTime();
+    WDateTime expirationDateTime = currentDateTime.addDays(days);
+    WString info = WString::tr("Wt.Auth.remember-me-info.dynamic").arg(currentDateTime.timeTo(expirationDateTime));
+
+    view->bindString("remember-me-info", info);
+  }
+
   void TotpProcess::verifyCode(WTemplate* view)
   {
     auto code = codeEdit_->text().toUTF8();
@@ -111,6 +136,10 @@ namespace Wt {
     } else {
       createUserIdentity(currentSecretKey());
 
+      if (rememberMeField_->isChecked()) {
+        setRememberMeCookie(login().user());
+      }
+
       login().login(login().user());
       authenticated_.emit(AuthenticationResult(AuthenticationStatus::Success));
     }
@@ -125,3 +154,4 @@ namespace Wt {
     }
   }
 }
+

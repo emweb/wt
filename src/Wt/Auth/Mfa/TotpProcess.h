@@ -35,6 +35,16 @@ namespace Wt {
    * a TOTP code to verify their identity as a second factor
    * (createInputView()).
    *
+   * This process will also look in the environment for cookies, so that
+   * the MFA step can also be remembered (processEnvironment()). If the
+   * user logs in using a device they use often, they can opt to remember
+   * the login, which creates a cookie
+   * (see AuthService::setMfaTokenCookieName(),
+   * and AuthService::setMfaTokenValidity()). If this cookie remains in
+   * the user's browser, and in the local database (in the "auth_token"
+   * table, by default), the user's TOTP step can be skipped for a
+   * certain time (see AbstractMfaProcess::processMfaToken()).
+   *
    * If a developer wants to force all users to use this functionality,
    * they can do so by enabling AuthService::setMfaRequired().
    *
@@ -53,11 +63,18 @@ namespace Wt {
      * either request a TOTP code from the user as a second factor, or
      * initiate the process to add the TOTP secret to their record,
      * allowing for future TOTP code requests.
+     *
+     * Optionally, if authentication tokens are enabled
+     * (see AuthService::setAuthTokensEnabled()), this step can be
+     * temporarily bypassed, for as long as the token is valid
+     * (see AuthService::mfaTokenValidity()).
      */
     TotpProcess(const AuthService& authService, AbstractUserDatabase& users, Login& login);
 
     //! Destructor
     virtual ~TotpProcess();
+
+    void processEnvironment() override;
 
     /*! \brief Creates the view to manage the TOTP code.
      *
@@ -71,6 +88,7 @@ namespace Wt {
     /*! \brief Signal emitted upon an authentication event
      *
      * This event can be a success, failure, or error.
+     *
      * The additional string can provide more information on the attempt,
      * indicating the type of error, or the reason for the failure.
      * The status and message are both stored in an instance of the
@@ -89,6 +107,7 @@ namespace Wt {
 
   private:
     WLineEdit* codeEdit_ = nullptr;
+    WCheckBox* rememberMeField_ = nullptr;
 
     std::string currentSecretKey_;
 
@@ -98,6 +117,7 @@ namespace Wt {
 
     void bindQRCode(WTemplate* view);
     void bindCodeInput(WTemplate* view);
+    void bindRememberMe(WTemplate* view);
     void bindLoginButton(WTemplate* view);
     void verifyCode(WTemplate* view);
     void update(WTemplate* view);

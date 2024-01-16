@@ -163,6 +163,8 @@
           <span class="Wt-info">${totp-code-info}</span>
         </label>
         ${totp-code}
+
+        ${block:Wt.Auth.field remember-me}
       </div>
 
       <div class="Wt-buttons">

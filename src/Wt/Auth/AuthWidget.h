@@ -180,6 +180,14 @@ public:
    *   computer). You should let the user authenticate using another,
    *   primary method before doing sensitive operations. The
    *   createPasswordPromptDialog() method may be useful for this.
+  *    This token denotes a regular username/password login. If the
+  *    "remember-me" functionality is enabled for it, and selected, a
+  *    token will be produced, named according to
+  *    AuthService::authTokenCookieName(), and valid for
+  *    AuthService::authTokenValidity() (in minutes). Both can be set by
+  *    enabling authentication tokens with
+  *    AuthService::setAuthTokenaEnabled(). By default the cookie will be
+  *    called "wtauth" and will be valid for two weeks.
    *
    * \sa letUpdatePassword()
    */

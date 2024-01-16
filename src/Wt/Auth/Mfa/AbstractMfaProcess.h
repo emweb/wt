@@ -145,6 +145,17 @@ public:
    */
   virtual const std::string& provider() const;
 
+  /*! \brief Processes the (initial) environment.
+   *
+   * This can be called to tell the widget to look through the
+   * environment for the relevent cookies. It will handle the
+   * side-effect of finding such a cookie, and it still being valid. The
+   * user will be logged in, in a weak state (LoginState::Weak), and the
+   * authenticated() signal will be fired, with an
+   * AuthenticationStatus::Success.
+   */
+  virtual void processEnvironment();
+
   /*! \brief Creates the view that displays the MFA configuration step.
    *
    * This is the view that is shown to a user if they do not have MFA
@@ -200,11 +211,29 @@ protected:
    * manner, the developer will have to do this manually (or the database
    * itself should be encrypted).
    *
-   * \sa userIdentity
+   * \sa userIdentity()
    */
   virtual bool createUserIdentity(const Wt::WString& identityValue);
 
-protected:
+  /*! \brief Processes an MFA authentication token
+   *
+   * If a token is present in the browser, going by the name found in
+   * AuthService::mfaTokenCookieName(), and that is still valid
+   * (see AuthService::mfaTokenValidity()), the User can be retrieved
+   * from that token. This identifies the user uniquely, ensuring
+   * their MFA verification step can be skipped for a certain period.
+   */
+  virtual User processMfaToken();
+
+  /*! \brief Creates an MFA authentication token.
+   *
+   * A token (with the correct prefix for MFA) is created and persisted
+   * in the database. A cookie is created in the \p user's browser.
+   * This token can later be used by processMfaToken() to identify the
+   * User, allowing them to skip the MFA step.
+   */
+  virtual void setRememberMeCookie(User user);
+
   const AuthService& baseAuth() const { return baseAuth_; }
   AbstractUserDatabase& users() const { return users_; }
   Login& login() const { return login_; }

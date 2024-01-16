@@ -319,15 +319,38 @@ public:
   //!@{
   /*! \brief Adds an authentication token to a user.
    *
-   * Unless you want a user to only have remember-me support from a
-   * single computer at a time, you should support multiple
+   * An authentication token enables a user to not always type out their
+   * full username/password (see AuthWidget) or enter their MFA code
+   * (see TotpProcess). An authentication token will remember the user by
+   * placing a cookie in their browser and tracking the user's token in
+   * a local table in the database (by default called "auth_token").
+   *
+   * The token itself is not aware of which use-case it serves. That
+   * being either for the regular username/password login, or for MFA.
+   * However, in the browser this cookie is given a name, based on the
+   * name set by AuthService::setAuthTokensEnabled() or
+   * AuthService::setMfaTokenCookieName(). This name can be used to match
+   * to the correct type.
+   *
+   * Enabling either of these (by calling
+   * AuthService::setAuthTokensEnabled) will also enable the other, but
+   * their name and validity can be set separately.
+   *
+   * \sa findWithAuthToken.
+   *
+   * \note Unless you want a user to only have remember-me support from
+   * a single browser at a time, you should support multiple
    * authentication tokens per user.
    */
   virtual void addAuthToken(const User& user, const Token& token);
 
   /*! \brief Deletes an authentication token.
    *
-   * Deletes an authentication token previously added with addAuthToken()
+   * Deletes an authentication token previously added with addAuthToken().
+   *
+   * \note This deletes the local entry in the database (in table
+   * "auth_token"). It will not remove the cookie from the User's
+   * browser.
    */
   virtual void removeAuthToken(const User& user, const std::string& hash);
 
@@ -338,6 +361,26 @@ public:
    * This should find the user associated with a particular token
    * hash, or return an invalid user if no user with that token hash
    * exists.
+   *
+   * The authentication token can be used for two means:
+   *  - used for the normal authentication, denoting a regular
+   *    username/password login. If the "remember-me" functionality is
+   *    enabled for it, and selected, a token will be produced, named
+   *    according to AuthService::authTokenCookieName(), and valid for
+   *    AuthService::authTokenValidity() (in minutes). Both can be set
+   *    by enabling authentication tokens with
+   *    AuthService::setAuthTokensEnabled(). By default the cookie will
+   *    be called "wtauth" and will be valid for two weeks.
+   *
+   *  - used for the multi-factor verification, currently this is to be
+   *    implemented by the developer if they want anything other than
+   *    %Wt's default of TOTP (see Mfa::TotpProcess). This functions
+   *    identical to the other authentication token, and is enabled the
+   *    same way. The name can be changed by
+   *    AuthService::setMfaTokenCookieName, and its duration by
+   *    AuthService::setMfaTokenValidity() (in minutes). By default the
+   *    cookie will be called "wtauth-mfa" and it will be valid
+   *    indefinitely.
    */
   virtual User findWithAuthToken(const std::string& hash) const;
 

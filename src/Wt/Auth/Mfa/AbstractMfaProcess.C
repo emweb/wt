@@ -6,7 +6,13 @@
 #include "Wt/Auth/Login.h"
 #include "Wt/Auth/User.h"
 
+#include "Wt/Http/Cookie.h"
+
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
 #include "Wt/WLogger.h"
+
+#include <chrono>
 
 namespace Wt {
   LOGGER("Auth.Mfa.AbstractMfaProcess");
@@ -72,6 +78,92 @@ bool AbstractMfaProcess::createUserIdentity(const Wt::WString& identityValue)
   }
   return true;
 }
+
+void AbstractMfaProcess::processEnvironment()
+{
+  User user = processMfaToken();
+  if (user.isValid()) {
+    login().login(user, LoginState::Weak);
+    return;
+  }
 }
+
+User AbstractMfaProcess::processMfaToken()
+{
+  WApplication *app = WApplication::instance();
+  const WEnvironment& env = app->environment();
+
+  if (baseAuth().authTokensEnabled()) {
+    const std::string *token = env.getCookie(baseAuth().mfaTokenCookieName());
+
+    if (token) {
+      LOG_INFO("processMfaToken: Processing auth token for MFA for user: " << login().user().id());
+      AuthTokenResult result = baseAuth().processAuthToken(*token, users());
+
+      switch(result.state()) {
+        case AuthTokenState::Valid: {
+          LOG_INFO("processMfaToken: Found valid match for auth token for MFA for user: " << login().user().id());
+          if (!result.newToken().empty()) {
+            LOG_DEBUG("processMfaToken: Renewing auth token for MFA.");
+            app->setCookie(baseAuth().mfaTokenCookieName(),
+                           result.newToken(),
+                           result.newTokenValidity(),
+                           baseAuth().mfaTokenCookieDomain(),
+                           "",
+                           app->environment().urlScheme() == "https");
+          }
+
+          // Has correct MFA provider?
+          auto identity = result.user().identity(provider());
+          if (!identity.empty()) {
+            // Has matched correct user? Can occur when multiple users use the same device.
+            if (login().user() == result.user()) {
+              LOG_DEBUG("processMfaToken: Found token with matching user to previous login action.");
+              return result.user();
+            } else {
+              LOG_DEBUG("processMfaToken: Found token with DIFFERENT user to previous login action. This can occur when multiple users use the same device.");
+              return User();
+            }
+          } else {
+            LOG_DEBUG("Found no valid identity for the provider: " << provider());
+            return User();
+          }
+        }
+        case AuthTokenState::Invalid: {
+          LOG_INFO("processMfaToken: Found no valid match for auth token for MFA for user:" << login().user().id() << ", removing token");
+          app->setCookie(baseAuth().mfaTokenCookieName(),
+                         std::string(),
+                         0,
+                         baseAuth().mfaTokenCookieDomain(),
+                         "",
+                         app->environment().urlScheme() == "https");
+
+          return User();
+        }
+      }
+    }
+  }
+
+  return User();
+}
+
+void AbstractMfaProcess::setRememberMeCookie(User user)
+{
+  WApplication *app = WApplication::instance();
+
+  int duration = baseAuth().mfaTokenValidity() * 60;
+
+  LOG_INFO("Setting auth token for MFA named: " << baseAuth().mfaTokenCookieName() << " with validity (in seconds): " << duration);
+  auto cookie = Http::Cookie(baseAuth().mfaTokenCookieName(), baseAuth().createAuthToken(user));
+#ifndef WT_TARGET_JAVA
+  cookie.setMaxAge(std::chrono::seconds(duration));
+#else
+  cookie.setMaxAge(duration);
+#endif // WT_TARGET_JAVA
+  cookie.setDomain(baseAuth().mfaTokenCookieDomain());
+  cookie.setSecure(app->environment().urlScheme() == "https");
+  app->setCookie(cookie);
+}
+    }
   }
 }
