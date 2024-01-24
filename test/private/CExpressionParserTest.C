@@ -3,8 +3,9 @@
  *
  * See the LICENSE file for terms of use.
  */
-
+#include <Wt/WException.h>
 #include <Wt/WMessageResources.h>
+
 #include <boost/test/unit_test.hpp>
 
 namespace {
@@ -186,5 +187,29 @@ BOOST_AUTO_TEST_CASE( cexpression_basic_languagesTest )
     BOOST_REQUIRE(eval(e, 202) == 1);
     BOOST_REQUIRE(eval(e, 203) == 1);
     BOOST_REQUIRE(eval(e, 204) == 1);
+  }
+}
+
+BOOST_AUTO_TEST_CASE( cexpression_edge_case_test )
+{
+  // Input gibberish
+  {
+    std::string e = "thisisgibberish";
+    BOOST_REQUIRE(eval(e, 1) == 0);
+  }
+  // Unsafe remainder
+  {
+    std::string e = "n%0";
+    BOOST_CHECK_THROW(eval(e, 1), Wt::WException);
+  }
+  // Unsafe division
+  {
+    std::string e = "n/0";
+    BOOST_CHECK_THROW(eval(e, 1), Wt::WException);
+  }
+  {
+    // String discovered by OSS-Fuzz #63734
+    std::string e = "(n%0°0<10<10 10=2ßÍ >& >ÂÍ ␅ÿÿ␅ N";
+    BOOST_CHECK_THROW(eval(e, 1), Wt::WException);
   }
 }

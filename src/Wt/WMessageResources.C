@@ -96,8 +96,8 @@ struct CExpressionParser : grammar<CExpressionParser>
       term
         = factor[term.value = arg1]
           >> *( ('*' >> factor[term.value *= arg1])
-              | ('/' >> factor[term.value /= arg1])
-              | ('%' >> factor[term.value %= arg1])
+              | ('/' >> factor[bind(&CExpressionParser::safe_div)(self, term.value, arg1)])
+              | ('%' >> factor[bind(&CExpressionParser::safe_rem)(self, term.value, arg1)])
             )
         ;
 
@@ -209,6 +209,24 @@ private:
 
   void or_op(::int64_t &x, ::int64_t y) const { x = x || y; }
   void and_op(::int64_t &x, ::int64_t y) const { x = x && y; }
+
+  void safe_div(::int64_t& result, ::int64_t y) const
+  {
+    if (y != 0) {
+      result = result / y;
+    } else {
+      throw WException("Cannot divive by 0");
+    }
+  }
+
+  void safe_rem(::int64_t& result, ::int64_t y) const
+  {
+    if (y != 0) {
+      result = result % y;
+    } else {
+      throw WException("Cannot modulo by 0");
+    }
+  }
 
   void set_result(int result) const { result_ = result; }
 private :
