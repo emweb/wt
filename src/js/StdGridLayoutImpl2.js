@@ -1114,7 +1114,9 @@ WT_DECLARE_WT_MEMBER(
       if (DC.maxSize && !DC.sizeSet) {
         // (2) adjust container width/height
         const sz = Math.min(totalPreferredSize, DC.maxSize) + otherPadding;
-        if (setCss(container, DC.size, (sz + sizePadding(container, dir)) + "px")) {
+        // Only perform the change IF no parent layout manager is used to manage the size.
+        // If one is used, it will correctly manage the content.
+        if (!container.parentNode.wtResize && setCss(container, DC.size, (sz + sizePadding(container, dir)) + "px")) {
           if (parent) {
             parent.setElDirty(parentItemWidget);
           }
