@@ -100,6 +100,14 @@ WT_DECLARE_WT_MEMBER(
           Math.round(height)
         );
       }
+
+      // Set the height of the contentscontainer to fit the size of the wrapping table.
+      const height = headerContainer.offsetHeight;
+      const avoidBorderOverlapOffset = 2;
+      const parentHeight = headerContainer.closest(".Wt-tableview").offsetHeight - avoidBorderOverlapOffset;
+
+      contentsContainer.style.height = parentHeight - height + "px";
+      contentsContainer.style.width = headerContainer.style.width;
     };
 
     function isSelected(item) {
