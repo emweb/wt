@@ -63,6 +63,11 @@ behaviour.
     correctly implement the <a href="https://datatracker.ietf.org/doc/html/rfc5322#section-3.6.3" target="_blank">RFC5322 specification</a> for mail messages. The "To:" and "Cc:" fields are now correctly placed on a single line. With multiple addresses this results in a comma-separated list of addresses.
   </li>
   <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9284">Issue #9284</a>:
+    a <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a> will now render more correctly in layouts. A combinations of various layouts could lead to the table not setting its size correctly, or even not having a consistent size (apparently randomly deciding
+    to fill in all available space, or to shrink to fit its content). This lead to the issue where scrollbars were sometimes not visible, or were placed in a wrong location. By default, a table will now size correctly, and place the scrollbars accordingly, namely at the edges of its container.
+  </li>
+  <li>
     <a href="https://redmine.webtoolkit.eu/issues/11954" target="_blank">Issue #11954</a>:
     resolve a fairly big memory leak when using Pango. Pango is a library that is by default enabled (or controlled using the <code>ENABLE_PANGO</code> build flag). This library is used to generate PDFs with the <a href="classWt_1_1Render_1_1WPdfRenderer.html">WPdfRenderer</a>.
     The font map that Pango generated to track available fonts was never correctly released. Some other Pango specific objects (resulting from calls to the library), such as the context and fonts were also not always released. These objects are now managed by smart pointers to ensure proper memory management.
