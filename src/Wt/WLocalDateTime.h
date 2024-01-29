@@ -22,7 +22,9 @@ namespace date {
 namespace Wt {
 namespace cpp20 {
 
+//! @cond Doxygen_Suppress
 namespace date = ::date;
+//! @endcond
 
 }
 }
