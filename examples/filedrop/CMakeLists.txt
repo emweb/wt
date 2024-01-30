@@ -7,10 +7,10 @@
 # except when the ISAPI (for Microsoft IIS) connector is used, where it will
 # build a DLL with the proper symbols exported.
 #
-WT_ADD_EXAMPLE(filedrop.wt filedrop.C FileDropApplication.C)
+WT_ADD_EXAMPLE(filedrop.wt filedrop.C FileDropApplication.C custom_transfer/MyFileDropWidget.C custom_transfer/MyUploadResource.C)
 
 #
-# If you have Wt installed somehwere, you should use the
+# If you have Wt installed somewhere, you should use the
 # installed Wt header files for your own Wt projects.
 # e.g. INCLUDE_DIRECTORIES(/usr/local/include)
 # instead of the following:

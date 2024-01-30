@@ -15,6 +15,10 @@
 #include <iostream>
 #include <fstream>
 
+#ifdef USE_CUSTOM_TRANSFER
+#include "custom_transfer/MyFileDropWidget.h"
+#endif
+
 using namespace Wt;
 
 static const std::string UPLOAD_FOLDER = "./uploaded/";
@@ -29,7 +33,11 @@ FileDropApplication::FileDropApplication(const Wt::WEnvironment& env)
 
   root()->addNew<WText>("<h1>Try dropping a file in the widget below</h1>");
 
+#ifdef USE_CUSTOM_TRANSFER
+  drop_ = root()->addNew<MyFileDropWidget>();
+#else
   drop_ = root()->addNew<WFileDropWidget>();
+#endif
 
   drop_->setDropIndicationEnabled(true);
   // drop_->setGlobalDropEnabled(true);
