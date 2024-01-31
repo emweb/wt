@@ -258,6 +258,38 @@ protected:
   virtual std::string renderRemoveJs(bool recursive) override;
   virtual void enableAjax() override;
   virtual void updateDom(DomElement& element, bool all) override;
+  class WFileDropUploadResource;
+
+  /*! \brief Resource to upload data to
+   *
+   * This returns a resource to upload data to.
+   * By default this returns a resource where the file contents can be POSTed.
+   * This can be overridden to allow for custom upload mechanisms.
+   *
+   * This can be used to implement upload protocols that are different from the
+   * normal upload flow. The request may include extra information in their
+   * payload, or be located on a public fixed URL and require custom handling
+   * of the request.
+   *
+   * On the client side, the JS function wtCustomSend(isValid, url, upload, APP)
+   * can implement a custom upload mechanism, with:
+   * - isValid: whether a valid file is uploaded
+   * - url: the upload location
+   * - upload: a file object with:
+   *   - id: generated upload identifier
+   *   - filename: upload file name
+   *   - type: file type
+   *   - size: file size
+   * 
+   * To use this function, define the JS boolean \c wtUseCustomSend, which is
+   * \c false by default. Example:
+   * \code
+   * Wt::WApplication::instance().setJavaScriptMember("wtUseCustomSend", "true");
+   * Wt::WApplication::instance().setJavaScriptMember("wtCustomSend",
+   *   "function(isValid, url, upload) { * ... * };");
+   * \endcode
+   */
+  virtual std::unique_ptr<WResource> uploadResource();
 
 private:
   void setup();
@@ -276,8 +308,7 @@ private:
   bool incomingIdCheck(int id);
 
   WMemoryResource *uploadWorkerResource_;
-  class WFileDropUploadResource;
-  std::unique_ptr<WFileDropUploadResource> resource_;
+  std::unique_ptr<WResource> resource_;
   unsigned currentFileIdx_;
 
   static const std::string WORKER_JS;
@@ -315,7 +346,6 @@ private:
   std::bitset<5> updateFlags_;
   bool updatesEnabled_; // track if this widget enabled updates.
 
-  friend class WFileDropUploadResource;
 };
 
 }

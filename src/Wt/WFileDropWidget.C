@@ -309,7 +309,7 @@ void WFileDropWidget::handleSendRequest(int id)
       fileFound = true;
       currentFileIdx_ = i;
       auto currentFile = uploads_[currentFileIdx_].get();
-      resource_ = std::make_unique<WFileDropUploadResource>(this, currentFile);
+      resource_ = uploadResource();
       resource_->dataReceived().connect(this, &WFileDropWidget::onData);
       resource_->dataExceeded().connect(this, &WFileDropWidget::onDataExceeded);
       doJavaScript(jsRef() + ".send('" + resource_->url() + "', "
@@ -330,6 +330,11 @@ void WFileDropWidget::handleSendRequest(int id)
     updatesEnabled_ = true;
     WApplication::instance()->enableUpdates(true);
   }
+}
+
+std::unique_ptr<WResource> WFileDropWidget::uploadResource()
+{
+  return std::make_unique<WFileDropUploadResource>(this, uploads_[currentFileIdx_].get());
 }
 
 void WFileDropWidget::handleTooLarge(::uint64_t size)
