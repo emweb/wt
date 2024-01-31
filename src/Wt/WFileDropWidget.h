@@ -254,6 +254,13 @@ public:
    */
   Signal<File*>& uploadFailed() { return uploadFailed_; }
 
+  /*! \brief Indicate that the next file can be handled
+   *
+   * Internally indicate handling of the next file. Any resource handling the
+   * upload needs to call this when the file is handled.
+   */
+  void proceedToNextFile();
+
 protected:
   virtual std::string renderRemoveJs(bool recursive) override;
   virtual void enableAjax() override;
@@ -290,6 +297,8 @@ protected:
    * \endcode
    */
   virtual std::unique_ptr<WResource> uploadResource();
+  virtual JSignal<int>& requestSend() { return requestSend_; };
+  virtual File* currentFile() { return uploads_[currentFileIdx_].get(); };
 
 private:
   void setup();
@@ -304,7 +313,6 @@ private:
   void disableJavaScriptFilter();
 
   // Functions for handling incoming requests
-  void proceedToNextFile();
   bool incomingIdCheck(int id);
 
   WMemoryResource *uploadWorkerResource_;
