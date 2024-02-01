@@ -48,15 +48,15 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
     return hasFileItem || hasFilesType;
   }
 
-  this.validFileCheck = function(file, callback, url) {
+  this.validFileCheck = function(upload, callback, url) {
     const reader = new FileReader();
     reader.onload = function() {
-      callback(true, url);
+      callback(true, url, upload);
     };
     reader.onerror = function() {
-      callback(false, url);
+      callback(false, url, upload);
     };
-    reader.readAsText(file.slice(0, 32)); // try reading some bytes
+    reader.readAsText(upload.file.slice(0, 32)); // try reading some bytes
   };
 
   dropwidget.setAcceptDrops = function(enable) {
@@ -214,15 +214,25 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
       APP.emit(dropwidget, "filetoolarge", upload.file.size);
       self.uploadFinished(null);
       return;
+    } else if (typeof dropwidget.wtUseCustomSend === "boolean") {
+      if (typeof dropwidget.wtCustomSend !== "function") {
+        console.log(
+          "Warning: wtUseCustomSend is set, but wtCustomSend is not properly defined as a function. " +
+            "Falling back to the default upload mechanism"
+        );
+      } else if (dropwidget.wtUseCustomSend) {
+        self.validFileCheck(upload, dropwidget.wtCustomSend, url);
+        return;
+      }
     } else {
       const sendFn = (uploadWorker !== null && useFilter) ?
         self.workerSend :
         self.actualSend;
-      self.validFileCheck(upload.file, sendFn, url);
+      self.validFileCheck(upload, sendFn, url);
     }
   };
 
-  this.actualSend = function(isValid, url) {
+  this.actualSend = function(isValid, url, _upload) {
     if (!isValid) {
       self.uploadFinished(null);
       return;
@@ -243,7 +253,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
     xhr.send(fd);
   };
 
-  this.workerSend = function(isValid, url) {
+  this.workerSend = function(isValid, url, _upload) {
     if (!isValid) {
       self.uploadFinished(null);
       return;
