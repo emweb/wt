@@ -7,6 +7,8 @@
 #include <fstream>
 #include <cstring>
 
+#include "Wt/Exception/WInvalidOperationException.h"
+
 #include "Wt/WLocale.h"
 #include "Wt/WLogger.h"
 #include "Wt/WMessageResources.h"
@@ -215,7 +217,7 @@ private:
     if (y != 0) {
       result = result / y;
     } else {
-      throw WException("Cannot divive by 0");
+      throw WInvalidOperationException("WMessageResources::evalPluralCase(): Cannot divide by 0");
     }
   }
 
@@ -224,7 +226,7 @@ private:
     if (y != 0) {
       result = result % y;
     } else {
-      throw WException("Cannot modulo by 0");
+      throw WInvalidOperationException("WMessageResources::evalPluralCase(): Cannot modulo by 0");
     }
   }
 

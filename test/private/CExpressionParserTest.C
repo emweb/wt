@@ -3,7 +3,8 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include <Wt/WException.h>
+#include "Wt/Exception/WInvalidOperationException.h"
+
 #include <Wt/WMessageResources.h>
 
 #include <boost/test/unit_test.hpp>
@@ -200,12 +201,12 @@ BOOST_AUTO_TEST_CASE( cexpression_edge_case_test )
   // Unsafe remainder
   {
     std::string e = "n%0";
-    BOOST_CHECK_THROW(eval(e, 1), Wt::WException);
+    BOOST_CHECK_THROW(eval(e, 1), Wt::WInvalidOperationException);
   }
   // Unsafe division
   {
     std::string e = "n/0";
-    BOOST_CHECK_THROW(eval(e, 1), Wt::WException);
+    BOOST_CHECK_THROW(eval(e, 1), Wt::WInvalidOperationException);
   }
   {
     // String discovered by OSS-Fuzz #63734
