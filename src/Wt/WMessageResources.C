@@ -7,6 +7,7 @@
 #include <fstream>
 #include <cstring>
 
+#include "Wt/Exception/WInvalidFormatException.h"
 #include "Wt/Exception/WInvalidOperationException.h"
 
 #include "Wt/WLocale.h"
@@ -634,7 +635,10 @@ int WMessageResources::evalPluralCase(const std::string &expression,
   CExpressionParser::ParseState state;
   CExpressionParser p(n, result, state);
   std::string tmp = expression;
-  parse(tmp.begin(), tmp.end(), p, space_p);
+  auto v = parse(tmp.begin(), tmp.end(), p, space_p);
+  if (!v.full) {
+    throw Wt::WInvalidFormatException("WMessageResources::evalPluralCase(): The parser encountered an invalid format");
+  }
 #endif // WT_NO_SPIRIT
 
   return result;
