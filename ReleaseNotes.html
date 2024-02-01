@@ -32,6 +32,15 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.webtoolkit.eu/issues/10382" target="_blank">Issue #10382</a>:
+    Added customization support for the upload mechanism of
+    <a href="classWt_1_1WFileDropWidget.html">WFileDropWidget</a>.
+    It is now possible to customize the server-side upload mechanism by returning a custom WResource from
+    <a href="classWt_1_1WFileDropWidget.html#a149fa0f12016c615c1763046dc2f7333">WFileDropWidget::uploadResource()</a>
+    to be uploaded to.
+    At the client side, uploading can be modified by setting <code>wtUseCustomSend</code> and defining <code>wtCustomSend()</code>.
+  </li>
+  <li>
     <a href="https://redmine.webtoolkit.eu/issues/12320" target="_blank">Issue #12320</a>:
     allows for the "Cache-Control" header to be specified for the <a href="classWt_1_1WServer.html">WServer</a>. This is to be passed as a command-line option when running the <code>WServer</code>.
   </li>
