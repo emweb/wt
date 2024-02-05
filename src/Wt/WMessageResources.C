@@ -635,6 +635,10 @@ int WMessageResources::evalPluralCase(const std::string &expression,
   CExpressionParser::ParseState state;
   CExpressionParser p(n, result, state);
   std::string tmp = expression;
+  if (tmp.length() > 1000) {
+    // This is a temporary catch to #12374
+    throw Wt::WInvalidFormatException("WMessageResources::evalPluralCase(): The input it too long");
+  }
   auto v = parse(tmp.begin(), tmp.end(), p, space_p);
   if (!v.full) {
     throw Wt::WInvalidFormatException("WMessageResources::evalPluralCase(): The parser encountered an invalid format");

@@ -8,6 +8,7 @@
 #include <stddef.h>
 #include <string>
 
+#include "Wt/Exception/WInvalidFormatException.h"
 #include "Wt/Exception/WInvalidOperationException.h"
 
 #include <Wt/WMessageResources.h>
@@ -20,6 +21,7 @@ namespace {
   {
     try {
       return Wt::WMessageResources::evalPluralCase(expression, n);
+    } catch (Wt::WInvalidFormatException& ife) {
     } catch (Wt::WInvalidOperationException& ioe) {
     }
   }
