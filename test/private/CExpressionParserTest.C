@@ -232,6 +232,6 @@ BOOST_AUTO_TEST_CASE( cexpression_edge_case_test )
   {
     // String discovered by OSS-Fuzz #63734
     std::string e = "(n%0°0<10<10 10=2ßÍ >& >ÂÍ ␅ÿÿ␅ N";
-    BOOST_CHECK_THROW(eval(e, 1), Wt::WException);
+    BOOST_CHECK_THROW(eval(e, 1), Wt::WInvalidOperationException);
   }
 }

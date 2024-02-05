@@ -8,15 +8,20 @@
 #include <stddef.h>
 #include <string>
 
+#include "Wt/Exception/WInvalidOperationException.h"
+
 #include <Wt/WMessageResources.h>
 
 #define kMinInputLength 10
 #define kMaxInputLength 5120
 
 namespace {
-  int eval(std::string expression, ::uint64_t n) 
+  int eval(std::string expression, ::uint64_t n)
   {
-    return Wt::WMessageResources::evalPluralCase(expression, n);
+    try {
+      return Wt::WMessageResources::evalPluralCase(expression, n);
+    } catch (Wt::WInvalidOperationException& ioe) {
+    }
   }
 }
 
