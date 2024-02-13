@@ -1465,11 +1465,33 @@ Wt::log("error") << "Message";
   
 */
 /*! \page InstallationUnix Installation: Unix-like platforms (Linux, macOS, BSD,...)
-  
+ 
+   <h1>Before you start</h1>
+   Before you start building %Wt, you need to ensure you have the proper tools set up to do so.
+   \snippet{doc} doc/MinimumDependencyVersions.md MinDep
+   \snippet{doc} doc/MinimumDependencyVersions.md UnixVersion
+   Of course this will also require some pieces of software to ensure that %Wt can build. Currently,
+   %Wt should be built with:
+   \snippet{doc} doc/MinimumDependencyVersions.md Unix
+   \snippet{doc} doc/MinimumDependencyVersions.md MinDep2
+   \snippet{doc} doc/MinimumDependencyVersions.md CoreDep
+   \snippet{doc} doc/MinimumDependencyVersions.md OptDep
    \htmlinclude INSTALL.html
 */
 /*! \page InstallationWindows Installation: Windows
   
+   <h1>Before you start</h1>
+   \note Most people on Windows will be using prebuilt binaries. So most of the configuration here is not necessary.
+
+   Before you start building %Wt, you need to ensure you have the proper tools set up to do so.
+   \snippet{doc} doc/MinimumDependencyVersions.md MinDep
+   \snippet{doc} doc/MinimumDependencyVersions.md WindowsVersion
+   Of course this will also require some pieces of software to ensure that %Wt can build. Currently,
+   %Wt should be built with:
+   \snippet{doc} doc/MinimumDependencyVersions.md Windows
+   \snippet{doc} doc/MinimumDependencyVersions.md MinDep2
+   \snippet{doc} doc/MinimumDependencyVersions.md CoreDep
+   \snippet{doc} doc/MinimumDependencyVersions.md OptDep
    \htmlinclude INSTALL.win32.html
 */
 

@@ -11,17 +11,16 @@ Unix-like systems (Linux, macOS, BSD,&hellip;). It is
 organized in 3 sections:
 
 <ul>
-<li><a href="#requirements">Requirements</a></li>
-<li><a href="#build">Building and installing</a> the library</li>
-<li><a href="#examples">Trying the examples</a> (or your own Wt
-  application)</li>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#build">Building and installing the library</a></li>
+<li><a href="#examples">Trying the examples (or your own Wt application)</a></li>
 </ul>
 
-<a name="requirements"></a><h2>Requirements</h2>
+<a name="overview"></a><h2>Overview</h2>
 
 <p>
 The library provides two ways for deploying applications: either with
-the built-in web server (recommended), or using FastCGI (legacy).</p>
+the built-in web server (recommended), or using FastCGI (legacy, and soon to be deprecated).</p>
 
 <p>
 The built-in web server is a simple HTTP and WebSockets server. It supports
@@ -43,48 +42,28 @@ link against libwt and libwthttp. To build a Wt library which acts as
 a FastCGI process, you need to link against libwt and libfcgi.
 </p>
 
-<h3>1 Wt requirements</h3>
+<p>
+The naming convention of the library puts the <i>d</i> suffix at the end if the library is built in
+<i>Debug</i> mode, which is regulated through <strong>CMAKE_BUILD_TYPE</strong>. So for example the
+normal wt library <i>libwt</i> will be called <i>libwtd</i>.
+</p>
 
-<ul>
-  <li>Compiler: Any compiler with sufficient support for C++14, like
-      GCC 5.1 or higher, or Clang 3.3 or higher.</li>
-  <li><a href="http://www.cmake.org/">CMake 3.1 or higher</a></li>
-  <li><a href="http://www.boost.org/">C++ boost library</a> 1.50.0 or higher</li>
-  <li>Optionally, <a href="http://www.openssl.org">OpenSSL</a>, which is
-      used to support the HTTPS protocol in the web client, and the HTTPS
-      protocol in the built-in wthttpd connector.</li>
-  <li>Optionally, <a href="http://libharu.org/">Haru Free PDF Library</a>,
-      which is used to provide support for painting to PDF (WPdfImage).</li>
-  <li>Optionally, <a href="http://www.graphicsmagick.org/">GraphicsMagick</a>,
-      for supporting painting to raster images (PNG, GIF, ...) (WRasterImage).</li>
-  <li>Optionally, <a href="http://www.pango.org/">Pango</a>, for
-      improved font support in the WPdfImage and WRasterImage paint
-      devices.</li>
-  <li>Optionally, <a href="http://www.postgresql.org/">PostgreSQL</a>,
-      for the PostgreSQL backend for Wt::Dbo (Dbo::backend::Postgres).</li>
-  <li>Optionally, <a href="http://www.firebirdsql.org/">Firebird</a>,
-      for the Firebird backend for Wt::Dbo (Dbo::backend::Firebird).</li>
-  <li>Optionally, <a href="https://www.mysql.com/products/connector/">the C API for MySQL (mysqlclient)</a>,
-      or the <a href="https://mariadb.com/kb/en/the-mariadb-library/about-mariadb-connector-c">MariaDB connector library</a>,
-      for the MySQL/MariaDB backend for Wt::Dbo (Dbo::backend::MySQL).</li>
-  <li>Optionally, <a href="http://www.unixodbc.org">unixODBC</a>, for the SQL Server backend
-      for Wt::Dbo (Dbo::backend::MSSQLServer).</li>
-  <li>Optionally, <a href="http://www.nongnu.org/libunwind/">libunwind</a>, for the saving
-      of backtraces in exceptions (useful for debugging).</li>
-</ul>
-
-<h4>1a Using wthttpd</h4>
+<h4>1a. Using wthttpd</h4>
 
 When using the built-in web server, two more libraries may be installed
 to enable optional features (you can also build without them), but
-otherwise no extra dependencies are required.
+otherwise no extra dependencies are required. See the <a href="#optdep">Optional Dependencies</a>
+for more information.
 
 <ul>
-<li>Optionally, zlib (libz), for compression over HTTP and WebSockets.</li>
-<li>Optionally, OpenSSL (libopenssl), for HTTPS.</li>
+  <li>Optionally, zlib (libz), for compression over HTTP and WebSockets.</li>
+  <li>Optionally, OpenSSL (libopenssl), for HTTPS.</li>
 </ul>
 
-<h4>1b Using FastCGI</h4>
+<h4>1b. Using FastCGI</h4>
+
+<strong>Using FastCGI is discouraged, and a strong preference is given to the built-in HTTP library.
+The FCGI library is likely to be deprecated soon.</strong>
 
 <p>When using FastCGI, Wt requires a webserver (like Apache or
 NGINX) which supports the FastCGI protocol.</p>
@@ -128,13 +107,13 @@ is OK, then this should end with something like:
 
 <pre>
   -- Generating done
-  -- Build files have been written to: /home/kdforc0/project/wt/build
+  -- Build files have been written to: /home/{username}/project/wt/build
 </pre></p>
 
 <p>If CMake fails, because it cannot resolve all dependencies, then you
 may help CMake by setting some variables to help CMake locate the libraries.
 This may be done on the command-line using -D<i>var</i>=<i>value</i> or
-using the interactive program:
+using the interactive program:</p>
 
 <pre>
     $ ccmake ../
@@ -145,6 +124,10 @@ or
 </pre>
 
 <p>The GUI lists all variables that are configurable in Wt's build process.</p>
+
+<p>The section <a href="#coredep">Core Dependencies</a> lists the minimal requirements that are necessary
+to make Wt build. If you require more functionality, and will also be using optional features, you
+will need to take the <a href="#optdep">Optional Dependencies</a> into account as well.</p>
 
 <p>
 The variables specify several build and configuration aspects of Wt, of which

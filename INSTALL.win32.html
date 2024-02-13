@@ -9,12 +9,13 @@
 This page lists the instructions for building and installing Wt on Windows.
 It is organized in 3 sections:
 <ul>
-<li>Requirements</li>
-<li>Building and installing the library</li>
-<li>Trying the examples (or your own Wt application)</li>
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#build">Building and installing the library</a></li>
+  <li><a href="#examples">Trying the examples (or your own Wt application)</a></li>
 </ul>
 
-<h2>Requirements</h2>
+
+<a name="overview"></a><h2>Overview</h2>
 
 <p>
 Wt for Windows uses the built-in web server connector or the ISAPI connector.
@@ -23,31 +24,12 @@ convenient during development and is easier to setup than the ISAPI connector.
 It is also designed for production environments, where it is often used in
 combination with a reverse proxy server.
 To use the built-in server, you have to link your projects against libwt
-and libwthttp. To use the ISAPI connector, you have to link to libwtisapi
+and libwthttp. To use the ISAPI connector, you have to link against libwtisapi
 instead of libwthttp.</p>
 
 <p>The prebuilt binaries for Visual Studio include all necessary and optional dependencies,
 and enable all features of Wt and can be downloaded from the
 <a href="https://github.com/emweb/wt/releases">releases page on GitHub</a>.</p>
-
-<p>Requirements:
-<ul>
-  <li>Microsoft Visual Studio 2015 or newer. Wt and its dependencies also
-      build on the Community Edition, which is free (as in beer) to use.
-  <li>CMake cross-platform build system (www.cmake.org): cmake-3.1.x or higher</li>
-  <li>Boost 1.46.1 (or later; a recent version is recommended)</li>
-</ul>
-</p>
-
-<p>Additional and optional requirements for some of the examples
-<ul>
-<li>For HTTPS support: OpenSSL, version 0.9.8d or newer.</li>
-<li>To compress traffic: zlib</li>
-<li>PostgreSQL, MySQL, Firebird client libraries for Dbo database backends</li>
-<li><a href="http://libharu.org/">Haru Free PDF Library</a>, which is used to
-provide support for rendering PDF (WPdfImage, WPdfRenderer).</li>
-</ul>
-</p>
 
 <p>
 We strongly recommend to use libraries which are all built using the same
@@ -61,7 +43,7 @@ if those are not available, rebuild the dependency libraries from the sources).
 
 <hr />
 
-<h2>Step by step instructions to build and install the Wt library</h2>
+<a name="build"></a><h2>Step by step instructions to build and install the Wt library</h2>
 
 <p>
 Up to date instructions are located on the Wt wiki page:
@@ -74,7 +56,7 @@ also available on the wiki page:
 <a href="http://redmine.emweb.be/projects/wt/wiki/ISAPI_on_Microsoft_IIS">ISAPI on Microsoft IIS</a>
 </p>
 
-<h2>Trying the examples (or your own Wt application) using wthttpd</h2>
+<a name="examples"></a><h2>Trying the examples (or your own Wt application) using wthttpd</h2>
 
 <h4>1. Run the example in the MSVC IDE </h4>
 
