@@ -517,7 +517,7 @@ void DomElement::callJavaScript(const std::string& jsCode,
   ++numManipulations_;
   // Bug #12006: For safety always append semicolon
   std::string terminatedJsCode = jsCode;
-  if (jsCode.back() != ';') {
+  if (!jsCode.empty() && jsCode.back() != ';') {
     terminatedJsCode += ";";
   }
   if (!evenWhenDeleted)
