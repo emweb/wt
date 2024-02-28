@@ -36,6 +36,7 @@ public:
   virtual void setContentLength(::int64_t length) override;
 
   virtual void addHeader(const std::string& name, const std::string& value) override;
+  void insertHeader(const std::string& name, const std::string& value) override;
   virtual void setContentType(const std::string& value) override;
   virtual void setRedirect(const std::string& url) override;
 

@@ -448,6 +448,11 @@ void IsapiRequest::addHeader(const std::string& name, const std::string& value)
   header_ << name << " : " << value << "\r\n";
 }
 
+void IsapiRequest::insertHeader(const std::string& name, const std::string& value)
+{
+  addHeader(name, value);
+}
+
 void IsapiRequest::setRedirect(const std::string& url)
 {
   header_ << "Location: " << url << "\r\n";

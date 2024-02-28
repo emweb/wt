@@ -62,7 +62,10 @@ public:
   virtual void addHeader(WT_MAYBE_UNUSED const std::string& name, WT_MAYBE_UNUSED const std::string& value) override
   { }
 
-  virtual const char *envValue(WT_MAYBE_UNUSED const char* name) const override
+  void insertHeader(WT_MAYBE_UNUSED const std::string &name, WT_MAYBE_UNUSED const std::string &value) override
+  { }
+
+  virtual const char *envValue(WT_MAYBE_UNUSED const char *name) const override
   {
     return nullptr;
   }

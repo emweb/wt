@@ -47,6 +47,9 @@ public:
 
   virtual void addHeader(const std::string& name, const std::string& value);
 
+  //! This is a clone of addHeader, unlike the virtual method specifies.
+  void insertHeader(const std::string& name, const std::string& value) override;
+
   virtual void setRedirect(const std::string& url);
 
   virtual const char *headerValue(const char *name) const;

@@ -135,6 +135,14 @@ public:
   virtual void addHeader(const std::string& name, const std::string& value) = 0;
 
   /*
+   * Inserts a header for a normal response.
+   *
+   * Inserting will not always add the header, but can replace an
+   * existing header value if one with the same name is already created.
+   */
+  virtual void insertHeader(const std::string& name, const std::string& value) = 0;
+
+  /*
    * Returns request information, which are not http headers.
    */
   virtual const char *envValue(const char *name) const = 0;

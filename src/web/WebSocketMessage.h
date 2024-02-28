@@ -35,6 +35,7 @@ public:
   virtual void setContentLength(::int64_t length) override;
 
   virtual void addHeader(const std::string& name, const std::string& value) override;
+  void insertHeader(const std::string& name, const std::string& value) override;
   virtual const char *envValue(const char *name) const override;
 
   virtual const std::string& serverName() const override;

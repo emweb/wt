@@ -99,6 +99,11 @@ void HTTPRequest::addHeader(const std::string& name, const std::string& value)
   reply_->addHeader(name, value);
 }
 
+void HTTPRequest::insertHeader(const std::string& name, const std::string& value)
+{
+  reply_->insertHeader(name, value);
+}
+
 void HTTPRequest::setContentType(const std::string& value)
 {
   reply_->setContentType(value);

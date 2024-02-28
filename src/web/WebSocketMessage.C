@@ -86,6 +86,12 @@ void WebSocketMessage::addHeader(WT_MAYBE_UNUSED const std::string& name,
   error("addHeader(): not supported");
 }
 
+void WebSocketMessage::insertHeader(const std::string& name,
+                                    const std::string& value)
+{
+  error("insertHeader(): not supported");
+}
+
 const char *WebSocketMessage::envValue(const char *name) const
 {
   return webSocket()->envValue(name);

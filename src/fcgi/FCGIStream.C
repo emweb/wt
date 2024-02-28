@@ -119,6 +119,11 @@ namespace {
                  << " ignored because headers already committed.");
     }
 
+    void insertHeader(const std::string& name, const std::string& value) override
+    {
+      addHeader(name, value);
+    }
+
     virtual void setContentLength(::int64_t length) override
     {
       addHeader("Content-Length", std::to_string(length));

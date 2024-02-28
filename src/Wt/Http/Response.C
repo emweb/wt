@@ -40,6 +40,12 @@ void Response::addHeader(const std::string& name, const std::string& value)
     response_->addHeader(name, value);
 }
 
+void Response::insertHeader(const std::string& name, const std::string& value)
+{
+  if (response_)
+    response_->insertHeader(name, value);
+}
+
 ResponseContinuation *Response::createContinuation()
 {
   if (!continuation_) {

@@ -76,6 +76,20 @@ public:
    */
   void addHeader(const std::string& name, const std::string& value);
 
+  /*! \brief Inserts an HTTP header.
+   *
+   * Headers may be added only before setting the content mime-type
+   * (setMimeType()), and before streaming any data to the out()
+   * stream.
+   *
+   * Inserting will differ from adding headers such that headers will
+   * not be duplicated. Rather, if a header with the same name exists,
+   * the value will be replaced with the name value.
+   *
+   * Passing an empty value will clear the header if it already exists.
+   */
+  void insertHeader(const std::string& name, const std::string& value);
+
   /*! \brief Create a continuation object for this response.
    *
    * A continuation is used to resume sending more data later for this

@@ -23,8 +23,16 @@
 #include "web/DateUtils.h"
 
 #include <cassert>
+#include <cctype>
 #include <chrono>
 #include <string>
+
+namespace {
+bool ichar_equals(char a, char b)
+{
+  return std::tolower(static_cast<unsigned char>(a)) == std::tolower(static_cast<unsigned char>(b));
+}
+}
 
 namespace Wt {
   LOGGER("wthttp");
@@ -195,6 +203,25 @@ std::string Reply::location()
 void Reply::addHeader(const std::string name, const std::string value)
 {
   headers_.push_back(std::make_pair(name, value));
+}
+
+void Reply::insertHeader(const std::string name, const std::string value)
+{
+  auto foundIterator = std::find_if(headers_.begin(), headers_.end(), [name](const std::pair<std::string, std::string>& item) {
+    return std::equal(item.first.begin(), item.first.end(), name.begin(), name.end(), ichar_equals);
+  });
+
+  if (foundIterator == headers_.end()) {
+    if (!value.empty()) {
+      headers_.push_back(std::make_pair(name, value));
+    }
+  } else {
+    if (value.empty()) {
+      headers_.erase(foundIterator);
+    } else {
+      foundIterator->second = value;
+    }
+  }
 }
 
 namespace {
