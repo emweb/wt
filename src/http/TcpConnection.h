@@ -51,6 +51,8 @@ protected:
 
   virtual void stop() override;
 
+  void doSocketTransferCallback() override;
+
   /// Socket for the connection.
   std::unique_ptr<asio::ip::tcp::socket> socket_;
 };

@@ -46,6 +46,7 @@ Connection::Connection(asio::io_service& io_service, Server *server,
   : ConnectionManager_(manager),
     strand_(io_service),
     state_(Idle),
+    socketTransferRequested_(false),
     request_handler_(handler),
     readTimer_(io_service),
     writeTimer_(io_service),
@@ -113,6 +114,11 @@ void Connection::stop()
   lastWtReply_.reset();
   lastProxyReply_.reset();
   lastStaticReply_.reset();
+  if (socketTransferRequested_) {
+    request_parser_.reset();
+    request_.reset();
+    rcv_buffers_.clear();
+  }
 }
 
 void Connection::setReadTimeout(int seconds)
@@ -168,6 +174,20 @@ void Connection::doTimeout()
   readTimer_.cancel();
   writeTimer_.cancel();
 }
+
+void Connection::requestTcpSocketTransfer(const std::function<void(std::unique_ptr<asio::ip::tcp::socket>)>& callback)
+{
+  socketTransferRequested_ = true;
+  tcpSocketTransferCallback_ = callback;
+}
+
+#ifdef HTTP_WITH_SSL
+void Connection::requestSslSocketTransfer(const std::function<void(std::unique_ptr<asio::ssl::stream<asio::ip::tcp::socket>>)>& callback)
+{
+  socketTransferRequested_ = true;
+  sslSocketTransferCallback_ = callback;
+}
+#endif
 
 void Connection::handleReadRequest0()
 {
@@ -449,7 +469,10 @@ void Connection::handleWriteResponse(ReplyPtr reply)
     } else {
       reply->logReply(request_handler_.logger());
 
-      if (reply->closeConnection())
+      if (socketTransferRequested_) {
+        doSocketTransferCallback();
+        ConnectionManager_.stop(shared_from_this());
+      } else if (reply->closeConnection())
         ConnectionManager_.stop(shared_from_this());
       else {
         request_parser_.reset();

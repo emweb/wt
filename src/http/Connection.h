@@ -18,6 +18,9 @@
 #define HTTP_CONNECTION_HPP
 
 #include <Wt/AsioWrapper/asio.hpp>
+#ifdef HTTP_WITH_SSL
+#include <Wt/AsioWrapper/ssl.hpp>
+#endif
 #include <Wt/AsioWrapper/strand.hpp>
 #include <Wt/AsioWrapper/steady_timer.hpp>
 
@@ -65,6 +68,20 @@ public:
 
   Server *server() const { return server_; }
   Wt::AsioWrapper::strand& strand() { return strand_; }
+
+  /// Marks the TCP socket as transferrable.
+  /// Once that handleWriteResponse() is executed, and this method has
+  /// been called before. The callback will be performed, and the socket
+  /// will be moved.
+  void requestTcpSocketTransfer(const std::function<void(std::unique_ptr<asio::ip::tcp::socket>)>& callback);
+
+#ifdef HTTP_WITH_SSL
+  /// Marks the SSL socket as transferrable.
+  /// Once that handleWriteResponse() is executed, and this method has
+  /// been called before. The callback will be performed, and the socket
+  /// will be moved.
+  void requestSslSocketTransfer(const std::function<void(std::unique_ptr<asio::ssl::stream<asio::ip::tcp::socket>>)>& callback);
+#endif
 
   /// Stop all asynchronous operations associated with the connection.
   void scheduleStop();
@@ -127,6 +144,21 @@ protected:
   Wt::WFlags<State> state_;
 
   virtual void stop();
+
+  /// Indicates that the socket of this connection is to be moved away
+  /// from the connection. If set to true, the socket's ownership will be
+  /// transferred using a callback, when the connection finished writing
+  /// the HTTP response.
+  bool socketTransferRequested_;
+
+  /// Performs the callback that was set when requestTcpSocketTrasfer()
+  /// or requestSslSocketTransfer() was executed.
+  virtual void doSocketTransferCallback() = 0;
+
+  std::function<void(std::unique_ptr<asio::ip::tcp::socket>)> tcpSocketTransferCallback_;
+#ifdef HTTP_WITH_SSL
+  std::function<void(std::unique_ptr<asio::ssl::stream<asio::ip::tcp::socket>>)> sslSocketTransferCallback_;
+#endif
 
 private:
   /*

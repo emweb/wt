@@ -60,6 +60,8 @@ protected:
       (ReplyPtr reply, const std::vector<asio::const_buffer>& buffers,
        int timeout) override;
 
+  void doSocketTransferCallback() override;
+
 private:
   void handleReadRequestSsl(const Wt::AsioWrapper::error_code& e,
                             std::size_t bytes_transferred);

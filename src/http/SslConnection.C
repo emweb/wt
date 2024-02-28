@@ -87,6 +87,10 @@ void SslConnection::stop()
 
   Connection::stop();
 
+  if (socketTransferRequested_) {
+    return;
+  }
+
   std::shared_ptr<SslConnection> sft
     = std::static_pointer_cast<SslConnection>(shared_from_this());
 
@@ -218,6 +222,10 @@ void SslConnection
                                std::placeholders::_2)));
 }
 
+void SslConnection::doSocketTransferCallback()
+{
+  sslSocketTransferCallback_(std::move(socket_));
+}
 } // namespace server
 } // namespace http
 

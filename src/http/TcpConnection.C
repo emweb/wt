@@ -42,6 +42,11 @@ void TcpConnection::stop()
 
   finishReply();
 
+  if (socketTransferRequested_) {
+    Connection::stop();
+    return;
+  }
+
   try {
     Wt::AsioWrapper::error_code ignored_ec;
     socket_->shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
@@ -133,5 +138,9 @@ void TcpConnection::startAsyncWriteResponse
                                std::placeholders::_2)));
 }
 
+void TcpConnection::doSocketTransferCallback()
+{
+  tcpSocketTransferCallback_(std::move(socket_));
+}
 } // namespace server
 } // namespace http
