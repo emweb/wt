@@ -5,6 +5,8 @@
  */
 
 #include "Wt/WServer.h"
+#include "Wt/WWebSocketConnection.h"
+
 #include "WtReply.h"
 #include "StockReply.h"
 #include "HTTPRequest.h"
@@ -27,6 +29,35 @@ namespace misc_strings {
   const char char0xFF = (char)0xFF;
   const char char0x81 = (char)0x81;
   const char char0xC1 = (char)0xC1;
+}
+
+namespace {
+  bool isNotRenderWebSocketRequest(const std::shared_ptr<Wt::WebRequest>& webRequest, int webSocketVersion)
+  {
+    const std::string queryString = webRequest->queryString();
+    bool isWebSocketResourceRequest = webSocketVersion == 13 && queryString.find("request=ws") == std::string::npos;
+    return isWebSocketResourceRequest;
+  }
+
+  void moveTcpWebSocket(const std::shared_ptr<Wt::WebRequest>& webRequest,
+    std::unique_ptr<Wt::AsioWrapper::asio::ip::tcp::socket> socket)
+  {
+    socket.get()->cancel();
+
+    auto socketConnection = std::make_shared<Wt::WebSocketTcpConnection>(Wt::WServer::instance()->ioService(), std::move(socket));
+    webRequest->transferWebSocketResourceSocket(socketConnection);
+  }
+
+#ifdef WT_WITH_SSL
+  void moveSslWebSocket(const std::shared_ptr<Wt::WebRequest>& webRequest,
+    std::unique_ptr<Wt::AsioWrapper::asio::ssl::stream<Wt::AsioWrapper::asio::ip::tcp::socket>> socket)
+  {
+    socket.get()->next_layer().cancel();
+
+    auto socketConnection = std::make_shared<Wt::WebSocketSslConnection>(Wt::WServer::instance()->ioService(), std::move(socket));
+    webRequest->transferWebSocketResourceSocket(socketConnection);
+  }
+#endif
 }
 
 #ifdef WTHTTP_WITH_ZLIB
@@ -250,8 +281,50 @@ void WtReply::consumeRequestBody(const char *begin,
     }
   } else {
     /*
-     * WebSocket connection request
+     * WebSocket connection request, either to a WWebSocketResource,
+     * or in the framework.
+     *
+     * While both connections are closed after they are handled, the
+     * request to the WWebSocketResource will have its socket transferred
+     * to a WWebSocketConnection. This class will handle the socket
+     * operations and memory.
      */
+    std::shared_ptr<HTTPRequest> webSocketHttpRequest(new HTTPRequest(std::static_pointer_cast<WtReply>
+                                                 (shared_from_this()), entryPoint_));
+    webSocketHttpRequest->setWebSocketRequest(true);
+    if (isNotRenderWebSocketRequest(webSocketHttpRequest, request().webSocketVersion)) {
+      const std::string requestScheme = request().urlScheme;
+      const std::string connectionScheme = connection()->urlScheme();
+      if (requestScheme == "ws" && connectionScheme == "http") {
+        connection()->server()->controller()->handleRequest(webSocketHttpRequest.get());
+        if (webSocketHttpRequest->hasTransferWebSocketResourceSocketCallBack()) {
+          // there's a potential race between the call the WResource's flush() and calling this
+          // method, but since this method and the handling of flush() both run with the same
+          // strand, that is ok.
+          connection()->requestTcpSocketTransfer(std::bind(&moveTcpWebSocket, webSocketHttpRequest, std::placeholders::_1));
+        } else {
+          setCloseConnection(); // precautionary
+        }
+        return;
+      } else if (requestScheme == "wss" && connectionScheme == "https") {
+        connection()->server()->controller()->handleRequest(webSocketHttpRequest.get());
+        if (webSocketHttpRequest->hasTransferWebSocketResourceSocketCallBack()) {
+#ifdef WT_WITH_SSL
+          connection()->requestSslSocketTransfer(std::bind(&moveSslWebSocket, webSocketHttpRequest, std::placeholders::_1));
+#else
+          LOG_ERROR("consumeRequestBody: Cannot transfer SSL socket, Wt was not compiled with SSL support.");
+#endif
+        } else {
+          setCloseConnection(); // precautionary
+        }
+        return;
+      } else {
+        LOG_ERROR("Connection scheme (" << connectionScheme << ") and WebSocket scheme (" << requestScheme <<  ") do not match.");
+        setStatus(bad_request);
+        setCloseConnection();
+      }
+    }
+
     setCloseConnection();
 
     switch (state) {

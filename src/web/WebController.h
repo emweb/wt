@@ -38,6 +38,7 @@ class EntryPoint;
 
 class WebRequest;
 class WebSession;
+class WebSocketHandlerResource;
 
 class WApplication;
 class WServer;

@@ -16,6 +16,9 @@
 #include "Wt/WResource.h"
 #include "Wt/WServer.h"
 #include "Wt/WTimerWidget.h"
+#ifndef WT_TARGET_JAVA
+#include "Wt/WWebSocketResource.h"
+#endif // WT_TARGET_JAVA
 #include "Wt/Http/Request.h"
 
 #include "CgiParser.h"
@@ -1374,10 +1377,13 @@ void WebSession::handleRequest(Handler& handler)
       throw new WException("Server does not implement JSR-356 for WebSockets");
     }
 #else
-    if (state_ != State::JustCreated) {
+    if (state_ != State::JustCreated && requestE && *requestE == "ws") {
+      // This is the framework-internal rendering websocket
       handleWebSocketRequest(handler);
       return;
-    } else {
+    } else if (!requestForResource) {
+      // Other websocket requests, not intended for WWebSocketResources,
+      // are not expected.
       handler.flushResponse();
       kill();
       return;
@@ -2467,8 +2473,46 @@ void WebSession::notify(const WEvent& event)
 
           if (resource) {
             try {
+#ifndef WT_TARGET_JAVA
+              // Requests to WebSocketResources need some special handling:
+              // after the handshake is done, the socket is transferred to
+              // the WWebSocketConnection for further communication
+              WWebSocketResource* wsResource = nullptr;
+              if (request.isWebSocketRequest()) {
+                wsResource = app_->findMatchingWebSocketResource(resource);
+                // FIXME: what about static websocketresources?
+                if (!wsResource) {
+                  LOG_ERROR("websocket: resource '" << *resourceE
+                      << "' is not a WWebSocketResource");
+                  handler.response()->setStatus(400);
+                  handler.response()->setContentType("text/html");
+                  handler.response()->out() <<
+                    "<html><body><h1>Not a websocket</h1></body></html>";
+                  handler.flushResponse();
+                  return;
+                } else if (!response.supportsTransferWebSocketResourceSocket()) {
+                  // this http frontend type does not work with WebSocketResources
+                  LOG_ERROR("websocket: websocket resources not supported by HTTP frontend");
+                  handler.response()->setStatus(500);
+                  handler.response()->setContentType("text/html");
+                  handler.response()->out() <<
+                    "<html><body><h1>WebSockets not supported</h1></body></html>";
+                  handler.flushResponse();
+                  return;
+                }
+              }
+#endif // WT_TARGET_JAVA
               resource->handle(&request, &response);
               handler.setRequest(nullptr, nullptr);
+#ifndef WT_TARGET_JAVA
+              if (wsResource) {
+                // note: when first written, status was always 101
+                if (response.status() == 101) {
+                  // status 101 -> send response and transfer socket
+                  request.setTransferWebSocketResourceSocketCallBack(std::bind(&WebSocketHandlerResource::moveSocket, wsResource->handleResource(), std::placeholders::_1, std::placeholders::_2));
+                }
+              }
+#endif // WT_TARGET_JAVA
             } catch (std::exception& e) {
               LOG_ERROR("Exception while streaming resource" << e.what());
               RETHROW(e);
