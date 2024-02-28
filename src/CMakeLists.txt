@@ -267,6 +267,8 @@ Wt/WVideo.h Wt/WVideo.C
 Wt/WVmlImage.h Wt/WVmlImage.C
 Wt/WViewWidget.h Wt/WViewWidget.C
 Wt/WVirtualImage.h Wt/WVirtualImage.C
+Wt/WWebSocketConnection.h Wt/WWebSocketConnection.C
+Wt/WWebSocketResource.h Wt/WWebSocketResource.C
 Wt/WWebWidget.h Wt/WWebWidget.C
 Wt/WWidget.h Wt/WWidget.C
 Wt/WWidgetItem.h Wt/WWidgetItem.C
