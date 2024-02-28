@@ -276,6 +276,7 @@ SUBDIRS(
   treeview
   treeview-dragdrop
   webgl
+  websockets
   widgetgallery
   wt-homepage
   wtwithqt
