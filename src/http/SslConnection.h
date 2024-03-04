@@ -69,7 +69,7 @@ private:
   void stopNextLayer(const Wt::AsioWrapper::error_code& ec);
 
   /// Socket for the connection.
-  ssl_socket socket_;
+  std::unique_ptr<ssl_socket> socket_;
 
   // SSL shutdown takes many seconds sometimes. Put a limit on it.
   asio::steady_timer sslShutdownTimer_;

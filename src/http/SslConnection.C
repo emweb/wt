@@ -32,18 +32,18 @@ SslConnection::SslConnection(asio::io_service& io_service, Server *server,
     asio::ssl::context& context,
     ConnectionManager& manager, RequestHandler& handler)
   : Connection(io_service, server, manager, handler),
-    socket_(io_service, context),
+    socket_(new asio::ssl::stream<asio::ip::tcp::socket>(io_service, context)),
     sslShutdownTimer_(io_service)
 {
   // avoid CRIME attack, get A rating on SSL analysis tools
 #ifdef SSL_OP_NO_COMPRESSION
-  SSL_set_options(socket_.native_handle(), SSL_OP_NO_COMPRESSION);
+  SSL_set_options(socket_->native_handle(), SSL_OP_NO_COMPRESSION);
 #endif
 }
 
 asio::ip::tcp::socket& SslConnection::socket()
 {
-  return socket_.next_layer();
+  return socket_->next_layer();
 }
 
 void SslConnection::start()
@@ -51,7 +51,7 @@ void SslConnection::start()
   std::shared_ptr<SslConnection> sft
     = std::static_pointer_cast<SslConnection>(shared_from_this());
 
-  socket_.async_handshake(asio::ssl::stream_base::server,
+  socket_->async_handshake(asio::ssl::stream_base::server,
                           strand_.wrap
                           (std::bind(&SslConnection::handleHandshake,
                                      sft,
@@ -60,7 +60,7 @@ void SslConnection::start()
 
 void SslConnection::handleHandshake(const Wt::AsioWrapper::error_code& error)
 {
-  SSL* ssl = socket_.native_handle();
+  SSL* ssl = socket_->native_handle();
 
   if (!error) {
     Connection::start();
@@ -95,7 +95,7 @@ void SslConnection::stop()
     (strand_.wrap(std::bind(&SslConnection::stopNextLayer,
                             sft, std::placeholders::_1)));
 
-  socket_.async_shutdown(strand_.wrap
+  socket_->async_shutdown(strand_.wrap
                          (std::bind(&SslConnection::stopNextLayer,
                                     sft,
                                     std::placeholders::_1)));
@@ -137,7 +137,7 @@ void SslConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
 
   std::shared_ptr<SslConnection> sft
     = std::static_pointer_cast<SslConnection>(shared_from_this());
-  socket_.async_read_some(asio::buffer(buffer),
+  socket_->async_read_some(asio::buffer(buffer),
                           strand_.wrap
                           (std::bind(&SslConnection::handleReadRequestSsl,
                                      sft,
@@ -173,7 +173,7 @@ void SslConnection::startAsyncReadBody(ReplyPtr reply,
 
   std::shared_ptr<SslConnection> sft
     = std::static_pointer_cast<SslConnection>(shared_from_this());
-  socket_.async_read_some(asio::buffer(buffer),
+  socket_->async_read_some(asio::buffer(buffer),
                           strand_.wrap
                           (std::bind(&SslConnection::handleReadBodySsl,
                                      sft,
@@ -210,7 +210,7 @@ void SslConnection
 
   std::shared_ptr<SslConnection> sft
     = std::static_pointer_cast<SslConnection>(shared_from_this());
-  asio::async_write(socket_, buffers,
+  asio::async_write(*socket_, buffers,
                     strand_.wrap
                     (std::bind(&SslConnection::handleWriteResponse0,
                                sft, reply,

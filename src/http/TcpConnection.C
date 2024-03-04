@@ -28,12 +28,12 @@ namespace server {
 TcpConnection::TcpConnection(asio::io_service& io_service, Server *server,
     ConnectionManager& manager, RequestHandler& handler)
   : Connection(io_service, server, manager, handler),
-    socket_(io_service)
+    socket_(new asio::ip::tcp::socket(io_service))
 { }
 
 asio::ip::tcp::socket& TcpConnection::socket()
 {
-  return socket_;
+  return *socket_.get();
 }
 
 void TcpConnection::stop()
@@ -44,10 +44,10 @@ void TcpConnection::stop()
 
   try {
     Wt::AsioWrapper::error_code ignored_ec;
-    socket_.shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
+    socket_->shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
     LOG_DEBUG(native() << ": closing socket");
-    socket_.cancel();
-    socket_.close();
+    socket_->cancel();
+    socket_->close();
   } catch (Wt::AsioWrapper::system_error& e) {
     LOG_DEBUG(native() << ": error " << e.what());
   }
@@ -71,7 +71,7 @@ void TcpConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
 
   std::shared_ptr<TcpConnection> sft
     = std::static_pointer_cast<TcpConnection>(shared_from_this());
-  socket_.async_read_some(asio::buffer(buffer),
+  socket_->async_read_some(asio::buffer(buffer),
                           strand_.wrap
                           (std::bind(&TcpConnection::handleReadRequest,
                                      sft,
@@ -96,7 +96,7 @@ void TcpConnection::startAsyncReadBody(ReplyPtr reply,
 
   std::shared_ptr<TcpConnection> sft
     = std::static_pointer_cast<TcpConnection>(shared_from_this());
-  socket_.async_read_some(asio::buffer(buffer),
+  socket_->async_read_some(asio::buffer(buffer),
                           strand_.wrap
                           (std::bind(&TcpConnection::handleReadBody0,
                                      sft,
@@ -124,7 +124,7 @@ void TcpConnection::startAsyncWriteResponse
 
   std::shared_ptr<TcpConnection> sft
     = std::static_pointer_cast<TcpConnection>(shared_from_this());
-  asio::async_write(socket_, buffers,
+  asio::async_write(*socket_, buffers,
                     strand_.wrap
                     (std::bind(&TcpConnection::handleWriteResponse0,
                                sft,
