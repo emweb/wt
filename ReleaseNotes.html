@@ -20,24 +20,26 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.10.4 (TBD)</h2>
+<h2>Release 4.10.4 (March 6, 2024)</h2>
 
 <p>
-  Wt 4.10.4 is a patch release that addresses the following issues:
+  Wt 4.10.4 is a (smaller) patch release that addresses the following issues.
+  This release is somewhat smaller due to bigger features being in the works.
+  Developers can expect some bigger new features in the authentication framework soon!
 </p>
 
 <ul>
   <li>
     <a href="https://redmine.emweb.be/issues/11685">Issue #11685</a>:
-    render child widgets differently when updating an existing widget. The JavaScript code that is being called by the framework to dynamically add children to an HTML element was changed so that it always appends them. This is to avoid a widget that was added in JavaScript (with no C++ counterpart) from being overwritten if the HTML of the parent would be written to.
+    render child widgets differently when updating an existing widget. The JavaScript code that is being called by the framework to dynamically add children to an HTML element was changed so that it always appends them instead of setting the whole content. This is to avoid a widget that was added in JavaScript (with no C++ counterpart) from being overwritten if the HTML of the parent would be written to.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/12283" target="_blank">Issue #12283</a>:
-    this corrects an additional mistake, made in top of <a href="https://redmine.webtoolkit.eu/issues/12006" target="_blank">Issue #12006</a>.
+    this corrects an additional mistake, made on top of <a href="https://redmine.webtoolkit.eu/issues/12006" target="_blank">Issue #12006</a>.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/12145" target="_blank">Issue #12145</a>:
-    an change to the internal enum class <a href="namespaceWt.html#aeb01f25d7c9d4a4498fb3dadc8d168c5">Property</a> caused an index and its value to be out of sync for a couple values.
+    a change to the internal enum class <a href="namespaceWt.html#aeb01f25d7c9d4a4498fb3dadc8d168c5">Property</a> caused an index and its value to be out of sync for a couple values.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/12352" target="_blank">Issues #12352</a>:
