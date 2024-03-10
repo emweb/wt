@@ -116,18 +116,6 @@ public:
    */
   bool isReadOnly() const;
 
-  /*! \brief Sets the placeholder text.
-   *
-   * This sets the text that is shown when the field is empty.
-   */
-  virtual void setPlaceholderText(const WString& placeholder);
-
-  /*! \brief Returns the placeholder text.
-   *
-   * \sa setPlaceholderText()
-   */
-  const WString& placeholderText() const { return emptyText_; }
-
   /*! \brief %Signal emitted when the value was changed.
    *
    * For a keyboard input, the signal is only emitted when the focus is lost
@@ -154,15 +142,23 @@ public:
 protected:
   WLabel *label_;
   std::shared_ptr<WValidator> validator_;
-  std::unique_ptr<JSlot> validateJs_, filterInput_, removeEmptyText_;
-  WString emptyText_;
+  std::unique_ptr<JSlot> validateJs_, filterInput_;
+  WString placeholderText_;
 
   // also used in WAbstractToggleButton
   static const char *CHANGE_SIGNAL;
 
-  void applyEmptyText();
+  /*! \brief Sets the placeholder text.
+   *
+   * This sets the text that is shown when the field is empty.
+   */
+  virtual void setPlaceholderText(const WString& placeholder);
 
-  virtual void enableAjax() override;
+  /*! \brief Returns the placeholder text.
+   *
+   * \sa setPlaceholderText()
+   */
+  const WString& placeholderText() const { return placeholderText_; }
 
   /*! \internal
    * \brief Called whenever the validator is changed
@@ -181,18 +177,14 @@ private:
   static const int BIT_ENABLED_CHANGED  = 0;
   static const int BIT_READONLY         = 1;
   static const int BIT_READONLY_CHANGED = 2;
-  static const int BIT_JS_OBJECT        = 3;
-  static const int BIT_VALIDATION_CHANGED = 4;
-  static const int BIT_PLACEHOLDER_CHANGED = 5;
+  static const int BIT_VALIDATION_CHANGED = 3;
+  static const int BIT_PLACEHOLDER_CHANGED = 4;
 
-  std::bitset<6> flags_;
+  std::bitset<5> flags_;
   Signal<WValidator::Result> validated_;
   WString validationToolTip_;
 
   void setLabel(WLabel *label);
-
-  void defineJavaScript(bool force = false);
-  void updateEmptyText();
 
 protected:
   virtual void updateDom(DomElement& element, bool all) override;

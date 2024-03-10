@@ -114,6 +114,18 @@ public:
    */
   const WT_USTRING& text() const { return content_; }
 
+  /*! \brief Sets the placeholder text.
+   *
+   * This sets the text that is shown when the field is empty.
+   */
+  using WFormWidget::setPlaceholderText;
+
+  /*! \brief Returns the placeholder text.
+   *
+   * \sa setPlaceholderText()
+   */
+  using WFormWidget::placeholderText;
+
   /*! \brief Returns the displayed text.
    *
    * If echoMode() is set to Normal, and no input mask is defined, this returns the same as
