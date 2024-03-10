@@ -2655,7 +2655,9 @@ window._$_APP_CLASS_$_ = new (function() {
           if (el.ed) {
             el.ed.save();
           }
-          v = "" + el.value;
+          if (el.value) {
+            v = "" + el.value;
+          }
         }
 
         if (WT.hasFocus(el)) {
