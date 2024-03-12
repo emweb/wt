@@ -23,6 +23,9 @@ namespace Wt {
 class Configuration;
 class WebController;
 class WIOService;
+#ifndef WT_TARGET_JAVA
+class WWebSocketResource;
+#endif // WT_TARGET_JAVA
 /*! \class WServer Wt/WServer.h Wt/WServer.h
  *  \brief A class encapsulating a web application server.
  *
@@ -305,6 +308,20 @@ public:
    * \sa removeEntryPoint()
    */
   WT_API void addResource(const std::shared_ptr<WResource>& resource, const std::string& path);
+
+#ifndef WT_TARGET_JAVA
+  /*! \brief Binds a WebSocket resource to a fixed \p path.
+   *
+   * This will add a public resource that is deployed on a fixed \p path.
+   * The resource will be accessible to any client that is able to access
+   * the server on the \p path.
+   *
+   * \throw Exception if an entrypoint was already registered at the given path
+   *
+   * \sa removeEntryPoint()
+   */
+  WT_API void addResource(const std::shared_ptr<WWebSocketResource>& resource, const std::string& path);
+#endif // WT_TARGET_JAVA
 
   /*! \brief Binds a resource to a fixed path.
    *
@@ -642,6 +659,8 @@ private:
   WebController *webController_;
 
 #ifndef WT_TARGET_JAVA
+  std::vector<std::shared_ptr<WWebSocketResource>> webSocketResources_;
+
   WLogger logger_;
   const WLogSink * customLogger_;
 #endif // WT_TARGET_JAVA

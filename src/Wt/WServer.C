@@ -19,6 +19,7 @@
 #include "Wt/WIOService.h"
 #include "Wt/WResource.h"
 #include "Wt/WServer.h"
+#include "Wt/WWebSocketResource.h"
 
 #include "Configuration.h"
 #include "WebController.h"
@@ -287,6 +288,24 @@ void WServer::addResource(const std::shared_ptr<WResource> &resource,
     WString error(Wt::utf8("WServer::addResource() error: "
                            "a static resource was already deployed on path '{1}'"));
     throw WServer::Exception(error.arg(path).toUTF8());
+  }
+}
+
+void WServer::addResource(const std::shared_ptr<WWebSocketResource>& resource,
+                          const std::string& path)
+{
+  if (configuration_->webSockets()) {
+    bool success = configuration().tryAddResource(EntryPoint(resource->handleResource(), prependDefaultPath(path)));
+    if (success) {
+      webSocketResources_.push_back(resource);
+      resource->setInternalPath(path);
+    } else {
+      WString error(Wt::utf8("WServer::addResource() error: "
+                             "a static resource was already deployed on path '{1}'"));
+      throw WServer::Exception(error.arg(path).toUTF8());
+    }
+  } else {
+    LOG_WARN("WebSockets are disabled by config, but a WWebSocketResource is used. Resource will be unreachable.");
   }
 }
 

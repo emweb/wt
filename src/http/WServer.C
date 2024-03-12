@@ -6,6 +6,7 @@
  */
 #include "Wt/WIOService.h"
 #include "Wt/WServer.h"
+#include "Wt/WWebSocketResource.h"
 
 #include <iostream>
 #include <string>
@@ -250,6 +251,11 @@ void WServer::stop()
   try {
     // Stop the Wt application server (cleaning up all sessions).
     webController_->shutdown();
+
+    // Stop all websocket connections.
+    for (auto& webSocketResource : webSocketResources_) {
+      webSocketResource->shutdown();
+    }
 
     LOG_INFO("Shutdown: stopping web server.");
 
