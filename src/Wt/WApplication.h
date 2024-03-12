@@ -51,6 +51,9 @@ class WLoadingIndicator;
 class WLogEntry;
 class WResource;
 class WText;
+#ifndef WT_TARGET_JAVA
+class WWebSocketResource;
+#endif // WT_TARGET_JAVA
 
 class WebSession;
 class RootContainer;
@@ -2412,6 +2415,9 @@ private:
 
   SignalMap exposedSignals_;   // signals that may be accessed
   ResourceMap exposedResources_; // resources that may be accessed
+#ifndef WT_TARGET_JAVA
+  std::map<WResource*, WWebSocketResource*> exposedWebSocketResources_; // link between exposed resource and their websocket "interface"
+#endif // WT_TARGET_JAVA
   ObjectMap encodedObjects_;   // objects encoded for internal purposes
                                  // like 'virtual pointers' (see D&D)
   std::set<std::string> justRemovedSignals_;
@@ -2460,6 +2466,16 @@ private:
   WResource *decodeExposedResource(const std::string& resourceMapKey) const;
   WResource *decodeExposedResource(const std::string& resourceMapKey,
                                    unsigned long rand) const;
+
+#ifndef WT_TARGET_JAVA
+  // Manipulation of the link between websocket resources and resources
+
+  // Adds a (private) WWebSocketResource to the application.
+  // It functions similarly to simply adding a normal WResource
+  void addWebSocketResource(WWebSocketResource* webSocketResource);
+  void removeWebSocketResource(WWebSocketResource* webSocketResource);
+  WWebSocketResource* findMatchingWebSocketResource(WResource* resource) const;
+#endif // WT_TARGET_JAVA
 
   /*
    * Methods for application state handling
@@ -2530,6 +2546,9 @@ private:
   friend class WTimer;
   friend class WViewWidget;
   friend class WWidget;
+#ifndef WT_TARGET_JAVA
+  friend class WWebSocketResource;
+#endif // WT_TARGET_JAVA
   friend class WWebWidget;
 };
 

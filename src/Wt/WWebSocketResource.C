@@ -1,11 +1,13 @@
-#include "Wt/WException.h"
 #include "Wt/WWebSocketResource.h"
+
+#include "Wt/WApplication.h"
+#include "Wt/WException.h"
+#include "Wt/WLogger.h"
+#include "Wt/WRandom.h"
+#include "Wt/WWebSocketConnection.h"
 
 #include "Wt/Http/Request.h"
 #include "Wt/Http/Response.h"
-
-#include "Wt/WLogger.h"
-#include "Wt/WWebSocketConnection.h"
 
 namespace Wt {
 LOGGER("WWebSocketResource");
@@ -51,6 +53,11 @@ WWebSocketResource::WWebSocketResource()
     pingTimeout_(60)
 {
   resource_ = std::make_shared<WebSocketHandlerResource>(this);
+
+  WApplication* app = WApplication::instance();
+  if (app) {
+    app->addWebSocketResource(this);
+  }
 }
 
 WWebSocketResource::~WWebSocketResource()
@@ -96,13 +103,7 @@ std::string WWebSocketResource::internalPath() const
 
 std::string WWebSocketResource::url() const
 {
-  const std::string url = resource_->url();
-
-  if (url.find("?wtd") != std::string::npos) {
-    return url + "&request=resource&resource=" + id();
-  }
-
-  return url;
+  return resource_->url();
 }
 
 void WWebSocketResource::setMaximumReceivedSize(size_t frame, size_t message)

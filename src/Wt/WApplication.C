@@ -18,6 +18,9 @@
 #include "Wt/WMemoryResource.h"
 #include "Wt/WServer.h"
 #include "Wt/WTimer.h"
+#ifndef WT_TARGET_JAVA
+#include "Wt/WWebSocketResource.h"
+#endif // WT_TARGET_JAVA
 #include "Wt/Http/Cookie.h"
 
 #include "WebSession.h"
@@ -894,6 +897,17 @@ std::string WApplication::addExposedResource(WResource *resource)
   }
 }
 
+#ifndef WT_TARGET_JAVA
+void WApplication::addWebSocketResource(WWebSocketResource* webSocketResource)
+{
+  if (environment().server()->configuration().webSockets()) {
+    exposedWebSocketResources_[webSocketResource->handleResource().get()] = webSocketResource;
+  } else {
+    LOG_WARN("WebSockets are disabled by config, but a WWebSocketResource is used. Resource will be unreachable.");
+  }
+}
+#endif // WT_TARGET_JAVA
+
 bool WApplication::removeExposedResource(WResource *resource)
 {
   std::string key = resourceMapKey(resource);
@@ -910,6 +924,17 @@ bool WApplication::removeExposedResource(WResource *resource)
     return false;
 }
 
+#ifndef WT_TARGET_JAVA
+void WApplication::removeWebSocketResource(WWebSocketResource* webSocketResource)
+{
+  for (auto i = exposedWebSocketResources_.begin(); i != exposedWebSocketResources_.end(); ++i) {
+    if (i->second == webSocketResource) {
+      exposedWebSocketResources_.erase(i);
+    }
+  }
+}
+#endif // WT_TARGET_JAVA
+
 WResource *WApplication::decodeExposedResource(const std::string& resourceKey)
   const
 {
@@ -925,6 +950,19 @@ WResource *WApplication::decodeExposedResource(const std::string& resourceKey)
       return nullptr;
   }
 }
+
+#ifndef WT_TARGET_JAVA
+WWebSocketResource* WApplication::findMatchingWebSocketResource(WResource* resource) const
+{
+  auto i = exposedWebSocketResources_.find(resource);
+
+  if (i != exposedWebSocketResources_.end()) {
+    return i->second;
+  }
+
+  return nullptr;
+}
+#endif // WT_TARGET_JAVA
 
 WResource *WApplication::decodeExposedResource(const std::string& resourceKey,
                                                unsigned long ver) const
