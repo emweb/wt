@@ -64,6 +64,8 @@ public:
   int pingInterval() const { return pingInterval_; }
   int pingTimeout() const { return pingTimeout_; }
 
+  WApplication* app() { return app_; }
+
 private:
   std::shared_ptr<WebSocketHandlerResource> resource_;
 
@@ -79,6 +81,8 @@ private:
 
   int pingInterval_;
   int pingTimeout_;
+
+  WApplication* app_ = nullptr;
 
   friend class WebSocketHandlerResource;
   friend class WWebSocketConnection;

@@ -40,7 +40,14 @@ void WebSocketHandlerResource::handleRequest(const Http::Request& request, Http:
 
 void WebSocketHandlerResource::moveSocket(const Http::Request& request, const std::shared_ptr<WebSocketConnection>& socketConnection)
 {
-  auto connection = resource_->handleConnect(request, socketConnection->ioService());
+  std::unique_ptr<WApplication::UpdateLock> updateLock;
+  if (resource_ && resource_->takesUpdateLock() && resource_->app_) {
+    updateLock.reset(new Wt::WApplication::UpdateLock(resource_->app_));
+  }
+
+  auto connection = resource_->handleConnect(request);
+  updateLock.reset(nullptr);
+
   connection->setSocket(socketConnection);
   resource_->registerConnection(std::move(connection));
 }
@@ -56,6 +63,7 @@ WWebSocketResource::WWebSocketResource()
 
   WApplication* app = WApplication::instance();
   if (app) {
+    app_ = app;
     app->addWebSocketResource(this);
   }
 }

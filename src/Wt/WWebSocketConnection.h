@@ -250,6 +250,8 @@ private:
   void missingPong(const AsioWrapper::error_code& e);
   void closeSocket(const AsioWrapper::error_code& e, const std::string& reason);
 
+  WApplication* app();
+
   bool wantsToClose_;
 
   std::size_t frameSize_;

@@ -2,6 +2,7 @@
 
 #include "Wt/AsioWrapper/system_error.hpp"
 
+#include "Wt/WApplication.h"
 #include "Wt/WLogger.h"
 #include "Wt/WString.h"
 #include "Wt/WWebSocketResource.h"
@@ -740,7 +741,18 @@ bool WWebSocketConnection::sendControlFrame(OpCode opcode)
 void WWebSocketConnection::writeFrame(const AsioWrapper::error_code& e, std::size_t bytes_transferred)
 {
   LOG_DEBUG("writeFrame: written data of size: " << bytes_transferred << " bytes");
+
+  std::unique_ptr<WApplication::UpdateLock> updateLock;
+  if (takesUpdateLock_ && app()) {
+    updateLock.reset(new Wt::WApplication::UpdateLock(app()));
+    if (!*updateLock) {
+      LOG_ERROR("writeFrame: Cannot take the update lock");
+      return;
+    }
+  }
+
   done_.emit(e);
+  updateLock.reset(nullptr);
 }
 
 void WWebSocketConnection::receiveFrame()
@@ -777,44 +789,41 @@ void WWebSocketConnection::receiveFrame()
     continuationBuffer_.clear();
   }
 
-  switch (header->opCode) {
-    case OpCode::Close:
-      {
-        if (wantsToClose_) {
-          AsioWrapper::error_code ignored_ec;
-          closeSocket(ignored_ec, data);
-        } else {
-          acknowledgeClose(data);
-        }
-        break;
-      }
-    case OpCode::Ping:
-      {
-        acknowledgePing();
-        break;
-      }
-    case OpCode::Text:
-      {
-        handleMessage(data);
-        break;
-      }
-    case OpCode::Binary:
-      {
-        std::vector<char> binaryData(data.begin(), data.end());
-        handleMessage(binaryData);
-        break;
-      }
-    case OpCode::Continuation:
-      {
-        handleError();
-        break;
-      }
-    case OpCode::Pong:
-      {
-        handlePong();
-        break;
-      }
+  // Handle all non-update locked functionality:
+  if (header->opCode == OpCode::Ping) {
+    acknowledgePing();
+    return;
+  } else if (header->opCode == OpCode::Pong) {
+    handlePong();
+    return;
   }
+
+  std::unique_ptr<WApplication::UpdateLock> updateLock;
+  if (takesUpdateLock_ && app()) {
+    updateLock.reset(new Wt::WApplication::UpdateLock(app()));
+    if (!*updateLock) {
+      LOG_ERROR("receiveFrame: Cannot take the update lock");
+      return;
+    }
+  }
+
+  if (header->opCode == OpCode::Close) {
+    if (wantsToClose_) {
+      AsioWrapper::error_code ignored_ec;
+      closeSocket(ignored_ec, data);
+    } else {
+      acknowledgeClose(data);
+    }
+  } else if (header->opCode == OpCode::Text) {
+    handleMessage(data);
+  } else if (header->opCode == OpCode::Binary) {
+    std::vector<char> binaryData(data.begin(), data.end());
+    handleMessage(binaryData);
+  } else if (header->opCode == OpCode::Continuation) {
+    handleError();
+  }
+
+  updateLock.reset(nullptr);
 }
 
 void WWebSocketConnection::acknowledgeClose(const std::string& reason)
@@ -926,8 +935,22 @@ void WWebSocketConnection::closeSocket(const AsioWrapper::error_code& e, const s
   if (socketConnection_->isOpen()) {
     socketConnection_->doClose();
   }
+  if (takesUpdateLock_ && app()) {
+    WApplication::UpdateLock lock(app());
+    if (lock) {
+      closed_.emit(e, reason);
+    }
+  } else {
+    closed_.emit(e, reason);
+  }
+}
 
-  closed_.emit(e, reason);
+WApplication* WWebSocketConnection::app()
+{
+  if (resource_) {
+    return resource_->app_;
+  }
+  return nullptr;
 }
 }
 
