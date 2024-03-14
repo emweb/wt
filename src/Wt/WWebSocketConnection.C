@@ -6,6 +6,9 @@
 #include "Wt/WString.h"
 #include "Wt/WWebSocketResource.h"
 
+#include <chrono>
+#include <system_error>
+
 namespace Wt {
 LOGGER("WWebSocketConnection");
 
@@ -267,11 +270,16 @@ std::string WebSocketFrameHeader::toString() const
 }
 
 WebSocketConnection::WebSocketConnection(AsioWrapper::asio::io_service& ioService)
-  : strand_(ioService),
+  : ioService_(ioService),
+    strand_(ioService),
     readBufferPtr_(&(*readBuffer_.begin())),
     readingState_(ReadingState::ReadingHeader),
     header_(new WebSocketFrameHeader()),
-    isWriting_(false)
+    isContinuation_(false),
+    continuationSize_(0),
+    isWriting_(false),
+    isWritingToSocket_(false),
+    hasPendingDataWrite_(false)
 {
 }
 
@@ -378,41 +386,112 @@ void WebSocketConnection::handleAsyncRead(const AsioWrapper::error_code& e, std:
   doAsyncRead(readBufferPtr_, &(*readBuffer_.end()) - readBufferPtr_);
 }
 
-bool WebSocketConnection::doAsyncWrite(const std::vector<char>& frameHeader, const std::vector<char>& data)
+bool WebSocketConnection::doAsyncWrite(OpCode type, const std::vector<char>& frameHeader, const std::vector<char>& data)
 {
+  // Check for the write-done loop, developer driven
   if (isWriting_) {
     LOG_WARN("The connection is already being used to send data over. Wait for the done() signal to fire.");
     return false;
   }
 
-  isWriting_ = true;
-
   // Concat header and data to stream
-  WStringStream writeBuffer;
-  writeBuffer.append(frameHeader.data(), frameHeader.size());
-  writeBuffer.append(data.data(), data.size());
+  writeBuffer_.append(frameHeader.data(), frameHeader.size());
+  writeBuffer_.append(data.data(), data.size());
 
   // Put data into asio::buffer actual write buffer
   using namespace boost::asio;
 
   std::vector<const_buffer> buffer;
-  writeBuffer.asioBuffers(buffer);
+  writeBuffer_.asioBuffers(buffer);
 
-  doSocketWrite(buffer);
+  // Check for functionality outside write-done loop (ping/pong), framework driven
+  std::unique_lock<std::mutex> lock(writingMutex_);
+  if (isWritingToSocket_) {
+    LOG_DEBUG("doAsyncWrite: The connection is being written to (Ping/Pong), the frame will be delayed.");
+    hasPendingDataWrite_ = true;
+    pendingWriteDataType_ = type;
+    pendingWriteDataBuffer_ = buffer;
+    return true;
+  }
+
+  isWriting_ = true;
+  isWritingToSocket_ = true;
+
+  doSocketWrite(buffer, type);
 
   return true;
 }
 
-void WebSocketConnection::handleAsyncWritten(const AsioWrapper::error_code& e, std::size_t bytes_transferred)
+void WebSocketConnection::doControlFrameWrite(const std::vector<char>& frameHeader, OpCode opcode)
+{
+  // Put data into asio::buffer actual write buffer
+  writeBuffer_.append(frameHeader.data(), frameHeader.size());
+
+  using namespace boost::asio;
+
+  std::vector<const_buffer> buffer;
+  writeBuffer_.asioBuffers(buffer);
+
+  // Check for functionality outside write-done loop (ping/pong), framework driven
+  std::unique_lock<std::mutex> lock(writingMutex_);
+  if (isWritingToSocket_) {
+    if (opcode == OpCode::Ping) {
+      LOG_DEBUG("doControlFrameWrite: Delay the sending of the control (Ping) frame, since the socket is busy");
+      hasPendingPingWrite_ = true;
+      pendingWritePingBuffer_ = buffer;
+    }
+    if (opcode == OpCode::Pong) {
+      LOG_DEBUG("doControlFrameWrite: Delay the sending of the control (Pong) frame, since the socket is busy");
+      hasPendingPongWrite_ = true;
+      pendingWritePongBuffer_ = buffer;
+    }
+    return;
+  }
+
+  isWritingToSocket_ = true;
+
+  doSocketWrite(buffer, opcode);
+}
+
+void WebSocketConnection::handleAsyncWritten(OpCode type, const AsioWrapper::error_code& e, std::size_t bytes_transferred)
 {
   if (e) {
     LOG_ERROR("handleAsyncWritten: error encountered " << e.value());
     return;
   }
 
+  // Check for functionality outside write-done loop (ping/pong), framework driven
+  std::unique_lock<std::mutex> lock(writingMutex_);
+
+  // Only perform a singular write of a delayed frame per handler.
+  if (hasPendingPingWrite_) {
+    // A control write (ping) event took place while the socket was busy sending the data frame.
+    LOG_DEBUG("handleAsyncWritten: Handling a delayed Ping frame");
+    doSocketWrite(pendingWritePingBuffer_, OpCode::Ping);
+    hasPendingPingWrite_ = false;
+    pendingWritePingBuffer_.clear();
+  } else if (hasPendingPongWrite_) {
+    // A control write (pong) event took place while the socket was busy sending the data frame.
+    LOG_DEBUG("handleAsyncWritten: Handling a delayed Pong frame");
+    doSocketWrite(pendingWritePongBuffer_, OpCode::Pong);
+    hasPendingPongWrite_ = false;
+    pendingWritePongBuffer_.clear();
+  }else if (hasPendingDataWrite_) {
+    LOG_DEBUG("handleAsyncControl: Handling a delayed data frame after: " << OpCodeToString(type));
+    doSocketWrite(pendingWriteDataBuffer_, pendingWriteDataType_);
+    hasPendingDataWrite_ = false;
+    pendingWriteDataBuffer_.clear();
+  }
+
   isWriting_= false;
-  hasDataWrittenCallback_(e, bytes_transferred);
-  LOG_DEBUG("handleAsyncWritten: full frame of size: " << bytes_transferred << " bytes has been written");
+  isWritingToSocket_ = false;
+  writeBuffer_.clear();
+
+  LOG_DEBUG("handleAsyncWritten: Outgoing frame of size: " << bytes_transferred << " bytes has been written");
+
+  if (type == OpCode::Binary || type == OpCode::Text) {
+    hasDataWrittenCallback_(e, bytes_transferred);
+  }
 }
 
 void WebSocketConnection::setDataReadCallback(const std::function<void()>& callback)
@@ -464,9 +543,9 @@ void WebSocketTcpConnection::doSocketRead(char* buffer, size_t size)
   socket_->async_read_some(boost::asio::buffer(buffer, size), strand_.wrap(std::bind(&WebSocketTcpConnection::handleAsyncRead, shared_from_this(), std::placeholders::_1, std::placeholders::_2)));
 }
 
-void WebSocketTcpConnection::doSocketWrite(const std::vector<boost::asio::const_buffer>& buffer)
+void WebSocketTcpConnection::doSocketWrite(const std::vector<boost::asio::const_buffer>& buffer, OpCode type)
 {
-  async_write(socket(), buffer, strand_.wrap(std::bind(&WebSocketTcpConnection::handleAsyncWritten, shared_from_this(), std::placeholders::_1, std::placeholders::_2)));
+  async_write(socket(), buffer, strand_.wrap(std::bind(&WebSocketTcpConnection::handleAsyncWritten, shared_from_this(), type, std::placeholders::_1, std::placeholders::_2)));
 }
 
 Socket& WebSocketTcpConnection::socket()
@@ -522,9 +601,9 @@ void WebSocketSslConnection::doSocketRead(char* buffer, size_t size)
   socket_->async_read_some(boost::asio::buffer(buffer, size), strand_.wrap(std::bind(&WebSocketSslConnection::handleAsyncRead, shared_from_this(), std::placeholders::_1, std::placeholders::_2)));
 }
 
-void WebSocketSslConnection::doSocketWrite(const std::vector<boost::asio::const_buffer>& buffer)
+void WebSocketSslConnection::doSocketWrite(const std::vector<boost::asio::const_buffer>& buffer, OpCode type)
 {
-  async_write(*socket_, buffer, strand_.wrap(std::bind(&WebSocketSslConnection::handleAsyncWritten, shared_from_this(), std::placeholders::_1, std::placeholders::_2)));
+  async_write(*socket_, buffer, strand_.wrap(std::bind(&WebSocketSslConnection::handleAsyncWritten, shared_from_this(), type, std::placeholders::_1, std::placeholders::_2)));
 }
 
 Socket& WebSocketSslConnection::socket()
@@ -533,14 +612,16 @@ Socket& WebSocketSslConnection::socket()
 }
 #endif
 
-WWebSocketConnection::WWebSocketConnection(WWebSocketResource* resource)
+WWebSocketConnection::WWebSocketConnection(WWebSocketResource* resource, AsioWrapper::asio::io_service& ioService)
   : resource_(resource),
     wantsToClose_(false),
     frameSize_(0),
     messageSize_(0),
     takesUpdateLock_(true),
     pingInterval_(180),
-    pingTimeout_(360)
+    pingTimeout_(360),
+    pingSignalTimer_(ioService),
+    pongTimeoutTimer_(ioService)
 {
   LOG_DEBUG("New connection to track on endpoint: " << resource->url());
 }
@@ -610,11 +691,15 @@ bool WWebSocketConnection::sendDataFrame(const std::vector<char>& data, OpCode o
 
   LOG_DEBUG("sendDataFrame: writing data frame with a header of " << frameHeader.size() << " bytes and data of " << data.size() << " bytes");
 
-  return socketConnection_->doAsyncWrite(frameHeader, data);
+  return socketConnection_->doAsyncWrite(opcode, frameHeader, data);
 }
 
 bool WWebSocketConnection::sendEmptyFrame(OpCode opcode)
 {
+  if (opcode == OpCode::Ping || opcode == OpCode::Pong) {
+    LOG_WARN("sendEmptyFrame: sending a ping or pong frame inside the write/done loop. This will trigger the done() signal upon successfully writing.");
+  }
+
   WebSocketFrameHeader header;
   header.isFinished = true;
   header.reserved1 = false;
@@ -627,7 +712,29 @@ bool WWebSocketConnection::sendEmptyFrame(OpCode opcode)
 
   LOG_DEBUG("sendEmptyFrame: writing a control frame with a header of " << frameHeader.size() << " bytes and OpCode: " << OpCodeToString(header.opCode));
 
-  return socketConnection_->doAsyncWrite(frameHeader);
+  return socketConnection_->doAsyncWrite(opcode, frameHeader);
+}
+
+bool WWebSocketConnection::sendControlFrame(OpCode opcode)
+{
+  if (opcode == OpCode::Close) {
+    LOG_WARN("sendControlFrame: sending a close frame outside the write/done loop. This will NOT trigger the done() or closed() signals upon successfully writing.");
+  }
+
+  WebSocketFrameHeader header;
+  header.isFinished = true;
+  header.reserved1 = false;
+  header.reserved2 = false;
+  header.reserved3 = false;
+  header.opCode = opcode;
+  header.isMasked = false;
+
+  std::vector<char> frameHeader = header.generateFrameHeader(0);
+
+  LOG_DEBUG("sendControlFrame: writing a control frame with a header of " << frameHeader.size() << " bytes and OpCode: " << OpCodeToString(header.opCode));
+
+  socketConnection_->doControlFrameWrite(frameHeader, opcode);
+  return true;
 }
 
 void WWebSocketConnection::writeFrame(const AsioWrapper::error_code& e, std::size_t bytes_transferred)
@@ -702,6 +809,11 @@ void WWebSocketConnection::receiveFrame()
         handleError();
         break;
       }
+    case OpCode::Pong:
+      {
+        handlePong();
+        break;
+      }
   }
 }
 
@@ -713,14 +825,61 @@ void WWebSocketConnection::acknowledgeClose(const std::string& reason)
   done_.connect(this, std::bind(&WWebSocketConnection::closeSocket, this, std::placeholders::_1, reason));
 }
 
+void WWebSocketConnection::doSendPing(const AsioWrapper::error_code& e)
+{
+  if (e) {
+    // Normal shutdown
+    if (e == AsioWrapper::asio::error::operation_aborted) {
+      return;
+    }
+    LOG_ERROR("doSendPing: encountered an error " << e.value());
+    return;
+  }
+
+  sendPing();
+}
+
+bool WWebSocketConnection::sendPing()
+{
+  if (pingTimeout_ > 0) {
+    pongTimeoutTimer_.expires_from_now(std::chrono::seconds(pingTimeout_));
+    pongTimeoutTimer_.async_wait(std::bind(&WWebSocketConnection::missingPong, this, std::placeholders::_1));
+  }
+
+  return sendControlFrame(OpCode::Ping);
+}
+
 void WWebSocketConnection::acknowledgePing()
 {
-  sendEmptyFrame(OpCode::Pong);
+  sendControlFrame(OpCode::Pong);
+  startPingTimer();
 }
 
 void WWebSocketConnection::handleError()
 {
   LOG_ERROR("handleError: A had request was caught, currently specifically used for a bad OpCode.");
+}
+
+void WWebSocketConnection::handlePong()
+{
+  LOG_DEBUG("handlePong: a Pong frame was received.");
+  startPingTimer();
+}
+
+void WWebSocketConnection::missingPong(const AsioWrapper::error_code& e)
+{
+  if (e) {
+    // Normal shutdown
+    if (e == AsioWrapper::asio::error::operation_aborted) {
+      return;
+    }
+    LOG_ERROR("missingPong: encountered an error " << e.value());
+    return;
+  }
+
+  LOG_ERROR("missingPong: the socket has send a Ping request, but received no Pong after " << pingTimeout_ << " seconds.");
+  AsioWrapper::error_code ignored_ec;
+  closeSocket(ignored_ec, "Missing Pong");
 }
 
 void WWebSocketConnection::setMaximumReceivedSize(std::size_t frameSize, std::size_t messageSize)
@@ -738,6 +897,20 @@ void WWebSocketConnection::setPingTimeout(int pingInterval, int pingTimeout)
 {
   pingInterval_ = pingInterval;
   pingTimeout_ = pingTimeout;
+
+  startPingTimer();
+}
+
+void WWebSocketConnection::startPingTimer()
+{
+  pingSignalTimer_.cancel();
+  pongTimeoutTimer_.cancel();
+
+  // Socket "keep-alive", performed through ping-pong mechanism.
+  if (pingInterval_ > 0) {
+    pingSignalTimer_.expires_from_now(std::chrono::seconds(pingInterval_));
+    pingSignalTimer_.async_wait(std::bind(&WWebSocketConnection::doSendPing, this, std::placeholders::_1));
+  }
 }
 
 void WWebSocketConnection::closeSocket(const AsioWrapper::error_code& e, const std::string& reason)
@@ -746,6 +919,9 @@ void WWebSocketConnection::closeSocket(const AsioWrapper::error_code& e, const s
     LOG_ERROR("closeSocket: encountered an error: " << e.value());
     return;
   }
+
+  pingSignalTimer_.cancel();
+  pongTimeoutTimer_.cancel();
 
   if (socketConnection_->isOpen()) {
     socketConnection_->doClose();

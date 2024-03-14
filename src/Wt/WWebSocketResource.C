@@ -40,7 +40,7 @@ void WebSocketHandlerResource::handleRequest(const Http::Request& request, Http:
 
 void WebSocketHandlerResource::moveSocket(const Http::Request& request, const std::shared_ptr<WebSocketConnection>& socketConnection)
 {
-  auto connection = resource_->handleConnect(request);
+  auto connection = resource_->handleConnect(request, socketConnection->ioService());
   connection->setSocket(socketConnection);
   resource_->registerConnection(std::move(connection));
 }
@@ -49,8 +49,8 @@ WWebSocketResource::WWebSocketResource()
   : frameSize_(0),
     messageSize_(0),
     takesUpdateLock_(true),
-    pingInterval_(30),
-    pingTimeout_(60)
+    pingInterval_(180),
+    pingTimeout_(360)
 {
   resource_ = std::make_shared<WebSocketHandlerResource>(this);
 
