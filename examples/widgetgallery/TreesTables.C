@@ -96,7 +96,7 @@ std::unique_ptr<WWidget> TreesTables::tableViews()
 #ifndef WT_TARGET_JAVA
 #define GIT_REPOSITORY "../.."
 #else
-#define GIT_REPOSITORY "/home/koen/git/jwt"
+#define GIT_REPOSITORY "/home/jwt/jwt/.git"
 #endif
 #endif
 
