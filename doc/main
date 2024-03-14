@@ -1172,7 +1172,7 @@ Wt::log("error") << "Message";
    This is the class definition of IconPair:
   
    \dontinclude examples/treelist/IconPair.h
-   \skip IconPair
+   \skipline class IconPair
    \until };
   
    IconPair is a composite widget, implemented as a WContainerWidget
@@ -1245,6 +1245,7 @@ Wt::log("error") << "Message";
    merely an optimization. Any non-visual effects of these slots are
    still propagated and executed, as expected.
   
+   \skipline undoShowIcon1
    \until undoShowIcon2
   
    Next, we declare the widget to be an inline widget. An inline
@@ -1262,11 +1263,13 @@ Wt::log("error") << "Message";
   
    To react to click events, we connect signals with slots:
   
+   \skipline clickIsSwitch
    \until ; //
   
    We change the cursor to a pointer to hint that clicking these icons
    may do something useful.
-  
+
+   \skipline decorationStyle
    \until } //
   
    We also change the cursor to a pointer to
@@ -1274,6 +1277,7 @@ Wt::log("error") << "Message";
   
    The rest of the class definition is:
   
+   \skipline setState
    \until } //
   
    Note the implementations of undoShowIcon1() and undoShowIcon2():
@@ -1325,29 +1329,34 @@ Wt::log("error") << "Message";
   
    We will implement the treenode as 2 by 2 table.
   
-   \skipline setImplementation
+   \skipline setNewImplementation
   
    We create all icons. Since currently the node is empty, we only
    show the no-expand version (which is simply a horizontal line).
   
-   \until noExpandIcon.get();
+   \skipline expandIcon_
+   \until noExpandIcon
   
    The expanded content is a WContainerWidget.
   
+   \skipline expandedContent_
    \until hide
   
    We create the label and child count text widgets:
   
+   \skipline labelTextWidget
    \until treenodechildcount
   
    Now we add all widgets in the proper table cell, and set the correct
    alignment.
-  
+
+   \skipline labelIcon
    \until setContentAlignment(AlignmentFlag::Middle)
   
    Finally, we connect the click events of the expandIcon to the expand
    and collapse slots.
   
+   \skipline expandIcon_
    \until } //
   
    WTable::elementAt(int row, int column) is used repeatedly to add or
@@ -1365,7 +1374,8 @@ Wt::log("error") << "Message";
    The "business logic" of the TreeNode is simply to manage its children.
    Whenever a child is added or removed, adjustments to its look are
    updated by calling childNodesChanged().
-  
+
+   \skipline isLastChildNode
    \until } //
   
    The expand icon of the last child is rendered differently, as it
@@ -1373,16 +1383,19 @@ Wt::log("error") << "Message";
    implementation simple, we simply let every child reset its proper
    look by calling adjustExpandIcon().
   
+   \skipline childNodesChanged
    \until adjustExpandIcon
   
    When getting a first child, or losing the last child, the expand icon
    changes too.
   
-   \until adjustExpandIcon
+   \line adjustExpandIcon
   
    We also update the childCount label.
-  
-   \until setText("")
+
+   \skipline childNodes_
+   \until }
+   \until }
   
    Finally, we call WObject::resetLearnedSlots(). Because the expand()
    slot depends on the number of children, because it needs to
@@ -1391,15 +1404,17 @@ Wt::log("error") << "Message";
    away with still implementing as a stateless slot, by indicating
    when the state has changed.
   
+   \skipline resetLearnedSlots
    \until } //
   
    The implementation of the collapse slot is as follows:
-  
+
+   \skipline collapse
    \until {
   
    First we record the current state, so the undo method can exactly undo
    what happened.
-  
+
    \until isHidden()
   
    Next, we implement the actual collapse logic:
@@ -1415,13 +1430,15 @@ Wt::log("error") << "Message";
    also need to define the undo functions. Note that Because expand()
    also collapses all child nodes, the undo function of expand() is
    not simply collapse() and vice-versa.
-  
+
+   \skipline undoCollapse
    \until } //
   
    Finally, the adjustExpandIcon() function sets the correct images,
    which depends on how the node relates to its siblings. The last
    node looks a bit different.
-  
+
+   \skipline adjustExpandIcon
    \until {
   
    We set the expand icon images:
@@ -1430,12 +1447,14 @@ Wt::log("error") << "Message";
   
    Then, we set the vertical guide line if not the last child, and nothing
    if the last child:
-  
+
+   \skipline == Last
    \until } //
   
    Finally, we select the correct icon, depending on whether the node
    has children:
-  
+
+   \skipline childNodes_
    \until } //
   
    And that's it. By using the TreeNode class in a hierarchy, we can
