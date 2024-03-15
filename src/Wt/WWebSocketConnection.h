@@ -26,31 +26,51 @@ using Socket = AsioWrapper::asio::ip::tcp::socket;
 using SSLSocket = AsioWrapper::asio::ssl::stream<AsioWrapper::asio::ip::tcp::socket>;
 #endif
 
+/*! \class OpCode Wt/WWebSocketConnection.h
+ *  \brief Indicates the type of the frame/message.
+ *
+ * This enumeration contains all possible types for a WebSocket frame.
+ */
 enum class OpCode
 {
+  /*! Indicates that the content is the same as a previous frame, and
+   * that its data needs to be appended to the previous frame.
+   */
   Continuation = 0,
+  //! Indicates a text message. The data of the frame is a string.
   Text = 1,
+  //! Indicates a binary message. The data of the frame is binary.
   Binary = 2,
+  /*! Indicates a close message. The data of the frame is an optional
+   * string.
+   */
   Close = 8,
+  //! Indicates a ping message.
   Ping = 9,
+  //! Indicates a pong message.
   Pong = 10,
 };
 
+/*! \class CloseCode Wt/WWebSocketConnection.h
+ *  \brief Indicates the generic code for the close message.
+ *
+ * This contains all possible codes for a close message.
+ */
 enum class CloseCode
 {
-  Normal = 1000,
-  GoingAway = 1001,
-  ProtocolError = 1002,
-  UnexpectedDataType = 1003,
-  Reserved = 1004,
-  NoStatusCode = 1005, //
-  AbnormalClose = 1006, //
-  IncorrectData = 1007,
-  PolicyError = 1008,
-  MessageTooLarge = 1009,
-  FailedExtensionNegotiation = 1010,
-  UnexpectedCondition = 1011,
-  TLSFailure = 1015 //
+  Normal = 1000, //!< The normal code, this is the most-often used code.
+  GoingAway = 1001, //!< Indicates that the server is going down.
+  ProtocolError = 1002, //<! Termination due to a protocol error.
+  UnexpectedDataType = 1003, //<! The data type cannot be handled.
+  Reserved = 1004, //<! Reserved, not to be used.
+  NoStatusCode = 1005, //!< Reserved, to be used by applications.
+  AbnormalClose = 1006, //!< Reserved, to be used by applications.
+  IncorrectData = 1007, //!< Received data is not consistent with type.
+  PolicyError = 1008, //!< Generic code for any policy violations.
+  MessageTooLarge = 1009, //!< Termination when received message is too big.
+  FailedExtensionNegotiation = 1010, //!< Termination by client due to expected extension.
+  UnexpectedCondition = 1011, //!< Termination by server due to unexpected condition.
+  TLSFailure = 1015 //!< Reserved, to be used by applications.
 };
 
 struct WebSocketFrameHeader;
@@ -197,34 +217,211 @@ private:
 };
 #endif
 
+/*! \class WWebSocketConnection Wt/WWebSocketConnection.h
+ *  \brief A single connection to a WWebSocketResource.
+ *
+ * When a connection is set-up to a WWebSocketResource, a new connection
+ * is created, which manages the underlying TCP or SSL stream.
+ *
+ * Upon its creation, it will inherit the setting currently found on the
+ * WWebSocketResource. Like the maximum frame and message sizes, the
+ * settings for the ping-pong system and whether it takes the application
+ * update lock.
+ *
+ * The connection can be used to listen to incoming requests, or send out
+ * messages after the WebSocket set-up has occurred. It also offers
+ * methods to manage the connection, like closing it gracefully.
+ *
+ * Each of the methods that either read an incoming message, or respond
+ * to a message are made virtual so that developers can change the
+ * implementation slightly, if they desire. This will be limited to being
+ * able to log, track, or manipulate the data, but not change the way the
+ * framework will create frames or messages.
+ *
+ * Most socket, and data management is still handled by the framework.
+ * That is, everything to do with any of the above mentioned methods,
+ * copied from WWebSocketResource, is handled by the framework. A
+ * developer will thus never be able to receive a message or frame
+ * greater than the imposed limit, unless they increase it, or disable
+ * it. If the setTakesUpdateLock() is set to \p true, this lock
+ * acquisition will always take place. These settings can always be
+ * changed after the connection has been set up.
+ */
 class WT_API WWebSocketConnection : public WObject
 {
 public:
+  //! Constructor, pointing to its resource and the IO service.
   WWebSocketConnection(WWebSocketResource* resource, AsioWrapper::asio::io_service& ioService);
 
+  //! Destructor.
   virtual ~WWebSocketConnection();
 
+  /*! \brief Handles an incoming text message.
+   *
+   * A single message (which can consist of multiple frames) has been
+   * received, of the text type. The \p text parameter contains the data
+   * that was present in the message.
+   */
   virtual void handleMessage(const std::string& text);
+
+  /*! \brief Handles an incoming binary message.
+   *
+   * A single message (which can consist of multiple frames) has been
+   * received, of the binary type. The \p buffer parameter contains the
+   * data that was present in the message.
+   */
   virtual void handleMessage(const std::vector<char>& buffer);
 
+  /*! \brief Sends out a text message.
+   *
+   * This will create a single text message that is to be sent to the
+   * client. The \p text data will be added to the message. The message
+   * is sent out as a single frame. This method can only be called in a
+   * sequential manner. Meaning that after each send event, a done() will
+   * be called, and no other send can be executed before the done()
+   * signal has been emitted. If this is called before done() fired, and
+   * thus when the previous message is still being written, the function
+   * will return \p false, and a warning will be logged.
+   *
+   * Upon success, this will return \p true. This does not indicate that
+   * the message has been actually sent, but that it has been successfully
+   * queued. When the message has been written to the stream, done() will
+   * be called. When done() is fired, the queued message has been
+   * handled. This can mean that is has been successfully written, or
+   * that and error has occurred. If an error is attached to the done()
+   * signal, an error has occurred during sending, and the stream is
+   * potentially useless, depending on the type of error.
+   */
   virtual bool sendMessage(const std::string& text);
+
+  /*! \brief Sends out a binary message.
+   *
+   * This will create a single binary message that is to be sent to the
+   * client. The \p buffer data will be added to the message. The message
+   * is sent out as a single frame. This method can only be called in a
+   * sequantial manner. Meaning that after each send event, a done() will
+   * be called, and no other send can be executed before the done()
+   * signal has been emitted. If this is called before done() fired, and
+   * thus when the previous message is still being written, the function
+   * will return \p false, and a warning will be logged.
+   *
+   * Upon success, this will return \p true. This does not indicate that
+   * the message has been actually sent, but that it has been successfully
+   * queued. When the message has been written to the stream, done() will
+   * be called. When done() is fired, the queued message has been
+   * handled. This can mean that is has been successfully written, or
+   * that and error has occurred. If an error is attached to the done()
+   * signal, an error has occurred during sending, and the stream is
+   * potentially useless, depending on the type of error.
+   */
   virtual bool sendMessage(const std::vector<char>& buffer);
 
+  /*! \brief Send the close signal to the client.
+   *
+   * This will close the connection in a graceful manner. After the
+   * closing frame is sent out, the connection waits for it to be
+   * acknowledged by the client. Once this has been received, the
+   * connection will be actually terminated.
+   *
+   * When sending this message, the \p code will indicate a generic
+   * cause for termination. Generally CloseCode::Normal will be most
+   * often used. An optional \p reason can be provided to the client
+   * as an additional specification to the generic code.
+   *
+   * This method is also considered a sending event, meaning that it
+   * also blocks an additional writing events, until done() has been
+   * emitted.
+   */
   virtual bool close(CloseCode code, const std::string& reason = "");
+
+  /*! \brief Acknowledges a received close frame.
+   *
+   * A client has sent out a close frame, to which the server responds
+   * with an identical message. It sends out a frame with the same code
+   * and optionally the same \p reason.
+   *
+   * Since this is a final response, it does not fall within the normal
+   * sending/done() logic. It does still write a frame to the client, but
+   * the response here is not important. The done() signal will be fired,
+   * and used internally, eventually firing the closed() signal. Which
+   * is used to indicate that the stream will be closed down and is to be
+   * considered unusable from now on.
+   */
   virtual void acknowledgeClose(const std::string & reason = "");
 
+  /*! \brief Sends out a ping message.
+   *
+   * This sends out a ping message to the connected client. This will
+   * happen every \p x seconds where \p x is set by setPingTimeout().
+   */
   virtual bool sendPing();
+
+  /*! \brief Acknowlegdes a received ping message.
+   *
+   * The client has sent out a ping message. The server now needs to
+   * respond with a pong.
+   */
   virtual void acknowledgePing();
+
+  /*! \brief Handles an incoming pong message.
+   *
+   * A pong message has been sent by the client, meaning that earlier
+   * the server has sent out a ping message with sendPing().
+   *
+   * This ensures that the ping-pong mechanism is complete. When this
+   * method is called, this indicates a full cycle of the ping-pong
+   * logic. This will set up the timer (if it is enabled) again.
+   */
   virtual void handlePong();
 
+  /*! \brief Handles an incoming bad frame.
+   *
+   * A frame was received that was not expected. Currently this is only
+   * used for when a continuation frame is caught, but no initial frame
+   * to which the continuation should apply, was received first.
+   */
   virtual void handleError();
 
+  /*! \brief Sets the maximum received frame and message size.
+   *
+   * \sa WWebSocketResource::setMaximumReceivedSize
+   */
   void setMaximumReceivedSize(std::size_t frameSize, std::size_t messageSize);
 
+  /*! \brief Sets the application update lock needs to be taken on
+   * sending or receiving messages.
+   *
+   * \sa WWebSocketResource::setTakesUpdateLock
+   */
   void setTakesUpdateLock(bool takesUpdateLock);
+
+  /*! \brief Sets the ping-pong configuration.
+   *
+   * \sa WWebSocketResource::setPingTimeout
+   */
   void setPingTimeout(int pingInterval, int pingTimeout);
 
+  /*! \brief Signal indicating a sending event has been completed.
+   *
+   * The error code it returns either does not exists, indicating a
+   * successful write. Or it can exist, and will then have a value.
+   * The number of the value signifies which type of error has occurred.
+   * This can leave the underlying stream useless.
+   */
   Signal<AsioWrapper::error_code>& done() { return done_; }
+
+  /*! \brief Signal indicating the connection has been closed.
+   *
+   * The error code it returns either does not exists, indicating a
+   * successful close. Or it can exist, and will then have a value.
+   * The number of the value signifies which type of error has occurred.
+   * Even if an error occurs the underlying stream should never be used
+   * again, since it is very likely the client has already closed the
+   * stream from their end.
+   *
+   * The string returned can hold an optional message, which specifies
+   * why the connection was closed.
+   */
   Signal<AsioWrapper::error_code, const std::string&>& closed() { return closed_; }
 
 private:
