@@ -80,6 +80,7 @@ enum class ReadingState
   ReadingHeader = 0,
   ReadingData = 1,
   ClosingSocket = 2,
+  SkipData = 3,
 };
 
 class WT_API WebSocketConnection : public std::enable_shared_from_this<WebSocketConnection>
@@ -110,6 +111,11 @@ public:
 
   bool isOpen();
 
+  void setMaximumReceivedFrameSize(std::size_t frameSize);
+  void setMaximumReceivedMessageSize(std::size_t messageSize);
+
+  bool skipMessage() const { return skipMessage_; }
+
 protected:
   AsioWrapper::asio::io_service& ioService_;
   AsioWrapper::asio::io_service::strand strand_;
@@ -120,14 +126,19 @@ protected:
   Buffer readBuffer_;
   char *readBufferPtr_; // first free byte of readBuffer_ when async read was started
 
+  std::size_t skipDataSize_;
+  std::size_t frameSize_;
+  std::size_t messageSize_;
+
   virtual void doSocketRead(char* buffer, size_t size) = 0;
   // Performs an async write to the socket, inside the write-done loop.
   virtual void doSocketWrite(const std::vector<boost::asio::const_buffer>& buffer, OpCode type) = 0;
 
 private:
+  // Buffer & parsing
   ReadingState readingState_;
+  bool skipMessage_;
   std::unique_ptr<WebSocketFrameHeader> header_;
-
   WStringStream dataBuffer_;
 
   // Continuation skipping & size

@@ -53,8 +53,8 @@ void WebSocketHandlerResource::moveSocket(const Http::Request& request, const st
 }
 
 WWebSocketResource::WWebSocketResource()
-  : frameSize_(0),
-    messageSize_(0),
+  : frameSize_(10485760), // 1024 * 1024 * 10 => 10MB
+    messageSize_(52428800), // 1024 * 1024 * 50 => 50MB
     takesUpdateLock_(true),
     pingInterval_(180),
     pingTimeout_(360)
@@ -79,7 +79,7 @@ WWebSocketResource::~WWebSocketResource()
 WWebSocketConnection* WWebSocketResource::registerConnection(std::unique_ptr<WWebSocketConnection> connection)
 {
   // Pass set-up
-  connection->setMaximumSize(frameSize_, messageSize_);
+  connection->setMaximumReceivedSize(frameSize_, messageSize_);
   connection->setTakesUpdateLock(takesUpdateLock_);
   connection->setPingTimeout(pingInterval_, pingTimeout_);
 

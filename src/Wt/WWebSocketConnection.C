@@ -274,7 +274,9 @@ WebSocketConnection::WebSocketConnection(AsioWrapper::asio::io_service& ioServic
   : ioService_(ioService),
     strand_(ioService),
     readBufferPtr_(&(*readBuffer_.begin())),
+    skipDataSize_(0),
     readingState_(ReadingState::ReadingHeader),
+    skipMessage_(false),
     header_(new WebSocketFrameHeader()),
     isContinuation_(false),
     continuationSize_(0),
@@ -318,6 +320,25 @@ std::size_t WebSocketConnection::parseBuffer(const char* begin, const char* end)
     } else {
       current += header_->getHeaderSize();
       readingState_ = ReadingState::ReadingData;
+
+      if (header_->length() > frameSize_) {
+        LOG_ERROR("parseBuffer: A frame was received that exceeded the limit (" << header_->length() << " > " << frameSize_ << " (bytes))");
+        readingState_ = ReadingState::SkipData;
+        if (!header_->isFinished) {
+          LOG_ERROR("parseBuffer: The received frame will be followed by a continuation that should be skipped as well.");
+          skipMessage_ = true;
+        }
+      } else if (skipMessage_) {
+        readingState_ = ReadingState::SkipData;
+        LOG_ERROR("parseBuffer: A continuation frame was received that is part of a skipped message.");
+      } else if (isContinuation_ && header_->length() + continuationSize_ > messageSize_) {
+        readingState_ = ReadingState::SkipData;
+        LOG_ERROR("parseBuffer: A continuation frame was received that made the whole message exceed the limit (" << header_->length() + continuationSize_ << " > " << messageSize_ << " (bytes))");
+        if (!header_->isFinished) {
+          LOG_ERROR("parseBuffer: The received frame will be followed by a continuation that should be skipped as well.");
+          skipMessage_ = true;
+        }
+      }
     }
   }
 
@@ -325,10 +346,21 @@ std::size_t WebSocketConnection::parseBuffer(const char* begin, const char* end)
     std::size_t bytes_to_add = std::min(header_->length() - dataBuffer_.length(), (size_t)(end - current));
     dataBuffer_.append(current, bytes_to_add);
     if (dataBuffer_.length() == header_->length()) {
-      readingState_ = ReadingState::ReadingHeader;
       // received a full frame
       doEmitAndCleanBuffers();
     }
+    current += bytes_to_add;
+  }
+
+  // Case where data is skipped due to size limitation.
+  if (readingState_ == ReadingState::SkipData) {
+    std::size_t bytes_to_add = std::min(header_->length() - skipDataSize_, (size_t)(end - current));
+    skipDataSize_ += bytes_to_add;
+    if (skipDataSize_ == header_->length()) {
+      // received a full skipped frame
+      doEmitAndCleanBuffers();
+    }
+
     current += bytes_to_add;
   }
 
@@ -337,7 +369,25 @@ std::size_t WebSocketConnection::parseBuffer(const char* begin, const char* end)
 
 void WebSocketConnection::doEmitAndCleanBuffers()
 {
-  hasDataReadCallback_();
+  // Indicates that a message or frame falls within the defined limited size.
+  if (readingState_ != ReadingState::SkipData) {
+    hasDataReadCallback_();
+  } else {
+    LOG_INFO("doEmitAndCleanBuffers: not calling read callback due to frame or message size being exceeded.");
+  }
+
+  readingState_ = ReadingState::ReadingHeader;
+
+  // If the header marks a complete message, no longer skip any frames, if before
+  // they were skipped due to the message limit.
+  if (header_->isFinished) {
+    skipMessage_ = false;
+    isContinuation_ = false;
+    continuationSize_ = 0;
+  } else {
+    isContinuation_ = true;
+    continuationSize_ += header_->length();
+  }
 
   // If closing received, mark as wanting to close, to avoid further listening,
   // and cancel active async (read) operations.
@@ -346,6 +396,7 @@ void WebSocketConnection::doEmitAndCleanBuffers()
   }
 
   dataBuffer_.clear();
+  skipDataSize_ = 0;
 }
 
 void WebSocketConnection::handleAsyncRead(const AsioWrapper::error_code& e, std::size_t bytes_transferred)
@@ -510,6 +561,16 @@ bool WebSocketConnection::isOpen()
   return socket().is_open();
 }
 
+void WebSocketConnection::setMaximumReceivedFrameSize(std::size_t frameSize)
+{
+  frameSize_ = frameSize;
+}
+
+void WebSocketConnection::setMaximumReceivedMessageSize(std::size_t messageSize)
+{
+  messageSize_ = messageSize;
+}
+
 WebSocketTcpConnection::WebSocketTcpConnection(AsioWrapper::asio::io_service& ioService, std::unique_ptr<Socket> socket)
   : WebSocketConnection(ioService),
     socket_(std::move(socket))
@@ -636,6 +697,8 @@ WWebSocketConnection::~WWebSocketConnection()
 void WWebSocketConnection::setSocket(const std::shared_ptr<WebSocketConnection>& connection)
 {
   socketConnection_ = connection;
+  socketConnection_->setMaximumReceivedFrameSize(frameSize_);
+  socketConnection_->setMaximumReceivedMessageSize(messageSize_);
 
   socketConnection_->startReading();
   // Set up listeners to socket changes (written & read)
@@ -772,6 +835,11 @@ void WWebSocketConnection::receiveFrame()
     data += rawData;
   }
 
+  if (socketConnection_->skipMessage()) {
+    LOG_DEBUG("receiveFrame: Received a finished frame or message, that exceeded the received frame limit (" << header->length() << " > " << frameSize_ << " (bytes))");
+    return;
+  }
+
   // Continuation frame case
   if (!header->isFinished) {
     // Remember current unmasked data for when frame finishes.
@@ -784,6 +852,13 @@ void WWebSocketConnection::receiveFrame()
   } else if (header->isFinished && header->opCode == OpCode::Continuation) {
     header->opCode = continuationOpCode_;
     continuationBuffer_.append(data.c_str(), data.size());
+
+    if (continuationBuffer_.length() > messageSize_) {
+      LOG_ERROR("receiveFrame: A message was received that exceeded the limit (" << continuationBuffer_.length() << " > " << messageSize_ << " (bytes))");
+      continuationBuffer_.clear();
+      return;
+    }
+
     data = continuationBuffer_.str();
     LOG_DEBUG("Received a finished frame, after a continuation. Current OpCode: " << OpCodeToString(continuationOpCode_) << " and data size: " << data.size());
     continuationBuffer_.clear();
@@ -895,6 +970,11 @@ void WWebSocketConnection::setMaximumReceivedSize(std::size_t frameSize, std::si
 {
   frameSize_ = frameSize;
   messageSize_ = messageSize;
+
+  if (socketConnection_) {
+    socketConnection_->setMaximumReceivedFrameSize(frameSize_);
+    socketConnection_->setMaximumReceivedMessageSize(messageSize_);
+  }
 }
 
 void WWebSocketConnection::setTakesUpdateLock(bool takesUpdateLock)

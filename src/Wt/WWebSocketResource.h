@@ -184,8 +184,10 @@ public:
    * Likewise, when a received message consists of multiple frames, the
    * message as a whole is discarded if it exceeds the message limit.
    *
-   * By default no limits are imposed. But the absolute maximum frame
-   * size of a WebSocket is still enforces, which is 2 ^ 63 bytes.
+   * By default the maximum frame size is 10MB (1024 * 1024 * 10), and
+   * the maxmimum message size is 5 times as big (50MB). This can be
+   * increased to any arbitrary value, but the absolute maximum frame
+   * size of a WebSocket is still enforced, which is 2 ^ 63 bytes.
    */
   void setMaximumReceivedSize(size_t frame, size_t message);
 
@@ -259,13 +261,8 @@ public:
    */
   int pingTimeout() const { return pingTimeout_; }
 
-  /*! \brief Returns the application to which the resource is linked.
-   *
-   * This only makes sense if the resource is used in a private (dynamic)
-   * manner. Meaning it is attached to a specific session, instead of to
-   * a global endpoint, managed by the WServer.
-   */
-  WApplication* app() { return app_; }
+  // Wt internal
+  std::shared_ptr<WebSocketHandlerResource> handleResource() const { return resource_; }
 
 private:
   std::shared_ptr<WebSocketHandlerResource> resource_;
