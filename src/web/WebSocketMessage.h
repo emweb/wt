@@ -19,50 +19,50 @@ class WT_API WebSocketMessage final : public WebResponse
 public:
   WebSocketMessage(WebSession *session);
 
-  virtual void flush(ResponseState state = ResponseState::ResponseDone,
-                     const WriteCallback& callback = WriteCallback()) override;
+  void flush(ResponseState state = ResponseState::ResponseDone,
+      const WriteCallback& callback = WriteCallback()) override;
 
   bool supportsTransferWebSocketResourceSocket() override { return false; }
 
   void setWebSocketMessageCallback(const ReadCallback& callback);
-  virtual bool webSocketMessagePending() const override;
+  bool webSocketMessagePending() const override;
 
-  virtual std::istream& in() override;
-  virtual std::ostream& out() override;
-  virtual std::ostream& err() override;
+  std::istream& in() override;
+  std::ostream& out() override;
+  std::ostream& err() override;
 
-  virtual void setRedirect(const std::string& url) override;
-  virtual void setStatus(int status) override;
+  void setRedirect(const std::string& url) override;
+  void setStatus(int status) override;
   int status() override;
-  virtual void setContentType(const std::string& value) override;
-  virtual void setContentLength(::int64_t length) override;
+  void setContentType(const std::string& value) override;
+  void setContentLength(::int64_t length) override;
 
-  virtual void addHeader(const std::string& name, const std::string& value) override;
+  void addHeader(const std::string& name, const std::string& value) override;
   void insertHeader(const std::string& name, const std::string& value) override;
-  virtual const char *envValue(const char *name) const override;
+  const char *envValue(const char *name) const override;
 
-  virtual const std::string& serverName() const override;
-  virtual const std::string& serverPort() const override;
-  virtual const std::string& scriptName() const override;
-  virtual const char *requestMethod() const override;
-  virtual const std::string& queryString() const override;
-  virtual const std::string& pathInfo() const override;
-  virtual const std::string& remoteAddr() const override;
+  const std::string& serverName() const override;
+  const std::string& serverPort() const override;
+  const std::string& scriptName() const override;
+  const char *requestMethod() const override;
+  const std::string& queryString() const override;
+  const std::string& pathInfo() const override;
+  const std::string& remoteAddr() const override;
 
-  virtual const char *urlScheme() const override;
+  const char *urlScheme() const override;
 
-  virtual std::unique_ptr<Wt::WSslInfo> sslInfo(const Configuration & conf) const override;
+  std::unique_ptr<Wt::WSslInfo> sslInfo(const Configuration & conf) const override;
 
-  virtual const char * headerValue(const char *name) const override;
+  const char * headerValue(const char *name) const override;
 
 #ifndef WT_TARGET_JAVA
-  virtual std::vector<Wt::Http::Message::Header> headers() const override;
+  std::vector<Wt::Http::Message::Header> headers() const override;
 #endif
 
-  virtual bool isWebSocketMessage() const override { return true; }
+  bool isWebSocketMessage() const override { return true; }
 
-  virtual const char *contentType() const override;
-  virtual ::int64_t contentLength() const override;
+  const char *contentType() const override;
+  ::int64_t contentLength() const override;
 
 private:
   WebSession *session_;
