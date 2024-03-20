@@ -2480,7 +2480,6 @@ void WebSession::notify(const WEvent& event)
               WWebSocketResource* wsResource = nullptr;
               if (request.isWebSocketRequest()) {
                 wsResource = app_->findMatchingWebSocketResource(resource);
-                // FIXME: what about static websocketresources?
                 if (!wsResource) {
                   LOG_ERROR("websocket: resource '" << *resourceE
                       << "' is not a WWebSocketResource");

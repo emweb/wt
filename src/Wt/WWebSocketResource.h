@@ -35,7 +35,7 @@ class WWebSocketResource;
  * the related WWebSocketResource is retrieved and can be used to set up
  * a new WWebSocketConnection.
  */
-class WebSocketHandlerResource final : public WResource
+class WT_API WebSocketHandlerResource final : public WResource
 {
 public:
   explicit WebSocketHandlerResource(WWebSocketResource* resource);

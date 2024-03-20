@@ -19,6 +19,7 @@
 #include "Wt/WResource.h"
 #include "Wt/WServer.h"
 #include "Wt/WSocketNotifier.h"
+#include "Wt/WWebSocketResource.h"
 
 #include "Configuration.h"
 #include "CgiParser.h"
@@ -650,8 +651,49 @@ void WebController::handleRequest(WebRequest *request)
   }
 
   if (request->entryPoint_->type() == EntryPointType::StaticResource) {
-    request
-      ->entryPoint_->resource()->handle(request, (WebResponse *)request);
+    // Requests to WWebSocketResources need some spacial handling:
+    // after the handshake is done, the socket is transferred to the
+    // WWebSocketConnection for futher communication.
+    if (request->isWebSocketRequest()) {
+      // Retrieve the static resource
+      WebSocketHandlerResource* wsResource = nullptr;
+      if (request->entryPoint_->resource()) {
+        wsResource = dynamic_cast<WebSocketHandlerResource*>(request->entryPoint_->resource());
+      }
+      if(!wsResource) {
+        // No static resource found
+        LOG_ERROR("handleRequest: resource '" << request->pathInfo() << "' is not a WWebSocketResource");
+        request->setStatus(400);
+        request->setContentType("text/html");
+        request->out()
+          << "<title>Error occurred.</title>"
+          << "<html><body><h1>Not a websocket</h1></body></html>"
+          << std::endl;
+        request->flush(WebResponse::ResponseState::ResponseDone);
+        return;
+      } else if (!request->supportsTransferWebSocketResourceSocket()) {
+        // The HTTP frontend doesn't allow WWebSocketResources
+        LOG_ERROR("handleRequest: websocket resources not supported by HTTP frontend");
+        request->setStatus(500);
+        request->setContentType("text/html");
+        request->out()
+          << "<title>Error occurred.</title>"
+          << "<html><body><h1>WebSocket not supported</h1></body></html>"
+          << std::endl;
+        request->flush(WebResponse::ResponseState::ResponseDone);
+        return;
+      }
+      // Regular handling, perform the actual handshake.
+      request->entryPoint_->resource()->handle(request, (WebResponse *)request);
+
+      // If the handshake is successful, transfer the socket.
+      if (request->status() == 101) {
+        request->setTransferWebSocketResourceSocketCallBack(std::bind(&WebSocketHandlerResource::moveSocket, wsResource, std::placeholders::_1, std::placeholders::_2));
+      }
+    } else {
+      // A regular static resource
+      request->entryPoint_->resource()->handle(request, (WebResponse *)request);
+    }
     return;
   }
 

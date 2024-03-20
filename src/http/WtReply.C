@@ -4,7 +4,9 @@
  * All rights reserved.
  */
 
+#include "EntryPoint.h"
 #include "Wt/WServer.h"
+#include "Wt/WWebSocketResource.h"
 #include "Wt/WWebSocketConnection.h"
 
 #include "WtReply.h"
@@ -32,11 +34,23 @@ namespace misc_strings {
 }
 
 namespace {
+  bool hasStaticWebSocketResource(const std::shared_ptr<Wt::WebRequest>& webRequest)
+  {
+    const std::string& scriptName = webRequest->scriptName();
+    const std::string& pathInfo = webRequest->pathInfo();
+
+    Wt::WServer* server = Wt::WServer::instance();
+    Wt::EntryPointMatch match = server->configuration().matchEntryPoint(scriptName, pathInfo, true);
+    return match.entryPoint && match.entryPoint->resource()
+           && dynamic_cast<Wt::WebSocketHandlerResource*>(match.entryPoint->resource());
+  }
+
   bool isNotRenderWebSocketRequest(const std::shared_ptr<Wt::WebRequest>& webRequest, int webSocketVersion)
   {
     const std::string queryString = webRequest->queryString();
     bool isWebSocketResourceRequest = webSocketVersion == 13 && queryString.find("request=ws") == std::string::npos;
-    return isWebSocketResourceRequest;
+    bool isStaticWebSocketRequest = webSocketVersion == 13 && queryString.find("wtd=") == std::string::npos && hasStaticWebSocketResource(webRequest);
+    return isWebSocketResourceRequest || isStaticWebSocketRequest;
   }
 
   void moveTcpWebSocket(const std::shared_ptr<Wt::WebRequest>& webRequest,
