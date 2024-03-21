@@ -20,19 +20,30 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.11.0 (TBD)</h2>
+<h2>Release 4.11.0 (TBD)></h2>
 
 <p>
-  Wt 4.11.0 mainly consists of ...
+  Wt 4.11.0 is a major release.
 </p>
 
 <h3>New features</h3>
+
+<h3>Other improvements</h3>
 
 <ul>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/12320" target="_blank">Issue #12320</a>:
     allows for the "Cache-Control" header to be specified for the <a href="classWt_1_1WServer.html">WServer</a>. This is to be passed as a command-line option when running the <code>WServer</code>.
-    <li>
+  </li>
+</ul>
+
+<h3>Bug fixes</h3>
+
+<ul>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/12538" target="_blank">Issue #12538</a>:
+    correctly implement the <a href="https://datatracker.ietf.org/doc/html/rfc5322#section-3.6.3" target="_blank">RFC5322 specification</a> for mail messages. The "To:" and "Cc:" fields are now correctly placed on a single line. With multiple addresses this results in a comma-separated list of addresses.
+  </li>
 </ul>
 
 <h2>Release 4.10.4 (March 6, 2024)</h2>
