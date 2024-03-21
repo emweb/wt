@@ -105,6 +105,11 @@ namespace {
           status_ = status;
     }
 
+    int status() override
+    {
+      return status_;
+    }
+
     virtual void setContentType(const std::string& value) override
     {
       addHeader("Content-Type", value);

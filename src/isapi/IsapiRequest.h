@@ -40,6 +40,7 @@ public:
   virtual std::ostream& err() { return err_; }
 
   virtual void setStatus(int status);
+  int status() override;
 
   virtual void setContentLength(::int64_t length);
 

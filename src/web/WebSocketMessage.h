@@ -31,6 +31,7 @@ public:
 
   virtual void setRedirect(const std::string& url) override;
   virtual void setStatus(int status) override;
+  int status() override;
   virtual void setContentType(const std::string& value) override;
   virtual void setContentLength(::int64_t length) override;
 

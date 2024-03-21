@@ -69,6 +69,12 @@ void WebSocketMessage::setStatus(WT_MAYBE_UNUSED int status)
   error("setStatus() not supported");
 }
 
+int WebSocketMessage::status()
+{
+  error("status() not supported");
+  return -1;
+}
+
 void WebSocketMessage::setContentType(const std::string& value)
 {
   if (value != "text/javascript; charset=UTF-8")

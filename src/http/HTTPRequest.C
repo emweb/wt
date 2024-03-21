@@ -35,7 +35,8 @@ namespace server {
 const std::string HTTPRequest::empty_;
 
 HTTPRequest::HTTPRequest(WtReplyPtr reply, const Wt::EntryPoint *entryPoint)
-  : reply_(reply)
+  : reply_(reply),
+    status_(0)
 {
   entryPoint_ = entryPoint;
   extraStartIndex_ = reply->request().extra_start_index;
@@ -46,6 +47,7 @@ void HTTPRequest::reset(WtReplyPtr reply, const Wt::EntryPoint *entryPoint)
   WebRequest::reset();
 
   reply_ = reply;
+  status_ = 0;
   entryPoint_ = entryPoint;
   extraStartIndex_ = reply->request().extra_start_index;
 }
@@ -87,6 +89,12 @@ bool HTTPRequest::detectDisconnect(const DisconnectCallback& callback)
 void HTTPRequest::setStatus(int status)
 {
   reply_->setStatus((Reply::status_type) status);
+  status_ = status;
+}
+
+int HTTPRequest::status()
+{
+  return status_;
 }
 
 void HTTPRequest::setContentLength(::int64_t length)

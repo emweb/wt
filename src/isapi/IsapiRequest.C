@@ -433,6 +433,11 @@ void IsapiRequest::setStatus(int status)
   header_ << "Status: " << status << "\r\n";
 }
 
+int IsapiRequest::status()
+{
+  return ecb_->dwHttpStatusCode;
+}
+
 void IsapiRequest::setContentLength(std::int64_t length)
 {
   contentLength_ = length;

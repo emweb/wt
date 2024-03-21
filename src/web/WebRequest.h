@@ -120,6 +120,11 @@ public:
   virtual void setStatus(int status) = 0;
 
   /*
+   * returns current status value
+   */
+  virtual int status() = 0;
+
+  /*
    * Sets the content-type for a normal response.
    */
   virtual void setContentType(const std::string& value) = 0;

@@ -39,6 +39,11 @@ public:
   virtual void setStatus(WT_MAYBE_UNUSED int status) override
   { }
 
+  int status() override
+  {
+    return 0;
+  }
+
   virtual void setContentType(const std::string &value) override
   {
     contentType_ = value;

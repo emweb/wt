@@ -33,6 +33,7 @@ public:
   virtual std::ostream& err() override { return std::cerr; }
 
   virtual void setStatus(int status) override;
+  int status() override;
   virtual void setContentLength(::int64_t length) override;
 
   virtual void addHeader(const std::string& name, const std::string& value) override;
@@ -60,6 +61,9 @@ public:
 
 private:
   WtReplyPtr reply_;
+  // copy of what was written to reply_, because it is sometimes queried
+  // after reply_ ptr is reset
+  int status_;
   mutable std::string serverPort_;
   mutable std::vector<std::string> s_;
 
