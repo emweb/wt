@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <iterator>
 #include <stdlib.h>
 
 #include "Message.h"
@@ -196,14 +197,32 @@ void Message::write(std::ostream& out) const
     out << "\r\n";
   }
 
-  for (unsigned i = 0; i < recipients_.size(); ++i) {
-    static const char *recipients[] = {
-      "To", "Cc"
-    };
+  std::vector<Recipient> toRecipients;
+  std::vector<Recipient> ccRecipients;
 
-    const Recipient& r = recipients_[i];
-    if (r.type != RecipientType::Bcc)
-      r.mailbox.write(recipients[static_cast<unsigned int>(r.type)], out);
+  std::copy_if(recipients_.begin(), recipients_.end(), std::back_inserter(toRecipients), [](const Recipient& r) { return r.type == RecipientType::To; });
+  std::copy_if(recipients_.begin(), recipients_.end(), std::back_inserter(ccRecipients), [](const Recipient& r) { return r.type == RecipientType::Cc; });
+
+  if (!toRecipients.empty()) {
+    out << "To: ";
+    for (unsigned int i = 0; i < toRecipients.size(); ++i) {
+      toRecipients[i].mailbox.append(out);
+      if (i < toRecipients.size() - 1) {
+        out << ", ";
+      }
+    }
+    out << "\r\n";
+  }
+
+  if (!ccRecipients.empty()) {
+    out << "Cc: ";
+    for (unsigned int i = 0; i < ccRecipients.size(); ++i) {
+      ccRecipients[i].mailbox.append(out);
+      if (i < ccRecipients.size() - 1) {
+        out << ", ";
+      }
+    }
+    out << "\r\n";
   }
 
   for (unsigned i = 0; i < headers_.size(); ++i) {

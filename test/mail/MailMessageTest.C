@@ -24,7 +24,7 @@
 using namespace Wt;
 using namespace Wt::Mail;
 
-BOOST_AUTO_TEST_CASE( Message_header_RFC5322 )
+BOOST_AUTO_TEST_CASE( Message_header_RFC5322_date )
 {
   // Tests whether the mail message header is in the RFC 5322 compliant
   // format. Meaning the name of the day and month are in English.
@@ -53,6 +53,114 @@ BOOST_AUTO_TEST_CASE( Message_header_RFC5322 )
 
   auto messageString = ss.str();
   auto match = "Sun, 02 Jan 2022 10:08:09 +0000";
+
+  BOOST_REQUIRE(messageString.find(match) != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE( Message_header_RFC5322_to_address_no_display )
+{
+  Message message;
+  message.addRecipient(Wt::Mail::RecipientType::To, Wt::Mail::Mailbox("test1@emweb.be"));
+  std::stringstream ss;
+  message.write(ss);
+
+  auto messageString = ss.str();
+  auto match = "To: <test1@emweb.be>\r\n";
+
+  BOOST_REQUIRE(messageString.find(match) != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE( Message_header_RFC5322_to_address_with_display )
+{
+  Message message;
+  message.addRecipient(Wt::Mail::RecipientType::To, Wt::Mail::Mailbox("test1@emweb.be", "Test1"));
+  std::stringstream ss;
+  message.write(ss);
+
+  auto messageString = ss.str();
+  auto match = "To: Test1 <test1@emweb.be>\r\n";
+
+  BOOST_REQUIRE(messageString.find(match) != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE( Message_header_RFC5322_to_addresses_no_display )
+{
+  Message message;
+  message.addRecipient(Wt::Mail::RecipientType::To, Wt::Mail::Mailbox("test1@emweb.be"));
+  message.addRecipient(Wt::Mail::RecipientType::To, Wt::Mail::Mailbox("test2@emweb.be"));
+  std::stringstream ss;
+  message.write(ss);
+
+  auto messageString = ss.str();
+  auto match = "To: <test1@emweb.be>, <test2@emweb.be>\r\n";
+
+  BOOST_REQUIRE(messageString.find(match) != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE( Message_header_RFC5322_to_addresses_with_display )
+{
+  Message message;
+  message.addRecipient(Wt::Mail::RecipientType::To, Wt::Mail::Mailbox("test1@emweb.be", "Test1"));
+  message.addRecipient(Wt::Mail::RecipientType::To, Wt::Mail::Mailbox("test2@emweb.be"));
+  std::stringstream ss;
+  message.write(ss);
+
+  auto messageString = ss.str();
+  auto match = "To: Test1 <test1@emweb.be>, <test2@emweb.be>\r\n";
+
+  BOOST_REQUIRE(messageString.find(match) != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE( Message_header_RFC5322_cc_address_no_display )
+{
+  Message message;
+  message.addRecipient(Wt::Mail::RecipientType::Cc, Wt::Mail::Mailbox("test1@emweb.be"));
+  std::stringstream ss;
+  message.write(ss);
+
+  auto messageString = ss.str();
+  auto match = "Cc: <test1@emweb.be>\r\n";
+
+  BOOST_REQUIRE(messageString.find(match) != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE( Message_header_RFC5322_cc_address_with_display )
+{
+  Message message;
+  message.addRecipient(Wt::Mail::RecipientType::Cc, Wt::Mail::Mailbox("test1@emweb.be", "Test1"));
+  std::stringstream ss;
+  message.write(ss);
+
+  auto messageString = ss.str();
+  auto match = "Cc: Test1 <test1@emweb.be>\r\n";
+
+  BOOST_REQUIRE(messageString.find(match) != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE( Message_header_RFC5322_cc_addresses_no_display )
+{
+  Message message;
+  message.addRecipient(Wt::Mail::RecipientType::Cc, Wt::Mail::Mailbox("test1@emweb.be"));
+  message.addRecipient(Wt::Mail::RecipientType::Cc, Wt::Mail::Mailbox("test2@emweb.be"));
+  std::stringstream ss;
+  message.write(ss);
+
+  auto messageString = ss.str();
+  auto match = "Cc: <test1@emweb.be>, <test2@emweb.be>\r\n";
+
+  BOOST_REQUIRE(messageString.find(match) != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE( Message_header_RFC5322_cc_addresses_with_display )
+{
+  Message message;
+  message.addRecipient(Wt::Mail::RecipientType::Cc, Wt::Mail::Mailbox("test1@emweb.be", "Test1"));
+  message.addRecipient(Wt::Mail::RecipientType::Cc, Wt::Mail::Mailbox("test2@emweb.be"));
+  std::stringstream ss;
+  message.write(ss);
+
+  auto messageString = ss.str();
+  auto match = "Cc: Test1 <test1@emweb.be>, <test2@emweb.be>\r\n";
 
   BOOST_REQUIRE(messageString.find(match) != std::string::npos);
 }
