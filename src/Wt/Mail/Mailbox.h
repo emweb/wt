@@ -42,7 +42,31 @@ public:
    */
   bool empty() const { return address_.empty(); }
 
+  /*! \brief Write the mailbox to the stream, with the \p header and
+   *  adding a new line (CLRF).
+   *
+   * This will generate a line on the stream that is formatted like:
+   *
+   * \code
+   * {header}: {displayName} <{address}> CLRF
+   * \endcode
+   *
+   * This \p displayName is optional, and can be left empty.
+   */
   void write(const std::string& header, std::ostream& out) const;
+
+  /*! \brief Adds the mailbox to the stream, without adding a new line
+   *  (CLRF).
+   *
+   * This will append to a line on the stream, and is formatted like:
+   *
+   * \code
+   * {displayName} <{address}>
+   * \endcode
+   *
+   * This \p displayName is optional, and can be left empty.
+   */
+  void append(std::ostream& out) const;
 
   /*! \brief Returns the email address.
    *
