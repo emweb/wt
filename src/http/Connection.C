@@ -198,8 +198,10 @@ void Connection::handleReadRequest0()
                         (server_->controller()->configuration().sessionPolicy() != Wt::Configuration::DedicatedProcess ||
                          server_->configuration().parentPort() != -1);
 
-    if (doWebSockets)
-      request_.enableWebSocket();
+    request_.enableWebSocket();
+    if ((request_.type == Request::WebSocket || request_.webSocketVersion >= 0) && !doWebSockets)
+      // A websocket request was sent, but websockets are disabled by config
+      status = Reply::bad_request;
 
     LOG_DEBUG(native() << "request: " << status);
 
