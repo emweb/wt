@@ -132,6 +132,22 @@ bool WebRequest::webSocketMessagePending() const
   throw WException("should not get here");
 }
 
+void WebRequest::setTransferWebSocketResourceSocketCallBack(WebSocketResourceTransferCallback cb)
+{
+  wsResourceTransferCb_ = cb;
+}
+
+bool WebRequest::hasTransferWebSocketResourceSocketCallBack()
+{
+  return wsResourceTransferCb_ != nullptr;
+}
+
+void WebRequest::transferWebSocketResourceSocket(const std::shared_ptr<WebSocketConnection> &socket)
+{
+  Wt::Http::Request request(*this, nullptr);
+  wsResourceTransferCb_(request, socket);
+}
+
 bool WebRequest::detectDisconnect(WT_MAYBE_UNUSED const DisconnectCallback& callback)
 {
   return false; /* Not implemented */

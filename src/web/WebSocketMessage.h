@@ -22,6 +22,8 @@ public:
   virtual void flush(ResponseState state = ResponseState::ResponseDone,
                      const WriteCallback& callback = WriteCallback()) override;
 
+  bool supportsTransferWebSocketResourceSocket() override { return false; }
+
   void setWebSocketMessageCallback(const ReadCallback& callback);
   virtual bool webSocketMessagePending() const override;
 

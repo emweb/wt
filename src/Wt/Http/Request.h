@@ -476,6 +476,7 @@ private:
 
   friend class Wt::WResource;
   friend class Wt::WebSession;
+  friend class Wt::WebRequest;
   friend class Wt::Http::ResponseContinuation;
 };
 

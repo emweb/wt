@@ -26,6 +26,7 @@ public:
   virtual void flush(ResponseState state, const WriteCallback& callback) override;
   virtual void readWebSocketMessage(const ReadCallback& callback) override;
   virtual bool webSocketMessagePending() const override;
+  bool supportsTransferWebSocketResourceSocket() override { return true; }
   virtual bool detectDisconnect(const DisconnectCallback& callback) override;
 
   virtual std::istream& in() override { return reply_->in(); }

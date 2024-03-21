@@ -75,6 +75,11 @@ namespace {
       delete request_;
     }
 
+    bool supportsTransferWebSocketResourceSocket() override
+    {
+      return false;
+    }
+
     virtual void flush(ResponseState state, const WriteCallback& callback) override
     {
       out().flush();

@@ -15,6 +15,11 @@
 
 class MockRequest : public Wt::WebRequest {
 public:
+  bool supportsTransferWebSocketResourceSocket() override
+  {
+    return false;
+  }
+
   virtual void flush(WT_MAYBE_UNUSED ResponseState state, WT_MAYBE_UNUSED const WriteCallback& callback) override
   { }
 

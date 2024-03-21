@@ -29,6 +29,8 @@ public:
 
   virtual bool isSynchronous() const;
 
+  bool supportsTransferWebSocketResourceSocket() override { return false; }
+
   virtual void flush(ResponseState state = ResponseState::ResponseDone,
                      const WriteCallback& callback = WriteCallback());
 

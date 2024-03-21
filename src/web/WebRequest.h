@@ -23,6 +23,7 @@ namespace Wt {
 
 class Configuration;
 class EntryPoint;
+class WebSocketConnection;
 class WSslInfo;
 
 /*
@@ -50,6 +51,7 @@ public:
   typedef std::function<void(WebWriteEvent)> WriteCallback;
   typedef std::function<void(WebReadEvent)> ReadCallback;
   typedef std::function<void(void)> DisconnectCallback;
+  typedef std::function<void(const Http::Request &request, std::shared_ptr<WebSocketConnection>)> WebSocketResourceTransferCallback;
 
   /*
    * Signal that the response should be flushed.
@@ -80,6 +82,17 @@ public:
    * for more incoming events.
    */
   virtual bool webSocketMessagePending() const;
+
+  /*
+   * When a connection to a WWebSocketResource is set up, the socket is
+   * transferred from the http server to the resource using this callback.
+   *
+   * Possibly not supported by all front-ends.
+   */
+  virtual bool supportsTransferWebSocketResourceSocket() = 0;
+  void setTransferWebSocketResourceSocketCallBack(WebSocketResourceTransferCallback cb);
+  bool hasTransferWebSocketResourceSocketCallBack();
+  void transferWebSocketResourceSocket(const std::shared_ptr<WebSocketConnection> &socket);
 
   /*
    * Indicate that we're deferring to write a response, but in the mean-time
@@ -304,6 +317,7 @@ private:
   Http::UploadedFileMap files_;
   ResponseType responseType_;
   bool webSocketRequest_;
+  WebSocketResourceTransferCallback wsResourceTransferCb_;
   std::chrono::high_resolution_clock::time_point start_;
   std::vector<std::pair<std::string, std::string> > urlParams_;
 
