@@ -273,7 +273,7 @@ std::string WebSocketFrameHeader::toString() const
 WebSocketConnection::WebSocketConnection(AsioWrapper::asio::io_service& ioService)
   : ioService_(ioService),
     strand_(ioService),
-    readBufferPtr_(&(*readBuffer_.begin())),
+    readBufferPtr_(readBuffer_.begin()),
     skipDataSize_(0),
     readingState_(ReadingState::ReadingHeader),
     skipMessage_(false),
@@ -292,7 +292,7 @@ WebSocketConnection::~WebSocketConnection()
 
 void WebSocketConnection::startReading()
 {
-  doAsyncRead(readBufferPtr_, &(*readBuffer_.end()) - readBufferPtr_);
+  doAsyncRead(&(*readBufferPtr_), readBuffer_.end() - readBufferPtr_);
 }
 
 void WebSocketConnection::doAsyncRead(char* buffer, size_t size)
@@ -421,7 +421,7 @@ void WebSocketConnection::handleAsyncRead(const AsioWrapper::error_code& e, std:
   // parse, starting at the beginning of the read buffer
   const char *current = &(*readBuffer_.begin());
   // when calculating end, start after bytes that were still in buffer
-  const char *end = readBufferPtr_ + bytes_transferred;
+  const char *end = &(*readBufferPtr_) + bytes_transferred;
 
   // parse the input buffer until we don't make progress anymore
   std::size_t parsedBytes = parseBuffer(current, end);
@@ -433,9 +433,9 @@ void WebSocketConnection::handleAsyncRead(const AsioWrapper::error_code& e, std:
   // unless a partial header was received
   std::size_t restSize = end - current;
   std::memmove(&(*readBuffer_.begin()), current, restSize);
-  readBufferPtr_ = &(*readBuffer_.begin()) + restSize;
+  readBufferPtr_ = readBuffer_.begin() + restSize;
 
-  doAsyncRead(readBufferPtr_, &(*readBuffer_.end()) - readBufferPtr_);
+  doAsyncRead(&(*readBufferPtr_), readBuffer_.end() - readBufferPtr_);
 }
 
 bool WebSocketConnection::doAsyncWrite(OpCode type, const std::vector<char>& frameHeader, const std::vector<char>& data)

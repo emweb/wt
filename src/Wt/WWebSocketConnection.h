@@ -124,7 +124,7 @@ protected:
   void handleAsyncWritten(OpCode type, const AsioWrapper::error_code& e, std::size_t bytes_transferred);
 
   Buffer readBuffer_;
-  char *readBufferPtr_; // first free byte of readBuffer_ when async read was started
+  Buffer::iterator readBufferPtr_; // first free byte of readBuffer_ when async read was started
 
   std::size_t skipDataSize_;
   std::size_t frameSize_;
