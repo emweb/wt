@@ -13,6 +13,9 @@
 namespace Wt {
 
 class WMemoryResource;
+namespace Json {
+  class Object;
+}
 
 /*! \class WFileDropWidget Wt/WFileDropWidget.h Wt/WFileDropWidget.h
  *  \brief A widget that allows dropping files for upload.
@@ -43,6 +46,17 @@ public:
      */
     const std::string& clientFileName() const { return clientFileName_; }
 
+    /*! \brief Returns the path of the file.
+     *
+     * This is only relevant if the user dropped a folder. The path will be
+     * relative to the folder that was dropped.
+     */
+    const std::string& path() const { return path_; }
+
+    /*! \brief Returns whether this is a directory.
+     */
+    virtual bool directory() const { return false; }
+
     /*! \brief Returns the mime-type of the file.
      */
     const std::string& mimeType() const { return type_; }
@@ -66,7 +80,7 @@ public:
      *
      * \sa uploadedFile()
      */
-    bool uploadFinished() const { return uploadFinished_; }
+    bool uploadFinished() const;
 
     /*! \brief This signal allows you to track the upload progress of the file.
      *
@@ -88,7 +102,8 @@ public:
     bool isFiltered() const { return isFiltered_; }
 
     // Wt internal
-    File(int id, const std::string& fileName, const std::string& type, ::uint64_t size, ::uint64_t chunkSize);
+    File(int id, const std::string& fileName, const std::string& path, const std::string& type,
+         ::uint64_t size, ::uint64_t chunkSize);
     int uploadId() const { return id_; }
     void handleIncomingData(const Http::UploadedFile& file, bool last);
     void cancel();
@@ -100,6 +115,7 @@ public:
   private:
     int id_;
     std::string clientFileName_;
+    std::string path_;
     std::string type_;
     ::uint64_t size_;
     Http::UploadedFile uploadedFile_;
@@ -115,6 +131,31 @@ public:
     ::uint64_t chunkSize_;
   };
 
+  /*! \class Directory
+   *  \brief A nested class of WFileDropWidget representing a Directory.
+   *
+   * In true linux tradition, a Directory is a File. However, in this case it
+   * was more a matter of compatibility. This class was added later on and by
+   * having it inherit from File, the existing WFileDropWidget::drop() signal
+   * can return both Files and Directories.
+   */
+  class WT_API Directory : public File {
+  public:
+    /*! \brief Returns the contents of the directory.
+     */
+    const std::vector<File*>& contents() const { return contents_; }
+
+    /*! \brief Returns whether this is a directory.
+     */
+    bool directory() const override { return true; }
+
+    // Wt internal
+    Directory(const std::string& fileName, const std::string& path);
+    void addFile(File *file);
+
+  private:
+    std::vector<File*> contents_;
+  };
 
   /*! \brief Constructor
    */
@@ -160,9 +201,21 @@ public:
    *
    * This can be used to free resources of files that were already uploaded. A
    * file can only be removed if its index in uploads() is before the current
-   * index.
+   * index. A directory can be removed as soon as the drop() signal is emitted.
+   *
+   * \sa removeDirectories()
    */
   bool remove(File *file);
+
+  /*! \brief Removes all directories.
+   *
+   * This can be used to free resources. The drop() signal returns raw pointers
+   * for objects that are managed by this widget. The Directory objects are no
+   * longer needed after the drop() signal.
+   *
+   * \sa remove(File*)
+   */
+  void removeDirectories();
 
   /*! \brief When set to false, the widget no longer accepts any files.
    */
@@ -222,6 +275,35 @@ public:
   /*! \brief Supply a function to process file data before it is uploaded to the server.
    */
   void setJavaScriptFilter(const std::string& filterFn, ::uint64_t chunksize = 0, const std::vector<std::string>& imports = std::vector<std::string>());
+
+  /*! \brief Allow users to drop directories.
+   *
+   * Dropping a directory will emit the drop() signal with a Directory object (which
+   * inherits File). A directory can also be recognized by the File::directory()
+   * method. After downcasting the object, the method Directory::contents() can be
+   * used to iterate over the contents.
+   *
+   * Subdirectories are also included in the contents. The contents of subdirectories
+   * itself is only included if recursive is true.
+   *
+   * Only File objects for which File::directory() is false are uploaded to the
+   * server. The contents of a directory is 'flattened' into the uploads() vector.
+   * The directory structure is still available through the File::path() method
+   * that describes the file's path relative to the dropped directory.
+   */
+  void setAcceptDirectories(bool enable, bool recursive = false);
+
+  /*! \brief Returns if directories are accepted.
+   *
+   * Dropping a directory will upload all of its contents. This can be done either
+   * non-recursively (default) or recursively. The directory structure is available
+   * during the initial drop() signal or through the File::path() method.
+   */
+  bool acceptDirectories() const { return acceptDirectories_; }
+
+  /*! \brief Returns if directory contents is uploaded recursively or not.
+   */
+  bool acceptDirectoriesRecursive() const { return acceptDirectoriesRecursive_; }
 
   /*! \brief The signal triggers if one or more files are dropped.
    */
@@ -311,6 +393,7 @@ private:
   void onDataExceeded(::uint64_t dataExceeded);
   void createWorkerResource();
   void disableJavaScriptFilter();
+  File* addDropObject(const Wt::Json::Object& object);
 
   // Functions for handling incoming requests
   bool incomingIdCheck(int id);
@@ -331,6 +414,9 @@ private:
   bool dropIndicationEnabled_;
   bool globalDropEnabled_;
 
+  bool acceptDirectories_;
+  bool acceptDirectoriesRecursive_;
+
   JSignal<std::string> dropSignal_;
   JSignal<int> requestSend_;
   JSignal< ::uint64_t > fileTooLarge_;
@@ -345,6 +431,7 @@ private:
   Signal<File*> uploadFailed_;
 
   std::vector<std::unique_ptr<File> > uploads_;
+  std::vector<std::unique_ptr<File> > directories_;
 
   static const int BIT_HOVERSTYLE_CHANGED  = 0;
   static const int BIT_ACCEPTDROPS_CHANGED = 1;
