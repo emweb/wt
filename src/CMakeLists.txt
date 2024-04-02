@@ -275,6 +275,7 @@ Wt/WWidget.h Wt/WWidget.C
 Wt/WWidgetItem.h Wt/WWidgetItem.C
 Wt/WWidgetItemImpl.h Wt/WWidgetItemImpl.C
 thirdparty/qrcodegen/QrCode.hpp thirdparty/qrcodegen/QrCode.cpp
+Wt/Auth/Mfa/AbstractMfaProcess.h Wt/Auth/Mfa/AbstractMfaProcess.C
 Wt/Auth/Mfa/Totp.h Wt/Auth/Mfa/Totp.C
 Wt/Auth/Mfa/TotpQrCode.h Wt/Auth/Mfa/TotpQrCode.C
 Wt/Auth/AbstractPasswordService.h Wt/Auth/AbstractPasswordService.C
