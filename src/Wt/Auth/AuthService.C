@@ -3,15 +3,16 @@
  *
  * See the LICENSE file for terms of use.
  */
-
 #include "Wt/Auth/AbstractUserDatabase.h"
 #include "Wt/Auth/AuthService.h"
 #include "Wt/Auth/HashFunction.h"
 #include "Wt/Auth/Identity.h"
 #include "Wt/Auth/User.h"
 #include "Wt/Auth/MailUtils.h"
+
 #include "Wt/Mail/Client.h"
 #include "Wt/Mail/Message.h"
+
 #include "Wt/WApplication.h"
 #include "Wt/WRandom.h"
 
@@ -134,7 +135,9 @@ AuthService::AuthService()
     emailTokenValidity_(3 * 24 * 60),  // three days
     authTokens_(false),
     authTokenUpdateEnabled_(true),
-    authTokenValidity_(14 * 24 * 60)   // two weeks
+    authTokenValidity_(14 * 24 * 60),  // two weeks
+    mfaRequired_(false),
+    mfaCodeLength_(6)
 {
   redirectInternalPath_ = "/auth/mail/";
 }
@@ -462,5 +465,19 @@ void AuthService::sendMail(const Mail::Message& message) const
   MailUtils::sendMail(m);
 }
 
+void AuthService::setMfaProvider(const std::string& provider)
+{
+  mfaProvider_ = provider;
+}
+
+void AuthService::setMfaRequired(bool require)
+{
+  mfaRequired_ = require;
+}
+
+void AuthService::setMfaCodeLength(int length)
+{
+  mfaCodeLength_ = length;
+}
   }
 }

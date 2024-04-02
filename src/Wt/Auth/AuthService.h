@@ -570,6 +570,118 @@ public:
   virtual void sendMail(const Mail::Message& message) const;
   //!@}
 
+  /** @name Multi-factor authentication.
+   */
+  //!@{
+  /*! \brief Sets whether multiple factors are enabled when logging in.
+   *
+   * If this is set to any value that isn't \p empty, a second factor
+   * (currently only TOTP as a default implementation) will be enabled.
+   * Instead of logging the User in with the LoginState::Strong (when
+   * authenticating with a password), the state will be set to
+   * LoginState::RequiresMfa.
+   *
+   * This indicates that the user is still required to provide an
+   * additional login step. This applied to the regular login only. Login
+   * via OAuth does not make use of MFA. The authenticator should be
+   * sufficiently secure in itself, and should be trusted.
+   *
+   * By default %Wt offers TOTP (Time-based One-time password) as a
+   * second factor. This is a code that any authenticator app/extension
+   * can generate.
+   *
+   * By default this feature is disabled.
+   *
+   * \note If a value for a \p provider is set here, MFA will be enabled.
+   * This will use TOTP by default. Any custom implementation (using
+   * Mfa::AbstractMfaProcess) will require more changes.
+   * \sa AuthWidget::createMfaProcess(), AuthWidget::createMfaView(), and
+   * AuthModel::hasMfaStep().
+   *
+   * \sa setMfaRequired(), setMfaCodeLength(), setMfaTokenValidity()
+   */
+  void setMfaProvider(const std::string& provider);
+
+  /*! \brief Returns the provider that manages the MFA step.
+   *
+   * \sa setMfaProvider()
+   */
+   const std::string& mfaProvider() const { return mfaProvider_; }
+
+  /*! \brief Returns whether a second factor is enabled when logging in.
+   *
+   * This marks that users can enable the MFA feature. This can be any
+   * implemenation of the Mfa::AbstractMfaProcess interface. %Wt supplies
+   * a single default implementation, namely Mfa::TotpProcess.
+   *
+   * For the default %Wt implementation, this means that developers can
+   * generate a TOTP secret key (Mfa::generateSecretKey()) which can be
+   * used for MFA, by means of the Mfa::TotpProcess.
+   *
+   * \sa mfaRequired(), mfaCodeLength()
+   */
+  bool mfaEnabled() const { return !mfaProvider_.empty(); }
+
+  /*! \brief Sets whether multiple factors are required when logging in.
+   *
+   * If this is set to \p true, a second factor (defaulting to TOTP) will
+   * be required on login. Instead of logging the User in with the
+   * LoginState::Strong (when authenticating with a password), the state
+   * will be set to LoginState::RequiresMfa.
+   *
+   * This will only take effect is mfaEnabled() is \p true as well (and
+   * thus if an MFA provider has been configured (setMfaProvider()). If
+   * this is the case, all users will be enforced to verify their login
+   * with an extra step, for more security.
+   *
+   * By %Wt's default implementation this will boil down to providing a
+   * TOTP code. Either this will be the first time they do this. In which
+   * case they will be given the secret key both in QR code format (using
+   * Mfa::AbstractMfaWidgget::createSetupView()), and as a string. When
+   * they enter a correct generated code, the secret will be attached to
+   * the User record as an Identity, and will be used for subsequent
+   * login attempts (using Mfa::AbstractMfaProcess::createInputView()).
+   *
+   * \sa setMfaProvider(), setMfaCodeLength(), setMfaTokenValidity()
+   */
+  void setMfaRequired(bool required);
+
+  /*! \brief Returns whether multiple factors are required when logging in.
+   *
+   * This marks that the MFA feature is enforced for all users.
+   *
+   * For %Wt's default implementation this means that upon logging in they
+   * will have to provide a TOTP code for verification.
+   *
+   * \sa setMfaRequired()
+   */
+  bool mfaRequired() const { return mfaRequired_; }
+
+  /*! \brief Sets the length of the code that is expected for MFA.
+   *
+   * This function does not make sense for all implementations of MFA.
+   *
+   * Currently %Wt ships with a TOTP implementation, in which case the
+   * code can be any length in the range [6-16]. Of course longer is
+   * "better" generally speaking.
+   *
+   * By default the length is \p 6.
+   *
+   * \note Due to the TOTP algorithm a longer code may not always make
+   * too much sense, as the code can start with a lot of leading zeroes.
+   * Generally a length of \p 6 is most often seen.
+   *
+   * \sa setMfaProvider(), setMfaRequired()
+   */
+  void setMfaCodeLength(int length);
+
+  /*! \brief Returns the length of the expected MFA codes.
+   *
+   * \sa setMfaCodeLength()
+   */
+  int mfaCodeLength() const { return mfaCodeLength_; }
+  //!@}
+
 protected:
   /*! \brief Sends a confirmation email to the user to verify his email address.
    *
@@ -624,6 +736,10 @@ private:
   int authTokenValidity_;  // minutes
   std::string authTokenCookieName_;
   std::string authTokenCookieDomain_;
+
+  std::string mfaProvider_;
+  bool mfaRequired_;
+  int mfaCodeLength_;
 };
 
   }
