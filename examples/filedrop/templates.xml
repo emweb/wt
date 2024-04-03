@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages>
+  <message id="FileDropApplication.template">
+    <h1>Try dropping a file in the widget below</h1>
+
+    ${dropwidget}
+
+    <div style="height: 20px;">
+      ${<if:progress>}
+      ${progress-msg} ${abort-btn}
+      ${</if:progress>}
+    </div>
+
+    <h4>Event Log:</h4>
+    ${log class='log'}
+  </message>
+</messages>

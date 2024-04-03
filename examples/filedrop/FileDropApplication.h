@@ -13,6 +13,7 @@
 
 namespace Wt {
   class WContainerWidget;
+  class WTemplate;
 }
 
 class FileDropApplication : public Wt::WApplication
@@ -21,11 +22,14 @@ public:
   FileDropApplication(const Wt::WEnvironment& env);
 
 private:
-  Wt::WText *log_;
+  Wt::WTemplate *tpl_;
+
+  Wt::WText *progress_;
+  Wt::WContainerWidget *log_;
   Wt::WFileDropWidget *drop_;
-  int nbUploads_;
 
   std::map<Wt::WFileDropWidget::File*, Wt::WContainerWidget*> icons_;
+  std::map<Wt::WFileDropWidget::File*, Wt::WFileDropWidget::Directory*> dirFiles_;
 
   void handleDrop(std::vector<Wt::WFileDropWidget::File *> files);
   void tooLarge(Wt::WFileDropWidget::File *file, ::uint64_t);
@@ -35,6 +39,8 @@ private:
   void updateProgressListener();
 
   void showProgress(::uint64_t current, ::uint64_t total);
+  Wt::WContainerWidget* getIcon(Wt::WFileDropWidget::File *file);
+  void addLogLine(const std::string& msg);
 };
 
 
