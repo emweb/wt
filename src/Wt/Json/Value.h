@@ -750,9 +750,11 @@ public:
   static const Value False;
 
 #ifdef WT_TARGET_JAVA
-  std::string getAsString();
-  long getAsLong();
-  int getAsInt();
+  std::string getAsString() const;
+  long getAsLong() const;
+  int getAsInt() const;
+  Object getAsJsonObject() const;
+  Array getAsJsonArray() const;
 #endif
 
 private:

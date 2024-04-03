@@ -29,7 +29,13 @@ namespace {
         retVal.push_back(entry);
       } else {
         auto subdirEntries = flattenUploadsVector(dynamic_cast<Wt::WFileDropWidget::Directory*>(entry));
+#ifndef WT_TARGET_JAVA
         retVal.insert(retVal.end(), subdirEntries.begin(), subdirEntries.end());
+#else
+        for (auto subdirEntry : subdirEntries) {
+          retVal.push_back(subdirEntry);
+        }
+#endif
       }
     }
     return retVal;
@@ -295,7 +301,8 @@ void WFileDropWidget::handleDrop(const std::string& newDrops)
 
   Json::Array dropped = (Json::Array)dropdata;
   for (std::size_t i = 0; i < dropped.size(); ++i) {
-    File* dropObject = addDropObject((Json::Object)dropped[i]);
+    Json::Object jsonObj = (Json::Object)dropped[i];
+    File* dropObject = addDropObject(jsonObj);
     drops.push_back(dropObject);
   }
 
@@ -306,7 +313,13 @@ void WFileDropWidget::handleDrop(const std::string& newDrops)
       newUploads.push_back(drop);
     } else {
       std::vector<File*> dirUploads = flattenUploadsVector(dynamic_cast<Directory*>(drop));
+#ifndef WT_TARGET_JAVA
       newUploads.insert(newUploads.end(), dirUploads.begin(), dirUploads.end());
+#else
+      for (auto dirEntry : dirUploads) {
+        newUploads.push_back(dirEntry);
+      }
+#endif
     }
   }
 
@@ -360,7 +373,9 @@ WFileDropWidget::File* WFileDropWidget::addDropObject(const Json::Object& object
       size = it->second.getAsLong();
     else if (it->first == "contents") {
       isDirectory = true;
-      contents = (Json::Array)it->second;
+      for (Json::Value& contentsItem : it->second.getAsJsonArray()) {
+        contents.push_back(contentsItem);
+      }
     }
 #endif
     else
@@ -370,7 +385,12 @@ WFileDropWidget::File* WFileDropWidget::addDropObject(const Json::Object& object
   WFileDropWidget::File* retVal;
   if (isDirectory) {
     auto dir = std::make_unique<Directory>(name, path);
-    for (const Json::Object& dirItem : contents) {
+#ifndef WT_TARGET_JAVA
+    for (Json::Object& dirItem : contents) {
+#else
+    for (Json::Value& dirItemValue : contents) {
+      Json::Object dirItem = dirItemValue.getAsJsonObject();
+#endif
       dir->addFile(addDropObject(dirItem));
     }
     retVal = dir.get();
