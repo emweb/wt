@@ -162,8 +162,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
 
   this.addDataTransferItems = async function(itemsList) {
     const newKeys = [];
-    for (const item of itemsList) {
-      const entry = item.webkitGetAsEntry();
+    const wkItems = itemsList.map((item) => item.webkitGetAsEntry());
+    for (const entry of wkItems) {
       const dropItem = createDropItemObject(entry);
       if (entry.isFile) {
         const file = await getEntryFile(entry);
