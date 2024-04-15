@@ -25,6 +25,7 @@ Identity::Identity(const std::string& provider,
 const Identity Identity::Invalid;
 
 const std::string Identity::LoginName = "loginname";
+const std::string Identity::MultiFactor = "multifactor";
 
   }
 }
