@@ -7,15 +7,20 @@
 #ifndef WT_AUTH_AUTH_WIDGET_H_
 #define WT_AUTH_AUTH_WIDGET_H_
 
-#include <Wt/WTemplateFormView.h>
 #include <Wt/Auth/AuthModel.h>
 #include <Wt/Auth/OAuthService.h>
 #include <Wt/Auth/RegistrationModel.h>
+
 #include <Wt/WDialog.h>
 #include <Wt/WMessageBox.h>
+#include <Wt/WTemplateFormView.h>
 
 namespace Wt {
   namespace Auth {
+
+    namespace Mfa {
+      class AbstractMfaProcess;
+    }
 
 class AbstractUserDatabase;
 class AuthModel;
@@ -295,6 +300,32 @@ public:
    */
   virtual std::unique_ptr<WDialog> createPasswordPromptDialog(Login& login);
 
+  /*! \brief Create the MFA process.
+   *
+   * When MFA is enabled (AuthService::setMfaProvider() is set), this will
+   * be called to create a specific MFA process. This can be used by
+   * developers to provide their own implementation, and ensure that the
+   * right widgets are shown to the user.
+   *
+   * By default this will generate a Mfa::TotpProcess.
+   */
+  virtual std::unique_ptr<Mfa::AbstractMfaProcess> createMfaProcess();
+
+  /*! \brief Shows the MFA process in the UI.
+   *
+   * This functionality manages how the MFA step is shown to the user.
+   * Developers can override this to show the step in any way they see
+   * fit. This can be shown as part of the main view, as a pop-up, ...
+   *
+   * It will also need to decide whether the setup view
+   * (Mfa::AbstractMfaProcess::createSetupView()) or input view
+   * (Mfa::AbstractMfaProcess::createInputView()) is shown to the user.
+   *
+   * By default this will show the process in the main view, replacing the
+   * normal login widget with the right view on the MFA process.
+   */
+  virtual void createMfaView();
+
   void attemptPasswordLogin();
 
   /*! \brief Displays the error message.
@@ -318,6 +349,10 @@ protected:
    * The default implementation calls createLoginView() or
    * createLoggedInView() depending on whether a user is currently
    * logged in.
+   *
+   * If MFA is enabled (AuthService::mfaEnabled()), this may call
+   * createMfaView(). This will be called if the user that is logging in
+   * has this step enabled (AuthModel::hasMfaStep()).
    */
   virtual void create();
 
@@ -420,6 +455,7 @@ private:
   bool created_;
   std::unique_ptr<WDialog> dialog_;
   std::unique_ptr<WMessageBox> messageBox_;
+  std::unique_ptr<Mfa::AbstractMfaProcess> mfaWidget_;
 
   void init();
   void logout();

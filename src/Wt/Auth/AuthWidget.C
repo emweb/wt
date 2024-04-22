@@ -271,6 +271,29 @@ std::unique_ptr<WDialog> AuthWidget::createPasswordPromptDialog(Login& login)
   return std::make_unique<PasswordPromptDialog>(login, model_);
 }
 
+std::unique_ptr<Mfa::AbstractMfaProcess> AuthWidget::createMfaProcess()
+{
+  return std::make_unique<Mfa::TotpProcess>(*model()->baseAuth(), model()->users(), login());
+}
+
+void AuthWidget::createMfaView()
+{
+  setTemplateText("<div>${mfa}</div>");
+  mfaWidget_ = createMfaProcess();
+  Mfa::AbstractMfaProcess* defaultMfaWidget = static_cast<Mfa::AbstractMfaProcess*>(mfaWidget_.get());
+
+  if (defaultMfaWidget) {
+    const User& user = login_.user();
+    const WString& mfaSecretKey = user.identity(defaultMfaWidget->provider());
+    if (mfaSecretKey.empty()) {
+      bindWidget("mfa", defaultMfaWidget->createSetupView());
+    } else {
+      defaultMfaWidget->processEnvironment();
+      bindWidget("mfa", defaultMfaWidget->createInputView());
+    }
+  }
+}
+
 void AuthWidget::logout()
 {
   model_->logout(login_);
@@ -325,16 +348,7 @@ void AuthWidget::onLoginChange()
       WApplication::instance()->changeSessionId();
 #endif // WT_TARGET_JAVA
     if (login_.state() == LoginState::RequiresMfa) {
-      setTemplateText("<div>${mfa}</div>");
-      auto mfaWidget = std::make_unique<Mfa::TotpProcess>(*model()->baseAuth(), model()->users(), login());
-      const User& user = login_.user();
-      const WString& mfaSecretKey = user.identity(mfaWidget->provider());
-      if (mfaSecretKey.empty()) {
-        bindWidget("mfa", mfaWidget->createSetupView());
-      } else {
-        mfaWidget->createInputView();
-        bindWidget("mfa", mfaWidget->createInputView());
-      }
+      createMfaView();
     } else {
       createLoggedInView();
     }
