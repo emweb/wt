@@ -214,14 +214,18 @@ void Connection::handleReadRequest0()
   if (result) {
     Reply::status_type status = request_parser_.validate(request_);
     // FIXME: Let the reply decide whether we're doing websockets, move this logic to WtReply
-    bool doWebSockets = server_->controller()->configuration().webSockets() &&
-                        (server_->controller()->configuration().sessionPolicy() != Wt::Configuration::DedicatedProcess ||
-                         server_->configuration().parentPort() != -1);
+    bool doWebSockets = server_->controller()->configuration().webSockets();
 
+    // Enables websockets if applicable (i.e. right protocol is used and version is fitting (13)).
+    // This has a side-effect, that when using dedicated sessions, the connection between the "proxy"
+    // (the main process) and client (the subprocess) will be upgraded as well, which should NOT happen.
+    //
+    // This is rectified later, after parsing the message.
     request_.enableWebSocket();
-    if ((request_.type == Request::WebSocket || request_.webSocketVersion >= 0) && !doWebSockets)
+    if ((request_.type == Request::WebSocket || request_.webSocketVersion >= 0) && !doWebSockets) {
       // A websocket request was sent, but websockets are disabled by config
       status = Reply::bad_request;
+    }
 
     LOG_DEBUG(native() << "request: " << status);
 
@@ -242,6 +246,16 @@ void Connection::handleReadRequest0()
         reply = request_handler_.handleRequest
           (request_, lastWtReply_, lastProxyReply_, lastStaticReply_);
         reply->setConnection(shared_from_this());
+
+        // For a WebSocket message, we are either in the case of the actual process that
+        // manages the connection, or we are on the "proxy" that passes the information to the right child process.
+        // In the latter case, we do not actually need to "execute" the logic for the request. This can
+        // be avoided by resetting the request's WebSocket version and type. Otherwise this would create a
+        // WebSocket connection between the client and parent, which is not necessary.
+        if (!lastWtReply_ && lastProxyReply_) {
+          request_.webSocketVersion = -1;
+          request_.type = Request::HTTP;
+        }
       } catch (Wt::AsioWrapper::system_error& e) {
         LOG_ERROR("Error in handleRequest0(): " << e.what());
         handleError(e.code());
