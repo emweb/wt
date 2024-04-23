@@ -1295,12 +1295,21 @@ void WebSession::handleRequest(Handler& handler)
   const char *origin = request.headerValue("Origin");
   if (request.isWebSocketRequest()) {
     std::string trustedOrigin = env_->urlScheme() + "://" + env_->hostName();
+
+#ifndef WT_TARGET_JAVA
+    // Fallback if the WebSocket was generated on the framework WebSocket.
+    // The origin would remain "http(s)", but the urlScheme would already be "ws(s)".
+    std::string wsTrustedOrigin = (env_->urlScheme() == "ws" ? "http://" : "https://") + env_->hostName();
+#endif // WT_TARGET_JAVA
     // Allow new WebSocket connection:
     // - Origin is OK if:
     //  - It is the same as the current host
     //  - or we are using WidgetSet mode and the origin is allowed
     // - Wt session id matches
     if (origin && (trustedOrigin == origin ||
+#ifndef WT_TARGET_JAVA
+                   wsTrustedOrigin == origin ||
+#endif // WT_TARGET_JAVA
                    (type() == EntryPointType::WidgetSet && conf.isAllowedOrigin(origin))) &&
         wtdE && *wtdE == sessionId_) {
       // OK

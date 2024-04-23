@@ -222,7 +222,7 @@ void WebSocketApplication::connectWebSocket()
   connect_->disable();
   const std::string urlScheme = environment().urlScheme();
   std::string webSocketProtocol;
-  if (urlScheme == "http") {
+  if (urlScheme == "http" || urlScheme == "ws") {
     webSocketProtocol = "ws";
   } else {
     webSocketProtocol = "wss";
