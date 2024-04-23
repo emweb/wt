@@ -435,7 +435,9 @@ void WebSocketConnection::handleAsyncRead(const AsioWrapper::error_code& e, std:
   std::memmove(&(*readBuffer_.begin()), current, restSize);
   readBufferPtr_ = readBuffer_.begin() + restSize;
 
-  doAsyncRead(&(*readBufferPtr_), readBuffer_.end() - readBufferPtr_);
+  if (readingState_ != ReadingState::ClosingSocket) {
+    doAsyncRead(&(*readBufferPtr_), readBuffer_.end() - readBufferPtr_);
+  }
 }
 
 bool WebSocketConnection::doAsyncWrite(OpCode type, const std::vector<char>& frameHeader, const std::vector<char>& data)
