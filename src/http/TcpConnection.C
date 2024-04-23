@@ -38,6 +38,11 @@ asio::ip::tcp::socket& TcpConnection::socket()
 
 void TcpConnection::stop()
 {
+  if (!socket_) {
+    return;
+  }
+
+
   LOG_DEBUG(native() << ": stop()");
 
   finishReply();

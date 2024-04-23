@@ -81,6 +81,10 @@ void SslConnection::handleHandshake(const Wt::AsioWrapper::error_code& error)
 
 void SslConnection::stop()
 {
+  if (!socket_) {
+    return;
+  }
+
   LOG_DEBUG(native() << ": stop()");
   finishReply();
   LOG_DEBUG(native() << ": SSL shutdown");
