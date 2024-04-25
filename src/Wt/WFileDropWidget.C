@@ -308,14 +308,13 @@ void WFileDropWidget::handleSendRequest(int id)
     if (uploads_[i]->uploadId() == id) {
       fileFound = true;
       currentFileIdx_ = i;
-      auto currentFile = uploads_[currentFileIdx_].get();
       resource_ = uploadResource();
       resource_->dataReceived().connect(this, &WFileDropWidget::onData);
       resource_->dataExceeded().connect(this, &WFileDropWidget::onDataExceeded);
       doJavaScript(jsRef() + ".send('" + resource_->url() + "', "
-                   + (currentFile->filterEnabled() ? "true" : "false")
+                   + (currentFile()->filterEnabled() ? "true" : "false")
                    + ");");
-      uploadStart_.emit(currentFile);
+      uploadStart_.emit(currentFile());
       break;
     } else {
       // If a previous upload was not cancelled, it must have failed
@@ -334,7 +333,7 @@ void WFileDropWidget::handleSendRequest(int id)
 
 std::unique_ptr<WResource> WFileDropWidget::uploadResource()
 {
-  return std::make_unique<WFileDropUploadResource>(this, uploads_[currentFileIdx_].get());
+  return std::make_unique<WFileDropUploadResource>(this, currentFile());
 }
 
 void WFileDropWidget::handleTooLarge(::uint64_t size)
@@ -345,7 +344,7 @@ void WFileDropWidget::handleTooLarge(::uint64_t size)
     // to go out of bounds
     return;
   }
-  tooLarge_.emit(uploads_[currentFileIdx_].get(), size);
+  tooLarge_.emit(currentFile(), size);
   currentFileIdx_++;
 }
 
@@ -404,7 +403,7 @@ bool WFileDropWidget::incomingIdCheck(int id)
     // to go out of bounds
     return false;
   }
-  if (uploads_[currentFileIdx_]->uploadId() == id)
+  if (currentFile()->uploadId() == id)
     return true;
   else {
     return false;
@@ -438,8 +437,7 @@ void WFileDropWidget::onData(::uint64_t current, ::uint64_t total)
     // to go out of bounds
     return;
   }
-  auto file = uploads_[currentFileIdx_].get();
-  file->emitDataReceived(current, total, filterSupported_);
+  currentFile()->emitDataReceived(current, total, filterSupported_);
 
   WApplication::instance()->triggerUpdate();
 }
@@ -452,7 +450,7 @@ void WFileDropWidget::onDataExceeded(::uint64_t dataExceeded)
     // to go out of bounds
     return;
   }
-  tooLarge_.emit(uploads_[currentFileIdx_].get(), dataExceeded);
+  tooLarge_.emit(currentFile(), dataExceeded);
 
   WApplication *app = WApplication::instance();
   app->triggerUpdate();
