@@ -54,6 +54,11 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.webtoolkit.eu/issues/12676" target="_blank">Issue #12676</a>:
+    although technically an improvement, since it was left for so long, it became a bug with Boost 1.85.0.
+    The version retired the <a href="https://live.boost.org/doc/libs/1_84_0/boost/filesystem/convenience.hpp" target="_blank">boost/filesystem/convenience.hpp</a> header. And also removed some <a href="https://www.boost.org/doc/libs/1_84_0/libs/filesystem/doc/reference.html#path-deprecated-functions" target="_blank">deprecated functions</a>.
+  </li>
+  <li>
     <a href="https://redmine.webtoolkit.eu/issues/12538" target="_blank">Issue #12538</a>:
     correctly implement the <a href="https://datatracker.ietf.org/doc/html/rfc5322#section-3.6.3" target="_blank">RFC5322 specification</a> for mail messages. The "To:" and "Cc:" fields are now correctly placed on a single line. With multiple addresses this results in a comma-separated list of addresses.
   </li>
