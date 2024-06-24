@@ -32,7 +32,7 @@ FileTreeTableNode::FileTreeTableNode(const boost::filesystem::path& path)
 #if BOOST_FILESYSTEM_VERSION < 3
   : WTreeTableNode(Wt::widen(path.leaf()), createIcon(path)),
 #else
-  : WTreeTableNode(path.leaf().string(), createIcon(path)),
+  : WTreeTableNode(path.filename().string(), createIcon(path)),
 #endif
     path_(path)
 {

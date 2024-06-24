@@ -213,7 +213,7 @@ std::string SourceView::imageExtension(const std::string& fileName)
   };
 
   fs::path p(fileName);
-  std::string extension = fs::extension(p);
+  std::string extension = p.extension().string();
 
   for (const char **s = imageExtensions; *s != 0; ++s)
     if (*s == extension)
