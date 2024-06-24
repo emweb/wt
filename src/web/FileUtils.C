@@ -6,6 +6,12 @@
 
 #include "web/FileUtils.h"
 
+#include <boost/version.hpp>
+#if BOOST_VERSION < 108500
+#include <boost/filesystem/convenience.hpp>
+#else
+#include <boost/filesystem/directory.hpp>
+#endif
 #include <boost/filesystem/operations.hpp>
 
 #include "web/WebUtils.h"

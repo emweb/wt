@@ -4,9 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <iostream>
-#include <stdlib.h>
-#include <algorithm>
+#include "ExampleSourceViewer.h"
+#include "FileItem.h"
 
 #include <Wt/WApplication.h>
 #include <Wt/WContainerWidget.h>
@@ -21,13 +20,21 @@
 #include <Wt/WVBoxLayout.h>
 #include <Wt/WViewWidget.h>
 
-#include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/exception.hpp>
+
+#include <boost/version.hpp>
+#if BOOST_VERSION < 108500
 #include <boost/filesystem/convenience.hpp>
+#else
+#include <boost/filesystem/directory.hpp>
+#endif
+#include <boost/filesystem/operations.hpp>
+
 #include <boost/algorithm/string.hpp>
 
-#include "ExampleSourceViewer.h"
-#include "FileItem.h"
+#include <iostream>
+#include <stdlib.h>
+#include <algorithm>
 
 namespace fs = boost::filesystem;
 

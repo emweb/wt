@@ -7,10 +7,17 @@
 
 #include "FileTreeTableNode.h"
 
-#include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/exception.hpp>
+
+#include <boost/version.hpp>
+#if BOOST_VERSION < 108500
+#include <boost/filesystem/convenience.hpp>
+#else
+#include <boost/filesystem/directory.hpp>
+#endif
+#include <boost/filesystem/operations.hpp>
+
 #include <boost/lexical_cast.hpp>
-#include <iostream>
 
 #include <Wt/WDateTime.h>
 #include <Wt/WIconPair.h>
@@ -18,6 +25,8 @@
 #include <Wt/WStringUtil.h>
 #include <Wt/WText.h>
 #include <Wt/WAny.h>
+
+#include <iostream>
 
 FileTreeTableNode::FileTreeTableNode(const boost::filesystem::path& path)
 #if BOOST_FILESYSTEM_VERSION < 3

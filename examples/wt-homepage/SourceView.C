@@ -7,8 +7,14 @@
 #include <stdlib.h>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem/operations.hpp>
+
+#include <boost/version.hpp>
+#if BOOST_VERSION < 108500
 #include <boost/filesystem/convenience.hpp>
+#else
+#include <boost/filesystem/directory.hpp>
+#endif
+#include <boost/filesystem/operations.hpp>
 
 #include <Wt/WApplication.h>
 #include <Wt/WText.h>
