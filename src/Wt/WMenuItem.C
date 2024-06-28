@@ -389,7 +389,7 @@ void WMenuItem::renderSelected(bool selected)
   } else {
     if (bs5Theme) {
       auto a = anchor();
-      a->toggleStyleClass(active, selected, true);
+      if (a) a->toggleStyleClass(active, selected, true);
     }
     toggleStyleClass(active, selected, true);
   }
