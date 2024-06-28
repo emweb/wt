@@ -503,7 +503,7 @@ void WLeafletMap::addMarker(std::unique_ptr<Marker> marker)
   marker->setMap(this);
 
   for (std::size_t i = 0; i < markers_.size(); ++i) {
-    if (markers_[i].marker == marker.get() &&
+    if (markers_[i].uMarker.get() == marker.get() &&
         markers_[i].flags.test(MarkerEntry::BIT_REMOVED)) {
       markers_[i].uMarker = std::move(marker);
       markers_[i].flags.reset(MarkerEntry::BIT_REMOVED);
