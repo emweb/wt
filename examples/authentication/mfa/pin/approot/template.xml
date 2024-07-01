@@ -1,0 +1,32 @@
+<messages>
+  <message id="pin-template">
+    <div class="Wt-form Wt-auth-login">
+      <h2>PIN Code verification</h2>
+      <p>This widget allows you to create a code, and use that as an additional authentication step.</p>
+
+      <div class="Wt-fields">
+        ${<if:is-setup>}
+          <p>This is the generated code for your account. Please remember it, so you can use it the next time you log in:</p>
+          <p class="fw-bold" style="border: 1px solid black; text-align: center; padding: 1rem;">${code}</p>
+        ${</if:is-setup>}
+        <div class="form-group">
+          <label for="${id:input}" class="control-label">Code input</label>
+          ${input}
+          <span class="form-text help-inline help-block ${label}">${code-info}</span>
+        </div>
+      </div>
+      <div class="form-group mt-3">
+        <label for="${id:remember-me}" class="control-label">
+          Remember me
+        </label>
+        <div class="controls">
+          ${remember-me}
+          <span class="help-inline">${remember-me-info}</span>
+        </div>
+      </div>
+      <div class="Wt-buttons mt-3">
+        ${login class="btn-primary"}
+      </div>
+    </div>
+  </message>
+</messages>

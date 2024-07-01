@@ -1,0 +1,22 @@
+<messages>
+  <message id="phone-template">
+    <div class="Wt-form Wt-auth-login">
+      <h2>Phone verification</h2>
+      <p>This widget allows you to verify your access with your phone.</p>
+
+      <div class="Wt-fields">
+        <p>Please scan this QR code with your phone.</p>
+        <p class="fw-bold">${code}</p>
+      </div>
+      <div class="form-group mt-3">
+        <label for="${id:remember-me}" class="control-label">
+          Remember me
+        </label>
+        <div class="controls">
+          ${remember-me}
+          <span class="help-inline">${remember-me-info}</span>
+        </div>
+      </div>
+    </div>
+  </message>
+</messages>

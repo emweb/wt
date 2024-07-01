@@ -1,0 +1,5 @@
+SUBDIRS(
+  pin
+  phone
+  totp
+)

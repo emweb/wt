@@ -69,13 +69,8 @@ bool AbstractMfaProcess::createUserIdentity(const Wt::WString& identityValue)
     return false;
   }
 
-  std::unique_ptr<AbstractUserDatabase::Transaction> t(users().startTransaction());
   user.addIdentity(provider(), identityValue);
-  LOG_INFO("createUserIdentity: Adding new identity for provider: " << provider());
-
-  if (t.get()) {
-    t->commit();
-  }
+  LOG_INFO("createUserIdentity: Adding new identity for provider; " << provider());
   return true;
 }
 

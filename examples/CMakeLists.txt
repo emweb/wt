@@ -243,6 +243,7 @@ MACRO(WT_ADD_EXAMPLE name)
 ENDMACRO(WT_ADD_EXAMPLE)
 
 SUBDIRS(
+  authentication
   blog
   charts
   chart3D
