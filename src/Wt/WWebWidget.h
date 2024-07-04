@@ -156,6 +156,10 @@ public:
                                   TextFormat textFormat = TextFormat::Plain)
     override;
   virtual WString toolTip() const override;
+  void showToolTipOnHover(bool enable);
+  void showToolTip();
+  void hideToolTip();
+
   virtual void refresh() override;
   virtual void setAttributeValue(const std::string& name,
                                  const WT_USTRING& value) override;
@@ -401,6 +405,11 @@ private:
   static const int BIT_OBJECT_NAME_CHANGED = 37;
   static const int BIT_PARENT_CHANGED = 38;
 
+  static const int BIT_TOOLTIP_FORCE_SHOW = 39;
+  static const int BIT_TOOLTIP_CLEAN_FORCE_SHOW = 40;
+  static const int BIT_TOOLTIP_SHOW_ON_HOVER = 41;
+
+
   static const char *FOCUS_SIGNAL;
   static const char *BLUR_SIGNAL;
 
@@ -410,7 +419,7 @@ private:
   std::string elementTagName_;
 
 #ifndef WT_TARGET_JAVA
-  static const std::bitset<39> AllChangeFlags;
+  static const std::bitset<42> AllChangeFlags;
 #endif // WT_TARGET_JAVA
 
   void loadToolTip();
@@ -418,7 +427,7 @@ private:
   /*
    * Frequently used attributes.
    */
-  std::bitset<39> flags_;
+  std::bitset<42> flags_;
   std::unique_ptr<WLength> width_;
   std::unique_ptr<WLength> height_;
 

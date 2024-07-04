@@ -10,7 +10,7 @@ WT_DECLARE_WT_MEMBER(
   10,
   JavaScriptFunction,
   "toolTip",
-  function(APP, id, text, deferred, ToolTipInnerStyle, ToolTipOuterStyle) {
+  function(APP, id, text, isForceShow, deferred, isShowOnHover, ToolTipInnerStyle, ToolTipOuterStyle) {
     const el = document.getElementById(id);
     const WT = APP.WT;
 
@@ -23,12 +23,14 @@ WT_DECLARE_WT_MEMBER(
         const Delay = 500;
         const HideDelay = 200;
         let waitingForText = false, toolTipText = text;
+        let forceShow = isForceShow;
+        let showOnHover = isShowOnHover;
 
         let overTooltip = false;
 
         function checkIsOver() {
           if (!document.querySelectorAll(`#${id}:hover`).length) {
-            hideToolTip();
+            tryHideToolTip();
           }
         }
 
@@ -39,19 +41,31 @@ WT_DECLARE_WT_MEMBER(
 
         this.setToolTipText = function(text) {
           toolTipText = text;
-          if (waitingForText) {
+          if (waitingForText || forceShow) {
             this.showToolTip();
             clearTimeout(showTimer);
             waitingForText = false;
           }
         };
 
+        this.setVisibilityParams = function(isForceShow, isShowOnHover) {
+          forceShow = isForceShow;
+          showOnHover = isShowOnHover;
+          hideToolTip();
+        };
+
         this.showToolTip = function() {
+          if (!showOnHover && !forceShow) {
+            return;
+          }
+
           if (deferred && !toolTipText && !waitingForText) {
             loadToolTipText();
           }
 
           if (toolTipText) {
+            hideToolTip(); // delete previous toolTipEl before creating a new one.
+
             toolTipEl = document.createElement("div");
             toolTipEl.className = ToolTipInnerStyle;
             toolTipEl.innerHTML = toolTipText;
@@ -62,8 +76,13 @@ WT_DECLARE_WT_MEMBER(
             document.body.appendChild(outerDiv);
             outerDiv.appendChild(toolTipEl);
 
-            const x = coords.x, y = coords.y;
-            WT.fitToWindow(outerDiv, x + MouseDistance, y + MouseDistance, x - MouseDistance, y - MouseDistance);
+            if (forceShow) {
+              const x = el.offsetLeft + el.offsetWidth / 2, y = el.offsetTop + el.offsetHeight;
+              WT.fitToWindow(outerDiv, x + MouseDistance, y + 2 * MouseDistance, x - MouseDistance, y);
+            } else {
+              const x = coords.x, y = coords.y;
+              WT.fitToWindow(outerDiv, x + MouseDistance, y + MouseDistance, x - MouseDistance, y - MouseDistance);
+            }
 
             // bring tooltip to front if there are dialogs
             let maxz = 0;
@@ -91,19 +110,24 @@ WT_DECLARE_WT_MEMBER(
           }, 200);
         };
 
-        function hideToolTip() {
+        function tryHideToolTip() {
           clearTimeout(showTimer);
           setTimeout(function() {
-            if (overTooltip) {
+            if ((overTooltip && showOnHover) || forceShow) {
               return;
             }
-            if (toolTipEl) {
-              toolTipEl.parentElement.remove();
-              toolTipEl = null;
-              clearInterval(checkInt);
-              checkInt = null;
-            }
+            hideToolTip();
           }, HideDelay);
+        }
+
+        function hideToolTip() {
+          if (toolTipEl) {
+            toolTipEl.parentElement.remove();
+            toolTipEl = null;
+            clearInterval(checkInt);
+            checkInt = null;
+            overTooltip = false;
+          }
         }
 
         function resetTimer(e) {
@@ -119,11 +143,16 @@ WT_DECLARE_WT_MEMBER(
 
         el.addEventListener("mouseenter", resetTimer);
         el.addEventListener("mousemove", resetTimer);
-        el.addEventListener("mouseleave", hideToolTip);
+        el.addEventListener("mouseleave", tryHideToolTip);
+
+        if (forceShow) {
+          this.showToolTip();
+        }
       }();
     }
 
     if (obj) {
+      obj.setVisibilityParams(isForceShow, isShowOnHover);
       obj.setToolTipText(text);
     }
   }

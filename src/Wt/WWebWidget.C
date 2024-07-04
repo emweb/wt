@@ -59,7 +59,7 @@ const int WWebWidget::DEFAULT_BASE_Z_INDEX = 1100;
 const int WWebWidget::Z_INDEX_INCREMENT = 1100;
 
 #ifndef WT_TARGET_JAVA
-const std::bitset<39> WWebWidget::AllChangeFlags = std::bitset<39>()
+const std::bitset<42> WWebWidget::AllChangeFlags = std::bitset<42>()
   .set(BIT_FLEX_BOX_CHANGED)
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
@@ -131,6 +131,7 @@ WWebWidget::WWebWidget()
 {
   flags_.set(BIT_INLINE);
   flags_.set(BIT_ENABLED);
+  flags_.set(BIT_TOOLTIP_SHOW_ON_HOVER);
 }
 
 
@@ -1035,6 +1036,36 @@ void WWebWidget::setToolTip(const WString& text, TextFormat textFormat)
   repaint();
 }
 
+void WWebWidget::showToolTipOnHover(bool enable)
+{
+  if (enable) {
+    flags_.set(BIT_TOOLTIP_SHOW_ON_HOVER);
+  }
+  else {
+    flags_.reset(BIT_TOOLTIP_SHOW_ON_HOVER);
+    flags_.set(BIT_TOOLTIP_CLEAN_FORCE_SHOW);
+  }
+
+  flags_.set(BIT_TOOLTIP_CHANGED);
+
+  repaint();
+}
+
+void WWebWidget::showToolTip()
+{
+  flags_.set(BIT_TOOLTIP_FORCE_SHOW);
+  flags_.set(BIT_TOOLTIP_CHANGED);
+  repaint();
+}
+
+void WWebWidget::hideToolTip()
+{
+  flags_.reset(BIT_TOOLTIP_FORCE_SHOW);
+  flags_.set(BIT_TOOLTIP_CHANGED);
+  flags_.set(BIT_TOOLTIP_CLEAN_FORCE_SHOW);
+  repaint();
+}
+
 WString WWebWidget::toolTip() const
 {
   return storedToolTip();
@@ -1589,7 +1620,9 @@ void WWebWidget::updateDom(DomElement& element, bool all)
                    flags_.test(BIT_TOOLTIP_DEFERRED))) {
         if (!app) app = WApplication::instance();
         if ( (lookImpl_->toolTipTextFormat_ != TextFormat::Plain
-              || flags_.test(BIT_TOOLTIP_DEFERRED))
+              || flags_.test(BIT_TOOLTIP_DEFERRED) 
+              || flags_.test(BIT_TOOLTIP_FORCE_SHOW) 
+              || flags_.test(BIT_TOOLTIP_CLEAN_FORCE_SHOW))
             && app->environment().ajax()) {
           LOAD_JAVASCRIPT(app, "js/ToolTip.js", "toolTip", wtjs10);
 
@@ -1602,14 +1635,23 @@ void WWebWidget::updateDom(DomElement& element, bool all)
               tooltipText = escapeText(*lookImpl_->toolTip_);
             }
           }
+          bool jsShowOnHover =  flags_.test(BIT_TOOLTIP_SHOW_ON_HOVER) &&
+                                (flags_.test(BIT_TOOLTIP_DEFERRED) ||
+                                  lookImpl_->toolTipTextFormat_ != TextFormat::Plain);
 
           std::string deferred = flags_.test(BIT_TOOLTIP_DEFERRED) ?
+                "true" : "false";
+          std::string showOnHover = jsShowOnHover ?
+                "true" : "false";
+          std::string forceShow = flags_.test(BIT_TOOLTIP_FORCE_SHOW) ?
                 "true" : "false";
           element.callJavaScript(WT_CLASS ".toolTip(" +
                                  app->javaScriptClass() + ","
                                  + jsStringLiteral(id()) + ","
                                  + tooltipText.jsStringLiteral()
+                                 + ", " + forceShow
                                  + ", " + deferred
+                                 + ", " + showOnHover
                                  + ", " +
                                  jsStringLiteral(app->theme()->
                                                  utilityCssClass(ToolTipInner))
@@ -1621,10 +1663,24 @@ void WWebWidget::updateDom(DomElement& element, bool all)
           if (flags_.test(BIT_TOOLTIP_DEFERRED) &&
               !lookImpl_->loadToolTip_.isConnected())
             lookImpl_->loadToolTip_.connect(this, &WWebWidget::loadToolTip);
+          
+          if (flags_.test(BIT_TOOLTIP_SHOW_ON_HOVER) &&
+              !jsShowOnHover &&
+              !flags_.test(BIT_TOOLTIP_FORCE_SHOW))
+          {
+            element.setAttribute("title", lookImpl_->toolTip_->toUTF8());
+          } 
+          else {
+            element.removeAttribute("title");
+          }
 
-          element.removeAttribute("title");
-        } else
+          flags_.reset(BIT_TOOLTIP_CLEAN_FORCE_SHOW);
+
+        } 
+        else if (flags_.test(BIT_TOOLTIP_SHOW_ON_HOVER)) 
           element.setAttribute("title", lookImpl_->toolTip_->toUTF8());
+
+         else element.removeAttribute("title");
       }
 
       flags_.reset(BIT_TOOLTIP_CHANGED);
