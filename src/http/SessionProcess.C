@@ -32,7 +32,7 @@ SessionProcess::SessionProcess(SessionProcessManager *manager) noexcept
   : io_service_(manager->ioService()),
     socket_(new asio::ip::tcp::socket(io_service_)),
     acceptor_(new asio::ip::tcp::acceptor(io_service_)),
-    strand_(io_service_),
+    strand_(io_service_), 
     port_(-1),
 #ifndef WT_WIN32
     pid_(0),
@@ -55,6 +55,7 @@ void SessionProcess::closeClientSocket() noexcept
   Wt::AsioWrapper::error_code ignored_ec;
   if (socket_) {
     socket_->shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
+    socket_->cancel();
     socket_->close(ignored_ec);
     socket_ = nullptr;
   }
@@ -126,8 +127,8 @@ void SessionProcess::read() noexcept
 {
   asio::async_read_until
     (*socket_, buf_, '\n',
-     strand_.wrap(
-       std::bind(&SessionProcess::readHandler, shared_from_this(), std::placeholders::_1)));
+      strand_.wrap(
+        std::bind(&SessionProcess::readHandler, shared_from_this(), std::placeholders::_1)));
 }
 
 void SessionProcess::readHandler(const Wt::AsioWrapper::error_code& err) noexcept

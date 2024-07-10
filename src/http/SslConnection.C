@@ -117,6 +117,7 @@ void SslConnection::stopNextLayer(const Wt::AsioWrapper::error_code& ec)
       LOG_DEBUG(native() << ": socket shutdown");
       socket().shutdown(asio::ip::tcp::socket::shutdown_both,
                         ignored_ec);
+      socket().cancel();
       LOG_DEBUG(native() << "closing socket");
       socket().close();
     }

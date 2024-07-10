@@ -46,6 +46,7 @@ void TcpConnection::stop()
     Wt::AsioWrapper::error_code ignored_ec;
     socket_.shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
     LOG_DEBUG(native() << ": closing socket");
+    socket_.cancel();
     socket_.close();
   } catch (Wt::AsioWrapper::system_error& e) {
     LOG_DEBUG(native() << ": error " << e.what());
