@@ -166,6 +166,7 @@ WAbstractItemView::ColumnInfo::ColumnInfo(const WAbstractItemView *view,
     extraHeaderWidget(nullptr),
     sorting(view->sorting_),
     hidden(false),
+    resizable(view->columnResize_),
     itemDelegate_(nullptr)
 {
   width = WLength(150);
@@ -394,8 +395,18 @@ void WAbstractItemView::initDragDrop()
 
 void WAbstractItemView::setColumnResizeEnabled(bool enabled)
 {
-  if (enabled != columnResize_) {
-    columnResize_ = enabled;
+ 
+  columnResize_ = enabled;
+  for (unsigned int i = 0; i < static_cast<unsigned int>(columns_.size()); i++){
+    columnInfo(i).resizable = enabled;
+  }
+  scheduleRerender(RenderState::NeedRerenderHeader);
+}
+
+void WAbstractItemView::setColumnResizeEnabled(bool enabled, int column)
+{
+  if (enabled != columnInfo(column).resizable) {
+    columnInfo(column).resizable = enabled;
     scheduleRerender(RenderState::NeedRerenderHeader);
   }
 }
@@ -1172,14 +1183,14 @@ std::unique_ptr<WWidget> WAbstractItemView::createHeaderWidget(int column)
     }
   }
 
-  bool activeRH = columnResize_;
+  bool hasResizeHandle = info.resizable;
 
   std::unique_ptr<WContainerWidget> resizeHandle(new WContainerWidget());
   resizeHandle->setStyleClass(std::string("Wt-tv-rh")
-                              + (activeRH ? "" : " Wt-tv-no-rh" )
+                              + (hasResizeHandle ? "" : " Wt-tv-no-rh" )
                               + " Wt-tv-br headerrh");
 
-  if (activeRH)
+  if (hasResizeHandle)
     resizeHandle->mouseWentDown().connect(resizeHandleMDownJS_);
 
   resizeHandle->setMargin(rightBorderLevel * headerLineHeight_.toPixels(),
