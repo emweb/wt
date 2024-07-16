@@ -3559,9 +3559,20 @@ window._$_APP_CLASS_$_ = new (function() {
       }
 
       const eventsData = encodePendingEvents(maxEventsSize);
-      tm = eventsData.feedback ?
+
+      if (eventsData.feedback && _$_INDICATOR_TIMEOUT_$_ == 0){
+        if (useWebSockets){
+          wsWaitFeedback();
+        }
+        else{
+          waitFeedback();
+        }
+        tm = Date.now() //we need a unique id for when we use websocket
+      }else{
+        tm = eventsData.feedback ?
         setTimeout(useWebSockets ? wsWaitFeedback : waitFeedback, _$_INDICATOR_TIMEOUT_$_) :
         null;
+      }
       data += eventsData.result;
       poll = false;
     } else {
