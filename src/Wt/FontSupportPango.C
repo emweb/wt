@@ -23,6 +23,8 @@
 #include <pango/pango.h>
 #include <pango/pangoft2.h>
 
+#include <memory>
+
 #ifndef DOXYGEN_ONLY
 
 namespace {
@@ -53,16 +55,24 @@ void addTrueTypePattern(FcPattern *pattern, WT_MAYBE_UNUSED gpointer data)
   }
 }
 
+// Custom deleter for the font map, to avoid leaks.
+struct PangoFontMapDeleter {
+  void operator()(PangoFontMap* fontMap) {
+    g_object_unref(fontMap);
+  }
+};
+
 /*
- * A global font map, since this one leaks as hell, and it cannot stand
- * being used in thread local storage since cleanup (with thread exit)
- * doesn't work properly.
+ * A global font map, since it cannot stand being used in thread local
+ * storage since cleanup (with thread exit) doesn't work properly.
+ *
+ * WT-11954: The memory leaking was resolved by correctly releasing
+ * the allocated GLib object.
  *
  * It is not clear what operations involving the font map are thread-safe,
  * so here we serialize everything using a mutex.
  */
-
-PangoFontMap *pangoFontMap = nullptr;
+std::unique_ptr<PangoFontMap, PangoFontMapDeleter> pangoFontMap = nullptr;
 
 #ifdef WT_THREADED
 std::recursive_mutex pangoMutex;
@@ -105,15 +115,15 @@ FontSupport::FontSupport(WPaintDevice *paintDevice, EnabledFontFormats enabledFo
   PANGO_LOCK;
 
   if (!pangoFontMap) {
-    pangoFontMap = pango_ft2_font_map_new();
+    pangoFontMap.reset(pango_ft2_font_map_new());
 
 #if PANGO_VERSION_CHECK(1, 48, 0)
-    pango_fc_font_map_set_default_substitute(PANGO_FC_FONT_MAP(pangoFontMap),
+    pango_fc_font_map_set_default_substitute(PANGO_FC_FONT_MAP(pangoFontMap.get()),
                                              addTrueTypePattern,
                                              nullptr,
                                              nullptr);
 #else
-    pango_ft2_font_map_set_default_substitute(PANGO_FT2_FONT_MAP(pangoFontMap),
+    pango_ft2_font_map_set_default_substitute(PANGO_FT2_FONT_MAP(pangoFontMap.get()),
                                               addTrueTypePattern,
                                               nullptr,
                                               nullptr);
@@ -121,9 +131,9 @@ FontSupport::FontSupport(WPaintDevice *paintDevice, EnabledFontFormats enabledFo
   }
 
 #if PANGO_VERSION_MAJOR > 1 || PANGO_VERSION_MINOR > 21
-  context_ = pango_font_map_create_context(pangoFontMap);
+  context_ = pango_font_map_create_context(pangoFontMap.get());
 #else
-  context_ = pango_ft2_font_map_create_context(PANGO_FT2_FONT_MAP(pangoFontMap));
+  context_ = pango_ft2_font_map_create_context(PANGO_FT2_FONT_MAP(pangoFontMap.get()));
 #endif
 
   currentFont_ = nullptr;
@@ -218,7 +228,7 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& f) const
 
   PangoFontDescription *desc = createFontDescription(f);
 
-  PangoFont *match = pango_font_map_load_font(pangoFontMap, context_, desc);
+  PangoFont *match = pango_font_map_load_font(pangoFontMap.get(), context_, desc);
   pango_context_set_font_description(context_, desc); // for layoutText()
 
   if (cache_.back().match) {
