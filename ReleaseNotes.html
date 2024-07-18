@@ -57,6 +57,12 @@ behaviour.
     <a href="https://redmine.webtoolkit.eu/issues/12538" target="_blank">Issue #12538</a>:
     correctly implement the <a href="https://datatracker.ietf.org/doc/html/rfc5322#section-3.6.3" target="_blank">RFC5322 specification</a> for mail messages. The "To:" and "Cc:" fields are now correctly placed on a single line. With multiple addresses this results in a comma-separated list of addresses.
   </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/11954" target="_blank">Issue #11954</a>:
+    resolve a fairly big memory leak when using Pango. Pango is a library that is by default enabled (or controlled using the <code>ENABLE_PANGO</code> build flag). This library is used to generate PDFs with the <a href="classWt_1_1Render_1_1WPdfRenderer.html">WPdfRenderer</a>.
+    The font map that Pango generated to track available fonts was never correctly released. Some other Pango specific objects (resulting from calls to the library), such as the context and fonts were also not always released. These objects are now managed by smart pointers to ensure proper memory management.
+    A single leak does remain, which seemingly comes from Pango or libfontconfig itself (see: <a href="https://redmine.webtoolkit.eu/issues/12844" target="_blank">Issue #12844</a>).
+  </li>
 </ul>
 
 <h2>Release 4.10.4 (March 6, 2024)</h2>
