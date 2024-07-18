@@ -131,9 +131,9 @@ FontSupport::FontSupport(WPaintDevice *paintDevice, EnabledFontFormats enabledFo
   }
 
 #if PANGO_VERSION_MAJOR > 1 || PANGO_VERSION_MINOR > 21
-  context_ = pango_font_map_create_context(pangoFontMap.get());
+  context_.reset(pango_font_map_create_context(pangoFontMap.get()));
 #else
-  context_ = pango_ft2_font_map_create_context(PANGO_FT2_FONT_MAP(pangoFontMap.get()));
+  context_.reset(pango_ft2_font_map_create_context(PANGO_FT2_FONT_MAP(pangoFontMap.get())));
 #endif
 
   currentFont_ = nullptr;
@@ -143,14 +143,7 @@ FontSupport::~FontSupport()
 {
   PANGO_LOCK;
 
-  for (MatchCache::iterator i = cache_.begin(); i != cache_.end(); ++i) {
-    if (i->match) {
-      g_object_unref(i->match);
-      pango_font_description_free(i->desc);
-    }
-  }
-
-  g_object_unref(context_);
+  cache_.clear();
 }
 
 bool FontSupport::canRender() const
@@ -218,7 +211,7 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& f) const
   for (MatchCache::iterator i = cache_.begin(); i != cache_.end(); ++i) {
     if (i->font == f) {
       cache_.splice(cache_.begin(), cache_, i); // implement LRU
-      return FontMatch(i->match, i->desc);
+      return FontMatch(i->match.get(), i->desc.get());
     }
   }
 
@@ -226,20 +219,17 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& f) const
 
   enabledFontFormats = enabledFontFormats_;
 
-  PangoFontDescription *desc = createFontDescription(f);
+  std::unique_ptr<PangoFontDescription, PangoFontDescriptionDeleter> desc(createFontDescription(f));
+  std::unique_ptr<PangoFont, PangoFontDeleter> match(pango_font_map_load_font(pangoFontMap.get(), context_.get(), desc.get()));
+  pango_context_set_font_description(context_.get(), desc.get()); // for layoutText()
 
-  PangoFont *match = pango_font_map_load_font(pangoFontMap.get(), context_, desc);
-  pango_context_set_font_description(context_, desc); // for layoutText()
-
-  if (cache_.back().match) {
-    g_object_unref(cache_.back().match);
-    pango_font_description_free(cache_.back().desc);
-  }
+  PangoFont* matchPtr = match.get();
+  PangoFontDescription* descPtr = desc.get();
 
   cache_.pop_back();
-  cache_.push_front(Matched(f, match, desc));
+  cache_.push_front(Matched(f, std::move(match), std::move(desc)));
 
-  return FontMatch(match, desc);
+  return FontMatch(matchPtr, descPtr);
 }
 
 void FontSupport::addFontCollection(WT_MAYBE_UNUSED const std::string& directory,
@@ -294,9 +284,9 @@ GList *FontSupport::layoutText(const WFont& font,
   FontMatch match = matchFont(font);
   PangoAttrList *attrs = pango_attr_list_new();
 
-  pango_context_set_font_description(context_, match.pangoFontDescription());
+  pango_context_set_font_description(context_.get(), match.pangoFontDescription());
   GList *items
-    = pango_itemize(context_, utf8.c_str(), 0, utf8.length(), attrs, nullptr);
+    = pango_itemize(context_.get(), utf8.c_str(), 0, utf8.length(), attrs, nullptr);
 
   width = 0;
 
@@ -542,7 +532,7 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
   std::vector<PangoGlyphString *> glyphs;
   int width;
 
-  pango_context_set_matrix(context_, &matrix);
+  pango_context_set_matrix(context_.get(), &matrix);
 
   /*
    * Oh my god, somebody explain me why we need to do this...
@@ -552,7 +542,7 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
             / pango_matrix_get_font_scale_factor(&matrix));
 
   GList *items = layoutText(f, utf8, glyphs, width);
-  pango_context_set_matrix(context_, nullptr);
+  pango_context_set_matrix(context_.get(), nullptr);
 
   AlignmentFlag hAlign = flags & AlignHorizontalMask;
 
