@@ -48,6 +48,7 @@ struct sql_value_traits<WDateTime, void>
 {
   static const bool specialized = true;
 
+  static const char *format;
   static const char *type(SqlConnection *conn, int size);
   static void bind(const WDateTime& v, SqlStatement *statement, int column,
                    int size);

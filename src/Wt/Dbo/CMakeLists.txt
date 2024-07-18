@@ -26,7 +26,7 @@ IF(ENABLE_LIBWTDBO)
     SqlTraits.h SqlTraits_impl.h SqlTraits.C
     StdSqlTraits.h StdSqlTraits.C
     Transaction.h Transaction.C
-    WtSqlTraits.h WtSqlTraits.C
+    WtSqlTraits.h WtSqlTraits.C WtJsonSqlTraits.h
     EscapeOStream.h EscapeOStream.C
     StringStream.h StringStream.C
     Logger.h Logger.C
