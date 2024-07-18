@@ -214,6 +214,8 @@ public:
 private:
   WPaintDevice *device_;
 
+  static constexpr std::size_t FONT_CACHE_MAX_SIZE = 10;
+
 #ifdef WT_FONTSUPPORT_SIMPLE
 
   struct FontCollection {
@@ -231,7 +233,11 @@ private:
   };
 
   typedef std::list<Matched> MatchCache;
-  mutable MatchCache cache_;
+  // The cache that tracks the used fonts, and limits the size of the used
+  // fonts to a maximum of 10 fonts.
+  // This cache keeps the fonts alive for as long as the cache lives, or
+  // when a new match would exceed the current cache's limit.
+  mutable MatchCache lruCache_;
 
   const WFont *font_;
 
@@ -296,7 +302,7 @@ private:
   // fonts to a maximum of 10 fonts.
   // This cache keeps the fonts and descriptions alive for as long as it
   // lives, or when a new match would exceed the current cache's limit.
-  mutable MatchCache cache_;
+  mutable MatchCache lruCache_;
 
   PangoFontDescription *createFontDescription(const WFont& f) const;
   static std::string fontPath(PangoFont *font);
@@ -330,7 +336,11 @@ private:
   };
 
   typedef std::list<Matched> MatchCache;
-  mutable MatchCache cache_;
+  // The cache that tracks the used fonts, and limits the size of the used
+  // fonts to a maximum of 10 fonts.
+  // This cache keeps the fonts alive for as long as the cache lives, or
+  // when a new match would exceed the current cache's limit.
+  mutable MatchCache lruCache_;
 
   struct TextFragment {
     TextFragment(std::string fontPath,

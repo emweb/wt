@@ -528,7 +528,7 @@ FontSupport::FontSupport(WPaintDevice *device, EnabledFontFormats enabledFontFor
     enabledFontFormats_(enabledFontFormats),
     writeFactory_(NULL),
     font_(0),
-    cache_(10)
+    lruCache_(10)
 {
   HRESULT hr = S_OK;
 
@@ -558,7 +558,7 @@ FontSupport::~FontSupport()
 {
   SafeRelease(writeFactory_);
 
-  cache_.clear();
+  lruCache_.clear();
 
   CoUninitialize();
 }
@@ -570,9 +570,10 @@ void FontSupport::setDevice(WPaintDevice *device)
 
 FontSupport::FontMatch FontSupport::matchFont(const WFont &f) const
 {
-  for (MatchCache::iterator i = cache_.begin(); i != cache_.end(); ++i) {
+  for (MatchCache::iterator i = lruCache_.begin(); i != lruCache_.end(); ++i) {
     if (i->font == f && i->match.matched()) {
-      cache_.splice(cache_.begin(), cache_, i); // implement LRU
+      // Put the match at the front of the list.
+      lruCache_.splice(lruCache_.begin(), lruCache_, i);
       return i->match;
     }
   }
@@ -649,10 +650,12 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont &f) const
 
   SafeRelease(sysFontCollection);
 
-  cache_.pop_back();
-  cache_.push_front(Matched(f, FontMatch(textFormat, fontFamily, font, WString(fontFamilyFileName).toUTF8())));
+  if (lruCache_.size() >= FONT_CACHE_MAX_SIZE) {
+    lruCache_.pop_back();
+  }
+  lruCache_.push_front(Matched(f, FontMatch(textFormat, fontFamily, font, WString(fontFamilyFileName).toUTF8())));
 
-  return cache_.front().match;
+  return lruCache_.front().match;
 }
 
 WFontMetrics FontSupport::fontMetrics(const WFont &f)

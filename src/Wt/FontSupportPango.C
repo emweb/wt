@@ -110,7 +110,7 @@ std::string FontSupport::FontMatch::fileName() const
 FontSupport::FontSupport(WPaintDevice *paintDevice, EnabledFontFormats enabledFontFormats)
   : device_(paintDevice),
     enabledFontFormats_(enabledFontFormats),
-    cache_(10)
+    lruCache_(10)
 {
   PANGO_LOCK;
 
@@ -143,7 +143,7 @@ FontSupport::~FontSupport()
 {
   PANGO_LOCK;
 
-  cache_.clear();
+  lruCache_.clear();
 }
 
 bool FontSupport::canRender() const
@@ -208,9 +208,10 @@ PangoFontDescription *FontSupport::createFontDescription(const WFont& f) const
 
 FontSupport::FontMatch FontSupport::matchFont(const WFont& f) const
 {
-  for (MatchCache::iterator i = cache_.begin(); i != cache_.end(); ++i) {
+  for (MatchCache::iterator i = lruCache_.begin(); i != lruCache_.end(); ++i) {
     if (i->font == f) {
-      cache_.splice(cache_.begin(), cache_, i); // implement LRU
+      // Put the match at the front of the list.
+      lruCache_.splice(lruCache_.begin(), lruCache_, i);
       return FontMatch(i->match.get(), i->desc.get());
     }
   }
@@ -226,8 +227,10 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& f) const
   PangoFont* matchPtr = match.get();
   PangoFontDescription* descPtr = desc.get();
 
-  cache_.pop_back();
-  cache_.push_front(Matched(f, std::move(match), std::move(desc)));
+  if (lruCache_.size() >= FONT_CACHE_MAX_SIZE) {
+    lruCache_.pop_back();
+  }
+  lruCache_.push_front(Matched(f, std::move(match), std::move(desc)));
 
   return FontMatch(matchPtr, descPtr);
 }

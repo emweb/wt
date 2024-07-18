@@ -53,7 +53,7 @@ FontSupport::FontSupport(WPaintDevice *device, EnabledFontFormats /* enabledFont
     font_(nullptr)
 {
   for (int i = 0; i < 5; ++i)
-    cache_.push_back(Matched());
+    lruCache_.push_back(Matched());
 }
 
 FontSupport::~FontSupport()
@@ -125,13 +125,14 @@ void FontSupport::drawText(const WFont& font, const WRectF& rect,
 
 FontSupport::FontMatch FontSupport::matchFont(const WFont& font) const
 {
-  for (MatchCache::iterator i = cache_.begin(); i != cache_.end(); ++i) {
+  for (MatchCache::iterator i = lruCache_.begin(); i != lruCache_.end(); ++i) {
     if (i->font.genericFamily() == font.genericFamily() &&
         i->font.specificFamilies() == font.specificFamilies() &&
         i->font.weight() == font.weight() &&
         i->font.style() == font.style()) {
-      cache_.splice(cache_.begin(), cache_, i); // implement LRU
-      return cache_.front().match;
+      // Put the match at the front of the list.
+      lruCache_.splice(lruCache_.begin(), lruCache_, i);
+      return lruCache_.front().match;
     }
   }
 
@@ -145,11 +146,12 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& font) const
       match = m;
   }
 
-  // implement LRU
-  cache_.pop_back();
-  cache_.push_front(Matched());
-  cache_.front().font = font;
-  cache_.front().match = match;
+  if (lruCache_.size() >= FONT_CACHE_MAX_SIZE) {
+    lruCache_.pop_back();
+  }
+  lruCache_.push_front(Matched());
+  lruCache_.front().font = font;
+  lruCache_.front().match = match;
 
   return match;
 }
