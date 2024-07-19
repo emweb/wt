@@ -34,6 +34,15 @@ namespace Wt {
  *  relations in one way: weak_ptr and \ref collection fields are followed
  *  and serialized, for \ref ptr fields only the \link Wt::Dbo::ptr::id() id\endlink
  *  is output.
+ * 
+ * Including \p Wt/Dbo/WtJsonSqlTraits.h also makes this class able to serialize 
+ * \link Wt::WString WString\endlink, \link Wt::WDate WDate\endlink, 
+ * \link Wt::WDateTime WDateTime\endlink and \link Wt::WTime WTime\endlink.
+ * 
+ * By default, WDate, WDateTime and WTime are serialized using the default format of 
+ * their respective class. It can be changed by setting 
+ * \p sql_value_traits<WDate>::format , \p sql_value_traits<WDateTime>::format and 
+ * \p sql_value_traits<WTime>::format .
  *
  *  No extraneous whitespace is output.
  *
