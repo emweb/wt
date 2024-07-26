@@ -156,8 +156,28 @@ public:
                                   TextFormat textFormat = TextFormat::Plain)
     override;
   virtual WString toolTip() const override;
+  /*! \brief Enable/disable whether tooltip is shown on hover
+  
+   * Allow to enable or disable whether the tooltip is shown when the 
+   * WWebWidget is hovered over by the mouse.
+   * 
+   * \sa showToolTip(), hideToolTip()
+   */
   void showToolTipOnHover(bool enable);
+
+  /*! \brief Force tooltip to show.
+   * 
+   * When called, show the tooltip to the user until hideToolTip()
+   * is called.
+   * 
+   * \sa hideToolTip()
+   */
   void showToolTip();
+
+  /*! \brief Hide the tooltip.
+   * 
+   * \sa showToolTip()
+   */
   void hideToolTip();
 
   virtual void refresh() override;
