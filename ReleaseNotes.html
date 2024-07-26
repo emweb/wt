@@ -26,6 +26,15 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.emweb.be/issues/12789" target="_blank">Issue #12789</a>:
+    this feature allows you to force the tooltip from a
+    <a href="classWt_1_1WWebWidget.html">WWebWidget</a> to be shown by calling
+    <a href="classWt_1_1WWebWidget.html#a85571804f5b1c3b15e1ecafc4259bfcd" target="_blank">WWebWidget::showToolTip()</a>. Tooltips can still be shown when a
+    <a href="classWt_1_1WWebWidget.html">WWebWidget</a> is hovered over by the mouse with
+    <a href="classWt_1_1WWebWidget.html#a7f1b8701997fcc45dcf55bc3566c1380" target="_blank">WWebWidget::showToolTipOnHover()</a>. The latter is default behavior.
+    If both options are enabled, the tooltip on hover will not be shown. Rather the forcibly shown tooltip will remain visible throughout.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/12817" target="_blank">Issue #12817</a>:
     allows custom implementation of the scope and the authorization endpoint of the
     <a href="classWt_1_1Auth_1_1OAuthProcess.html" target="_blank">Auth::OAuthProcess</a> by overriding
