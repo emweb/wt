@@ -214,7 +214,7 @@ public:
 private:
   WPaintDevice *device_;
 
-  static constexpr std::size_t FONT_CACHE_MAX_SIZE = 10;
+  static const std::size_t FONT_CACHE_MAX_SIZE = 10;
 
 #ifdef WT_FONTSUPPORT_SIMPLE
 
