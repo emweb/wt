@@ -444,8 +444,6 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
     flags_.reset(BIT_PADDINGS_CHANGED);
   }
 
-  WInteractWidget::updateDom(element, all);
-
   if (flags_.test(BIT_OVERFLOW_CHANGED) ||
       (all && overflow_ &&
        !(overflow_[0] == Overflow::Visible &&
@@ -481,6 +479,8 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
       if (positionScheme() == PositionScheme::Static)
         element.setProperty(Property::StylePosition, "relative");
   }
+
+  WInteractWidget::updateDom(element, all);
 }
 
 int WContainerWidget::firstChildIndex() const
