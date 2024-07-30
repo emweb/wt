@@ -374,7 +374,7 @@ private:
   WLabel *text_;
   WCheckBox *checkBox_;
   void *data_;
-  bool separator_, selectable_, signalsConnected_, customLink_;
+  bool separator_, selectable_, signalsConnected_, customLink_, selectConnected_, menuItemCheckedConnected_;
 
   Signal<WMenuItem *> triggered_;
 
