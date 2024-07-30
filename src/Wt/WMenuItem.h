@@ -398,6 +398,7 @@ private:
   void contentsDestroyed();
   void setCheckBox();
   void setUnCheckBox();
+  void menuItemCheckedPropagate();
 
   std::unique_ptr<WWidget> takeContentsForStack();
   WWidget *contentsInStack() const;

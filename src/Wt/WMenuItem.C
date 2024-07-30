@@ -435,6 +435,11 @@ void WMenuItem::connectSignals()
 
       if (checkBox_ && !checkBox_->clicked().propagationPrevented()) {
         as = &checkBox_->changed();
+        /*  #12367: Fixes a bug where the checkbox of a menu item is not
+         *  clicked if the menu item itself is clicked, but the checkbox
+         *  or its label were not clicked. 
+         */
+        a->clicked().connect(this, &WMenuItem::menuItemCheckedPropagate);
         /*
          * Because the checkbox is not a properly exposed form object,
          * we need to relay its value ourselves
@@ -469,6 +474,17 @@ void WMenuItem::setUnCheckBox()
 {
   setChecked(false);
   select();
+}
+
+void WMenuItem::menuItemCheckedPropagate(){
+  if (isCheckable()) {
+    if (isChecked()){
+      checkBox_->unChecked().emit();
+    }
+    else{
+      checkBox_->checked().emit();
+    }
+  }
 }
 
 void WMenuItem::setParentMenu(WMenu *menu)
