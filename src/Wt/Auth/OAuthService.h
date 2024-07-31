@@ -318,6 +318,20 @@ protected:
    */
   virtual void setError(const WString& e);
 
+  /*! \brief Return the authorization endpoint URL.
+   * 
+   * This is a remote URL which hosts the %OAuth authorization user
+   * interface. This URL is loaded in the popup window at the start of
+   * the authorization process.
+   * 
+   * By default, this is the authorization endpoint URL configured in
+   * the OAuthService of this process, but this can be changed by
+   * overriding this function.
+   * 
+   * \sa OAuthService::authorizationEndpoint() 
+   */
+  virtual std::string authorizationEndpoint() const;
+
 private:
   const OAuthService& service_;
   std::string scope_;

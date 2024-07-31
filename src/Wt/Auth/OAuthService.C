@@ -244,7 +244,7 @@ OAuthProcess::~OAuthProcess()
 std::string OAuthProcess::authorizeUrl() const
 {
   WStringStream url;
-  url << service_.authorizationEndpoint();
+  url << authorizationEndpoint();
   bool hasQuery = url.str().find('?') != std::string::npos;
 
   url << (hasQuery ? '&' : '?')
@@ -346,6 +346,11 @@ void OAuthProcess::handleAuthComplete()
   redirectEndpoint_->haveMoreData();
 }
 #endif // WT_TARGET_JAVA
+
+std::string OAuthProcess::authorizationEndpoint() const
+{
+  return service_.authorizationEndpoint();
+}
 
 void OAuthProcess::requestToken(const std::string& authorizationCode)
 {
