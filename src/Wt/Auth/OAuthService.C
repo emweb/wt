@@ -251,7 +251,7 @@ std::string OAuthProcess::authorizeUrl() const
       << "client_id=" << Wt::Utils::urlEncode(service_.clientId())
       << "&redirect_uri="
       << Wt::Utils::urlEncode(service_.generateRedirectEndpoint())
-      << "&scope=" << Wt::Utils::urlEncode(scope_)
+      << "&scope=" << Wt::Utils::urlEncode(scope())
       << "&response_type=code"
       << "&state=" << Wt::Utils::urlEncode(oAuthState_);
 

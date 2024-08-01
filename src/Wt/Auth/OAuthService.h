@@ -156,10 +156,13 @@ public:
    *
    * The scope represents how much protected information the web
    * application wants to access, and in what way.
+   * 
+   * By default, this is the scope given at the creation of the process
+   * but this can be changed by overriding this function.
    *
    * \sa OAuthService::createProcess(), OAuthService::authenticationScope()
    */
-  const std::string& scope() const { return scope_; }
+  virtual const std::string& scope() const { return scope_; }
 
   /*! \brief Returns the %OAuth service which spawned this process.
    *
