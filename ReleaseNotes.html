@@ -25,6 +25,14 @@ behaviour.
 <p>Wt 4.12.0 is a major release that introduces the following new features:</p>
 
 <ul>
+  <li>
+    <a href="https://redmine.emweb.be/issues/12817" target="_blank">Issue #12817</a>:
+    allows custom implementation of the scope and the authorization endpoint of the
+    <a href="classWt_1_1Auth_1_1OAuthProcess.html" target="_blank">Auth::OAuthProcess</a> by overriding
+    <a href="classWt_1_1Auth_1_1OAuthProcess.html#a0abac41f14450571445d1c82e9dba4cc" target="_blank">Auth::OAuthProcess::scope()</a> and
+    <a href="classWt_1_1Auth_1_1OAuthProcess.html#a8dc8be6709ce345220a05714a9665dae" target="_blank">Auth::OAuthProcess::authorizationEndpoint()</a>.
+    This will allow developers to reuse the <a href="classWt_1_1Auth_1_1OAuthService.html" target="_blank">OAuthService</a> for near-identical authentication calls.
+  </li>
 </ul>
 
 <p>Wt 4.12.0 also comes with the following improvements:</p>
