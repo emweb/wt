@@ -1,6 +1,6 @@
 = Introduction to Wt::Auth
 
-For Wt 4.10.0
+For Wt 4.11.0
 
 :doc: link:../reference/html/
 :tutorials: link:./
@@ -69,6 +69,12 @@ example, if a user previously registered using a username and
 password, they may later also authenticate using for example their Google
 Account and this new identity is added to his existing account.
 
+* *Multi Factor* logic, allowing for more security when logging in.
+An link:https://cheatsheetseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html[additional factor]
+ensures that more than one type of evidence is required from the user when
+they log in. By chosing the types of credentials fittingly, there is a
+large chance to stop any account compromises.
+
 The logic for these features is implemented separately from the
 user interface components, which can be customized or completely
 replaced with your own widgets.
@@ -136,8 +142,10 @@ references two other persistence classes:
 uniquely identifies a user. Traditionally, a user would have only a
 single identity which is their login name (which could be their email
 address). But a user may accumulate more identities, corresponding to
-accounts with 3rd party identity providers. By allowing multiple
-identities, the user may identify using a choice of methods.
+accounts with 3rd party identity providers. Or by setting up {doc}namespaceWt_1_1Auth_1_1Mfa.html[`+MFA+`]
+on their account. The default implementation of {doc}classWt_1_1Auth_1_1Mfa_1_1TotpProcess.html[`+TOTP+`]
+will always generate an identity of the name "multifactor". By allowing
+multiple identities, the user may identify using a choice of methods.
 * *Authentication tokens* are stored in a separate table. An
 authentication token usually corresponds to a "remember-me" cookie,
 and a user may have multiple "remember-me" cookies when using
@@ -535,4 +543,1075 @@ int main(int argc, char **argv)
 }
 ----
 
+== Multi-Factor Authentication (MFA)
+
+As of Wt 4.11.0 link:https://en.wikipedia.org/wiki/Multi-factor_authentication[MFA]
+is now also supported. Simply speaking this is an approach to
+authentication that takes more than a singular point of evidence the user
+that is performing the login event, is indeed who they claim to be. Thus
+offering an additional layer of security, reducing the chance an account
+will be compromised. There are various ways to implement MFA. With
+minimal configuration, the included link:https://en.wikipedia.org/wiki/Time-based_one-time_password[TOTP]
+approach can be used by developers. The Wt API does allow for the
+MFA process to be completely customized, so that your own preferred
+methods can be implemented.
+
+=== Overview of TOTP
+
+TOTP is a well-known and often used implementation when it comes to MFA.
+Its specification can be found link:https://datatracker.ietf.org/doc/html/rfc6238[here].
+It is a way to generate a unique secret for an application that is only
+valid for a limited time. This reduces the risk when a combination of a
+username/password is compromised. Any attacker will have a more limited
+time to gain access. The TOTP code will often have expired by that
+point.
+
+The approach looks like this:
+
+* the server securely generates a random *secret* for an individual user
+and shares it with the user (typically through a QR code) to store in
+an authentication app.
+* from this secret key, we can by means of the TOTP algorithm create
+temporary *codes*.
+* upon an authentication event, this code will be provided by the user
+to the server. The server will use the same algorithm to compute the
+code from the shared secret, and verifies that the codes correspond.
+Each interval of 30 seconds will have a different code. Any moment
+within the same interval (e.g. `+11:45:07+` and `+11:45:24+`) will
+have the same code.
+
+=== Default Configuration
+
+While the specification doesn't enforce certain values, it does serve
+some recommendations, most of which were taken as defaults for Wt.
+
+The chosen defaults are:
+
+* the time step is of length 30 seconds
+* the generated code is 6 digits long
+* the generated secret key is 32 characters long
+
+To start using MFA in Wt, the configuration is minimal. This will enable
+TOTP by default. {doc}classWt_1_1Auth_1_1AuthService.html[`+AuthService+`]
+needs to be configured such that {doc}classWt_1_1Auth_1_1AuthService.html#aad075b232ddafe52a4953f3c341e6e75[`+setMfaProvider()+`]
+is set. This is the only requirement to activate the functionality.
+However, at this point is will not always be shown to users.
+
+Then a developer has two options now:
+
+* either they enforce the usage of MFA globally, meaning each user is
+required to enter an MFA challenge (see: {doc}classWt_1_1Auth_1_1AuthService.html#a5c708962311456a67c07e25c03247b23[`+setMfaRequired()+`]).
+* or they manage this on a per-user basis. They will either need to mark
+a user as being subject to MFA in some way, or allow the user a way to
+configure the feature for themselves (see: {doc}classWt_1_1Auth_1_1AuthModel.html#af2083a59fc1458c1fb0020bec0cdf959[`+hasMfaStep()+`]).
+
+For simplicity we will consider the enabled and required case first.
+When configured in such a way, each user will encounter the {doc}classWt_1_1Auth_1_1Mfa_1_1TotpProcess.html[`+TotpProcess+`]
+after they logged in using username/password. This process' functionality
+is twofold:
+
+* *setup*: first the TOTP secret needs to be set up for the user, and an
+initial validation round is enforced. This ensures that the user was able
+to correctly use the generated secret key (shown as both a string, and a
+QR code for convenience). The user is required to put this secret key
+into an authenticator app, or browser extension that is able to generate
+code from the secret. They will enter the code the app or extension
+returns to them. At this point the framework knows the user now has their
+MFA step correctly configured, and it will save it to the database.
+This is done by means of an {doc}classWt_1_1Auth_1_1Identity.html[`+Identity+`].
+The identity's name will be equal to what was configured on
+`+AuthService+`, and its value will be the secret key.footnote:[This information is stored in plaintext in the database.]
+* *validation*: once set up the secret key and QR code are never again
+exposed to the user. Rather they will only be shown an input field where
+they need to put the code generated by their authenticator app or
+extension.
+
+Both these possible view are constructed by the `+TotpProcess+`, but the
+view itself is managed by {doc}classWt_1_1Auth_1_1AuthWidget.html#a31f1e6343c9e298e071c9f525be29981[`+createMfaView()+`].
+
+The example can be found here: {wt-src}examples/authentication/mfa/totp[examples/authentication/mfa/totp].
+
+=== Custom implementation (similar to default)
+
+*THIS IS NOT A RECOMMENDED MFA STRATEGY, it is purely illustrative to
+demonstrate the API flexibility*
+
+We'll now follow an example that deviates a little from the default. It
+is very similar to the TOTP implementation, and requires next to no
+set-up. It will generate a random PIN for each user, which they will
+have to remember ([line-through]#or write down!#).
+
+A proper approach to MFA requires that the user should use factors from
+different "sources". A password is an example of something they know.
+TOTP is an example of something they have. If the same source is used
+twice, this is not considered good practice. After all a user may write
+down a password. If using this approach, it is very likely they will also
+write down the PIN.
+
+The example can be found here: {wt-src}examples/authentication/mfa/pin[examples/authentication/mfa/pin].
+
+We'll go over a couple important parts and set up an example that will:
+
+* require a password-based login
+* allow the MFA login to be remembered
+
+We'll go ahead and adapt the example `+Session+` from <<_configuring_authentication>>.
+In the `+configureAuth+` method, we will simply add two more lines.
+Note that all other configuration remained the same, meaning auth
+tokens are enabled, and password authentication was configured.
+
+So here we set the `+AuthService+` to be able to use MFA, and use the
+default name for it (resulting in "*multifactor*". We also then require
+MFA to be used by all users.
+
+.Session configuration
+[source,cpp]
+----
+  myAuthService.setMfaProvider(Wt::Auth::Identity::MultiFactor);
+  myAuthService.setMfaRequired(true);
+----
+
+The `+PinProcess+` will be our MFA process, and will inherit from {doc}classWt_1_1Auth_1_1Mfa_1_1AbstractMfaProcess.html[`+AbstractMfaProcess+`].
+This base class dictates how an MFA process should behave, and what
+interface it ought to follow. This widget also shows a different way to
+define the UI from {doc}classWt_1_1Auth_1_1Mfa_1_1TotpProcess.html[`+TotpProcess+`].
+The way this process is shown in the UI is managed by {doc}classWt_1_1Auth_1_1AuthWidget.html#a31f1e6343c9e298e071c9f525be29981[`+createMfaView()+`].
+
+We use a {doc}classWt_1_1WCompositeWidget.html[`+WCompositeWidget+`] here
+that uses a {doc}classWt_1_1WTemplate.html[`+WTemplate+`] as its
+implementation. It's a very minimal template that just binds a single
+widget. This is the widget generated by the `+create...+` virtual methods.
+
+.PinProcess implementation
+[source,cpp]
+----
+class PinProcess final : public Wt::Auth::Mfa::AbstractMfaProcess
+{
+  public:
+    PinProcess(const Wt::Auth::AuthService& authService, Wt::Auth::AbstractUserDatabase& users, Wt::Auth::Login& login)
+      : Wt::Auth::Mfa::AbstractMfaProcess(authService, users, login)
+    {
+    }
+----
+
+We'll then have to implement a couple methods that are purely virtual.
+These methods essentially dictate what the content is the two possible
+views of the MFA process hold.
+
+The next example <<_custom_implementation_far_from_default>> will show a more
+alternative way as a demonstration.
+
+.Abstract methods
+[source,cpp]
+----
+public:
+  std::unique_ptr<Wt::WWidget> createSetupView() final;
+  std::unique_ptr<Wt::WWidget> createInputView() final;
+----
+
+These methods dictate how the widget behaves in the regular {doc}classWt_1_1Auth_1_1AuthWidget.html[`+AuthWidget+`]
+flow. The `+create...+`  functions generate the views that are to be
+displayed.
+
+For convenience, and to ensure we do not repeat code too much, we have
+introduced the `+createBaseView()+` method. This generates the pointer
+to the template, allows that to use the {doc}structWt_1_1WTemplate_1_1Functions.html#a73c9f4b259c0947e168da9b6925cfdad[`+id()+`],
+and {doc}structWt_1_1WTemplate_1_1Functions.html#a849649f5cb5609a681cb9361117d0348[`+tr()+`]
+functions. The condition {doc}classWt_1_1WTemplate.html#ab2b6fc00ef28674be103dd1b13fd0aec[`+setCondition()+`]
+is the main distinguishing factor between the two views. Only during the
+setup phase will the generated code be displayed to the user. After that
+they will have to supply the PIN code themselves.
+
+.Abstract methods implementation
+[source,cpp]
+----
+std::unique_ptr<Wt::WTemplate> PinProcess::createBaseView(bool isSetup)
+{
+  auto view = std::make_unique<Wt::WTemplate>(Wt::WTemplate::tr("pin-template"));
+
+  view->addFunction("id", &Wt::WTemplate::Functions::id);
+  view->addFunction("tr", &Wt::WTemplate::Functions::tr);
+
+  view->setCondition("if:is-setup", isSetup);
+
+  view_ = view.get();
+  return view;
+}
+
+std::unique_ptr<Wt::WWidget> PinProcess::createSetupView()
+{
+  auto view = createBaseView(true);
+  createCodeGenerator();
+  createCodeInput();
+  createLoginButton();
+  createRememberMe();
+  return std::move(view);
+}
+
+std::unique_ptr<Wt::WWidget> PinProcess::createInputView()
+{
+  auto view = createBaseView(false);
+  createCodeInput();
+  createLoginButton();
+  createRememberMe();
+  return std::move(view);
+}
+----
+
+You may have noticed the {doc}classWt_1_1WWidget.html#aa651f107ec7cf080faef6c435705fc44[`+WTemplate::tr()+`]
+call here. This will load content from a resource bundle, which can produce
+localised strings. For this to work, the application needs to be able to
+use these messages.
+
+.Application changes
+[source,cpp]
+----
+  messageResourceBundle().use(appRoot() + "template");
+----
+
+That takes care of nearly all the required setup. We now only have to
+create the actual `+PinProcess+` further. Here we will create the actual
+widgets, and manage how the class receives, validates and responds to
+input.
+
+.PinProcess final steps (header)
+[source,cpp]
+----
+protected:
+  void createCodeGenerator();
+  void createCodeInput();
+  void createLoginButton();
+  void createRememberMe();
+
+  void checkCodeInput();
+  void update();
+
+private:
+  const int NUMBER_OF_DIGITS = 5;
+
+  Wt::WTemplate* view_ = nullptr;
+
+  std::string currentCode_;
+
+  Wt::WLineEdit* codeInput_;
+  Wt::WCheckBox* rememberMeField_;
+
+  Wt::Signal<Wt::Auth::Mfa::AuthenticationResult> authenticated_;
+
+  Wt::WTemplate* impl() { return static_cast<Wt::WTemplate*>(implementation()); }
+};
+----
+
+Some explanation for all methods:
+
+* *createCodeGenerator* will generate a random PIN code, from a random
+value, seeded by the current time. A number is created of length
+`+NUMBER_OF_DIGITS+`.
+
+* *createCodeInput* will add a {doc}classWt_1_1WLineEdit.html[`+WLineEdit+`]
+to the template, where the user is able to insert the PIN code. Pressing
+enter will start the process to verify the input.
+
+* *createLoginButton* will add a {doc}classWt_1_1WPushButton.html[`+WPushButton+`]
+that also starts the check to ascertain the PIN is valid.
+
+* *createRememberMe* will add two things:
+ - a {doc}classWt_1_1WCheckBox.html[`+WCheckBox+`] that indicates whether
+ "remember-me" is enabled or not, which can be set by the user to enable
+ it. By default it will be disabled. This DOES require {doc}classWt_1_1Auth_1_1AuthService.html#adf5b811cbedec93de7d4b97950565af3[`+setAuthTokensEnabled()+`]
+ to be set to `+true+`.
+ - it displays a label next to the `+WCheckBox+` that indicates how long
+ the "remember-me" will last.
+
+* *checkCodeInput* will validate the input the user supplied in the
+`+WLineEdit+`. Either this code is already present in the class, or it
+is retrieved from the user's identity using {doc}classWt_1_1Auth_1_1Mfa_1_1AbstractMfaProcess.html#aa73dad2397a363ebde6747181c644005[`+userIdentity()+`].
+The persisted or just created value is then checked against the user's
+input. This input can either:
+ - *not match*, in which case the failure is indicated to them visually
+ by *update*.
+ - *match*, in which case they are logged into the system, and the
+ identity is added to the database, if it hasn't been already.
+In both cases the `+authenticated+` signal is fired.
+
+* *update* will indicate the failure to authenticate to the user by
+displaying a message and indicating the field red.
+
+.PinProcess final steps (implementation)
+[source,cpp]
+----
+void PinProcess::createCodeGenerator()
+{
+  // Set seed for randomness to current time
+  std::srand(std::time(0));
+
+  std::string code;
+  int value = 0;
+  for (int i = 0; i < NUMBER_OF_DIGITS; ++i) {
+    value = std::rand() / (RAND_MAX / 10);
+    code += std::to_string(value);
+  }
+
+  currentCode_ = code;
+  view_->bindString("code", code);
+}
+
+void PinProcess::createCodeInput()
+{
+  codeInput_ = view_->bindNew<Wt::WLineEdit>("input");
+  codeInput_->enterPressed().connect([this] {
+    checkCodeInput();
+  });
+
+  // Validation message
+  view_->bindEmpty("code-info");
+}
+
+void PinProcess::createLoginButton()
+{
+  auto login = view_->bindNew<Wt::WPushButton>("login", tr("Wt.Auth.login"));
+  login->clicked().connect([this] {
+    checkCodeInput();
+  });
+}
+
+void PinProcess::createRememberMe()
+{
+  view_->setCondition("if:remember-me", true);
+  rememberMeField_ = view_->bindNew<Wt::WCheckBox>("remember-me");
+
+  int days = baseAuth().mfaTokenValidity() / 24 / 60;
+
+  Wt::WString info;
+  if (days % 7 != 0) {
+    info = Wt::WString::trn("Wt.Auth.remember-me-info.days", days).arg(days);
+  } else if (days == 0) {
+    info = Wt::WString::tr("Wt.Auth.remember-me-info.indefinite");
+  } else {
+    info = Wt::WString::trn("Wt.Auth.remember-me-info.weeks", days/7).arg(days/7);
+  }
+
+  view_->bindString("remember-me-info", info);
+}
+
+void PinProcess::checkCodeInput()
+{
+  const std::string enteredCode = codeInput_->text().toUTF8();
+  auto savedCode = currentCode_.empty() ? userIdentity() : currentCode_;
+
+  if (enteredCode != savedCode) {
+    update();
+    authenticated_.emit(Wt::Auth::Mfa::AuthenticationResult(Wt::Auth::Mfa::AuthenticationStatus::Failure, "The validation failed"));
+  } else {
+    createUserIdentity(savedCode);
+
+    if (rememberMeField_->isChecked()) {
+      setRememberMeCookie(login().user());
+    }
+
+    login().login(login().user());
+    authenticated_.emit(Wt::Auth::Mfa::AuthenticationResult(Wt::Auth::Mfa::AuthenticationStatus::Success));
+  }
+}
+
+void PinProcess::update()
+{
+  codeInput_->addStyleClass("is-invalid Wt-invalid");
+
+  // Validation message and color
+  view_->bindString("code-info", "Wrong PIN code");
+  view_->bindString("label", "invalid-feedback");
+}
+----
+
+To ensure that the correct widget is shown (and not the default
+`+TotpProcess+`), one needs to override {doc}classWt_1_1Auth_1_1AuthWidget.html#ac8b5edb93ea56e20f483fd0e1ef8bebb[`+createMfaProcess()+`].
+Here we will also take care of the additional `+authenticated+` signal.
+This will make sure that the application can listen to it.
+
+.AuthWidget overrides
+[source,cpp]
+----
+std::unique_ptr<Wt::Auth::Mfa::AbstractMfaProcess> AuthWidget::createMfaProcess()
+{
+  auto process = std::make_unique<PinProcess>(*model()->baseAuth(), model()->users(), login());
+  process->authenticated().connect([this](Wt::Auth::Mfa::AuthenticationResult res) {
+    authenticated_.emit(res);
+  });
+  return std::move(process);
+}
+----
+
+A user can now register, or using the default setup use the "admin:admin"
+or "user:user" accounts. They'll notice that after they log in, or follow
+the link to register, they will be shown the `+PinProcess+`. Only after
+they enter the same PIN that is displayed to them, will they be
+authenticated.
+
+One concern that is indicated in the documentation in a note on {doc}classWt_1_1Auth_1_1Mfa_1_1AbstractMfaProcess.html#details[`+AbstractMfaProcess+`],
+is that the  {doc}classWt_1_1Auth_1_1Login.html#aafb1d791aeee8b59d28faeda88e8392b[`+Login::changed()+`]
+signal is fired BOTH when the user passes the normal username/password
+authentication step, AND when they pass the MFA step. This is why we
+make use of a custom signal `+authenticated+`.
+
+=== Custom implementation (far from default)
+
+*THIS IS NOT A RECOMMENDED MFA STRATEGY, it is purely illustrative to
+demonstrate the API flexibility*
+
+The previous example offers a very basic case, with minimal configuration,
+but also with minimal advantage. We will now discuss another way to
+approach MFA, with a more custom widget. This takes some inspiration from
+the {wt-src}examples/qrlogin[`+examples/qrlogin+`]. While it is far from
+a good approach to MFA again, it will illustrate some more nuance, than
+the previous example, and guide any developer towards the way to implement
+fully custom MFA processes.
+
+==== Overview of the application
+
+So, what does this application do? You can find the complete source at
+{wt-src}examples/authentication/mfa/phone[`+examples/authentication/mfa/phone+`].
+
+*This requires your phone to be able to access your application.*
+
+Simply speaking, it will always display a QR code. This code can be
+scanned by your smartphone, which will direct it to an endpoint, managed
+by this application. Upon initially using this, some information of your
+phone will be stored in the database. This will not be stored as the
+identity, but in a more complex table. That is the end of the setup phase.
+
+After each subsequent login, the user will then be prompted to scan a
+similar QR code, which that checks if the already saved data from the
+user's phone corresponds with the current access. If it does, the MFA
+step will be successful.
+
+This is again purely illustrative. The metrics taken from the phone are
+not a good way to uniquely identify a user. The phone can be changed out,
+a software update or a different browser may produce different results.
+So it is not a robust MFA step. It is only a way to illustrate what is
+necessary to ensure a proper MFA implementation that integrates well with
+Wt.
+
+*Important note:* This will not work correctly if you use session tracking
+"Combined". If the QR code is then scanned on your phone, Wt will complain
+that no multi-session cookie is present in the browser. To get around this
+use the session tracking configuration of "URL". This is set in {doc}overview.html#config_session[`+wt_config.xml+`].
+This exposes the session of the login to the QR code, and thus to any
+device that scans the QR code. After the MFA step this session ID is
+replaced, but this is still not a good idea. This example is purely
+illustrative and should NOT BE IMPLEMENTED in ANY production
+environment.
+
+==== First configuration
+
+We will again start from a very basic `+Session+`. This one will be
+identical to the one from above, except that it will map an extra class.
+
+Like with the above example, a default "admin:admin", and "user:user"
+account are provided for convenience. The user account does not require
+the MFA step, whereas the admin account does. This is to avoid having MFA
+be forced on each user. We no longer set {doc}classWt_1_1Auth_1_1AuthService.html#a5c708962311456a67c07e25c03247b23[`+setMfaRequired()+`]
+to be `+true+`. Now we define this for each user separately, using the
+`+MyUser::requires_mfa_+` member.
+
+.mysession.cpp (extra mapping)
+[source,cpp]
+----
+  mapClass<AuthEntry>("auth_entry");
+----
+
+This class will contain information about the phone that initially was
+used to set up MFA. And thus if subsequent requests are made through the
+"same phone". As the metrics gathered are very basic, the "same phone" is
+between heavy quotation marks. This can obviously be extended, but as said
+before. This is purely illustrative.
+
+.AuthEntry class
+----
+#pragma once
+
+#include "myuser.h"
+
+#include "Wt/Dbo/Dbo.h"
+
+class AuthEntry : public Wt::Dbo::Dbo<AuthEntry>
+{
+public:
+  AuthEntry() = default;
+  AuthEntry(const Wt::Dbo::ptr<AuthInfo>& authInfo, const std::string& host, const std::string& userAgent, const std::string& language)
+    : authInfo_(authInfo),
+      host_(host),
+      userAgent_(userAgent),
+      language_(language)
+  {
+  }
+
+  const std::string& host() const { return host_; }
+  const std::string& userAgent() const { return userAgent_; }
+  const std::string& language() const { return language_; }
+
+  template<class Action>
+  void persist(Action& a)
+  {
+    Wt::Dbo::belongsTo(a, authInfo_, "auth_info");
+
+    Wt::Dbo::field(a, host_, "host");
+    Wt::Dbo::field(a, userAgent_, "userAgent");
+    Wt::Dbo::field(a, language_, "language");
+  }
+
+private:
+  Wt::Dbo::ptr<AuthInfo> authInfo_;
+
+  std::string host_;
+  std::string userAgent_;
+  std::string language_;
+};
+----
+
+We then come to the widget that actually manages the login, which then
+inherits from {doc}classWt_1_1Auth_1_1Mfa_1_1AbstractMfaProcess.html[`+AbstractMfaProcess+`].
+This we will call `+PhoneProcess+` for now.
+
+It follows the same structure as the `+PinProcess+`, or `+TotpProcess+`,
+but differs how it show its information. This time we will use a
+{doc}classWt_1_1WDialog.html[`+WDialog+`] to contain the widget and show
+it in the UI.
+
+One other major difference is that we set up a {doc}classWt_1_1WResource.html[`+WResource+`]
+that is going to manage the interaction with our phone. We will call this
+class `+QrCodeHandler+`.
+
+The header of the `+PhoneProcess+` looks like:
+
+.PhoneProcess.h
+[source,cpp]
+----
+#pragma once
+
+#include "mysession.h"
+#include "qrcodehandler.h"
+
+#include "Wt/Auth/Mfa/AbstractMfaProcess.h"
+
+#include "Wt/WCheckBox.h"
+#include "Wt/WDialog.h"
+#include "Wt/WLineEdit.h"
+#include "Wt/WTemplate.h"
+
+class PhoneProcess final : public Wt::Auth::Mfa::AbstractMfaProcess
+{
+public:
+  PhoneProcess(MySession& session);
+
+  std::unique_ptr<Wt::WWidget> createSetupView() final;
+  std::unique_ptr<Wt::WWidget> createInputView() final;
+
+  void processEnvironment() final;
+
+  void setUpUserIdentity();
+
+  Wt::Signal<Wt::Auth::Mfa::AuthenticationResult>& authenticated() { return authenticated_; }
+
+private:
+  MySession& session_;
+
+  std::unique_ptr<QrCodeHandler> qrHandler_;
+
+  Wt::WTemplate* view_ = nullptr;
+
+  bool doRememberMe_ = false;
+
+  Wt::Signal<Wt::Auth::Mfa::AuthenticationResult> authenticated_;
+
+  void createQRCode(bool isSetup);
+  void createRememberMe();
+
+  void createQRHandlerResource();
+  std::unique_ptr<Wt::WTemplate> createBaseView(bool isSetup);
+};
+----
+
+Its implementation will look like:
+
+.PhoneProcess.cpp
+[source,cpp]
+----
+#include "phonewidget.h"
+
+#include "qrcodepainter.h"
+
+#include "Wt/Auth/AuthService.h"
+#include "Wt/Auth/Login.h"
+
+#include "Wt/WApplication.h"
+#include "Wt/WPushButton.h"
+#include "Wt/WWidget.h"
+
+PhoneProcess::PhoneProcess(MySession& session)
+  : AbstractMfaProcess(session.auth(), session.users(), session.login()),
+    session_(session)
+{
+  createQRHandlerResource();
+}
+
+void PhoneProcess::processEnvironment()
+{
+  Wt::Auth::User user = processMfaToken();
+
+  if (user.isValid()) {
+    login().login(user, Wt::Auth::LoginState::Weak);
+    authenticated_.emit(Wt::Auth::Mfa::AuthenticationResult(Wt::Auth::Mfa::AuthenticationStatus::Success));
+    return;
+  }
+}
+
+void PhoneProcess::setUpUserIdentity()
+{
+  createUserIdentity("verified");
+}
+
+void PhoneProcess::createQRHandlerResource()
+{
+  qrHandler_ = std::make_unique<QrCodeHandler>(session_);
+  qrHandler_->allowSignin().connect([this] {
+    {
+      auto app = Wt::WApplication::instance();
+      Wt::WApplication::UpdateLock lock(app);
+      login().login(login().user());
+      app->triggerUpdate();
+    }
+
+    authenticated_.emit(Wt::Auth::Mfa::AuthenticationResult(Wt::Auth::Mfa::AuthenticationStatus::Success));
+    if (doRememberMe_) {
+      setRememberMeCookie(login().user());
+    }
+  });
+}
+
+std::unique_ptr<Wt::WTemplate> PhoneProcess::createBaseView(bool isSetup)
+{
+  auto view = std::make_unique<Wt::WTemplate>(Wt::WTemplate::tr("phone-template"));
+
+  view->addFunction("id", &Wt::WTemplate::Functions::id);
+  view->addFunction("tr", &Wt::WTemplate::Functions::tr);
+
+  view_ = view.get();
+  return view;
+}
+
+std::unique_ptr<Wt::WWidget> PhoneProcess::createSetupView()
+{
+  auto view = createBaseView(true);
+
+  createQRCode(true);
+  createRememberMe();
+  return std::move(view);
+}
+
+std::unique_ptr<Wt::WWidget> PhoneProcess::createInputView()
+{
+  auto view = createBaseView(false);
+
+  createQRCode(false);
+  createRememberMe();
+  return std::move(view);
+}
+
+void PhoneProcess::createQRCode(bool isSetup)
+{
+  std::string handleUrl = Wt::WApplication::instance()->makeAbsoluteUrl(qrHandler_->url());
+  if (isSetup) {
+    handleUrl += "&issetup";
+  }
+  view_->bindNew<QrCodePainter>("code", handleUrl);
+}
+
+void PhoneProcess::createRememberMe()
+{
+  view_->setCondition("if:remember-me", true);
+  auto rememberMe  = view_->bindNew<Wt::WCheckBox>("remember-me");
+  rememberMe->changed().connect([this] { doRememberMe_ = true; });
+
+  int days = baseAuth().mfaTokenValidity() / 24 / 60;
+
+  Wt::WString info;
+  if (days % 7 != 0) {
+    info = Wt::WString::trn("Wt.Auth.remember-me-info.days", days).arg(days);
+  } else if (days == 0) {
+    info = Wt::WString::tr("Wt.Auth.remember-me-info.indefinite");
+  } else {
+    info = Wt::WString::trn("Wt.Auth.remember-me-info.weeks", days/7).arg(days/7);
+  }
+
+  view_->bindString("remember-me-info", info);
+}
+----
+
+The way we generate the URL is not that important here, and will be
+omitted. What *is* important is the way that we choose to handle the
+incoming requests that come from any phone that scans the QR code. This
+will be handled by `+QrCodeHandler+`.
+
+.QrCodeHandler.h
+[source,cpp]
+----
+#pragma once
+
+#include "mysession.h"
+
+#include "Wt/Http/Request.h"
+#include "Wt/Http/Response.h"
+
+#include "Wt/WResource.h"
+
+class PhoneProcess;
+
+class QrCodeHandler final : public Wt::WResource
+{
+public:
+  QrCodeHandler(MySession& session, PhoneProcess* phoneWidget);
+
+  void handleRequest(const Wt::Http::Request& request, Wt::Http::Response& response) final;
+
+  Wt::Signal<>& allowSignin() { return allowSignin_; }
+
+private:
+  MySession& session_;
+  PhoneProcess* phoneWidget_ = nullptr;
+
+  Wt::Signal<> allowSignin_;
+};
+----
+
+This is simply a {doc}classWt_1_1WResource.html[`+WResource+`] that
+listens to an incoming request, tied to the session. A response will be
+generated that essentially contains either 200/400 status and a small
+string that indicates the result of the request. The {doc}classWt_1_1WResource.html#a3a740f8cc29e2e6e4e58defc9c88b8b6[`+handleRequest()+`]
+method will check some headers of the incoming request, and check them
+against the database.
+
+A request can have *issetup* appended to it, indicating the record is to
+be created still, and it's the user's first time using MFA. Otherwise the
+current request is compared to the existing record.
+
+When creating a new record, or when a match has taken place, the response
+is a *HTTP 200*. Otherwise it will be *400*.
+
+.QrCodeHandler.cpp
+[source,cpp]
+----
+#include "qrcodehandler.h"
+
+#include "authentry.h"
+
+QrCodeHandler::QrCodeHandler(MySession& session, PhoneProcess* phoneWidget)
+  : session_(session),
+    phoneWidget_(phoneWidget)
+{
+}
+
+void QrCodeHandler::handleRequest(const Wt::Http::Request& request, Wt::Http::Response& response)
+{
+  std::string userAgent = request.headerValue("User-Agent");
+
+  if (userAgent.find("Mobile") == std::string::npos) {
+    response.setStatus(400);
+    return;
+  }
+
+  const Wt::Auth::User& user = session_.login().user();
+
+  if (!user.isValid()) {
+    response.setStatus(400);
+    return;
+  }
+
+  std::string query = request.queryString();
+  bool isSetup = query.find("issetup") != std::string::npos;
+
+  std::string host = request.headerValue("Host");
+  std::string language = request.headerValue("Accept-Language");
+
+  Wt::Dbo::Transaction t(session_);
+  const Wt::Dbo::ptr<AuthInfo>& authInfo = session_.find<AuthInfo>("where id = ?").bind(user.id());
+  Wt::Dbo::ptr<AuthEntry> entry = session_.find<AuthEntry>("where auth_info_id = ?").bind(authInfo);
+
+  if (!entry && !isSetup) {
+    response.setStatus(400);
+    return;
+  } else if (!entry && isSetup) {
+    session_.addNew<AuthEntry>(authInfo, host, userAgent, language);
+    phoneWidget_->setUpUserIdentity();
+    response.setStatus(200);
+    response.out() << "An entry was created.";
+    allowSignin_.emit();
+    return;
+  } else if (entry && isSetup) {
+    response.setStatus(400);
+    response.out() << "An entry already exists. Cannot set up a new entry.";
+    return;
+  }
+
+  if (entry->host() == host && entry->userAgent() == userAgent && entry->language() == language) {
+    response.setStatus(200);
+    response.out() << "Validation has been accepted.";
+    allowSignin_.emit();
+  } else {
+    response.setStatus(400);
+    response.out() << "Validation has been denied.";
+  }
+}
+----
+
+At the end we emit a signal `+allowSignin_+`, if a valid request has
+taken place. This will indicate to the application that a successful MFA
+step was completed, and that the user can be properly logged in.
+
+To ensure that we use the right widget, we again need to do some
+overriding of methods of {doc}classWt_1_1Auth_1_1AuthWidget.html[`+AuthWidget+`].
+This is similar to the last example, where we specify which widget needs
+to be created in {doc}classWt_1_1Auth_1_1AuthWidget.html#ac8b5edb93ea56e20f483fd0e1ef8bebb[`+createMfaWidget()+`].
+But we do need one more entry. Since we no longer rely on the basic
+implementation, which would create an {doc}classWt_1_1Auth_1_1Identity.html[`+Identity+`],
+the application cannot rely on the default {doc}classWt_1_1Auth_1_1AuthWidget.html#a31f1e6343c9e298e071c9f525be29981[`createMfaView()+`].
+We *can* opt to set the `+Identity+` as well, but this shows how one can
+get around that if desired. We then need logic to decide whether the setup
+or input state of the MFA process needs to be displayed.
+
+The call to {doc}classWt_1_1Auth_1_1Mfa_1_1AbstractMfaProcess.html#af751df7a5ec266f4932ef8b68d22077d[`+processMfaToken()+`]
+makes sure that the remember-me functionality can be used.
+
+We also perform somewhat of a *hack* here, by calling {doc}classWt_1_1Auth_1_1Mfa_1_1AbstractMfaProcess.html#a78b7203905139cb582ff4f3daaf5cd43[`+createUserIdentity()+`].
+Done throught the wrapper of `+setUpUserIdentity+`, so it can be
+performed in the `+QrCodeHandler+`. This identity is meant to keep track
+of whether the user can be identified by a certain MFA provider. The
+value that is attached to it is normally more descriptive, or contains
+some MFA specific stuff.
+
+In the default TOTP approach for example, it will contain the
+*secret key*. This MFA approach however does not feature such a
+centralised key, but leans in the data in `+AuthEntry+`.
+
+We can provide a custom implementation of {doc}classWt_1_1Auth_1_1Mfa_1_1AbstractMfaProcess.html#af751df7a5ec266f4932ef8b68d22077d[`+processMfaToken()+`]
+to take this into account, but this seems a little out of scope. Hence
+the choice to generate a "placeholder" identity.
+
+Normally this identity should, for convenience's sake, carry the same
+name as {doc}classWt_1_1Auth_1_1AuthService.html#aad075b232ddafe52a4953f3c341e6e75[`+setMfaProvider()+`].
+However, this case also shows that the environment token (cookie) can be
+matched regardless of the identity name. This can be added as an extra
+requirement. But if a developer opts for this, do take into account that
+this may invalidate existing cookies for users that already clicked the
+"remember-me" checkbox.
+
+.MyAuthWidget.h overrides
+[source,cpp]
+----
+#pragma once
+
+#include "mysession.h"
+
+#include "Wt/Auth/AuthWidget.h"
+
+class MyAuthWidget final : public Wt::Auth::AuthWidget
+{
+public:
+  MyAuthWidget(MySession& session);
+
+  std::unique_ptr<Wt::Auth::Mfa::AbstractMfaProcess> createMfaProcess() final;
+
+  void createMfaView() final;
+
+private:
+  MySession& session_;
+};
+----
+
+With the following implementation:
+
+.MyAuthWidget.cpp
+[source,cpp]
+----
+#include "myauthwidget.h"
+
+#include "authentry.h"
+#include "phoneprocess.h"
+
+#include "Wt/Dbo/Transaction.h"
+
+MyAuthWidget::MyAuthWidget(MySession& session)
+  : Wt::Auth::AuthWidget(session.auth(), session.users(), session.login()),
+    session_(session)
+{
+}
+
+std::unique_ptr<Wt::Auth::Mfa::AbstractMfaProcess> MyAuthWidget::createMfaProcess()
+{
+  return std::make_unique<PhoneProcess>(session_);
+}
+
+void MyAuthWidget::createMfaView()
+{
+  phoneProcess_ = createMfaProcess();
+  PhoneProcess* process = dynamic_cast<PhoneProcess*>(phoneProcess_.get());
+
+  const Wt::Auth::User user = session_.login().user();
+
+  Wt::Dbo::Transaction t(session_);
+  Wt::Dbo::ptr<AuthEntry> hasEntry = session_.find<AuthEntry>("where auth_info_id = ?").bind(user.id());
+
+  auto dialog = addChild(std::make_unique<Wt::WDialog>("MFA Phone Verification"));
+
+  if (!hasEntry) {
+    dialog->contents()->addWidget(std::move(process->createSetupView()));
+    dialog->finished().connect([dialog] {
+      dialog->parent()->removeChild(dialog);
+    });
+    dialog->show();
+  } else {
+    process->processEnvironment();
+    if (login().state() != Wt::Auth::LoginState::RequiresMfa) {
+      return;
+    }
+
+    dialog->contents()->addWidget(std::move(process->createInputView()));
+    dialog->finished().connect([dialog] {
+      dialog->parent()->removeChild(dialog);
+    });
+    dialog->show();
+  }
+
+  process->authenticated().connect([this, dialog](Wt::Auth::Mfa::AuthenticationResult result) {
+    if (result.status() == Wt::Auth::Mfa::AuthenticationStatus::Success) {
+      createLoggedInView();
+      Wt::WApplication::instance()->triggerUpdate();
+      dialog->accept();
+    }
+  });
+}
+----
+
+We also made another important change, namely to {doc}classWt_1_1Auth_1_1AuthModel.html#af2083a59fc1458c1fb0020bec0cdf959[`+hasMfaStep()+`],
+which is used to indicate whether a user should be displayed the MFA step
+or not. This can be used to *enforce*  the MFA step to show, even if
+{doc}classWt_1_1Auth_1_1AuthService.html#aea80af69dc6fe58e5ca1f4e0151e0563[`+mfaRequired()+`]
+is set to `+false+` (but it should be enabled {doc}classWt_1_1Auth_1_1AuthService.html#a68bb16d6844c78c719ad350929959247[`+mfaEnabled()+`]).
+
+.MyAuthModel.h
+[source,cpp]
+----
+#pragma once
+
+#include "mysession.h"
+
+#include "Wt/Auth/AuthModel.h"
+
+class MyAuthModel : public Wt::Auth::AuthModel
+{
+public:
+  MyAuthModel(MySession& session);
+
+protected:
+  bool hasMfaStep(const Wt::Auth::User& user) const final;
+
+private:
+  MySession& session_;
+};
+----
+
+This will now check whether the user has the `+requires_mfa+` field set
+in the database, attached to them. This does also require the `+MyUser+`
+class to change slightly, to allow for this value to be set.
+
+It has the following implementation:
+
+.MyAuthModel.cpp
+[source,cpp]
+----
+#include "myauthmodel.h"
+
+#include "Wt/Dbo/Transaction.h"
+#include "authentry.h"
+
+MyAuthModel::MyAuthModel(MySession& session)
+  : Wt::Auth::AuthModel(session.auth(), session.users()),
+    session_(session)
+{
+}
+
+bool MyAuthModel::hasMfaStep(const Wt::Auth::User& user) const
+{
+  Wt::Dbo::Transaction t(session_);
+  Wt::Dbo::Query<bool> result = session_.query<bool>("select requires_mfa from user join auth_info on auth_info.user_id = user.id where auth_info.id = ?")
+                                .bind(user.id());
+  return result.resultValue();
+}
+----
+
+And thus also the following changes to the `+MyUser+` record.
+
+.MyUser changes
+[source,cpp]
+----
+public:
+  ...
+
+  void setRequiresMfa(bool value)
+  {
+    requiresMfa_ = value;
+  }
+
+  template<class Action>
+  void persist(Action& a)
+  {
+    ...
+    Wt::Dbo::field(a, requiresMfa_, "requires_mfa");
+    ...
+  }
+
+private:
+  ...
+  bool requiresMfa_ = false;
+  ...
+----
+
+Do also note that there are a couple places where we call {doc}classWt_1_1WApplication_1_1UpdateLock.html[`+UpdateLock+`]
+together with {doc}classWt_1_1WApplication.html#a51f50e0641a6d702a7c6ab7f8dd5946a[`+triggerUpdate()+`].
+This is necessary because we are no longer working in the main event loop.
+With a normal authentication widget, we will listen to the user to update
+the server. They will press "Login", or enter in the last field. This will
+prompt the server to enter its main loop, (see {doc}classWt_1_1WApplication.html#a4a6f167bea94aefa8ba24f914c2fbee5[`+notify()+`])
+and respond to the request after the client submits it.
+
+However, in this case we the server is listening not to actual user input,
+but to a response coming into the resource. As such, we need to update the
+UI based on what happens there. This may happen at any point, and from any
+thread of the application. Updates to the DOM tree should be done in a
+single thread (the main UI thread). This can be done by taking the
+application update lock.
+
+To facilitate this we do several things:
+
+. we attach a handler to the `+WCheckBox+` that is used to remember the
+MFA step. Which will prompt an update on the server side. There we keep
+track of the state in `+doRememberMe_+`.
+
+. once we then catch an authentication event. We check the state of the
+boolean and act accordingly (setting a cookie if necessary, using {doc}classWt_1_1Auth_1_1Mfa_1_1AbstractMfaProcess.html#a41f7dc09696d8c46dcdb6cd594ff9b4c[`+setRememberMeCookie()+`]).
+We also call `+triggerUpdate()+` before that, to ensure that we push out
+the change in {doc}classWt_1_1WApplication.html#a314a5461dc410f4713ab1b1258fd8ced[`+sessionId()+`].
+If we would not, Wt would lose track of the session, and try to contact
+the session that was just renamed by its old ID.
+
+. last we also ensure that `+showInputView()+` doesn't pop up when it
+shouldn't. We guard this by checking the login {doc}classWt_1_1Auth_1_1Login.html#a99cb512c352f7d011ab6d39fc8f4ec0e[`+state()+`]
+which is set either to `+LoginState::Weak+` in `+processEnvironment()+`
+if a token match is found, or `+LoginState::RequiresMfa+` otherwise.
+
+---
+
+These examples show you how implement MFA in a very basic, slightly more
+custom, and a very custom manner. Using the tools at your disposal, you
+are now able to implement your own method if you so desire.
 
