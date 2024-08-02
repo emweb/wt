@@ -35,6 +35,13 @@ behaviour.
     If both options are enabled, the tooltip on hover will not be shown. Rather the forcibly shown tooltip will remain visible throughout.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/4948" target="_blank">Issue #4948</a>:
+    The style of the collapse icon of collapsible <a href="classWt_1_1WPanel.html" target="_blank">WPanel</a>s
+    is now defined in CSS by styling the <code>Wt-collapse-button</code> style class.
+    IMPORTANT: the collapse icon will not be visible when using a custom theme that does not
+    define a styling for the <code>Wt-collapse-button</code> style class.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/12817" target="_blank">Issue #12817</a>:
     allows custom implementation of the scope and the authorization endpoint of the
     <a href="classWt_1_1Auth_1_1OAuthProcess.html" target="_blank">Auth::OAuthProcess</a> by overriding
