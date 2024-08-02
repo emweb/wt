@@ -23,6 +23,7 @@
 #include "Wt/WSuggestionPopup.h"
 #include "Wt/WTabWidget.h"
 #include "Wt/WTimeEdit.h"
+#include "Wt/WIconPair.h"
 
 #include "DomElement.h"
 
@@ -137,7 +138,7 @@ void WCssTheme::apply(WWidget *widget, WWidget *child, int widgetRole) const
     child->addStyleClass("body");
     break;
   case PanelCollapseButton:
-    child->setFloatSide(Side::Left);
+    child->addStyleClass("Wt-collapse-button");
     break;
 
   case AuthWidgets:

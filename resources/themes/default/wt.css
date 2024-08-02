@@ -373,6 +373,24 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
   clear: left;
 }
 
+
+.Wt-collapse-button {
+  display: block;
+  flex: none;
+  align-self: center;
+  width: 16px;
+  height: 16px;
+  float: left;
+  background-image: url(../../collapse.gif);
+  background-repeat: no-repeat;
+  background-position: right center;
+  transition: transform .3s ease-in-out;
+}
+
+.Wt-collapsed .Wt-collapse-button {
+  transform: rotate(-90deg);
+}
+
 /*
  * Icons, check-boxes in WMenuItem
  */

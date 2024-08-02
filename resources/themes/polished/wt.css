@@ -336,8 +336,6 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
 /*
  * WPanel
  */
-.Wt-panel {
-}
 
 .Wt-panel .titlebar {
     color: #FFFFFF;
@@ -350,6 +348,23 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
 .Wt-panel .body {
     clear: left;
     padding: 4px 6px;
+}
+
+.Wt-collapse-button {
+    display: block;
+    flex: none;
+    align-self: center;
+    width: 16px;
+    height: 16px;
+    float: left;
+    background-image: url(../../collapse.gif);
+    background-repeat: no-repeat;
+    background-position: right center;
+    transition: transform .3s ease-in-out;
+}
+  
+.Wt-collapsed .Wt-collapse-button {
+    transform: rotate(-90deg);
 }
 
 /*

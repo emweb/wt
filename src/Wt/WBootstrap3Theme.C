@@ -19,6 +19,7 @@
 #include "Wt/WDialog.h"
 #include "Wt/WEnvironment.h"
 #include "Wt/WGoogleMap.h"
+#include "Wt/WIconPair.h"
 #include "Wt/WInPlaceEdit.h"
 #include "Wt/WLabel.h"
 #include "Wt/WLineEdit.h"
@@ -186,8 +187,9 @@ void WBootstrap3Theme::init(WApplication *app) const
     break;
 
   case PanelCollapseButton:
-    child->setFloatSide(Side::Left);
-    // fallthrough
+    child->addStyleClass("Wt-collapse-button");
+    break;
+
   case PanelTitle:
     child->addStyleClass("accordion-toggle");
     break;

@@ -140,14 +140,12 @@ void WPanel::setCollapsible(bool on)
   toggleStyleClass("Wt-collapsible", on);
 
   if (on && !isCollapsible()) {
-    std::string resources = WApplication::relativeResourcesUrl();
-
     setTitleBar(true);
 
     auto app = WApplication::instance();
 
-    auto icon = std::make_unique<WIconPair>(resources + "collapse.gif",
-                                            resources + "expand.gif");
+    auto icon = std::make_unique<WIconPair>(app->onePixelGifUrl(),
+                                            app->onePixelGifUrl());
 
     collapseIcon_ = icon.get();
     if (app->theme()->panelCollapseIconSide() == Side::Left) {

@@ -188,9 +188,7 @@ void WBootstrap5Theme::apply(WWidget *widget, WWidget *child, int widgetRole)
     auto iconPair = dynamic_cast<WIconPair *>(child);
     // this sets display: block, which makes sure the icons are aligned properly
     iconPair->uriIcon1()->setInline(false);
-    iconPair->uriIcon1()->setImageLink(app->onePixelGifUrl());
     iconPair->uriIcon2()->setInline(false);
-    iconPair->uriIcon2()->setImageLink(app->onePixelGifUrl());
     iconPair->addStyleClass("Wt-collapse-button");
     break;
   }

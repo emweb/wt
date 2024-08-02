@@ -559,6 +559,24 @@
   background: inherit;
 }
 /*
+ * WPanel
+ */
+.Wt-collapse-button {
+  display: block;
+  flex: none;
+  align-self: center;
+  margin-right: 15px;
+  height: 23px;
+  float: left;
+  background-image: url(../../../collapse.gif);
+  background-repeat: no-repeat;
+  background-position: right center;
+  transition: transform .3s ease-in-out;
+}
+.Wt-collapsed .Wt-collapse-button {
+  transform: rotate(-90deg);
+}
+/*
  * WAbstractItemView (WTableView and WTreeView)
  */
 .Wt-itemview {
