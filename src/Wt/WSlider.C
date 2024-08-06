@@ -499,6 +499,7 @@ WSlider::WSlider()
     preferNative_(false),
     changed_(false),
     changedConnected_(false),
+    inputConnected_(false),
     handleWidth_(20),
     minimum_(0),
     maximum_(99),
@@ -516,6 +517,7 @@ WSlider::WSlider(Orientation orientation)
     preferNative_(false),
     changed_(false),
     changedConnected_(false),
+    inputConnected_(false),
     handleWidth_(20),
     minimum_(0),
     maximum_(99),
@@ -542,8 +544,12 @@ EventSignal<>& WSlider::input()
 
 void WSlider::enableAjax()
 {
-  if (paintedSlider_)
+  if (paintedSlider_){
     paintedSlider_->connectSlots();
+  }
+  else{
+    WFormWidget::enableAjax();
+  }
 }
 
 void WSlider::setNativeControl(bool nativeControl)
@@ -775,7 +781,7 @@ void WSlider::updateDom(DomElement& element, bool all)
         changedConnected_ = true;
         changed().connect(this, &WSlider::onChange);
       } else if (!inputConnected_ && (valueChanged_.isConnected() || sliderMoved_.isConnected())) {
-        changedConnected_ = true;
+        inputConnected_ = true;
         input().connect(this, &WSlider::onChange);
       }
 
