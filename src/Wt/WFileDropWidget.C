@@ -6,6 +6,7 @@
 #include "Wt/Json/Object.h"
 #include "Wt/WApplication.h"
 #include "Wt/WEnvironment.h"
+#include "Wt/WLogger.h"
 #include "Wt/WMemoryResource.h"
 #include "Wt/WServer.h"
 #include "Wt/WSignal.h"
@@ -43,6 +44,8 @@ namespace {
 }
 
 namespace Wt {
+
+LOGGER("WFileDropWidget");
 
 class WFileDropWidget::WFileDropUploadResource final : public WResource {
 public:
@@ -716,6 +719,28 @@ void WFileDropWidget::setAcceptDirectories(bool enable, bool recursive) {
 
   updateFlags_.set(BIT_ACCEPTDROPS_CHANGED);
   repaint();
+}
+
+void WFileDropWidget::openFilePicker() {
+  if (!acceptDrops_) {
+    LOG_WARN("Not opening file picker since acceptDrop() is false.");
+    return;
+  }
+
+  wApp->doJavaScript(jsRef() + ".serverFileInput.click()");
+}
+
+void WFileDropWidget::openDirectoryPicker() {
+  if (!acceptDrops_) {
+    LOG_WARN("Not opening directory picker since acceptDrop() is false.");
+    return;
+  }
+  if (!acceptDirectories_) {
+    LOG_WARN("Not opening directory picker since acceptDirectories() is false.");
+    return;
+  }
+
+  wApp->doJavaScript(jsRef() + ".serverDirInput.click()");
 }
 
 void WFileDropWidget::createWorkerResource() {

@@ -30,11 +30,28 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
 
   let dragState = 0;
 
+  // input-tag used to redirect a click event on the drop-widget
   const hiddenInput = document.createElement("input");
   hiddenInput.type = "file";
   hiddenInput.setAttribute("multiple", "multiple");
   hiddenInput.style.display = "none";
   dropwidget.appendChild(hiddenInput);
+
+  // input-tags that are used by the server to open file/dir-picker
+  // Note: these nodes are added to the body because otherwise they also trigger hiddenInput
+  const serverFileInput = document.createElement("input");
+  serverFileInput.type = "file";
+  serverFileInput.setAttribute("multiple", "multiple");
+  serverFileInput.style.display = "none";
+  window.document.body.appendChild(serverFileInput);
+  dropwidget.serverFileInput = serverFileInput;
+  const serverDirInput = document.createElement("input");
+  serverDirInput.type = "file";
+  serverDirInput.setAttribute("multiple", "multiple");
+  serverDirInput.setAttribute("webkitdirectory", "true");
+  serverDirInput.style.display = "none";
+  window.document.body.appendChild(serverDirInput);
+  dropwidget.serverDirInput = serverDirInput;
 
   const dropcover = document.createElement("div");
   dropcover.classList.add("Wt-dropcover");
@@ -395,7 +412,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
     }
   };
 
-  hiddenInput.onchange = function() {
+  const fileSelectionHandler = function() {
     if (!acceptDrops) {
       return;
     }
@@ -405,6 +422,67 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
 
     self.addFiles(this.files);
   };
+  hiddenInput.onchange = fileSelectionHandler;
+  serverFileInput.onchange = fileSelectionHandler;
+
+  const dirSelectionHandler = function() {
+    if (!acceptDrops) {
+      return;
+    }
+    if (this.files === null || this.files.length === 0) {
+      return;
+    }
+
+    /* Directory selection simply returns a list of files. This code tries
+     * to reconstruct the FS tree structure (as returned by the drag-drop API)
+     * based on the webkitRelativePath of these files.
+     */
+    const items = [];
+    for (let i = 0; i < this.files.length; i++) {
+      addFileToItems(items, this.files[i]);
+    }
+    APP.emit(dropwidget, "dropsignal", JSON.stringify(items));
+  };
+  serverDirInput.onchange = dirSelectionHandler;
+
+  function addFileToItems(items, file) {
+    const path = file.webkitRelativePath;
+    const pathParts = path.split("/");
+    if (!acceptDirectoriesRecursive && pathParts.length > 2) {
+      return;
+    }
+
+    let dirItem = null;
+    let partialPath = "";
+    for (let i = 0; i < pathParts.length - 1; i++) {
+      const pathPart = pathParts[i];
+      partialPath += "/" + pathPart;
+      const existingDirItem = items.find((item) => item.path === partialPath);
+      if (!existingDirItem) {
+        const newDirItem = {};
+        newDirItem["path"] = partialPath;
+        newDirItem["filename"] = pathPart;
+        newDirItem["contents"] = [];
+        if (dirItem === null) {
+          items.push(newDirItem);
+        } else {
+          dirItem.contents.push(newDirItem);
+        }
+        dirItem = newDirItem;
+      } else {
+        dirItem = existingDirItem;
+      }
+      items = dirItem.contents;
+    }
+    const fileItem = {};
+    const upload = addUpload(file);
+    fileItem["id"] = upload.id;
+    fileItem["path"] = "/" + path;
+    fileItem["filename"] = file.name;
+    fileItem["type"] = file.type;
+    fileItem["size"] = file.size;
+    dirItem.contents.push(fileItem);
+  }
 
   this.setPageHoverStyle = function() {
     if (dropIndication || bodyDropForward) {
@@ -436,6 +514,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
 
   dropwidget.setFilters = function(acceptAttributes) {
     hiddenInput.setAttribute("accept", acceptAttributes);
+    serverFileInput.setAttribute("accept", acceptAttributes);
   };
 
   dropwidget.setUploadWorker = function(url) {

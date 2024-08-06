@@ -32,6 +32,7 @@ FileDropApplication::FileDropApplication(const Wt::WEnvironment& env)
   : WApplication(env)
 {
   setTitle("File Drop Example");
+
   useStyleSheet("style.css");
   useStyleSheet("resources/font-awesome/css/font-awesome.min.css");
   messageResourceBundle().use("templates");
@@ -54,8 +55,13 @@ FileDropApplication::FileDropApplication(const Wt::WEnvironment& env)
   drop_->uploadFailed().connect(this, &FileDropApplication::failed);
   drop_->tooLarge().connect(this, &FileDropApplication::tooLarge);
 
+  auto selectFileBtn = tpl_->bindNew<WPushButton>("select-file-btn", "Select File");
+  selectFileBtn->clicked().connect(drop_, &WFileDropWidget::openFilePicker);
+  auto selectDirBtn = tpl_->bindNew<WPushButton>("select-dir-btn", "Select Directory");
+  selectDirBtn->clicked().connect(drop_, &WFileDropWidget::openDirectoryPicker);
+
   progress_ = tpl_->bindNew<WText>("progress-msg");
-  Wt::WPushButton *abort = tpl_->bindNew<WPushButton>("abort-btn", "abort");
+  auto abort = tpl_->bindNew<WPushButton>("abort-btn", "abort");
   abort->clicked().connect(this, &FileDropApplication::cancelUpload);
   tpl_->setCondition("if:progress", false);
 

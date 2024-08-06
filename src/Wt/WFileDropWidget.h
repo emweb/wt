@@ -290,6 +290,8 @@ public:
    * server. The contents of a directory is 'flattened' into the uploads() vector.
    * The directory structure is still available through the File::path() method
    * that describes the file's path relative to the dropped directory.
+   *
+   * \sa openFilePicker(), openDirectoryPicker()
    */
   void setAcceptDirectories(bool enable, bool recursive = false);
 
@@ -304,6 +306,26 @@ public:
   /*! \brief Returns if directory contents is uploaded recursively or not.
    */
   bool acceptDirectoriesRecursive() const { return acceptDirectoriesRecursive_; }
+
+  /*! \brief Programmatically open the file picker.
+   *
+   * \sa openDirectoryPicker()
+   */
+  void openFilePicker();
+
+  /*! \brief Programmatically open the directory picker.
+   *
+   * Clicking the WFileDropWidget will always open a file picker, even if acceptDirectories()
+   * is true. To allow a user to select directories using a dialog (instead of drag-drop)
+   * the dialog can be opened using this API call. This allows developers to open selection
+   * dialogs using buttons outside the widget.
+   *
+   * \warning Due to limitations in the directory picker api, empty directories will not be
+   * returned when selected through the dialog.
+   *
+   * \sa openFilePicker()
+   */
+  void openDirectoryPicker();
 
   /*! \brief The signal triggers if one or more files are dropped.
    */

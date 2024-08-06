@@ -5,6 +5,10 @@
 
     ${dropwidget}
 
+    <div>
+      ${select-file-btn} ${select-dir-btn}
+    </div>
+
     <div style="height: 20px;">
       ${<if:progress>}
       ${progress-msg} ${abort-btn}
