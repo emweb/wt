@@ -128,6 +128,7 @@ void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
       doJavaScript(jsRef() + ".wtObj.setCurrent("
                    + widget(currentIndex_)->jsRef() + ");");
   }
+  currentWidgetChanged().emit(currentWidget());
 }
 
 void WStackedWidget::loadAnimateJS()

@@ -24,7 +24,12 @@ namespace Wt {
  * upon each other. Each choice in the menu (which is implemented as a
  * WMenuItem) corresponds to a tab in the contents stack. The contents
  * stack may contain other items, and could be shared with other WMenu
- * instances.
+ * instances. 
+ * 
+ * When using nested menus, you can use the currentWidgetChanged() signal to react
+ * to the change of widget selected while knowing what widget was selected as the
+ * itemSelected() signal from the sub-menu is only emited when the widget selected
+ * by the submenu is changed.
  *
  * When used without a contents stack, you can react to menu item
  * selection using the itemSelected() signal, to implement some custom
@@ -44,6 +49,20 @@ namespace Wt {
  * menu->addItem("Download", std::make_unique<Wt::WText>("Not yet available"));
  * menu->addItem("Demo", std::make_unique<DemoWidget>());
  * menu->addItem(std::make_unique<Wt::WMenuItem>("Demo2", std::make_unique<DemoWidget>()));
+ * 
+ * // bind the function to call when a new item is selected
+ * contents->currentWidgetChanged().connect([=](Wt::WWidget *newSelection){
+ *    Wt::WText *textWidget = dynamic_cast<Wt::WText*>(newSelection);
+ *    if (textWidget){
+ *      Wt::log("info") << "Text selected: " << textWidget->text();
+ *    }
+ * 
+ *    DemoWidget *demo = dynamic_cast<DemoWidget*>(newSelection);
+ *    if (demo){
+ *      Wt::log("info") << "Testing a demo";
+ *    }
+ * });
+ * 
  * \endcode
  * \elseif java
  * \code
@@ -58,6 +77,18 @@ namespace Wt {
  * menu.addItem("Download", new WText("Not yet available"));
  * menu.addItem("Demo", new DemoWidget());
  * menu.addItem(new WMenuItem("Demo2", new DemoWidget()));
+ * 
+ * // bind the function to call when a new item is selected
+ * contents.currentWidgetChanged().connect((newSelection) -> {
+ *    if (newSelection instanceof Wt.WText){
+ *      logger.info(new StringWriter().append("Text selected: ").append((WText)newSelection).text());
+ *    }
+ *    else if (newSelection instanceof DemoWidget){
+ *      logger.info(new StringWriter().append("Testing a demo");
+ *    }
+ *  }
+ * );
+ * 
  * \endcode
  * \endif
  *
