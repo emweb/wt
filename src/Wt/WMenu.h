@@ -331,8 +331,13 @@ public:
    *
    * Inserts a menu item. Use this form to insert specialized WMenuItem
    * implementations.
+   * 
+   * \note When using the WMenu with a WStackedWidget, the first WMenuItem 
+   *       added will be automatically selected. This implies that this
+   *       function can trigger the itemSelectRendered() and 
+   *       itemSelected() signals.
    *
-   * \sa insertItem(WMenuItem *item)
+   * \sa insertItem(WMenuItem *item), itemSelected(), itemSelectRendered()
    */
   virtual WMenuItem *insertItem(int index, std::unique_ptr<WMenuItem> item);
 

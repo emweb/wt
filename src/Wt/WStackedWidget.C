@@ -101,7 +101,7 @@ void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
                                      bool autoReverse)
 {
   if (!animation.empty() &&
-      WApplication::instance()->environment().supportsCss3Animations() &&
+    WApplication::instance()->environment().supportsCss3Animations() &&
       ((isRendered() && javaScriptDefined_) || !canOptimizeUpdates())) {
     if (canOptimizeUpdates() && index == currentIndex_)
       return;
@@ -133,7 +133,17 @@ void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
       doJavaScript(jsRef() + ".wtObj.setCurrent("
                    + widget(currentIndex_)->jsRef() + ");");
   }
-  currentWidgetChanged().emit(currentWidget());
+
+  if (loadPolicies_[currentIndex_] == ContentLoading::Lazy) {
+    WContainerWidget* container = dynamic_cast<WContainerWidget*>(currentWidget());
+
+    // If the container is empty, the content is not yet loaded. We rely on the function calling this one to emit the signal.
+    if (container->count()) {
+      currentWidgetChanged().emit(container->widget(0)); 
+    }
+  } else {
+    currentWidgetChanged().emit(currentWidget());
+  }
 }
 
 void WStackedWidget::loadAnimateJS()
