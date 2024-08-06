@@ -555,7 +555,7 @@ bool WFileDropWidget::remove(File *file)
   return false;
 }
 
-void WFileDropWidget::removeDirectories()
+void WFileDropWidget::cleanDirectoryResources()
 {
   directories_.clear();
 }

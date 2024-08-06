@@ -203,19 +203,30 @@ public:
    * file can only be removed if its index in uploads() is before the current
    * index. A directory can be removed as soon as the drop() signal is emitted.
    *
+   * \note This method is only important if you intend to use this widget to
+   * upload a lot of files. Otherwise, simply removing the widget will also clean
+   * up all resources.
+   *
    * \sa removeDirectories()
    */
   bool remove(File *file);
 
-  /*! \brief Removes all directories.
+  /*! \brief Cleans up resources of WFileDropWidget::Directory objects
    *
    * This can be used to free resources. The drop() signal returns raw pointers
    * for objects that are managed by this widget. The Directory objects are no
-   * longer needed after the drop() signal.
+   * longer needed after the drop() signal, so whenever you don't need them
+   * anymore, it is safe to call this method. Note that no WFileDropWidget::File
+   * objects are removed by this method since these objects can only be removed
+   * after their upload has completed.
+   *
+   * \note This method is only important if you intend to use this widget to
+   * upload a lot of files. Otherwise, simply removing the widget will also clean
+   * up all resources.
    *
    * \sa remove(File*)
    */
-  void removeDirectories();
+  void cleanDirectoryResources();
 
   /*! \brief When set to false, the widget no longer accepts any files.
    */
