@@ -140,6 +140,7 @@ namespace Wt {
   class WPainter;
   class WPainterPath;
   class WPanel;
+  class WPasswordEdit;
   class WPdfImage;
   class WPen;
   class WPoint;

@@ -196,6 +196,7 @@ Wt/WPaintedWidget.h Wt/WPaintedWidget.C
 Wt/WPainter.h Wt/WPainter.C
 Wt/WPainterPath.h Wt/WPainterPath.C
 Wt/WPanel.h Wt/WPanel.C
+Wt/WPasswordEdit.h Wt/WPasswordEdit.C
 Wt/WPen.h Wt/WPen.C
 Wt/WPoint.h Wt/WPoint.C
 Wt/WPointF.h Wt/WPointF.C
