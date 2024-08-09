@@ -32,6 +32,22 @@ public:
 
   void setMaxLength(int length) override;
 
+  /*! \brief Changes whether a native HTML5 control is used.
+   *
+   * When enabled the browser's native attribute for password input
+   * (<input type="password">) will be used instead of a validator.
+   *
+   * This option is set to false by default.
+   * \sa nativeControl()
+   */
+  void setNativeControl(bool nativeControl);
+
+  /*! \brief Returns whether a native HTML5 control is used.
+   *
+   * \sa setNativeControl(bool)
+   */
+  bool nativeControl() const { return nativeControl_; }
+
   /*! \brief Specifies the minimum length of text that can be entered.
    *
    * The default value is 0.
@@ -94,11 +110,20 @@ public:
    */
   WString invalidBlankText() const { return pwdValidator_->invalidBlankText(); }
 
+  ValidationState validate() override;
+
 protected:
   void updateDom(DomElement& element, bool all) override;
 
 private:
+  bool nativeControl_;
   std::shared_ptr<WPasswordValidator> pwdValidator_;
+
+  static const int BIT_MIN_LENGTH_CHANGED   = 0;
+  static const int BIT_REQUIRED_CHANGED     = 1;
+  static const int BIT_CONTROL_CHANGED      = 2;
+
+  std::bitset<3> flags_;
 
 };
 
