@@ -197,6 +197,7 @@ Wt/WPainter.h Wt/WPainter.C
 Wt/WPainterPath.h Wt/WPainterPath.C
 Wt/WPanel.h Wt/WPanel.C
 Wt/WPasswordEdit.h Wt/WPasswordEdit.C
+Wt/WPasswordValidator.h Wt/WPasswordValidator.C
 Wt/WPen.h Wt/WPen.C
 Wt/WPoint.h Wt/WPoint.C
 Wt/WPointF.h Wt/WPointF.C

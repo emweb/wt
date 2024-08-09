@@ -134,7 +134,7 @@ public:
    *
    * The default value is -1.
    */
-  void setMaxLength(int length);
+  virtual void setMaxLength(int length);
 
   /*! \brief Returns the maximum length of text that can be entered.
    *

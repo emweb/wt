@@ -137,6 +137,9 @@
   <message id="Wt.WLengthValidator.BadRange">The input must have a length between {1} and {2} characters</message>
   <message id="Wt.WLengthValidator.TooLong">The input must be no more than {1} characters</message>
 
+  <message id="Wt.WPasswordValidator.TooShort">The password is too short</message>
+  <message id="Wt.WPasswordValidator.TooLong">The password is too long</message>
+
   <message id="Wt.WMediaPlayer.play">Play</message>
   <message id="Wt.WMediaPlayer.pause">Pause</message>
   <message id="Wt.WMediaPlayer.stop">Stop</message>

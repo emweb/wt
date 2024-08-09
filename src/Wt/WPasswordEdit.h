@@ -8,6 +8,7 @@
 #define WPASSWORDEDIT_H_
 
 #include "Wt/WLineEdit.h"
+#include "Wt/WPasswordValidator.h"
 
 namespace Wt {
 
@@ -29,8 +30,75 @@ public:
    */
   WPasswordEdit(const WT_USTRING& content);
 
+  void setMaxLength(int length) override;
+
+  /*! \brief Specifies the minimum length of text that can be entered.
+   *
+   * The default value is 0.
+   */
+  void setMinLength(int length);
+
+  /*! \brief Returns the minimum length of text that can be entered.
+   *
+   * \sa setMinLength(int)
+   */
+  int minLength() const { return pwdValidator_->minLength(); }
+
+  /*! \brief Specifies if the password is required.
+   *
+   * If true, the password cannot be empty.
+   *
+   * The default value is true.
+   */
+  void setRequired(bool required);
+
+  /*! \brief Return if the password is required.
+   *
+   * \sa setRequired(bool)
+   */
+  bool isRequired() const { return pwdValidator_->isMandatory(); }
+
+  /*! \brief Sets the message to display when the password is too long.
+   *
+   * The default value is "Password too long".
+   */
+  void setInvalidTooLongText(const WString& text);
+
+  /*! \brief Returns the message displayed when the password is too long.
+   *
+   * \sa setInvalidTooLongText(const WString&)
+   */
+  WString invalidTooLongText() const { return pwdValidator_->invalidTooLongText(); }
+
+  /*! \brief Sets the message to display when the password is too small.
+   *
+   * The default value is "Password too small".
+   */
+  void setInvalidTooShortText(const WString& text);
+
+  /*! \brief Returns the message displayed when the password is too small.
+   *
+   * \sa setInvalidTooShortText(const WString&)
+   */
+  WString invalidTooShortText() const { return pwdValidator_->invalidTooShortText(); }
+
+  /*! \brief Sets the message to display when the password is empty and required.
+   *
+   * The default value is "This field cannot be empty".
+   */
+  void setInvalidBlankText(const WString& text);
+
+  /*! \brief Returns the message displayed when the password is empty and required.
+   *
+   * \sa setInvalidBlankText(const WString&)
+   */
+  WString invalidBlankText() const { return pwdValidator_->invalidBlankText(); }
+
 protected:
   void updateDom(DomElement& element, bool all) override;
+
+private:
+  std::shared_ptr<WPasswordValidator> pwdValidator_;
 
 };
 
