@@ -14,12 +14,14 @@
 namespace Wt {
 
 WPasswordValidator::WPasswordValidator()
-  : WValidator(true),
+  : WRegExpValidator(),
     minLength_(0),
     maxLength_(std::numeric_limits<int>::max()),
     tooShortText_(WString::tr("Wt.WPasswordValidator.TooShort")),
     tooLongText_(WString::tr("Wt.WPasswordValidator.TooLong"))
-{ }
+{
+  setMandatory(true);
+}
 
 void WPasswordValidator::setMinLength(int chars)
 {
@@ -45,14 +47,14 @@ void WPasswordValidator::setInvalidTooLongText(const WString& text)
   repaint();
 }
 
-Wt::WPasswordValidator::Result WPasswordValidator::validate(const WT_USTRING& input) const
+Wt::WValidator::Result WPasswordValidator::validate(const WT_USTRING& input) const
 {
-  if (!isMandatory() && input.empty()) {
-      return Result(ValidationState::Valid);
-  }
-
-  if (isMandatory() && input.empty()) {
+  if (input.empty()) {
+    if (isMandatory()) {
       return Result(ValidationState::InvalidEmpty, invalidBlankText());
+    } else {
+      return Result(ValidationState::Valid);
+    }
   }
 
   int size = input.value().size();
@@ -65,7 +67,11 @@ Wt::WPasswordValidator::Result WPasswordValidator::validate(const WT_USTRING& in
     return Result(ValidationState::Invalid, invalidTooLongText());
   }
 
-  return Result(ValidationState::Valid);
+  if (regExpPattern().empty()) {
+    return Result(ValidationState::Valid);
+  }
+
+  return WRegExpValidator::validate(input);
 
 }
 
@@ -79,9 +85,12 @@ std::string WPasswordValidator::javaScriptValidate() const
      << isMandatory() << ","
      << minLength() << ","
      << maxLength() << ","
+     << regExpPattern().jsStringLiteral() << ","
      << invalidBlankText().jsStringLiteral() << ","
      << invalidTooShortText().jsStringLiteral() << ","
-     << invalidTooLongText().jsStringLiteral() << ");";
+     << invalidTooLongText().jsStringLiteral() << ","
+     << invalidNoMatchText().jsStringLiteral()
+     << ");";
 
   return js.str();
 }

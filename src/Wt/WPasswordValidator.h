@@ -8,7 +8,7 @@
 #ifndef WPASSWORDEVALIDATOR_H_
 #define WPASSWORDEVALIDATOR_H_
 
-#include "Wt/WValidator.h"
+#include "Wt/WRegExpValidator.h"
 
 namespace Wt {
 
@@ -18,7 +18,7 @@ namespace Wt {
  * This validator validate an input like a browser supporting the attribute
  * maxlength, minlength, required and pattern would.
  */
-class WPasswordValidator: public WValidator
+class WPasswordValidator: public WRegExpValidator
 {
 public:
   /*! \brief Creates a basic password validator.

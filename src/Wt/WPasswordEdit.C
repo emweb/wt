@@ -69,6 +69,12 @@ void WPasswordEdit::setRequired(bool required)
   }
 }
 
+void WPasswordEdit::setPattern(const WT_USTRING& newPattern)
+{
+  pwdValidator_->setRegExp(newPattern);
+  flags_.set(BIT_PATTERN_CHANGED);
+  repaint();
+}
 
 void WPasswordEdit::setInvalidTooLongText(const WString& text)
 {
@@ -83,6 +89,11 @@ void WPasswordEdit::setInvalidTooShortText(const WString& text)
 void WPasswordEdit::setInvalidBlankText(const WString& text)
 {
   pwdValidator_->setInvalidBlankText(text);
+}
+
+void WPasswordEdit::setInvalidNoMatchText(const WString& text)
+{
+  pwdValidator_->setInvalidNoMatchText(text);
 }
 
 ValidationState WPasswordEdit::validate()
@@ -121,9 +132,19 @@ void WPasswordEdit::updateDom(DomElement& element, bool all)
       }
       flags_.reset(BIT_MIN_LENGTH_CHANGED);
     }
+
+    if (all || controlChanged || flags_.test(BIT_PATTERN_CHANGED)) {
+      if (!pattern().empty()) {
+        element.setAttribute("pattern", pattern().toUTF8());
+      } else {
+        element.removeAttribute("pattern");
+      }
+      flags_.reset(BIT_PATTERN_CHANGED);
+    }
   } else if (controlChanged) {
     element.removeAttribute("minlength");
     element.removeAttribute("required");
+    element.removeAttribute("pattern");
   }
 
   WLineEdit::updateDom(element, all);

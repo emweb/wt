@@ -74,6 +74,18 @@ public:
    */
   bool isRequired() const { return pwdValidator_->isMandatory(); }
 
+  /*! \brief Specifies the pattern that the password must match
+   *
+   * The default value is "".
+   */
+  void setPattern(const WT_USTRING& pattern);
+
+  /*! \brief Return the pattern the password must match.
+   *
+   * \sa setPattern()
+   */
+  WString pattern() const { return pwdValidator_->regExpPattern(); }
+
   /*! \brief Sets the message to display when the password is too long.
    *
    * The default value is "Password too long".
@@ -97,6 +109,18 @@ public:
    * \sa setInvalidTooShortText(const WString&)
    */
   WString invalidTooShortText() const { return pwdValidator_->invalidTooShortText(); }
+
+    /*! \brief Sets the message to display when the password does not match the pattern.
+   *
+   * The default value is "Invalid input".
+   */
+  void setInvalidNoMatchText(const WString& text);
+
+  /*! \brief Returns the message displayed when the password does not match the pattern.
+   *
+   * \sa setInvalidNoMatchText(const WString&)
+   */
+  WString invalidNoMatchText() const { return pwdValidator_->invalidNoMatchText(); };
 
   /*! \brief Sets the message to display when the password is empty and required.
    *
@@ -122,8 +146,9 @@ private:
   static const int BIT_MIN_LENGTH_CHANGED   = 0;
   static const int BIT_REQUIRED_CHANGED     = 1;
   static const int BIT_CONTROL_CHANGED      = 2;
+  static const int BIT_PATTERN_CHANGED      = 3;
 
-  std::bitset<3> flags_;
+  std::bitset<4> flags_;
 
 };
 
