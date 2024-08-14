@@ -109,8 +109,9 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
       return;
     }
 
-    const iframe = WT.getElement(e.id + "_ifr");
+    const saveh = h;
 
+    const iframe = WT.getElement(e.id + "_ifr");
     if (iframe) {
       let my = 0;
 
@@ -152,8 +153,14 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
           }
         }
       } else {
-        const item = iframe.parentNode,
-          container = item.parentNode;
+        let item;
+        if (tinymce.EditorManager.majorVersion < 5) {
+          item = iframe.parentNode;
+        } else {
+          item = iframe.parentNode.parentNode;
+        }
+
+        const container = item.parentNode;
 
         topLevel = container.parentNode;
 
@@ -171,7 +178,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
         h -= 1;
       }
 
-      if (h < 0) {
+      if (tinymce.EditorManager.majorVersion < 5 && h < 0) {
         if (badHeightCount < 10) {
           const timeoutDelay = Math.pow(2, badHeightCount) * 100;
           setTimeout(function() {
@@ -198,11 +205,15 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
           topLevel.style.height = e.style.height;
         }
       } else {
-        topLevel.style.position = "static";
-        topLevel.style.display = "block";
+        if (tinymce.EditorManager.majorVersion < 5) {
+          topLevel.style.position = "static";
+          topLevel.style.display = "block";
+        } else {
+          topLevel.style.height = saveh + "px";
+        }
       }
 
-      if (iframe.style.height !== h) {
+      if (tinymce.EditorManager.majorVersion < 5 && iframe.style.height !== h) {
         badHeightCount = 0;
         iframe.style.height = h;
         if (APP.layouts2) {
