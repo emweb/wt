@@ -231,6 +231,16 @@ public:
    */
   virtual void setPlaceholderText(const WString& placeholder) override;
 
+  /*! \brief Sets the element read-only.
+   *
+   * A read-only form element cannot be edited, but the contents can
+   * still be selected.
+   *
+   * By default, a WTextEdit is not read-only.
+   * 
+   * \note For TinyMCE 4 or lower, this method does not work after the 
+   * WTextEdit has been initialised. 
+   */
   virtual void setReadOnly(bool readOnly) override;
   virtual void propagateSetEnabled(bool enabled) override;
   virtual void resize(const WLength& width, const WLength& height) override;
@@ -258,7 +268,12 @@ private:
   JSignal<> onChange_;
   JSignal<> onRender_;
   int version_;
-  bool contentChanged_;
+  bool initialised_;
+
+  static const int BIT_CONTENT_CHANGED  = 0;
+  static const int BIT_READONLY_CHANGED = 1;
+  std::bitset<2> flags_;
+
   std::map<std::string, cpp17::any> configurationSettings_;
 
   std::string plugins() const;

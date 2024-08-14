@@ -24,7 +24,7 @@ typedef std::map<std::string, cpp17::any> SettingsMapType;
 WTextEdit::WTextEdit()
   : onChange_(this, "change"),
     onRender_(this, "render"),
-    contentChanged_(false)
+    initialised_(false)
 {
   init();
 }
@@ -33,7 +33,7 @@ WTextEdit::WTextEdit(const WT_USTRING& text)
   : WTextArea(text),
     onChange_(this, "change"),
     onRender_(this, "render"),
-    contentChanged_(false)
+    initialised_(false)
 {
   init();
 }
@@ -205,12 +205,18 @@ void WTextEdit::initTinyMCE()
 
 void WTextEdit::setReadOnly(bool readOnly)
 {
+  if (initialised_ && version_ < 5) {
+    LOG_WARN("Using setReadOnly after the WTextEdit initialisation does not work with TinyMCE version lower than 5");
+  }
+
   WTextArea::setReadOnly(readOnly);
 
-  if (readOnly)
-    setConfigurationSetting("readonly", std::string("1"));
-  else
+  if (readOnly) {
+    setConfigurationSetting("readonly", true);
+  } else {
     setConfigurationSetting("readonly", cpp17::any());
+  }
+  flags_.set(BIT_READONLY_CHANGED);
 }
 
 void WTextEdit::propagateSetEnabled(bool enabled)
@@ -237,7 +243,7 @@ void WTextEdit::resize(const WLength& width, const WLength& height)
 void WTextEdit::setText(const WT_USTRING& text)
 {
   WTextArea::setText(text);
-  contentChanged_ = true;
+  flags_.set(BIT_CONTENT_CHANGED);
 }
 
 std::string WTextEdit::plugins() const
@@ -262,6 +268,7 @@ void WTextEdit::updateDom(DomElement& element, bool all)
 
   // we are creating the actual element
   if (all && element.type() == DomElementType::TEXTAREA) {
+    initialised_ = true;
     std::stringstream config;
     config << "{";
 
@@ -301,12 +308,23 @@ void WTextEdit::updateDom(DomElement& element, bool all)
                            + ");"
                            "})();");
 
-    contentChanged_ = false;
+    flags_.reset(BIT_CONTENT_CHANGED);
+    flags_.reset(BIT_READONLY_CHANGED);
   }
+  if (!all) {
+    if (version_ > 4 && flags_.test(BIT_READONLY_CHANGED)) {
+      if (isReadOnly()) {
+        doJavaScript(jsRef() + ".ed.mode.set('readonly');");
+      } else {
+        doJavaScript(jsRef() + ".ed.mode.set('design');");
+      }
+      flags_.reset(BIT_READONLY_CHANGED);
+    }
 
-  if (!all && contentChanged_) {
-    element.callJavaScript(jsRef() + ".ed.load();");
-    contentChanged_ = false;
+    if (flags_.test(BIT_CONTENT_CHANGED)) {
+      element.callJavaScript(jsRef() + ".ed.load();");
+      flags_.reset(BIT_CONTENT_CHANGED);
+    }
   }
 }
 
