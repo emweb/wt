@@ -222,7 +222,11 @@ void WTextEdit::propagateSetEnabled(bool enabled)
 
 void WTextEdit::setPlaceholderText(WT_MAYBE_UNUSED const WString& placeholder)
 {
-  throw WException("WTextEdit::setPlaceholderText() is not implemented.");
+  if (version_ < 5){
+    throw WException("WTextEdit::setPlaceholderText() is not implemented for tinyMCE version lower than 5.");
+  }
+
+  WTextArea::setPlaceholderText(placeholder);
 }
 
 void WTextEdit::resize(const WLength& width, const WLength& height)

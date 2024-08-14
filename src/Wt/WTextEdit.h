@@ -221,9 +221,13 @@ public:
   cpp17::any configurationSetting(const std::string& name) const;
 
   /*! \brief Sets the placeholder text.
-   *
-   * This method is not supported on WTextEdit and will thrown an exception
-   * instead.
+   * 
+   * This sets the text that is shown when the field is empty. This
+   * function will not work if called after this widget has been
+   * loaded.
+   * 
+   * This method is not supported on WTextEdit if the version of 
+   * TinyMCE is lower than 5 and will thrown an exception instead.
    */
   virtual void setPlaceholderText(const WString& placeholder) override;
 
