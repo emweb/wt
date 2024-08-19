@@ -9,15 +9,22 @@
 #include "Wt/WEnvironment.h"
 #include "Wt/WException.h"
 #include "Wt/WTextEdit.h"
+#include "Wt/WLogger.h"
 
 #include "DomElement.h"
 #include "WebUtils.h"
+
+#include <iostream>
+#include <fstream>
+#include <regex>
 
 #ifndef WT_DEBUG_JS
 #include "js/WTextEdit.min.js"
 #endif
 
 namespace Wt {
+
+LOGGER("WTextEdit");
 
 typedef std::map<std::string, cpp17::any> SettingsMapType;
 
@@ -47,6 +54,12 @@ void WTextEdit::init()
   initTinyMCE();
 
   version_ = getTinyMCEVersion();
+
+#ifndef WT_TARGET_JAVA
+  if (!verifyTinyMCEVersion(version_)){
+    LOG_WARN("Version of TinyMCE does not seem to match the version given in the config.");
+  }
+#endif
 
   setJavaScriptMember(" WTextEdit", "new " WT_CLASS ".WTextEdit("
                       + app->javaScriptClass() + "," + jsRef() + ");");
@@ -158,6 +171,73 @@ int WTextEdit::getTinyMCEVersion()
   return Utils::stoi(version);
 }
 
+#ifndef WT_TARGET_JAVA
+bool WTextEdit::verifyTinyMCEVersion(int version)
+{
+  std::string path = getTinyMCEPath();
+  std::ifstream s(path.c_str(), std::ios::in | std::ios::binary);
+  if (!s) {
+    return false;
+  }
+
+  std::regex correctLineRegex("^( \\* .*[Vv]ersion:?|\\/\\/) \\d*\\.\\d*\\.\\d* ");
+  std::regex versionRegex("\\d*\\.\\d*\\.\\d*");
+
+  std::string line;
+  while (std::getline(s, line)) {
+    if (std::regex_search(line, correctLineRegex)) {
+      std::smatch match;
+      std::regex_search(line, match, versionRegex);
+
+      std::string strVesion = match.str();
+      std::regex_search(strVesion, match, std::regex("\\d*"));
+      int expectedVersion = Utils::stoi(match.str());
+      return expectedVersion == version;
+    }
+  }
+  return version == 3;
+}
+#endif //WT_TARGET_JAVA
+
+std::string WTextEdit::getTinyMCEPath()
+{
+  std::string tinyMCEURL;
+  WApplication::readConfigurationProperty("tinyMCEURL", tinyMCEURL);
+  if (tinyMCEURL.empty()) {
+    int version = getTinyMCEVersion();
+
+    std::string folder;
+    std::string jsFile;
+    if (version < 3) {
+      folder = "tinymce/";
+      jsFile = "tinymce.js";
+    } else if (version == 3) {
+      folder = "tiny_mce/";
+      jsFile = "tiny_mce.js";
+
+#ifdef WT_TARGET_JAVA
+    } else if (version == 6) {
+      folder = "tinymce6/";
+      jsFile = "tinymce.min.js";
+#endif // WT_TARGET_JAVA
+
+    } else {
+      folder = "tinymce/";
+      jsFile = "tinymce.min.js";
+    }
+
+    std::string tinyMCEBaseURL = WApplication::relativeResourcesUrl() + folder;
+    WApplication::readConfigurationProperty("tinyMCEBaseURL", tinyMCEBaseURL);
+
+    if (!tinyMCEBaseURL.empty()
+        && tinyMCEBaseURL[tinyMCEBaseURL.length()-1] != '/') {
+      tinyMCEBaseURL += '/';
+    }
+    tinyMCEURL = tinyMCEBaseURL + jsFile;
+  }
+  return tinyMCEURL;
+}
+
 void WTextEdit::initTinyMCE()
 {
   const char *THIS_JS = "js/WTextEdit.js";
@@ -168,32 +248,7 @@ void WTextEdit::initTinyMCE()
     if (app->environment().ajax())
       app->doJavaScript("window.tinyMCE_GZ = { loaded: true };", false);
 
-    std::string tinyMCEURL;
-    WApplication::readConfigurationProperty("tinyMCEURL", tinyMCEURL);
-    if (tinyMCEURL.empty()) {
-      int version = getTinyMCEVersion();
-
-      std::string folder;
-      std::string jsFile;
-      if (version < 3) {
-        folder = "tinymce/";
-        jsFile = "tinymce.js";
-      } else if (version == 3) {
-        folder = "tiny_mce/";
-        jsFile = "tiny_mce.js";
-      } else {
-        folder = "tinymce/";
-        jsFile = "tinymce.min.js";
-      }
-
-      std::string tinyMCEBaseURL = WApplication::relativeResourcesUrl() + folder;
-      WApplication::readConfigurationProperty("tinyMCEBaseURL", tinyMCEBaseURL);
-
-      if (!tinyMCEBaseURL.empty()
-          && tinyMCEBaseURL[tinyMCEBaseURL.length()-1] != '/')
-        tinyMCEBaseURL += '/';
-      tinyMCEURL = tinyMCEBaseURL + jsFile;
-    }
+    std::string tinyMCEURL = getTinyMCEPath();
 
     app->require(tinyMCEURL, "window['tinyMCE']");
     app->styleSheet().addRule(".mceEditor",
@@ -229,7 +284,7 @@ void WTextEdit::propagateSetEnabled(bool enabled)
 void WTextEdit::setPlaceholderText(WT_MAYBE_UNUSED const WString& placeholder)
 {
   if (version_ < 5){
-    throw WException("WTextEdit::setPlaceholderText() is not implemented for tinyMCE version lower than 5.");
+    throw WException("WTextEdit::setPlaceholderText() is not implemented for TinyMCE version lower than 5.");
   }
 
   WTextArea::setPlaceholderText(placeholder);
@@ -347,7 +402,7 @@ void WTextEdit::getDomChanges(std::vector<DomElement *>& result,
    * is to listen for the onInit() event -> we should be able to add a
    * wrapping ... .onInit(function(ed) { .... }) around the changes
    *
-   * New version of tinyMCE uses divs instead of table and removing the _tbl
+   * New version of TinyMCE uses divs instead of table and removing the _tbl
    * makes it work on all version
    */
   DomElement *e = DomElement::getForUpdate(formName()/* + "_tbl" */ ,
