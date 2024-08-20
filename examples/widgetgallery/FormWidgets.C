@@ -207,6 +207,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::inPlaceEdit()
 #include "examples/Slider.cpp"
 #include "examples/SliderVertical.cpp"
 #include "examples/SliderSteps.cpp"
+#include "examples/SliderNative.cpp"
 
 std::unique_ptr<Wt::WWidget> FormWidgets::slider()
 {
@@ -214,6 +215,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::slider()
   result->bindWidget("Slider", Slider());
   result->bindWidget("SliderVertical", SliderVertical());
   result->bindWidget("SliderSteps", SliderSteps());
+  result->bindWidget("SliderNative", SliderNative());
 
   return std::move(result);
 }

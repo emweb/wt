@@ -2106,6 +2106,21 @@
     </fieldset>
 
     <p><a href="#slider">Top</a></p>
+
+    <h3>Native slider</h3>
+    <p>
+      You can use a native HTML5 slider by using <code>setNativeControl(true)</code>. This allow
+      the user to use arrow keys to change the value of the slider. However this does not support
+      <code>setTickPosition()</code> and <code>setTickLength()</code>.
+    </p>
+
+    <fieldset class="example">
+      <legend>Example</legend>
+      ${SliderNative}
+      ${src SliderNative}
+    </fieldset>
+
+    <p><a href="#slider">Top</a></p>
   </message>
 
   <message id="forms-progressBar">
