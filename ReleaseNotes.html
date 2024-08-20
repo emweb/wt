@@ -81,6 +81,11 @@ behaviour.
     The version retired the <a href="https://live.boost.org/doc/libs/1_84_0/boost/filesystem/convenience.hpp" target="_blank">boost/filesystem/convenience.hpp</a> header. And also removed some <a href="https://www.boost.org/doc/libs/1_84_0/libs/filesystem/doc/reference.html#path-deprecated-functions" target="_blank">deprecated functions</a>.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/12366" target="_blank">Issue #12366</a>:
+    Fixed a bug where some
+    <a href="classWt_1_1WContainerWidget.html" target="_blank">WContainerWidget</a> would send undefined information when TwoPhaseRenderingThreshold was not set to 0.
+  </li>
+  <li>
     <a href="https://redmine.webtoolkit.eu/issues/12538" target="_blank">Issue #12538</a>:
     correctly implement the <a href="https://datatracker.ietf.org/doc/html/rfc5322#section-3.6.3" target="_blank">RFC5322 specification</a> for mail messages. The "To:" and "Cc:" fields are now correctly placed on a single line. With multiple addresses this results in a comma-separated list of addresses.
   </li>
