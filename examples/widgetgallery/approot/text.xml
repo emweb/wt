@@ -1996,6 +1996,115 @@
     <p><a href="#date-entry">Top</a></p>
   </message>
 
+  <message id="forms-passwordEdit">
+    <h2 id="password">Password</h2>
+    <p>
+      The ${doc-link WPasswordEdit} widget is a line edit that hides its content. This
+      replaces the use of the <code>EchoMode</code> in ${doc-link WLineEdit} that was used for this purpose.
+    </p>
+
+    ${block:basic-example PasswordEditDefault}
+
+    <h3>Auto-complete</h3>
+    <p>
+      In most cases, you will want to use this widget with auto-complete so that the
+      browser can complete the fields for the user. This auto-complete attribute can
+      be set with the method <code>setAutoComplete()</code>. By default, the value
+      is <code>AutoCompleteMode::On</code>, which lets the browser guess what it
+      should autocomplete the field with. While any of the auto-complete modes can
+      be used, the most relevant for the ${doc-link WPasswordEdit} are
+      <code>AutoCompleteToken::CurrentPassword</code> and
+      <code>AutoCompleteToken::NewPassword</code> which tells the browser that it
+      should be filled respectively with a known or a new password.
+    </p>
+
+    ${block:basic-example PasswordEditAutocomplete}
+
+    <p><a href="#password">Top</a></p>
+
+    <h3>Using native validation</h3>
+    <p>
+      It is also possible to use the browser's native validation methods such as
+      minlength, required and pattern, by using the <code>setNativeControl()</code>
+      method. Keep in mind that this validation is only done before an HTML form is
+      submitted.
+    </p>
+
+    ${block:basic-example PasswordEditNative}
+
+    <p>
+      Note that the methods <code>setMinLength()</code> <code>setRequired()</code>
+      <code>setPattern()</code> and <code>validate()</code> will work the same way
+      regardless of whether nativeControl is set to <code>true</code> or
+      <code>false</code>.
+    </p>
+
+    <p><a href="#password">Top</a></p>
+
+  </message>
+
+  <message id="passwordEditDefault-template">
+    <form action="" method="dialog" class="login-form">
+      <div>
+        <label class="form-label"  for="${id:password}"></label>
+        ${password}
+      </div>
+
+      <div class="mt-2">
+        ${save}
+      </div>
+
+      <div class="mt-2">
+        ${out class="help-block"}
+      </div>
+    </form>
+  </message>
+
+  <message id="PasswordEditAutocomplete-template">
+    <form action="" method="dialog" class="login-form mb-2">
+      <div>
+        <label class="form-label" for="${id:username}">
+          Username:
+        </label>
+        <div class="login-form">${username}</div>
+      </div>
+      <div class="mt-2">
+        <label class="form-label" for="${id:password}">
+          Password:
+        </label>
+        <div class="login-form">${password}</div>
+      </div>
+      <div>
+        <div class="login-form mt-2">
+          ${login}
+        </div>
+      </div>
+    </form>
+    ${out}
+  </message>
+
+  <message id="PasswordEditNative-template">
+    <form action="" method="dialog" class="login-form">
+      <div>
+        <label class="form-label" for="${id:username}">
+          Username:
+        </label>
+        <div class="login-form">${username}</div>
+      </div>
+      <div class="mt-2">
+        <label class="form-label" for="${id:password}">
+          Password:
+        </label>
+        <div class="login-form">${password}</div>
+      </div>
+      <div>
+        <div class="login-form mt-2">
+          <input type="submit" value="Register" />
+        </div>
+      </div>
+    </form>
+  </message>
+
   <message id="forms-inPlaceEdit">
     <h2 id="in-place-edit">In place edit</h2>
     <p>

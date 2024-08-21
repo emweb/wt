@@ -32,6 +32,7 @@ private:
   std::unique_ptr<Wt::WWidget> selectionBox();
   std::unique_ptr<Wt::WWidget> autoComplete();
   std::unique_ptr<Wt::WWidget> dateEntry();
+  std::unique_ptr<Wt::WWidget> passwordEdit();
   std::unique_ptr<Wt::WWidget> inPlaceEdit();
   std::unique_ptr<Wt::WWidget> slider();
   std::unique_ptr<Wt::WWidget> progressBar();
