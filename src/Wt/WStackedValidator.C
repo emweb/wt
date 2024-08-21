@@ -12,6 +12,10 @@
 
 #include "WebUtils.h"
 
+#ifndef WT_DEBUG_JS
+#include "js/WStackedValidator.min.js"
+#endif
+
 namespace Wt {
 
 WStackedValidator::WStackedValidator()

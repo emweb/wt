@@ -11,6 +11,10 @@
 
 #include <limits>
 
+#ifndef WT_DEBUG_JS
+#include "js/WPasswordValidator.min.js"
+#endif
+
 namespace Wt {
 
 WPasswordValidator::WPasswordValidator()
