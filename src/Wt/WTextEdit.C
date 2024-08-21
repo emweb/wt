@@ -166,7 +166,7 @@ std::string WTextEdit::renderRemoveJs(bool recursive)
 
 int WTextEdit::getTinyMCEVersion()
 {
-  std::string version = "3";
+  std::string version = "6";
   WApplication::readConfigurationProperty("tinyMCEVersion", version);
   return Utils::stoi(version);
 }
