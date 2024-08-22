@@ -28,6 +28,22 @@ enum class InputMaskFlag {
   KeepMaskWhileBlurred = 0x1 //!< Keep the input mask when blurred
 };
 
+/*! \brief Enumeration that describes different autocomplete modes.
+ *
+ * The autocomplete mode tells the browser what type of information is
+ * required by the field. This helps the browser to complete the field
+ * for the user.
+ *
+ * \sa setAutoComplete(AutoCompleteMode)
+ */
+enum class AutoCompleteMode {
+  Off, //!< Forbid the browser to automatically enter or select values. \note In most modern browsers, this will not stop password manager to do it.
+  On, //!< The browser will "guess" what type of data is required.
+  NewPassword, //!< A new password. This should be used with field for entering a new password or confirming the new password.
+  CurrentPassword, //!< The current password of the user.
+  Username //!< An accout name or username.
+};
+
 /*! \class WLineEdit Wt/WLineEdit.h Wt/WLineEdit.h
  *  \brief A widget that provides a single line edit.
  *
@@ -164,11 +180,27 @@ public:
    */
   void setAutoComplete(bool enabled);
 
+  /*! \brief Sets (built-in browser) autocomplete support.
+   *
+   * Depending on the user agent, this may assist the user in filling in
+   * text for common input fields (e.g. address information) based on
+   * some heuristics.
+   *
+   * The default value is AutoCompleteMode::On.
+   */
+  void setAutoComplete(AutoCompleteMode token);
+
+  /*! \brief Returns if auto-completion support is not off.
+   *
+   * \sa setAutoComplete()
+   */
+  bool autoComplete() const { return autoComplete_ != AutoCompleteMode::Off; }
+
   /*! \brief Returns auto-completion support.
    *
    * \sa setAutoComplete()
    */
-  bool autoComplete() const { return autoComplete_; }
+  AutoCompleteMode autoCompleteToken() const { return autoComplete_; }
 
   /*! \brief Returns the current selection start.
    *
@@ -318,7 +350,7 @@ private:
   int        textSize_;
   int        maxLength_;
   EchoMode   echoMode_;
-  bool       autoComplete_;
+  AutoCompleteMode autoComplete_;
 
   static const int BIT_CONTENT_CHANGED    = 0;
   static const int BIT_TEXT_SIZE_CHANGED  = 1;

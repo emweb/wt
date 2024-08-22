@@ -29,7 +29,7 @@ WLineEdit::WLineEdit()
   : textSize_(10),
     maxLength_(-1),
     echoMode_(EchoMode::Normal),
-    autoComplete_(true),
+    autoComplete_(AutoCompleteMode::On),
     maskChanged_(false),
     spaceChar_(' '),
     javaScriptDefined_(false)
@@ -42,7 +42,7 @@ WLineEdit::WLineEdit(const WT_USTRING& text)
   : textSize_(10),
     maxLength_(-1),
     echoMode_(EchoMode::Normal),
-    autoComplete_(true),
+    autoComplete_(AutoCompleteMode::On),
     maskChanged_(false),
     spaceChar_(' '),
     javaScriptDefined_(false)
@@ -122,8 +122,13 @@ void WLineEdit::setEchoMode(EchoMode echoMode)
 
 void WLineEdit::setAutoComplete(bool enabled)
 {
-  if (autoComplete_ != enabled) {
-    autoComplete_ = enabled;
+  setAutoComplete(enabled ? AutoCompleteMode::On : AutoCompleteMode::Off);
+}
+
+void WLineEdit::setAutoComplete(AutoCompleteMode token)
+{
+  if (autoComplete_ != token) {
+    autoComplete_ = token;
     flags_.set(BIT_AUTOCOMPLETE_CHANGED);
     repaint();
   }
@@ -147,9 +152,28 @@ void WLineEdit::updateDom(DomElement& element, bool all)
   }
 
   if (all || flags_.test(BIT_AUTOCOMPLETE_CHANGED)) {
-    if (!all || !autoComplete_) {
-      element.setAttribute("autocomplete",
-                           autoComplete_ == true ? "on" : "off");
+    if (!all || autoComplete_ != AutoCompleteMode::On) {
+      switch (autoComplete_) {
+        case AutoCompleteMode::Off:
+          element.setAttribute("autocomplete", "off");
+          break;
+
+        case AutoCompleteMode::On:
+          element.setAttribute("autocomplete", "on");
+          break;
+
+        case AutoCompleteMode::NewPassword:
+          element.setAttribute("autocomplete", "new-password");
+          break;
+
+        case AutoCompleteMode::CurrentPassword:
+          element.setAttribute("autocomplete", "current-password");
+          break;
+
+        case AutoCompleteMode::Username:
+          element.setAttribute("autocomplete", "username");
+          break;
+      }
     }
     flags_.reset(BIT_AUTOCOMPLETE_CHANGED);
   }
