@@ -11,7 +11,6 @@
 #include "Wt/WRegExpValidator.h"
 
 namespace Wt {
-
 /*! \class WPasswordValidator Wt/WPasswordValidator.h Wt/WPasswordValidator.h
  *  \brief A validator that checks if a password is valid
  *

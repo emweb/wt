@@ -44,6 +44,26 @@ enum class AutoCompleteMode {
   Username //!< An accout name or username.
 };
 
+/*! \brief Enumeration that describes different input modes.
+ *
+ * The input mode tells the browser what layout should be used for a
+ * virtual keybord when editing this field. This mainly impacts phone
+ * users.
+ *
+ * \sa setInputMode(InputMode)
+ */
+enum class InputMode {
+  Off, //!< Does not specify any input mode to the browser
+  None, //!< No virtual keyboard should be displayed.
+  Text, //!< The locale-specific standard virtual keyboard.
+  Tel, //!< A numeric virtual keyboard wich also have "#"" and "*".
+  Url, //!< Ensure that the virtual keyboard has "/"
+  Email, //!< Ensure that the virtual keyboard has "@"
+  Numeric, //!< Ensure that the virtual keyboard has the digit from 0 to 9. Does usually show only the numbers with maybe also "-" .
+  Decimal, //!< Like Numeric + ensure that the virtual keyboard has the decimal separator.
+  Search //!< A virtual keyboard convenient for search
+};
+
 /*! \class WLineEdit Wt/WLineEdit.h Wt/WLineEdit.h
  *  \brief A widget that provides a single line edit.
  *
@@ -202,6 +222,25 @@ public:
    */
   AutoCompleteMode autoCompleteToken() const { return autoComplete_; }
 
+  /*! \brief Sets (built-in browser) input mode support.
+   *
+   * The input mode suggest what type of virtual keyboard should
+   * be used when applicable (mainly for phone users).
+   *
+   * When InputMode::Off is used, the inputmode field is not specified.
+   * Not to be confused with InputMode::None, which suggest the browser to
+   * not use any virtual keybord.
+   *
+   * The default value is InputMode::Off.
+   */
+  void setInputMode(InputMode mode);
+
+  /*! \brief Returns inputMode support.
+   *
+   * \sa setInputMode()
+   */
+  InputMode inputMode() const { return inputMode_; }
+
   /*! \brief Returns the current selection start.
    *
    * Returns -1 if there is no selected text.
@@ -345,20 +384,22 @@ public:
 private:
   static const char *INPUT_SIGNAL;
 
-  WT_USTRING content_;
-  WT_USTRING displayContent_;
-  int        textSize_;
-  int        maxLength_;
-  EchoMode   echoMode_;
+  WT_USTRING        content_;
+  WT_USTRING        displayContent_;
+  int               textSize_;
+  int               maxLength_;
+  EchoMode          echoMode_;
   AutoCompleteMode autoComplete_;
+  InputMode         inputMode_;
 
-  static const int BIT_CONTENT_CHANGED    = 0;
-  static const int BIT_TEXT_SIZE_CHANGED  = 1;
-  static const int BIT_MAX_LENGTH_CHANGED = 2;
-  static const int BIT_ECHO_MODE_CHANGED  = 3;
-  static const int BIT_AUTOCOMPLETE_CHANGED  = 4;
+  static const int BIT_CONTENT_CHANGED        = 0;
+  static const int BIT_TEXT_SIZE_CHANGED      = 1;
+  static const int BIT_MAX_LENGTH_CHANGED     = 2;
+  static const int BIT_ECHO_MODE_CHANGED      = 3;
+  static const int BIT_AUTOCOMPLETE_CHANGED   = 4;
+  static const int BIT_INPUT_MODE_CHANGED     = 5;
 
-  std::bitset<5> flags_;
+  std::bitset<6> flags_;
 
   static const std::string SKIPPABLE_MASK_CHARS;
 

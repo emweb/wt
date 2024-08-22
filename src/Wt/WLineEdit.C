@@ -30,6 +30,7 @@ WLineEdit::WLineEdit()
     maxLength_(-1),
     echoMode_(EchoMode::Normal),
     autoComplete_(AutoCompleteMode::On),
+    inputMode_(InputMode::Off),
     maskChanged_(false),
     spaceChar_(' '),
     javaScriptDefined_(false)
@@ -43,6 +44,7 @@ WLineEdit::WLineEdit(const WT_USTRING& text)
     maxLength_(-1),
     echoMode_(EchoMode::Normal),
     autoComplete_(AutoCompleteMode::On),
+    inputMode_(InputMode::Off),
     maskChanged_(false),
     spaceChar_(' '),
     javaScriptDefined_(false)
@@ -134,6 +136,15 @@ void WLineEdit::setAutoComplete(AutoCompleteMode token)
   }
 }
 
+void WLineEdit::setInputMode(InputMode mode)
+{
+  if (mode != inputMode_) {
+    inputMode_ = mode;
+    flags_.set(BIT_INPUT_MODE_CHANGED);
+    repaint();
+  }
+}
+
 void WLineEdit::updateDom(DomElement& element, bool all)
 {
   if (all || flags_.test(BIT_CONTENT_CHANGED)) {
@@ -176,6 +187,49 @@ void WLineEdit::updateDom(DomElement& element, bool all)
       }
     }
     flags_.reset(BIT_AUTOCOMPLETE_CHANGED);
+  }
+
+  if (all || flags_.test(BIT_INPUT_MODE_CHANGED)) {
+    if (!all || inputMode_ != InputMode::Off) {
+      switch (inputMode_) {
+        case InputMode::Off:
+          element.removeAttribute("inputmode");
+          break;
+
+        case InputMode::None:
+          element.setAttribute("inputmode", "none");
+          break;
+
+        case InputMode::Text:
+          element.setAttribute("inputmode", "text");
+          break;
+
+        case InputMode::Tel:
+          element.setAttribute("inputmode", "tel");
+          break;
+
+        case InputMode::Url:
+          element.setAttribute("inputmode", "url");
+          break;
+
+        case InputMode::Email:
+          element.setAttribute("inputmode", "email");
+          break;
+
+        case InputMode::Numeric:
+          element.setAttribute("inputmode", "numeric");
+          break;
+
+        case InputMode::Decimal:
+          element.setAttribute("inputmode", "decimal");
+          break;
+
+        case InputMode::Search:
+          element.setAttribute("inputmode", "search");
+          break;
+      }
+    }
+    flags_.reset(BIT_INPUT_MODE_CHANGED);
   }
 
   if (all || flags_.test(BIT_TEXT_SIZE_CHANGED)) {
