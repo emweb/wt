@@ -11,6 +11,7 @@
 #include "Wt/Auth/User.h"
 
 #include "Wt/WLineEdit.h"
+#include "Wt/WPasswordEdit.h"
 #include "Wt/WPushButton.h"
 #include "Wt/WText.h"
 
@@ -95,18 +96,15 @@ std::unique_ptr<WWidget> UpdatePasswordWidget
   if (field == RegistrationModel::LoginNameField) {
     result.reset(new WLineEdit());
   } else if (field == AuthModel::PasswordField) {
-    WLineEdit *p = new WLineEdit();
-    p->setEchoMode(EchoMode::Password);
+    WPasswordEdit *p = new WPasswordEdit();
     result.reset(p);
   } else if (field == RegistrationModel::ChoosePasswordField) {
-    WLineEdit *p = new WLineEdit();
-    p->setEchoMode(EchoMode::Password);
+    WPasswordEdit *p = new WPasswordEdit();
     p->keyWentUp().connect(this, &UpdatePasswordWidget::checkPassword);
     p->changed().connect(this, &UpdatePasswordWidget::checkPassword);
     result.reset(p);
   } else if (field == RegistrationModel::RepeatPasswordField) {
-    WLineEdit *p = new WLineEdit();
-    p->setEchoMode(EchoMode::Password);
+    WPasswordEdit *p = new WPasswordEdit();
     p->changed().connect(this, &UpdatePasswordWidget::checkPassword2);
     result.reset(p);
   }

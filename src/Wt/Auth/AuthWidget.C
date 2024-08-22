@@ -34,6 +34,7 @@
 #include "Wt/WLineEdit.h"
 #include "Wt/WLogger.h"
 #include "Wt/WMessageBox.h"
+#include "Wt/WPasswordEdit.h"
 #include "Wt/WPushButton.h"
 #include "Wt/WText.h"
 #include "Wt/WTheme.h"
@@ -398,9 +399,8 @@ std::unique_ptr<WWidget> AuthWidget::createFormWidget(WFormModel::Field field)
     result.reset(new WLineEdit());
     result->setFocus(true);
   } else if (field == AuthModel::PasswordField) {
-    WLineEdit *p = new WLineEdit();
+    WPasswordEdit *p = new WPasswordEdit();
     p->enterPressed().connect(this, &AuthWidget::attemptPasswordLogin);
-    p->setEchoMode(EchoMode::Password);
     result.reset(p);
   } else if (field == AuthModel::RememberMeField) {
     result.reset(new WCheckBox());

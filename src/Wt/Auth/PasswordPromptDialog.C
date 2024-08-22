@@ -12,6 +12,7 @@
 #include "Wt/WApplication.h"
 #include "Wt/WEnvironment.h"
 #include "Wt/WLineEdit.h"
+#include "Wt/WPasswordEdit.h"
 #include "Wt/WPushButton.h"
 #include "Wt/WTemplateFormView.h"
 
@@ -36,8 +37,7 @@ PasswordPromptDialog
   impl_->bindWidget(AuthModel::LoginNameField, std::move(nameEdit));
   impl_->updateViewField(model_.get(), AuthModel::LoginNameField);
 
-  std::unique_ptr<WLineEdit> passwordEdit(new WLineEdit());
-  passwordEdit->setEchoMode(EchoMode::Password);
+  std::unique_ptr<WPasswordEdit> passwordEdit(new WPasswordEdit());
   passwordEdit->setFocus(true);
   impl_->bindWidget(AuthModel::PasswordField, std::move(passwordEdit));
   impl_->updateViewField(model_.get(), AuthModel::PasswordField);

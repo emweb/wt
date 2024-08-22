@@ -23,6 +23,7 @@
 #include "Wt/WImage.h"
 #include "Wt/WLineEdit.h"
 #include "Wt/WLogger.h"
+#include "Wt/WPasswordEdit.h"
 #include "Wt/WPushButton.h"
 #include "Wt/WText.h"
 #include "Wt/WTheme.h"
@@ -80,14 +81,12 @@ std::unique_ptr<WWidget> RegistrationWidget
   } else if (field == RegistrationModel::EmailField) {
     result.reset(new WLineEdit());
   } else if (field == RegistrationModel::ChoosePasswordField) {
-    WLineEdit *p = new WLineEdit();
-    p->setEchoMode(EchoMode::Password);
+    WPasswordEdit *p = new WPasswordEdit();
     p->keyWentUp().connect(this, &RegistrationWidget::checkPassword);
     p->changed().connect(this, &RegistrationWidget::checkPassword);
     result.reset(p);
   } else if (field == RegistrationModel::RepeatPasswordField) {
-    WLineEdit *p = new WLineEdit();
-    p->setEchoMode(EchoMode::Password);
+    WPasswordEdit *p = new WPasswordEdit();
     p->changed().connect(this, &RegistrationWidget::checkPassword2);
     result.reset(p);
   }
