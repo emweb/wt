@@ -349,6 +349,7 @@ void WFormWidget::setValidator(const std::shared_ptr<WValidator>& validator)
       WApplication::instance()->theme()
         ->applyValidationStyle(this, WValidator::Result(), None);
 
+    validationToolTip_ = "";
     validateJs_.reset();
     filterInput_.reset();
   }
