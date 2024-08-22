@@ -181,13 +181,19 @@ public:
   /*! \brief Sets the echo mode.
    *
    * The default echo mode is Normal.
+   *
+   * \deprecated For EchoMode::Password, use WPasswordEdit instead.
    */
+  WT_DEPRECATED("For EchoMode::Password, use WPasswordEdit instead.")
   void setEchoMode(EchoMode echoMode);
 
   /*! \brief Returns the echo mode.
    *
+   * \deprecated For EchoMode::Password, use WPasswordEdit instead.
+   *
    * \sa setEchoMode(EchoMode)
    */
+  WT_DEPRECATED("For EchoMode::Password, use WPasswordEdit instead.")
   EchoMode echoMode() const { return echoMode_; }
 
   /*! \brief Sets (built-in browser) autocomplete support.

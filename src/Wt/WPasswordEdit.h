@@ -138,6 +138,7 @@ public:
 
 protected:
   void updateDom(DomElement& element, bool all) override;
+  WT_NODISCARD std::string type() const noexcept override { return "password"; }
 
 private:
   bool nativeControl_;

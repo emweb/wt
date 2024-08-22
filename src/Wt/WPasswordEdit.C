@@ -15,7 +15,6 @@ WPasswordEdit::WPasswordEdit()
   : WLineEdit(),
     nativeControl_(false)
 {
-  setEchoMode(EchoMode::Password);
   pwdValidator_ = std::make_shared<WPasswordValidator>();
   setValidator(pwdValidator_);
 }
@@ -109,10 +108,6 @@ ValidationState WPasswordEdit::validate()
 
 void WPasswordEdit::updateDom(DomElement& element, bool all)
 {
-  if (all) {
-    element.setAttribute("type", "password");
-  }
-
   bool controlChanged = flags_.test(BIT_CONTROL_CHANGED);
 
   if (nativeControl_) {
