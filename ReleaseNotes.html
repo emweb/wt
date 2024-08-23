@@ -20,6 +20,7 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+
 <h2>Release 4.11.1 (TBD)</h2>
 
 <p>
@@ -50,6 +51,11 @@ behaviour.
     <a href="https://redmine.emweb.be/issues/7856" target="_blank">Issue #7856</a>:
     Fix a bug where <code>change()</code> and <code>input()</code> signals would sometimes not be emitted by a
     <a href="classWt_1_1WSlider.html" target="_blank">WSlider</a> with native control if progressive bootstrap was enabled.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/11001" target="_blank">Issue #11001</a>:
+    Delete the extra space that was sometimes added before the first and after last element of a
+    <a href="classWt_1_1WBoxLayout.html">WBoxLayout</a> if the spacing was more than twice as big as the margin.
   </li>
 </ul>
 
