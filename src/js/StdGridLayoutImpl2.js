@@ -127,6 +127,18 @@ WT_DECLARE_WT_MEMBER(
       return null;
     }
 
+    function getItemIndex(id) {
+      let i = 0;
+      for (const item of config.items) {
+        if (item && item.id === id) {
+          return i;
+        }
+        i += 1;
+      }
+
+      return null;
+    }
+
     function calcPreferredSize(element, dir, asSet, widget) {
       const DC = DirConfig[dir];
 
@@ -1689,10 +1701,10 @@ WT_DECLARE_WT_MEMBER(
     this.setChildSize = function(widget, dir, preferredSize) {
       const colCount = DirConfig[HORIZONTAL].config.length,
         DC = DirConfig[dir];
-      let i; // FIXME: why is there an always undefined i here?
 
       const item = getItem(widget.id);
       if (item) {
+        const i = getItemIndex(widget.id);
         const di = (dir === HORIZONTAL ? i % colCount : i / colCount);
         const alignment = (item.align >> DC.alignBits) & 0xF;
 
