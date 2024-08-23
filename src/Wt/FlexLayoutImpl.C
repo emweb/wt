@@ -245,11 +245,11 @@ DomElement *FlexLayoutImpl::createDomElement(DomElement *parent,
     Orientation orientation = getOrientation();
 
     if (orientation == Orientation::Horizontal) {
-      margin[3] = std::max(0, margin[3] - (grid_.horizontalSpacing_) / 2);
-      margin[1] = std::max(0, margin[1] - (grid_.horizontalSpacing_ + 1) / 2);
+      margin[3] = std::max(0, margin[3]);
+      margin[1] = std::max(0, margin[1]);
     } else {
-      margin[0] = std::max(0, margin[0] - (grid_.verticalSpacing_) / 2);
-      margin[2] = std::max(0, margin[2] - (grid_.horizontalSpacing_ + 1) / 2);
+      margin[0] = std::max(0, margin[0]);
+      margin[2] = std::max(0, margin[2]);
     }
 
     ResizeSensor::applyIfNeeded(container());
@@ -493,23 +493,39 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
 
   switch (getDirection()) {
   case LayoutDirection::LeftToRight:
-    m[3] += (grid_.horizontalSpacing_ + 1) / 2;
-    m[1] += (grid_.horizontalSpacing_) / 2;
+    if (index != 0) {
+      m[3] += (grid_.horizontalSpacing_ + 1) / 2;
+    }
+    if (index != count(orientation)-1) {
+      m[1] += (grid_.horizontalSpacing_) / 2;
+    }
     break;
 
   case LayoutDirection::RightToLeft:
-    m[1] += (grid_.horizontalSpacing_ + 1) / 2;
-    m[3] += (grid_.horizontalSpacing_) / 2;
+    if (index != 0) {
+      m[1] += (grid_.horizontalSpacing_ + 1) / 2;
+    }
+    if (index != count(orientation)-1) {
+      m[3] += (grid_.horizontalSpacing_) / 2;
+    }
     break;
 
   case LayoutDirection::TopToBottom:
-    m[0] += (grid_.horizontalSpacing_ + 1) / 2;
-    m[2] += (grid_.horizontalSpacing_) / 2;
+    if (index != 0) {
+      m[0] += (grid_.horizontalSpacing_ + 1) / 2;
+    }
+    if (index != count(orientation)-1) {
+      m[2] += (grid_.horizontalSpacing_) / 2;
+    }
     break;
 
   case LayoutDirection::BottomToTop:
-    m[2] += (grid_.horizontalSpacing_ + 1) / 2;
-    m[0] += (grid_.horizontalSpacing_) / 2;
+    if (index != 0) {
+      m[2] += (grid_.horizontalSpacing_ + 1) / 2;
+    }
+    if (index != count(orientation)-1) {
+      m[0] += (grid_.horizontalSpacing_) / 2;
+    }
     break;
   }
 
