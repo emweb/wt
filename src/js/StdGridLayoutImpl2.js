@@ -415,7 +415,6 @@ WT_DECLARE_WT_MEMBER(
         }
 
         const preferredSize = [], minimumSize = [];
-        let totalPreferredSize, totalMinSize;
         const measurePreferredForStretching = true;
         let spanned = false;
 
@@ -671,12 +670,6 @@ WT_DECLARE_WT_MEMBER(
 
           preferredSize[di] = dPreferred;
           minimumSize[di] = dMinimum;
-
-          if (dMinimum > -1) {
-            // FIXME: totalPreferredSize and totalMinSize are still undefined here?
-            totalPreferredSize += dPreferred;
-            totalMinSize += dMinimum;
-          }
         }
 
         if (spanned) {
@@ -753,10 +746,8 @@ WT_DECLARE_WT_MEMBER(
           }, minimumSize);
         }
 
-        // FIXME: this is where the var totalPreferredSize and totalMinSize declarations were
-        //        however, there are used of totalPreferredSize and totalMinSize before this point already
-        totalPreferredSize = 0;
-        totalMinSize = 0;
+        let totalPreferredSize = 0;
+        let totalMinSize = 0;
 
         for (let di = 0; di < dirCount; ++di) {
           if (minimumSize[di] > preferredSize[di]) {
