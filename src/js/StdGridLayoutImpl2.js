@@ -947,7 +947,7 @@ WT_DECLARE_WT_MEMBER(
         DC = DirConfig[dir],
         OC = DirConfig[dir ^ 1],
         widget = WT.getElement(id);
-      let minDelta, maxDelta;
+      let minDelta, maxDelta = 0, altMaxDelta = 0; // maxDelta when no items are stretchable
 
       let ri;
       for (ri = di - 1; ri >= 0; --ri) {
@@ -957,7 +957,21 @@ WT_DECLARE_WT_MEMBER(
         }
       }
 
-      maxDelta = DC.sizes[di] - DC.measures[MINIMUM_SIZE][di];
+      let noStrechable = true;
+      for (i = 0; i < DC.sizes.length; ++i) {
+        if (i != ri) {
+          if (DC.config[i][STRETCH] > 0) {
+            maxDelta += DC.sizes[i] - DC.measures[MINIMUM_SIZE][i];
+            noStrechable = false;
+          } else {
+            altMaxDelta += DC.sizes[i] - DC.measures[MINIMUM_SIZE][i];
+          }
+        }
+      }
+
+      if (noStrechable) {
+        maxDelta = altMaxDelta;
+      }
 
       if (rtl) {
         [minDelta, maxDelta] = [-maxDelta, -minDelta];
