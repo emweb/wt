@@ -40,7 +40,7 @@ WT_DECLARE_WT_MEMBER(
     const ALIGN_RIGHT = 0x2;
     const ALIGN_CENTER = 0x4;
 
-    const RESIZE_HANDLE_MARGIN = 2;
+    const RESIZE_HANDLE_MARGIN = 5;
     const NA = 1000000;
     const NA_px = "-" + NA + "px";
 
@@ -1403,7 +1403,7 @@ WT_DECLARE_WT_MEMBER(
               handle.di = di;
               handle.style.position = "absolute";
               handle.style[OC.left] = OC.margins[MARGIN_LEFT] + "px";
-              handle.style[DC.size] = DC.margins[SPACING] + "px";
+              handle.style[DC.size] = RESIZE_HANDLE_MARGIN + "px";
               if (OC.cSize) {
                 handle.style[OC.size] = (OC.cSize - OC.margins[MARGIN_RIGHT] -
                   OC.margins[MARGIN_LEFT]) + "px";
@@ -1416,8 +1416,7 @@ WT_DECLARE_WT_MEMBER(
                 startResize(dir, this, e);
               };
             }
-
-            left += RESIZE_HANDLE_MARGIN;
+            left += DC.margins[SPACING] / 2;
             setCss(handle, DC.left, left + "px");
             left += RESIZE_HANDLE_MARGIN;
           } else {
@@ -1428,13 +1427,14 @@ WT_DECLARE_WT_MEMBER(
             }
           }
 
-          resizeHandle = DC.config[di][RESIZABLE] !== 0;
-
           if (first) {
             first = false;
+          } else if (resizeHandle) {
+            left += DC.margins[SPACING] / 2;
           } else {
             left += DC.margins[SPACING];
           }
+          resizeHandle = DC.config[di][RESIZABLE] !== 0;
         } else {
           if (DC.resizeHandles[di]) {
             const handle = WT.getElement(DC.resizeHandles[di]);
