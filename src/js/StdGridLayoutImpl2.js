@@ -920,6 +920,29 @@ WT_DECLARE_WT_MEMBER(
       }
     };
 
+    function maxSizeIncrease(dir, ri) {
+      const DC = DirConfig[dir];
+      let noStrechable = true;
+      let maxDelta = 0;
+      let altMaxDelta = 0; // maxDelta when no items are stretchable
+
+      let i;
+      for (i = 0; i < DC.sizes.length; ++i) {
+        if (i !== ri) {
+          if (DC.config[i][STRETCH] > 0) {
+            maxDelta += DC.sizes[i] - DC.measures[MINIMUM_SIZE][i];
+            noStrechable = false;
+          } else {
+            altMaxDelta += DC.sizes[i] - DC.measures[MINIMUM_SIZE][i];
+          }
+        }
+      }
+      if (noStrechable) {
+        maxDelta = altMaxDelta;
+      }
+      return maxDelta;
+    }
+
     function finishResize(dir, di, delta) {
       const DC = DirConfig[dir];
 
@@ -947,30 +970,24 @@ WT_DECLARE_WT_MEMBER(
         DC = DirConfig[dir],
         OC = DirConfig[dir ^ 1],
         widget = WT.getElement(id);
-      let minDelta, maxDelta = 0, altMaxDelta = 0; // maxDelta when no items are stretchable
+      let minDelta, maxDelta;
 
       let ri;
       for (ri = di - 1; ri >= 0; --ri) {
         if (DC.sizes[ri] >= 0) {
-          minDelta = -(DC.sizes[ri] - DC.measures[MINIMUM_SIZE][ri]);
+          if (DC.config[ri][STRETCH] > 0 && DC.config[ri + 1][STRETCH] === 0) {
+            minDelta = -maxSizeIncrease(dir, ri + 1);
+          } else {
+            minDelta = -(DC.sizes[ri] - DC.measures[MINIMUM_SIZE][ri]);
+          }
           break;
         }
       }
 
-      let noStrechable = true;
-      for (i = 0; i < DC.sizes.length; ++i) {
-        if (i != ri) {
-          if (DC.config[i][STRETCH] > 0) {
-            maxDelta += DC.sizes[i] - DC.measures[MINIMUM_SIZE][i];
-            noStrechable = false;
-          } else {
-            altMaxDelta += DC.sizes[i] - DC.measures[MINIMUM_SIZE][i];
-          }
-        }
-      }
-
-      if (noStrechable) {
-        maxDelta = altMaxDelta;
+      if (DC.config[ri][STRETCH] > 0 && DC.config[ri + 1][STRETCH] === 0) {
+        maxDelta = DC.sizes[di] - DC.measures[MINIMUM_SIZE][di];
+      } else {
+        maxDelta = maxSizeIncrease(dir, ri);
       }
 
       if (rtl) {
