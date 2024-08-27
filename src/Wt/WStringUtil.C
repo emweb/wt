@@ -7,7 +7,7 @@
 #include "Wt/WLogger.h"
 #include "Wt/WStringUtil.h"
 
-#include "3rdparty/rapidxml/rapidxml.hpp"
+#include "thirdparty/rapidxml/rapidxml.hpp"
 
 #include <locale>
 

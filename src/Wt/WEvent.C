@@ -13,7 +13,7 @@
 #include "WebSession.h"
 #include "WebUtils.h"
 
-#include "3rdparty/rapidxml/rapidxml.hpp"
+#include "thirdparty/rapidxml/rapidxml.hpp"
 
 namespace Wt {
   LOGGER("WEvent");

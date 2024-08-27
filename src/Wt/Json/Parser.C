@@ -18,7 +18,7 @@
 
 #ifdef JSON_PARSER
 
-#include "3rdparty/rapidxml/rapidxml.hpp"
+#include "thirdparty/rapidxml/rapidxml.hpp"
 
 #include <boost/spirit/include/qi.hpp>
 #include <boost/phoenix/core.hpp>

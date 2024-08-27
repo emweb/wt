@@ -4,7 +4,7 @@
 #include <Wt/Render/Block.h>
 #include <Wt/Render/CssParser.h>
 #include <iostream>
-#include "3rdparty/rapidxml/rapidxml.hpp"
+#include "thirdparty/rapidxml/rapidxml.hpp"
 using namespace boost::assign;
 using namespace Wt::Render;
 

@@ -28,8 +28,8 @@
 
 #include <Wt/AsioWrapper/system_error.hpp>
 
-#include "3rdparty/rapidxml/rapidxml.hpp"
-#include "3rdparty/rapidxml/rapidxml_print.hpp"
+#include "thirdparty/rapidxml/rapidxml.hpp"
+#include "thirdparty/rapidxml/rapidxml_print.hpp"
 
 #ifdef WT_WIN32
 #include <io.h>

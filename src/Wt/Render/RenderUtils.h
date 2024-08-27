@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "3rdparty/rapidxml/rapidxml.hpp"
+#include "thirdparty/rapidxml/rapidxml.hpp"
 
 #ifdef WT_TARGET_JAVA
 #include <hpdf.h>

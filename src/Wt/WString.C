@@ -4,7 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "3rdparty/rapidxml/rapidxml.hpp"
+#include "thirdparty/rapidxml/rapidxml.hpp"
 
 #include <boost/algorithm/string/trim.hpp>
 

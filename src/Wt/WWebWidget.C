@@ -25,8 +25,8 @@
 #include "StringUtils.h"
 #include "XSSFilter.h"
 
-#include "3rdparty/rapidxml/rapidxml.hpp"
-#include "3rdparty/rapidxml/rapidxml_xhtml.hpp"
+#include "thirdparty/rapidxml/rapidxml.hpp"
+#include "thirdparty/rapidxml/rapidxml_xhtml.hpp"
 
 #ifndef WT_DEBUG_JS
 #include "js/WWebWidget.min.js"

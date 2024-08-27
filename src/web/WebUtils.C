@@ -6,7 +6,7 @@
 
 #include "WebUtils.h"
 #include "DomElement.h"
-#include "3rdparty/rapidxml/rapidxml.hpp"
+#include "thirdparty/rapidxml/rapidxml.hpp"
 #include "Wt/WException.h"
 #include "Wt/WString.h"
 #include "Wt/Utils.h"

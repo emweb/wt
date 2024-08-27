@@ -7,8 +7,8 @@
 
 #include "web/WebUtils.h"
 
-#include "3rdparty/rapidxml/rapidxml.hpp"
-#include "3rdparty/rapidxml/rapidxml_print.hpp"
+#include "thirdparty/rapidxml/rapidxml.hpp"
+#include "thirdparty/rapidxml/rapidxml_print.hpp"
 
 #include <vector>
 

@@ -14,7 +14,7 @@
 
 #include "web/DomElement.h"
 #include "LayoutBox.h"
-#include "3rdparty/rapidxml/rapidxml.hpp"
+#include "thirdparty/rapidxml/rapidxml.hpp"
 #include "Wt/Render/Specificity.h"
 
 namespace Wt {
