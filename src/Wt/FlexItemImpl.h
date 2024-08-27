@@ -21,6 +21,8 @@ public:
   virtual WLayoutItem *layoutItem() const override;
   virtual int minimumHeight() const override;
   virtual int minimumWidth() const override;
+  int maximumHeight() const override;
+  int maximumWidth() const override;
 
   DomElement *createDomElement(DomElement *parent,
                                bool fitWidth, bool fitHeight,

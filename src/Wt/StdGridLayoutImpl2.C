@@ -267,6 +267,56 @@ int StdGridLayoutImpl2::minimumWidthForColumn(int col) const
   return minWidth;
 }
 
+int StdGridLayoutImpl2::maximumHeightForRow(int row) const
+{
+  int maxHeight = std::numeric_limits<int>::max();
+  bool isConstrained = false;
+  const unsigned colCount = grid_.columns_.size();
+  for (unsigned j = 0; j < colCount; ++j) {
+    WLayoutItem *item = grid_.items_[row][j].item_.get();
+    if (item) {
+      int itemMaxHeight = getImpl(item)->maximumHeight();
+      if (itemMaxHeight > 0) {
+        if (isConstrained) {
+          maxHeight = std::min(maxHeight, itemMaxHeight);
+        } else {
+          maxHeight = itemMaxHeight;
+          isConstrained = true;
+        }
+      }
+    }
+  }
+  if (!isConstrained) {
+    maxHeight = 0;
+  }
+  return maxHeight;
+}
+
+int StdGridLayoutImpl2::maximumWidthForColumn(int col) const
+{
+  int maxWidth = std::numeric_limits<int>::max();
+  bool isConstrained = false;
+  const unsigned rowCount = grid_.rows_.size();
+  for (unsigned i = 0; i < rowCount; ++i) {
+    WLayoutItem *item = grid_.items_[i][col].item_.get();
+    if (item) {
+      int itemMaxWidth = getImpl(item)->maximumWidth();
+      if (itemMaxWidth > 0) {
+        if (isConstrained) {
+          maxWidth = std::min(maxWidth, itemMaxWidth);
+        } else {
+          maxWidth = itemMaxWidth;
+          isConstrained = true;
+        }
+      }
+    }
+  }
+ if (!isConstrained) {
+    maxWidth = 0;
+  }
+  return maxWidth;
+}
+
 int StdGridLayoutImpl2::minimumWidth() const
 {
   const unsigned colCount = grid_.columns_.size();
@@ -287,6 +337,40 @@ int StdGridLayoutImpl2::minimumHeight() const
 
   for (unsigned i = 0; i < rowCount; ++i)
     total += minimumHeightForRow(i);
+
+  return total + (rowCount-1) * grid_.verticalSpacing_;
+}
+
+int StdGridLayoutImpl2::maximumWidth() const
+{
+  const unsigned colCount = grid_.columns_.size();
+
+  int total = 0;
+
+  for (unsigned i = 0; i < colCount; ++i) {
+    int colMax = maximumWidthForColumn(i);
+    if (colMax == 0) {
+      return 0;
+    }
+    total += colMax;
+  }
+
+  return total + (colCount-1) * grid_.horizontalSpacing_;
+}
+
+int StdGridLayoutImpl2::maximumHeight() const
+{
+  const unsigned rowCount = grid_.rows_.size();
+
+  int total = 0;
+
+  for (unsigned i = 0; i < rowCount; ++i) {
+    int rowMax = maximumHeightForRow(i);
+    if (rowMax == 0) {
+      return 0;
+    }
+    total += rowMax;
+  }
 
   return total + (rowCount-1) * grid_.verticalSpacing_;
 }
@@ -346,9 +430,11 @@ void StdGridLayoutImpl2
       js << "0,";
 
     if (rows)
-      js << minimumHeightForRow(i);
+      js << minimumHeightForRow(i) << ","
+      << maximumHeightForRow(i);
     else
-      js << minimumWidthForColumn(i);
+      js << minimumWidthForColumn(i) << ","
+      << maximumWidthForColumn(i);
 
     js << "]";
 

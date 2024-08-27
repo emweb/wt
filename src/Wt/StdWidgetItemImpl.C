@@ -78,6 +78,22 @@ int StdWidgetItemImpl::minimumHeight() const
     return static_cast<int>(item_->widget()->minimumHeight().toPixels());
 }
 
+int StdWidgetItemImpl::maximumWidth() const
+{
+  if (item_->widget()->isHidden())
+    return 0;
+  else
+    return static_cast<int>(item_->widget()->maximumWidth().toPixels());
+}
+
+int StdWidgetItemImpl::maximumHeight() const
+{
+  if (item_->widget()->isHidden())
+    return 0;
+  else
+    return static_cast<int>(item_->widget()->maximumHeight().toPixels());
+}
+
 const std::string StdWidgetItemImpl::id() const
 {
   return item_->widget()->id();

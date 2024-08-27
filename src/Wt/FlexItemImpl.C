@@ -42,6 +42,22 @@ int FlexItemImpl::minimumHeight() const
     return static_cast<int>(item_->widget()->minimumHeight().toPixels());
 }
 
+int FlexItemImpl::maximumWidth() const
+{
+  if (item_->widget()->isHidden())
+    return 0;
+  else
+    return static_cast<int>(item_->widget()->maximumWidth().toPixels());
+}
+
+int FlexItemImpl::maximumHeight() const
+{
+  if (item_->widget()->isHidden())
+    return 0;
+  else
+    return static_cast<int>(item_->widget()->maximumHeight().toPixels());
+}
+
 DomElement *FlexItemImpl::createDomElement(WT_MAYBE_UNUSED DomElement* parent, WT_MAYBE_UNUSED bool fitWidth,
                                            WT_MAYBE_UNUSED bool fitHeight, WApplication *app)
 {

@@ -25,6 +25,8 @@ public:
 
   virtual int minimumWidth() const override;
   virtual int minimumHeight() const override;
+  int maximumWidth() const override;
+  int maximumHeight() const override;
 
   virtual void itemAdded(WLayoutItem *) override;
   virtual void itemRemoved(WLayoutItem *) override;
@@ -48,6 +50,8 @@ private:
 
   int minimumHeightForRow(int row) const;
   int minimumWidthForColumn(int column) const;
+  int maximumHeightForRow(int row) const;
+  int maximumWidthForColumn(int column) const;
   DomElement *createElement(Orientation orientation, unsigned index,
                             int totalStretch, WApplication *app);
   Orientation getOrientation() const;

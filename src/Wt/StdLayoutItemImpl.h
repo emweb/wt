@@ -28,6 +28,8 @@ public:
 
   virtual int minimumWidth() const = 0;
   virtual int minimumHeight() const = 0;
+  virtual int maximumWidth() const = 0;
+  virtual int maximumHeight() const = 0;
 
   StdLayoutImpl *parentLayoutImpl() const;
 

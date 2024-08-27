@@ -19,6 +19,7 @@ WT_DECLARE_WT_MEMBER(
     const STRETCH = 0;
     const RESIZABLE = 1;
     const MIN_SIZE = 2;
+    const MAX_SIZE = 3;
 
     const RS_INITIAL_SIZE = 0;
     const RS_PCT = 1;
@@ -939,6 +940,10 @@ WT_DECLARE_WT_MEMBER(
       }
       if (noStrechable) {
         maxDelta = altMaxDelta;
+      }
+      const maxSize = DC.config[ri][MAX_SIZE];
+      if (maxSize > 0) {
+        maxDelta = Math.min(maxDelta, maxSize - DC.sizes[ri]);
       }
       return maxDelta;
     }

@@ -26,6 +26,8 @@ public:
   virtual const std::string id() const override;
   virtual int minimumHeight() const override;
   virtual int minimumWidth() const override;
+  int maximumHeight() const override;
+  int maximumWidth() const override;
 
   virtual WLayoutItem *layoutItem() const override;
 
