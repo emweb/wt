@@ -128,4 +128,17 @@ typedef unsigned __int32 uint32_t;  /* 32 bit unsigned */
 #  endif
 #endif
 
+#ifndef WT_NODISCARD
+#  ifndef WT_CNOR
+#    if defined(WT_CXX17)
+#      define WT_NODISCARD [[nodiscard]]
+#    elif defined(__GNUC__)
+#      define WT_NODISCARD __attribute__((warn_unused_result))
+#    endif
+#  endif
+#  ifndef WT_NODISCARD
+#    define WT_NODISCARD
+#  endif
+#endif // WT_NODISCARD
+
 #endif // DLLDEFS_H_
