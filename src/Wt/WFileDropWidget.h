@@ -28,18 +28,28 @@ enum class FilePickerType {
 };
 
 /*! \class WFileDropWidget Wt/WFileDropWidget.h Wt/WFileDropWidget.h
- *  \brief A widget that allows dropping files for upload.
+ *  \brief A widget that allows dropping files and directories for upload.
  *
  * This widget accepts files that are dropped into it. A signal is triggered
- * whenever one or more files are dropped. The filename, type and size of
- * these files is immediately available through the WFileDropWidget::File
- * interface.
+ * whenever one or more files or directories are dropped. The filename, type
+ * and size of files is immediately available through the WFileDropWidget::File
+ * interface. Similarly, information about directories is available through
+ * the WFileDropWidget::Directory interface (which is a subclass of File).
  *
  * The file upload is done sequentially. All files before the currentIndex()
  * have either finished, failed or have been cancelled.
  *
  * The widget has the default style-class 'Wt-filedropzone'. The style-class
  * 'Wt-dropzone-hover' is added when files are hovered over the widget.
+ *
+ * Apart from dropping files, users can also use the browser-specific dialog
+ * to select files or directories. Note that the dialog will support either
+ * selecting files or directories, but not both at the same time.
+ * The dialog can be opened by clicking the widget. The type of dialog that is
+ * opened can be configured with setOnClickFilePicker(FilePickerType). The
+ * dialog can also be opened programmatically in response to another event
+ * (e.g. a user clicking a button outside this widget) using openFilePicker()
+ * and openDirectoryPicker().
  */
 class WT_API WFileDropWidget : public WContainerWidget {
 public:
@@ -340,16 +350,21 @@ public:
 
   /*! \brief Programmatically open the file picker.
    *
+   * Users can click the widget to open a browser-specific dialog to select either files
+   * or directories (see setOnClickFilePicker(FilePickerType)). This method allows
+   * developers to also open the dialog by other means, e.g. buttons outside the widget
+   * to open either the file- or directory picker.
+   *
    * \sa openDirectoryPicker()
    */
   void openFilePicker();
 
   /*! \brief Programmatically open the directory picker.
    *
-   * Clicking the WFileDropWidget will always open a file picker, even if acceptDirectories()
-   * is true. To allow a user to select directories using a dialog (instead of drag-drop)
-   * the dialog can be opened using this API call. This allows developers to open selection
-   * dialogs using buttons outside the widget.
+   * Users can click the widget to open a browser-specific dialog to select either files
+   * or directories (see setOnClickFilePicker(FilePickerType)). This method allows
+   * developers to also open the dialog by other means, e.g. buttons outside the widget
+   * to open either the file- or directory picker.
    *
    * \warning Due to limitations in the directory picker api, empty directories will not be
    * returned when selected through the dialog.
