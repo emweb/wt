@@ -48,7 +48,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
   const serverDirInput = document.createElement("input");
   serverDirInput.type = "file";
   serverDirInput.setAttribute("multiple", "multiple");
-  serverDirInput.setAttribute("webkitdirectory", "true");
+  serverDirInput.setAttribute("webkitdirectory", "webkitdirectory");
   serverDirInput.style.display = "none";
   window.document.body.appendChild(serverDirInput);
   dropwidget.serverDirInput = serverDirInput;
