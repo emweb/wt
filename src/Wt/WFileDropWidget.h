@@ -17,6 +17,16 @@ namespace Json {
   class Object;
 }
 
+/*! \brief Enumeration of file picker types
+ *
+ * The browser can open the file picker in two modes: one where only files
+ * can be selected and another where only directories can be selected.
+ */
+enum class FilePickerType {
+  FileSelection,     //!< Only files can be selected.
+  DirectorySelection //!< Only directories can be selected.
+};
+
 /*! \class WFileDropWidget Wt/WFileDropWidget.h Wt/WFileDropWidget.h
  *  \brief A widget that allows dropping files for upload.
  *
@@ -318,6 +328,16 @@ public:
    */
   bool acceptDirectoriesRecursive() const { return acceptDirectoriesRecursive_; }
 
+  /*! \brief Set the type of file picker that is opened when a user clicks the widget.
+   *
+   * The default is FilePickerType::FileSelection.
+   */
+  void setOnClickFilePicker(FilePickerType type);
+
+  /*! \brief Returns the type of file picker that is opened when a user clicks the widget.
+   */
+  FilePickerType onClickFilePicker() const { return onClickFilePicker_; }
+
   /*! \brief Programmatically open the file picker.
    *
    * \sa openDirectoryPicker()
@@ -450,6 +470,8 @@ private:
   bool acceptDirectories_;
   bool acceptDirectoriesRecursive_;
 
+  FilePickerType onClickFilePicker_ = FilePickerType::FileSelection;
+
   JSignal<std::string> dropSignal_;
   JSignal<int> requestSend_;
   JSignal< ::uint64_t > fileTooLarge_;
@@ -466,12 +488,13 @@ private:
   std::vector<std::unique_ptr<File> > uploads_;
   std::vector<std::unique_ptr<File> > directories_;
 
-  static const int BIT_HOVERSTYLE_CHANGED  = 0;
-  static const int BIT_ACCEPTDROPS_CHANGED = 1;
-  static const int BIT_FILTERS_CHANGED     = 2;
-  static const int BIT_DRAGOPTIONS_CHANGED = 3;
-  static const int BIT_JSFILTER_CHANGED    = 4;
-  std::bitset<5> updateFlags_;
+  static const int BIT_HOVERSTYLE_CHANGED        = 0;
+  static const int BIT_ACCEPTDROPS_CHANGED       = 1;
+  static const int BIT_FILTERS_CHANGED           = 2;
+  static const int BIT_DRAGOPTIONS_CHANGED       = 3;
+  static const int BIT_JSFILTER_CHANGED          = 4;
+  static const int BIT_ONCLICKFILEPICKER_CHANGED = 5;
+  std::bitset<6> updateFlags_;
   bool updatesEnabled_; // track if this widget enabled updates.
 
 };

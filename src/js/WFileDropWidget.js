@@ -35,6 +35,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
   hiddenInput.type = "file";
   hiddenInput.setAttribute("multiple", "multiple");
   hiddenInput.style.display = "none";
+  dropwidget.hiddenInput = hiddenInput;
   dropwidget.appendChild(hiddenInput);
 
   // input-tags that are used by the server to open file/dir-picker
@@ -543,5 +544,16 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
   dropwidget.destructor = function() {
     document.body.removeEventListener("dragenter", bodyDragEnter);
     document.body.removeChild(dropcover);
+  };
+
+  dropwidget.setOnClickFilePicker = function(filePickerType) {
+    if (filePickerType === "directory-selection") {
+      dropwidget.hiddenInput.setAttribute("webkitdirectory", "webkitdirectory");
+    } else {
+      if (filePickerType !== "file-selection") {
+        console.error("unknown filepicker type; using 'file-selection'", filePickerType);
+      }
+      dropwidget.hiddenInput.removeAttribute("webkitdirectory");
+    }
   };
 });

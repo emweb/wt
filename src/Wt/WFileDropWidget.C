@@ -619,6 +619,11 @@ void WFileDropWidget::updateDom(DomElement& element, bool all)
       doJavaScript(jsRef() + ".setChunkSize("
                    + boost::lexical_cast<std::string>(chunkSize_) + ");");
     }
+    if (updateFlags_.test(BIT_ONCLICKFILEPICKER_CHANGED) || all) {
+      std::string type = onClickFilePicker_ == FilePickerType::FileSelection ?
+        "file-selection" : "directory-selection";
+      doJavaScript(jsRef() + ".setOnClickFilePicker(\"" + type + "\");");
+    }
 
     updateFlags_.reset();
   }
@@ -718,6 +723,16 @@ void WFileDropWidget::setAcceptDirectories(bool enable, bool recursive) {
   acceptDirectoriesRecursive_ = recursive;
 
   updateFlags_.set(BIT_ACCEPTDROPS_CHANGED);
+  repaint();
+}
+
+void WFileDropWidget::setOnClickFilePicker(FilePickerType type) {
+  if (onClickFilePicker_ == type)
+    return;
+
+  onClickFilePicker_ = type;
+
+  updateFlags_.set(BIT_ONCLICKFILEPICKER_CHANGED);
   repaint();
 }
 
