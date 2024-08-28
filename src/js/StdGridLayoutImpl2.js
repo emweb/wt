@@ -1334,16 +1334,46 @@ WT_DECLARE_WT_MEMBER(
               // enlarge stretchables according to their stretch factor
               toDistribute -= totalPreferred[STRETCHABLES];
 
-              const factor = toDistribute / totalStretch;
+              let canEnlarge = true;
+              while (canEnlarge && toDistribute > 0) {
+                const factor = toDistribute / totalStretch;
 
-              let r = 0;
-              for (let di = 0; di < dirCount; ++di) {
-                if (stretch[di] > 0) {
-                  const oldr = r;
-                  r += stretch[di] * factor;
-                  targetSize[di] += Math.round(r) - Math.round(oldr);
-                  DC.stretched[di] = true;
+                let r = 0;
+                for (let di = 0; di < dirCount; ++di) {
+                  if (stretch[di] > 0) {
+                    const oldr = r;
+                    r += stretch[di] * factor;
+                    const sizeToAdd = Math.round(r) - Math.round(oldr);
+                    targetSize[di] += sizeToAdd;
+                    toDistribute -= sizeToAdd;
+
+                    const maxSize = DC.config[di][MAX_SIZE];
+                    if (maxSize > 0) {
+                      const oldTtargetSize = targetSize[di];
+                      targetSize[di] = Math.min(targetSize[di], maxSize);
+
+                      if (targetSize[di] === maxSize) {
+                        toDistribute += oldTtargetSize - maxSize;
+                        totalStretch -= stretch[di];
+                        stretch[di] = -1;
+                      }
+                    }
+                    DC.stretched[di] = true;
+                  }
                 }
+
+                if (totalStretch === 0) {
+                  // make unstretchables stretchables if there is
+                  // no more stretchables that can be enlarged.
+
+                  for (let di = 0; di < dirCount; ++di) {
+                    if (stretch[di] === 0) {
+                      stretch[di] = 1;
+                      ++totalStretch;
+                    }
+                  }
+                }
+                canEnlarge = totalStretch > 0;
               }
             }
           } else {
