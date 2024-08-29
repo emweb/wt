@@ -218,6 +218,7 @@ WT_DECLARE_WT_MEMBER(
               position: "absolute",
               left: `${elcPos.left}px`,
               top: `${elcPos.top}px`,
+              width: `${elc.clientWidth}px`,
             };
             set(elc, style, elcStyle);
           }
