@@ -624,6 +624,10 @@ void WDialog::setHidden(bool hidden, const WAnimation& animation)
 
     DialogCover *c = cover();
     if (!hidden) {
+      if (!WWebWidget::canOptimizeUpdates() || isRendered()) {
+        doJavaScript("var o = " + jsRef() + ";"
+                   "if (o && o.wtObj) o.wtObj.centerDialog();");
+      }
       if (c)
         c->pushDialog(this, animation);
 
