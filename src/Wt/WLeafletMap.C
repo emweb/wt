@@ -746,12 +746,28 @@ WLeafletMap::LeafletMarker::LeafletMarker(const Coordinate &pos)
 WLeafletMap::LeafletMarker::~LeafletMarker()
 { }
 
+void WLeafletMap::LeafletMarker::setOptions(const Json::Object &options)
+{
+  options_ = options;
+}
+
 void WLeafletMap::LeafletMarker::createItemJS(WStringStream &ss, WStringStream &, long long id)
 {
-  ss << "L.marker([";
+  std::string optionsStr = Json::serialize(options_);
+
+  EscapeOStream es(ss);
+  es << "L.marker([";
   char buf[30];
-  ss << Utils::round_js_str(position().latitude(), 16, buf) << ",";
-  ss << Utils::round_js_str(position().longitude(), 16, buf) << "])";
+  es << Utils::round_js_str(position().latitude(), 16, buf) << ",";
+  es << Utils::round_js_str(position().longitude(), 16, buf) << "],";
+  if (!options_.empty()) {
+    es << "JSON.parse('";
+    es.pushEscape(EscapeOStream::JsStringLiteralSQuote);
+    es << optionsStr;
+    es.popEscape();
+    es << "')";
+  }
+  ss << ")";
 }
 
 WLeafletMap::WLeafletMap()

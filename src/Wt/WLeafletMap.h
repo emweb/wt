@@ -666,8 +666,19 @@ public:
     LeafletMarker(LeafletMarker &&) = delete;
     LeafletMarker& operator=(LeafletMarker &&) = delete;
 
+    /*! \brief Set the options of the marker.
+     *
+     * Set the options that will be passed to the WLeafletMap marker.
+     *
+     * See https://leafletjs.com/reference.html#marker for the list of options.
+     */
+    void setOptions(const Json::Object &options);
+
   protected:
     virtual void createItemJS(WStringStream& ss, WStringStream& postJS, long long id) override;
+
+  private:
+    Json::Object options_;
   };
 
   /*! \brief Create a new WLeafletMap
