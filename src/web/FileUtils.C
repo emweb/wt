@@ -6,6 +6,7 @@
 
 #include "web/FileUtils.h"
 
+#include <boost/filesystem/directory.hpp>
 #include <boost/filesystem/operations.hpp>
 
 #include "web/WebUtils.h"

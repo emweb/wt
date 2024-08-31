@@ -23,7 +23,7 @@
 
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/exception.hpp>
-#include <boost/filesystem/convenience.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include "ExampleSourceViewer.h"
@@ -184,7 +184,7 @@ void ExampleSourceViewer::setExample(const std::string& exampleDir,
  */
 static fs::path getCompanion(const fs::path& path)
 {
-  std::string ext = fs::extension(path);
+  std::string ext = path.extension().string();
 
   if (ext == ".h")
     return parent_path(path) / (stem(path) + ".C");
@@ -226,8 +226,8 @@ void ExampleSourceViewer::cppTraverseDir(WStandardItem* parent,
         continue;
 
       // skip files with an extension we do not want to handle
-      if (fs::is_regular(p)) {
-        std::string ext = fs::extension(p);
+      if (fs::is_regular_file(p)) {
+        std::string ext = p.extension().string();
         bool supported = false;
         for (const char **s = supportedFiles; *s != 0; ++s)
           if (*s == ext) {
@@ -305,7 +305,7 @@ void ExampleSourceViewer::javaTraversePackages(WStandardItem *parent,
   FileItem *packageItem = nullptr;
   for (fs::directory_iterator i(srcPath); i != end_itr; ++i) {
     fs::path p = *i;
-    if (fs::is_regular(p)) {
+    if (fs::is_regular_file(p)) {
       if (!packageItem) {
         auto item = std::make_unique<FileItem>("/icons/package.png", packageName, "");
         packageItem = item.get();

@@ -7,6 +7,7 @@
 
 #include "FileTreeTableNode.h"
 
+#include <boost/filesystem/directory.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/exception.hpp>
 #include <boost/lexical_cast.hpp>
@@ -21,9 +22,9 @@
 
 FileTreeTableNode::FileTreeTableNode(const boost::filesystem::path& path)
 #if BOOST_FILESYSTEM_VERSION < 3
-  : WTreeTableNode(Wt::widen(path.leaf()), createIcon(path)),
+  : WTreeTableNode(Wt::widen(path.filename()), createIcon(path)),
 #else
-  : WTreeTableNode(path.leaf().string(), createIcon(path)),
+  : WTreeTableNode(path.filename().string(), createIcon(path)),
 #endif
     path_(path)
 {

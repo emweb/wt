@@ -8,7 +8,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/convenience.hpp>
+#include <boost/filesystem.hpp>
 
 #include <Wt/WApplication.h>
 #include <Wt/WText.h>
@@ -207,7 +207,7 @@ std::string SourceView::imageExtension(const std::string& fileName)
   };
 
   fs::path p(fileName);
-  std::string extension = fs::extension(p);
+  std::string extension = p.extension().string();
 
   for (const char **s = imageExtensions; *s != 0; ++s)
     if (*s == extension)

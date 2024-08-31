@@ -321,9 +321,9 @@ std::vector<asio::ip::address> Server::resolveAddress(asio::ip::tcp::resolver &r
   } else {
 #ifndef NO_RESOLVE_ACCEPT_ADDRESS
     // Resolve IPv4
-    asio::ip::tcp::resolver::query query(asio::ip::tcp::v4(), address, "http");
+    asio::ip::tcp::resolver::query query_v4(asio::ip::tcp::v4(), address, "http");
     asio::ip::tcp::resolver::iterator end;
-    for (asio::ip::tcp::resolver::iterator it = resolver.resolve(query, errc);
+    for (asio::ip::tcp::resolver::iterator it = resolver.resolve(query_v4, errc);
          !errc && it != end; ++it) {
       result.push_back(it->endpoint().address());
     }
@@ -331,8 +331,8 @@ std::vector<asio::ip::address> Server::resolveAddress(asio::ip::tcp::resolver &r
       LOG_DEBUG_S(&wt_, "Failed to resolve hostname \"" << address << "\" as IPv4: " <<
                   Wt::AsioWrapper::system_error(errc).what());
     // Resolve IPv6
-    query = Wt::AsioWrapper::asio::ip::tcp::resolver::query(Wt::AsioWrapper::asio::ip::tcp::v6(), address, "http");
-    for (Wt::AsioWrapper::asio::ip::tcp::resolver::iterator it = resolver.resolve(query, errc);
+    boost::asio::ip::tcp::resolver::query query_v6(boost::asio::ip::tcp::v6(), address, "http");
+    for (Wt::AsioWrapper::asio::ip::tcp::resolver::iterator it = resolver.resolve(query_v6, errc);
          !errc && it != end; ++it) {
       result.push_back(it->endpoint().address());
     }
