@@ -198,9 +198,78 @@ void WLeafletMap::Coordinate::setLongitude(double longitude)
   lng_ = longitude;
 }
 
+WLeafletMap::AbstractMapItem::~AbstractMapItem()
+{ }
+
+WLeafletMap::AbstractMapItem::AbstractMapItem()
+  : map_(nullptr)
+{ }
+
+void WLeafletMap::AbstractMapItem::setMap(WLeafletMap* map)
+{
+  map_ = map;
+}
+
+void WLeafletMap::AbstractMapItem::unrender()
+{ }
+
+bool WLeafletMap::AbstractMapItem::needsUpdate() const
+{
+  return false;
+}
+
+void WLeafletMap::AbstractMapItem::update(WT_MAYBE_UNUSED WStringStream& js)
+{ }
+
+WLeafletMap::Popup::Popup(const Coordinate& pos)
+  : AbstractOverlayItem(pos)
+{ }
+
+WLeafletMap::Popup::Popup(const Coordinate& pos, const WString& content)
+  : AbstractOverlayItem(pos, content)
+{ }
+
+WLeafletMap::Popup::~Popup()
+{ }
+
+void WLeafletMap::Popup::createItemJS(WStringStream& ss, WStringStream& postJS) const
+{
+  ss << "L.popup(L.latLng(";
+  char buf[30];
+  ss << Utils::round_js_str(position().latitude(), 16, buf) << ",";
+  ss << Utils::round_js_str(position().longitude(), 16, buf) << "),";
+  ss << "{content: " << content().jsStringLiteral();
+  ss << "})";
+}
+
+void WLeafletMap::Popup::applyChangeJS(WStringStream& ss, long long id)
+{ }
+
+WLeafletMap::AbstractOverlayItem::~AbstractOverlayItem()
+{ }
+
+WLeafletMap::AbstractOverlayItem::AbstractOverlayItem(const Coordinate& pos)
+  : content_(),
+    pos_(pos)
+{ }
+
+WLeafletMap::AbstractOverlayItem::AbstractOverlayItem(const Coordinate& pos, const WString& content)
+  : content_(content),
+    pos_(pos)
+{ }
+
+void WLeafletMap::AbstractOverlayItem::setContent(const WString& content)
+{
+  content_ = content;
+}
+
+void WLeafletMap::AbstractOverlayItem::setPosition(const Coordinate& pos)
+{
+  pos_ = pos;
+}
+
 WLeafletMap::Marker::Marker(const Coordinate &pos)
   : pos_(pos),
-    map_(nullptr),
     moved_(false)
 { }
 
@@ -216,21 +285,15 @@ void WLeafletMap::Marker::move(const Coordinate &pos)
   }
 }
 
-void WLeafletMap::Marker::setMap(WLeafletMap *map)
+void WLeafletMap::Marker::applyChangeJS(WStringStream& ss, long long id)
 {
-  map_ = map;
+  ss << "moveMarker(" << id << ",[";
+  char buf[30];
+  ss << Utils::round_js_str(position().latitude(), 16, buf) << ",";
+  ss << Utils::round_js_str(position().longitude(), 16, buf) << "]);";
+
+  moved_ = false;
 }
-
-void WLeafletMap::Marker::unrender()
-{ }
-
-bool WLeafletMap::Marker::needsUpdate() const
-{
-  return false;
-}
-
-void WLeafletMap::Marker::update(WT_MAYBE_UNUSED WStringStream& js)
-{ }
 
 WLeafletMap::WidgetMarker::WidgetMarker(const Coordinate &pos,
                                         std::unique_ptr<WWidget> widget)
@@ -274,7 +337,7 @@ void WLeafletMap::WidgetMarker::setMap(WLeafletMap *map)
   }
 }
 
-void WLeafletMap::WidgetMarker::createMarkerJS(WStringStream &ss, WStringStream &postJS) const
+void WLeafletMap::WidgetMarker::createItemJS(WStringStream& ss, WStringStream& postJS) const
 {
   std::unique_ptr<DomElement> element(container_->createSDomElement(WApplication::instance()));
 
@@ -384,7 +447,7 @@ WLeafletMap::LeafletMarker::LeafletMarker(const Coordinate &pos)
 WLeafletMap::LeafletMarker::~LeafletMarker()
 { }
 
-void WLeafletMap::LeafletMarker::createMarkerJS(WStringStream &ss, WStringStream &) const
+void WLeafletMap::LeafletMarker::createItemJS(WStringStream &ss, WStringStream &) const
 {
   ss << "L.marker([";
   char buf[30];
@@ -456,10 +519,10 @@ void WLeafletMap::setOptions(const Json::Object &options)
   flags_.set(BIT_OPTIONS_CHANGED);
 
   if (isRendered()) {
-    for (std::size_t i = 0; i < markers_.size(); ++i) {
-      if (!markers_[i].flags.test(MarkerEntry::BIT_ADDED) &&
-          !markers_[i].flags.test(MarkerEntry::BIT_REMOVED)) {
-        markers_[i].marker->unrender();
+    for (std::size_t i = 0; i < mapItems_.size(); ++i) {
+      if (!mapItems_[i].flags.test(ItemEntry::BIT_ADDED) &&
+          !mapItems_[i].flags.test(ItemEntry::BIT_REMOVED)) {
+        mapItems_[i].mapItem->unrender();
       }
     }
   }
@@ -498,77 +561,106 @@ void WLeafletMap::addTileLayerJS(WStringStream &ss, const TileLayer &layer) cons
   es << "');}";
 }
 
-void WLeafletMap::addMarker(std::unique_ptr<Marker> marker)
+void WLeafletMap::addPopup(std::unique_ptr<Popup> popup)
 {
-  marker->setMap(this);
+  addItem(std::move(popup));
+}
 
-  for (std::size_t i = 0; i < markers_.size(); ++i) {
-    if (markers_[i].uMarker.get() == marker.get() &&
-        markers_[i].flags.test(MarkerEntry::BIT_REMOVED)) {
-      markers_[i].uMarker = std::move(marker);
-      markers_[i].flags.reset(MarkerEntry::BIT_REMOVED);
+std::unique_ptr<WLeafletMap::Popup> WLeafletMap::removePopup(Popup* popup)
+{
+  std::unique_ptr<AbstractMapItem> removedItem = removeItem(popup);
+  std::unique_ptr<Popup> result;
+  if (removedItem) {
+    removedItem.release();
+    result.reset(popup);
+  }
+  return result;
+}
+
+void WLeafletMap::addItem(std::unique_ptr<AbstractMapItem> mapItem)
+{
+  mapItem->setMap(this);
+
+  for (std::size_t i = 0; i < mapItems_.size(); ++i) {
+    if (mapItems_[i].uMapItem.get() == mapItem.get() &&
+        mapItems_[i].flags.test(ItemEntry::BIT_REMOVED)) {
+      mapItems_[i].uMapItem = std::move(mapItem);
+      mapItems_[i].flags.reset(ItemEntry::BIT_REMOVED);
       return;
     }
   }
 
-  MarkerEntry entry;
-  entry.uMarker = std::move(marker);
-  entry.marker = entry.uMarker.get();
-  entry.flags.set(MarkerEntry::BIT_ADDED);
+  ItemEntry entry;
+  entry.uMapItem = std::move(mapItem);
+  entry.mapItem = entry.uMapItem.get();
+  entry.flags.set(ItemEntry::BIT_ADDED);
   entry.id = nextMarkerId_;
   ++nextMarkerId_;
 
-  markers_.push_back(std::move(entry));
+  mapItems_.push_back(std::move(entry));
 
   scheduleRender();
 }
 
-void WLeafletMap::addMarkerJS(WStringStream &ss, long long id, const Marker *marker) const
+void WLeafletMap::addMarker(std::unique_ptr<Marker> marker)
+{
+  addItem(std::move(marker));
+}
+
+void WLeafletMap::addItemJS(WStringStream& ss, long long id, const AbstractMapItem* mapItem) const
 {
   WStringStream js;
   ss << "var o=" << jsRef() << ";if(o && o.wtObj){"
-        "" "o.wtObj.addMarker(" << id << ',';
-  marker->createMarkerJS(ss, js);
+        "" "o.wtObj." << mapItem->addFunctionJs();
+  ss << "(" << id << ',';
+  mapItem->createItemJS(ss, js);
   ss << ");";
   ss << js.str();
   ss << "}";
 }
 
-std::unique_ptr<WLeafletMap::Marker> WLeafletMap::removeMarker(Marker *marker)
+
+std::unique_ptr<WLeafletMap::AbstractMapItem> WLeafletMap::removeItem(AbstractMapItem* mapItem)
 {
-  for (std::size_t i = 0; i < markers_.size(); ++i) {
-    if (markers_[i].uMarker.get() == marker &&
-        markers_[i].marker == marker) {
-      marker->setMap(nullptr);
-      std::unique_ptr<Marker> result = std::move(markers_[i].uMarker);
-      if (markers_[i].flags.test(MarkerEntry::BIT_ADDED)) {
-        markers_.erase(markers_.begin() + i);
+  for (std::size_t i = 0; i < mapItems_.size(); ++i) {
+    if (mapItems_[i].uMapItem.get() == mapItem &&
+        mapItems_[i].mapItem == mapItem) {
+      mapItem->setMap(nullptr);
+      std::unique_ptr<AbstractMapItem> result = std::move(mapItems_[i].uMapItem);
+
+      if (mapItems_[i].flags.test(ItemEntry::BIT_ADDED)) {
+        mapItems_.erase(mapItems_.begin() + i);
         return result;
       }
-      markers_[i].flags.set(MarkerEntry::BIT_REMOVED);
+
+      mapItems_[i].flags.set(ItemEntry::BIT_REMOVED);
       scheduleRender();
       return result;
     }
   }
+
   return nullptr;
 }
 
-void WLeafletMap::removeMarkerJS(WStringStream &ss, long long id) const
+std::unique_ptr<WLeafletMap::Marker> WLeafletMap::removeMarker(Marker* marker)
+{
+  return Utils::dynamic_unique_ptr_cast<Marker>(removeItem(marker));
+}
+
+void WLeafletMap::removeItemJS(WStringStream& ss, long long id) const
 {
   ss << "var o=" << jsRef() << ";if(o && o.wtObj){"
-     << "" "o.wtObj.removeMarker(" << id << ");"
+     << "" "o.wtObj.removeMapItem(" << id << ");"
         "}";
 }
 
-void WLeafletMap::moveMarkerJS(WStringStream &ss,
-                               long long id,
-                               const Coordinate &position) const
+void WLeafletMap::updateItemJS(WStringStream& ss,
+                               ItemEntry& entry) const
 {
   ss << "var o=" << jsRef() << ";if(o && o.wtObj){"
-     << "" "o.wtObj.moveMarker(" << id << ",[";
-  char buf[30];
-  ss << Utils::round_js_str(position.latitude(), 16, buf) << ",";
-  ss << Utils::round_js_str(position.longitude(), 16, buf) << "]);";
+     << "" "o.wtObj.";
+
+  entry.mapItem->applyChangeJS(ss, entry.id);
   ss << "}";
 }
 
@@ -750,32 +842,31 @@ void WLeafletMap::render(WFlags<RenderFlag> flags)
   }
   renderedOverlaysSize_ = overlays_.size();
 
-  for (std::size_t i = 0; i < markers_.size();) {
-    if (markers_[i].flags.test(MarkerEntry::BIT_REMOVED)) {
+  for (std::size_t i = 0; i < mapItems_.size();) {
+    if (mapItems_[i].flags.test(ItemEntry::BIT_REMOVED)) {
       if (!flags_.test(BIT_OPTIONS_CHANGED)) {
-        removeMarkerJS(ss, markers_[i].id);
+        removeItemJS(ss, mapItems_[i].id);
       }
-      markers_.erase(markers_.begin() + i);
+      mapItems_.erase(mapItems_.begin() + i);
     } else {
       ++i;
     }
   }
 
-  for (std::size_t i = 0; i < markers_.size(); ++i) {
+  for (std::size_t i = 0; i < mapItems_.size(); ++i) {
     if (flags.test(RenderFlag::Full) ||
         flags_.test(BIT_OPTIONS_CHANGED) ||
-        markers_[i].flags.test(MarkerEntry::BIT_ADDED)) {
-      addMarkerJS(ss, markers_[i].id, markers_[i].marker);
-      markers_[i].flags.reset(MarkerEntry::BIT_ADDED);
+        mapItems_[i].flags.test(ItemEntry::BIT_ADDED)) {
+      addItemJS(ss, mapItems_[i].id, mapItems_[i].mapItem);
+      mapItems_[i].flags.reset(ItemEntry::BIT_ADDED);
     } else {
-      if (markers_[i].marker->moved_) {
-        moveMarkerJS(ss, markers_[i].id, markers_[i].marker->position());
+      if (mapItems_[i].mapItem->changed()) {
+        updateItemJS(ss, mapItems_[i]);
       }
-      if (markers_[i].marker->needsUpdate()) {
-        markers_[i].marker->update(ss);
+      if (mapItems_[i].mapItem->needsUpdate()) {
+        mapItems_[i].mapItem->update(ss);
       }
     }
-    markers_[i].marker->moved_ = false;
   }
 
   if (!ss.empty()) {
@@ -792,9 +883,9 @@ std::string WLeafletMap::mapJsRef() const
   return "((function(){var o=" + jsRef() + ";if(o&&o.wtObj){return o.wtObj.map;}return null;})())";
 }
 
-WLeafletMap::MarkerEntry::MarkerEntry()
-  : uMarker(nullptr),
-    marker(nullptr),
+WLeafletMap::ItemEntry::ItemEntry()
+  : uMapItem(nullptr),
+    mapItem(nullptr),
     id(-1),
     flags()
 { }

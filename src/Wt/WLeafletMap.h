@@ -93,12 +93,195 @@ public:
     double lat_, lng_;
   };
 
+  /*! \class AbstractMapItem
+   *  \brief An abstract map item
+   *
+   * This is the base class for all items that can be added to a
+   * WLeafletMap. As this is an abstract class, it should not be added
+   * directly to a map as is. Instead, you should use one of the
+   * subclasses.
+   */
+  class WT_API AbstractMapItem {
+  public:
+    virtual ~AbstractMapItem();
+
+    AbstractMapItem(const AbstractMapItem&) = delete;
+    AbstractMapItem& operator=(const AbstractMapItem&) = delete;
+    AbstractMapItem(AbstractMapItem&&) = delete;
+    AbstractMapItem& operator=(AbstractMapItem&&) = delete;
+
+  protected:
+    /*! \brief Constructor
+     *
+     * Since this is an abstract class, it should not be used directly.
+     */
+    AbstractMapItem();
+
+    /*! \brief Writes the JS code to create this item to the stream.
+     *
+     * This method should write in \p ss the JS code that creates the
+     * item. The \p postJS stream can be used to write JS code that
+     * should be executed after the item has been created.
+     */
+    virtual void createItemJS(WStringStream& ss, WStringStream& postJS) const = 0;
+
+    /*! \brief Unrender the item.
+     *
+     * This is called when the map needs to be recreated. You can
+     * override this function in case you need to do some cleanup
+     * before the map is recreated.
+     *
+     * By default, this does nothing.
+     *
+     * \sa WLeafletMap::setOptions()
+     */
+    virtual void unrender();
+
+    /*! \brief Return whether this item needs to be updated.
+     *
+     * This is called when the map is rendered. If this returns true,
+     * update() will be used to update the item.
+     */
+    virtual bool needsUpdate() const;
+
+    //! Returns the map this item belongs to.
+    WLeafletMap* map() { return map_; }
+
+    //!  Returns the map this item belongs to.
+    const WLeafletMap* map() const { return map_; }
+
+    /*! \brief Writes the JS to update this item to the stream.
+     *
+     * This is called when the map is rendered if needsUpdate()
+     * returns true.
+     */
+    virtual void update(WStringStream& js);
+
+  private:
+    WLeafletMap* map_;
+
+    /// This method should write the JS code needed to update the item.
+    /// The JS code written can use o.wtObj to refer to the WLeafletMap
+    /// JS object.
+    virtual void applyChangeJS(WStringStream& ss, long long id) = 0;
+
+    virtual bool changed() const = 0;
+
+    /// The name of the JS function that adds the item to the map.
+    virtual std::string addFunctionJs() const { return "addMapItem"; };
+
+    virtual void setMap(WLeafletMap* map);
+    friend class WLeafletMap;
+  };
+
+  /*! \class AbstractOverlayItem
+   *  \brief An abstract map item with text
+   *
+   * This is the base class for all AbstractMapItems that can be added
+   * to other AbstractMapItems. This is an abstract class, so it should
+   * not be used directly.
+   */
+  class WT_API AbstractOverlayItem : public AbstractMapItem {
+  public:
+    virtual ~AbstractOverlayItem();
+
+    AbstractOverlayItem(const AbstractOverlayItem& ) = delete;
+    AbstractOverlayItem& operator=(const AbstractOverlayItem& ) = delete;
+    AbstractOverlayItem(AbstractOverlayItem&& ) = delete;
+    AbstractOverlayItem& operator=(AbstractOverlayItem&& ) = delete;
+
+    //! Set the content.
+    void setContent(const WString &content);
+
+    /*! \brief Get the content.
+     *
+     * \sa setContent
+     */
+    const WString& content() const { return content_; }
+
+    //! Get the current position.
+    Coordinate position() const { return pos_; }
+
+  protected:
+    /*! \brief Constructor
+     *
+     * Creates a new AbstractOverlayItem that has the given coordinates.
+     *
+     * Since this is an abstract class, this should not be used
+     * directly.
+     */
+    explicit AbstractOverlayItem(const Coordinate& pos);
+
+    /*! \brief Constructor
+     *
+     * Creates a new AbstractOverlayItem with the given content and that
+     * has the given coordinates.
+     *
+     * Since this is an abstract class, this should not be used
+     * directly.
+     */
+    AbstractOverlayItem(const Coordinate& pos, const WString& content);
+
+    /*! \brief Set the coordinates.
+     *
+     * This sets the coordinates of this item.
+     *
+     * \sa position()
+     */
+    void setPosition(const Coordinate& pos);
+
+  private:
+    WString content_;
+    Coordinate pos_;
+
+    bool changed() const override { return false; }
+
+    std::string addFunctionJs() const override { return "addOverlayItem"; }
+
+    friend class WLeafletMap;
+  };
+
+  /*! \class Popup
+   *  \brief A popup that can be added to the WLeafletMap.
+   *
+   * Popups are interactive windows that can be opened on the map,
+   * typically linked to a map location or a Marker.
+   *
+   * \note Multiple popups can be added to a map (using coordinates),
+   *       but only one popup at the time can be linked to each Marker.
+   *
+   * \sa WLeafletMap::addPopup(), Marker::addPopup()
+   */
+  class WT_API Popup : public AbstractOverlayItem {
+  public:
+    //! Create a popup with the given coordinates.
+    explicit Popup(const Coordinate& pos);
+
+    //! Create a popup with the given content and coordinates.
+    Popup(const Coordinate& pos, const WString& content);
+
+    virtual ~Popup();
+
+    Popup(const Popup&) = delete;
+    Popup& operator=(const Popup&) = delete;
+    Popup(Popup&&) = delete;
+    Popup& operator=(Popup&&) = delete;
+
+  protected:
+    void createItemJS(WStringStream& ss, WStringStream& postJS) const override;
+
+  private:
+    void applyChangeJS(WStringStream& ss, long long id) override;
+
+    friend class WLeafletMap;
+  };
+
   /*! \class Marker
    *  \brief An abstract marker
    *
    * This marker can be placed on a WLeafletMap at certain coordinates.
    */
-  class WT_API Marker {
+  class WT_API Marker : public AbstractMapItem {
   public:
     virtual ~Marker();
 
@@ -123,19 +306,12 @@ public:
   protected:
     explicit Marker(const Coordinate &pos);
 
-    WLeafletMap *map() { return map_; }
-    const WLeafletMap *map() const { return map_; }
-
-    virtual void setMap(WLeafletMap *map);
-    virtual void createMarkerJS(WStringStream &ss, WStringStream &postJS) const = 0;
-    virtual void unrender();
-    virtual bool needsUpdate() const;
-    virtual void update(WStringStream &js);
-
   private:
     Coordinate pos_;
-    WLeafletMap *map_;
     bool moved_;
+
+    bool changed() const override { return moved_; }
+    void applyChangeJS(WStringStream& ss, long long id) override;
 
     friend class WLeafletMap;
 
@@ -185,7 +361,7 @@ public:
 
   protected:
     virtual void setMap(WLeafletMap *map) override;
-    virtual void createMarkerJS(WStringStream &ss, WStringStream &postJS) const override;
+    virtual void createItemJS(WStringStream& ss, WStringStream& postJS) const override;
     virtual void unrender() override;
     virtual bool needsUpdate() const override;
     virtual void update(WStringStream &js) override;
@@ -218,7 +394,7 @@ public:
     LeafletMarker& operator=(LeafletMarker &&) = delete;
 
   protected:
-    virtual void createMarkerJS(WStringStream &ss, WStringStream &postJS) const override;
+    virtual void createItemJS(WStringStream& ss, WStringStream& postJS) const override;
   };
 
   /*! \brief Create a new WLeafletMap
@@ -264,6 +440,24 @@ public:
    */
   void addTileLayer(const std::string &urlTemplate,
                     const Json::Object &options);
+
+  /*! \brief Add the given popup
+   */
+  void addPopup(std::unique_ptr<Popup> popup);
+
+#ifndef WT_TARGET_JAVA
+  template<typename P>
+  P* addPopup(std::unique_ptr<P> popup)
+  {
+    P* result = popup.get();
+    addPopup(std::unique_ptr<Popup>(std::move(popup)));
+    return result;
+  }
+#endif // WT_TARGET_JAVA
+
+  /*! \brief Remove the given popup
+   */
+  std::unique_ptr<Popup> removePopup(Popup* popup);
 
   /*! \brief Add the given marker
    */
@@ -379,29 +573,30 @@ private:
   std::vector<std::unique_ptr<Overlay> > overlays_; // goes on the overlayPane, z-index 400
   std::size_t renderedOverlaysSize_;
 
-  struct WT_API MarkerEntry {
+  struct WT_API ItemEntry {
       static const int BIT_ADDED = 0;
       static const int BIT_REMOVED = 1;
 
-      MarkerEntry();
+      ItemEntry();
 
-      std::unique_ptr<Marker> uMarker;
-      Marker *marker;
+      std::unique_ptr<AbstractMapItem> uMapItem;
+      AbstractMapItem* mapItem;
       long long id;
       std::bitset<2> flags;
   };
 
-  std::vector<MarkerEntry> markers_; // goes on the markerPane, z-index 600
+  std::vector<ItemEntry> mapItems_; // goes on the item pane, z-index 600, 650 or 700
 
   void setup(); // called from constructors to reduce code duplication
   void defineJavaScript();
   void addTileLayerJS(WStringStream &ss, const TileLayer &layer) const;
   void panToJS(WStringStream &ss, const Coordinate &position) const;
   void zoomJS(WStringStream &ss, int level) const;
-  void addMarkerJS(WStringStream &ss, long long id, const Marker *marker) const;
-  void removeMarkerJS(WStringStream &ss, long long id) const;
-  void moveMarkerJS(WStringStream &ss, long long id, const Coordinate &position) const;
-
+  void addItem(std::unique_ptr<AbstractMapItem> mapItem);
+  std::unique_ptr<AbstractMapItem> removeItem(AbstractMapItem* mapItem);
+  void addItemJS(WStringStream& ss, long long id, const AbstractMapItem* marker) const;
+  void removeItemJS(WStringStream& ss, long long id) const;
+  void updateItemJS(WStringStream& ss, ItemEntry& entry) const;
   void handlePanChanged(double latitude, double longitude);
   void handleZoomLevelChanged(int zoomLevel);
 

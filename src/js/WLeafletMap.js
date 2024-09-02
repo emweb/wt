@@ -19,7 +19,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
   const self = this;
 
   this.map = null;
-  const markers = {};
+  const mapItems = {};
 
   let lastZoom = zoom;
   let lastLatLng = [lat, lng];
@@ -49,21 +49,26 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
     L.circle(center, options).addTo(self.map);
   };
 
-  this.addMarker = function(marker_id, marker) {
-    marker.addTo(self.map);
-    markers[marker_id] = marker;
+  this.addOverlayItem = function(overlayItem_id, overlayItem) {
+    this.map.addLayer(overlayItem);
+    mapItems[overlayItem_id] = overlayItem;
   };
 
-  this.removeMarker = function(marker_id) {
-    const marker = markers[marker_id];
-    if (marker) {
-      self.map.removeLayer(marker);
-      delete markers[marker_id];
+  this.addMapItem = function(mapItem_id, mapItem) {
+    mapItem.addTo(self.map);
+    mapItems[mapItem_id] = mapItem;
+  };
+
+  this.removeMapItem = function(mapItem_id) {
+    const mapItem = mapItems[mapItem_id];
+    if (mapItem) {
+      self.map.removeLayer(mapItem);
+      delete mapItems[mapItem_id];
     }
   };
 
   this.moveMarker = function(marker_id, position) {
-    const marker = markers[marker_id];
+    const marker = mapItems[marker_id];
     if (marker) {
       marker.setLatLng(position);
     }
