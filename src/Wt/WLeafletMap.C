@@ -23,6 +23,7 @@
 #include "Wt/Json/Serializer.h"
 #include "Wt/Json/Value.h"
 
+#include "web/Configuration.h"
 #include "web/DomElement.h"
 #include "web/EscapeOStream.h"
 #include "web/WebUtils.h"
@@ -779,6 +780,12 @@ WLeafletMap::WLeafletMap()
     zoomLevel_(13),
     nextMarkerId_(0),
     nextActionSequenceNumber_(0),
+    itemClicked_(this,"itemClicked"),
+    itemDblclicked_(this,"itemDblClicked"),
+    itemMousedown_(this,"itemMousedown"),
+    itemMouseup_(this,"itemMouseup"),
+    itemMouseover_(this,"itemMouseover"),
+    itemMouseout_(this,"itemMouseout"),
     renderedTileLayersSize_(0),
     renderedOverlaysSize_(0)
 {
@@ -793,6 +800,12 @@ WLeafletMap::WLeafletMap(const Json::Object &options)
     zoomLevel_(13),
     nextMarkerId_(0),
     nextActionSequenceNumber_(0),
+    itemClicked_(this,"itemClicked"),
+    itemDblclicked_(this,"itemDblClicked"),
+    itemMousedown_(this,"itemMousedown"),
+    itemMouseup_(this,"itemMouseup"),
+    itemMouseover_(this,"itemMouseover"),
+    itemMouseout_(this,"itemMouseout"),
     renderedTileLayersSize_(0),
     renderedOverlaysSize_(0)
 {
@@ -807,6 +820,12 @@ void WLeafletMap::setup()
   zoomLevelChanged().connect(this, &WLeafletMap::handleZoomLevelChanged);
   panChanged().connect(this, &WLeafletMap::handlePanChanged);
   overlayItemToggled_.connect(this, &WLeafletMap::handleOverlayItemToggled);
+  itemClicked_.connect(this, &WLeafletMap::handleItemClicked);
+  itemDblclicked_.connect(this, &WLeafletMap::handleItemDblClicked);
+  itemMousedown_.connect(this, &WLeafletMap::handleItemMousedown);
+  itemMouseup_.connect(this, &WLeafletMap::handleItemMouseup);
+  itemMouseover_.connect(this, &WLeafletMap::handleItemMouseover);
+  itemMouseout_.connect(this, &WLeafletMap::handleItemMouseout);
 
   WApplication *app = WApplication::instance();
   if (app) {
@@ -967,7 +986,6 @@ void WLeafletMap::addItemJS(WStringStream& ss, ItemEntry& entry) const
   ss << js.str();
   ss << "}";
 }
-
 
 WLeafletMap::AbstractMapItem* WLeafletMap::getItem(long long id) const
 {
@@ -1173,6 +1191,54 @@ int WLeafletMap::getNextActionSequenceNumber()
   return result;
 }
 
+void WLeafletMap::handleItemClicked(long long id)
+{
+  AbstractMapItem* item = getItem(id);
+  if (item) {
+    item->clicked().emit();
+  }
+}
+
+void WLeafletMap::handleItemDblClicked(long long id)
+{
+  AbstractMapItem *item = getItem(id);
+  if (item) {
+    item->doubleClicked().emit();
+  }
+}
+
+void WLeafletMap::handleItemMousedown(long long id)
+{
+  AbstractMapItem *item = getItem(id);
+  if (item) {
+    item->mouseWentDown().emit();
+  }
+}
+
+void WLeafletMap::handleItemMouseup(long long id)
+{
+  AbstractMapItem *item = getItem(id);
+  if (item) {
+    item->mouseWentUp().emit();
+  }
+}
+
+void WLeafletMap::handleItemMouseover(long long id)
+{
+  AbstractMapItem *item = getItem(id);
+  if (item) {
+    item->mouseWentOver().emit();
+  }
+}
+
+void WLeafletMap::handleItemMouseout(long long id)
+{
+  AbstractMapItem *item = getItem(id);
+  if (item) {
+    item->mouseWentOut().emit();
+  }
+}
+
 void WLeafletMap::defineJavaScript()
 {
   WApplication *app = WApplication::instance();
@@ -1192,7 +1258,8 @@ void WLeafletMap::defineJavaScript()
   char buf[30];
   es << Utils::round_js_str(position_.latitude(), 16, buf) << ",";
   es << Utils::round_js_str(position_.longitude(), 16, buf) << ",";
-  es << Utils::round_js_str(zoomLevel_, 16, buf) << ");";
+  es << Utils::round_js_str(zoomLevel_, 16, buf) << ",";
+  es << app->environment().server()->configuration().doubleClickTimeout() << ");";
 
   setJavaScriptMember(" WLeafletMap", ss.str());
   setJavaScriptMember(WT_RESIZE_JS,

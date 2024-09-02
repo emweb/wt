@@ -118,7 +118,7 @@ public:
    * directly to a map as is. Instead, you should use one of the
    * subclasses.
    */
-  class WT_API AbstractMapItem {
+  class WT_API AbstractMapItem: public WObject {
   public:
     virtual ~AbstractMapItem();
 
@@ -140,6 +140,13 @@ public:
      * \sa move
      */
     Coordinate position() const { return pos_; }
+
+    Signal<>& clicked() { return clicked_; }
+    Signal<>& doubleClicked() { return dblclicked_; }
+    Signal<>& mouseWentDown() { return mousedown_; }
+    Signal<>& mouseWentUp() { return mouseup_; }
+    Signal<>& mouseWentOver() { return mouseover_; }
+    Signal<>& mouseWentOut() { return mouseout_; }
 
 
   protected:
@@ -209,6 +216,13 @@ public:
     WLeafletMap* map_;
     Coordinate pos_;
     OrderedAction orderedAction_;
+
+    Signal<> clicked_;
+    Signal<> dblclicked_;
+    Signal<> mousedown_;
+    Signal<> mouseup_;
+    Signal<> mouseover_;
+    Signal<> mouseout_;
 
     /// This method should write the JS code needed to update the item.
     /// The JS code written can use o.wtObj to refer to the WLeafletMap
@@ -863,6 +877,13 @@ private:
   long long nextMarkerId_;
   int nextActionSequenceNumber_;
 
+  JSignal<long long> itemClicked_;
+  JSignal<long long> itemDblclicked_;
+  JSignal<long long> itemMousedown_;
+  JSignal<long long> itemMouseup_;
+  JSignal<long long> itemMouseover_;
+  JSignal<long long> itemMouseout_;
+
   struct WT_API TileLayer {
     std::string urlTemplate;
     Json::Object options;
@@ -906,10 +927,18 @@ private:
   void removeItemJS(WStringStream &ss, long long id) const;
   void updateItemJS(WStringStream &ss, ItemEntry &entry) const;
   void updateItemJS(WStringStream &ss, ItemEntry &entry, const std::string &fname) const;
+
   void handlePanChanged(double latitude, double longitude);
   void handleZoomLevelChanged(int zoomLevel);
   void handleOverlayItemToggled(long long id, bool open);
   int getNextActionSequenceNumber();
+
+  void handleItemClicked(long long id);
+  void handleItemDblClicked(long long id);
+  void handleItemMousedown(long long id);
+  void handleItemMouseup(long long id);
+  void handleItemMouseover(long long id);
+  void handleItemMouseout(long long id);
 
   static void addPathOptions(Json::Object &options, const WPen &stroke, const WBrush &fill);
 
