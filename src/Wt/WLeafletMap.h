@@ -153,7 +153,7 @@ public:
 
     /*! \brief Signal emitted when the user double-clicks on the map item.
      *
-     * \note Doubble-clicking on a marker may trigger the
+     * \note Double-clicking on a marker may trigger the
      *       doubleClickZoom from leaflet as well, which does zoom
      *       on the map, centered on where the click occurred.
      *
