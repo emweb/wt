@@ -141,11 +141,68 @@ public:
      */
     Coordinate position() const { return pos_; }
 
+    /*! \brief Signal emitted when the user clicks on the map item.
+     *
+     * \note For AbstractOverlayItem, this signal is only triggered
+     *       if their interactive option is set to true (by default, it
+     *       is set to false).
+     *
+     * \sa setOptions()
+     */
     Signal<>& clicked() { return clicked_; }
+
+    /*! \brief Signal emitted when the user double-clicks on the map item.
+     *
+     * \note Doubble-clicking on a marker may trigger the
+     *       doubleClickZoom from leaflet as well, which does zoom
+     *       on the map, centered on where the click occurred.
+     *
+     * \note For AbstractOverlayItem, this signal is only triggered if
+     *       their interactive option is set to true (by default, it is
+     *       set to false).
+     *
+     * \sa setOptions()
+     */
     Signal<>& doubleClicked() { return dblclicked_; }
+
+    /*! \brief Signal emitted when the user holds the mouse click on the map item.
+     *
+     * \note For AbstractOverlayItem, this signal is only triggered if
+     *       their interactive option is set to true (by default, it is
+     *       set to false).
+     *
+     * \sa setOptions()
+     */
     Signal<>& mouseWentDown() { return mousedown_; }
+
+    /*! \brief Signal emitted when the user releases the mouse click on the map item.
+     *
+     * \note For AbstractOverlayItem, this signal is only triggered if
+     *       their interactive option is set to true (by default, it is
+     *       set to false).
+     *
+     * \sa setOptions()
+     */
     Signal<>& mouseWentUp() { return mouseup_; }
+
+    /*! \brief Signal emitted when the user's mouse enters the map item.
+     *
+     * \note For AbstractOverlayItem, this signal is only triggered if
+     *       their interactive option is set to true (by default, it is
+     *       set to false).
+     *
+     * \sa setOptions()
+     */
     Signal<>& mouseWentOver() { return mouseover_; }
+
+    /*! \brief Signal emitted when the user's mouse leaves the map item.
+     *
+     * \note For AbstractOverlayItem, this signal is only triggered if
+     *       their interactive option is set to true (by default, it is
+     *       set to false).
+     *
+     * \sa setOptions()
+     */
     Signal<>& mouseWentOut() { return mouseout_; }
 
 
