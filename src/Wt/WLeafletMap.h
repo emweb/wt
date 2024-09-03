@@ -247,10 +247,13 @@ public:
     void setMap(WLeafletMap* map) override;
 
   private:
+    static const int BIT_CONTENT_CHANGED = 0;
+
+    std::bitset<1> flags_;
     std::unique_ptr<WWidget> content_;
     Coordinate pos_;
 
-    bool changed() const override { return false; }
+    bool changed() const override { return flags_.any(); }
 
     std::string addFunctionJs() const override { return "addOverlayItem"; }
 

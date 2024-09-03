@@ -74,6 +74,13 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
     }
   };
 
+  this.setOverlayItemContent = function(overlayItem_id, content) {
+    const overlayItem = mapItems[overlayItem_id];
+    if (overlayItem) {
+      overlayItem.setContent(content);
+    }
+  };
+
   this.wtResize = function() {
     self.map.invalidateSize();
   };

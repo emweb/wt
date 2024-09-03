@@ -258,7 +258,25 @@ void WLeafletMap::Popup::createItemJS(WStringStream& ss, WStringStream& postJS) 
 }
 
 void WLeafletMap::Popup::applyChangeJS(WStringStream& ss, long long id)
-{ }
+{
+  if (flags_.test(BIT_CONTENT_CHANGED)) {
+    std::unique_ptr<DomElement> element(content_->createSDomElement(WApplication::instance()));
+
+    DomElement::TimeoutList timeouts;
+
+    EscapeOStream js;
+    EscapeOStream es(ss);
+
+    es << "setOverlayItemContent(" << id << ",'";
+    es.pushEscape(EscapeOStream::JsStringLiteralSQuote);
+    element->asHTML(es, js, timeouts);
+    es.popEscape();
+    es << "');";
+    es << js.str();
+
+    flags_.reset(BIT_CONTENT_CHANGED);
+  }
+}
 
 WLeafletMap::AbstractOverlayItem::~AbstractOverlayItem()
 { }
@@ -269,19 +287,26 @@ WLeafletMap::AbstractOverlayItem::AbstractOverlayItem(const Coordinate& pos)
 { }
 
 WLeafletMap::AbstractOverlayItem::AbstractOverlayItem(const Coordinate& pos, std::unique_ptr<WWidget> content)
-  : content_(std::move(content)),
-    pos_(pos)
-{ }
+  : AbstractOverlayItem(pos)
+{
+  setContent(std::move(content));
+  flags_.reset(BIT_CONTENT_CHANGED);
+}
 
 
 void WLeafletMap::AbstractOverlayItem::setContent(std::unique_ptr<WWidget> content)
 {
   if (content_) {
-    content_->setParentWidget(nullptr);
+    content_->removeFromParent();
   }
   content_ = std::move(content);
   if (content_) {
     content_->setParentWidget(map());
+  }
+
+  if (map()) {
+    flags_.set(BIT_CONTENT_CHANGED);
+    map()->scheduleRender();
   }
 }
 
