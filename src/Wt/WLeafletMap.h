@@ -110,12 +110,27 @@ public:
     AbstractMapItem(AbstractMapItem&&) = delete;
     AbstractMapItem& operator=(AbstractMapItem&&) = delete;
 
+    /*! \brief Move the map item
+     *
+     * If this map item belongs to a map, this will trigger an update
+     * of the WLeafletMap to move the map item. If it doesn't belong to
+     * a map, the position is merely updated.
+     */
+    void move(const Coordinate& pos);
+
+    /*! \brief Get the current position
+     *
+     * \sa move
+     */
+    Coordinate position() const { return pos_; }
+
+
   protected:
     /*! \brief Constructor
      *
      * Since this is an abstract class, it should not be used directly.
      */
-    AbstractMapItem();
+    explicit AbstractMapItem(const Coordinate& pos);
 
     /*! \brief Writes the JS code to create this item to the stream.
      *
@@ -170,14 +185,19 @@ public:
     virtual void setMap(WLeafletMap* map);
 
   private:
+    static const int BIT_MOVED = 0;
+
+    std::bitset<1> flags_;
+
     WLeafletMap* map_;
+    Coordinate pos_;
 
     /// This method should write the JS code needed to update the item.
     /// The JS code written can use o.wtObj to refer to the WLeafletMap
     /// JS object.
-    virtual void applyChangeJS(WStringStream& ss, long long id) = 0;
+    virtual void applyChangeJS(WStringStream& ss, long long id);
 
-    virtual bool changed() const = 0;
+    virtual bool changed() const { return flags_.any(); }
 
     /// The name of the JS function that adds the item to the map.
     virtual std::string addFunctionJs() const { return "addMapItem"; };
@@ -213,9 +233,6 @@ public:
      */
     const WWidget* content() const { return content_.get(); }
 
-    //! Get the current position.
-    Coordinate position() const { return pos_; }
-
   protected:
     /*! \brief Constructor
      *
@@ -236,14 +253,6 @@ public:
      */
     AbstractOverlayItem(const Coordinate& pos, std::unique_ptr<WWidget> content);
 
-    /*! \brief Set the coordinates.
-     *
-     * This sets the coordinates of this item.
-     *
-     * \sa position()
-     */
-    void setPosition(const Coordinate& pos);
-
     void setMap(WLeafletMap* map) override;
 
   private:
@@ -251,9 +260,8 @@ public:
 
     std::bitset<1> flags_;
     std::unique_ptr<WWidget> content_;
-    Coordinate pos_;
 
-    bool changed() const override { return flags_.any(); }
+    bool changed() const override { return flags_.any() || AbstractMapItem::changed(); }
 
     std::string addFunctionJs() const override { return "addOverlayItem"; }
 
@@ -316,28 +324,8 @@ public:
     Marker(Marker &&) = delete;
     Marker& operator=(Marker &&) = delete;
 
-    /*! \brief Move the marker
-     *
-     * If this marker belongs to a map, this will trigger an update of the WLeafletMap
-     * to move the marker. If it doesn't belong to a map, the position is merely updated.
-     */
-    void move(const Coordinate &pos);
-
-    /*! \brief Get the current position
-     *
-     * \sa move
-     */
-    Coordinate position() const { return pos_; }
-
   protected:
     explicit Marker(const Coordinate &pos);
-
-  private:
-    Coordinate pos_;
-    bool moved_;
-
-    bool changed() const override { return moved_; }
-    void applyChangeJS(WStringStream& ss, long long id) override;
 
     friend class WLeafletMap;
 

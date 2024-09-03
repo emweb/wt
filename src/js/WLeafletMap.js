@@ -67,7 +67,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
     }
   };
 
-  this.moveMarker = function(marker_id, position) {
+  this.moveMapItem = function(marker_id, position) {
     const marker = mapItems[marker_id];
     if (marker) {
       marker.setLatLng(position);

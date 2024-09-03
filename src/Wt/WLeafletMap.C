@@ -202,13 +202,35 @@ void WLeafletMap::Coordinate::setLongitude(double longitude)
 WLeafletMap::AbstractMapItem::~AbstractMapItem()
 { }
 
-WLeafletMap::AbstractMapItem::AbstractMapItem()
-  : map_(nullptr)
+WLeafletMap::AbstractMapItem::AbstractMapItem(const Coordinate& pos)
+  : map_(nullptr),
+    pos_(pos)
 { }
+
+void WLeafletMap::AbstractMapItem::move(const Coordinate& pos)
+{
+  pos_ = pos;
+  if (map_) {
+    flags_.set(BIT_MOVED);
+    map_->scheduleRender();
+  }
+}
 
 void WLeafletMap::AbstractMapItem::setMap(WLeafletMap* map)
 {
   map_ = map;
+}
+
+void WLeafletMap::AbstractMapItem::applyChangeJS(WStringStream& ss, long long id)
+{
+  if (flags_.test(BIT_MOVED)) {
+    ss << "o.wtObj.moveMapItem(" << id << ",[";
+    char buf[30];
+    ss << Utils::round_js_str(position().latitude(), 16, buf) << ",";
+    ss << Utils::round_js_str(position().longitude(), 16, buf) << "]);";
+
+    flags_.reset(BIT_MOVED);
+  }
 }
 
 void WLeafletMap::AbstractMapItem::unrender()
@@ -267,7 +289,7 @@ void WLeafletMap::Popup::applyChangeJS(WStringStream& ss, long long id)
     EscapeOStream js;
     EscapeOStream es(ss);
 
-    es << "setOverlayItemContent(" << id << ",'";
+    es << "o.wtObj.setOverlayItemContent(" << id << ",'";
     es.pushEscape(EscapeOStream::JsStringLiteralSQuote);
     element->asHTML(es, js, timeouts);
     es.popEscape();
@@ -276,14 +298,16 @@ void WLeafletMap::Popup::applyChangeJS(WStringStream& ss, long long id)
 
     flags_.reset(BIT_CONTENT_CHANGED);
   }
+
+  AbstractOverlayItem::applyChangeJS(ss, id);
 }
 
 WLeafletMap::AbstractOverlayItem::~AbstractOverlayItem()
 { }
 
 WLeafletMap::AbstractOverlayItem::AbstractOverlayItem(const Coordinate& pos)
-  : content_(),
-    pos_(pos)
+  : AbstractMapItem(pos),
+    content_()
 { }
 
 WLeafletMap::AbstractOverlayItem::AbstractOverlayItem(const Coordinate& pos, std::unique_ptr<WWidget> content)
@@ -323,37 +347,12 @@ void WLeafletMap::AbstractOverlayItem::setMap(WLeafletMap* map) {
   }
 }
 
-void WLeafletMap::AbstractOverlayItem::setPosition(const Coordinate& pos)
-{
-  pos_ = pos;
-}
-
 WLeafletMap::Marker::Marker(const Coordinate &pos)
-  : pos_(pos),
-    moved_(false)
+  : AbstractMapItem(pos)
 { }
 
 WLeafletMap::Marker::~Marker()
 { }
-
-void WLeafletMap::Marker::move(const Coordinate &pos)
-{
-  pos_ = pos;
-  if (map_) {
-    moved_ = true;
-    map_->scheduleRender();
-  }
-}
-
-void WLeafletMap::Marker::applyChangeJS(WStringStream& ss, long long id)
-{
-  ss << "moveMarker(" << id << ",[";
-  char buf[30];
-  ss << Utils::round_js_str(position().latitude(), 16, buf) << ",";
-  ss << Utils::round_js_str(position().longitude(), 16, buf) << "]);";
-
-  moved_ = false;
-}
 
 WLeafletMap::WidgetMarker::WidgetMarker(const Coordinate &pos,
                                         std::unique_ptr<WWidget> widget)
@@ -671,7 +670,7 @@ void WLeafletMap::addItemJS(WStringStream& ss, long long id, const AbstractMapIt
 {
   WStringStream js;
   ss << "var o=" << jsRef() << ";if(o && o.wtObj){"
-        "" "o.wtObj." << mapItem->addFunctionJs();
+        "" "o.wtObj."<< mapItem->addFunctionJs();
   ss << "(" << id << ',';
   mapItem->createItemJS(ss, js);
   ss << ");";
@@ -717,8 +716,7 @@ void WLeafletMap::removeItemJS(WStringStream& ss, long long id) const
 void WLeafletMap::updateItemJS(WStringStream& ss,
                                ItemEntry& entry) const
 {
-  ss << "var o=" << jsRef() << ";if(o && o.wtObj){"
-     << "" "o.wtObj.";
+  ss << "var o=" << jsRef() << ";if(o && o.wtObj){";
 
   entry.mapItem->applyChangeJS(ss, entry.id);
   ss << "}";
