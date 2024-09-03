@@ -16,6 +16,7 @@
 #include "Wt/WLogger.h"
 #include "Wt/WPen.h"
 #include "Wt/WStringStream.h"
+#include "Wt/WText.h"
 
 #include "Wt/Json/Array.h"
 #include "Wt/Json/Parser.h"
@@ -225,8 +226,12 @@ WLeafletMap::Popup::Popup(const Coordinate& pos)
   : AbstractOverlayItem(pos)
 { }
 
+WLeafletMap::Popup::Popup(const Coordinate& pos, std::unique_ptr<WWidget> content)
+  : AbstractOverlayItem(pos, std::move(content))
+{ }
+
 WLeafletMap::Popup::Popup(const Coordinate& pos, const WString& content)
-  : AbstractOverlayItem(pos, content)
+  : AbstractOverlayItem(pos, std::make_unique<WText>(content))
 { }
 
 WLeafletMap::Popup::~Popup()
@@ -234,12 +239,22 @@ WLeafletMap::Popup::~Popup()
 
 void WLeafletMap::Popup::createItemJS(WStringStream& ss, WStringStream& postJS) const
 {
-  ss << "L.popup(L.latLng(";
+  std::unique_ptr<DomElement> element(content_->createSDomElement(WApplication::instance()));
+
+  DomElement::TimeoutList timeouts;
+
+  EscapeOStream js(postJS);
+  EscapeOStream es(ss);
+
+  es << "L.popup(L.latLng(";
   char buf[30];
-  ss << Utils::round_js_str(position().latitude(), 16, buf) << ",";
-  ss << Utils::round_js_str(position().longitude(), 16, buf) << "),";
-  ss << "{content: " << content().jsStringLiteral();
-  ss << "})";
+  es << Utils::round_js_str(position().latitude(), 16, buf) << ",";
+  es << Utils::round_js_str(position().longitude(), 16, buf) << "),";
+  es << "{content: '";
+  es.pushEscape(EscapeOStream::JsStringLiteralSQuote);
+  element->asHTML(es, js, timeouts);
+  es.popEscape();
+  es << "'})";
 }
 
 void WLeafletMap::Popup::applyChangeJS(WStringStream& ss, long long id)
@@ -253,14 +268,34 @@ WLeafletMap::AbstractOverlayItem::AbstractOverlayItem(const Coordinate& pos)
     pos_(pos)
 { }
 
-WLeafletMap::AbstractOverlayItem::AbstractOverlayItem(const Coordinate& pos, const WString& content)
-  : content_(content),
+WLeafletMap::AbstractOverlayItem::AbstractOverlayItem(const Coordinate& pos, std::unique_ptr<WWidget> content)
+  : content_(std::move(content)),
     pos_(pos)
 { }
 
+
+void WLeafletMap::AbstractOverlayItem::setContent(std::unique_ptr<WWidget> content)
+{
+  if (content_) {
+    content_->setParentWidget(nullptr);
+  }
+  content_ = std::move(content);
+  if (content_) {
+    content_->setParentWidget(map());
+  }
+}
+
 void WLeafletMap::AbstractOverlayItem::setContent(const WString& content)
 {
-  content_ = content;
+  setContent(std::make_unique<WText>(content));
+}
+
+void WLeafletMap::AbstractOverlayItem::setMap(WLeafletMap* map) {
+  AbstractMapItem::setMap(map);
+
+  if (content_) {
+    content_->setParentWidget(map);
+  }
 }
 
 void WLeafletMap::AbstractOverlayItem::setPosition(const Coordinate& pos)

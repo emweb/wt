@@ -157,6 +157,18 @@ public:
      */
     virtual void update(WStringStream& js);
 
+    /*! \brief Set the map this item belongs to.
+     *
+     * This is called to set the map the item belongs to. You can
+     * override this function if you need to do something when the item
+     * is added to a map.
+     *
+     * You should not call this function directly.
+     *
+     * \sa map()
+     */
+    virtual void setMap(WLeafletMap* map);
+
   private:
     WLeafletMap* map_;
 
@@ -170,7 +182,6 @@ public:
     /// The name of the JS function that adds the item to the map.
     virtual std::string addFunctionJs() const { return "addMapItem"; };
 
-    virtual void setMap(WLeafletMap* map);
     friend class WLeafletMap;
   };
 
@@ -191,13 +202,16 @@ public:
     AbstractOverlayItem& operator=(AbstractOverlayItem&& ) = delete;
 
     //! Set the content.
-    void setContent(const WString &content);
+    void setContent(std::unique_ptr<WWidget> content);
+
+    //! Set the content.
+    void setContent(const WString& content);
 
     /*! \brief Get the content.
      *
      * \sa setContent
      */
-    const WString& content() const { return content_; }
+    const WWidget* content() const { return content_.get(); }
 
     //! Get the current position.
     Coordinate position() const { return pos_; }
@@ -220,7 +234,7 @@ public:
      * Since this is an abstract class, this should not be used
      * directly.
      */
-    AbstractOverlayItem(const Coordinate& pos, const WString& content);
+    AbstractOverlayItem(const Coordinate& pos, std::unique_ptr<WWidget> content);
 
     /*! \brief Set the coordinates.
      *
@@ -230,8 +244,10 @@ public:
      */
     void setPosition(const Coordinate& pos);
 
+    void setMap(WLeafletMap* map) override;
+
   private:
-    WString content_;
+    std::unique_ptr<WWidget> content_;
     Coordinate pos_;
 
     bool changed() const override { return false; }
@@ -258,6 +274,13 @@ public:
     explicit Popup(const Coordinate& pos);
 
     //! Create a popup with the given content and coordinates.
+    Popup(const Coordinate& pos, std::unique_ptr<WWidget> content);
+
+    /*! \brief Create a popup with the given content and coordinates.
+     *
+     * This is a shortcut for creating a popup with a WText widget
+     * as content.
+     */
     Popup(const Coordinate& pos, const WString& content);
 
     virtual ~Popup();
