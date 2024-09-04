@@ -233,6 +233,42 @@ public:
      */
     const WWidget* content() const { return content_.get(); }
 
+    /*! \brief Opens the AbstractOverlayItem
+     *
+     * \sa close, toggle
+     */
+    void open();
+
+    /*! \brief Closes the AbstractOverlayItem
+     *
+     * \sa open, toggle
+     */
+    void close();
+
+    /*! \brief Opens or closes the AbstractOverlayItem
+     *
+     * \sa open, close
+     */
+    void toggle();
+
+    /*! \brief Returns whether the AbstractOverlayItem is open
+     *
+     * \sa close, toggle
+     */
+    bool isOpen() const { return open_; }
+
+    /*! \brief Signal emited after the AbstractOverlayItem was opened
+     *
+     * \sa closed
+     */
+    Signal<>& opened() { return opened_; }
+
+    /*! \brief Signal emited after the AbstractOverlayItem was closed
+     *
+     * \sa opened
+     */
+    Signal<>& closed() { return closed_; }
+
   protected:
     /*! \brief Constructor
      *
@@ -257,11 +293,17 @@ public:
 
   private:
     static const int BIT_CONTENT_CHANGED = 0;
+    static const int BIT_OPEN_CHANGED = 1;
 
-    std::bitset<1> flags_;
+    std::bitset<2> flags_;
     std::unique_ptr<WWidget> content_;
+    bool open_;
+
+    Signal<> opened_;
+    Signal<> closed_;
 
     bool changed() const override { return flags_.any() || AbstractMapItem::changed(); }
+    void applyChangeJS(WStringStream& ss, long long id) override;
 
     std::string addFunctionJs() const override { return "addOverlayItem"; }
 
@@ -569,6 +611,7 @@ private:
   std::bitset<3> flags_;
   JSignal<int> zoomLevelChanged_;
   JSignal<double, double> panChanged_;
+  JSignal<long long, bool> overlayItemToggled_;
   Coordinate position_;
   int zoomLevel_;
   long long nextMarkerId_;
@@ -606,6 +649,7 @@ private:
   void addTileLayerJS(WStringStream &ss, const TileLayer &layer) const;
   void panToJS(WStringStream &ss, const Coordinate &position) const;
   void zoomJS(WStringStream &ss, int level) const;
+  AbstractMapItem* getItem(long long id) const;
   void addItem(std::unique_ptr<AbstractMapItem> mapItem);
   std::unique_ptr<AbstractMapItem> removeItem(AbstractMapItem* mapItem);
   void addItemJS(WStringStream& ss, long long id, const AbstractMapItem* marker) const;
@@ -613,6 +657,7 @@ private:
   void updateItemJS(WStringStream& ss, ItemEntry& entry) const;
   void handlePanChanged(double latitude, double longitude);
   void handleZoomLevelChanged(int zoomLevel);
+  void handleOverlayItemToggled(long long id, bool open);
 
   static void addPathOptions(Json::Object &options, const WPen &stroke, const WBrush &fill);
 

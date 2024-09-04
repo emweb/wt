@@ -50,6 +50,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
   };
 
   this.addOverlayItem = function(overlayItem_id, overlayItem) {
+    overlayItem.item_id = overlayItem_id;
     this.map.addLayer(overlayItem);
     mapItems[overlayItem_id] = overlayItem;
   };
@@ -78,6 +79,17 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
     const overlayItem = mapItems[overlayItem_id];
     if (overlayItem) {
       overlayItem.setContent(content);
+    }
+  };
+
+  this.toggleOverlayItem = function(overlayItem_id, doOpen) {
+    const overlayItem = mapItems[overlayItem_id];
+    if (overlayItem) {
+      if (doOpen && !overlayItem.isOpen()) {
+        overlayItem.openOn(this.map);
+      } else if (!doOpen && overlayItem.isOpen()) {
+        overlayItem.close();
+      }
     }
   };
 
@@ -140,6 +152,12 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
         APP.emit(el, "panChanged", center.lat, center.lng);
         lastLatLng = [center.lat, center.lng];
       }
+    });
+    self.map.on("popupclose", function(e) {
+      APP.emit(el, "overlayItemToggled", e.popup.item_id, false);
+    });
+    self.map.on("popupopen", function(e) {
+      APP.emit(el, "overlayItemToggled", e.popup.item_id, true);
     });
   };
 

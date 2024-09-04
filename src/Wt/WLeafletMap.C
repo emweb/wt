@@ -307,7 +307,8 @@ WLeafletMap::AbstractOverlayItem::~AbstractOverlayItem()
 
 WLeafletMap::AbstractOverlayItem::AbstractOverlayItem(const Coordinate& pos)
   : AbstractMapItem(pos),
-    content_()
+    content_(),
+    open_(true)
 { }
 
 WLeafletMap::AbstractOverlayItem::AbstractOverlayItem(const Coordinate& pos, std::unique_ptr<WWidget> content)
@@ -339,12 +340,52 @@ void WLeafletMap::AbstractOverlayItem::setContent(const WString& content)
   setContent(std::make_unique<WText>(content));
 }
 
+void WLeafletMap::AbstractOverlayItem::open()
+{
+  if (!open_) {
+    toggle();
+  }
+}
+
+void WLeafletMap::AbstractOverlayItem::close()
+{
+  if (open_) {
+    toggle();
+  }
+}
+
+void WLeafletMap::AbstractOverlayItem::toggle()
+{
+  open_ = !open_;
+
+  if (map()) {
+    flags_.set(BIT_OPEN_CHANGED);
+    map()->scheduleRender();
+  }
+
+  if (open_) {
+    opened().emit();
+  } else {
+    closed().emit();
+  }
+}
+
 void WLeafletMap::AbstractOverlayItem::setMap(WLeafletMap* map) {
   AbstractMapItem::setMap(map);
 
   if (content_) {
     content_->setParentWidget(map);
   }
+}
+
+void WLeafletMap::AbstractOverlayItem::applyChangeJS(WStringStream& ss, long long id)
+{
+  if (flags_.test(BIT_OPEN_CHANGED)) {
+    ss << "o.wtObj.toggleOverlayItem(" << id << ",";
+    ss << open_ << ");";
+    flags_.reset(BIT_OPEN_CHANGED);
+  }
+  AbstractMapItem::applyChangeJS(ss, id);
 }
 
 WLeafletMap::Marker::Marker(const Coordinate &pos)
@@ -519,6 +560,7 @@ WLeafletMap::WLeafletMap()
     options_(),
     zoomLevelChanged_(this, "zoomLevelChanged"),
     panChanged_(this, "panChanged"),
+    overlayItemToggled_(this, "overlayItemToggled"),
     zoomLevel_(13),
     nextMarkerId_(0),
     renderedTileLayersSize_(0),
@@ -531,6 +573,7 @@ WLeafletMap::WLeafletMap(const Json::Object &options)
   : options_(options),
     zoomLevelChanged_(this, "zoomLevelChanged"),
     panChanged_(this, "panChanged"),
+    overlayItemToggled_(this, "overlayItemToggled"),
     zoomLevel_(13),
     nextMarkerId_(0),
     renderedTileLayersSize_(0),
@@ -546,6 +589,7 @@ void WLeafletMap::setup()
 
   zoomLevelChanged().connect(this, &WLeafletMap::handleZoomLevelChanged);
   panChanged().connect(this, &WLeafletMap::handlePanChanged);
+  overlayItemToggled_.connect(this, &WLeafletMap::handleOverlayItemToggled);
 
   WApplication *app = WApplication::instance();
   if (app) {
@@ -678,6 +722,16 @@ void WLeafletMap::addItemJS(WStringStream& ss, long long id, const AbstractMapIt
   ss << "}";
 }
 
+
+WLeafletMap::AbstractMapItem* WLeafletMap::getItem(long long id) const
+{
+  for (std::size_t i = 0; i < mapItems_.size(); ++i) {
+    if (mapItems_[i].id == id) {
+      return mapItems_[i].mapItem;
+    }
+  }
+  return nullptr;
+}
 
 std::unique_ptr<WLeafletMap::AbstractMapItem> WLeafletMap::removeItem(AbstractMapItem* mapItem)
 {
@@ -836,6 +890,20 @@ void WLeafletMap::handlePanChanged(double latitude, double longitude)
 void WLeafletMap::handleZoomLevelChanged(int zoomLevel)
 {
   zoomLevel_ = zoomLevel;
+}
+
+void WLeafletMap::handleOverlayItemToggled(long long id, bool open)
+{
+  AbstractOverlayItem* overlayItem = dynamic_cast<AbstractOverlayItem*>(getItem(id));
+  if (overlayItem && overlayItem->open_ != open) {
+    overlayItem->open_ = open;
+
+    if (open) {
+      overlayItem->opened().emit();
+    } else {
+      overlayItem->closed().emit();
+    }
+  }
 }
 
 void WLeafletMap::defineJavaScript()
