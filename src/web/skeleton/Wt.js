@@ -1831,7 +1831,12 @@ if (!window._$_WT_CLASS_$_) {
       } else if (y + reserveHeight > windowY + windowSize.y) {
         // too far below, chose other side
         if (bottomy > windowY + windowSize.y) {
+          // requested bottom edge is already off screen
           bottomy = windowY + windowSize.y;
+        }
+        if (reserveHeight > bottomy - windowY) {
+          // popup is too tall to be displayed upwards starting from the current bottomy
+          bottomy = windowY + reserveHeight;
         }
         let scrollY = op.scrollTop;
         if (op === document.body) {
