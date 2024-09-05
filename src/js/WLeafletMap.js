@@ -51,7 +51,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
 
   this.addOverlayItem = function(overlayItem_id, overlayItem) {
     overlayItem.item_id = overlayItem_id;
-    this.map.addLayer(overlayItem);
+    overlayItem.openOn(this.map);
     mapItems[overlayItem_id] = overlayItem;
   };
 

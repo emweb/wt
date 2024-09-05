@@ -155,7 +155,7 @@ public:
      * item. The \p postJS stream can be used to write JS code that
      * should be executed after the item has been created.
      */
-    virtual void createItemJS(WStringStream& ss, WStringStream& postJS) const = 0;
+    virtual void createItemJS(WStringStream& ss, WStringStream& postJS, long long id) = 0;
 
     /*! \brief Unrender the item.
      *
@@ -241,6 +241,33 @@ public:
     AbstractOverlayItem& operator=(const AbstractOverlayItem& ) = delete;
     AbstractOverlayItem(AbstractOverlayItem&& ) = delete;
     AbstractOverlayItem& operator=(AbstractOverlayItem&& ) = delete;
+
+    /*! \brief Set the options of the AbstractOverlayItem
+     *
+     * Set the options that will be passed to the WLeafletMap
+     * AbstractOverlayItem at construction.
+     *
+     * \if cpp
+     * Usage example:
+     * \code
+     * Wt::Json::Object options;
+     * options["autoClose"] = true;
+     * options["closeOnClick"] = true;
+     * popup->setOptions(options);
+     * \endcode
+     * \endif
+     *
+     * See https://leafletjs.com/reference.html for the list of options.
+     *
+     * \note Modifying the options after the AbstractOverlayItem has
+     *       been loaded by the user will not work as the
+     *       AbstractOverlayItem was already constructed. Some option
+     *       like 'content' can be changed after load using the
+     *       appropriate function.
+     *
+     * \sa setContent
+     */
+    void setOptions(const Json::Object& options);
 
     //! Set the content.
     void setContent(std::unique_ptr<WWidget> content);
@@ -343,6 +370,7 @@ public:
     std::bitset<2> flags_;
     std::unique_ptr<WWidget> content_;
     bool open_;
+    Json::Object options_;
 
     Signal<> opened_;
     Signal<> closed_;
@@ -389,7 +417,7 @@ public:
     Popup& operator=(Popup&&) = delete;
 
   protected:
-    void createItemJS(WStringStream& ss, WStringStream& postJS) const override;
+    void createItemJS(WStringStream& ss, WStringStream& postJS, long long id) override;
 
   private:
     void applyChangeJS(WStringStream& ss, long long id) override;
@@ -462,7 +490,7 @@ public:
 
   protected:
     virtual void setMap(WLeafletMap *map) override;
-    virtual void createItemJS(WStringStream& ss, WStringStream& postJS) const override;
+    virtual void createItemJS(WStringStream& ss, WStringStream& postJS, long long id) override;
     virtual void unrender() override;
     virtual bool needsUpdate() const override;
     virtual void update(WStringStream &js) override;
@@ -495,7 +523,7 @@ public:
     LeafletMarker& operator=(LeafletMarker &&) = delete;
 
   protected:
-    virtual void createItemJS(WStringStream& ss, WStringStream& postJS) const override;
+    virtual void createItemJS(WStringStream& ss, WStringStream& postJS, long long id) override;
   };
 
   /*! \brief Create a new WLeafletMap
@@ -698,7 +726,7 @@ private:
   AbstractMapItem* getItem(long long id) const;
   void addItem(std::unique_ptr<AbstractMapItem> mapItem);
   std::unique_ptr<AbstractMapItem> removeItem(AbstractMapItem* mapItem);
-  void addItemJS(WStringStream& ss, long long id, const AbstractMapItem* marker) const;
+  void addItemJS(WStringStream& ss, long long id, AbstractMapItem* marker) const;
   void removeItemJS(WStringStream& ss, long long id) const;
   void updateItemJS(WStringStream& ss, ItemEntry& entry) const;
   void updateItemJS(WStringStream& ss, ItemEntry& entry, const std::string& fname) const;

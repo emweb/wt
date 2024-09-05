@@ -107,6 +107,7 @@ public:
 
 #ifdef WT_TARGET_JAVA
   bool isNull() const;
+  bool empty() const;
   Value& operator[](const std::string& name);
 #endif
 };
