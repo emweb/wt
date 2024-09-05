@@ -49,6 +49,23 @@ namespace Wt {
 class WT_API WLeafletMap : public WCompositeWidget
 {
   class Impl;
+  struct ItemEntry;
+
+  struct OrderedAction {
+    enum class Type {
+      None,
+      Add,
+      MoveFront,
+      MoveBack
+    };
+
+    OrderedAction(Type type = Type::None);
+
+    Type type;
+    int sequenceNumber;
+    ItemEntry* itemEntry;
+  };
+
 public:
   /*! \class Coordinate
    *  \brief A geographical coordinate (latitude/longitude)
@@ -191,6 +208,7 @@ public:
 
     WLeafletMap* map_;
     Coordinate pos_;
+    OrderedAction orderedAction_;
 
     /// This method should write the JS code needed to update the item.
     /// The JS code written can use o.wtObj to refer to the WLeafletMap
@@ -201,6 +219,9 @@ public:
 
     /// The name of the JS function that adds the item to the map.
     virtual std::string addFunctionJs() const { return "addMapItem"; };
+
+    OrderedAction& getOrderedAction() { return orderedAction_ ; }
+    void resetOrderedAction();
 
     friend class WLeafletMap;
   };
@@ -268,6 +289,30 @@ public:
      * \sa opened
      */
     Signal<>& closed() { return closed_; }
+
+    /*! \brief Brings this AbstractOverlayItem to the front.
+     *
+     * This brings this AbstractOverlayItem to the front of other
+     * AbstractOverlayItem of the same type.
+     *
+     * \warning This function only works after the AbstractOverlayItem
+     *          is added to the map.
+     *
+     * \sa bringToBack
+     */
+    void bringToFront();
+
+    /*! \brief Brings this AbstractOverlayItem to the back.
+     *
+     * This brings this AbstractOverlayItem to the back of other
+     * AbstractOverlayItem of the same type.
+     *
+     * \warning This function only works after the AbstractOverlayItem
+     *          is added to the map.
+     *
+     * \sa bringToFront
+     */
+    void bringToBack();
 
   protected:
     /*! \brief Constructor
@@ -615,6 +660,7 @@ private:
   Coordinate position_;
   int zoomLevel_;
   long long nextMarkerId_;
+  int nextActionSequenceNumber_;
 
   struct WT_API TileLayer {
     std::string urlTemplate;
@@ -655,9 +701,11 @@ private:
   void addItemJS(WStringStream& ss, long long id, const AbstractMapItem* marker) const;
   void removeItemJS(WStringStream& ss, long long id) const;
   void updateItemJS(WStringStream& ss, ItemEntry& entry) const;
+  void updateItemJS(WStringStream& ss, ItemEntry& entry, const std::string& fname) const;
   void handlePanChanged(double latitude, double longitude);
   void handleZoomLevelChanged(int zoomLevel);
   void handleOverlayItemToggled(long long id, bool open);
+  int getNextActionSequenceNumber();
 
   static void addPathOptions(Json::Object &options, const WPen &stroke, const WBrush &fill);
 

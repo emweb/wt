@@ -204,7 +204,8 @@ WLeafletMap::AbstractMapItem::~AbstractMapItem()
 
 WLeafletMap::AbstractMapItem::AbstractMapItem(const Coordinate& pos)
   : map_(nullptr),
-    pos_(pos)
+    pos_(pos),
+    orderedAction_()
 { }
 
 void WLeafletMap::AbstractMapItem::move(const Coordinate& pos)
@@ -219,6 +220,11 @@ void WLeafletMap::AbstractMapItem::move(const Coordinate& pos)
 void WLeafletMap::AbstractMapItem::setMap(WLeafletMap* map)
 {
   map_ = map;
+}
+
+void WLeafletMap::AbstractMapItem::resetOrderedAction()
+{
+  orderedAction_ = OrderedAction();
 }
 
 void WLeafletMap::AbstractMapItem::applyChangeJS(WStringStream& ss, long long id)
@@ -370,7 +376,26 @@ void WLeafletMap::AbstractOverlayItem::toggle()
   }
 }
 
-void WLeafletMap::AbstractOverlayItem::setMap(WLeafletMap* map) {
+void WLeafletMap::AbstractOverlayItem::bringToFront()
+{
+  if (map()) {
+    orderedAction_.type = OrderedAction::Type::MoveFront;
+    orderedAction_.sequenceNumber = map()->getNextActionSequenceNumber();
+    map()->scheduleRender();
+  }
+}
+
+void WLeafletMap::AbstractOverlayItem::bringToBack()
+{
+  if (map()) {
+    orderedAction_.type = OrderedAction::Type::MoveBack;
+    orderedAction_.sequenceNumber = map()->getNextActionSequenceNumber();
+    map()->scheduleRender();
+  }
+}
+
+void WLeafletMap::AbstractOverlayItem::setMap(WLeafletMap* map)
+{
   AbstractMapItem::setMap(map);
 
   if (content_) {
@@ -563,6 +588,7 @@ WLeafletMap::WLeafletMap()
     overlayItemToggled_(this, "overlayItemToggled"),
     zoomLevel_(13),
     nextMarkerId_(0),
+    nextActionSequenceNumber_(0),
     renderedTileLayersSize_(0),
     renderedOverlaysSize_(0)
 {
@@ -576,6 +602,7 @@ WLeafletMap::WLeafletMap(const Json::Object &options)
     overlayItemToggled_(this, "overlayItemToggled"),
     zoomLevel_(13),
     nextMarkerId_(0),
+    nextActionSequenceNumber_(0),
     renderedTileLayersSize_(0),
     renderedOverlaysSize_(0)
 {
@@ -700,6 +727,9 @@ void WLeafletMap::addItem(std::unique_ptr<AbstractMapItem> mapItem)
   entry.id = nextMarkerId_;
   ++nextMarkerId_;
 
+  entry.mapItem->orderedAction_.type = OrderedAction::Type::Add;
+  entry.mapItem->orderedAction_.sequenceNumber = getNextActionSequenceNumber();
+
   mapItems_.push_back(std::move(entry));
 
   scheduleRender();
@@ -773,6 +803,15 @@ void WLeafletMap::updateItemJS(WStringStream& ss,
   ss << "var o=" << jsRef() << ";if(o && o.wtObj){";
 
   entry.mapItem->applyChangeJS(ss, entry.id);
+  ss << "}";
+}
+
+void WLeafletMap::updateItemJS(WStringStream& ss,
+                               ItemEntry& entry,
+                               const std::string& fname) const
+{
+  ss << "var o=" << jsRef() << ";if(o && o.wtObj){";
+  ss << "o.wtObj." << fname << "(" << entry.id << ");";
   ss << "}";
 }
 
@@ -906,6 +945,13 @@ void WLeafletMap::handleOverlayItemToggled(long long id, bool open)
   }
 }
 
+int WLeafletMap::getNextActionSequenceNumber()
+{
+  int result = nextActionSequenceNumber_;
+  nextActionSequenceNumber_++;
+  return result;
+}
+
 void WLeafletMap::defineJavaScript()
 {
   WApplication *app = WApplication::instance();
@@ -979,11 +1025,18 @@ void WLeafletMap::render(WFlags<RenderFlag> flags)
     }
   }
 
+  std::vector<OrderedAction> orderedActions;
+  orderedActions.assign(nextActionSequenceNumber_, OrderedAction());
+
   for (std::size_t i = 0; i < mapItems_.size(); ++i) {
+    OrderedAction mapItemAction = mapItems_[i].mapItem->getOrderedAction();
+    mapItems_[i].mapItem->resetOrderedAction();
     if (flags.test(RenderFlag::Full) ||
         flags_.test(BIT_OPTIONS_CHANGED) ||
         mapItems_[i].flags.test(ItemEntry::BIT_ADDED)) {
-      addItemJS(ss, mapItems_[i].id, mapItems_[i].mapItem);
+      if (mapItemAction.type != OrderedAction::Type::Add) {
+        addItemJS(ss, mapItems_[i].id, mapItems_[i].mapItem);
+      }
       mapItems_[i].flags.reset(ItemEntry::BIT_ADDED);
     } else {
       if (mapItems_[i].mapItem->changed()) {
@@ -993,6 +1046,27 @@ void WLeafletMap::render(WFlags<RenderFlag> flags)
         mapItems_[i].mapItem->update(ss);
       }
     }
+    if (mapItemAction.type != OrderedAction::Type::None) {
+      mapItemAction.itemEntry = &mapItems_[i];
+      orderedActions[mapItemAction.sequenceNumber] = mapItemAction;
+    }
+  }
+
+  for (int i = 0; i < nextActionSequenceNumber_; ++i) {
+    switch (orderedActions[i].type)
+    {
+    case OrderedAction::Type::Add:
+      addItemJS(ss, orderedActions[i].itemEntry->id, orderedActions[i].itemEntry->mapItem);
+      break;
+    case OrderedAction::Type::MoveFront:
+      updateItemJS(ss, *orderedActions[i].itemEntry, "moveOverlayItemToFront");
+      break;
+    case OrderedAction::Type::MoveBack:
+      updateItemJS(ss, *orderedActions[i].itemEntry, "moveOverlayItemToBack");
+      break;
+    default:
+      break;
+    }
   }
 
   if (!ss.empty()) {
@@ -1000,6 +1074,7 @@ void WLeafletMap::render(WFlags<RenderFlag> flags)
   }
 
   flags_.reset(BIT_OPTIONS_CHANGED);
+  nextActionSequenceNumber_ = 0;
 
   WCompositeWidget::render(flags);
 }
@@ -1014,6 +1089,12 @@ WLeafletMap::ItemEntry::ItemEntry()
     mapItem(nullptr),
     id(-1),
     flags()
+{ }
+
+WLeafletMap::OrderedAction::OrderedAction(Type type)
+  : type(type),
+    sequenceNumber(0),
+    itemEntry(nullptr)
 { }
 
 }

@@ -82,6 +82,20 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
     }
   };
 
+  this.moveOverlayItemToFront = function(overlayItem_id) {
+    const overlayItem = mapItems[overlayItem_id];
+    if (overlayItem) {
+      overlayItem.bringToFront();
+    }
+  };
+
+  this.moveOverlayItemToBack = function(overlayItem_id) {
+    const overlayItem = mapItems[overlayItem_id];
+    if (overlayItem) {
+      overlayItem.bringToBack();
+    }
+  };
+
   this.toggleOverlayItem = function(overlayItem_id, doOpen) {
     const overlayItem = mapItems[overlayItem_id];
     if (overlayItem) {
