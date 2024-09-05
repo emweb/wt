@@ -41,14 +41,14 @@
 #ifdef SPIRIT_QUERY_PARSE
 
 #include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
+/*#include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_object.hpp>
 #if BOOST_VERSION < 105600
 #include <boost/spirit/home/phoenix/statement/throw.hpp>
 #else
 #include <boost/phoenix.hpp>
-#endif
+#endif*/
 #include <boost/bind/bind.hpp>
 #include <iostream>
 
@@ -128,7 +128,7 @@ void parseSql(const std::string& sql, SelectFieldLists& fieldLists)
 
 namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
-namespace phoenix = boost::phoenix;
+//namespace phoenix = boost::phoenix;
 
 /*
  * Grammar that parses SQL select statements:
@@ -156,9 +156,9 @@ struct sql_query_grammar : qi::grammar<Iterator, ascii::space_type>
     using ascii::graph;
     using ascii::space;
 
-    using phoenix::construct;
+   /* using phoenix::construct;
     using phoenix::val;
-    using phoenix::throw_;
+    using phoenix::throw_;*/
 
     query_expression
       = select_expression % compound_operator
