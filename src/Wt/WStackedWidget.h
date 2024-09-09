@@ -158,11 +158,16 @@ private:
   bool autoReverseAnimation_;
   int currentIndex_;
   bool widgetsAdded_, javaScriptDefined_, loadAnimateJS_;
+  std::vector<ContentLoading> loadPolicies_;
 
   Signal<WWidget*> currentWidgetChanged_;
 
   void defineJavaScript();
   void loadAnimateJS();
+  void setLoadPolicy(int index, ContentLoading loadPolicy);
+
+
+  friend class WMenu;
 };
 
 }

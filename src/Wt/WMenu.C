@@ -227,6 +227,7 @@ WMenuItem *WMenu::insertItem(int index, std::unique_ptr<WMenuItem> item)
     if (contentsPtr) {
       WWidget *contents = contentsPtr.get();
       contentsStack_->addWidget(std::move(contentsPtr));
+      contentsStack_->setLoadPolicy(contentsStack_->count()-1, result->loadPolicy_);
 
       if (contentsStack_->count() == 1) {
         setCurrent(0);
