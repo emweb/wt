@@ -302,15 +302,21 @@ void WLeafletMap::Popup::applyChangeJS(WStringStream& ss, long long id)
 
     DomElement::TimeoutList timeouts;
 
-    EscapeOStream js;
-    EscapeOStream es(ss);
+    EscapeOStream delayedJS;
+    EscapeOStream content;
 
-    es << "o.wtObj.setOverlayItemContent(" << id << ",'";
-    es.pushEscape(EscapeOStream::JsStringLiteralSQuote);
-    element->asHTML(es, js, timeouts);
-    es.popEscape();
-    es << "');";
-    es << js.str();
+    content << "o.wtObj.setOverlayItemContent(" << std::to_string(id) << ",'";
+    content.pushEscape(EscapeOStream::JsStringLiteralSQuote);
+    element->asHTML(content, delayedJS, timeouts);
+    content.popEscape();
+    content << "','";
+    content.pushEscape(EscapeOStream::JsStringLiteralSQuote);
+    content << element->id();
+    content.popEscape();
+    content << "');";
+
+    ss << "o.wtObj.delayedJS = function() {"<<delayedJS.str() << "};";
+    ss << content.str();
 
     flags_.reset(BIT_CONTENT_CHANGED);
   }
@@ -449,6 +455,10 @@ void WLeafletMap::Marker::addPopup(std::unique_ptr<Popup> popup)
       popupBuffer_ = std::move(popup);
     }
     popup_->pos_ = pos_;
+
+    if (!popup_->flags_.test(AbstractOverlayItem::BIT_OPEN_CHANGED)) {
+      popup_->close();
+    }
   }
 }
 

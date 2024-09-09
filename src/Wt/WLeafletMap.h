@@ -455,9 +455,9 @@ public:
      * previously added to this Marker.
      *
      * A popup added to a Marker will have it's coordinate set to the
-     * coordinate of the Marker. If the Marker's option interactive is
-     * true, the popup will switch between closed and open when the
-     * Marker is clicked.
+     * coordinate of the Marker and will be closed by default. If the
+     * Marker's interactive option is true, the popup will switch
+     * between closed and open when the Marker is clicked.
      *
      * \sa removePopup
      */

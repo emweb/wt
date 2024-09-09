@@ -50,6 +50,9 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
   };
 
   this.addOverlayItem = function(overlayItem_id, parent_id, overlayItem) {
+    overlayItem.contentHolder = document.createElement("div");
+    overlayItem.contentHolder.style.cssText = "visibility: hidden;";
+    el.appendChild(overlayItem.contentHolder);
     overlayItem.item_id = overlayItem_id;
     overlayItem.parent_id = parent_id;
     mapItems[overlayItem_id] = overlayItem;
@@ -71,6 +74,11 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
           parent.unbindPopup();
         }
       }
+
+      if (mapItem.contentHolder) {
+        mapItem.contentHolder.remove();
+      }
+
       self.map.removeLayer(mapItem);
       delete mapItems[mapItem_id];
     }
@@ -83,10 +91,18 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
     }
   };
 
-  this.setOverlayItemContent = function(overlayItem_id, content) {
+  this.setOverlayItemContent = function(overlayItem_id, content, content_id) {
     const overlayItem = mapItems[overlayItem_id];
     if (overlayItem) {
-      overlayItem.setContent(content);
+      overlayItem.contentId = content_id;
+      overlayItem.contentHolder.innerHTML = content;
+
+      if (overlayItem.isOpen()) {
+        const c = overlayItem.contentHolder.firstChild;
+        overlayItem.setContent(overlayItem.contentHolder.removeChild(c));
+      }
+
+      self.delayedJS();
     }
   };
 
@@ -117,7 +133,6 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
             parent.bindPopup(overlayItem).openPopup();
           }
         }
-        overlayItem.openOn(this.map);
       } else if (!doOpen && overlayItem.isOpen()) {
         overlayItem.close();
       }
@@ -185,9 +200,18 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
       }
     });
     self.map.on("popupclose", function(e) {
+      const c = e.popup.getContent();
+      c.remove();
+      e.popup.contentHolder.appendChild(c);
+
       APP.emit(el, "overlayItemToggled", e.popup.item_id, false);
     });
     self.map.on("popupopen", function(e) {
+      const c = e.popup.contentHolder.firstChild;
+      if (c) {
+        e.popup.setContent(e.popup.contentHolder.removeChild(c));
+      }
+
       APP.emit(el, "overlayItemToggled", e.popup.item_id, true);
     });
   };
