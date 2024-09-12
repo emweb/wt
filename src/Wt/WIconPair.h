@@ -122,13 +122,57 @@ public:
   int state() const;
 
   /*! \brief Returns the first icon image
+   * 
+   * \deprecated Icon can now be different widget type. Use uriIcon1()
+   *  or iconNameIcon1() instead.
    */
-  WImage *icon1() const { return dynamic_cast<WImage*>(icon1_); }
+  WT_DEPRECATED("Icon can now be different widget type. Use uriIcon1() or iconNameIcon1() instead.")
+  WImage *icon1() const { return uriIcon1(); }
 
   /*! \brief Returns the second icon image
+   * 
+   * \deprecated Icon can now be different widget type. Use uriIcon2()
+   *  or iconNameIcon2() instead.
    */
-  WImage *icon2() const { return dynamic_cast<WImage*>(icon2_); }
+  WT_DEPRECATED("Icon can now be different widget type. Use uriIcon2() or iconNameIcon2() instead.")
+  WImage *icon2() const { return uriIcon2(); }
 
+  /*! \brief Returns the first icon as WImage
+   * 
+   * If first icon type is IconType::URI returns the first icon as WImage,
+   * otherwise returns nullptr.
+   * 
+   * \sa iconNameIcon1()
+   */
+  WImage *uriIcon1() const { return image1_; }
+
+  /*! \brief Returns the second icon as WImage
+   * 
+   * If second icon type is IconType::URI returns the second icon as WImage,
+   * otherwise returns nullptr.
+   * 
+   * \sa iconNameIcon2()
+   */
+  WImage *uriIcon2() const { return image2_; }
+
+  /*! \brief Returns the first icon as WIcon
+   * 
+   * If first icon type is IconType::IconName returns the first icon as WIcon,
+   * otherwise returns nullptr.
+   * 
+   * \sa uriIcon1()
+   */
+  WIcon *iconNameIcon1() const { return wicon1_; }
+
+  /*! \brief Returns the second icon as WIcon
+   * 
+   * If second icon type is IconType::IconName returns the second icon as WIcon,
+   * otherwise returns nullptr.
+   * 
+   * \sa uriIcon2()
+   */
+  WIcon *iconNameIcon2() const { return wicon2_; }
+  
   /*! \brief Sets the state to 0 (show icon 1).
    *
    * \sa setState(int)
