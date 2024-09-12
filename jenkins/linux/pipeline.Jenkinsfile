@@ -61,9 +61,6 @@ pipeline {
         gitLabConnection('Gitlab')
         gitlabBuilds(builds: ['Format JavaScript', 'Build - Single Threaded', 'Build - Multi Threaded', 'Tests', 'Tests - Sqlite3'])
     }
-    triggers {
-        gitlab(triggerOnPush: true, triggerOnMergeRequest: false, branchFilterType: 'All')
-    }
     agent {
         dockerfile {
             label 'docker'
@@ -82,6 +79,7 @@ pipeline {
             stages {
                 stage('pnpm install') {
                     steps {
+                        updateGitlabCommitStatus name: 'Format JavaScript', state: 'running'
                         dir('src/js') {
                             sh '''#!/bin/bash
                               export PNPM_HOME="${HOME}/.local/share/pnpm"
@@ -114,27 +112,54 @@ pipeline {
                     }
                 }
             }
+            post {
+                failure {
+                    updateGitlabCommitStatus name: 'Format JavaScript', state: 'failed'
+                }
+                success {
+                    updateGitlabCommitStatus name: 'Format JavaScript', state: 'success'
+                }
+            }
         }
         stage('Building application - Single threaded') {
             steps {
+                updateGitlabCommitStatus name: 'Build - Single Threaded', state: 'running'
                 dir('build-st') {
                     wt_configure(mt: 'OFF')
                     sh "make -k -j${thread_count}"
                     sh "make -C examples -k -j${thread_count}"
                 }
             }
+            post {
+                failure {
+                    updateGitlabCommitStatus name: 'Build - Single Threaded', state: 'failed'
+                }
+                success {
+                    updateGitlabCommitStatus name: 'Build - Single Threaded', state: 'success'
+                }
+            }
         }
         stage('Building application - Multi threaded') {
             steps {
+                updateGitlabCommitStatus name: 'Build - Multi Threaded', state: 'running'
                 dir('build-mt') {
                     wt_configure(mt: 'ON')
                     sh "make -k -j${thread_count}"
                     sh "make -C examples -k -j${thread_count}"
                 }
             }
+            post {
+                failure {
+                    updateGitlabCommitStatus name: 'Build - Multi Threaded', state: 'failed'
+                }
+                success {
+                    updateGitlabCommitStatus name: 'Build - Multi Threaded', state: 'success'
+                }
+            }
         }
         stage('Tests') {
             steps {
+                updateGitlabCommitStatus name: 'Tests', state: 'running'
                 dir('test') {
                     warnError('st test.wt failed') {
                         sh "../build-st/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_test_log.xml"
@@ -146,9 +171,18 @@ pipeline {
                     }
                 }
             }
+            post {
+                failure {
+                    updateGitlabCommitStatus name: 'Tests', state: 'failed'
+                }
+                success {
+                    updateGitlabCommitStatus name: 'Tests', state: 'success'
+                }
+            }
         }
         stage('Test SQLite3') {
             steps {
+                updateGitlabCommitStatus name: 'Tests - Sqlite3', state: 'running'
                 dir('test') {
                     warnError('st test.sqlite3 failed') {
                         sh "../build-st/test/test.sqlite3 --report_level=detailed --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_sqlite3_test_log.xml"
@@ -158,6 +192,14 @@ pipeline {
                     warnError('mt test.sqlite3 failed') {
                         sh "../build-mt/test/test.sqlite3 --report_level=detailed --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_sqlite3_test_log.xml"
                     }
+                }
+            }
+            post {
+                failure {
+                    updateGitlabCommitStatus name: 'Tests - Sqlite3', state: 'failed'
+                }
+                success {
+                    updateGitlabCommitStatus name: 'Tests - Sqlite3', state: 'success'
                 }
             }
         }
