@@ -3,6 +3,7 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include "Wt/WIcon.h"
 #include "Wt/WImage.h"
 #include "Wt/WContainerWidget.h"
 #include "Wt/WCssDecorationStyle.h"
@@ -10,25 +11,28 @@
 
 namespace Wt {
 
-WIconPair::WIconPair(const std::string& icon1URI, const std::string& icon2URI,
+WIconPair::WIconPair(const std::string& icon1Str, const std::string& icon2Str,
                      bool clickIsSwitch)
-  : impl_(new WContainerWidget()),
-    icon1_(new WImage(icon1URI)),
-    icon2_(new WImage(icon2URI))
+  : icon1Str_(icon1Str),
+    icon2Str_(icon2Str),
+    clickIsSwitch_(clickIsSwitch),
+    impl_(new WContainerWidget()),
+    wicon1_(nullptr),
+    wicon2_(nullptr)
 {
   setImplementation(std::unique_ptr<WWidget>(impl_));
-  impl_->addWidget(std::unique_ptr<WWidget>(icon1_));
-  impl_->addWidget(std::unique_ptr<WWidget>(icon2_));
+  image1_ = impl_->addWidget(std::make_unique<WImage>(icon1Str));
+  image2_ = impl_->addWidget(std::make_unique<WImage>(icon2Str));
   impl_->setLoadLaterWhenInvisible(false);
 
   setInline(true);
 
-  icon2_->hide();
+  image2_->hide();
 
   if (clickIsSwitch) {
 #ifndef WT_TARGET_JAVA
-    std::string fic1 = icon1_->id();
-    std::string fic2 = icon2_->id();
+    std::string fic1 = image1_->id();
+    std::string fic2 = image2_->id();
     std::string hide_1 = WT_CLASS ".hide('" + fic1 +"');";
     std::string show_1 = WT_CLASS ".inline('" + fic1 +"');";
     std::string hide_2 = WT_CLASS ".hide('" + fic2 +"');";
@@ -38,31 +42,52 @@ WIconPair::WIconPair(const std::string& icon1URI, const std::string& icon2URI,
     implementJavaScript(&WIconPair::showIcon2, hide_1 + show_2
                         + WT_CLASS ".cancelEvent(e);");
 #else
-    icon1_->clicked().preventPropagation();
-    icon2_->clicked().preventPropagation();
+    image1_->clicked().preventPropagation();
+    image2_->clicked().preventPropagation();
 #endif // WT_TARGET_JAVA
 
-    icon1_->clicked().connect(this, &WIconPair::showIcon2);
-    icon2_->clicked().connect(this, &WIconPair::showIcon1);
+    image1_->clicked().connect(this, &WIconPair::showIcon2);
+    image2_->clicked().connect(this, &WIconPair::showIcon1);
 
     decorationStyle().setCursor(Cursor::PointingHand);
+  }
+}
+void WIconPair::setIconsType(IconType type)
+{
+  setIcon1Type(type);
+  setIcon2Type(type);
+}
+
+void WIconPair::setIcon1Type(IconType type)
+{
+  resetIcon(image1_, wicon1_, icon1Str_, type);
+  if (clickIsSwitch_) {
+    usedIcon1()->clicked().connect(this, &WIconPair::showIcon2);
+  }
+}
+
+void WIconPair::setIcon2Type(IconType type)
+{
+  resetIcon(image2_, wicon2_, icon2Str_, type);
+  if (clickIsSwitch_) {
+    usedIcon2()->clicked().connect(this, &WIconPair::showIcon1);
   }
 }
 
 void WIconPair::setState(int num)
 {
   if (num == 0) {
-    icon1_->show();
-    icon2_->hide();
+    usedIcon1()->show();
+    usedIcon2()->hide();
   } else {
-    icon1_->hide();
-    icon2_->show();
+    usedIcon1()->hide();
+    usedIcon2()->show();
   }
 }
 
 int WIconPair::state() const
 {
-  return (icon1_->isHidden() ? 1 : 0);
+  return (usedIcon1()->isHidden() ? 1 : 0);
 }
 
 void WIconPair::showIcon1()
@@ -77,12 +102,48 @@ void WIconPair::showIcon2()
 
 EventSignal<WMouseEvent>& WIconPair::icon1Clicked()
 {
-  return icon1_->clicked();
+  return usedIcon1()->clicked();
 }
 
 EventSignal<WMouseEvent>& WIconPair::icon2Clicked()
 {
-  return icon2_->clicked();
+  return usedIcon2()->clicked();
+}
+
+WInteractWidget *WIconPair::usedIcon1() const
+{
+  if (wicon1_) {
+    return wicon1_;
+  }
+  return image1_;
+}
+
+WInteractWidget *WIconPair::usedIcon2() const
+{
+  if (wicon2_) {
+    return wicon2_;
+  }
+  return image2_;
+}
+
+void WIconPair::resetIcon(WImage *&image, WIcon *&wicon, const std::string &iconStr, IconType type)
+{
+  int currentState = state();
+  if (wicon) {
+    impl_->removeWidget(wicon);
+  }
+  if (image) {
+    impl_->removeWidget(image);
+  }
+  if (type == IconType::IconName) {
+    wicon = impl_->addWidget(std::make_unique<WIcon>(iconStr));
+    image = nullptr;
+  } else {
+    image = impl_->addWidget(std::make_unique<WImage>(iconStr));
+    wicon = nullptr;
+  }
+  resetLearnedSlots();
+  setState(currentState);
 }
 
 }

@@ -8,11 +8,12 @@
 #define WICONPAIR_H_
 
 #include <Wt/WCompositeWidget.h>
+#include <Wt/WIcon.h>
+#include <Wt/WImage.h>
 #include <Wt/WEvent.h>
 
 namespace Wt {
 
-class WImage;
 
 /*! \class WIconPair Wt/WIconPair.h Wt/WIconPair.h
  *  \brief A widget that shows one of two icons depending on its state.
@@ -32,14 +33,77 @@ class WImage;
 class WT_API WIconPair : public WCompositeWidget
 {
 public:
+
+  /*! \brief An enumeration describing a type of icon
+   *
+   * Each icon type describe how the string representing the icon
+   * should be interpreted. Depending on the interpretation the icon
+   * is looked for in different places, or within different resources.
+   * 
+   * Under \p URI, a static image is expected. This can be linked in many
+   * ways, using absolute paths, relative paths, or even external resources.
+   * The images can thus be served by Wt itself (in its docroot), or be
+   * retrieved from another server.
+   * 
+   * With \p IconName, a simple string is expected, matching the format of
+   * the Font Awesome version you are using. In this case it is required to
+   * include the stylesheet (WApplication::useStyleSheet()) in your application
+   * before this can be used.
+   */
+  enum class IconType {
+    URI,      //!< The URI of an image, linking to a static resource.
+    IconName  //!< The name of a Font Awesome icon, using an external bundle.
+  };
+
   /*! \brief Construct an icon pair from the two icons.
    *
-   * The constructor takes the URL of the two icons. When
-   * \p clickIsSwitch is set \c true, clicking on the icon will
-   * switch state.
+   * The constructor takes the URL or the Font Awesome name of the 
+   * two icons. When \p clickIsSwitch is set \c true, clicking on 
+   * the icon will switch state.
+   * 
+   * \note The Font Aweswome name can be followed by sizing
+   *       information separated by a space if the Font Aweswome
+   *       version used allows it. A valid icon can look like this for
+   *       example: \p "fa-solid fa-camera fa-1x", or
+   *       \p "fa-solid fa-camera fa-sm" (valid for version v6.7.2).
+   *       More sizing information can be found on
+   *       https://docs.fontawesome.com/web/style/size.
+   * 
+   * \warning By default, the strings are considered to represent
+   *          the URIs of the icons. Use setIcon1Type() and 
+   *          setIcon2Type() to change the IconType accordingly if 
+   *          it is not what the string represents. Both can be set
+   *          at once using setIconTypes().
+   * 
+   * \sa setIcon1Type(IconType), setIcon2Type(IconType)
    */
-  WIconPair(const std::string& icon1URL, const std::string& icon2URL,
+  WIconPair(const std::string& icon1Str, const std::string& icon2Str,
             bool clickIsSwitch = true);
+
+  /*! \brief Sets the IconType of the first icon
+   * 
+   * \sa setIconsType(IconType)
+   */
+  void setIcon1Type(IconType type);
+
+  /*! \brief Sets the IconType of the second icon
+   * 
+   * \sa setIconsType(IconType)
+   */
+  void setIcon2Type(IconType type);
+
+  /*! \brief Sets the IconType of the both icons
+   * 
+   * Sets the IconType of both icons. The icon type should be
+   * IconType::URI if the URI of the icon was given at 
+   * construction. If the name of a Font Awesome icon was given, 
+   * the icon type should be set to IconType::IconName instead.
+   * 
+   * By default this will be set to IconType::URI.
+   * 
+   * \sa setIcon1Type(IconType), setIcon2Type(IconType)
+   */
+  void setIconsType(IconType type);
 
   /*! \brief Sets the state, which determines the visible icon.
    *
@@ -59,11 +123,11 @@ public:
 
   /*! \brief Returns the first icon image
    */
-  WImage *icon1() const { return icon1_; }
+  WImage *icon1() const { return dynamic_cast<WImage*>(icon1_); }
 
   /*! \brief Returns the second icon image
    */
-  WImage *icon2() const { return icon2_; }
+  WImage *icon2() const { return dynamic_cast<WImage*>(icon2_); }
 
   /*! \brief Sets the state to 0 (show icon 1).
    *
@@ -98,9 +162,18 @@ public:
   EventSignal<WMouseEvent>& icon2Clicked();
 
 private:
+  const std::string icon1Str_;
+  const std::string icon2Str_;
+  const bool clickIsSwitch_;
   WContainerWidget *impl_;
-  WImage *icon1_;
-  WImage *icon2_;
+  WIcon *wicon1_;
+  WIcon *wicon2_;
+  WImage *image1_;
+  WImage *image2_;
+
+  WInteractWidget *usedIcon1() const;
+  WInteractWidget *usedIcon2() const;
+  void resetIcon(WImage *&image, WIcon *&wicon, const std::string &iconStr, IconType type);
 };
 
 }
