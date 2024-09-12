@@ -57,6 +57,12 @@ pipeline {
     options {
         buildDiscarder logRotator(numToKeepStr: '20')
         disableConcurrentBuilds abortPrevious: true
+
+        gitLabConnection('Gitlab')
+        gitlabBuilds(builds: ['Format JavaScript', 'Build - Single Threaded', 'Build - Multi Threaded', 'Tests', 'Tests - Sqlite3'])
+    }
+    triggers {
+        gitlab(triggerOnPush: true, triggerOnMergeRequest: false, branchFilterType: 'All')
     }
     agent {
         dockerfile {
