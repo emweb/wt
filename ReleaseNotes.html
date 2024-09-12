@@ -79,6 +79,20 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.emweb.be/issues/12945" target="_blank">Issue #12945</a>:
+    Allow to use icons from 
+    <a href="http://fontawesome.io" target="_blank">Font Awesome</a> in
+    <a href="classWt_1_1WIconPair.html" target="_blank">WIconPair</a>. This can be done by giving the name of the icon instead of the URI to an image in the constructor. This also means that the icons can either be a 
+    <a href="classWt_1_1WImage.html" target="_blank">WImage</a> or a 
+    <a href="classWt_1_1WIcon.html" target="_blank">WIcon</a>. Accessing the icons of WIconPair using 
+    <a href="classWt_1_1WIconPair.html#a2cb1d36dea7c7f0a145a0ac2e6c2ac0b" target="_blank">WIconPair::icon1()</a> and
+    <a href="classWt_1_1WIconPair.html#ab3a373c00c3ba582790c31f02f6caf6b" target="_blank">WIconPair::icon2()</a> is now deprecated in favor of 
+    <a href="classWt_1_1WIconPair.html#a3e2e9c090569bc72e859cf05bdef16d7" target="_blank">WIconPair::uriIcon1()</a>, 
+    <a href="classWt_1_1WIconPair.html#a9c70933778493df41c4332b0c6ed4943" target="_blank">WIconPair::uriIcon2()</a>, 
+    <a href="classWt_1_1WIconPair.html#aba22073c807ad08ef1c5122d773573e8" target="_blank">WIconPair::iconNameIcon1()</a>, and
+    <a href="classWt_1_1WIconPair.html#a90d9fd8fe2e8f9d1ea20efa2098b4385" target="_blank">WIconPair::iconNameIcon2()</a>.
+  </li>
+  <li>
     <a href="https://redmine.webtoolkit.eu/issues/13131" target="_blank">Issue #13131</a>:
     Make the refresh after
     <a href="classWt_1_1WApplication.html#ac0f26388d68e9ebf5962c6bb477b4d83" target="_blank">WApplication::setLocal()</a> optional.
