@@ -28,6 +28,15 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.emweb.be/issues/12866" target="_blank">Issue #12866</a>:
+    Added the <code>&lt;delay-load-at-boot&gt;</code> option which can be changed in the configuration file. This option 
+    allows developers to choose whether the loading of the application at boot should be delayed or not. Instead of
+    immediately calling the loading method, a small delay is introduced to allow additional JS to be executed before
+    loading. By default this option is set to true, which keeps the delay. This delay can causes the loading of the
+    application to take a long time in some very specific case. Setting this option to false could however impact any
+    JS code added at boot time.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/12860" target="_blank">Issue #12860</a>:
     fixed a bug where a 
     <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> would not be centered if 
