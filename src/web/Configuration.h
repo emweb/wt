@@ -257,6 +257,7 @@ public:
   bool useSlashExceptionForInternalPaths() const;
   bool needReadBodyBeforeResponse() const;
   bool webglDetect() const;
+  bool delayLoadAtBoot() const;
 
   bool agentIsBot(const std::string& agent) const;
   bool agentSupportsAjax(const std::string& agent) const;
@@ -345,6 +346,7 @@ private:
   bool            sessionIdCookie_;
   bool            cookieChecks_;
   bool            webglDetection_;
+  bool            delayLoadAtBoot_;
   int             numSessionThreads_;
 
   std::vector<std::string> allowedOrigins_;

@@ -389,6 +389,7 @@ void WebRenderer::streamBootContent(WebResponse& response,
     bootJs.setVar("APP_CLASS", "Wt");
     bootJs.setVar("PATH_INFO", safeJsStringLiteral
                   (session_.pagePathInfo_));
+    bootJs.setVar("DELAY_LOAD_AT_BOOT", conf.delayLoadAtBoot());
 
     bootJs.setCondition("COOKIE_CHECKS", conf.cookieChecks());
     bootJs.setCondition("HYBRID", hybrid);

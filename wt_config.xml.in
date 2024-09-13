@@ -562,6 +562,8 @@
           -->
         <progressive-bootstrap>false</progressive-bootstrap>
 
+        <delay-load-at-boot>true</delay-load-at-boot>
+
         <!-- Set session-ID cookie
 
            In its default (and recommended) configuration, Wt does not

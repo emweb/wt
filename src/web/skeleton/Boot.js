@@ -6,6 +6,7 @@
   _$_RELOAD_IS_NEWSESSION_$_
   _$_SCRIPT_ID_$_
   _$_SELF_URL_$_
+  _$_DELAY_LOAD_AT_BOOT_$_
   _$_USE_COOKIES_$_
   _$_$if_COOKIE_CHECKS_$_
   _$_$if_HYBRID_$_
@@ -351,5 +352,9 @@ _$_$endif_$_();
     }
   }
 
-  setTimeout(doLoad, 0);
+  if (_$_DELAY_LOAD_AT_BOOT_$_) {
+    setTimeout(doLoad, 0);
+  } else {
+    doLoad();
+  }
 })();

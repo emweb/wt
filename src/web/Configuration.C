@@ -293,6 +293,7 @@ void Configuration::reset()
   sessionIdCookie_ = false;
   cookieChecks_ = true;
   webglDetection_ = true;
+  delayLoadAtBoot_ = true;
   bootstrapConfig_.clear();
   numSessionThreads_ = -1;
   allowedOrigins_.clear();
@@ -582,6 +583,12 @@ bool Configuration::webglDetect() const
 {
   READ_LOCK;
   return webglDetection_;
+}
+
+bool Configuration::delayLoadAtBoot() const
+{
+  READ_LOCK;
+  return delayLoadAtBoot_;
 }
 
 int Configuration::numSessionThreads() const
@@ -1182,6 +1189,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   setBoolean(app, "session-id-cookie", sessionIdCookie_);
   setBoolean(app, "cookie-checks", cookieChecks_);
   setBoolean(app, "webgl-detection", webglDetection_);
+  setBoolean(app, "delay-load-at-boot", delayLoadAtBoot_);
 
   std::string plainAjaxSessionsRatioLimit
     = singleChildElementValue(app, "plain-ajax-sessions-ratio-limit", "");
