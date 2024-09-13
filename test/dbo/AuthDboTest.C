@@ -54,7 +54,7 @@ struct AuthDboFixture : DboFixtureBase
 
     std::unique_ptr<Auth::PasswordVerifier> verifier
       (new Auth::PasswordVerifier());
-    verifier->addHashFunction(std::make_unique<Auth::BCryptHashFunction>(7));
+    verifier->addHashFunction(std::make_unique<Auth::BCryptHashFunction>(12));
     myPasswordService_->setVerifier(std::move(verifier));
 
     session_->mapClass<TestUser>(tablenames[0]);

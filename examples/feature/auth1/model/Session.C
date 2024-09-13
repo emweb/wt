@@ -34,7 +34,7 @@ void Session::configureAuth()
   myAuthService.setEmailVerificationRequired(true);
 
   auto verifier = std::make_unique<Auth::PasswordVerifier>();
-  verifier->addHashFunction(std::make_unique<Auth::BCryptHashFunction>(7));
+  verifier->addHashFunction(std::make_unique<Auth::BCryptHashFunction>(12));
   myPasswordService.setVerifier(std::move(verifier));
   myPasswordService.setPasswordThrottle(std::make_unique<Wt::Auth::AuthThrottle>());
   myPasswordService.setStrengthValidator(

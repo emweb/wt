@@ -84,7 +84,7 @@ void BlogSession::configureAuth()
 
   std::unique_ptr<Wt::Auth::PasswordVerifier> verifier
       = std::make_unique<Wt::Auth::PasswordVerifier>();
-  verifier->addHashFunction(std::make_unique<Wt::Auth::BCryptHashFunction>(7));
+  verifier->addHashFunction(std::make_unique<Wt::Auth::BCryptHashFunction>(12));
 #ifdef WT_WITH_SSL
   verifier->addHashFunction(std::make_unique<Wt::Auth::SHA1HashFunction>());
 #endif

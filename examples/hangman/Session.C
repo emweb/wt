@@ -68,7 +68,7 @@ void Session::configureAuth()
   myAuthService.setEmailVerificationEnabled(true);
 
   auto verifier = std::make_unique<Auth::PasswordVerifier>();
-  verifier->addHashFunction(std::make_unique<Auth::BCryptHashFunction>(7));
+  verifier->addHashFunction(std::make_unique<Auth::BCryptHashFunction>(12));
 
 #ifdef HAVE_CRYPT
   // We want to still support users registered in the pre - Wt::Auth

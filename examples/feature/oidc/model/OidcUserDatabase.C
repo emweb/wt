@@ -161,7 +161,7 @@ std::string OidcUserDatabase::idpClientSecret(const Wt::Auth::OAuthClient& clien
 bool OidcUserDatabase::idpVerifySecret(const Wt::Auth::OAuthClient& client,
                                        const std::string& secret) const
 {
-  return Wt::Auth::BCryptHashFunction(7).verify(secret,
+  return Wt::Auth::BCryptHashFunction(12).verify(secret,
                                                 "",
                                                 idpClientSecret(client));
 }
@@ -288,7 +288,7 @@ Wt::Auth::OAuthClient OidcUserDatabase::idpClientAdd(const std::string &clientId
   }
   client->redirectUris = uris;
   client->authMethod = authMethod;
-  client->secret = Wt::Auth::BCryptHashFunction(7)
+  client->secret = Wt::Auth::BCryptHashFunction(12)
     .compute(secret,
              Wt::WRandom::generateId());
   Wt::Dbo::ptr<OAuthClient> client_ = session_.add(std::move(client));
