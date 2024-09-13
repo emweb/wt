@@ -206,7 +206,7 @@ pipeline {
     }
     post {
         always {
-            junit '*_test_log.xml'
+            junit allowEmptyResults: true, testResults: '*_test_log.xml'
         }
         cleanup {
             cleanWs()
