@@ -218,12 +218,12 @@ pipeline {
                 }
                 failure {
                     mail to: env.EMAIL,
-                         subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
+                         subject: "Failed Pipeline (wt step): ${currentBuild.fullDisplayName}",
                          body: "Something is wrong with ${env.BUILD_URL}"
                 }
                 unstable {
                     mail to: env.EMAIL,
-                         subject: "Unstable Pipeline: ${currentBuild.fullDisplayName}",
+                         subject: "Unstable Pipeline (wt step): ${currentBuild.fullDisplayName}",
                          body: "Something is wrong with ${env.BUILD_URL}"
                 }
             }
@@ -238,6 +238,86 @@ pipeline {
                                            --build-arg USER_NAME=${user_name} \
                                            --build-arg GROUP_ID=${group_id} \
                                            --build-arg GROUP_NAME=${group_name}"""
+                }
+            }
+            stages {
+                stage('Wt-port Checkout') {
+                    steps {
+                        script {
+                            // Checks out master by default.
+                            def output = sh(returnStatus: true, script: "git clone https://git.leuven.emweb.be/gitlab/emweb/wt-port.git");
+                            dir ('wt-port') {
+                                def remoteBranches = sh(returnStdout: true, script: "git branch -r");
+
+                                // Check if the current wt branch has a wt-port counterpart.
+                                // Check out the counterpart if it exists.
+                                if (remoteBranches.contains("${env.BRANCH_NAME}")) {
+                                    sh "git checkout ${env.BRANCH_NAME}"
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Config') {
+                    steps {
+                        dir('wt-port/java') {
+                            sh """cat > Config << EOF
+WTDIR=${env.WORKSPACE}
+JAVA=/usr/bin/java
+WT_PORT=${env.WORKSPACE}/wt-port
+JWT_GIT=${env.WORKSPACE}/jwt
+EOF"""
+                        }
+                    }
+                }
+                stage('CNOR') {
+                    steps {
+                        // While this CAN be build with multiple threads it is generally a bad idea, as it is likely to fail at least once then.
+                        // The issue is that some of the grammar is build on-demand, and then used as an include.
+                        // If a file that depends on this grammar is being attempted to compile before the grammar is ready, this will
+                        // result in an inclusion failure. Thus it's generally "safer" to work on a single thread.
+                        dir('wt-port/oink/elsa-stack') {
+                            sh './configure'
+                            sh 'make'
+                        }
+                    }
+                }
+                stage('Clean-dist') {
+                    steps {
+                        dir('wt-port/java') {
+                            sh 'make clean-dist'
+                            dir('examples') {
+                                sh 'ant'
+                            }
+                        }
+                    }
+                }
+                stage('Test') {
+                    steps {
+                        dir('wt-port/java') {
+                            warnError('tests failed') {
+                                sh 'ant test'
+                            }
+                        }
+                    }
+                }
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: 'wt-port/java/report/TEST-eu.webtoolkit.jwt*.xml'
+                }
+                cleanup {
+                    cleanWs()
+                }
+                failure {
+                    mail to: env.EMAIL,
+                         subject: "Failed Pipeline (wt-port step): ${currentBuild.fullDisplayName}",
+                         body: "Something is wrong with ${env.BUILD_URL}"
+                }
+                unstable {
+                    mail to: env.EMAIL,
+                         subject: "Unstable Pipeline (wt-port step): ${currentBuild.fullDisplayName}",
+                         body: "Something is wrong with ${env.BUILD_URL}"
                 }
             }
         }
