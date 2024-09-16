@@ -27,6 +27,8 @@ def wt_configure(Map args) {
 pipeline {
     environment {
         EMAIL = credentials('wt-dev-mail')
+        CCACHE_DIR='~/.ccache'
+        CCACHE_MAXSIZE='20G'
     }
     options {
         buildDiscarder logRotator(numToKeepStr: '20')
