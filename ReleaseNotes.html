@@ -26,6 +26,11 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.emweb.be/issues/7450" target="_blank">Issue #7450</a>:
+    Added the option to use <code>std::filesystem</code> instead of <code>boost::filesystem</code> by setting the cache variable <code>WT_CPP17_FILESYSTEM_IMPLEMENTATION</code> to <code>std</code> instead of <code>boost</code>.
+    Accessing the last time a file was updated with std::filesystem before C++20 may result in an imprecise time point.
+  </li>
+  <li>
     <a href="https://redmine.webtoolkit.eu/issues/7228" target="_blank">Issue #7228</a>:
     Wt now supports native HTML5 input types for <a href="classWt_1_1WDateTime.html" target="_blank">WDateEdit</a> and <a href="classWt_1_1WTimeEdit.html" target="_blank">WTimeEdit</a>.
     You can enable it by using <a href="classWt_1_1WDateEdit.html#a388105e077d60a7225564572cae51a93" target="_blank">WDateEdit::setNativeControl(true)</a> or
