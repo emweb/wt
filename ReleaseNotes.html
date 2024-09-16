@@ -32,6 +32,12 @@ behaviour.
     resize handles in layouts now have a fixed height or width instead of it scaling with the spacing of the layout.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/10903" target="_blank">Issue #10903</a>:
+    Add support for many common MIME types. Every file of the common types will now be sent with the correct MIME type instead of the default "application/octet-stream".
+    The list comes from <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/MIME_types/Common_types" target="_blank">MDN</a> (taken on September 16, 2024), and is in no way exhaustive.
+    A way to provide more types will be added soon in <a href="https://redmine.emweb.be/issues/13188" target="_blank">Issue #13188</a>.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/12866" target="_blank">Issue #12866</a>:
     Added the <code>&lt;delay-load-at-boot&gt;</code> option which can be changed in the configuration file. This option 
     allows developers to choose whether the loading of the application at boot should be delayed or not. Instead of
