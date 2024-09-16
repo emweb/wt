@@ -14,7 +14,9 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
-#include <boost/filesystem.hpp>
+
+
+#include "Wt/cpp17/filesystem.hpp"
 
 using namespace Wt;
 
@@ -204,8 +206,12 @@ Git::Git()
 
 void Git::setRepositoryPath(const std::string& repositoryPath)
 {
-  namespace fs = boost::filesystem;
+  namespace fs = cpp17::filesystem;
+#ifdef WT_FILESYSTEM_IMPL_BOOST
   boost::system::error_code ignored;
+#else // !WT_FILESYSTEM_IMPL_BOOST
+  std::error_code ignored;
+#endif // WT_FILESYSTEM_IMPL_BOOST
   is_bare_ = !fs::is_directory(fs::path(repositoryPath) / ".git", ignored);
   repository_ = repositoryPath;
   checkRepository();

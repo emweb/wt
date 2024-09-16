@@ -8,7 +8,7 @@
 #include "web/SslUtils.h"
 
 #include <boost/algorithm/hex.hpp>
-#include <boost/filesystem.hpp>
+#include <Wt/cpp17/filesystem.hpp>
 
 #include <fstream>
 
@@ -43,7 +43,7 @@ xPNLHqvzNWNWo9W76S5MNbhVkpg2EjKRBtD7Rg/c93Ftt/C3vwWmCXoepECHUi26
 
 BOOST_AUTO_TEST_CASE( SslUtils_readPrivateKey )
 {
-  boost::filesystem::path tmpFile = boost::filesystem::unique_path();
+  Wt::cpp17::filesystem::path tmpFile = std::tmpnam(nullptr);
   {
     std::ofstream ofs(tmpFile.string(), std::ios::out | std::ios::binary);
     ofs << pkeyStr;
@@ -51,12 +51,12 @@ BOOST_AUTO_TEST_CASE( SslUtils_readPrivateKey )
   EVP_PKEY* pkey = Wt::Ssl::readPrivateKeyFromFile(tmpFile.string());
   BOOST_TEST(pkey != nullptr);
   EVP_PKEY_free(pkey);
-  boost::filesystem::remove(tmpFile);
+  Wt::cpp17::filesystem::remove(tmpFile);
 }
 
 BOOST_AUTO_TEST_CASE( SslUtils_rs256 )
 {
-  boost::filesystem::path tmpFile = boost::filesystem::unique_path();
+  Wt::cpp17::filesystem::path tmpFile = std::tmpnam(nullptr);
   {
     std::ofstream ofs(tmpFile.string(), std::ios::out | std::ios::binary);
     ofs << pkeyStr;
@@ -68,5 +68,5 @@ BOOST_AUTO_TEST_CASE( SslUtils_rs256 )
   BOOST_TEST(boost::algorithm::hex(result) == signature);
 
   EVP_PKEY_free(pkey);
-  boost::filesystem::remove(tmpFile);
+  Wt::cpp17::filesystem::remove(tmpFile);
 }

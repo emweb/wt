@@ -1,4 +1,4 @@
-IF(BOOST_FS_LIB)
+IF(WT_CPP17_FILESYSTEM_IMPLEMENTATION STREQUAL "std" OR BOOST_FS_LIB)
 
 INCLUDE(CheckFunctionExists)
 INCLUDE(CheckLibraryExists)
@@ -57,8 +57,8 @@ INCLUDE_DIRECTORIES(
   ../blog
   )
 
-ELSE(BOOST_FS_LIB)
+ELSE()
   
-  MESSAGE(STATUS "** Not building wt-homepage example: requires boost_filesystem library.")
+  MESSAGE(STATUS "** Not building wt-homepage example: requires std::filesystem or boost_filesystem library.")
 
-ENDIF(BOOST_FS_LIB)
+ENDIF()

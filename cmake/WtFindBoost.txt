@@ -53,9 +53,14 @@ SET(Boost_DEBUG ON)
 
 SET(Boost_COMPONENTS
     program_options
-    filesystem
     thread
 )
+
+IF(WT_CPP17_FILESYSTEM_IMPLEMENTATION STREQUAL "boost")
+  SET(Boost_COMPONENTS
+      ${Boost_COMPONENTS}
+      filesystem)
+ENDIF()
 
 IF(WIN32 AND BOOST_DYNAMIC AND BUILD_TESTS)
     LIST(APPEND Boost_COMPONENTS unit_test_framework)

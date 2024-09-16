@@ -6,13 +6,7 @@
 
 #include "web/FileUtils.h"
 
-#include <boost/version.hpp>
-#if BOOST_VERSION < 108500
-#include <boost/filesystem/convenience.hpp>
-#else
-#include <boost/filesystem/directory.hpp>
-#endif
-#include <boost/filesystem/operations.hpp>
+#include "Wt/cpp17/filesystem.hpp"
 
 #include "web/WebUtils.h"
 #include "Wt/WException.h"
@@ -21,6 +15,14 @@
 #ifdef WT_WIN32
 #include <windows.h>
 #endif // WIN32
+
+#ifndef WT_WIN32
+#include <unistd.h>
+#endif // WT_WIN32
+
+#ifdef WT_FILESYSTEM_IMPL_STD_CLOCK_17
+#include <chrono>
+#endif // WT_FILESYSTEM_IMPL_STD_CLOCK_17
 
 #include <fstream>
 
@@ -51,7 +53,7 @@ namespace Wt {
 
     unsigned long long size(const std::string &file)
     {
-      return (unsigned long long) boost::filesystem::file_size(file);
+      return (unsigned long long) cpp17::filesystem::file_size(file);
     }
 
     std::string* fileToString(const std::string& fileName)
@@ -66,35 +68,47 @@ namespace Wt {
 
     std::chrono::system_clock::time_point lastWriteTime(const std::string &file)
     {
-      return std::chrono::system_clock::from_time_t(boost::filesystem::last_write_time(file));
+#ifdef WT_FILESYSTEM_IMPL_STD
+  #ifndef WT_FILESYSTEM_IMPL_STD_CLOCK_17
+      auto ftime = Wt::cpp17::filesystem::last_write_time(file);
+      auto systime = decltype(ftime)::clock::to_sys(ftime);
+      return std::chrono::system_clock::from_time_t(decltype(systime)::clock::to_time_t(systime));
+  #else // WT_FILESYSTEM_IMPL_STD_CLOCK_17
+      LOG_DEBUG("When using cpp17 or lower with std::filesystem, the result of this function is an approximation. Use boost::filesystem, instead of std::filesystem (see WT_CPP17_FILESYSTEM_IMPLEMENTATION) if this is a problem for your application.");
+      auto ftime = Wt::cpp17::filesystem::last_write_time(file);
+      return std::chrono::time_point_cast<std::chrono::system_clock::duration>(ftime - Wt::cpp17::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now());
+  #endif //WT_FILESYSTEM_IMPL_STD_CLOCK_17
+#else // !WT_FILESYSTEM_IMPL_STD
+      return std::chrono::system_clock::from_time_t(Wt::cpp17::filesystem::last_write_time(file));
+#endif // WT_FILESYSTEM_IMPL_STD
     }
 
     bool exists(const std::string &file)
     {
-      boost::filesystem::path path(file);
-      return boost::filesystem::exists(path);
+      cpp17::filesystem::path path(file);
+      return cpp17::filesystem::exists(path);
     }
 
     bool isDirectory(const std::string &file)
     {
-      boost::filesystem::path path(file);
-      return boost::filesystem::is_directory(path);
+      cpp17::filesystem::path path(file);
+      return cpp17::filesystem::is_directory(path);
     }
 
     void listFiles(const std::string &directory,
                    std::vector<std::string> &files)
     {
-      boost::filesystem::path path(directory);
-      boost::filesystem::directory_iterator end_itr;
+      cpp17::filesystem::path path(directory);
+      cpp17::filesystem::directory_iterator end_itr;
 
-      if (!boost::filesystem::is_directory(path)) {
+      if (!cpp17::filesystem::is_directory(path)) {
         std::string error
           = "listFiles: \"" + directory + "\" is not a directory";
         LOG_ERROR(error);
         throw WException(error);
       }
 
-      for (boost::filesystem::directory_iterator i(path); i != end_itr; ++i) {
+      for (cpp17::filesystem::directory_iterator i(path); i != end_itr; ++i) {
         std::string f = (*i).path().string();
         files.push_back(f);
       }

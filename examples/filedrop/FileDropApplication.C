@@ -13,7 +13,7 @@
 #include <Wt/WFileDropWidget.h>
 #include "Wt/Utils.h"
 
-#include <boost/filesystem.hpp>
+#include <Wt/cpp17/filesystem.hpp>
 
 #include <algorithm>
 #include <iostream>
@@ -135,8 +135,8 @@ void FileDropApplication::saveFile(Wt::WFileDropWidget::File *file)
   std::string spool = file->uploadedFile().spoolFileName();
   std::ifstream src(spool.c_str(), std::ios::binary);
 
-  auto saveName = boost::filesystem::path(appRoot() + UPLOAD_FOLDER) / file->path();
-  boost::filesystem::create_directories(saveName.parent_path());
+  auto saveName = Wt::cpp17::filesystem::path(appRoot() + UPLOAD_FOLDER) / file->path();
+  Wt::cpp17::filesystem::create_directories(saveName.parent_path());
 
   std::ofstream dest(saveName.c_str(), std::ios::binary);
   if (dest.fail()) {

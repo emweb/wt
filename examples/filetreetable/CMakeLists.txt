@@ -1,6 +1,6 @@
-IF(NOT BOOST_FS_LIB)
-  MESSAGE(STATUS "** Not building filetreetable example: requires boost_filesystem library.")
-ELSE(NOT BOOST_FS_LIB)
+IF(NOT (WT_CPP17_FILESYSTEM_IMPLEMENTATION STREQUAL "std" OR BOOST_FS_LIB))
+  MESSAGE(STATUS "** Not building filetreetable example: requires std::filesystem or boost_filesystem library.")
+ELSE()
 
   WT_ADD_EXAMPLE(filetreetable.wt
     FileTreeTable.C
@@ -15,5 +15,5 @@ ELSE(NOT BOOST_FS_LIB)
 
   INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
 
-ENDIF(NOT BOOST_FS_LIB)
+ENDIF()
 

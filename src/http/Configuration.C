@@ -13,7 +13,7 @@
 #include "StringUtils.h"
 #include "MimeTypes.h"
 
-#include <boost/filesystem.hpp>
+#include "Wt/cpp17/filesystem.hpp"
 
 #ifndef WT_WIN32
 #include <unistd.h>
@@ -481,8 +481,8 @@ void Configuration::checkPath(std::string& result,
                               std::string varDescription,
                               int options)
 {
-  namespace fs = boost::filesystem;
-  boost::system::error_code ec;
+  namespace fs = Wt::cpp17::filesystem;
+  Wt::cpp17::fs_error_code ec;
   const auto status = fs::status(result, ec);
   if (ec) {
     throw Wt::WServer::Exception(varDescription
@@ -510,7 +510,16 @@ void Configuration::checkPath(std::string& result,
     }
 #ifndef WT_WIN32
     if (options & Private) {
-      if ((status.permissions() & (fs::perms::group_all | fs::perms::others_all)) != fs::perms::no_perms) {
+      /* We want to compare the resulting permissions against
+       * fs::perms::no_perms in case boost is used for
+       * cpp17::filesystem but we want to instead compare it against
+       * fs::perms::none in case std::filesystem is used for
+       * cpp17::filesystem.
+       *
+       * Since both of those values are equivalent to 0, we just use
+       * static_cast.
+       */
+      if (static_cast<unsigned>(status.permissions() & (fs::perms::group_all | fs::perms::others_all))) {
         throw Wt::WServer::Exception(varDescription + " (\"" + result
                             + "\") must be unreadable for group and others.");
       }

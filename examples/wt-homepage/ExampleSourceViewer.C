@@ -20,32 +20,18 @@
 #include <Wt/WVBoxLayout.h>
 #include <Wt/WViewWidget.h>
 
-#include <boost/filesystem/exception.hpp>
-
-#include <boost/version.hpp>
-#if BOOST_VERSION < 108500
-#include <boost/filesystem/convenience.hpp>
-#else
-#include <boost/filesystem/directory.hpp>
-#endif
-#include <boost/filesystem/operations.hpp>
-
-#include <boost/algorithm/string.hpp>
+#include <Wt/cpp17/filesystem.hpp>
 
 #include <iostream>
 #include <stdlib.h>
 #include <algorithm>
 
-namespace fs = boost::filesystem;
+namespace fs = cpp17::filesystem;
 
 // Same as p.filename() in latest boost::filesystem
 static std::string filename(const fs::path& p)
 {
-#if BOOST_FILESYSTEM_VERSION < 3
-  return p.empty() ? std::string() : *--p.end();
-#else
   return p.empty() ? std::string() : (*--p.end()).string();
-#endif
 }
 
 // Same as p.stem() in latest boost::filesystem

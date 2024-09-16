@@ -10,9 +10,11 @@
 
 #include <Wt/WText.h>
 
+#include <Wt/cpp17/filesystem.hpp>
+
 using namespace Wt;
 
-FileTreeTable::FileTreeTable(const boost::filesystem::path& path)
+FileTreeTable::FileTreeTable(const cpp17::filesystem::path& path)
   : WTreeTable()
 {
   addColumn("Size", 80);

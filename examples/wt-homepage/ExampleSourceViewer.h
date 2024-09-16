@@ -12,6 +12,8 @@
 #include <Wt/WTreeView.h>
 #include <Wt/WStandardItemModel.h>
 
+#include <Wt/cpp17/filesystem.hpp>
+
 #include "FileItem.h"
 #include "SourceView.h"
 
@@ -40,11 +42,11 @@ private:
   std::shared_ptr<WStandardItemModel> model_;
 
   void cppTraverseDir(WStandardItem* parent,
-                      const boost::filesystem::path& path);
+                      const cpp17::filesystem::path& path);
   void javaTraverseDir(WStandardItem* parent,
-                       const boost::filesystem::path& path);
+                       const cpp17::filesystem::path& path);
   void javaTraversePackages(WStandardItem *parent,
-                            const boost::filesystem::path& srcPath,
+                            const cpp17::filesystem::path& srcPath,
                             const std::string packageName);
 
   /*! \brief Displayed the currently selected file.

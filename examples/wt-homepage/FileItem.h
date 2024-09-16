@@ -14,9 +14,6 @@
 #include "Wt/WStandardItemModel.h"
 #include "Wt/WString.h"
 
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/exception.hpp>
-
 using namespace Wt;
 
 /*! \class FileItem

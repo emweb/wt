@@ -13,6 +13,8 @@
 #include "Wt/WPen.h"
 #include "Wt/WRasterImage.h"
 #include "Wt/WTransform.h"
+
+#include "Wt/cpp17/filesystem.hpp"
 #include "Wt/Http/Response.h"
 
 // graphicsmagick headers seem to include windows.h, which is bad
@@ -29,8 +31,6 @@
 #include <magick/api.h>
 
 #include <boost/algorithm/string.hpp>
-
-#include <boost/filesystem/path.hpp>
 
 #include <cstdio>
 #include <cmath>
@@ -695,13 +695,13 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
 
     // Temporary fix #13366, see also #13367.
     if (cImage == nullptr) {
-      boost::filesystem::path imagePath = boost::filesystem::path(imgUri);
+      cpp17::filesystem::path imagePath = cpp17::filesystem::path(imgUri);
       // If this is a relative path, this can potentially be the fallback for the "normal" draw in JS, using
       // gfxutils, with the file being part of the docroot.
       if (imagePath.is_relative()) {
         ExceptionInfo docrootCatchException;
         GetExceptionInfo(&docrootCatchException);
-        imagePath = boost::filesystem::path(Wt::WApplication::instance()->docRoot()) / imagePath;
+        imagePath = cpp17::filesystem::path(Wt::WApplication::instance()->docRoot()) / imagePath;
         LOG_WARN("drawImage failed on " << imgUri
                   << " attempt to prefix docroot: " << imagePath.string());
         strncpy(info.filename, imagePath.c_str(), 2048);

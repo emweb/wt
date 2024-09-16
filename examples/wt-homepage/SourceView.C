@@ -8,20 +8,14 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include <boost/version.hpp>
-#if BOOST_VERSION < 108500
-#include <boost/filesystem/convenience.hpp>
-#else
-#include <boost/filesystem/directory.hpp>
-#endif
-#include <boost/filesystem/operations.hpp>
-
 #include <Wt/WApplication.h>
 #include <Wt/WText.h>
 #include <Wt/WImage.h>
 
+#include <Wt/cpp17/filesystem.hpp>
+
 using namespace Wt;
-namespace fs = boost::filesystem;
+namespace fs = cpp17::filesystem;
 
 SourceView::SourceView(ItemDataRole fileNameRole,
                        ItemDataRole contentRole,

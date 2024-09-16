@@ -32,7 +32,7 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include <boost/filesystem.hpp>
+#include "Wt/cpp17/filesystem.hpp"
 
 using std::exit;
 using std::strcpy;
@@ -549,9 +549,8 @@ void Server::handleRequest(int serverSocket)
     if (haveSessionId) {
       // exists, try to connect (for 1 second)
       std::string path = socketPath(sessionId);
-
-      boost::system::error_code ignored;
-      if (boost::filesystem::exists(path, ignored)) {
+      cpp17::fs_error_code ignored;
+      if (cpp17::filesystem::exists(path, ignored)) {
         clientSocket = connectToSession(sessionId, path, 10);
       }
     }

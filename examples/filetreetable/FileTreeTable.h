@@ -9,7 +9,7 @@
 
 #include <Wt/WTreeTable.h>
 
-#include <boost/filesystem/path.hpp>
+#include <Wt/cpp17/filesystem.hpp>
 
 /**
  * \defgroup fileexplorer File Explorer example
@@ -37,7 +37,7 @@ public:
    *
    * Create a new FileTreeTable to browse the given path.
    */
-  FileTreeTable(const boost::filesystem::path& path);
+  FileTreeTable(const Wt::cpp17::filesystem::path& path);
 };
 
 /*@}*/

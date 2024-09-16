@@ -12,7 +12,7 @@
 #include "WebUtils.h"
 
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
+#include "Wt/cpp17/filesystem.hpp"
 
 #ifdef WT_BOOST_CONF_LOCK
 #include <boost/thread.hpp>
@@ -1488,8 +1488,8 @@ bool Configuration::registerSessionId(const std::string& oldId,
     if (!newId.empty()) {
       std::string socketPath = sessionSocketPath(newId);
 
-      namespace fs = boost::filesystem;
-      boost::system::error_code ignored;
+      namespace fs = cpp17::filesystem;
+      cpp17::fs_error_code ignored;
       if (fs::exists(socketPath, ignored)) {
         return false;
       }

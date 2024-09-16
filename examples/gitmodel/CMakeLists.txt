@@ -1,6 +1,6 @@
 IF(NOT WIN32)
 
-IF(BOOST_FS_LIB)
+IF(WT_CPP17_FILESYSTEM_IMPLEMENTATION STREQUAL "std" OR BOOST_FS_LIB)
   WT_ADD_EXAMPLE(gitview.wt
     Git.C
     GitModel.C
@@ -15,11 +15,12 @@ IF(BOOST_FS_LIB)
 
   ADD_DEPENDENCIES(gitview.wt wt ${EXAMPLES_CONNECTOR})
 
-ELSE(BOOST_FS_LIB)
+ELSE()
 
-  MESSAGE(STATUS "** Not building gitmodel example: requires boost_filesystem library.")
+  MESSAGE(STATUS "** Not building gitmodel example: requires std::filesystem or boost_filesystem library.")
 
-ENDIF(BOOST_FS_LIB)
+
+ENDIF()
 
 ELSE(NOT WIN32)
 

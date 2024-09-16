@@ -9,7 +9,7 @@
 
 #include <Wt/WTreeTableNode.h>
 
-#include <boost/filesystem/path.hpp>
+#include <Wt/cpp17/filesystem.hpp>
 
 using namespace Wt;
 
@@ -32,11 +32,11 @@ class FileTreeTableNode : public WTreeTableNode
 public:
   /*! \brief Construct a new node for the given file.
    */
-  FileTreeTableNode(const boost::filesystem::path& path);
+  FileTreeTableNode(const cpp17::filesystem::path& path);
 
 private:
   //! The path.
-  boost::filesystem::path path_;
+  cpp17::filesystem::path path_;
 
   //! Reimplements WTreeNode::populate to read files within a directory.
   virtual void populate() override;
@@ -45,7 +45,7 @@ private:
   virtual bool expandable() override;
 
   //! Create the iconpair for representing the path.
-  static std::unique_ptr<WIconPair> createIcon(const boost::filesystem::path& path);
+  static std::unique_ptr<WIconPair> createIcon(const cpp17::filesystem::path& path);
 };
 
 /*@}*/
