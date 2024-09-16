@@ -293,7 +293,7 @@ EOF"""
                 stage('Clean-dist') {
                     steps {
                         dir('wt-port/java') {
-                            sh 'make clean-dist'
+                            sh "make clean-dist -j${thread_count}"
                             dir('examples') {
                                 sh 'ant'
                             }
