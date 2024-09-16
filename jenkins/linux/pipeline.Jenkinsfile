@@ -282,6 +282,14 @@ EOF"""
                         }
                     }
                 }
+                // This step is necessary since the Makefile requires it.
+                // This ought to be moved to a different step.
+                stage('Copy TinyMCE') {
+                    steps {
+                        sh "cp -r /opt/tinymce/3/tinymce/jscripts/tiny_mce ${env.WORKSPACE}/resources/"
+                        sh "cp -r /opt/tinymce/4/tinymce/js/tinymce ${env.WORKSPACE}/resources/"
+                    }
+                }
                 stage('Clean-dist') {
                     steps {
                         dir('wt-port/java') {
