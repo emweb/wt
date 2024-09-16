@@ -61,165 +61,185 @@ pipeline {
         gitLabConnection('Gitlab')
         gitlabBuilds(builds: ['Format JavaScript', 'Build - Single Threaded', 'Build - Multi Threaded', 'Tests', 'Tests - Sqlite3'])
     }
-    agent {
-        dockerfile {
-            label 'docker'
-            dir 'jenkins/linux'
-            filename 'pipeline.Dockerfile'
-            args "--env CCACHE_DIR=${container_ccache_dir} --env CCACHE_MAXSIZE=20G --volume ${host_ccache_dir}:${container_ccache_dir}:z"
-            additionalBuildArgs """--build-arg USER_ID=${user_id} \
-                                   --build-arg USER_NAME=${user_name} \
-                                   --build-arg GROUP_ID=${group_id} \
-                                   --build-arg GROUP_NAME=${group_name} \
-                                   --build-arg THREAD_COUNT=${thread_count}"""
-        }
-    }
+    // Start without an agent, and define the agent per each stage.
+    // This is done to ensure that wt and wt-port use different dockerfiles.
+    agent none
     stages {
-        stage('Check JS') {
+        stage('wt') {
+            agent {
+                dockerfile {
+                    label 'docker'
+                    dir 'jenkins/linux'
+                    filename 'pipeline.Dockerfile'
+                    args "--env CCACHE_DIR=${container_ccache_dir} --env CCACHE_MAXSIZE=20G --volume ${host_ccache_dir}:${container_ccache_dir}:z"
+                    additionalBuildArgs """--build-arg USER_ID=${user_id} \
+                                           --build-arg USER_NAME=${user_name} \
+                                           --build-arg GROUP_ID=${group_id} \
+                                           --build-arg GROUP_NAME=${group_name} \
+                                           --build-arg THREAD_COUNT=${thread_count}"""
+                }
+            }
             stages {
-                stage('pnpm install') {
-                    steps {
-                        updateGitlabCommitStatus name: 'Format JavaScript', state: 'running'
-                        dir('src/js') {
-                            sh '''#!/bin/bash
-                              export PNPM_HOME="${HOME}/.local/share/pnpm"
-                              export PATH="${PNPM_HOME}:${PATH}"
-                              pnpm install
-                            '''
+                stage('Check JS') {
+                    stages {
+                        stage('pnpm install') {
+                            steps {
+                                updateGitlabCommitStatus name: 'Format JavaScript', state: 'running'
+                                dir('src/js') {
+                                    sh '''#!/bin/bash
+                                      export PNPM_HOME="${HOME}/.local/share/pnpm"
+                                      export PATH="${PNPM_HOME}:${PATH}"
+                                      pnpm install
+                                    '''
+                                }
+                            }
+                        }
+                        stage('Check formatting') {
+                            steps {
+                                dir('src/js') {
+                                    sh '''#!/bin/bash
+                                      export PNPM_HOME="${HOME}/.local/share/pnpm"
+                                      export PATH="${PNPM_HOME}:${PATH}"
+                                      pnpm run checkfmt
+                                    '''
+                                }
+                            }
+                        }
+                        stage('Linting') {
+                            steps {
+                                dir('src/js') {
+                                    sh '''#!/bin/bash
+                                      export PNPM_HOME="${HOME}/.local/share/pnpm"
+                                      export PATH="${PNPM_HOME}:${PATH}"
+                                      pnpm run lint-junit
+                                    '''
+                                }
+                            }
+                        }
+                    }
+                    post {
+                        failure {
+                            updateGitlabCommitStatus name: 'Format JavaScript', state: 'failed'
+                        }
+                        success {
+                            updateGitlabCommitStatus name: 'Format JavaScript', state: 'success'
                         }
                     }
                 }
-                stage('Check formatting') {
+                stage('Building application - Single threaded') {
                     steps {
-                        dir('src/js') {
-                            sh '''#!/bin/bash
-                              export PNPM_HOME="${HOME}/.local/share/pnpm"
-                              export PATH="${PNPM_HOME}:${PATH}"
-                              pnpm run checkfmt
-                            '''
+                        updateGitlabCommitStatus name: 'Build - Single Threaded', state: 'running'
+                        dir('build-st') {
+                            wt_configure(mt: 'OFF')
+                            sh "make -k -j${thread_count}"
+                            sh "make -C examples -k -j${thread_count}"
+                        }
+                    }
+                    post {
+                        failure {
+                            updateGitlabCommitStatus name: 'Build - Single Threaded', state: 'failed'
+                        }
+                        success {
+                            updateGitlabCommitStatus name: 'Build - Single Threaded', state: 'success'
                         }
                     }
                 }
-                stage('Linting') {
+                stage('Building application - Multi threaded') {
                     steps {
-                        dir('src/js') {
-                            sh '''#!/bin/bash
-                              export PNPM_HOME="${HOME}/.local/share/pnpm"
-                              export PATH="${PNPM_HOME}:${PATH}"
-                              pnpm run lint-junit
-                            '''
+                        updateGitlabCommitStatus name: 'Build - Multi Threaded', state: 'running'
+                        dir('build-mt') {
+                            wt_configure(mt: 'ON')
+                            sh "make -k -j${thread_count}"
+                            sh "make -C examples -k -j${thread_count}"
+                        }
+                    }
+                    post {
+                        failure {
+                            updateGitlabCommitStatus name: 'Build - Multi Threaded', state: 'failed'
+                        }
+                        success {
+                            updateGitlabCommitStatus name: 'Build - Multi Threaded', state: 'success'
+                        }
+                    }
+                }
+                stage('Tests') {
+                    steps {
+                        updateGitlabCommitStatus name: 'Tests', state: 'running'
+                        dir('test') {
+                            warnError('st test.wt failed') {
+                                sh "../build-st/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_test_log.xml"
+                            }
+                        }
+                        dir('test') {
+                            warnError('mt test.wt failed') {
+                                sh "../build-mt/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_test_log.xml"
+                            }
+                        }
+                    }
+                    post {
+                        failure {
+                            updateGitlabCommitStatus name: 'Tests', state: 'failed'
+                        }
+                        success {
+                            updateGitlabCommitStatus name: 'Tests', state: 'success'
+                        }
+                    }
+                }
+                stage('Test SQLite3') {
+                    steps {
+                        updateGitlabCommitStatus name: 'Tests - Sqlite3', state: 'running'
+                        dir('test') {
+                            warnError('st test.sqlite3 failed') {
+                                sh "../build-st/test/test.sqlite3 --report_level=detailed --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_sqlite3_test_log.xml"
+                            }
+                        }
+                        dir('test') {
+                            warnError('mt test.sqlite3 failed') {
+                                sh "../build-mt/test/test.sqlite3 --report_level=detailed --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_sqlite3_test_log.xml"
+                            }
+                        }
+                    }
+                    post {
+                        failure {
+                            updateGitlabCommitStatus name: 'Tests - Sqlite3', state: 'failed'
+                        }
+                        success {
+                            updateGitlabCommitStatus name: 'Tests - Sqlite3', state: 'success'
                         }
                     }
                 }
             }
             post {
+                always {
+                    junit allowEmptyResults: true, testResults: '*_test_log.xml'
+                }
+                cleanup {
+                    cleanWs()
+                }
                 failure {
-                    updateGitlabCommitStatus name: 'Format JavaScript', state: 'failed'
+                    mail to: env.EMAIL,
+                         subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
+                         body: "Something is wrong with ${env.BUILD_URL}"
                 }
-                success {
-                    updateGitlabCommitStatus name: 'Format JavaScript', state: 'success'
-                }
-            }
-        }
-        stage('Building application - Single threaded') {
-            steps {
-                updateGitlabCommitStatus name: 'Build - Single Threaded', state: 'running'
-                dir('build-st') {
-                    wt_configure(mt: 'OFF')
-                    sh "make -k -j${thread_count}"
-                    sh "make -C examples -k -j${thread_count}"
-                }
-            }
-            post {
-                failure {
-                    updateGitlabCommitStatus name: 'Build - Single Threaded', state: 'failed'
-                }
-                success {
-                    updateGitlabCommitStatus name: 'Build - Single Threaded', state: 'success'
+                unstable {
+                    mail to: env.EMAIL,
+                         subject: "Unstable Pipeline: ${currentBuild.fullDisplayName}",
+                         body: "Something is wrong with ${env.BUILD_URL}"
                 }
             }
         }
-        stage('Building application - Multi threaded') {
-            steps {
-                updateGitlabCommitStatus name: 'Build - Multi Threaded', state: 'running'
-                dir('build-mt') {
-                    wt_configure(mt: 'ON')
-                    sh "make -k -j${thread_count}"
-                    sh "make -C examples -k -j${thread_count}"
+        stage('wt-port') {
+            agent {
+                dockerfile {
+                    label 'docker'
+                    dir 'jenkins/linux'
+                    filename 'pipeline-port.Dockerfile'
+                    additionalBuildArgs """--build-arg USER_ID=${user_id} \
+                                           --build-arg USER_NAME=${user_name} \
+                                           --build-arg GROUP_ID=${group_id} \
+                                           --build-arg GROUP_NAME=${group_name}"""
                 }
             }
-            post {
-                failure {
-                    updateGitlabCommitStatus name: 'Build - Multi Threaded', state: 'failed'
-                }
-                success {
-                    updateGitlabCommitStatus name: 'Build - Multi Threaded', state: 'success'
-                }
-            }
-        }
-        stage('Tests') {
-            steps {
-                updateGitlabCommitStatus name: 'Tests', state: 'running'
-                dir('test') {
-                    warnError('st test.wt failed') {
-                        sh "../build-st/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_test_log.xml"
-                    }
-                }
-                dir('test') {
-                    warnError('mt test.wt failed') {
-                        sh "../build-mt/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_test_log.xml"
-                    }
-                }
-            }
-            post {
-                failure {
-                    updateGitlabCommitStatus name: 'Tests', state: 'failed'
-                }
-                success {
-                    updateGitlabCommitStatus name: 'Tests', state: 'success'
-                }
-            }
-        }
-        stage('Test SQLite3') {
-            steps {
-                updateGitlabCommitStatus name: 'Tests - Sqlite3', state: 'running'
-                dir('test') {
-                    warnError('st test.sqlite3 failed') {
-                        sh "../build-st/test/test.sqlite3 --report_level=detailed --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_sqlite3_test_log.xml"
-                    }
-                }
-                dir('test') {
-                    warnError('mt test.sqlite3 failed') {
-                        sh "../build-mt/test/test.sqlite3 --report_level=detailed --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_sqlite3_test_log.xml"
-                    }
-                }
-            }
-            post {
-                failure {
-                    updateGitlabCommitStatus name: 'Tests - Sqlite3', state: 'failed'
-                }
-                success {
-                    updateGitlabCommitStatus name: 'Tests - Sqlite3', state: 'success'
-                }
-            }
-        }
-    }
-    post {
-        always {
-            junit allowEmptyResults: true, testResults: '*_test_log.xml'
-        }
-        cleanup {
-            cleanWs()
-        }
-        failure {
-            mail to: env.EMAIL,
-                 subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
-                 body: "Something is wrong with ${env.BUILD_URL}"
-        }
-        unstable {
-            mail to: env.EMAIL,
-                 subject: "Unstable Pipeline: ${currentBuild.fullDisplayName}",
-                 body: "Something is wrong with ${env.BUILD_URL}"
         }
     }
 }
