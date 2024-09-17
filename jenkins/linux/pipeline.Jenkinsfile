@@ -59,7 +59,7 @@ pipeline {
         disableConcurrentBuilds abortPrevious: true
 
         gitLabConnection('Gitlab')
-        gitlabBuilds(builds: ['Format JavaScript', 'Build - Single Threaded', 'Build - Multi Threaded', 'Tests', 'Tests - Sqlite3'])
+        gitlabBuilds(builds: ['Format JavaScript', 'Build - Single Threaded', 'Build - Multi Threaded', 'Tests', 'Tests - Sqlite3', 'Wt Port - Checkout', 'Wt Port - Config', 'Wt Port - TinyMCE', 'Wt Port - CNOR', 'Wt Port - Java Build', 'Wt Port - Java Test'])
     }
     // Start without an agent, and define the agent per each stage.
     // This is done to ensure that wt and wt-port use different dockerfiles.
@@ -243,6 +243,7 @@ pipeline {
             stages {
                 stage('Wt-port Checkout') {
                     steps {
+                        updateGitlabCommitStatus name: 'Wt Port - Checkout', state: 'running'
                         script {
                             // Checks out master by default.
                             def output = sh(returnStatus: true, script: "git clone https://git.leuven.emweb.be/gitlab/emweb/wt-port.git");
@@ -257,9 +258,18 @@ pipeline {
                             }
                         }
                     }
+                    post {
+                        failure {
+                            updateGitlabCommitStatus name: 'Wt Port - Checkout', state: 'failed'
+                        }
+                        success {
+                            updateGitlabCommitStatus name: 'Wt Port - Checkout', state: 'success'
+                        }
+                    }
                 }
                 stage('Config') {
                     steps {
+                        updateGitlabCommitStatus name: 'Wt Port - Config', state: 'running'
                         dir('wt-port/java') {
                             sh """cat > Config << EOF
 WTDIR=${env.WORKSPACE}
@@ -269,9 +279,18 @@ JWT_GIT=${env.WORKSPACE}/jwt
 EOF"""
                         }
                     }
+                    post {
+                        failure {
+                            updateGitlabCommitStatus name: 'Wt Port - Config', state: 'failed'
+                        }
+                        success {
+                            updateGitlabCommitStatus name: 'Wt Port - Config', state: 'success'
+                        }
+                    }
                 }
                 stage('CNOR') {
                     steps {
+                        updateGitlabCommitStatus name: 'Wt Port - CNOR', state: 'running'
                         // While this CAN be build with multiple threads it is generally a bad idea, as it is likely to fail at least once then.
                         // The issue is that some of the grammar is build on-demand, and then used as an include.
                         // If a file that depends on this grammar is being attempted to compile before the grammar is ready, this will
@@ -281,17 +300,35 @@ EOF"""
                             sh 'make'
                         }
                     }
+                    post {
+                        failure {
+                            updateGitlabCommitStatus name: 'Wt Port - CNOR', state: 'failed'
+                        }
+                        success {
+                            updateGitlabCommitStatus name: 'Wt Port - CNOR', state: 'success'
+                        }
+                    }
                 }
                 // This step is necessary since the Makefile requires it.
                 // This ought to be moved to a different step.
                 stage('Copy TinyMCE') {
                     steps {
+                        updateGitlabCommitStatus name: 'Wt Port - TinyMCE', state: 'running'
                         sh "cp -r /opt/tinymce/3/tinymce/jscripts/tiny_mce ${env.WORKSPACE}/resources/"
                         sh "cp -r /opt/tinymce/4/tinymce/js/tinymce ${env.WORKSPACE}/resources/"
+                    }
+                    post {
+                        failure {
+                            updateGitlabCommitStatus name: 'Wt Port - TinyMCE', state: 'failed'
+                        }
+                        success {
+                            updateGitlabCommitStatus name: 'Wt Port - TinyMCE', state: 'success'
+                        }
                     }
                 }
                 stage('Clean-dist') {
                     steps {
+                        updateGitlabCommitStatus name: 'Wt Port - Java Build', state: 'running'
                         dir('wt-port/java') {
                             sh "make clean-dist -j${thread_count}"
                             dir('examples') {
@@ -299,13 +336,30 @@ EOF"""
                             }
                         }
                     }
+                    post {
+                        failure {
+                            updateGitlabCommitStatus name: 'Wt Port - Java Build', state: 'failed'
+                        }
+                        success {
+                            updateGitlabCommitStatus name: 'Wt Port - Java Build', state: 'success'
+                        }
+                    }
                 }
                 stage('Test') {
                     steps {
+                        updateGitlabCommitStatus name: 'Wt Port - Java Test', state: 'running'
                         dir('wt-port/java') {
                             warnError('tests failed') {
                                 sh 'ant test'
                             }
+                        }
+                    }
+                    post {
+                        failure {
+                            updateGitlabCommitStatus name: 'Wt Port - Java Test', state: 'failed'
+                        }
+                        success {
+                            updateGitlabCommitStatus name: 'Wt Port - Java Test', state: 'success'
                         }
                     }
                 }
