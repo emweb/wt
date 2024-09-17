@@ -835,13 +835,13 @@ private:
 Postgres::Postgres()
   : conn_(nullptr),
     timeout_(0),
-    maximumLifetime_(std::chrono::seconds{-1})
+    maximumLifetime_(std::chrono::seconds{-1}),
+    stopNotify_(true),
+    isListener_(false)
 { }
 
 Postgres::Postgres(const std::string& db)
-  : conn_(nullptr),
-    timeout_(0),
-    maximumLifetime_(std::chrono::seconds{-1})
+  : Postgres()
 {
   if (!db.empty())
     connect(db);
@@ -851,7 +851,9 @@ Postgres::Postgres(const Postgres& other)
   : SqlConnection(other),
     conn_(NULL),
     timeout_(other.timeout_),
-    maximumLifetime_(other.maximumLifetime_)
+    maximumLifetime_(other.maximumLifetime_),
+    stopNotify_(true),
+    isListener_(false)
 {
   if (!other.connInfo_.empty())
     connect(other.connInfo_);
@@ -998,54 +1000,40 @@ void Postgres::exec(const std::string& sql, bool showQuery)
   if (err != 1)
     throw PostgresException(PQerrorMessage(conn_));
 
-  if (timeout_ > std::chrono::microseconds{0}) {
-    fd_set rfds;
-    FD_ZERO(&rfds);
-    FD_SET(PQsocket(conn_), &rfds);
-    struct timeval timeout = toTimeval(timeout_);
+  if (!isListener_) {
+      if (timeout_ > std::chrono::microseconds{0}) {
+      fd_set rfds;
+      FD_ZERO(&rfds);
+      FD_SET(PQsocket(conn_), &rfds);
+      struct timeval timeout = toTimeval(timeout_);
 
-    for (;;) {
-      int result = select(FD_SETSIZE, &rfds, 0, 0, &timeout);
+      for (;;) {
+        int result = select(FD_SETSIZE, &rfds, 0, 0, &timeout);
 
-      if (result == 0) {
-        LOG_ERROR("timeout while executing query");
-        disconnect();
-        throw PostgresException("Database timeout");
-      } else if (result == -1) {
-        if (errno != EINTR) {
-          perror("select");
-          throw PostgresException("Error waiting for result");
+        if (result == 0) {
+          LOG_ERROR("timeout while executing query");
+          disconnect();
+          throw PostgresException("Database timeout");
+        } else if (result == -1) {
+          if (errno != EINTR) {
+            perror("select");
+            throw PostgresException("Error waiting for result");
+          } else {
+            // EINTR, try again
+          }
         } else {
-          // EINTR, try again
-        }
-      } else {
-        err = PQconsumeInput(conn_);
-        if (err != 1)
-          throw PostgresException(PQerrorMessage(conn_));
+          err = PQconsumeInput(conn_);
+          if (err != 1)
+            throw PostgresException(PQerrorMessage(conn_));
 
-        if (PQisBusy(conn_) != 1)
-          break;
+          if (PQisBusy(conn_) != 1)
+            break;
+        }
       }
     }
+
+    checkForErrors();
   }
-
-  std::string error;
-
-  for (;;) {
-    PGresult *result = PQgetResult(conn_);
-    if (result == 0)
-      break;
-
-    err = PQresultStatus(result);
-
-    if (err != PGRES_COMMAND_OK && err != PGRES_TUPLES_OK)
-      error += PQerrorMessage(conn_);
-
-    PQclear(result);
-  }
-
-  if (!error.empty())
-    throw PostgresException(error);
 }
 
 std::string Postgres::autoincrementType() const
@@ -1126,6 +1114,175 @@ void Postgres::commitTransaction()
 void Postgres::rollbackTransaction()
 {
   exec("rollback transaction", false);
+}
+
+void Postgres::subscribe(const std::string& channel)
+{
+  char* escaped = PQescapeIdentifier(conn_, channel.c_str(), channel.length());
+  if (!escaped) {
+    throw PostgresException("Error while escaping channel name '" + channel + "': " + std::string(PQerrorMessage(conn_)));
+  }
+
+  std::string escapedChannel(escaped);
+  PQfreemem(escaped);
+  executeSqlStateful("LISTEN " + escapedChannel + ";");
+}
+
+void Postgres::notify(const std::string& channel, const std::string& message)
+{
+  char* escaped = PQescapeLiteral(conn_, message.c_str(), message.length());
+  if (!escaped) {
+    throw PostgresException("Error while escaping notification message for channel '" + channel + "': " + std::string(PQerrorMessage(conn_)));
+  }
+
+  std::string escapedMessage(escaped);
+  PQfreemem(escaped);
+
+  escaped = PQescapeIdentifier(conn_, channel.c_str(), channel.length());
+  if (!escaped) {
+    throw PostgresException("Error while escaping channel name '" + channel + "': " + std::string(PQerrorMessage(conn_)));
+  }
+
+  std::string escapedChannel(escaped);
+  PQfreemem(escaped);
+
+  executeSql("NOTIFY " + escapedChannel + ", " + escapedMessage + ";");
+}
+
+std::pair<std::string, std::string> Postgres::getNextNotify()
+{
+  PGnotify *notify = PQnotifies(conn_);
+
+  fd_set rfds;
+  while (!notify && !stopNotify()) {
+    checkConnection(std::chrono::seconds(0));
+
+    if (PQstatus(conn_) != CONNECTION_OK)  {
+      LOG_WARN("connection lost to server, trying to reconnect...");
+      if (!reconnect()) {
+        throw PostgresException("Could not reconnect to server...");
+      }
+    }
+
+    FD_ZERO(&rfds);
+    FD_SET(PQsocket(conn_), &rfds);
+    FD_SET(stopPipe_->fd(), &rfds);
+    int nfds = std::max(PQsocket(conn_), stopPipe_->fd()) + 1;
+    int fdReady = select(nfds, &rfds, 0, 0, nullptr);
+
+    if (stopNotify()) {
+      break;
+    }
+
+    if (fdReady > 0) {
+      int err = PQconsumeInput(conn_);
+      if (err != 1) {
+        throw PostgresException(PQerrorMessage(conn_));
+      }
+
+      notify = PQnotifies(conn_);
+
+      if (PQisBusy(conn_) != 1) {
+        checkForErrors();
+      }
+    } else if (fdReady == -1) {
+      if (errno != EINTR) {
+        perror("select");
+        throw PostgresException("Error while listening for or sending notifications");
+      }
+    }
+  }
+
+  if (notify) {
+    std::pair<std::string, std::string> result(std::string(notify->relname), std::string(notify->extra));
+    PQfreemem(notify);
+    return result;
+  }
+
+  return std::pair<std::string, std::string>("","");
+}
+
+void Postgres::setupNotify() {
+  if (stopNotify_) {
+    stopNotify_ = false;
+    isListener_ = true;
+    std::lock_guard<std::mutex> l(stopNotifyLock_);
+    stopPipe_.reset(new StopPipe());
+  }
+}
+
+void Postgres::stopListen() {
+  if (!stopNotify_) {
+    stopNotify_ = true;
+    std::lock_guard<std::mutex> l(stopNotifyLock_);
+    stopPipe_->stop();
+  }
+}
+
+bool Postgres::stopNotify() {
+  return stopNotify_;
+}
+
+Postgres::StopPipe::StopPipe()
+{
+#ifdef WT_WIN32
+  pipe_ = INVALID_SOCKET;
+  pipe_ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  if (pipe_ == INVALID_SOCKET) {
+    LOG_ERROR("Could not create socket for self-pipe trick due to "<< WSAGetLastError());
+  }
+#else
+    int error = pipe(pipe_);
+    if (error) {
+      LOG_ERROR("Could not create pipe for self-pipe trick");
+    }
+#endif
+}
+
+Postgres::StopPipe::~StopPipe()
+{
+#ifdef WT_WIN32
+  if (pipe_ != INVALID_SOCKET) {
+    closesocket(pipe_);
+  }
+#else
+    close(pipe_[0]);
+    close(pipe_[1]);
+#endif
+}
+
+void Postgres::StopPipe::stop()
+{
+#ifdef WT_WIN32
+  if (pipe_ != INVALID_SOCKET) {
+    closesocket(pipe_);
+    pipe_ = INVALID_SOCKET;
+  }
+#else
+  int msg = 0;
+  write(pipe_[1], &msg, sizeof(int));
+#endif
+}
+
+void Postgres::checkForErrors()
+{
+  std::string error;
+
+  for (;;) {
+    PGresult *result = PQgetResult(conn_);
+    if (result == 0)
+      break;
+
+    int err = PQresultStatus(result);
+
+    if (err != PGRES_COMMAND_OK && err != PGRES_TUPLES_OK) {
+      error += PQerrorMessage(conn_);
+    }
+    PQclear(result);
+  }
+  if (!error.empty()) {
+    throw PostgresException(error);
+  }
 }
 
     }

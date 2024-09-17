@@ -14,6 +14,8 @@
 #include <Wt/Dbo/WDboDllDefs.h>
 
 namespace Wt {
+  //class NotificationListener;
+
   namespace Dbo {
 
 /*! \brief Enum that defines a date time type.
@@ -308,15 +310,102 @@ protected:
 
   void clearStatementCache();
 
+  /*! \brief Subscibe to a channel for notification
+   *
+   * This function does what is needed to receive the notifications sent
+   * on the given channel from the database.
+   *
+   * \warning This function is currently only implemented for Postgres
+   *          database and will throw an exeption if not used with
+   *          Postgres. If you wish to use notification with another
+   *          database, you should override this function and every
+   *          other function used by \c Dbo::NotificationListener .
+   *
+   * \sa getNextNotify(), notify()
+   */
+  virtual void subscribe(const std::string& channel);
+
+  /*! \brief Send a notification on the channel
+   *
+   * This function send a notifictation on the channel with the message
+   * as payload. This notification will be recieved by all connection
+   * that subscribed to the channel trough getNextNotify().
+   *
+   * \warning This function is currently only implemented for Postgres
+   *          database and will throw an exeption if not used with
+   *          Postgres. If you wish to use notification with another
+   *          database, you should override this function and every
+   *          other function used by \c Dbo::NotificationListener .
+   *
+   * \sa subscribe(), getNextNotify()
+   */
+  virtual void notify(const std::string& channel, const std::string& message);
+
+  /*! \brief Returns the next notification recieved.
+   *
+   * This function listen for notification until a notification is
+   * recieved or until the \c stopListen() function is called.
+   *
+   * If a notification was recieved, returns a pair with the first
+   * element being the name of the channel and the second element
+   * being the payload. In case \c stopListen() was called before
+   *  recieving a notification, returns a pair of empty strings.
+   *
+   * \warning This function is currently only implemented for Postgres
+   *          database and will throw an exeption if not used with
+   *          Postgres. If you wish to use notification with another
+   *          database, you should override this function and every
+   *          other function used by \c Dbo::NotificationListener .
+   *
+   * \warning This function is used inside of a thread must take into
+   *          account that \c notify() and \c subscribe() may
+   *          be called while this function is running.
+   *
+   * \sa stopListen(), subscribe(), notify()
+   */
+  virtual std::pair<std::string, std::string> getNextNotify();
+
+  /*! \brief Setup the SqlConnection for notifications handleing.
+   *
+   * This function setups everything needed to handle notification. It
+   * is called by \c Dbo::NotificationListener before starting the thread
+   * that will repetitively call \c getNextNotify() .
+   *
+   * \warning This function is currently only implemented for Postgres
+   *          database and will throw an exeption if not used with
+   *          Postgres. If you wish to use notification with another
+   *          database, you should override this function and every
+   *          other function used by \c Dbo::NotificationListener .
+   *
+   * \sa getNextNotify()
+   */
+  virtual void setupNotify();
+
+  /*! \brief Stop listening for notifications.
+   *
+   * This function stops \c getNextNotify() from listening for
+   * notifications.
+   *
+   * \warning This function is currently only implemented for Postgres
+   *          database and will throw an exeption if not used with
+   *          Postgres. If you wish to use notification with another
+   *          database, you should override this function and every
+   *          other function used by \c Dbo::NotificationListener .
+   *
+   * \sa getNextNotify()
+   */
+  virtual void stopListen();
+
   std::vector<SqlStatement *> getStatements() const;
   const std::vector<std::string>& getStatefulSql() const { return statefulSql_; }
 
 private:
   typedef std::multimap<std::string, std::unique_ptr<SqlStatement>> StatementMap;
-
   StatementMap statementCache_;
   std::map<std::string, std::string> properties_;
   std::vector<std::string> statefulSql_;
+
+  friend class NotificationListener;
 };
 
   }

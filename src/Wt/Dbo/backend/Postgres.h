@@ -13,7 +13,15 @@
 #include <Wt/Dbo/SqlStatement.h>
 #include <Wt/Dbo/backend/WDboPostgresDllDefs.h>
 
+#ifdef WT_WIN32
+#include <WinSock2.h>
+#else // !WT_WIN32
+#include <unistd.h>
+#endif // WT_WIN32
+
+#include <atomic>
 #include <chrono>
+#include <mutex>
 
 struct pg_conn;
 typedef struct pg_conn PGconn;
@@ -156,14 +164,46 @@ public:
 
   void checkConnection(std::chrono::seconds margin);
 
+protected:
+  void subscribe(const std::string& channel) override;
+  void notify(const std::string& channel, const std::string& message) override;
+  std::pair<std::string, std::string> getNextNotify() override;
+  void setupNotify() override;
+  void stopListen() override;
+
 private:
   std::string connInfo_;
   PGconn *conn_;
   std::chrono::microseconds timeout_;
   std::chrono::seconds maximumLifetime_;
+  std::atomic_bool stopNotify_, isListener_;
   std::chrono::steady_clock::time_point connectTime_;
+  std::mutex stopNotifyLock_;
+
+  struct StopPipe {
+  public:
+    StopPipe();
+    ~StopPipe();
+    void stop();
+#ifdef WT_WIN32
+    SOCKET fd() { return pipe_; }
+#else
+    int fd() { return pipe_[0]; }
+#endif
+
+  private:
+#ifdef WT_WIN32
+    SOCKET pipe_;
+#else
+    int pipe_[2]; // This is a single pipe, we read on pipe[0] and write on pipe[1].
+#endif
+  };
+
+  std::unique_ptr<StopPipe> stopPipe_;
 
   void exec(const std::string& sql, bool showQuery);
+  void checkForErrors();
+  bool stopNotify();
 };
 
     }

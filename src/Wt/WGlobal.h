@@ -277,6 +277,7 @@ namespace Wt {
     struct dbo_default_traits;
 
     class Call;
+    class NotificationListener;
     class Exception;
     class FieldInfo;
     class FixedSqlConnectionPool;

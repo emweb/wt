@@ -13,6 +13,7 @@ IF(ENABLE_LIBWTDBO)
     ptr.h ptr_impl.h ptr.C
     Call.h Call_impl.h Call.C
     DbAction.h DbAction_impl.h DbAction.C
+    NotificationListener.h NotificationListener.C
     Exception.h Exception.C
     FixedSqlConnectionPool.h FixedSqlConnectionPool.C
     Json.h Json.C

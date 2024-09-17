@@ -9,6 +9,7 @@
 #include "Wt/Dbo/SqlConnection.h"
 #include "Wt/Dbo/SqlStatement.h"
 #include "Wt/Dbo/StringStream.h"
+#include "Wt/Dbo/Exception.h"
 
 #include <cassert>
 #include <iostream>
@@ -172,6 +173,31 @@ std::vector<SqlStatement *> SqlConnection::getStatements() const
     result.push_back(i->second.get());
 
   return result;
+}
+
+void SqlConnection::subscribe(const std::string& channel)
+{
+  throw Exception("Subscribtion not implemented for this Database. Use inheritance to make your own implementation.");
+}
+
+void SqlConnection::notify(const std::string& channel, const std::string& message)
+{
+  throw Exception("Subscribtion not implemented for this Database. Use inheritance to make your own implementation.");
+}
+
+std::pair<std::string, std::string> SqlConnection::getNextNotify()
+{
+  throw Exception("Subscribtion not implemented for this Database. Use inheritance to make your own implementation.");
+}
+
+void SqlConnection::setupNotify()
+{
+  throw Exception("Subscribtion not implemented for this Database. Use inheritance to make your own implementation.");
+}
+
+void SqlConnection::stopListen()
+{
+  throw Exception("Subscribtion not implemented for this Database. Use inheritance to make your own implementation.");
 }
 
   }
