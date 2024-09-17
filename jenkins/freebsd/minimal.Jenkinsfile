@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-def thread_count = 1
+def thread_count = 4
 
 def wt_configure(Map args) {
     sh """cmake .. \
