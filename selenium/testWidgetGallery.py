@@ -38,7 +38,15 @@ def perform_chrome_test(url, binary=''):
   """
   options = webdriver.ChromeOptions()
   options.page_load_strategy = 'normal'
-  options.add_argument('-headless=new')
+  # This is a list of various Chrome "fixes", to avoid, rendering and rendering timout issues:
+  # See: https://stackoverflow.com/a/52340526
+  options.add_argument('-headless=new') # Run headless
+  options.add_argument('--disable-gpu') # Disable GPU to avoid display lookup, render issues, and GL failures
+  options.add_argument('--no-sandbox') # Disable sandbox
+  options.add_argument('--disable-setuid-sandbox') # Disable SUID for sandbox as well
+  options.add_argument('--disable-dev-shm-usage') # Disable /dev/shm and switch to /tmp
+  options.add_argument('start-maximized'); # Try to avoid renderer timeout
+  options.add_argument('enable-automation'); # Try to avoid renderer timeout
 
   if binary:
     service = webdriver.ChromeService(executable_path=binary, log_output=subprocess.STDOUT, service_args=['--verbose', '--log-path=' + CHROME_LOG])
@@ -67,6 +75,7 @@ def perform_firefox_test(url, binary=''):
   options.page_load_strategy = 'normal'
   options.log.level = 'trace' # Set trace level logging to find issues
   options.add_argument('-headless')
+  options.add_argument('disable-gpu') # Disable GPU to avoid display lookup, render issues, and GL failures
 
   firefox_profile = FirefoxProfile()
   firefox_profile.set_preference('devtools.console.stdout.content', True)
