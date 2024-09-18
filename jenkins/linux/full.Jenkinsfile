@@ -135,6 +135,12 @@ pipeline {
                 }
             }
         }
+        stage('Copy TinyMCE') {
+            steps {
+                sh "cp -r /opt/tinymce/3/tinymce/jscripts/tiny_mce ${env.WORKSPACE}/resources/"
+                sh "cp -r /opt/tinymce/4/tinymce/js/tinymce ${env.WORKSPACE}/resources/"
+            }
+        }
         stage ('Selenium Widget Gallery, Chrome') {
             steps {
                 dir ('examples/widgetgallery') {
