@@ -19,6 +19,7 @@ from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 # In this example though, the whole page is essentially replaced on navigation, making this a better choice.
 # One would normally approach this with Page object models: https://www.selenium.dev/documentation/test_practices/encouraged/page_object_models/
 TITLE_XPATH = '//div[@class="wg-contents"]/div/div[not(contains(@style, "display: none"))]/div/div[@class="contents"]/h2'
+CHROME_LOG = 'chromedriver.log'
 FIREFOX_LOG = 'geckodriver.log'
 
 
@@ -40,9 +41,9 @@ def perform_chrome_test(url, binary=''):
   options.add_argument('-headless=new')
 
   if binary:
-    service = webdriver.ChromeService(executable_path=binary, log_output=subprocess.STDOUT)
+    service = webdriver.ChromeService(executable_path=binary, log_output=subprocess.STDOUT, service_args=['--verbose', '--log-path=' + CHROME_LOG])
   else:
-    service = webdriver.ChromeService(log_output=subprocess.STDOUT)
+    service = webdriver.ChromeService(log_output=subprocess.STDOUT, service_args=['--verbose', '--log-path=' + CHROME_LOG])
 
   driver = webdriver.Chrome(options=options, service=service)
 
@@ -64,6 +65,7 @@ def perform_firefox_test(url, binary=''):
   """
   options = webdriver.FirefoxOptions()
   options.page_load_strategy = 'normal'
+  options.log.level = 'trace' # Set trace level logging to find issues
   options.add_argument('-headless')
 
   firefox_profile = FirefoxProfile()

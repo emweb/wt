@@ -137,15 +137,12 @@ pipeline {
         }
         stage ('Selenium Widget Gallery, Chrome') {
             steps {
-                dir ('build-mt-http') {
-                    sh "cd examples/widgetgallery && make -j${thread_count}"
-                }
                 dir ('examples/widgetgallery') {
                     script {
                         withEnv(['JENKINS_NODE_COOKIE=dontKillMe']) {
                             // Start widget gallery, in a disowned process, so that it keeps on running as a background job.
                             // For convenience the log is placed on the selenium directory.
-                            sh "../../build-mt-http/examples/widgetgallery/widgetgallery.wt --docroot=docroot --approot=approot --http-address 0.0.0.0 --http-port 9090 --resources-dir=../../resources &"
+                            sh "../../build-mt-http/examples/widgetgallery/widgetgallery.wt --docroot=docroot --approot=approot --http-address 0.0.0.0 --http-port 9090 --resources-dir=../../resources > ../../selenium/wgoutput-chrome.log 2>&1 &"
                         }
                     }
                 }
@@ -159,15 +156,12 @@ pipeline {
         }
         stage ('Selenium Widget Gallery, Firefox') {
             steps {
-                dir ('build-mt-http') {
-                    sh "cd examples/widgetgallery && make -j${thread_count}"
-                }
                 dir ('examples/widgetgallery') {
                     script {
                         withEnv(['JENKINS_NODE_COOKIE=dontKillMe']) {
                             // Start widget gallery, in a disowned process, so that it keeps on running as a background job.
                             // For convenience the log is placed on the selenium directory.
-                            sh "../../build-mt-http/examples/widgetgallery/widgetgallery.wt --docroot=docroot --approot=approot --http-address 0.0.0.0 --http-port 9090 --resources-dir=../../resources &"
+                            sh "../../build-mt-http/examples/widgetgallery/widgetgallery.wt --docroot=docroot --approot=approot --http-address 0.0.0.0 --http-port 9090 --resources-dir=../../resources > ../../selenium/wgoutput-firefox.log 2>&1 &"
                         }
                     }
                 }
@@ -182,6 +176,7 @@ pipeline {
     }
     post {
         always {
+            archiveArtifacts artifacts: 'selenium/*.log', fingerprint: true
             junit '*_test_log.xml'
         }
         cleanup {
