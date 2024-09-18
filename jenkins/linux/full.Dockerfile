@@ -66,3 +66,10 @@ RUN apt-get update \
  && rm -rf libharu-RELEASE_2_3_0 \
  && rm haru.zip \
  && rm -rf /var/lib/apt/lists/*
+
+ RUN apt-get update \
+     && apt-get install python3-pip --no-install-recommends -y \
+     && python3 -m pip install trio \
+     && python3 -m pip install selenium \
+     && wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
+     && apt-get install ./google-chrome-stable_current_amd64.deb --no-install-recommends -y
