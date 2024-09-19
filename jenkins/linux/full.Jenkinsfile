@@ -141,6 +141,12 @@ pipeline {
                 sh "cp -r /opt/tinymce/4/tinymce/js/tinymce ${env.WORKSPACE}/resources/"
             }
         }
+        stage('Pull Git master') {
+            steps {
+                sh 'git checkout master'
+                sh "git checkout ${env.BRANCH_NAME}"
+            }
+        }
         stage ('Selenium Widget Gallery, Chrome') {
             steps {
                 dir ('examples/widgetgallery') {
