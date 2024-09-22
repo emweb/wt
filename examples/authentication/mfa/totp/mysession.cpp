@@ -66,6 +66,7 @@ void MySession::configureAuth()
 
   myAuthService.setMfaProvider(Wt::Auth::Identity::MultiFactor);
   myAuthService.setMfaRequired(true);
+  myAuthService.setMfaThrottleEnabled(true);
 
   auto verifier = std::make_unique<Wt::Auth::PasswordVerifier>();
   verifier->addHashFunction(std::make_unique<Wt::Auth::BCryptHashFunction>(7));

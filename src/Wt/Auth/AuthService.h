@@ -761,6 +761,20 @@ public:
    * \sa setMfaTokenValidity()
    */
   int mfaTokenValidity() const { return mfaTokenValidity_; }
+
+  /*! \brief Sets whether throttling is enabled during the MFA process.
+   *
+   * By default this is not enabled.
+   *
+   * \sa mfaThrottleEnabled(), AbstractMfaProcess::setMfaThrottle()
+   */
+  void setMfaThrottleEnabled(bool enabled);
+
+  /*! \brief Returns if throttling is enabled during the MFA process.
+   *
+   * \sa setMfaThrottleEnabled()
+   */
+  bool mfaThrottleEnabled() const { return mfaThrottleEnabled_; }
   //!@}
 
 protected:
@@ -825,6 +839,7 @@ private:
   int mfaTokenValidity_;  // minutes
   std::string mfaTokenCookieName_;
   std::string mfaTokenCookieDomain_;
+  bool mfaThrottleEnabled_;
 };
 
   }

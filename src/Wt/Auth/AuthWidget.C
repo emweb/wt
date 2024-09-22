@@ -273,7 +273,13 @@ std::unique_ptr<WDialog> AuthWidget::createPasswordPromptDialog(Login& login)
 
 std::unique_ptr<Mfa::AbstractMfaProcess> AuthWidget::createMfaProcess()
 {
-  return std::make_unique<Mfa::TotpProcess>(*model()->baseAuth(), model()->users(), login());
+  auto mfaProcess = std::make_unique<Mfa::TotpProcess>(*model()->baseAuth(), model()->users(), login());
+
+  if (model()->baseAuth()->mfaThrottleEnabled()) {
+    mfaProcess->setMfaThrottle(std::make_unique<AuthThrottle>());
+  }
+
+  return std::move(mfaProcess);
 }
 
 void AuthWidget::createMfaView()

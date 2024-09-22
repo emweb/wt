@@ -10,6 +10,7 @@
 
 #include "Wt/WApplication.h"
 #include "Wt/WEnvironment.h"
+#include "Wt/WInteractWidget.h"
 #include "Wt/WLogger.h"
 
 #include <chrono>
@@ -35,7 +36,8 @@ AuthenticationResult::AuthenticationResult(AuthenticationStatus status)
 }
 
 AbstractMfaProcess::AbstractMfaProcess(const AuthService& authService, AbstractUserDatabase& users, Login& login)
-  : baseAuth_(authService),
+  : throttlingDelay_(0),
+    baseAuth_(authService),
     users_(users),
     login_(login)
 {
@@ -158,6 +160,25 @@ void AbstractMfaProcess::setRememberMeCookie(User user)
   cookie.setDomain(baseAuth().mfaTokenCookieDomain());
   cookie.setSecure(app->environment().urlScheme() == "https");
   app->setCookie(cookie);
+}
+
+void AbstractMfaProcess::setMfaThrottle(std::unique_ptr<AuthThrottle> authThrottle)
+{
+  mfaThrottle_ = std::move(authThrottle);
+}
+
+void AbstractMfaProcess::configureThrottling(WInteractWidget* button)
+{
+  if (mfaThrottle()) {
+    mfaThrottle_->initializeThrottlingMessage(button);
+  }
+}
+
+void AbstractMfaProcess::updateThrottling(WInteractWidget* button)
+{
+  if (mfaThrottle()) {
+    mfaThrottle_->updateThrottlingMessage(button, throttlingDelay_);
+  }
 }
     }
   }

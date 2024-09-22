@@ -7,6 +7,8 @@
 #ifndef WT_AUTH_MFA_ABSTRACTMFAPROCESS_H_
 #define WT_AUTH_MFA_ABSTRACTMFAPROCESS_H_
 
+#include "Wt/Auth/AuthThrottle.h"
+
 #include "Wt/WObject.h"
 #include "Wt/WString.h"
 
@@ -182,6 +184,17 @@ public:
    */
   virtual std::unique_ptr<WWidget> createInputView() = 0;
 
+  /*! \brief Sets the instance that manages throttling.
+   *
+   * Throtteling is an additional safety measure. It ensures that the
+   * MFA process cannot be brute-forced.
+   *
+   * Setting the throttler, will allow for it to be configured
+   * (configureThrottling()), and updated (updateThrottling()) if
+   * applicable.
+   */
+  void setMfaThrottle(std::unique_ptr<AuthThrottle> authThrottle);
+
 protected:
   /*! \brief Retrieves the current User's identity for the provider.
    *
@@ -234,14 +247,52 @@ protected:
    */
   virtual void setRememberMeCookie(User user);
 
+  /*! \brief Configures client-side throttling on the process.
+   *
+   * If attempt throttling is enabled, then this may also be
+   * indicated client-side using JavaScript by disabling the login
+   * button and showing a count-down indicator. This method
+   * initializes this JavaScript utility function for a login button.
+   *
+   * If throttling is enabled, it may be necessary for a custom
+   * implementation to manage this state itself. This is to allow
+   * developers the freedom to define their own MFA processes.
+   *
+   * Look at TotpProcess::verifyCode() for an example.
+   *
+   * \sa updateThrottling()
+   */
+  virtual void configureThrottling(WInteractWidget* button);
+
+  /*! \brief Updates client-side login throttling on the process.
+   *
+   * This should be called after a MFA authentication event takes place,
+   * if you want to reflect throttling using a client-side count-down
+   * indicator on the button.
+   *
+   * You need to call configureThrottling() before you can do this.
+   *
+   * If throttling is enabled, it may be necessary for a custom
+   * implementation to manage this state itself. This is to allow
+   * developers the freedom to define their own MFA processes.
+   *
+   * Look at TotpProcess::verifyCode() for an example.
+   */
+  virtual void updateThrottling(WInteractWidget* button);
+
   const AuthService& baseAuth() const { return baseAuth_; }
   AbstractUserDatabase& users() const { return users_; }
   Login& login() const { return login_; }
+
+  int throttlingDelay_;
+  WT_NODISCARD AuthThrottle* mfaThrottle() const { return mfaThrottle_.get(); }
 
 private:
   const AuthService& baseAuth_;
   AbstractUserDatabase& users_;
   Login& login_;
+
+  std::unique_ptr<AuthThrottle> mfaThrottle_;
 };
     }
   }

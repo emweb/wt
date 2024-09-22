@@ -280,4 +280,5 @@ The Wt team.
   <message id="Wt.Auth.totp-code">Code</message>
   <message id="Wt.Auth.totp-code-info">Enter the TOTP code</message>
   <message id="Wt.Auth.totp-code-info-invalid">Invalid TOTP code</message>
+  <message id="Wt.Auth.totp-code-info-throttle">Throtteling TOTP validation attempts</message>
 </messages>

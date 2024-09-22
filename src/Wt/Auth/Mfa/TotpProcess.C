@@ -10,6 +10,7 @@
 #include "Wt/WApplication.h"
 #include "Wt/WCheckBox.h"
 #include "Wt/WDateTime.h"
+#include "Wt/WInteractWidget.h"
 #include "Wt/WPushButton.h"
 #include "Wt/WTemplate.h"
 
@@ -103,6 +104,10 @@ namespace Wt {
   {
     auto login = view->bindNew<WPushButton>("login", WString::tr("Wt.Auth.login"));
     login->clicked().connect(std::bind(&TotpProcess::verifyCode, this, view));
+
+    if (mfaThrottle()) {
+      configureThrottling(login);
+    }
   }
 
   void TotpProcess::bindRememberMe(WTemplate* view)
@@ -130,7 +135,24 @@ namespace Wt {
 
     LOG_INFO("verifyCode(): The validation resulted in " << (validation ? "success" : "failure") << " for user: " << login().user().id());
 
+    if (mfaThrottle()) {
+      throttlingDelay_ = mfaThrottle()->delayForNextAttempt(login().user());
+      if (throttlingDelay_ > 0) {
+        validation = false;
+      }
+    }
+
+    std::unique_ptr<AbstractUserDatabase::Transaction> t(users().startTransaction());
+    login().user().setAuthenticated(validation);
+    t->commit();
+
     if (!validation) {
+      if (throttlingDelay_ > 0) {
+        update(view);
+        authenticated_.emit(AuthenticationResult(AuthenticationStatus::Failure, WString::tr("Wt.Auth.totp-code-info-throttle")));
+        return;
+      }
+
       update(view);
       authenticated_.emit(AuthenticationResult(AuthenticationStatus::Failure, WString::tr("Wt.Auth.totp-code-info-invalid")));
     } else {
@@ -150,6 +172,11 @@ namespace Wt {
     codeEdit_->addStyleClass("is-invalid Wt-invalid");
     view->bindString("totp-code-info", WString::tr("Wt.Auth.totp-code-info-invalid"));
     view->bindString("label", "error has-error");
+
+    if (mfaThrottle()) {
+      auto login = static_cast<WInteractWidget*>(view->resolveWidget("login"));
+      updateThrottling(login);
+    }
   }
     }
   }

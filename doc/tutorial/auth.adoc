@@ -631,6 +631,27 @@ view itself is managed by {doc}classWt_1_1Auth_1_1AuthWidget.html#a31f1e6343c9e2
 
 The example can be found here: {wt-src}examples/authentication/mfa/totp[examples/authentication/mfa/totp].
 
+=== Note on throttling
+Since the MFA process is implemented very open-ended, and no set UI has
+been provided for it, a custom implementation of it will require
+developers to explicitly take throttling into account if they wish to
+use it.
+
+The most important aspects of implementing this successfully are the
+methods:
+
+* {doc}classWt_1_1Auth_1_1User.html#ac0756b61b47fc378a7da92ad9c9ba380[`+setAuthenticated()+`]
+which is to be called after each authentication event. It will ensure that
+the login failure or success is recorded in the database. This state can
+then be used by the actual delay calculation.
+
+* {doc}classWt_1_1Auth_1_1AuthThrottle.html#aa79114a4089fc22730f35415ce111bf6[`+delayForNextAttempt()+`]
+calculates the number of seconds the throttling needs to apply.
+
+* {doc}classWt_1_1Auth_1_1AuthThrottle.html#ad6b40a654c3851f5e813b3309b555889[`+getAuthenticationThrottle()+`]
+specifies some predefined rules on the throttling delay given a certain
+number of consecutive failed login attempts.
+
 === Custom implementation (similar to default)
 
 *THIS IS NOT A RECOMMENDED MFA STRATEGY, it is purely illustrative to
@@ -833,6 +854,10 @@ input. This input can either:
  - *match*, in which case they are logged into the system, and the
  identity is added to the database, if it hasn't been already.
 In both cases the `+authenticated+` signal is fired.
+Here we will also have to implement some custom logic if we wish to enable
+throttling. Developers can check how this is done on {doc}classWt_1_1Auth_1_1Mfa_1_1TotpProcess.html[`+TotpProcess+`].
+Since the way the MFA process is implemented allows for any approach,
+this will require a developer to explicitly manage throttling.
 
 * *update* will indicate the failure to authenticate to the user by
 displaying a message and indicating the field red.

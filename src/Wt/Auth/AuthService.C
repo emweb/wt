@@ -138,7 +138,8 @@ AuthService::AuthService()
     authTokenValidity_(14 * 24 * 60),  // two weeks
     mfaRequired_(false),
     mfaCodeLength_(6),
-    mfaTokenValidity_(90 * 24 * 60)    // 90 days
+    mfaTokenValidity_(90 * 24 * 60),   // 90 days
+    mfaThrottleEnabled_(false)
 {
   redirectInternalPath_ = "/auth/mail/";
 }
@@ -497,6 +498,11 @@ void AuthService::setMfaTokenCookieDomain(const std::string& domain)
 void AuthService::setMfaTokenValidity(int validity)
 {
   mfaTokenValidity_ = validity;
+}
+
+void AuthService::setMfaThrottleEnabled(bool enabled)
+{
+  mfaThrottleEnabled_ = enabled;
 }
 }
 }
