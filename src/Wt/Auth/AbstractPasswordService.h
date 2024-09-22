@@ -10,6 +10,7 @@
 #include <Wt/WValidator.h>
 #include <Wt/WString.h>
 
+#include <Wt/Auth/AuthThrottle.h>
 #include <Wt/Auth/User.h>
 
 namespace Wt {
@@ -145,16 +146,20 @@ public:
    */
   virtual bool attemptThrottlingEnabled() const = 0;
 
+  /*! \brief Returns the class instance managing the delaying.
+   *
+   * \sa attemptThrottlingEnabled()
+   */
+  virtual AuthThrottle* passwordThrottle() const = 0;
+
   /*! \brief Returns a validator which checks that a password is strong enough.
    */
   virtual AbstractStrengthValidator *strengthValidator() const = 0;
 
   /*! \brief Returns the delay for this user for a next authentication
-   *         attempt.
+   * attempt.
    *
-   * If password attempt throttling is enabled, then this returns the
-   * number of seconds this user must wait for a new authentication
-   * attempt, presumably because of a number of failed attempts.
+   * The implementation of this functionality is managed by AuthThrottle.
    *
    * \sa attemptThrottlingEnabled()
    */

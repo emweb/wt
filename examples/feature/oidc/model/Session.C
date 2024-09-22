@@ -29,7 +29,7 @@ void Session::configureAuth()
   auto verifier = std::make_unique<Wt::Auth::PasswordVerifier>();
   verifier->addHashFunction(std::make_unique<Wt::Auth::BCryptHashFunction>());
   myPasswordService.setVerifier(std::move(verifier));
-  myPasswordService.setAttemptThrottlingEnabled(true);
+  myPasswordService.setPasswordThrottle(std::make_unique<Wt::Auth::AuthThrottle>());
 //  myPasswordService.setStrengthValidator
 //    (std::make_unique<Wt::Auth::PasswordStrengthValidator>());
 }

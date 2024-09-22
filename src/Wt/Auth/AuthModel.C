@@ -15,10 +15,6 @@
 #include "Wt/WInteractWidget.h"
 #include "Wt/WLogger.h"
 
-#ifndef WT_DEBUG_JS
-#include "js/AuthThrottle.min.js"
-#endif
-
 #include "Wt/WDllDefs.h"
 
 #include <memory>
@@ -72,26 +68,14 @@ bool AuthModel::isVisible(Field field) const
 void AuthModel::configureThrottling(WInteractWidget *button)
 {
   if (passwordAuth() && passwordAuth()->attemptThrottlingEnabled()) {
-    WApplication *app = WApplication::instance();
-    LOAD_JAVASCRIPT(app, "js/AuthThrottle.js", "AuthThrottle", wtjs1);
-
-    button->setJavaScriptMember(" AuthThrottle",
-                                "new " WT_CLASS ".AuthThrottle(" WT_CLASS ","
-                                + button->jsRef() + ","
-                                + WString::tr("Wt.Auth.throttle-retry")
-                                .jsStringLiteral()
-                                + ");");
+    passwordAuth()->passwordThrottle()->initializeThrottlingMessage(button);
   }
 }
 
 void AuthModel::updateThrottling(WInteractWidget *button)
 {
   if (passwordAuth() && passwordAuth()->attemptThrottlingEnabled()) {
-    WStringStream s;
-    s << button->jsRef() << ".wtThrottle.reset("
-      << throttlingDelay_ << ");";
-
-    button->doJavaScript(s.str());
+    passwordAuth()->passwordThrottle()->updateThrottlingMessage(button, throttlingDelay_);
   }
 }
 
@@ -134,8 +118,9 @@ bool AuthModel::validateField(Field field)
            WValidator::Result(ValidationState::Invalid,
                               WString::tr("Wt.Auth.password-invalid")));
 
-        if (passwordAuth()->attemptThrottlingEnabled())
+        if (passwordAuth()->attemptThrottlingEnabled()) {
           throttlingDelay_ = passwordAuth()->delayForNextAttempt(user);
+        }
 
         return false;
       case PasswordResult::LoginThrottling:
@@ -146,8 +131,6 @@ bool AuthModel::validateField(Field field)
         setValidated(PasswordField, false);
 
         throttlingDelay_ = passwordAuth()->delayForNextAttempt(user);
-        LOG_SECURE("throttling: " << throttlingDelay_
-                   << " seconds for " << user.identity(Identity::LoginName));
 
         return false;
       case PasswordResult::PasswordValid:

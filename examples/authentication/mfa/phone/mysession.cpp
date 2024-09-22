@@ -73,7 +73,7 @@ void MySession::configureAuth()
   auto verifier = std::make_unique<Wt::Auth::PasswordVerifier>();
   verifier->addHashFunction(std::make_unique<Wt::Auth::BCryptHashFunction>(7));
   myPasswordService.setVerifier(std::move(verifier));
-  myPasswordService.setAttemptThrottlingEnabled(true);
+  myPasswordService.setPasswordThrottle(std::make_unique<Wt::Auth::AuthThrottle>());
   myPasswordService.setStrengthValidator(std::make_unique<Wt::Auth::PasswordStrengthValidator>());
 
   if (created_) {

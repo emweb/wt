@@ -92,7 +92,7 @@ void BlogSession::configureAuth()
   verifier->addHashFunction(std::make_unique<UnixCryptHashFunction>());
 #endif
   blogPasswords.setVerifier(std::move(verifier));
-  blogPasswords.setAttemptThrottlingEnabled(true);
+  blogPasswords.setPasswordThrottle(std::make_unique<Wt::Auth::AuthThrottle>());
   blogPasswords.setStrengthValidator
     (std::make_unique<Wt::Auth::PasswordStrengthValidator>());
 

@@ -78,7 +78,7 @@ void Session::configureAuth()
 
   myPasswordService.setVerifier(std::move(verifier));
   myPasswordService.setStrengthValidator(std::make_unique<Auth::PasswordStrengthValidator>());
-  myPasswordService.setAttemptThrottlingEnabled(true);
+  myPasswordService.setPasswordThrottle(std::make_unique<Wt::Auth::AuthThrottle>());
 
   if (Auth::GoogleService::configured()) {
     myOAuthServices.push_back(std::make_unique<Auth::GoogleService>(myAuthService));

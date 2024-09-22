@@ -283,6 +283,7 @@ Wt/Auth/AbstractPasswordService.h Wt/Auth/AbstractPasswordService.C
 Wt/Auth/AbstractUserDatabase.h Wt/Auth/AbstractUserDatabase.C
 Wt/Auth/AuthModel.h Wt/Auth/AuthModel.C
 Wt/Auth/AuthService.h Wt/Auth/AuthService.C
+Wt/Auth/AuthThrottle.h Wt/Auth/AuthThrottle.C
 Wt/Auth/AuthWidget.h Wt/Auth/AuthWidget.C
 Wt/Auth/FacebookService.h Wt/Auth/FacebookService.C
 Wt/Auth/FormBaseModel.h Wt/Auth/FormBaseModel.C

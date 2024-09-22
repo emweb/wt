@@ -24,8 +24,7 @@ PasswordService::AbstractVerifier::~AbstractVerifier()
 { }
 
 PasswordService::PasswordService(const AuthService& baseAuth)
-  : baseAuth_(baseAuth),
-    attemptThrottling_(false)
+  : baseAuth_(baseAuth)
 { }
 
 PasswordService::~PasswordService()
@@ -42,44 +41,36 @@ void PasswordService
   validator_ = std::move(validator);
 }
 
+void PasswordService::setPasswordThrottle(std::unique_ptr<AuthThrottle> delayer)
+{
+  passwordThrottle_ = std::move(delayer);
+}
+
 void PasswordService::setAttemptThrottlingEnabled(bool enabled)
 {
-  attemptThrottling_ = enabled;
+  if(enabled) {
+    passwordThrottle_.reset(new AuthThrottle());
+  } else {
+    passwordThrottle_.reset(nullptr);
+  }
 }
 
 int PasswordService::delayForNextAttempt(const User& user) const
 {
-  if (attemptThrottling_) {
-    int throttlingNeeded = getPasswordThrottle(user.failedLoginAttempts());
+  if (passwordThrottle()) {
+    return passwordThrottle()->delayForNextAttempt(user);
+  }
 
-    if (throttlingNeeded) {
-      WDateTime t = user.lastLoginAttempt();
-      int diff = t.secsTo(WDateTime::currentDateTime());
-
-      if (diff < throttlingNeeded)
-        return throttlingNeeded - diff;
-      else
-        return 0;
-    } else
-        return 0;
-  } else
-    return 0;
+  return 0;
 }
 
-int PasswordService::getPasswordThrottle(int failedAttempts) const
+int PasswordService::getAuthenticationThrottle(int failedAttempts) const
 {
-  switch (failedAttempts) {
-  case 0:
-    return 0;
-  case 1:
-    return 1;
-  case 2:
-    return 5;
-  case 3:
-    return 10;
-  default:
-    return 25;
+  if (passwordThrottle()) {
+    return passwordThrottle()->getAuthenticationThrottle(failedAttempts);
   }
+
+  return 0;
 }
 
 PasswordResult PasswordService::verifyPassword(const User& user,
@@ -93,8 +84,9 @@ PasswordResult PasswordService::verifyPassword(const User& user,
 
   bool valid = verifier_->verify(password, user.password());
 
-  if (attemptThrottling_)
+  if (passwordThrottle()) {
     user.setAuthenticated(valid); // XXX rename to .passwordAttempt()
+  }
 
   if (valid) {
     /*

@@ -9,6 +9,7 @@
 #include "Wt/Auth/Dbo/UserDatabase.h"
 
 #include <Wt/Auth/AuthService.h>
+#include <Wt/Auth/AuthThrottle.h>
 #include "Wt/Auth/Identity.h"
 #include <Wt/Auth/PasswordService.h>
 
@@ -84,7 +85,7 @@ BOOST_AUTO_TEST_CASE( throttle_not_enabled_test )
 BOOST_AUTO_TEST_CASE( throttle_enabled_no_failure_test )
 {
   PasswordDboFixture f;
-  f.myPasswordService_->setAttemptThrottlingEnabled(true);
+  f.myPasswordService_->setPasswordThrottle(std::make_unique<Wt::Auth::AuthThrottle>());
 
   Wt::Dbo::Transaction transaction(*f.session_);
   Auth::User user = f.users_->registerNew();
@@ -98,7 +99,7 @@ BOOST_AUTO_TEST_CASE( throttle_enabled_no_failure_test )
 BOOST_AUTO_TEST_CASE( throttle_enabled_failure_test )
 {
   PasswordDboFixture f;
-  f.myPasswordService_->setAttemptThrottlingEnabled(true);
+  f.myPasswordService_->setPasswordThrottle(std::make_unique<Wt::Auth::AuthThrottle>());
 
   Wt::Dbo::Transaction transaction(*f.session_);
   Auth::User user = f.users_->registerNew();
@@ -119,7 +120,7 @@ BOOST_AUTO_TEST_CASE( throttle_enabled_failure_test )
 BOOST_AUTO_TEST_CASE( throttle_enabled_failure_with_last_attempt_offset_test )
 {
   PasswordDboFixture f;
-  f.myPasswordService_->setAttemptThrottlingEnabled(true);
+  f.myPasswordService_->setPasswordThrottle(std::make_unique<Auth::AuthThrottle>());
 
   Wt::Dbo::Transaction transaction(*f.session_);
   Auth::User user = f.users_->registerNew();

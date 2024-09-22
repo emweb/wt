@@ -7,8 +7,11 @@
 #ifndef WT_AUTH_PASSWORD_AUTH_H_
 #define WT_AUTH_PASSWORD_AUTH_H_
 
-#include <Wt/WValidator.h>
-#include <Wt/Auth/AbstractPasswordService.h>
+#include "Wt/Auth/AbstractPasswordService.h"
+#include "Wt/Auth/AuthThrottle.h"
+
+#include "Wt/WDllDefs.h"
+#include "Wt/WValidator.h"
 
 namespace Wt {
   namespace Auth {
@@ -129,6 +132,15 @@ public:
   virtual AbstractStrengthValidator *strengthValidator() const override
   { return validator_.get(); }
 
+  /*! \brief Sets the class instance managing the throttling delay.
+   *
+   * \sa setAttemptThrottlingEnabled(), AuthThrottle
+   */
+  void setPasswordThrottle(std::unique_ptr<AuthThrottle> delayer);
+
+  //! Returns the class instance managing the throttling delay.
+  AuthThrottle* passwordThrottle() const override { return passwordThrottle_.get(); }
+
   /*! \brief Configures password attempt throttling.
    *
    * When password throttling is enabled, new password verification
@@ -136,22 +148,23 @@ public:
    * unsuccessful authentication attempts in a row.
    *
    * The exact back-off schema can be customized by specializing
-   * getPasswordThrottle().
+   * AuthThrottle::getAuthenticationThrottle().
    */
+  WT_DEPRECATED("Use setPasswordThrottle(std::unique_ptr<AuthThrottle>) instead")
   void setAttemptThrottlingEnabled(bool enabled);
 
   /*! \brief Returns whether password attempt throttling is enabled.
    *
    * \sa setAttemptThrottlingEnabled()
    */
-  virtual bool attemptThrottlingEnabled() const override { return attemptThrottling_; }
+  virtual bool attemptThrottlingEnabled() const override { return passwordThrottle(); }
 
   /*! \brief Returns the delay for this user for a next authentication
    *         attempt.
    *
    * \copydetails AbstractPasswordService::delayForNextAttempt()
    *
-   * \sa setAttemptThrottlingEnabled(), getPasswordThrottle()
+   * \sa setAttemptThrottlingEnabled(), getAuthenticationThrottle()
    */
   virtual int delayForNextAttempt(const User& user) const override;
 
@@ -175,16 +188,9 @@ protected:
   /*! \brief Returns how much throttle should be given considering a number of
    *         failed authentication attempts.
    *
-   * The returned value is in seconds.
-   *
-   * The default implementation returns the following:
-   * - failedAttempts == 0: 0
-   * - failedAttempts == 1: 1
-   * - failedAttempts == 2: 5
-   * - failedAttempts == 3: 10
-   * - failedAttempts > 3: 25
+   * \sa AuthThrottle::getAuthenticationThrottle()
    */
-  virtual int getPasswordThrottle(int failedAttempts) const;
+  virtual int getAuthenticationThrottle(int failedAttempts) const;
 
 private:
   PasswordService(const PasswordService&);
@@ -192,7 +198,7 @@ private:
   const AuthService& baseAuth_;
   std::unique_ptr<AbstractVerifier> verifier_;
   std::unique_ptr<AbstractStrengthValidator> validator_;
-  bool attemptThrottling_;
+  std::unique_ptr<AuthThrottle> passwordThrottle_;
 };
 
   }
