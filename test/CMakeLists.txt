@@ -133,6 +133,7 @@ IF(ENABLE_LIBWTTEST)
       dbo/JsonTest2.C
       dbo/AuthDboTest.C
       dbo/DboTestCompositeKey.C
+      auth/PasswordServiceTest.C
       private/DboImplTest.C
     )
 
