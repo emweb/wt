@@ -16,7 +16,7 @@
 #include "Wt/WLogger.h"
 
 #ifndef WT_DEBUG_JS
-#include "js/AuthModel.min.js"
+#include "js/AuthThrottle.min.js"
 #endif
 
 #include "Wt/WDllDefs.h"
@@ -73,7 +73,7 @@ void AuthModel::configureThrottling(WInteractWidget *button)
 {
   if (passwordAuth() && passwordAuth()->attemptThrottlingEnabled()) {
     WApplication *app = WApplication::instance();
-    LOAD_JAVASCRIPT(app, "js/AuthModel.js", "AuthThrottle", wtjs1);
+    LOAD_JAVASCRIPT(app, "js/AuthThrottle.js", "AuthThrottle", wtjs1);
 
     button->setJavaScriptMember(" AuthThrottle",
                                 "new " WT_CLASS ".AuthThrottle(" WT_CLASS ","
