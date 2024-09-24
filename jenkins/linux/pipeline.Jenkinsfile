@@ -255,6 +255,17 @@ pipeline {
                                 if (remoteBranches.contains("${env.BRANCH_NAME}")) {
                                     sh "git checkout ${env.BRANCH_NAME}"
                                 }
+
+                                // Check based on ticket number.
+                                def currentTicketNumber = "${env.BRANCH_NAME}".split('/')[0].trim();
+                                def branches = remoteBranches.tokenize('\n');
+                                // Find whether a branch exists that starts with a ticket number,
+                                // being the same as the current branch's ticket number.
+                                // `it` being the implicit element
+                                def foundBranch = branches.find { it.trim().split('/')[0].trim() == currentTicketNumber };
+                                if (foundBranch != null) {
+                                    sh "git checkout ${foundBranch}"
+                                }
                             }
                         }
                     }
