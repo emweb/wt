@@ -23,17 +23,16 @@ public:
   static const char *secondResizeJS();
   static const char *secondGetPSJS();
 
-  virtual const std::string id() const override;
-  virtual int minimumHeight() const override;
-  virtual int minimumWidth() const override;
+  const std::string id() const override;
+  int minimumHeight() const override;
+  int minimumWidth() const override;
   int maximumHeight() const override;
   int maximumWidth() const override;
 
-  virtual WLayoutItem *layoutItem() const override;
+  WLayoutItem *layoutItem() const override;
 
-  virtual DomElement *createDomElement(DomElement *parent,
-                                       bool fitWidth, bool fitHeight,
-                                       WApplication *app) override;
+  DomElement *createDomElement(DomElement *parent, bool fitWidth,
+                               bool fitHeight, WApplication *app) override;
 
 private:
   WWidgetItem *item_;

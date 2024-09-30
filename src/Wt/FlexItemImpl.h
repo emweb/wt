@@ -18,9 +18,9 @@ public:
   FlexItemImpl(WWidgetItem *item);
   virtual ~FlexItemImpl();
 
-  virtual WLayoutItem *layoutItem() const override;
-  virtual int minimumHeight() const override;
-  virtual int minimumWidth() const override;
+  WLayoutItem *layoutItem() const override;
+  int minimumHeight() const override;
+  int minimumWidth() const override;
   int maximumHeight() const override;
   int maximumWidth() const override;
 
