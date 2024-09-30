@@ -43,6 +43,15 @@ behaviour.
 
 <h3>New features</h3>
 
+<ul>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/12461" target="_blank">Issue #12461</a>:
+    Developers are now able to connect to a public or private resource using the <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API" target="_blank">WebSocket protocol</a>. While WebSockets were already integrated into Wt, they were only used to stream updates between the server and the client as an alternative to long-polling.
+    Now they can actually be used by developers for custom purposes. The <a href="classWt_1_1WWebSocketResource.html" target="_blank">WWebSocketResource</a> is used to create a new endpoint. This can be global (static), when linked to the WServer itself, or session-private (dynamic) when exposed in the WApplication.
+    When a connection from the client side is established, a <a href="classWt_1_1WWebSocketConnection.html" target="_blank">WWebSocketConnection</a> is created. This serves as a way to track a singular connection between the server and a client.
+  </li>
+</ul>
+
 <h3>Other improvements</h3>
 
 <ul>
