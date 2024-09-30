@@ -56,14 +56,12 @@
 #pragma once
 
 #include <algorithm>
+#include <cstdint>
 
 #include "Wt/WDllDefs.h"
 
 namespace base32
 {
-  typedef unsigned long uint64;
-  typedef unsigned char uint8;
-
   extern WT_API const char* to_table;
   extern WT_API const char* to_table_end;
   extern WT_API const signed char* from_table;
@@ -79,20 +77,20 @@ namespace base32
 
     int bytes;
     do {
-      uint64 input = 0;
+      std::uint64_t input = 0;
 
       // get the next five bytes into "in" (and count how many we actually get)
       bytes = 0;
       for(; (bytes < 5) && (it != end); ++bytes, ++it) {
         input <<= 8;
-        input += static_cast<uint8>(*it);
+        input += static_cast<std::uint8_t>(*it);
       }
 
       // convert to base32
       int bits = bytes*8;
       while (bits > 0) {
         bits -= 5;
-        const uint8 index = ((bits < 0) ? input << -bits : input >> bits) & 0x1F;
+        const std::uint8_t index = ((bits < 0) ? input << -bits : input >> bits) & 0x1F;
         *out = to_table[index];
         ++out;
         ++lineSize;
@@ -147,7 +145,7 @@ namespace base32
   {
     InputIterator it = begin;
     int bits = 0, value = 0;
-    uint8 c;
+    std::uint8_t c;
 
     while (it != end) {
       c = *it;
