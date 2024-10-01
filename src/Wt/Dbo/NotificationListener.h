@@ -15,6 +15,8 @@
 #include <map>
 
 #include <Wt/Dbo/SqlConnection.h>
+#include <Wt/Dbo/ptr.h>
+#include <Wt/Dbo/Session.h>
 
 namespace Wt {
 
@@ -55,7 +57,7 @@ public:
    * Create a new NotificationListener and directly connect it to the
    * database usig the given connection.
    */
-  explicit NotificationListener(std::unique_ptr<Dbo::SqlConnection> connection);
+  explicit NotificationListener(std::unique_ptr<SqlConnection> connection);
 
   /*! \brief Destroy the NotificationListener.
    */
@@ -74,7 +76,7 @@ public:
    *
    * \sa disconnect()
    */
-  void connect(std::unique_ptr<Dbo::SqlConnection> connection);
+  void connect(std::unique_ptr<SqlConnection> connection);
 
   /*! \brief Disconnect the NotificationListener.
    *
@@ -95,6 +97,17 @@ public:
    * \sa setCallback()
    */
   void notify(const std::string& channel, const std::string& message = "");
+
+  /*! \brief Send a notification.
+   *
+   * Helper function that sends a notification on the channel with the
+   * name of the table the object of the pointer belogns to, and with
+   * the id of the object as the message.
+   *
+   * \sa setCallback()
+   */
+  template<class C>
+  void notify(const ptr<C> &obj) { notify(obj.session()->template tableName<C>(), obj.obj()->idStr()); }
 
   /*! \brief Sets a function to be called when a notification is received.
    *

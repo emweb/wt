@@ -867,6 +867,7 @@ private:
   friend class ptr<MutC>;
   friend class ptr<const C>;
   template <class D> friend class collection;
+  friend class NotificationListener;
 
   friend std::ostream& operator<< <> (std::ostream& o, const ptr<C>& ptr);
 };

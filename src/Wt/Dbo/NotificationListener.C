@@ -18,7 +18,7 @@ NotificationListener::NotificationListener()
     thread_()
 { }
 
-NotificationListener::NotificationListener(std::unique_ptr<Dbo::SqlConnection> connection)
+NotificationListener::NotificationListener(std::unique_ptr<SqlConnection> connection)
   : NotificationListener()
 {
   connect(std::move(connection));
@@ -29,7 +29,7 @@ NotificationListener::~NotificationListener()
   disconnect();
 }
 
-void NotificationListener::connect(std::unique_ptr<Dbo::SqlConnection> connection)
+void NotificationListener::connect(std::unique_ptr<SqlConnection> connection)
 {
   if (connection_) {
     disconnect();
