@@ -22,6 +22,7 @@
 #include <atomic>
 #include <chrono>
 #include <mutex>
+#include <queue>
 
 struct pg_conn;
 typedef struct pg_conn PGconn;
@@ -176,9 +177,10 @@ private:
   PGconn *conn_;
   std::chrono::microseconds timeout_;
   std::chrono::seconds maximumLifetime_;
-  std::atomic_bool stopNotify_, isListener_;
+  std::atomic_bool stopNotify_, isListener_, canSend_;
   std::chrono::steady_clock::time_point connectTime_;
-  std::mutex stopNotifyLock_;
+  std::mutex stopNotifyLock_, sendQueueLock_;
+  std::queue<std::string> sendQueue_;
 
   struct StopPipe {
   public:

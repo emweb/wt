@@ -837,7 +837,8 @@ Postgres::Postgres()
     timeout_(0),
     maximumLifetime_(std::chrono::seconds{-1}),
     stopNotify_(true),
-    isListener_(false)
+    isListener_(false),
+    canSend_(true)
 { }
 
 Postgres::Postgres(const std::string& db)
@@ -853,7 +854,8 @@ Postgres::Postgres(const Postgres& other)
     timeout_(other.timeout_),
     maximumLifetime_(other.maximumLifetime_),
     stopNotify_(true),
-    isListener_(false)
+    isListener_(false),
+    canSend_(true)
 {
   if (!other.connInfo_.empty())
     connect(other.connInfo_);
@@ -961,7 +963,21 @@ std::unique_ptr<SqlStatement> Postgres::prepareStatement(const std::string& sql)
 
 void Postgres::executeSql(const std::string &sql)
 {
-  exec(sql, true);
+  bool callExec = false;
+
+  {
+    std::lock_guard<std::mutex> l(sendQueueLock_);
+    if (!isListener_ || canSend_) {
+      canSend_ = false;
+      callExec = true;
+    } else {
+      sendQueue_.push(sql);
+    }
+  }
+
+  if (callExec) {
+    exec(sql, true);
+  }
 }
 
 /*
@@ -1154,7 +1170,17 @@ std::pair<std::string, std::string> Postgres::getNextNotify()
   PGnotify *notify = PQnotifies(conn_);
 
   fd_set rfds;
-  while (!notify && !stopNotify()) {
+
+  /* Normaly the loop stops if we have a notification or if we must stop listening.
+   * However, if we must stop listening but still have notification to send, we
+   * ignore every notification received and send the notification one by one, until
+   * all are sent.
+   */
+  while ((!notify || stopNotify()) && !(stopNotify() && canSend_)) {
+
+    if (notify) {
+      PQfreemem(notify);
+    }
     checkConnection(std::chrono::seconds(0));
 
     if (PQstatus(conn_) != CONNECTION_OK)  {
@@ -1166,11 +1192,20 @@ std::pair<std::string, std::string> Postgres::getNextNotify()
 
     FD_ZERO(&rfds);
     FD_SET(PQsocket(conn_), &rfds);
-    FD_SET(stopPipe_->fd(), &rfds);
-    int nfds = std::max(PQsocket(conn_), stopPipe_->fd()) + 1;
-    int fdReady = select(nfds, &rfds, 0, 0, nullptr);
+    int nfds = PQsocket(conn_) + 1;
+    struct timeval timeout;
+    struct timeval *timeoutPtr = nullptr;
 
-    if (stopNotify()) {
+    if (stopNotify() && !canSend_) {
+      timeout = toTimeval(timeout_);
+      timeoutPtr = &timeout;
+    } else {
+      FD_SET(stopPipe_->fd(), &rfds);
+      nfds = std::max(nfds, stopPipe_->fd() + 1);
+    }
+
+    int fdReady = select(nfds, &rfds, 0, 0, timeoutPtr);
+    if (stopNotify() && canSend_) {
       break;
     }
 
@@ -1184,6 +1219,15 @@ std::pair<std::string, std::string> Postgres::getNextNotify()
 
       if (PQisBusy(conn_) != 1) {
         checkForErrors();
+        {
+          std::lock_guard<std::mutex> l(sendQueueLock_);
+          if (sendQueue_.empty()) {
+            canSend_ = true;
+          } else {
+            exec(sendQueue_.front(), true);
+            sendQueue_.pop();
+          }
+        }
       }
     } else if (fdReady == -1) {
       if (errno != EINTR) {
