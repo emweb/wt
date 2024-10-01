@@ -20,25 +20,18 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.11.1 (TBD)></h2>
+<h2>Release 4.11.0 (October 1, 2024)</h2>
 
 <p>
-  Wt 4.11.1 is a patch release that addresses the following issue:
+  Wt 4.11.0 is a major release. That focuses on authentication and WebSockets.
 </p>
 
-<h3>Bug fixes</h3>
-
-<ul>
-  <li>
-    <a href="https://redmine.emweb.be/issues/12737" target="_blank">Issue #12737</a>:
-    cancel every action on a socket before closing it to avoid reading on a closed socket.
-  </li>
-</ul>
-
-<h2>Release 4.11.0 (TBD)></h2>
-
 <p>
-  Wt 4.11.0 is a major release.
+  First Wt is now able to support MFA in its authentication system. It is easily enabled with a single call to <a href="classWt_1_1Auth_1_1AuthService.html#aad075b232ddafe52a4953f3c341e6e75" target="_blank">AuthService::setMfaProvider()</a>. By default an implementation for TOTP is included. This offers a way to enable an additional layer of security for your applications. Instead of remembering a single password, users can be made to enter a short code that changes often, as an additional authentication step.
+  Developers are also able to implement this feature in any way they see fit via the interface <a href="classWt_1_1Auth_1_1Mfa_1_1AbstractMfaProcess.html" target="_blank">AbstractMfaProcess</a>. A couple examples are provided in the source code, and the <a href="../../tutorial/auth.html" target="_blank">authentication tutorial</a>.
+</p>
+<p>
+  If you like using WebSockets, there is good news! Wt was already able to communicate with its server over WebSockets. This was, however, limited to only its communication for updates regarding its framework. Now you are able to use them in whatever custom way you see fit. Developers can set up endpoints (both session-private or public) that listen to incoming requests. The browser (or another client) can then use those endpoints to connect to said resource. A connection has now been established, and messages can be send back and forth.
 </p>
 
 <h3>New features</h3>
@@ -88,15 +81,19 @@ behaviour.
 <ul>
   <li>
     <a href="https://redmine.emweb.be/issues/12367" target="_blank">Issue #12367</a>:
-    Fix an bug where the checkbox in a 
-    <a href="classWt_1_1WPopupMenu.html" target="_blank">WPopupMenu</a> would not be checked if the 
+    Fix a bug where the checkbox in a 
+    <a href="classWt_1_1WPopupMenu.html" target="_blank">WPopupMenu</a> would not be checked if a 
     <a href="classWt_1_1WMenuItem.html" target="_blank">WMenuItem</a> was clicked, and not the 
-    <a href="classWt_1_1WCheckBox.html" target="_blank">WCheckBox</a> or its label. Also fixes a bug where the signal of a the <code>WMenuItem</code> checkbox would not be emitted after switching between the item being checkable or not.
+    <a href="classWt_1_1WCheckBox.html" target="_blank">WCheckBox</a> or its label. Also fixes a bug where the signal of a <code>WMenuItem</code> checkbox would not be emitted after switching between the item being checkable or not.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/12676" target="_blank">Issue #12676</a>:
     although technically an improvement, since it was left for so long, it became a bug with Boost 1.85.0.
     The version retired the <a href="https://live.boost.org/doc/libs/1_84_0/boost/filesystem/convenience.hpp" target="_blank">boost/filesystem/convenience.hpp</a> header. And also removed some <a href="https://www.boost.org/doc/libs/1_84_0/libs/filesystem/doc/reference.html#path-deprecated-functions" target="_blank">deprecated functions</a>.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/12737" target="_blank">Issue #12737</a>:
+    cancel every action on a socket before closing it to avoid reading on a closed socket.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/12323" target="_blank">Issue #12323</a>:
@@ -113,12 +110,12 @@ behaviour.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/9284">Issue #9284</a>:
-    a <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a> will now render more correctly in layouts. A combinations of various layouts could lead to the table not setting its size correctly, or even not having a consistent size (apparently randomly deciding
-    to fill in all available space, or to shrink to fit its content). This lead to the issue where scrollbars were sometimes not visible, or were placed in a wrong location. By default, a table will now size correctly, and place the scrollbars accordingly, namely at the edges of its container.
+    a <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a> will now render more correctly in layouts. A combination of various layouts could lead to the table not setting its size correctly, or even not having a consistent size (apparently randomly deciding
+    to fill in all available space, or to shrink to fit its content). This led to the issue where scrollbars were sometimes not visible, or were placed in a wrong location. By default, a table will now size correctly, and place the scrollbars accordingly, namely at the edges of its container.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/11954" target="_blank">Issue #11954</a>:
-    resolve a fairly big memory leak when using Pango. Pango is a library that is by default enabled (or controlled using the <code>ENABLE_PANGO</code> build flag). This library is used to generate PDFs with the <a href="classWt_1_1Render_1_1WPdfRenderer.html">WPdfRenderer</a>.
+    resolve a fairly big memory leak when using Pango. Pango is a library that is by default enabled (controlled using the <code>ENABLE_PANGO</code> build flag). This library is used to generate PDFs with the <a href="classWt_1_1Render_1_1WPdfRenderer.html">WPdfRenderer</a>.
     The font map that Pango generated to track available fonts was never correctly released. Some other Pango specific objects (resulting from calls to the library), such as the context and fonts were also not always released. These objects are now managed by smart pointers to ensure proper memory management.
     A single leak does remain, which seemingly comes from Pango or libfontconfig itself (see: <a href="https://redmine.webtoolkit.eu/issues/12844" target="_blank">Issue #12844</a>).
   </li>
