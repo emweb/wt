@@ -273,6 +273,7 @@ std::string WebSocketFrameHeader::toString() const
 WebSocketConnection::WebSocketConnection(AsioWrapper::asio::io_service& ioService)
   : ioService_(ioService),
     strand_(ioService),
+    readBuffer_(),
     readBufferPtr_(readBuffer_.begin()),
     skipDataSize_(0),
     readingState_(ReadingState::ReadingHeader),
