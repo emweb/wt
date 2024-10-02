@@ -132,7 +132,7 @@ protected:
 
   virtual void doSocketRead(char* buffer, size_t size) = 0;
   // Performs an async write to the socket, inside the write-done loop.
-  virtual void doSocketWrite(const std::vector<boost::asio::const_buffer>& buffer, OpCode type) = 0;
+  virtual void doSocketWrite(const std::vector<AsioWrapper::asio::const_buffer>& buffer, OpCode type) = 0;
 
 private:
   // Buffer & parsing
@@ -174,9 +174,9 @@ private:
   bool hasPendingPingWrite_;
   bool hasPendingPongWrite_;
   OpCode pendingWriteDataType_;
-  std::vector<boost::asio::const_buffer> pendingWritePingBuffer_;
-  std::vector<boost::asio::const_buffer> pendingWritePongBuffer_;
-  std::vector<boost::asio::const_buffer> pendingWriteDataBuffer_;
+  std::vector<AsioWrapper::asio::const_buffer> pendingWritePingBuffer_;
+  std::vector<AsioWrapper::asio::const_buffer> pendingWritePongBuffer_;
+  std::vector<AsioWrapper::asio::const_buffer> pendingWriteDataBuffer_;
 
   std::function<void()> hasDataReadCallback_;
   std::function<void(const AsioWrapper::error_code&, std::size_t)> hasDataWrittenCallback_;
@@ -199,7 +199,7 @@ public:
 
 protected:
   void doSocketRead(char* input, size_t offset) final;
-  void doSocketWrite(const std::vector<boost::asio::const_buffer>& buffer, OpCode type) final;
+  void doSocketWrite(const std::vector<AsioWrapper::asio::const_buffer>& buffer, OpCode type) final;
 
 private:
   std::unique_ptr<Socket> socket_;
@@ -219,7 +219,7 @@ public:
 
 protected:
   void doSocketRead(char* input, size_t offset) final;
-  void doSocketWrite(const std::vector<boost::asio::const_buffer>& buffer, OpCode type) final;
+  void doSocketWrite(const std::vector<AsioWrapper::asio::const_buffer>& buffer, OpCode type) final;
 
 private:
   std::unique_ptr<SSLSocket> socket_;

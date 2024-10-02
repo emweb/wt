@@ -454,7 +454,7 @@ bool WebSocketConnection::doAsyncWrite(OpCode type, const std::vector<char>& fra
   writeBuffer_.append(data.data(), data.size());
 
   // Put data into asio::buffer actual write buffer
-  using namespace boost::asio;
+  using namespace AsioWrapper::asio;
 
   std::vector<const_buffer> buffer;
   writeBuffer_.asioBuffers(buffer);
@@ -482,7 +482,7 @@ void WebSocketConnection::doControlFrameWrite(const std::vector<char>& frameHead
   // Put data into asio::buffer actual write buffer
   writeBuffer_.append(frameHeader.data(), frameHeader.size());
 
-  using namespace boost::asio;
+  using namespace AsioWrapper::asio;
 
   std::vector<const_buffer> buffer;
   writeBuffer_.asioBuffers(buffer);
@@ -603,12 +603,10 @@ void WebSocketTcpConnection::doClose()
 
 void WebSocketTcpConnection::doSocketRead(char* buffer, size_t size)
 {
-  using namespace boost::asio;
-
-  socket_->async_read_some(boost::asio::buffer(buffer, size), strand_.wrap(std::bind(&WebSocketTcpConnection::handleAsyncRead, shared_from_this(), std::placeholders::_1, std::placeholders::_2)));
+  socket_->async_read_some(AsioWrapper::asio::buffer(buffer, size), strand_.wrap(std::bind(&WebSocketTcpConnection::handleAsyncRead, shared_from_this(), std::placeholders::_1, std::placeholders::_2)));
 }
 
-void WebSocketTcpConnection::doSocketWrite(const std::vector<boost::asio::const_buffer>& buffer, OpCode type)
+void WebSocketTcpConnection::doSocketWrite(const std::vector<AsioWrapper::asio::const_buffer>& buffer, OpCode type)
 {
   async_write(socket(), buffer, strand_.wrap(std::bind(&WebSocketTcpConnection::handleAsyncWritten, shared_from_this(), type, std::placeholders::_1, std::placeholders::_2)));
 }
@@ -661,12 +659,10 @@ void WebSocketSslConnection::stopTcpSocket(const AsioWrapper::error_code& e)
 
 void WebSocketSslConnection::doSocketRead(char* buffer, size_t size)
 {
-  using namespace boost::asio;
-
-  socket_->async_read_some(boost::asio::buffer(buffer, size), strand_.wrap(std::bind(&WebSocketSslConnection::handleAsyncRead, shared_from_this(), std::placeholders::_1, std::placeholders::_2)));
+  socket_->async_read_some(AsioWrapper::asio::buffer(buffer, size), strand_.wrap(std::bind(&WebSocketSslConnection::handleAsyncRead, shared_from_this(), std::placeholders::_1, std::placeholders::_2)));
 }
 
-void WebSocketSslConnection::doSocketWrite(const std::vector<boost::asio::const_buffer>& buffer, OpCode type)
+void WebSocketSslConnection::doSocketWrite(const std::vector<AsioWrapper::asio::const_buffer>& buffer, OpCode type)
 {
   async_write(*socket_, buffer, strand_.wrap(std::bind(&WebSocketSslConnection::handleAsyncWritten, shared_from_this(), type, std::placeholders::_1, std::placeholders::_2)));
 }
