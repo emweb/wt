@@ -59,7 +59,12 @@ pipeline {
         disableConcurrentBuilds abortPrevious: true
 
         gitLabConnection('Gitlab')
-        gitlabBuilds(builds: ['Format JavaScript', 'Build - Single Threaded', 'Build - Multi Threaded', 'Tests', 'Tests - Sqlite3', 'Wt Port - Checkout', 'Wt Port - Config', 'Wt Port - TinyMCE', 'Wt Port - CNOR', 'Wt Port - Java Build', 'Wt Port - Java Test'])
+        // See https://github.com/jenkinsci/gitlab-plugin/issues/1028
+        // These stages are not all initially pushed to Gitlab, which they SHOULD be.
+        // As such, Gitlab will consider the whole pipeline a success if the latest stage it sees is successful.
+        // Only after this "success" will the new 'running' stage be seen.
+        // "Set to merge on pipeline success" then suffers from prematurely merging the branch.
+        gitlabBuilds(builds: ['Overarching Pipeline', 'Format JavaScript', 'Build - Single Threaded', 'Build - Multi Threaded', 'Tests', 'Tests - Sqlite3', 'Wt Port - Checkout', 'Wt Port - Config', 'Wt Port - TinyMCE', 'Wt Port - CNOR', 'Wt Port - Java Build', 'Wt Port - Java Test'])
     }
     // Start without an agent, and define the agent per each stage.
     // This is done to ensure that wt and wt-port use different dockerfiles.
@@ -84,6 +89,7 @@ pipeline {
                     stages {
                         stage('pnpm install') {
                             steps {
+                                updateGitlabCommitStatus name: 'Overarching Pipeline', state: 'running'
                                 updateGitlabCommitStatus name: 'Format JavaScript', state: 'running'
                                 dir('src/js') {
                                     sh '''#!/bin/bash
@@ -227,16 +233,27 @@ pipeline {
             post {
                 always {
                     junit allowEmptyResults: true, testResults: '*_test_log.xml'
+                    script {
+                        // Specific case to detect superseded builds.
+                        if (currentBuild.currentResult == 'NOT_BUILT') {
+                          updateGitlabCommitStatus name: 'Overarching Pipeline', state: 'canceled'
+                        }
+                    }
                 }
                 cleanup {
                     cleanWs()
                 }
+                aborted {
+                    updateGitlabCommitStatus name: 'Overarching Pipeline', state: 'canceled'
+                }
                 failure {
+                    updateGitlabCommitStatus name: 'Overarching Pipeline', state: 'failed'
                     mail to: env.EMAIL,
                          subject: "Failed Pipeline (wt step): ${currentBuild.fullDisplayName}",
                          body: "Something is wrong with ${env.BUILD_URL}"
                 }
                 unstable {
+                    updateGitlabCommitStatus name: 'Overarching Pipeline', state: 'failed'
                     mail to: env.EMAIL,
                          subject: "Unstable Pipeline (wt step): ${currentBuild.fullDisplayName}",
                          body: "Something is wrong with ${env.BUILD_URL}"
@@ -409,18 +426,32 @@ EOF"""
                 }
             }
             post {
+                success {
+                    updateGitlabCommitStatus name: 'Overarching Pipeline', state: 'success'
+                }
+                aborted {
+                    updateGitlabCommitStatus name: 'Overarching Pipeline', state: 'canceled'
+                }
                 always {
                     junit allowEmptyResults: true, testResults: 'wt-port/java/report/TEST-eu.webtoolkit.jwt*.xml'
+                    script {
+                        // Specific case to detect superseded builds.
+                        if (currentBuild.currentResult == 'NOT_BUILT') {
+                          updateGitlabCommitStatus name: 'Overarching Pipeline', state: 'canceled'
+                        }
+                    }
                 }
                 cleanup {
                     cleanWs()
                 }
                 failure {
+                    updateGitlabCommitStatus name: 'Overarching Pipeline', state: 'failed'
                     mail to: env.EMAIL,
                          subject: "Failed Pipeline (wt-port step): ${currentBuild.fullDisplayName}",
                          body: "Something is wrong with ${env.BUILD_URL}"
                 }
                 unstable {
+                    updateGitlabCommitStatus name: 'Overarching Pipeline', state: 'failed'
                     mail to: env.EMAIL,
                          subject: "Unstable Pipeline (wt-port step): ${currentBuild.fullDisplayName}",
                          body: "Something is wrong with ${env.BUILD_URL}"
