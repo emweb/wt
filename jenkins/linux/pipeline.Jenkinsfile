@@ -124,6 +124,9 @@ pipeline {
                         success {
                             updateGitlabCommitStatus name: 'Format JavaScript', state: 'success'
                         }
+                        aborted {
+                            updateGitlabCommitStatus name: 'Format JavaScript', state: 'canceled'
+                        }
                     }
                 }
                 stage('Building application - Single threaded') {
@@ -142,6 +145,9 @@ pipeline {
                         success {
                             updateGitlabCommitStatus name: 'Build - Single Threaded', state: 'success'
                         }
+                        aborted {
+                            updateGitlabCommitStatus name: 'Build - Single Threaded', state: 'canceled'
+                        }
                     }
                 }
                 stage('Building application - Multi threaded') {
@@ -159,6 +165,9 @@ pipeline {
                         }
                         success {
                             updateGitlabCommitStatus name: 'Build - Multi Threaded', state: 'success'
+                        }
+                        aborted {
+                            updateGitlabCommitStatus name: 'Build - Multi Threaded', state: 'canceled'
                         }
                     }
                 }
@@ -183,6 +192,9 @@ pipeline {
                         success {
                             updateGitlabCommitStatus name: 'Tests', state: 'success'
                         }
+                        aborted {
+                            updateGitlabCommitStatus name: 'Tests', state: 'canceled'
+                        }
                     }
                 }
                 stage('Test SQLite3') {
@@ -205,6 +217,9 @@ pipeline {
                         }
                         success {
                             updateGitlabCommitStatus name: 'Tests - Sqlite3', state: 'success'
+                        }
+                        aborted {
+                            updateGitlabCommitStatus name: 'Tests - Sqlite3', state: 'canceled'
                         }
                     }
                 }
@@ -276,6 +291,9 @@ pipeline {
                         success {
                             updateGitlabCommitStatus name: 'Wt Port - Checkout', state: 'success'
                         }
+                        aborted {
+                            updateGitlabCommitStatus name: 'Wt Port - Checkout', state: 'canceled'
+                        }
                     }
                 }
                 stage('Config') {
@@ -296,6 +314,9 @@ EOF"""
                         }
                         success {
                             updateGitlabCommitStatus name: 'Wt Port - Config', state: 'success'
+                        }
+                        aborted {
+                            updateGitlabCommitStatus name: 'Wt Port - Config', state: 'canceled'
                         }
                     }
                 }
@@ -318,6 +339,9 @@ EOF"""
                         success {
                             updateGitlabCommitStatus name: 'Wt Port - CNOR', state: 'success'
                         }
+                        aborted {
+                            updateGitlabCommitStatus name: 'Wt Port - CNOR', state: 'canceled'
+                        }
                     }
                 }
                 // This step is necessary since the Makefile requires it.
@@ -334,6 +358,9 @@ EOF"""
                         }
                         success {
                             updateGitlabCommitStatus name: 'Wt Port - TinyMCE', state: 'success'
+                        }
+                        aborted {
+                            updateGitlabCommitStatus name: 'Wt Port - TinyMCE', state: 'canceled'
                         }
                     }
                 }
@@ -354,6 +381,9 @@ EOF"""
                         success {
                             updateGitlabCommitStatus name: 'Wt Port - Java Build', state: 'success'
                         }
+                        aborted {
+                            updateGitlabCommitStatus name: 'Wt Port - Java Build', state: 'canceled'
+                        }
                     }
                 }
                 stage('Test') {
@@ -371,6 +401,9 @@ EOF"""
                         }
                         success {
                             updateGitlabCommitStatus name: 'Wt Port - Java Test', state: 'success'
+                        }
+                        aborted {
+                            updateGitlabCommitStatus name: 'Wt Port - Java Test', state: 'canceled'
                         }
                     }
                 }
