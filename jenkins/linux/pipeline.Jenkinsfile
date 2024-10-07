@@ -220,6 +220,9 @@ pipeline {
                         aborted {
                             updateGitlabCommitStatus name: 'Tests', state: 'canceled'
                         }
+                        unstable {
+                            updateGitlabCommitStatus name: 'Tests', state: 'failed'
+                        }
                     }
                 }
                 stage('Test SQLite3') {
@@ -248,6 +251,9 @@ pipeline {
                         }
                         aborted {
                             updateGitlabCommitStatus name: 'Tests - Sqlite3', state: 'canceled'
+                        }
+                        unstable {
+                            updateGitlabCommitStatus name: 'Tests - Sqlite3', state: 'failed'
                         }
                     }
                 }
@@ -462,6 +468,9 @@ EOF"""
                         }
                         aborted {
                             updateGitlabCommitStatus name: 'Wt Port - Java Test', state: 'canceled'
+                        }
+                        unstable {
+                            updateGitlabCommitStatus name: 'Wt Port - Java Test', state: 'failed'
                         }
                     }
                 }
