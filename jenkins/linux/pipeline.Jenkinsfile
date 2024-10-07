@@ -9,6 +9,13 @@ def host_ccache_dir
 
 def thread_count = 10
 
+// Remember the last Gitlab stage that was touched
+// This is used to ensure that pipelines are always properly "closed" in Gitlab
+// Such that they do not indefinitely remain in "Running".
+// This is a "hack" necessary in declarative pipelines, since the "gitlabBuilds"
+// command does not correctly push all initial stages.
+def last_gitlab_stage
+
 node('docker') {
     user_id = sh(returnStdout: true, script: 'id -u').trim()
     user_name = sh(returnStdout: true, script: 'id -un').trim()
@@ -89,6 +96,9 @@ pipeline {
                     stages {
                         stage('pnpm install') {
                             steps {
+                                script {
+                                    last_gitlab_stage = "Format JavaScript"
+                                }
                                 updateGitlabCommitStatus name: 'Overarching Pipeline', state: 'running'
                                 updateGitlabCommitStatus name: 'Format JavaScript', state: 'running'
                                 dir('src/js') {
@@ -137,6 +147,9 @@ pipeline {
                 }
                 stage('Building application - Single threaded') {
                     steps {
+                        script {
+                            last_gitlab_stage = "Build - Single Threaded"
+                        }
                         updateGitlabCommitStatus name: 'Build - Single Threaded', state: 'running'
                         dir('build-st') {
                             wt_configure(mt: 'OFF')
@@ -158,6 +171,9 @@ pipeline {
                 }
                 stage('Building application - Multi threaded') {
                     steps {
+                        script {
+                            last_gitlab_stage = "Build - Multi Threaded"
+                        }
                         updateGitlabCommitStatus name: 'Build - Multi Threaded', state: 'running'
                         dir('build-mt') {
                             wt_configure(mt: 'ON')
@@ -179,6 +195,9 @@ pipeline {
                 }
                 stage('Tests') {
                     steps {
+                        script {
+                            last_gitlab_stage = "Tests"
+                        }
                         updateGitlabCommitStatus name: 'Tests', state: 'running'
                         dir('test') {
                             warnError('st test.wt failed') {
@@ -205,6 +224,9 @@ pipeline {
                 }
                 stage('Test SQLite3') {
                     steps {
+                        script {
+                            last_gitlab_stage = "Tests - Sqlite3"
+                        }
                         updateGitlabCommitStatus name: 'Tests - Sqlite3', state: 'running'
                         dir('test') {
                             warnError('st test.sqlite3 failed') {
@@ -237,6 +259,7 @@ pipeline {
                         // Specific case to detect superseded builds.
                         if (currentBuild.currentResult == 'NOT_BUILT') {
                           updateGitlabCommitStatus name: 'Overarching Pipeline', state: 'canceled'
+                          updateGitlabCommitStatus name: "${last_gitlab_stage}", state: 'canceled'
                         }
                     }
                 }
@@ -275,6 +298,9 @@ pipeline {
             stages {
                 stage('Wt-port Checkout') {
                     steps {
+                        script {
+                            last_gitlab_stage = "Wt Port - Checkout"
+                        }
                         updateGitlabCommitStatus name: 'Wt Port - Checkout', state: 'running'
                         script {
                             // Checks out master by default.
@@ -315,6 +341,9 @@ pipeline {
                 }
                 stage('Config') {
                     steps {
+                        script {
+                            last_gitlab_stage = "Wt Port - Config"
+                        }
                         updateGitlabCommitStatus name: 'Wt Port - Config', state: 'running'
                         dir('wt-port/java') {
                             sh """cat > Config << EOF
@@ -339,6 +368,9 @@ EOF"""
                 }
                 stage('CNOR') {
                     steps {
+                        script {
+                            last_gitlab_stage = "Wt Port - CNOR"
+                        }
                         updateGitlabCommitStatus name: 'Wt Port - CNOR', state: 'running'
                         // While this CAN be build with multiple threads it is generally a bad idea, as it is likely to fail at least once then.
                         // The issue is that some of the grammar is build on-demand, and then used as an include.
@@ -365,6 +397,9 @@ EOF"""
                 // This ought to be moved to a different step.
                 stage('Copy TinyMCE') {
                     steps {
+                        script {
+                            last_gitlab_stage = "Wt Port - TinyMCE"
+                        }
                         updateGitlabCommitStatus name: 'Wt Port - TinyMCE', state: 'running'
                         sh "cp -r /opt/tinymce/3/tinymce/jscripts/tiny_mce ${env.WORKSPACE}/resources/"
                         sh "cp -r /opt/tinymce/4/tinymce/js/tinymce ${env.WORKSPACE}/resources/"
@@ -383,6 +418,9 @@ EOF"""
                 }
                 stage('Clean-dist') {
                     steps {
+                        script {
+                            last_gitlab_stage = "Wt Port - Java Build"
+                        }
                         updateGitlabCommitStatus name: 'Wt Port - Java Build', state: 'running'
                         dir('wt-port/java') {
                             sh "make clean-dist -j${thread_count}"
@@ -405,6 +443,9 @@ EOF"""
                 }
                 stage('Test') {
                     steps {
+                        script {
+                            last_gitlab_stage = "Wt Port - Java Test"
+                        }
                         updateGitlabCommitStatus name: 'Wt Port - Java Test', state: 'running'
                         dir('wt-port/java') {
                             warnError('tests failed') {
@@ -438,6 +479,7 @@ EOF"""
                         // Specific case to detect superseded builds.
                         if (currentBuild.currentResult == 'NOT_BUILT') {
                           updateGitlabCommitStatus name: 'Overarching Pipeline', state: 'canceled'
+                          updateGitlabCommitStatus name: "${last_gitlab_stage}", state: 'canceled'
                         }
                     }
                 }
