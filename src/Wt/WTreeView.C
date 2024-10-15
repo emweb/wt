@@ -942,27 +942,29 @@ void WTreeViewNode::selfCheck()
 void WTreeViewNode::updateDom(DomElement& element, bool all)
 {
   if (view_->isDisabled()) {
-    addStyleClass("Wt-disabled");
-    nodeWidget_->addStyleClass("Wt-disabled");
+    auto app = Wt::WApplication::instance();
+    std::string themedDisabledClass = app ? app->theme()->disabledClass() : "";
+    addStyleClass(themedDisabledClass);
+    nodeWidget_->addStyleClass(themedDisabledClass);
 
     auto widget = nodeWidget_->resolveWidget("cols-row");
     if (widget) {
-      widget->addStyleClass("Wt-disabled");
+      widget->addStyleClass(themedDisabledClass);
     }
 
     widget = nodeWidget_->resolveWidget("expand");
     if (widget) {
-      widget->addStyleClass("Wt-disabled");
+      widget->addStyleClass(themedDisabledClass);
     }
 
     widget = nodeWidget_->resolveWidget("no-expand");
     if (widget) {
-      widget->addStyleClass("Wt-disabled");
+      widget->addStyleClass(themedDisabledClass);
     }
 
     widget = nodeWidget_->resolveWidget("col0");
     if (widget) {
-      widget->addStyleClass("Wt-disabled");
+      widget->addStyleClass(themedDisabledClass);
     }
   }
 
