@@ -2244,8 +2244,10 @@ if (!window._$_WT_CLASS_$_) {
 
     this.maxZIndex = function() {
       let maxz = 0;
+      let tempMax = 0;
       document.querySelectorAll(".Wt-dialog, .modal, .modal-dialog").forEach(function(elem) {
-        maxz = Math.max(maxz, WT.css(elem, "z-index"));
+        tempMax = Math.max(maxz, WT.css(elem, "z-index"));
+        maxz = isNaN(tempMax) ? maxz : tempMax;
       });
 
       return maxz;
