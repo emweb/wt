@@ -399,6 +399,7 @@ private:
   static const int BIT_SCROLL_VISIBILITY_CHANGED = 35;
   static const int BIT_THEME_STYLE_DISABLED = 36;
   static const int BIT_OBJECT_NAME_CHANGED = 37;
+  static const int BIT_PARENT_CHANGED = 38;
 
   static const char *FOCUS_SIGNAL;
   static const char *BLUR_SIGNAL;
@@ -409,7 +410,7 @@ private:
   std::string elementTagName_;
 
 #ifndef WT_TARGET_JAVA
-  static const std::bitset<38> AllChangeFlags;
+  static const std::bitset<39> AllChangeFlags;
 #endif // WT_TARGET_JAVA
 
   void loadToolTip();
@@ -417,7 +418,7 @@ private:
   /*
    * Frequently used attributes.
    */
-  std::bitset<38> flags_;
+  std::bitset<39> flags_;
   std::unique_ptr<WLength> width_;
   std::unique_ptr<WLength> height_;
 

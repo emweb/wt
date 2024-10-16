@@ -59,7 +59,7 @@ const int WWebWidget::DEFAULT_BASE_Z_INDEX = 1100;
 const int WWebWidget::Z_INDEX_INCREMENT = 1100;
 
 #ifndef WT_TARGET_JAVA
-const std::bitset<38> WWebWidget::AllChangeFlags = std::bitset<38>()
+const std::bitset<39> WWebWidget::AllChangeFlags = std::bitset<39>()
   .set(BIT_FLEX_BOX_CHANGED)
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
@@ -649,11 +649,15 @@ void WWebWidget::setZIndex(int zIndex)
 
 void WWebWidget::setParentWidget(WWidget *parent)
 {
+  flags_.set(BIT_PARENT_CHANGED, parent != this->parent());
   WWidget::setParentWidget(parent);
 
-  if (parent)
-    if (isPopup())
+  if (parent) {
+    if (isPopup()) {
       calcZIndex();
+    }
+    propagateSetEnabled(parent->isEnabled());
+  }
 }
 
 WWebWidget *WWebWidget::parentWebWidget() const
@@ -1147,7 +1151,10 @@ bool WWebWidget::isVisible() const
 
 void WWebWidget::setDisabled(bool disabled)
 {
-  if (canOptimizeUpdates() && (disabled == flags_.test(BIT_DISABLED)))
+  // WT-13115: If the widget was disabled due to a parent widget and the parent
+  // widget changed, then we must skip the optimization and determine whether
+  // the widget should still be disabled.
+  if (canOptimizeUpdates() && (disabled == flags_.test(BIT_DISABLED)) && !flags_.test(BIT_PARENT_CHANGED))
     return;
 
   bool wasEnabled = isEnabled();
@@ -2164,6 +2171,7 @@ void WWebWidget::propagateRenderOk(bool deep)
   flags_.reset(BIT_TABINDEX_CHANGED);
   flags_.reset(BIT_SCROLL_VISIBILITY_CHANGED);
   flags_.reset(BIT_OBJECT_NAME_CHANGED);
+  flags_.reset(BIT_PARENT_CHANGED);
 #endif
 
   renderOk();
