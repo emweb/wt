@@ -43,8 +43,6 @@ void WTextArea::setText(const WT_USTRING& text)
   repaint();
 
   validate();
-
-  applyEmptyText();
 }
 
 void WTextArea::setColumns(int columns)
