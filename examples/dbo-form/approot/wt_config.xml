@@ -5,16 +5,16 @@
 
               These properties are used to configure TinyMCE for WTextEdit.
 
-             - tinyMCEVersion: the version of TinyMCE to use, currently version 3.x and 4.x are supported
+             - tinyMCEVersion: the version of TinyMCE to use, currently version 3.x, 4.x, 5.x, 6.x, and 7.x are supported
              - tinyMCEURL: the URL to the main TinyMCE script file
              - tinyMCEBaseURL: the base URL where TinyMCE is deployed.
                                The default is resourcesURL/tiny_mce for TinyMCE 3,
                                and resourcesURL/tinymce for TinyMCE 4 or later.
                                Note: resourcesURL refers to the resourcesURL property, which itself defaults to "resources/"
             -->
-            <property name="tinyMCEVersion">3</property>
+            <property name="tinyMCEVersion">6</property>
             <property name="tinyMCEURL"></property>
-            <property name="tinyMCEBaseURL">resources/tiny_mce</property>
+            <property name="tinyMCEBaseURL">resources/tinymce</property>
         </properties>
     </application-settings>
 </server>
