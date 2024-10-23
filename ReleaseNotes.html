@@ -37,6 +37,12 @@ behaviour.
     <a href="classWt_1_1Dbo_1_1JsonSerializer.html" target="_blank">Dbo::JsonSerializer</a>. This can be activated by including <code>Wt/Dbo/WtJsonSqlTraits.h</code>.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13041" target="_blank">Issue #13041</a>:
+    Increase the default number of iteration of
+    <a href="classWt_1_1Auth_1_1BCryptHashFunction.html">Auth::BCryptHashFunction</a> to 12.
+    A warning message will also be logged when using Auth::BCryptHashFunction with less than the minumum of 10 iterations that ASVS recommends.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/11868" target="_blank">Issue #11868</a>:
     Added the 
     <a href="classWt_1_1WStackedWidget.html#a8342aac06b58cdedb7b1f43132673cb8" target="_blank">WStackedWidget::currentWidgetChanged()</a> signal that is emitted when the 
