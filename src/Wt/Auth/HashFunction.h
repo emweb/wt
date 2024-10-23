@@ -141,8 +141,13 @@ public:
    * stored in the computed hash.
    *
    * The value of \p count needs to be 0, or in the range 4-31.
+   * 
+   * By default \p count has a value of 12.
+   * 
+   * \note <a href="https://owasp.org/www-project-application-security-verification-standard/" target="_blank">
+   *       ASVS</a> recommends using BCrypt with at least 10 iterations.
    */
-  BCryptHashFunction(int count = 0);
+  BCryptHashFunction(int count = 12);
 
   /*! \brief Returns the name for this hash function.
    *

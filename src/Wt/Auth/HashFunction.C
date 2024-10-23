@@ -9,6 +9,7 @@
 
 #include "Wt/Utils.h"
 #include "Wt/WException.h"
+#include "Wt/WLogger.h"
 
 #ifndef WT_TARGET_JAVA
 // for htonl():
@@ -31,6 +32,7 @@ extern "C" {
 #endif
 
 namespace Wt {
+  LOGGER("Auth.HashFunction");
   namespace Auth {
 
 HashFunction::~HashFunction()
@@ -86,7 +88,11 @@ std::string SHA1HashFunction::name() const
 
 BCryptHashFunction::BCryptHashFunction(int count)
   : count_(count)
-{ }
+{
+  if (count_ < 10) {
+    LOG_WARN("ASVS recommends using BCrypt with at least 10 iterations.");
+  }
+}
 
 std::string BCryptHashFunction::compute(const std::string& msg,
                                         const std::string& salt) const
