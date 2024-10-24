@@ -727,8 +727,13 @@ void WFileDropWidget::setJavaScriptFilter(const std::string& filterFn,
 void WFileDropWidget::setAcceptDirectories(bool enable, bool recursive) {
   acceptDirectories_ = enable;
   acceptDirectoriesRecursive_ = recursive;
-
   updateFlags_.set(BIT_ACCEPTDROPS_CHANGED);
+
+  if (!acceptDirectories_ && onClickFilePicker_ == FilePickerType::DirectorySelection) {
+    LOG_WARN("setAcceptDirectories: Reverting the onClickFilePicker to FileSelection since this widget no longer accepts directories.");
+    setOnClickFilePicker(FilePickerType::FileSelection);
+  }
+
   repaint();
 }
 
@@ -736,6 +741,10 @@ void WFileDropWidget::setOnClickFilePicker(FilePickerType type) {
   if (onClickFilePicker_ == type)
     return;
 
+  if (type == FilePickerType::DirectorySelection && !acceptDirectories_) {
+    LOG_ERROR("setOnClickFilePicker: Cannot configure directory filepicker because this widget does not accept directories.");
+    return;
+  }
   onClickFilePicker_ = type;
 
   updateFlags_.set(BIT_ONCLICKFILEPICKER_CHANGED);
