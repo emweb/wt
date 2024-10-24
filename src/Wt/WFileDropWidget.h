@@ -23,6 +23,7 @@ namespace Json {
  * can be selected and another where only directories can be selected.
  */
 enum class FilePickerType {
+  None,              //!< No file picker.
   FileSelection,     //!< Only files can be selected.
   DirectorySelection //!< Only directories can be selected.
 };
@@ -341,6 +342,12 @@ public:
   /*! \brief Set the type of file picker that is opened when a user clicks the widget.
    *
    * The default is FilePickerType::FileSelection.
+   *
+   * When FilePickerType::None is passed, no file picker will be shown. Files or
+   * directories can still be dropped in, if setAcceptDrops() is set to \p true (which
+   * by default it is). Also note that in this case, the methods openFilePicker() and
+   * openDirectoryPicker() can still be used to open a picker by redirecting clicks
+   * from other buttons.
    */
   void setOnClickFilePicker(FilePickerType type);
 

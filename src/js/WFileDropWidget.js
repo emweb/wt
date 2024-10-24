@@ -24,6 +24,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
   let dropIndication = false;
   let bodyDropForward = false;
 
+  let filePickerType = "file-selection"; // default for an <input type="file">
+
   /** @type {?Worker} */
   let uploadWorker = null;
   let chunkSize = 0;
@@ -281,7 +283,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
   }
 
   dropwidget.addEventListener("click", function() {
-    if (acceptDrops) {
+    if (acceptDrops && filePickerType !== "none") {
       hiddenInput.value = "";
       hiddenInput.click();
     }
@@ -546,14 +548,16 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WFileDropWidget", function(APP, 
     document.body.removeChild(dropcover);
   };
 
-  dropwidget.setOnClickFilePicker = function(filePickerType) {
-    if (filePickerType === "directory-selection") {
+  dropwidget.setOnClickFilePicker = function(type) {
+    if (type === "directory-selection") {
       dropwidget.hiddenInput.setAttribute("webkitdirectory", "webkitdirectory");
     } else {
-      if (filePickerType !== "file-selection") {
-        console.error("unknown filepicker type; using 'file-selection'", filePickerType);
-      }
       dropwidget.hiddenInput.removeAttribute("webkitdirectory");
+      if (type !== "file-selection" && type !== "none") {
+        console.warn("unknown filepicker type; using 'file-selection'", type);
+        type = "file-selection";
+      }
     }
+    filePickerType = type;
   };
 });

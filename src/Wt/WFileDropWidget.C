@@ -620,8 +620,14 @@ void WFileDropWidget::updateDom(DomElement& element, bool all)
                    + boost::lexical_cast<std::string>(chunkSize_) + ");");
     }
     if (updateFlags_.test(BIT_ONCLICKFILEPICKER_CHANGED) || all) {
-      std::string type = onClickFilePicker_ == FilePickerType::FileSelection ?
-        "file-selection" : "directory-selection";
+      std::string type = "file-selection";
+      if (onClickFilePicker_ == FilePickerType::None) {
+        type = "none";
+      } else if (onClickFilePicker_ == FilePickerType::DirectorySelection) {
+        type = "directory-selection";
+      } else if (onClickFilePicker_ != FilePickerType::FileSelection) {
+        LOG_WARN("Unknown FilePickerType, falling back to FileSelection.");
+      }
       doJavaScript(jsRef() + ".setOnClickFilePicker(\"" + type + "\");");
     }
 
