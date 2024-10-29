@@ -383,9 +383,13 @@ ELSE (${WT_CPP17_ANY_IMPLEMENTATION} STREQUAL "thelink2012")
   MESSAGE(FATAL_ERROR "WT_CPP17_ANY_IMPLEMENTATION must be one of thelink2012, experimental, or std")
 ENDIF (${WT_CPP17_ANY_IMPLEMENTATION} STREQUAL "thelink2012")
 
-SET(WT_CPP20_DATE_TZ_DEFAULT_IMPLEMENTATION "date")
+IF((CMAKE_CXX_STANDARD EQUAL 20) OR (CMAKE_CXX_STANDARD GREATER 20))
+  SET(WT_CPP20_DATE_TZ_DEFAULT_IMPLEMENTATION "std")
+ELSE()
+  SET(WT_CPP20_DATE_TZ_DEFAULT_IMPLEMENTATION "date")
+ENDIF()
 SET(WT_CPP20_DATE_TZ_IMPLEMENTATION ${WT_CPP20_DATE_TZ_DEFAULT_IMPLEMENTATION} CACHE STRING
-  "Implementation for Wt::cpp20::date. Defaults to \"date\": an included implementation of date and timezone support by Howard Hinnant. Use \"std\" for C++20's \"std::chrono\" implementation.")
+  "Implementation for Wt::cpp20::date. Defaults to \"${WT_CPP20_DATE_TZ_DEFAULT_IMPLEMENTATION}\". Use \"date\" to resort to the included implementation of date and timezone support by Howard Hinnant. Otherwise, use \"std\" for C++20's \"std::chrono\" implementation.")
 SET_PROPERTY(CACHE WT_CPP20_DATE_TZ_IMPLEMENTATION PROPERTY STRINGS date std)
 
 IF (${WT_CPP20_DATE_TZ_IMPLEMENTATION} STREQUAL "date")
