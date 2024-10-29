@@ -74,6 +74,12 @@ public:
    */
   explicit WDate(const std::chrono::system_clock::time_point& tp);
 
+#ifdef WT_DATE_TZ_USE_STD
+  /*! \brief Convert std::chrono::year_month_day to a date.
+   */
+  WDate(const std::chrono::year_month_day& date);
+#endif
+
   /*! \brief Specify a date by year, month, and day.
    *
    * The \p month has range 1-12 and the \p day has range 1-31.
@@ -221,6 +227,14 @@ public:
   /*! \brief Compares two dates.
    */
   bool operator!= (const WDate& other) const;
+
+#ifdef WT_DATE_TZ_USE_STD
+  /*! \brief Convert to std::chrono::year_month_day.
+   */
+  operator std::chrono::year_month_day() const { return std::chrono::year_month_day(std::chrono::year(year()),
+                                                                                    std::chrono::month(month()),
+                                                                                    std::chrono::day(day())); }
+#endif
 
   static WT_USTRING defaultFormat();
 

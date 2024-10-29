@@ -77,6 +77,16 @@ public:
   WLocalDateTime(const WDate& date, const WTime& time,
                  const WLocale& locale = WLocale::currentLocale());
 
+#ifdef WT_DATE_TZ_USE_STD
+  /*! \brief Convert std::chrono::zoned_time to a local date time.
+   */
+  WLocalDateTime(const std::chrono::zoned_time<std::chrono::system_clock::time_point::duration, const std::chrono::time_zone *>& localTime);
+
+  /*! \brief Convert to std::chrono::zoned_time.
+   */
+  operator std::chrono::zoned_time<std::chrono::system_clock::time_point::duration, const std::chrono::time_zone*>() const { return std::chrono::zoned_time(timeZone(), datetime_); }
+#endif
+
   /*! \brief Returns if this datetime is <i>Null</i>.
    *
    * A <i>null</i> time is also invalid.

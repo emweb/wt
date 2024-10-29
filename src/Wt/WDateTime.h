@@ -77,9 +77,9 @@ public:
    */
   WDateTime(const WDate& date, const WTime& time);
 
-  /*! \brief Creates a date time.
+  /*! \brief Convert std::chrono::system_clock::time_point to a date time.
    */
-  explicit WDateTime(const std::chrono::system_clock::time_point timepoint);
+  WDateTime(const std::chrono::system_clock::time_point timepoint);
 
   /*! \brief Sets the time in seconds from the Epoch.
    *
@@ -212,6 +212,10 @@ public:
    * \sa fromPosixTime()
    */
   std::chrono::system_clock::time_point toTimePoint() const;
+
+  /*! \brief Convert to std::chrono::system_clock::time_point.
+   */
+  operator std::chrono::system_clock::time_point() const { return toTimePoint(); }
 
   /*! \brief Converts to a local time.
    *

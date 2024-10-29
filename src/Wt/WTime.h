@@ -10,6 +10,7 @@
 #include <Wt/WDateTime.h>
 #include <Wt/WString.h>
 #include <Wt/WStringStream.h>
+#include <chrono>
 #include <exception>
 
 namespace Wt {
@@ -46,6 +47,16 @@ public:
    * When the time is invalid, isValid() is set to \c false.
    */
   WTime(int h, int m, int s = 0, int ms = 0);
+
+#ifdef WT_DATE_TZ_USE_STD
+  /*! \brief Convert std::chrono::hh_mm_ss to a WTime.
+   */
+  WTime(const std::chrono::hh_mm_ss<std::chrono::duration<int, std::milli>>& time);
+
+  /*! \brief Convert to std::chrono::hh_mm_ss.
+   */
+  operator std::chrono::hh_mm_ss<std::chrono::duration<int, std::milli>>() const { return std::chrono::hh_mm_ss<std::chrono::duration<int, std::milli>>(toTimeDuration()); }
+#endif
 
   /*! \brief Sets the time.
    *

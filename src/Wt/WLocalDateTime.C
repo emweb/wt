@@ -129,6 +129,12 @@ WLocalDateTime::WLocalDateTime(const WDate& date, const WTime& time,
   setDateTime(date, time);
 }
 
+#ifdef WT_DATE_TZ_USE_STD
+WLocalDateTime::WLocalDateTime(const std::chrono::zoned_time<std::chrono::system_clock::time_point::duration, const std::chrono::time_zone *>& localTime)
+  : WLocalDateTime(localTime, localTime.get_time_zone(), WLocale::currentLocale().dateTimeFormat())
+{ }
+#endif
+
 WLocalDateTime WLocalDateTime::offsetDateTime(const std::chrono::system_clock::time_point& dt,
                                               std::chrono::minutes offset, const WT_USTRING& format)
 {

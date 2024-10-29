@@ -37,6 +37,14 @@ WDate::WDate(const std::chrono::system_clock::time_point& tp)
   setTimePoint(tp);
 }
 
+#ifdef WT_DATE_TZ_USE_STD
+WDate::WDate(const std::chrono::year_month_day& date)
+  : WDate(static_cast<int>(date.year()),
+          static_cast<unsigned>(date.month()),
+          static_cast<unsigned>(date.day()))
+{ }
+#endif
+
 WDate::WDate(int year, int month, int day)
 {
   setDate(year, month, day);
