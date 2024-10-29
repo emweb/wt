@@ -106,6 +106,15 @@ behaviour.
     <a href="https://redmine.emweb.be/issues/6584" target="_blank">Issue #6584</a>:
     Add the <code>x-frame-same-origin</code> configuration option that allows to configure whether the header X-Frame-Option "SAMEORIGIN" is used or not.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/8508" target="_blank">Issue #8508</a>:
+    Make Wt use std::chrono for time zones by default when compiled with c++20 or higher, and allow automatic conversion of
+    <a href="classWt_1_1WTime.html" target="_blank">WTime</a>,
+    <a href="classWt_1_1WDateTime.html" target="_blank">WDateTime</a>,
+    <a href="classWt_1_1WDate.html" target="_blank">WDate</a> and
+    <a href="classWt_1_1WLocalDateTime.html" target="_blank">WStackedWidget</a> from/to their std::chrono equivalent. In the case of <code>WDate</code> and <code>WLocalDateTime</code>,
+    it is only available if std::chrono is used for time zones.
+  </li>
 </ul>
 
 <h2>Release 4.11.1 (November 5, 2024)</h2>
