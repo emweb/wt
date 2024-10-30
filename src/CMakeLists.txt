@@ -259,6 +259,7 @@ Wt/WTableView.h Wt/WTableView.C
 Wt/WText.h Wt/WText.C
 Wt/WTextArea.h Wt/WTextArea.C
 Wt/WTextEdit.h Wt/WTextEdit.C
+Wt/WTextF.h Wt/WTextF.C
 Wt/WTheme.h Wt/WTheme.C
 Wt/WTime.h Wt/WTime.C
 Wt/WTimeEdit.h Wt/WTimeEdit.C

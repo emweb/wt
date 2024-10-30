@@ -189,6 +189,7 @@ namespace Wt {
   class WText;
   class WTextArea;
   class WTextEdit;
+  class WTextF;
   class WToolBar;
   class WTheme;
   class WTime;
