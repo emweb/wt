@@ -223,7 +223,7 @@ public:
   virtual void drawText(const WRectF& rect,
                         WFlags<AlignmentFlag> alignmentFlags,
                         TextFlag textFlag,
-                        const WString& text,
+                        const WTextF& text,
                         const WPointF* clipPoint) = 0;
 
   /*! \brief Measures rendered text size.

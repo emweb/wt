@@ -1129,7 +1129,7 @@ private:
   bool hasLabelTransformOnSide(AxisValue side) const;
 
   void renderLabels(WPainter &painter,
-                   const std::vector<WString> &labels,
+                   const std::vector<WTextF> &labels,
                    const WPainterPath &path,
                    WFlags<AlignmentFlag> flags,
                    double angle, int margin,

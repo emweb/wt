@@ -592,7 +592,7 @@ void WPainter::drawRects(const std::vector<WRectF>& rectangles)
 }
 
 void WPainter::drawText(const WRectF& rectangle, WFlags<AlignmentFlag> flags,
-                        const WString& text)
+                        const WTextF& text)
 {
   if (!(flags & AlignVerticalMask))
     flags |= AlignmentFlag::Top;
@@ -606,7 +606,7 @@ void WPainter::drawText(const WRectF& rectangle, WFlags<AlignmentFlag> flags,
 void WPainter::drawText(const WRectF& rectangle,
                         WFlags<AlignmentFlag> alignmentFlags,
                         TextFlag textFlag,
-                        const WString& text,
+                        const WTextF& text,
                         const WPointF *clipPoint)
 {
   if (textFlag == TextFlag::SingleLine) {
@@ -665,7 +665,7 @@ void WPainter::drawText(const WRectF& rectangle,
       s << ";" << font().cssText(false);
 
       s << "\">"
-         << WWebWidget::escapeText(text, true).toUTF8()
+         << WWebWidget::escapeText(text.text(), true).toUTF8()
          << "</td></tr></table>";
 
       save();
@@ -691,20 +691,20 @@ void WPainter::drawText(const WRectF& rectangle,
 void WPainter::drawText(double x, double y, double width, double height,
                         WFlags<AlignmentFlag> alignmentFlags,
                         TextFlag textFlag,
-                        const WString& text)
+                        const WTextF& text)
 {
   drawText(WRectF(x, y, width, height), alignmentFlags, textFlag, text);
 }
 
 void WPainter::drawText(double x, double y, double width, double height,
-                        WFlags<AlignmentFlag> flags, const WString& text)
+                        WFlags<AlignmentFlag> flags, const WTextF& text)
 {
   drawText(WRectF(x, y, width, height), flags, text);
 }
 
 void WPainter::drawTextOnPath(const WRectF &rect,
                               WFlags<AlignmentFlag> alignmentFlags,
-                              const std::vector<WString> &text,
+                              const std::vector<WTextF> &text,
                               const WTransform &transform,
                               const WPainterPath &path,
                               double angle, double lineHeight,
@@ -724,7 +724,7 @@ void WPainter::drawTextOnPath(const WRectF &rect,
         break;
       const WPainterPath::Segment &seg = path.segments()[i];
       const WPainterPath::Segment &tseg = tpath.segments()[i];
-      std::vector<WString> splitText = splitLabel(text[i]);
+      std::vector<WString> splitText = splitLabel(text[i].text());
       if (seg.type() == MoveTo ||
           seg.type() == LineTo ||
           seg.type() == QuadEnd ||

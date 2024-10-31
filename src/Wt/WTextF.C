@@ -22,6 +22,14 @@ WTextF::WTextF(const WString &text)
   : text_(text)
 { }
 
+WTextF::WTextF(const char *text)
+  : text_(text)
+{ }
+
+WTextF::WTextF(const std::string &text)
+  : text_(text)
+{ }
+
 WTextF::WTextF(const WTextF &other)
   : WJavaScriptExposableObject(other),
     text_(other.text())

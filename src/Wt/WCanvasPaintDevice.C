@@ -14,6 +14,7 @@
 #include "Wt/WPainterPath.h"
 #include "Wt/WRectF.h"
 #include "Wt/WStringStream.h"
+#include "Wt/WTextF.h"
 #include "Wt/WWebWidget.h"
 
 #include "DomElement.h"
@@ -511,7 +512,7 @@ void WCanvasPaintDevice::drawLine(double x1, double y1, double x2, double y2)
 void WCanvasPaintDevice::drawText(const WRectF& rect,
                                   WFlags<AlignmentFlag> flags,
                                   TextFlag textFlag,
-                                  const WString& text,
+                                  const WTextF& text,
                                   const WPointF *clipPoint)
 {
   if (textFlag == TextFlag::WordWrap)
@@ -530,7 +531,7 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
     {
       js_ << WT_CLASS ".gfxUtils.drawText(ctx,"
           << rect.jsRef() << ',' << flags.value() << ','
-          << text.jsStringLiteral();
+          << text.jsRef();
       if (clipPoint && painter()) {
         js_ << ',' << painter()->worldTransform().map(*clipPoint).jsRef();
       }
@@ -547,11 +548,11 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
         break;
       case AlignmentFlag::Right:
         x = std::to_string(rect.right())
-          + " - ctx.mozMeasureText(" + text.jsStringLiteral() + ")";
+          + " - ctx.mozMeasureText(" + text.jsRef() + ")";
         break;
       case AlignmentFlag::Center:
         x = std::to_string(rect.center().x())
-          + " - ctx.mozMeasureText(" + text.jsStringLiteral() + ")/2";
+          + " - ctx.mozMeasureText(" + text.jsRef() + ")/2";
         break;
       default:
         break;
@@ -586,7 +587,7 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
         js_ << "ctx.fillStyle="
             << WWebWidget::jsStringLiteral(currentPen_.color().cssText(true))
             << ";";
-      js_ << "ctx.mozDrawText(" << text.jsStringLiteral() << ");";
+      js_ << "ctx.mozDrawText(" << text.jsRef() << ");";
       js_ << "ctx.restore();";
     }
     break;
@@ -626,7 +627,7 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
       }
 
       t->setProperty(Property::InnerHTML,
-                     WWebWidget::escapeText(text, true).toUTF8());
+                     WWebWidget::escapeText(text.text(), true).toUTF8());
 
       WFont f = painter()->font();
       f.updateDomElement(*t, false, true);
@@ -650,7 +651,7 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
 
 void WCanvasPaintDevice::drawTextOnPath(const WRectF &rect,
                                         WFlags<AlignmentFlag> alignmentFlags,
-                                        const std::vector<WString> &text,
+                                        const std::vector<WTextF> &text,
                                         const WTransform &transform,
                                         const WPainterPath &path,
                                         double angle, double lineHeight,
@@ -661,7 +662,7 @@ void WCanvasPaintDevice::drawTextOnPath(const WRectF &rect,
   for (std::size_t i = 0; i < text.size(); ++i) {
     if (i != 0)
       js_ << ',';
-    js_ << text[i].jsStringLiteral();
+    js_ << text[i].jsValue();
   }
   js_ << "],";
   js_ << rect.jsRef() << ',';

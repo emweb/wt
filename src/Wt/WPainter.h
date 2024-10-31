@@ -15,6 +15,7 @@
 #include <Wt/WPainterPath.h>
 #include <Wt/WPen.h>
 #include <Wt/WShadow.h>
+#include <Wt/WTextF.h>
 #include <Wt/WTransform.h>
 
 namespace Wt {
@@ -626,12 +627,12 @@ public:
   void drawText(const WRectF& rect,
                 WFlags<AlignmentFlag> alignmentFlags,
                 TextFlag textFlag,
-                const WString& text,
+                const WTextF& text,
                 const WPointF *clipPoint = nullptr);
 
   void drawTextOnPath(const WRectF& rect,
                       WFlags<AlignmentFlag> alignmentFlags,
-                      const std::vector<WString> &text,
+                      const std::vector<WTextF> &text,
                       const WTransform &transform,
                       const WPainterPath &path,
                       // lineHeight could be calculated inside of this
@@ -645,19 +646,19 @@ public:
    * This is an overloaded method for convenience, it will render text on a
    * single line.
    *
-   * \sa drawText(const WRectF&, WFlags<AlignmentFlag>, TextFlag textFlag, const WString&)
+   * \sa drawText(const WRectF&, WFlags<AlignmentFlag>, TextFlag textFlag, const WTextF&)
    */
   void drawText(const WRectF& rectangle, WFlags<AlignmentFlag> flags,
-                const WString& text);
+                const WTextF& text);
 
   /*! \brief Draws text.
    *
    * This is an overloaded method for convenience.
    *
-   * \sa drawText(const WRectF&, WFlags<AlignmentFlag>, const WString&)
+   * \sa drawText(const WRectF&, WFlags<AlignmentFlag>, const WTextF&)
    */
   void drawText(double x, double y, double width, double height,
-                WFlags<AlignmentFlag> flags, const WString& text);
+                WFlags<AlignmentFlag> flags, const WTextF& text);
 
   /*! \brief Draws text.
    *
@@ -666,12 +667,12 @@ public:
    * \sa drawText(const WRectF& rect,
    *              WFlags<AlignmentFlag> alignmentFlags,
    *              TextFlag textFlag,
-   *              const WString& text)
+   *              const WTextF& text)
    */
   void drawText(double x, double y, double width, double height,
                 WFlags<AlignmentFlag> alignmentFlags,
                 TextFlag textFlag,
-                const WString& text);
+                const WTextF& text);
 
   /*! \brief Fills a (complex) path.
    *

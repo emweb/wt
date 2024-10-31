@@ -14,6 +14,7 @@
 #include "Wt/WSelfDeletingResource.h"
 #include "Wt/WSvgImage.h"
 #include "Wt/WStringStream.h"
+#include "Wt/WTextF.h"
 #include "Wt/WWebWidget.h"
 #include "Wt/Http/Response.h"
 
@@ -638,7 +639,7 @@ void WSvgImage::drawLine(double x1, double y1, double x2, double y2)
 void WSvgImage::drawText(const WRectF& rect,
                          WFlags<AlignmentFlag> flags,
                          TextFlag textFlag,
-                         const WString& text,
+                         const WTextF& text,
                          const WPointF *clipPoint)
 {
   if (clipPoint && painter() && !painter()->clipPath().isEmpty()) {
@@ -697,7 +698,7 @@ void WSvgImage::drawText(const WRectF& rect,
             << "  </" SVG "flowRegion>\n"
             << "  <" SVG "flowPara"
             <<              " text-align=\"" << hAlign << "\">\n"
-            << " " << WWebWidget::escapeText(text, false).toUTF8() << "\n"
+            << " " << WWebWidget::escapeText(text.text(), false).toUTF8() << "\n"
             << "  </" SVG "flowPara>\n"
             << "</" SVG "flowRoot>\n";
   } else {
@@ -765,7 +766,7 @@ void WSvgImage::drawText(const WRectF& rect,
 
   shapes_ << " y=" << quote(y);
 
-  shapes_ << ">" << WWebWidget::escapeText(text, false).toUTF8()
+  shapes_ << ">" << WWebWidget::escapeText(text.text(), false).toUTF8()
           << "</" SVG "text>";
 #endif
   }

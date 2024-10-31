@@ -315,6 +315,11 @@ protected:
    */
   WJavaScriptHandle<WPointF> createJSPoint();
 
+  /*! \brief Create a WTextF that is accessible from JavaScript,
+   *         associated with this %WPaintedWidget
+   */
+  WJavaScriptHandle<WTextF> createJSText();
+
   virtual void layoutSizeChanged(int width, int height) override;
 
   /*! \brief Returns the actual method used for rendering.

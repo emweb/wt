@@ -964,7 +964,7 @@ void WRasterImage::Impl::drawPlainPath(const WPainterPath& path)
 void WRasterImage::drawText(const WRectF& rect,
                             WFlags<AlignmentFlag> flags,
                             TextFlag textFlag,
-                            const WString& text,
+                            const WTextF& text,
                             const WPointF *clipPoint)
 {
   if (textFlag == TextFlag::WordWrap)
@@ -1048,7 +1048,7 @@ void WRasterImage::drawText(const WRectF& rect,
 
     DrawSetGravity(impl_->context_, gravity);
 
-    std::string utf8 = text.toUTF8();
+    std::string utf8 = text.text().toUTF8();
     Utils::replace(utf8, '%', "%%");
 
     DrawAnnotation(impl_->context_, p.x(), p.y(), (const unsigned char *)utf8.c_str());
@@ -1113,7 +1113,7 @@ void WRasterImage::drawText(const WRectF& rect,
 
     FontSupport::Bitmap bitmap(w, h);
     impl_->fontSupport_->drawText(painter_->font(), renderRect,
-                                  t, bitmap, flags, text);
+                                  t, bitmap, flags, text.text());
 
     PixelPacket *pixels = GetImagePixels(impl_->image_, 0, 0,
                                          impl_->w_, impl_->h_);

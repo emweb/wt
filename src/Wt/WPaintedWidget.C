@@ -14,6 +14,7 @@
 #include "Wt/WPainter.h"
 #include "Wt/WResource.h"
 #include "Wt/WSvgImage.h"
+#include "Wt/WTextF.h"
 #include "Wt/WVmlImage.h"
 #include "WebUtils.h"
 
@@ -897,6 +898,10 @@ WJavaScriptHandle<WPointF> WPaintedWidget::createJSPoint()
 {
   formDataChanged();
   return jsObjects_.addObject(new WPointF(0,0));
+}
+WJavaScriptHandle<WTextF> WPaintedWidget::createJSText()
+{
+  return jsObjects_.addObject(new WTextF());
 }
 
 std::string WPaintedWidget::objJsRef() const

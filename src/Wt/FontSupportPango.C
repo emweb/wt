@@ -9,6 +9,7 @@
 #include "Wt/WLogger.h"
 #include "Wt/WPointF.h"
 #include "Wt/WRectF.h"
+#include "Wt/WTextF.h"
 #include "Wt/WTransform.h"
 #include "Wt/FontSupport.h"
 

@@ -35,6 +35,7 @@
 #include "Wt/WPainterPath.h"
 #include "Wt/WRectF.h"
 #include "Wt/WStringStream.h"
+#include "Wt/WTextF.h"
 #include "Wt/WVmlImage.h"
 
 #include "EscapeOStream.h"
@@ -436,7 +437,7 @@ void WVmlImage::drawLine(double x1, double y1, double x2, double y2)
 
 void WVmlImage::drawText(const WRectF& rect,
                          WFlags<AlignmentFlag> flags, TextFlag textFlag,
-                         const WString& text, const WPointF *clipPoint)
+                         const WTextF& text, const WPointF *clipPoint)
 {
   if (textFlag == TextFlag::WordWrap)
     throw WException("WVmlImage::drawText(): TextFlag::WordWrap is not supported");
@@ -487,7 +488,7 @@ void WVmlImage::drawText(const WRectF& rect,
   }
 
   t->setProperty(Property::InnerHTML,
-                 WWebWidget::escapeText(text, true).toUTF8());
+                 WWebWidget::escapeText(text.text(), true).toUTF8());
 
   WFont f = painter()->font();
   f.updateDomElement(*t, false, true);
@@ -544,7 +545,7 @@ void WVmlImage::drawText(const WRectF& rect,
          << "<v:textpath on=\"True\" string=\"";
 
   render.pushEscape(EscapeOStream::HtmlAttribute);
-  render << text.toUTF8();
+  render << text.text().toUTF8();
   render.popEscape();
 
   render << "\" style=\"v-text-align:";

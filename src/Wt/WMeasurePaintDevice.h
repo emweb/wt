@@ -52,7 +52,7 @@ public:
   virtual void drawText(const WRectF& rect,
                         WFlags<AlignmentFlag> alignmentFlags,
                         TextFlag textFlag,
-                        const WString& text,
+                        const WTextF& text,
                         const WPointF *clipPoint) override;
   virtual WTextItem measureText(const WString& text, double maxWidth = -1,
                                 bool wordWrap = false) override;

@@ -15,6 +15,7 @@
 #include "Wt/WRasterImage.h"
 #include "Wt/WRectF.h"
 #include "Wt/WString.h"
+#include "Wt/WTextF.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>

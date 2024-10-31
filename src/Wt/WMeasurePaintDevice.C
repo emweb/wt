@@ -9,6 +9,7 @@
 #include "Wt/WPainter.h"
 #include "Wt/WPainterPath.h"
 #include "Wt/WRectF.h"
+#include "Wt/WTextF.h"
 
 #include <algorithm>
 #include <iostream>
@@ -106,7 +107,7 @@ void WMeasurePaintDevice::drawLine(double x1, double y1, double x2, double y2)
 
 void WMeasurePaintDevice::drawText(const WRectF& rect,
                                    WFlags<AlignmentFlag> flags,
-                                   TextFlag textFlag, const WString& text,
+                                   TextFlag textFlag, const WTextF& text,
                                    const WPointF *clipPoint)
 {
   if (clipPoint && painter() && !painter()->clipPath().isEmpty()) {
@@ -116,7 +117,7 @@ void WMeasurePaintDevice::drawText(const WRectF& rect,
   }
 
   double w = 0, h = 0;
-  WString line = text;
+  WString line = text.text();
 
   WFontMetrics fm = fontMetrics();
 

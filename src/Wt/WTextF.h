@@ -48,6 +48,14 @@ public:
    */
   WTextF(const WString &text);
 
+  /*! \brief Construct text from string.
+   */
+  WTextF(const char *text);
+
+  /*! \brief Construct text from string.
+   */
+  WTextF(const std::string &text);
+
   WTextF(const WTextF &other);
 
   /*! \brief Internal assign method.

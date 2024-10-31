@@ -8,6 +8,7 @@
 #include "Wt/WFontMetrics.h"
 #include "Wt/WLogger.h"
 #include "Wt/FontSupport.h"
+#include "Wt/WTextF.h"
 
 #include "WebUtils.h"
 #include "FileUtils.h"

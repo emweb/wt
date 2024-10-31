@@ -165,7 +165,7 @@ public:
   virtual void drawPath(const WPainterPath& path) override;
   virtual void drawText(const WRectF& rect,
                         WFlags<AlignmentFlag> alignmentFlags, TextFlag textFlag,
-                        const WString& text, const WPointF *clipPoint)
+                        const WTextF& text, const WPointF *clipPoint)
     override;
   virtual WTextItem measureText(const WString& text, double maxWidth = -1,
                                 bool wordWrap = false) override;

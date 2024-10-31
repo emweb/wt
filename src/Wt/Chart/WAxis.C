@@ -16,6 +16,7 @@
 #include "Wt/WPainter.h"
 #include "Wt/WPainterPath.h"
 #include "Wt/WRectF.h"
+#include "Wt/WTextF.h"
 #include "Wt/WTime.h"
 #include "Wt/WMeasurePaintDevice.h"
 #include "Wt/WLocale.h"
@@ -1922,7 +1923,7 @@ void WAxis::render(WPainter& painter,
       cfg.side = side;
       getLabelTicks(ticks, segment, cfg);
 
-      std::vector<WString> labels;
+      std::vector<WTextF> labels;
       WPainterPath path;
       for (unsigned i = 0; i < ticks.size(); ++i) {
         double u = mapToDevice(ticks[i].u, segment);
@@ -1978,7 +1979,7 @@ void WAxis::render(WPainter& painter,
 }
 
 void WAxis::renderLabels(WPainter &painter,
-                        const std::vector<WString> &labels,
+                        const std::vector<WTextF> &labels,
                         const WPainterPath &path,
                         WFlags<AlignmentFlag> flags,
                         double angle, int margin,

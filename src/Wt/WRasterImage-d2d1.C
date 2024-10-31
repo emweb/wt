@@ -991,7 +991,7 @@ void WRasterImage::Impl::drawPlainPath(ID2D1PathGeometry *p, const WPainterPath&
 void WRasterImage::drawText(const WRectF& rect,
                             WFlags<AlignmentFlag> flags,
                             TextFlag textFlag,
-                            const WString& text,
+                            const WTextF& text,
                             const WPointF *clipPoint)
 {
   if (clipPoint && painter() && !painter()->clipPath().isEmpty()) {
@@ -1000,7 +1000,7 @@ void WRasterImage::drawText(const WRectF& rect,
       return;
   }
 
-  std::wstring txt = text;
+  std::wstring txt = text.text();
 
   AlignmentFlag horizontalAlign = flags & AlignHorizontalMask;
   AlignmentFlag verticalAlign = flags & AlignVerticalMask;
