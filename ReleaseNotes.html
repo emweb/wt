@@ -69,6 +69,15 @@ behaviour.
     Note that this reduction in request size may come at the cost of an increase response size when updating form objects. It is possible
     to limit this impact by changing the <code>form-data-resend-ratio-limit</code> option in the <code>wt_config.xml</code> file.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/12940" target="_blank">Issue #12940</a>:
+    Added
+    <a href="classWt_1_1WTextF.html" target="_blank">WTextF</a> which is text that can be exposed to the client side. This allows developers to handle updates to the text of a
+    <a href="classWt_1_1WPaintedWidget.html" target="_blank">WPaintedWidget</a> directly on the client side.
+    <a href="classWt_1_1WPaintDevice.html" target="_blank">WPaintDevice</a>, and
+    <a href="classWt_1_1WPainter.html" target="_blank">WPainter</a> have been updated to use WTextF instead of
+    <a href="classWt_1_1WString.html" target="_blank">WString</a>.
+  </li>
 </ul>
 
 <p>Wt 4.13.0 also fixes the following bugs:</p>
