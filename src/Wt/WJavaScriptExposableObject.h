@@ -88,7 +88,7 @@ protected:
   void assignBinding(const WJavaScriptExposableObject &rhs, const std::string &jsRef);
   // Checks if this object is JavaScript bound,
   // if it is, it will throw an exception.
-  void checkModifiable();
+  void checkModifiable() const;
 
   virtual void assignFromJSON(const Json::Value &value) = 0;
 

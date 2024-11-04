@@ -89,7 +89,7 @@ void WJavaScriptExposableObject::assignBinding(const WJavaScriptExposableObject 
   clientBinding_->jsRef_ = jsRef;
 }
 
-void WJavaScriptExposableObject::checkModifiable()
+void WJavaScriptExposableObject::checkModifiable() const
 {
   if (isJavaScriptBound()) {
     throw WException("Trying to modify a JavaScript bound object!");

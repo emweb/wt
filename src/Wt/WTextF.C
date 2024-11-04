@@ -70,6 +70,12 @@ std::string WTextF::jsValue() const
   return text_.jsStringLiteral();
 }
 
+WTextF::operator WString() const
+{
+  checkModifiable();
+  return text();
+}
+
 void WTextF::assignFromJSON(const Json::Value &value)
 {
   try {

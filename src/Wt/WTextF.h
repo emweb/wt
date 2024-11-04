@@ -83,6 +83,13 @@ public:
 
   std::string jsValue() const override;
 
+  /*! \brief Convert WTextF to WString.
+   *
+   * \throws WException if the text \link isJavaScriptBound() is JavaScript bound\endlink
+   */
+  WT_DEPRECATED("Wt now uses WTextF instead of WString in WPaintDevice and WPainter. Use WTextF.text() to get the WString.")
+  operator WString() const;
+
 protected:
   void assignFromJSON(const Json::Value &value) override;
 
