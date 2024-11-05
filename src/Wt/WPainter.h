@@ -630,6 +630,7 @@ public:
                 const WTextF& text,
                 const WPointF *clipPoint = nullptr);
 
+#ifndef WT_TARGET_JAVA
   void drawTextOnPath(const WRectF& rect,
                       WFlags<AlignmentFlag> alignmentFlags,
                       const std::vector<WTextF> &text,
@@ -638,6 +639,27 @@ public:
                       // lineHeight could be calculated inside of this
                       // method, but let's leave it like this for now,
                       // with this method undocumented.
+                      double angle, double lineHeight,
+                      bool softClipping);
+#else
+  void drawWTextFOnPath(const WRectF& rect,
+                      WFlags<AlignmentFlag> alignmentFlags,
+                      const std::vector<WTextF> &text,
+                      const WTransform &transform,
+                      const WPainterPath &path,
+                      // lineHeight could be calculated inside of this
+                      // method, but let's leave it like this for now,
+                      // with this method undocumented.
+                      double angle, double lineHeight,
+                      bool softClipping);
+
+WT_DEPRECATED("WString has been replaced by WTextF in WPainter and WPaintDevice. Use drawWTextFOnPath instead.")
+#endif
+  void drawTextOnPath(const WRectF& rect,
+                      WFlags<AlignmentFlag> alignmentFlags,
+                      const std::vector<WString> &text,
+                      const WTransform &transform,
+                      const WPainterPath &path,
                       double angle, double lineHeight,
                       bool softClipping);
 
@@ -673,6 +695,37 @@ public:
                 WFlags<AlignmentFlag> alignmentFlags,
                 TextFlag textFlag,
                 const WTextF& text);
+
+#ifdef WT_TARGET_JAVA
+  /*! \brief Draws text.
+   */
+  WT_DEPRECATED("WString has been replaced by WTextF in WPainter and WPaintDevice.")
+  void drawText(const WRectF& rect,
+                WFlags<AlignmentFlag> alignmentFlags,
+                TextFlag textFlag,
+                const WString& text,
+                const WPointF *clipPoint = nullptr) { drawText(rect, alignmentFlags, textFlag, WTextF(text), clipPoint); }
+
+  /*! \brief Draws text.
+   */
+  WT_DEPRECATED("WString has been replaced by WTextF in WPainter and WPaintDevice.")
+  void drawText(const WRectF& rectangle, WFlags<AlignmentFlag> flags,
+                const WString& text) { drawText(rectangle, flags, WTextF(text)); }
+
+  /*! \brief Draws text.
+   */
+  WT_DEPRECATED("WString has been replaced by WTextF in WPainter and WPaintDevice.")
+  void drawText(double x, double y, double width, double height,
+                WFlags<AlignmentFlag> flags, const WString& text) { drawText(x, y, width, height, flags, WTextF(text)); }
+
+  /*! \brief Draws text.
+   */
+  WT_DEPRECATED("WString has been replaced by WTextF in WPainter and WPaintDevice.")
+  void drawText(double x, double y, double width, double height,
+                WFlags<AlignmentFlag> alignmentFlags,
+                TextFlag textFlag,
+                const WString& text) { drawText(x, y, width, height, alignmentFlags, textFlag, WTextF(text)); }
+#endif
 
   /*! \brief Fills a (complex) path.
    *

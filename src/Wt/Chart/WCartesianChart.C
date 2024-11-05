@@ -236,7 +236,7 @@ void CurveLabel::render(WPainter &painter) const
       WPainter measPainter(&device);
       measPainter.drawText(WRectF(0,0,100,100),
                            Wt::WFlags<AlignmentFlag>(AlignmentFlag::Middle) | AlignmentFlag::Center,
-                           TextFlag::SingleLine, label(), nullptr);
+                           TextFlag::SingleLine, WTextF(label()), nullptr);
       rectWidth = device.boundingRect().width() + CURVE_LABEL_PADDING / 2;
     }
     rect = WRectF(offset().x() - rectWidth / 2, offset().y() - 10,
@@ -282,7 +282,7 @@ void CurveLabel::render(WPainter &painter) const
   painter.setPen(textPen());
   painter.drawText(translation.map(rect),
                    WFlags<AlignmentFlag>(AlignmentFlag::Middle) | AlignmentFlag::Center,
-                   TextFlag::SingleLine, label(), nullptr);
+                   TextFlag::SingleLine, WTextF(label()), nullptr);
 }
 
 SeriesIterator::~SeriesIterator()

@@ -62,6 +62,10 @@ public:
    */
   WTextF& operator=(const WTextF& other);
 
+#ifdef WT_TARGET_JAVA
+  WTextF clone() const;
+#endif
+
   /*! \brief Comparison operator.
    */
   bool operator== (const WTextF& other) const;

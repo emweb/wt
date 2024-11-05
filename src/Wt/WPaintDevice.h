@@ -11,6 +11,7 @@
 #include <Wt/WLength.h>
 #include <Wt/WString.h>
 #include <Wt/WGlobal.h>
+#include <Wt/WTextF.h>
 
 namespace Wt {
 
@@ -162,6 +163,8 @@ public:
    * the location, into the rectangle defined by \p rect.
    *
    * The image is transformed using the current painter settings.
+   *
+   * \deprecated Use drawImage() with WAbstractDataInfo* instead of a string
    */
   WT_DEPRECATED("Use drawImage() with WAbstractDataInfo* instead of a string")
   virtual void drawImage(const WRectF& rect, const std::string& imageUri,
@@ -171,7 +174,7 @@ public:
   = 0
 #endif
                          ;
-  
+
   /*! \brief Draws an image.
    *
    * Draws \p sourceRect from the image with the information
@@ -225,6 +228,24 @@ public:
                         TextFlag textFlag,
                         const WTextF& text,
                         const WPointF* clipPoint) = 0;
+
+#ifdef WT_TARGET_JAVA
+  /*! \brief Draws text.
+   *
+   * The text must be rendered, stroked and transformed using the
+   * current painter settings.
+   *
+   * If clipPoint is not null, a check is performed whether
+   * the point is inside of the current clip area. If not,
+   * the text is not drawn.
+   */
+  WT_DEPRECATED("WString has been replaced by WTextF in WPainter and WPaintDevice.")
+  virtual void drawText(const WRectF& rect,
+                        WFlags<AlignmentFlag> alignmentFlags,
+                        TextFlag textFlag,
+                        const WString& text,
+                        const WPointF* clipPoint) = 0;
+#endif
 
   /*! \brief Measures rendered text size.
    *

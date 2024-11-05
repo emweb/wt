@@ -29,7 +29,7 @@ private:
 
         painter.drawText(0, 0, 400, 300,
                          Wt::AlignmentFlag::Center | Wt::AlignmentFlag::Top,
-                         "Hello, PDF");
+                         Wt::WTextF("Hello, PDF"));
     }
 };
 

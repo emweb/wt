@@ -12,6 +12,7 @@
 #include <Wt/WResource.h>
 #ifdef WT_TARGET_JAVA
 #include <Wt/WTransform.h>
+#include <Wt/WTextF.h>
 #endif //WT_TARGET_JAVA
 
 #include <hpdf.h>
@@ -167,6 +168,14 @@ public:
                         WFlags<AlignmentFlag> alignmentFlags, TextFlag textFlag,
                         const WTextF& text, const WPointF *clipPoint)
     override;
+#ifdef WT_TARGET_JAVA
+  WT_DEPRECATED("WString has been replaced by WTextF in WPainter and WPaintDevice.")
+  void drawText(const WRectF& rect,
+                        WFlags<AlignmentFlag> alignmentFlags,
+                        TextFlag textFlag,
+                        const WString& text,
+                        const WPointF* clipPoint) override { drawText(rect, alignmentFlags, textFlag, WTextF(text), clipPoint); }
+#endif
   virtual WTextItem measureText(const WString& text, double maxWidth = -1,
                                 bool wordWrap = false) override;
   virtual WFontMetrics fontMetrics() override;

@@ -44,6 +44,13 @@ WTextF& WTextF::operator=(const WTextF& other)
   return *this;
 }
 
+#ifdef WT_TARGET_JAVA
+WTextF WTextF::clone() const
+{
+  return WTextF(*this);
+}
+#endif
+
 bool WTextF::operator==(const WTextF& other) const
 {
   if (!sameBindingAs(other)) {
@@ -82,7 +89,7 @@ void WTextF::assignFromJSON(const Json::Value &value)
 #ifndef WT_TARGET_JAVA
     text_ = value;
 #else
-    text_ = static_cast<WString>(value);
+    text_ = value.getAsString();
 #endif
 
   } catch (std::exception &e) {

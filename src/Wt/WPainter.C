@@ -702,6 +702,7 @@ void WPainter::drawText(double x, double y, double width, double height,
   drawText(WRectF(x, y, width, height), flags, text);
 }
 
+#ifndef WT_TARGET_JAVA
 void WPainter::drawTextOnPath(const WRectF &rect,
                               WFlags<AlignmentFlag> alignmentFlags,
                               const std::vector<WTextF> &text,
@@ -709,6 +710,15 @@ void WPainter::drawTextOnPath(const WRectF &rect,
                               const WPainterPath &path,
                               double angle, double lineHeight,
                               bool softClipping)
+#else
+void WPainter::drawWTextFOnPath(const WRectF &rect,
+                              WFlags<AlignmentFlag> alignmentFlags,
+                              const std::vector<WTextF> &text,
+                              const WTransform &transform,
+                              const WPainterPath &path,
+                              double angle, double lineHeight,
+                              bool softClipping)
+#endif
 {
   if (!(alignmentFlags & AlignVerticalMask))
     alignmentFlags |= AlignmentFlag::Top;
@@ -743,6 +753,27 @@ void WPainter::drawTextOnPath(const WRectF &rect,
       }
     }
   }
+}
+
+void WPainter::drawTextOnPath(const WRectF &rect,
+                              WFlags<AlignmentFlag> alignmentFlags,
+                              const std::vector<WString> &text,
+                              const WTransform &transform,
+                              const WPainterPath &path,
+                              double angle, double lineHeight,
+                              bool softClipping)
+{
+  std::vector<WTextF> textF;
+  for (int i = 0; i < text.size(); ++i) {
+#ifndef WT_TARGET_JAVA
+    textF.push_back(text[i]);
+  }
+  drawTextOnPath(rect, alignmentFlags, textF, transform, path, angle, lineHeight, softClipping);
+#else
+    textF.push_back(WTextF(text[i]));
+  }
+  drawWTextFOnPath(rect, alignmentFlags, textF, transform, path, angle, lineHeight, softClipping);
+#endif
 }
 
 void WPainter::fillPath(const WPainterPath& path, const WBrush& b)
