@@ -20,14 +20,10 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.11.1 (TBD)</h2>
+<h2>Release 4.11.1 (November 5, 2024)</h2>
 
 <p>
-  Wt 4.11.1 is a patch release that addresses the following issue:
-</p>
-
-<p>
-  Wt 4.11.1 is a patch release that addresses ...
+  Wt 4.11.1 is a patch release that addresses the following issues:
 </p>
 
 <ul>
@@ -50,7 +46,7 @@ behaviour.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/13106" target="_blank">Issue #13106</a>:
-    ensure that the correct <code>disabled</class> class is used on a per-theme basis. This wrongly affected all Bootstrap themes.
+    ensure that the correct <code>disabled</code> class is used on a per-theme basis. This wrongly affected all Bootstrap themes.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/13104" target="_blank">Issue #13104</a>:
@@ -59,19 +55,15 @@ behaviour.
     is called.
   </li>
   <li>
-    <a href="https://redmine.webtoolkit.eu/issues/12174" target="_blank">Issue #12174</a>:
-    an automated test for Selenium has been added for the widget gallery. This will ensure that for all used widgets, a base case is tested, and JS errors are less likely to be merged.
-    This is an internal tool, but added to the public repository, as an example. This is likely something many developers would find a good approach.
-  </li>
-  <li>
     <a href="https://redmine.emweb.be/issues/12813" target="_blank">Issue #12813</a>:
     Added the possibility for each column of
     <a href="classWt_1_1WAbstractItemView.html" target="_blank">WAbstractItemView</a> to be set resizable or not independently using the
-    <a href="classWt_1_1WAbstractItemView.html#a737ab9af521bad7ea7c8acd85023bb66" target="_blank">WAbstractItemView::setColumnResizeEnabled(bool, int)</a> function.
+    <a href="classWt_1_1WAbstractItemView.html#a737ab9af521bad7ea7c8acd85023bb66" target="_blank">WAbstractItemView::setColumnResizeEnabled()</a> function.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/11855" target="_blank">Issue #11855</a>:
     the loading indicator should now be shown directly when the indicator-timeout is set to 0 instead of having a few millisecond delay.
+    This can be set by the <code>&lt;application-settings&gt;&lt;indicator-timeout&gt;0&lt;/indicator-timeout&gt;&lt;/application-settings&gt;</code> property in the <code>wt_config.xml</code>.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/7856" target="_blank">Issue #7856</a>:
@@ -90,6 +82,11 @@ behaviour.
   <li>
     <a href="https://redmine.emweb.be/issues/13115" target="_blank">Issue #13115</a>:
     Fix a bug where a widget removed from a disabled parent widget and added to a different enabled parent widget would still appear disabled.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/12174" target="_blank">Issue #12174</a>:
+    an automated test for Selenium has been added for the widget gallery. This will ensure that for all used widgets, a base case is tested, and JS errors are less likely to be merged.
+    This is an internal tool, but added to the public repository, as an example. This is likely something many developers would find useful.
   </li>
 </ul>
 
