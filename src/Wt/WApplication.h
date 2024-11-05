@@ -609,9 +609,10 @@ public:
    * By passing an empty \p locale, the default locale is
    * chosen.
    *
-   * When the locale is changed, refresh() is called, which will
-   * resolve the strings of the current user-interface in the new
-   * locale.
+   * By default, when the locale is changed, refresh() is called, 
+   * which will resolve the strings of the current user-interface
+   * in the new locale. This can be changed by having the 
+   * \p doRefresh parameter set to \p false.
    *
    * At construction, the locale is copied from the environment
    * (WEnvironment::locale()), and this is the locale that was
@@ -620,7 +621,7 @@ public:
    *
    * \sa localizedStrings(), WString::tr()
    */
-  void setLocale(const WLocale& locale);
+  void setLocale(const WLocale& locale, bool doRefresh = true);
 
   /*! \brief Returns the current locale.
    *

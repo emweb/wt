@@ -1000,11 +1000,13 @@ WObject *WApplication::decodeObject(const std::string& objectId) const
     return nullptr;
 }
 
-void WApplication::setLocale(const WLocale& locale)
+void WApplication::setLocale(const WLocale& locale, bool doRefresh)
 {
   locale_ = locale;
   localeChanged_ = true;
-  refresh();
+  if (doRefresh) {
+    refresh();
+  }
 }
 
 void WApplication::setBodyClass(const std::string& styleClass)
