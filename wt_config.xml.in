@@ -562,6 +562,15 @@
           -->
         <progressive-bootstrap>false</progressive-bootstrap>
 
+        <!-- Configures whether the loading the application is delayed at boot.
+
+            By default, the loading of the application is delayed. This can in 
+            some very specific circumstances lead to the browser waiting several
+            seconds before loading the application. 
+            
+            If this is a bug that you are facing, consider setting this to false.
+            This could however impact your code if you inject JS during boot.
+          -->
         <delay-load-at-boot>true</delay-load-at-boot>
 
         <!-- Set session-ID cookie

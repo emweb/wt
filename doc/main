@@ -853,6 +853,17 @@ appRoot=C:\Program Files\MyApplications\AppRoot
       method is used, see \ref bootstrap.
     </dd>
 
+    <dt><strong>delay-load-at-boot</strong></dt>
+    <dd> This boolean configuration option configures whether loading
+         the application is delayed at boot.
+
+        By default, the loading of the application is delayed. This can in 
+        some very specific circumstances lead to the browser waiting several
+        seconds before loading the application. 
+        If this is a bug that you are facing, consider setting this to false.
+        This could however impact your code if you inject JS during boot.
+    </dd>
+
     <dt><strong>properties</strong></dt>
 
     <dd>Application-specific properties which may be accessed using
