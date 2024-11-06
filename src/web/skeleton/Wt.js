@@ -1352,12 +1352,21 @@ if (!window._$_WT_CLASS_$_) {
     };
     this.inline = function(o) {
       WT.getElement(o).style.display = "inline";
+      if (window.currentApp && window.currentApp.layouts2) {
+        window.currentApp.layouts2.scheduleAdjust();
+      }
     };
     this.block = function(o) {
       WT.getElement(o).style.display = "block";
+      if (window.currentApp && window.currentApp.layouts2) {
+        window.currentApp.layouts2.scheduleAdjust();
+      }
     };
     this.show = function(o, s) {
       WT.getElement(o).style.display = s;
+      if (window.currentApp && window.currentApp.layouts2) {
+        window.currentApp.layouts2.scheduleAdjust();
+      }
     };
 
     let captureElement = null;
