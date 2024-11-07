@@ -272,8 +272,9 @@ void buildOriginalURL(Request &req, std::string &url)
 
 StockReply::StockReply(Request& request,
                        status_type status,
-                       const Configuration& configuration)
-  : Reply(request, configuration),
+                       const Configuration& configuration,
+                       const Wt::Configuration* wtConfig)
+  : Reply(request, configuration, wtConfig),
     transmitted_(false)
 {
   setStatus(status);
@@ -282,8 +283,9 @@ StockReply::StockReply(Request& request,
 StockReply::StockReply(Request& request,
                        status_type status,
                        std::string extraContent,
-                       const Configuration& configuration)
-  : Reply(request, configuration),
+                       const Configuration& configuration,
+                       const Wt::Configuration* wtConfig)
+  : Reply(request, configuration, wtConfig),
     content_(extraContent),
     transmitted_(false)
 {

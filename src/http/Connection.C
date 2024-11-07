@@ -279,7 +279,7 @@ void Connection::handleReadRequest0()
 void Connection::sendStockReply(StockReply::status_type status)
 {
   ReplyPtr reply
-    (new StockReply(request_, status, "", server_->configuration()));
+    (new StockReply(request_, status, "", server_->configuration(), request_handler_.wtConfig()));
 
   reply->setConnection(shared_from_this());
   reply->setCloseConnection();

@@ -134,9 +134,12 @@ void toText(S& stream, Reply::status_type status)
 
 } // namespace status_strings
 
-Reply::Reply(Request& request, const Configuration& config)
+Reply::Reply(Request& request, 
+        const Configuration& config,
+        const Wt::Configuration* wtConfig)
   : request_(request),
     configuration_(config),
+    wtConfig_(wtConfig),
     status_(no_status),
     transmitting_(false),
     closeConnection_(false),
@@ -147,7 +150,9 @@ Reply::Reply(Request& request, const Configuration& config)
 #ifdef WTHTTP_WITH_ZLIB
     , gzipBusy_(false)
 #endif // WTHTTP_WITH_ZLIB
-{ }
+{
+  addDefaultHeaders();
+}
 
 Reply::~Reply()
 {
@@ -171,6 +176,7 @@ void Reply::reset(WT_MAYBE_UNUSED const Wt::EntryPoint* ep)
 #endif // WTHTTP_WITH_ZLIB
 
   headers_.clear();
+  addDefaultHeaders();
   status_ = no_status;
   transmitting_ = false;
   closeConnection_ = false;
@@ -610,6 +616,17 @@ bool Reply::encodeNextContentBuffer(
 #endif
 
   return lastData;
+}
+
+void Reply::addDefaultHeaders()
+{
+  if (wtConfig_) {
+    const std::vector<Wt::HttpHeader>& defaultHeaders = wtConfig_->httpHeaders();
+    for (size_t i = 0; i < defaultHeaders.size(); ++i) {
+      const Wt::HttpHeader& header = defaultHeaders[i];
+      addHeader(header.name(), header.contents());
+    }
+  }
 }
 
 } // namespace server

@@ -51,7 +51,9 @@ typedef std::shared_ptr<Reply> ReplyPtr;
 class WTHTTP_API Reply : public std::enable_shared_from_this<Reply>
 {
 public:
-  Reply(Request& request, const Configuration& config);
+  Reply(Request& request, 
+        const Configuration& config,
+        const Wt::Configuration* wtConfig = nullptr);
   virtual ~Reply();
 
   virtual void reset(const Wt::EntryPoint *ep);
@@ -162,6 +164,7 @@ public:
 protected:
   Request& request_;
   const Configuration& configuration_;
+  const Wt::Configuration* wtConfig_;
 
   virtual std::string contentType() = 0;
   virtual std::string location();
@@ -207,6 +210,7 @@ private:
 
   bool encodeNextContentBuffer(std::vector<asio::const_buffer>& result,
                                int& originalSize, int& encodedSize);
+  void addDefaultHeaders();
 #ifdef WTHTTP_WITH_ZLIB
   void initGzip();
   bool gzipBusy_;

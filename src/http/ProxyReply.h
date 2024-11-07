@@ -19,7 +19,8 @@ class ProxyReply final : public Reply
 public:
   ProxyReply(Request& request,
              const Configuration& config,
-             SessionProcessManager& sessionManager);
+             SessionProcessManager& sessionManager,
+             const Wt::Configuration* wtConfig = nullptr);
 
   virtual ~ProxyReply();
 

@@ -58,6 +58,8 @@ public:
 
   void setSessionManager(SessionProcessManager *sessionManager);
 
+  const Wt::Configuration* wtConfig() const { return &wtConfig_; }
+
 private:
   /// The server configuration
   const Configuration &config_;

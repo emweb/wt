@@ -31,11 +31,13 @@ class WTHTTP_API StockReply final : public Reply
 {
 public:
   StockReply(Request& request, status_type status,
-             const Configuration& configuration);
+             const Configuration& configuration,
+             const Wt::Configuration* wtConfig = nullptr);
 
   StockReply(Request& request, status_type status,
              std::string extraContent,
-             const Configuration& configuration);
+             const Configuration& configuration,
+             const Wt::Configuration* wtConfig = nullptr);
 
   virtual void reset(const Wt::EntryPoint *ep) override;
 

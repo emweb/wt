@@ -35,7 +35,8 @@ class WtReply final : public Reply
 {
 public:
   WtReply(Request& request, const Wt::EntryPoint& ep,
-          const Configuration &config);
+          const Configuration &config,
+          const Wt::Configuration* wtConfig = nullptr);
 
   virtual void reset(const Wt::EntryPoint *ep) override;
   virtual void writeDone(bool success) override;

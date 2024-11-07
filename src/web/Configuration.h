@@ -105,6 +105,22 @@ private:
   std::string userAgent_;
 };
 
+class WT_API HttpHeader {
+public:
+  HttpHeader(std::string name,
+             std::string contents)
+    : name_(name),
+      contents_(contents)
+{ }
+
+  const std::string& contents() const { return contents_; }
+  const std::string& name() const { return name_; }
+
+private:
+  std::string name_;
+  std::string contents_;
+};
+
 class WT_API Configuration
 {
 public:
@@ -176,6 +192,7 @@ public:
 
   const std::vector<MetaHeader>& metaHeaders() const { return metaHeaders_; }
   const std::vector<HeadMatter>& headMatter() const { return headMatter_; }
+  const std::vector<HttpHeader>& httpHeaders() const { return httpHeaders_; }
   SessionPolicy sessionPolicy() const;
   int numProcesses() const;
   int numThreads() const;
@@ -356,6 +373,7 @@ private:
   std::vector<MetaHeader> metaHeaders_;
   std::vector<HeadMatter> headMatter_;
   bool useXFrameSameOrigin_;
+  std::vector<HttpHeader> httpHeaders_;
 
   bool connectorSlashException_;
   bool connectorNeedReadBody_;

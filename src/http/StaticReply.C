@@ -50,8 +50,10 @@ static bool openStream(std::ifstream &stream, std::string &path, bool acceptGzip
 namespace http {
 namespace server {
 
-StaticReply::StaticReply(Request& request, const Configuration& config)
-  : Reply(request, config)
+StaticReply::StaticReply(Request& request,
+                         const Configuration& config,
+                         const Wt::Configuration* wtConfig)
+  : Reply(request, config, wtConfig)
 {
   reset(0);
 }
@@ -71,7 +73,7 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
   if (request_path.empty() || request_path[0] != '/'
       || request_path.find("..") != std::string::npos) {
     setRelay(ReplyPtr(new StockReply(request_, StockReply::not_found,
-                                     "", configuration())));
+                                     "", configuration(), wtConfig_)));
     return;
   }
 
@@ -109,7 +111,7 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
 
   if (!stream_) {
     setRelay(ReplyPtr(new StockReply(request_, StockReply::not_found,
-                                     "", configuration())));
+                                     "", configuration(), wtConfig_)));
     return;
   } else {
     try {
@@ -134,7 +136,7 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
       // Won't be able to send even a single byte -> error 416
       ReplyPtr sr(new StockReply
                   (request_, StockReply::requested_range_not_satisfiable,
-                   "", configuration()));
+                   "", configuration(), wtConfig_));
       if (fileSize_ != -1) {
         // 416 SHOULD include a Content-Range with byte-range-resp-spec * and
         // instance-length set to current lenght
@@ -174,7 +176,7 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
 
   if ((ims && ims->value == modifiedDate) || (inm && inm->value == etag)) {
     setRelay(ReplyPtr(new StockReply(request_, StockReply::not_modified,
-                                     configuration())));
+                                     configuration(), wtConfig_)));
     stream_.close();
     return;
   }

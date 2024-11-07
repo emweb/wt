@@ -79,8 +79,9 @@ static int SERVER_MAX_WINDOW_BITS = 15;
 #endif
 
 WtReply::WtReply(Request& request, const Wt::EntryPoint& entryPoint,
-                 const Configuration &config)
-  : Reply(request, config),
+                 const Configuration &config,
+                 const Wt::Configuration* wtConfig)
+  : Reply(request, config, wtConfig),
     entryPoint_(&entryPoint),
     in_(&in_mem_),
     out_(&out_buf_),
@@ -250,7 +251,7 @@ void WtReply::consumeRequestBody(const char *begin,
     if (state != Request::Partial) {
       if (status() >= 300) {
         setRelay(ReplyPtr(new StockReply(request(),
-                                         status(), configuration())));
+                                         status(), configuration(), wtConfig_)));
         Reply::send();
       } else {
         if (dynamic_cast<std::fstream *>(in_)) {
@@ -354,7 +355,7 @@ void WtReply::consumeRequestBody(const char *begin,
           setStatus(bad_request);
 
         setRelay
-          (ReplyPtr(new StockReply(request(), status(), configuration())));
+          (ReplyPtr(new StockReply(request(), status(), configuration(), wtConfig_)));
 
         Reply::send();
       }

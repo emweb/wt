@@ -297,6 +297,7 @@ void Configuration::reset()
   bootstrapConfig_.clear();
   numSessionThreads_ = -1;
   allowedOrigins_.clear();
+  httpHeaders_.clear();
   useXFrameSameOrigin_ = true;
 
   if (!appRoot_.empty())
@@ -1321,6 +1322,26 @@ void Configuration::readApplicationSettings(xml_node<> *app)
       rapidxml::print(static_cast<std::ostream&>(ss), *r);
     }
     headMatter_.push_back(HeadMatter(ss.str(), userAgent));
+  }
+
+  std::vector<xml_node<> *> httpHeadersGroups = childElements(app, "http-headers");
+  for (unsigned i = 0; i < httpHeadersGroups.size(); ++i) {
+    std::vector<xml_node<> *> httpHeaders = childElements(httpHeadersGroups[i], "header");
+    for (unsigned i = 0; i < httpHeaders.size(); ++i) {
+      xml_node<> *httpHeader = httpHeaders[i];
+
+      std::string name, content;
+      attributeValue(httpHeader, "name", name);
+      attributeValue(httpHeader, "content", content);
+
+      if (name.empty()) {
+        throw WServer::Exception
+            ("<header> requires attribute 'name'");
+      }
+
+
+      httpHeaders_.push_back(HttpHeader(name, content));
+    }
   }
   setBoolean(app, "x-frame-same-origin", useXFrameSameOrigin_);
 

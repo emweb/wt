@@ -78,16 +78,16 @@ ReplyPtr RequestHandler::handleRequest(Request& req,
       && (req.method != "PUT")
       && (req.method != "DELETE")
       && (req.method != "PATCH"))
-    return ReplyPtr(new StockReply(req, Reply::not_implemented, "", config_));
+    return ReplyPtr(new StockReply(req, Reply::not_implemented, "", config_, wtConfig()));
 
   if ((req.http_version_major != 1)
       || (req.http_version_minor != 0
           && req.http_version_minor != 1))
-    return ReplyPtr(new StockReply(req, Reply::version_not_supported, "", config_));
+    return ReplyPtr(new StockReply(req, Reply::version_not_supported, "", config_, wtConfig()));
 
   // Decode url to path.
   if (!url_decode(req.uri, req.request_path, req.request_query)) {
-    return ReplyPtr(new StockReply(req, Reply::bad_request,"", config_));
+    return ReplyPtr(new StockReply(req, Reply::bad_request,"", config_, wtConfig()));
   }
 
   std::size_t anchor = req.request_path.find("/#");
@@ -136,32 +136,32 @@ ReplyPtr RequestHandler::handleRequest(Request& req,
           config_.parentPort() != -1 ||
           isRedirect) {
         if (!lastWtReply)
-          lastWtReply.reset(new WtReply(req, ep, config_));
+          lastWtReply.reset(new WtReply(req, ep, config_, wtConfig()));
         else
           lastWtReply->reset(&ep);
 
         return lastWtReply;
       } else {
         if (!lastProxyReply)
-          lastProxyReply.reset(new ProxyReply(req, config_, *sessionManager_));
+          lastProxyReply.reset(new ProxyReply(req, config_, *sessionManager_, wtConfig()));
         else
           lastProxyReply->reset(nullptr);
 
         return lastProxyReply;
       }
 
-      // return ReplyPtr(new WtReply(req, ep, config_));
+      // return ReplyPtr(new WtReply(req, ep, config_, , wtConfig()));
     }
   }
 
   if (!lastStaticReply)
-    lastStaticReply.reset(new StaticReply(req, config_));
+    lastStaticReply.reset(new StaticReply(req, config_, wtConfig()));
   else
     lastStaticReply->reset(nullptr);
 
   return lastStaticReply;
 
-  // return ReplyPtr(new StaticReply(req, config_));
+  // return ReplyPtr(new StaticReply(req, config_, wtConfig()));
 }
 
 bool RequestHandler::url_decode(const buffer_string& in, std::string& path,

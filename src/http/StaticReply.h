@@ -32,7 +32,9 @@ class Request;
 class StaticReply final : public Reply
 {
 public:
-  StaticReply(Request& request, const Configuration& config);
+  StaticReply(Request& request,
+              const Configuration& config,
+              const Wt::Configuration* wtConfig = nullptr);
 
   virtual void reset(const Wt::EntryPoint *ep) override;
   virtual void writeDone(bool success) override;
