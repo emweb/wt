@@ -633,6 +633,12 @@
           <meta name="robots" content="noindex" />
         </head-matter>
 
+        <http-headers>
+          <header name="X-Content-Type-Options" content="nosniff" />
+          <header name="Strict-Transport-Security" content="max-age=15724800; includeSubDomains" />
+          <header name="Referrer-Policy" content="strict-origin-when-cross-origin" />
+        </http-headers>
+
         <!-- Configure whether header X-Frame-Option "SAMEORIGIN" is used
 
           Configure whether the header X-Frame-Option "SAMEORIGIN" is sent when serving

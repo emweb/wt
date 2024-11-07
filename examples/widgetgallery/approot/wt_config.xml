@@ -38,6 +38,12 @@
           <for path="/graphics-charts/*">default</for>
         </bootstrap-method>
 
+        <http-headers>
+          <header name="X-Content-Type-Options" content="nosniff" />
+          <header name="Strict-Transport-Security" content="max-age=15724800; includeSubDomains" />
+          <header name="Referrer-Policy" content="strict-origin-when-cross-origin" />
+        </http-headers>
+
         <!-- <log-config>debug:wthttp/async</log-config> -->
         <UA-Compatible>IE8=IE7</UA-Compatible>
 
