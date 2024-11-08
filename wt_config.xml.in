@@ -633,6 +633,11 @@
           <meta name="robots" content="noindex" />
         </head-matter>
 
+        <!-- Configure default headers for HTTP responses
+
+          Headers required for security of functionality can be added here,
+          to ensure their presence in each HTTP response Wt serves.
+        -->
         <http-headers>
           <header name="X-Content-Type-Options" content="nosniff" />
           <header name="Strict-Transport-Security" content="max-age=15724800; includeSubDomains" />

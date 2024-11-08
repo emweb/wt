@@ -884,6 +884,22 @@ appRoot=C:\Program Files\MyApplications\AppRoot
         of every page. This can be used e.g. for adding meta and
         link tags.</dd>
     
+    <dt><strong>http-headers</strong></dt>
+
+    <dd>HTTP headers that should be added to every HTTP response
+        sent by wt. These can be headers that always need to be
+        added for security reasons. For example, this is the
+        default configuration with values that are advised to be
+        present by <a href="https://github.com/OWASP/ASVS/blob/v4.0.3/4.0/en/0x22-V14-Config.md#v144-http-security-headers">OWASP ASVS</a>:
+        \code
+        <http-headers>
+          <header name="X-Content-Type-Option" content="nosniff" />
+          <header name="Strict-Transport-Security" content="max-age=15724800; includeSubDomains" />
+          <header name="Referrer-Policy" content="strict-origin-when-cross-origin" />
+        </http-headers>
+        \endcode
+    </dd>
+    
     <dt><strong>x-frame-same-origin</strong></dt>
     
     <dd>This boolean configuration option configures whether the header
