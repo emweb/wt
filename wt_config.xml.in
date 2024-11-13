@@ -651,6 +651,38 @@
         -->
         <x-frame-same-origin>true</x-frame-same-origin>
 
+        <!-- Configure whether nonces are used for scripts
+
+        Setting this to true forces every script HTML tag to have the same nonce as the one given
+        in the header of the reply in order to be executed. This nonce is randomly generated for
+        each reply, helping to protect against XSS attack.
+
+        If you need to use script in a WResource, it is possible to obtain the nonce through the
+        response parameter given to WResource::handleRequest().
+
+        This will be used by Wt to generate a default CSP (Content Security Policy). The header will
+        have the following content: 
+        Content-Security-Policy: script-src 'nonce-{randomNonce}' 'strict-dynamic' 'unsafe-eval'.
+
+        This enforces:
+          - script-src 'nonce-{randomNonce}' 'stric-dynamic':
+              that any script loaded on the page served by Wt has a nonce attached to it. This makes sure that
+              the random value is matched between the request and the response. Making XSS (Cross-Side Scripting)
+              much harder. The 'strict-dynamic' identifier ensures that if any script that is served by Wt requests
+              another script, that this can be safely loaded without a nonce. Essentially meaning that the initially
+              served script is always trusted.
+
+         - unsafe-eval:
+            that JavaScript eval() calls are still allowed. Wt uses these to process the updates the server returns.
+            This response was already parsed by Wt, making any attack vector in it highly unlikely.
+
+        Developers can make this more scrict, and provide their own CSP header(s). This can be done in the
+        http-headers section. Any CSP header put there will be sent over together with the existing
+        default CSP header. This means the default one is the baseline, and any policy it dictates is the minimum
+        requirement. Only more strict rules the developer provides will be considered valid, and will be caught by the
+        browser.
+
+        -->
         <use-script-nonce>false</use-script-nonce>
 
         <!-- Configure allowed origins for CORS (only for WidgetSet entry points)

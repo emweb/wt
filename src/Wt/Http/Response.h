@@ -126,6 +126,16 @@ public:
 
   WT_BOSTREAM& bout() { return out(); }
 
+  /*! \brief Returns the nonce that is added to the header of this response.
+   *
+   * Returns the nonce that must be added to any script HTML tag for them
+   * to be executed by the browser. This is only needed if
+   * "use-script-nonce" is configured to true in the configuration file and
+   * "use-script-nonce" is configured to \p true true in the
+   * configuration file and returns an empty string otherwise.
+   * 
+   * By default this is configured to be \p false.
+   */
   std::string nonce() { return response_ ? response_->nonce() : std::string(); }
 
 private:
