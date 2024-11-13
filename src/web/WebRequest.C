@@ -8,10 +8,13 @@
 #include "Wt/WLocale.h"
 #include "Wt/WLogger.h"
 #include "Wt/WDateTime.h"
+#include "Wt/Utils.h"
 
 #include "WebRequest.h"
 #include "WebUtils.h"
 #include "Configuration.h"
+
+#include "Wt/Auth/AuthUtils.h"
 
 #include <cstdlib>
 
@@ -490,6 +493,12 @@ std::string WebRequest::urlScheme(const Configuration &conf) const
   }
 
   return urlScheme();
+}
+
+void WebRequest::addNonce()
+{
+  nonce_ = Utils::base64Encode(Auth::Utils::createSalt(18), false);
+  addHeader("Content-Security-Policy", "script-src 'nonce-"+nonce()+"' 'strict-dynamic' 'unsafe-eval'");
 }
 
 }

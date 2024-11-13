@@ -293,6 +293,7 @@ public:
 
   std::string urlScheme(const Configuration & conf) const;
 
+  const std::string& nonce() const { return nonce_; }
 protected:
   const EntryPoint *entryPoint_;
   std::size_t extraStartIndex_;
@@ -311,6 +312,7 @@ protected:
 
 private:
   std::string parsePreferredAcceptValue(const char *value) const;
+  void addNonce();
 
   ::int64_t postDataExceeded_;
   Http::ParameterMap parameters_;
@@ -320,6 +322,7 @@ private:
   WebSocketResourceTransferCallback wsResourceTransferCb_;
   std::chrono::high_resolution_clock::time_point start_;
   std::vector<std::pair<std::string, std::string> > urlParams_;
+  std::string nonce_;
 
   static Http::ParameterValues emptyValues_;
 

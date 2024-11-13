@@ -10,6 +10,7 @@
 #include <string>
 #include <Wt/WGlobal.h>
 #include <Wt/Http/ResponseContinuation.h>
+#include <web/WebRequest.h>
 #include <ostream>
 
 namespace Wt {
@@ -124,6 +125,8 @@ public:
   std::ostream& out();
 
   WT_BOSTREAM& bout() { return out(); }
+
+  std::string nonce() { return response_ ? response_->nonce() : std::string(); }
 
 private:
   WResource *resource_;

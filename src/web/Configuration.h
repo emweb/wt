@@ -274,6 +274,7 @@ public:
   bool useSlashExceptionForInternalPaths() const;
   bool needReadBodyBeforeResponse() const;
   bool webglDetect() const;
+  bool useScriptNonce() const;
   bool delayLoadAtBoot() const;
   bool useXFrameSameOrigin() const;
 
@@ -374,6 +375,7 @@ private:
   std::vector<HeadMatter> headMatter_;
   bool useXFrameSameOrigin_;
   std::vector<HttpHeader> httpHeaders_;
+  bool useScriptNonce_;
 
   bool connectorSlashException_;
   bool connectorNeedReadBody_;

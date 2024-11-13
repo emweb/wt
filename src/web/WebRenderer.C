@@ -257,7 +257,9 @@ void WebRenderer::letReloadHTML(WebResponse& response, bool newSession)
   addNoCacheHeaders(response);
   setHeaders(response, "text/html; charset=UTF-8");
 
-  response.out() << "<html><script type=\"text/javascript\">";
+  response.out() << "<html><script type=\"text/javascript\" nonce=\""
+                 << response.nonce()
+                 << "\">";
   letReloadJS(response, newSession, true);
   response.out() << "</script><body></body></html>";
 }
@@ -303,9 +305,10 @@ void WebRenderer::serveResponse(WebResponse& response)
   }
 }
 
-void WebRenderer::setPageVars(FileServe& page)
+void WebRenderer::setPageVars(FileServe& page, const std::string& nonce)
 {
   WApplication *app = session_.app();
+  Configuration& conf = session_.controller()->configuration();
 
   page.setVar("DOCTYPE", session_.docType());
 
@@ -348,6 +351,12 @@ void WebRenderer::setPageVars(FileServe& page)
   page.setCondition("FORM", !session_.env().agentIsSpiderBot()
                     && !session_.env().ajax());
   page.setCondition("BOOT_STYLE", true);
+
+  page.setCondition("USE_NONCE", conf.useScriptNonce());
+  page.setVar("NONCE", nonce);
+  if (conf.useScriptNonce() && nonce.empty()) {
+    LOG_WARN("An empty nonce has been defined. This may result in the CSP header not being correctly defined and used.");
+  }
 }
 
 void WebRenderer::streamBootContent(WebResponse& response,
@@ -455,7 +464,7 @@ void WebRenderer::serveBootstrap(WebResponse& response)
   Configuration& conf = session_.controller()->configuration();
 
   FileServe boot(skeletons::Boot_html);
-  setPageVars(boot);
+  setPageVars(boot, response.nonce());
 
   WStringStream noJsRedirectUrl;
   DomElement::htmlAttributeValue
@@ -1477,7 +1486,11 @@ void WebRenderer::serveMainpage(WebResponse& response)
     std::string url = app->scriptLibraries_[i].uri;
     styleSheets << "<script src=";
     DomElement::htmlAttributeValue(styleSheets, session_.fixRelativeUrl(url));
-    styleSheets << "></script>\n";
+
+    if (conf.useScriptNonce()) {
+      styleSheets << " nonce=\"" << response.nonce() << "\""
+                  << "></script>\n";
+    }
 
     beforeLoadJS_ << app->scriptLibraries_[i].beforeLoadJS;
   }
@@ -1488,7 +1501,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
   bool hybridPage = session_.progressiveBoot() || session_.env().ajax();
   FileServe page(hybridPage ? skeletons::Hybrid_html : skeletons::Plain_html);
 
-  setPageVars(page);
+  setPageVars(page, response.nonce());
   page.setVar("SESSION_ID", session_.sessionId());
 
   std::string url

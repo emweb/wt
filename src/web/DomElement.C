@@ -14,12 +14,14 @@
 #include "Wt/WContainerWidget.h"
 #include "Wt/WEnvironment.h"
 #include "Wt/WException.h"
+#include "Wt/WServer.h"
 #include "Wt/WStringStream.h"
 #include "Wt/WTheme.h"
 
 #include "DomElement.h"
 #include "WebUtils.h"
 #include "StringUtils.h"
+#include "Configuration.h"
 
 namespace {
 
@@ -1104,6 +1106,7 @@ void DomElement::asHTML(EscapeOStream& out,
          i != eventHandlers_.end(); ++i) {
       if (!i->second.jsCode.empty()) {
         if (globalUnfocused_
+            || app->environment().server()->configuration().useScriptNonce()
             || (i->first == WInteractWidget::WHEEL_SIGNAL &&
                 app->environment().agentIsIE() &&
                 static_cast<unsigned int>(app->environment().agent()) >=

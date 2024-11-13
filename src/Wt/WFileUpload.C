@@ -65,9 +65,14 @@ protected:
 #endif // WT_TARGET_JAVA
 
     o << "<!DOCTYPE html>"
-      "<html>\n"
-      "<head><script type=\"text/javascript\">\n"
-      "function load() { ";
+      << "<html>\n"
+      << "<head><script"
+      << " type=\"text/javascript\"";
+    if (!response.nonce().empty()) {
+      o << " nonce=\""<<response.nonce()<<"\"";
+    }
+    o << ">\n"
+      << "function load() { ";
 
     if (triggerUpdate || request.tooLarge()) {
       UserAgent agent =

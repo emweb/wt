@@ -153,7 +153,7 @@ private:
     beforeLoadJS_;
   void collectJS(WStringStream *js);
 
-  void setPageVars(FileServe& page);
+  void setPageVars(FileServe& page, const std::string& nonce);
   void streamBootContent(WebResponse& response,
                          FileServe& boot, bool hybrid);
   void addResponseAckPuzzle(WStringStream& out);

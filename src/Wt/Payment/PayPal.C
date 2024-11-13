@@ -84,7 +84,13 @@ public:
       "<!DOCTYPE html>"
       "<html lang=\"en\" dir=\"ltr\">\n"
       "<head><title></title>\n"
-      "<script type=\"text/javascript\">\n"
+      "<script"
+      " type=\"text/javascript\"";
+    if (!response.nonce().empty()) {
+      o << " nonce=\""<<response.nonce()<<"\"";
+    }
+    o <<
+      ">\n"
       "function load() { "
       """if (window.opener." << appJs << ") {"
       ""  "var " << appJs << "= window.opener." << appJs << ";"

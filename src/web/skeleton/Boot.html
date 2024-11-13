@@ -10,7 +10,11 @@ v\:* { behavior:url(#default#VML); position:absolute }
 </style>
 <script id="ie-deferred-loader" defer="defer" src="//:"></script>
 <![endif]-->
-<script>
+<script 
+_$_$if_USE_NONCE_$_()
+nonce="_$_NONCE_$_"
+_$_$endif_$_()
+>
 /*<![CDATA[*/
 _$_BOOT_JS_$_
 /* ]]> */
@@ -37,7 +41,11 @@ _$_$if_BOOT_STYLE_$_()
       type="text/css" _$_METACLOSE_$_
 _$_$endif_$_()
 <!--[if gte IE 6]>
-<script type="text/javascript">
+<script type="text/javascript" 
+_$_$if_USE_NONCE_$_()
+nonce="_$_NONCE_$_"
+_$_$endif_$_()
+>
 document.namespaces.add("v","urn:schemas-microsoft-com:vml","#default#VML");
 </script>
 <![endif]-->

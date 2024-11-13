@@ -9,7 +9,11 @@ _$_HEADDECLARATIONS_$_
 v\:* { behavior: url(#default#VML);position:absolute }
 </style>
 <xml:namespace ns="urn:schemas-microsoft-com:vml" prefix="v"/>
-<script id="ie-deferred-loader" defer="defer" src="//:"></script>
+<script id="ie-deferred-loader" defer="defer" src="//:" 
+_$_$if_USE_NONCE_$_()
+nonce="_$_NONCE_$_"
+_$_$endif_$_()
+></script>
 <![endif]-->
 <style type="text/css" id="Wt-inline-css">
 /*<![CDATA[*/
@@ -17,7 +21,13 @@ _$_STYLESHEET_$_
 /* ]]> */
 </style>
 _$_STYLESHEETS_$_
-<script type="text/javascript">
+
+<script type="text/javascript" 
+_$_$if_USE_NONCE_$_()
+nonce="_$_NONCE_$_"
+_$_$endif_$_()
+>
+
 /*<![CDATA[*/
 _$_BOOT_JS_$_
 /* ]]> */

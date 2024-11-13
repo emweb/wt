@@ -619,6 +619,10 @@ void WebController::handleRequest(WebRequest *request)
     return;
   }
 
+  if (configuration().useScriptNonce()) {
+    request->addNonce();
+  }
+
   if (!request->entryPoint_) {
     EntryPointMatch match = getEntryPoint(request);
     request->entryPoint_ = match.entryPoint;

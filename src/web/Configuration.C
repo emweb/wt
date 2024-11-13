@@ -298,6 +298,7 @@ void Configuration::reset()
   numSessionThreads_ = -1;
   allowedOrigins_.clear();
   httpHeaders_.clear();
+  useScriptNonce_ = false;
   useXFrameSameOrigin_ = true;
 
   if (!appRoot_.empty())
@@ -585,6 +586,12 @@ bool Configuration::webglDetect() const
 {
   READ_LOCK;
   return webglDetection_;
+}
+
+bool Configuration::useScriptNonce() const
+{
+  READ_LOCK;
+  return useScriptNonce_;
 }
 
 bool Configuration::delayLoadAtBoot() const
@@ -1343,6 +1350,8 @@ void Configuration::readApplicationSettings(xml_node<> *app)
       httpHeaders_.push_back(HttpHeader(name, content));
     }
   }
+
+  setBoolean(app, "use-script-nonce", useScriptNonce_);
   setBoolean(app, "x-frame-same-origin", useXFrameSameOrigin_);
 
   std::string allowedOrigins
