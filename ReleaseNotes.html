@@ -28,6 +28,23 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.emweb.be/issues/13187" target="_blank">Issue #13187</a>:
+    Add the possibility to configure headers that are sent in every reply. This can be defined in
+    the XML config using the <code>http-headers</code> tag.
+    It is now also possible to configure Wt to use nonces for script by setting the "use-script-nonce" to <code>true</code>,
+    to help protect against XSS attack. If you need to serve a script in a 
+    <a href="classWt_1_1WResource.html" target="_blank">WResource</a>, the nonce is available through the
+    response parameter of the
+    <a href="classWt_1_1WResource.html#a3a740f8cc29e2e6e4e58defc9c88b8b6" target="_blank">WResource::handleRequest()</a> function by using
+    <a href="classWt_1_1Http_1_1Response.html#a5ade98a7d1e3edc76f4ffc7634a25298" target="_blank">Http::Response::nonce()</a>.
+    The nonce is facilitated through the <h href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP" target="_blank">CSP (Content Security Policy) header</a>.
+    Enabling the nonce will serve CSP headers in your responses. A minimal (fairly nonrestrictive) configuration is taken by default, namely:
+    <code>Content-Security-Policy: script-src 'nonce-{randomNonce}' 'strict-dynamic' 'unsafe-eval'</code>
+    This CSP header can be configured in the XML config under <code>http-headers</code> as well. If the nonce is enabled, only MORE restrictive CSP headers will
+    be allowed by the browser.
+  </li>
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/12935" target="_blank">Issue #12935</a>:
     resize handles in layouts now have a fixed height or width instead of it scaling with the spacing of the layout.
   </li>
