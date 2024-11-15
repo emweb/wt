@@ -329,6 +329,10 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
   background: url(splitter-h.png) no-repeat 50% 50%;
 }
 
+.Wt-hrh2 {
+  background-color: #CCC;
+}
+
 .Wt-vrh2 {
   background-color: #CCC;
 }
