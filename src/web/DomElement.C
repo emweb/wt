@@ -50,6 +50,38 @@ std::string elementNames_[] =
     "datalist"
   };
 
+/*
+ * Issue #13063: This is used to check element names of OTHER DOM
+ * ElementType to prevent from potential attacks if an attacker somehow
+ * manages to add a widget to a page and modify its element name. This
+ * will prevent the attacker from being able to set the tag to a
+ * dangerous one such as script.
+ * 
+ * An element is safe if it only affects the layout of the page and
+ * does not perform a download or code execution.
+ * 
+ * This list MUST end with an empty string!
+ */
+std::string safeElementNames_[] =
+  { "address", "article", "aside", "footer",
+    "header", "h1", "h2", "h3", "h4", "h5", "h6", "hgroup",
+    "main", "nav", "section", "search",
+
+    "blockquote", "div", "p", "pre", "hr",
+    "figcaption", "figure",
+    "dd", "dl", "dt", "li", "ul", "ol", "menu",
+
+    "a", "abbr", "b", "bdi", "bdo", "br", "cite", "code", "data",
+    "dfn", "em", "i", "kdb", "mark", "q", "rp", "rt", "ruby", "s",
+    "samp", "small", "span", "strong", "sub", "sup", "time", "u",
+    "var", "wbr",
+
+    "caption", "col", "colgroup", "table", "tbody", "td", "tfoot",
+    "th", "thead", "tr",
+
+    "" // end of list
+  };
+
 bool defaultInline_[] =
   { true, false, true, false,
     false,
@@ -1373,8 +1405,24 @@ void DomElement::createElement(EscapeOStream& out, WApplication *app,
     renderInnerHtmlJS(out, app);
     renderDeferredJavaScript(out);
   } else {
-    out << "document.createElement('"
-        << elementNames_[static_cast<unsigned int>(type_)] << "');";
+    out << "document.createElement('";
+    if (type_ == DomElementType::OTHER){
+      bool foundTag = false;
+      for (int i = 0; !safeElementNames_[i].empty(); ++i) {
+        if (safeElementNames_[i] == elementTagName_) {
+          foundTag = true;
+          break;
+        }
+      }
+      if (foundTag) {
+        out << elementTagName_;
+      } else {
+        LOG_WARN("DomElement::createElement(): Cannot create custom ('OTHER') element with tag '" + elementTagName_ + "'");
+      }
+    } else {
+      out << elementNames_[static_cast<unsigned int>(type_)];
+    }
+    out << "');";
     out << domInsertJS;
     asJavaScript(out, Priority::Create);
     asJavaScript(out, Priority::Update);
