@@ -28,6 +28,10 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.emweb.be/issues/13067" target="_blank">Issue #13067</a>:
+    fixed the internal path being sent in the request URL after changing the session ID for applications deployed at a non-empty path.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13567" target="_blank">Issue #13567</a>:
     fixed the handling of <code>SessionProcess::read()</code>, such that it is always called on existing asio context.
     This was an edge-case when using <code>dedicated-process</code> mode.
