@@ -2289,8 +2289,9 @@
     <h4 id="size">Button size</h4>
     <p>
       Instead of using the default size, you can apply a larger or smaller size
-      to a button. Add the style class <code>.btn-lg</code> or
-      <code>.btn-sm</code> to change the size.
+      to a button. Add the style class <code>.btn-lg</code> (<code>.btn-large</code>
+      for bootstrap2) or <code>.btn-sm</code> (<code>.btn-small</code> for bootstrap2)
+      to change the size.
     </p>
 
     <fieldset class="example">
