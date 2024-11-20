@@ -3180,7 +3180,7 @@ window._$_APP_CLASS_$_ = new (function() {
     }
 
     if (comm) {
-      comm.setUrl(url);
+      comm.setUrl(sessionUrl);
     }
   }
 
