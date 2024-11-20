@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages xmlns:if="Wt.WTemplate.conditions">
 
+<!--COMMON message blocks-->
+  <message id="basic-example">
+    <![CDATA[
+    <fieldset class="example">
+      <legend>Example</legend>
+        <div class="${row}">
+          <div class="col-xs-10 col-md-6 col-xl-4">
+            ${{1}}
+          </div>
+        </div>
+      ${src {1}}
+    </fieldset>
+    ]]>
+  </message>
+
 <!--LAYOUT message blocks-->
   <message id="layout-intro">
     <p class="lead">Layout &#8212; building blocks for organizing your
@@ -1131,13 +1146,13 @@
 
   <message id="simpleForm-template">
     <div class="row">
-      <div class="col-auto pe-0">
+      <div class="col-sm-3 span3 pe-0">
         ${name}
       </div>
-      <div class="col-auto">
+      <div class="col-sm-3 span12">
         ${button}
       </div>
-      <div class="col-auto">
+      <div class="col-sm-12 span12">
         ${out class='form-control-plaintext'}
       </div>
     </div>
@@ -1146,7 +1161,7 @@
   <message id="userForm-template">
     <legend>${title}</legend>
     <div class="row">
-      <div class="col-4">
+      <div class="col-sm-4 span4">
         <label class="form-label"  for="${id:first-name}">
           First name
         </label>
@@ -1155,7 +1170,7 @@
           ${first-name-info}
         </div>
       </div>
-      <div class="col-4">
+      <div class="col-sm-4 span4">
         <label class="form-label"  for="${id:last-name}">
           Last name
         </label>
@@ -1167,7 +1182,7 @@
     </div>
 
     <div class="row">
-      <div class="col-4">
+      <div class="col-sm-4 span4">
         <label class="form-label"  for="${id:country}">
           Country
         </label>
@@ -1176,7 +1191,7 @@
           ${country-info}
         </div>
       </div>
-      <div class="col-4">
+      <div class="col-sm-4 span4">
         <label class="form-label"  for="${id:city}">
           City
         </label>
@@ -1188,7 +1203,7 @@
     </div>
 
     <div class="row">
-      <div class="col-4">
+      <div class="col-sm-4 span4">
         <label class="form-label"  for="${id:birth}">
           Birth date
         </label>
@@ -1198,7 +1213,7 @@
         </div>
       </div>
 
-      <div class="col-4">
+      <div class="col-sm-4 span4">
         <label class="form-label"  for="${id:children}">
           Children
         </label>
@@ -1210,7 +1225,7 @@
     </div>
 
     <div class="row">
-      <div class="col-8">
+      <div class="col-sm-8 span8">
         <label class="form-label"  for="${id:remarks}">
           Remarks
         </label>
@@ -1222,7 +1237,7 @@
     </div>
 
     <div class="row">
-      <div class="col">
+      <div class="col-sm-8 span12">
         ${submit-button} <span class="help-inline">${submit-info}</span>
       </div>
     </div>
@@ -1265,6 +1280,7 @@
     <fieldset class="example">
       <legend>Example</legend>
       ${LineEdit}
+      <div class="row"/>
       ${src LineEdit}
       <p>
         Here is the corresponding XML template (with
@@ -1283,15 +1299,7 @@
       how you can embed the label within the control (when empty).
     </p>
 
-    <fieldset class="example">
-      <legend>Example</legend>
-      <div class="row">
-        <div class="col-auto">
-          ${LineEditEvent}
-        </div>
-      </div>
-      ${src LineEditEvent}
-    </fieldset>
+    ${block:basic-example LineEditEvent}
 
     <p><a href="#text-editors">Top</a></p>
 
@@ -1307,15 +1315,7 @@
       client-side feedback.
     </p>
 
-    <fieldset class="example">
-      <legend>Example</legend>
-      <div class="row">
-        <div class="col-auto">
-          ${TextArea}
-        </div>
-      </div>
-      ${src TextArea}
-    </fieldset>
+    ${block:basic-example TextArea}
 
     <p><a href="#text-editors">Top</a></p>
 
@@ -1352,15 +1352,7 @@
       edit, and buttons which allow to increase or decrease the value.
     </p>
 
-    <fieldset class="example">
-      <legend>Example</legend>
-      <div class="row">
-        <div class="col-auto">
-          ${SpinBox}
-        </div>
-      </div>
-      ${src SpinBox}
-    </fieldset>
+    ${block:basic-example SpinBox}
 
     <p><a href="#text-editors">Top</a></p>
 
@@ -1378,6 +1370,7 @@
     <fieldset class="example">
       <legend>Example</legend>
       ${InputMask}
+      <div class="row"/>
       ${src InputMask}
     </fieldset>
 
@@ -1456,96 +1449,102 @@
 
   <message id="dateEdit-template">
     <p>When do you want to take your holiday?</p>
-    <div class="row g-3">
+      <div class="row g-3">
 
-      <div class="col-sm-3">
-        <label class="form-label"  for="${id:from}">
-          From
-        </label>
-        ${from}
-      </div>
+        <div class="row row-fluid col-sm-12 span7">
+          <div class="col-sm-3 span3">
+            <label class="form-label"  for="${id:from}">
+              From
+            </label>
+            ${from}
+          </div>
 
-      <div class="col-sm-3">
-        <label class="form-label" for="${id:to}">
-          To (format dd MM yyyy)
-        </label>
-        ${to}
-      </div>
+          <div class="col-sm-3 offset1 span3">
+            <label class="form-label" for="${id:to}">
+              To (format dd MM yyyy)
+            </label>
+            ${to}
+          </div>
+        </div>
 
-      <div class="col-12">
-        ${save}
-      </div>
+        <div class="col-sm-12 span12">
+          ${save}
+        </div>
 
-      <div class="col-12">
-        ${out class="help-block"}
+        <div class="col-sm-12 span12">
+          ${out class="help-block"}
+        </div>
       </div>
-    </div>
   </message>
 
   <message id="timeEdit-template">
     <p>When do you want your package to be delivered?</p>
-    <div class="row g-3">
+      <div class="row g-3">
 
-      <div class="col-sm-3">
-        <label class="form-label"  for="${id:from}">
-          From (format ${from-format})
-        </label>
-        ${from}
-      </div>
+        <div class="row row-fluid col-sm-12 span7">
+          <div class="col-sm-3 span3">
+            <label class="form-label"  for="${id:from}">
+              From (format ${from-format})
+            </label>
+            ${from}
+          </div>
 
-      <div class="col-sm-3">
-        <label class="form-label" for="${id:to}">
-          To (format ${to-format})
-        </label>
-        ${to}
-      </div>
+          <div class="col-sm-3 offset1 span3">
+            <label class="form-label" for="${id:to}">
+              To (format ${to-format})
+            </label>
+            ${to}
+          </div>
+        </div>
 
-      <div class="col-12">
-        ${save}
-      </div>
+        <div class="col-sm-12 span12">
+          ${save}
+        </div>
 
-      <div class="col-12">
-        ${out class="help-block"}
+        <div class="col-sm-12 span12">
+          ${out class="help-block"}
+        </div>
       </div>
-    </div>
   </message>
 
   <message id="lineEdit-template">
-    <div class="row">
-      <label class="col-1 col-form-label">${label}</label>
-      <div class="col-2">
-        ${edit}
+    <div class="row form-horizontal">
+      <div class="col-xs-10 col-md-6 col-xl-4 span4">
+        <label class="form-label">${label}</label>
+        <div class="">
+          ${edit}
+        </div>
       </div>
     </div>
   </message>
 
   <message id="emailEdit-template">
-    <div class="row">
-      <div class="col-xs-12 col-md-6 col-xl-4">
-        <label class="form-label" for="${id:edit}">${label}</label>
-        <div class="input-group">
-          ${edit}
-          ${submit class="btn-outline-secondary"}
+      <div class="row form-horizontal">
+        <div class="col-xs-10 col-md-6 col-xl-4 span4">
+          <label class="form-label" for="${id:edit}">${label}</label>
+          <div class="input-group-btn input-group">
+            ${edit}
+            ${submit class="btn-outline-secondary"}
+          </div>
         </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <div class="form-text">
-          ${edit-info}
+      <div class="row">
+        <div class="col-sm-12 span12">
+          <div class="form-text">
+            ${edit-info}
+          </div>
         </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        ${multiple} ${pattern}
+      <div class="row">
+        <div class="col-sm-12 span12">
+          ${multiple} ${pattern}
+        </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        ${output}
+      <div class="row">
+        <div class="col-sm-12 span12">
+          ${output}
+        </div>
       </div>
-    </div>
   </message>
 
   <message id="editSide-template">
@@ -1702,15 +1701,7 @@
       element.
     </p>
 
-    <fieldset class="example">
-      <legend>Example</legend>
-      <div class="row">
-        <div class="col-auto">
-          ${ComboBox}
-        </div>
-      </div>
-      ${src ComboBox}
-    </fieldset>
+    ${block:basic-example ComboBox}
 
     <p>
       <code>WComboBox</code> is a View widget (see also
@@ -1726,15 +1717,7 @@
       mechanism.
     </p>
 
-    <fieldset class="example">
-      <legend>Example</legend>
-      <div class="row">
-        <div class="col-auto">
-          ${ComboBoxActivated}
-        </div>
-      </div>
-      ${src ComboBoxActivated}
-    </fieldset>
+    ${block:basic-example ComboBoxActivated}
 
     <p><a href="#combo-box">Top</a></p>
 
@@ -1760,15 +1743,7 @@
       and can be used to represent fields in a form.
     </p>
 
-    <fieldset class="example">
-      <legend>Example</legend>
-      <div class="row">
-        <div class="col-auto">
-          ${ComboBoxModel}
-        </div>
-      </div>
-      ${src ComboBoxModel}
-    </fieldset>
+    ${block:basic-example ComboBoxModel}
 
     <p><a href="#combo-box">Top</a></p>
 
@@ -1818,30 +1793,14 @@
 
     <h3>Single option selection box</h3>
 
-    <fieldset class="example">
-      <legend>Example</legend>
-      <div class="row">
-        <div class="col-auto">
-          ${SelectionBoxSimple}
-        </div>
-      </div>
-      ${src SelectionBoxSimple}
-    </fieldset>
+    ${block:basic-example SelectionBoxSimple}
 
     <p><a href="#selection-box">Top</a></p>
 
     <h3 id="selection-multiple">Multiple option selection box</h3>
     <p>Use shift and/or ctrl-click to select your pizza toppings...</p>
 
-    <fieldset class="example">
-      <legend>Example</legend>
-      <div class="row">
-        <div class="col-auto">
-          ${SelectionBoxExtended}
-        </div>
-      </div>
-      ${src SelectionBoxExtended}
-    </fieldset>
+    ${block:basic-example SelectionBoxExtended}
 
     <p><a href="#selection-box">Top</a></p>
 
@@ -1879,15 +1838,7 @@
       combo-box).
     </p>
 
-    <fieldset class="example">
-        <legend>Example</legend>
-        <div class="row">
-          <div class="col-sm-4">
-            ${AutoComplete}
-          </div>
-        </div>
-        ${src AutoComplete}
-    </fieldset>
+    ${block:basic-example AutoComplete}
 
     <h3>Model</h3>
     <p>
@@ -2020,15 +1971,7 @@
       </code> or initially setting the text by the constructor.
     </p>
 
-    <fieldset class="example">
-        <legend>Example</legend>
-        <div class="row">
-          <div class="col-auto">
-            ${InPlaceEditButtons}
-          </div>
-        </div>
-        ${src InPlaceEditButtons}
-    </fieldset>
+    ${block:basic-example InPlaceEditButtons}
 
     <h3>In place edit without buttons</h3>
     <p>
@@ -2038,15 +1981,7 @@
       escape key cancels the editing.
     </p>
 
-    <fieldset class="example">
-        <legend>Example</legend>
-        <div class="row">
-          <div class="col-auto">
-            ${InPlaceEdit}
-          </div>
-        </div>
-        ${src InPlaceEdit}
-    </fieldset>
+    ${block:basic-example InPlaceEdit}
 
     <p><a href="#in-place-edit">Top</a></p>
 
@@ -2292,11 +2227,11 @@
 
     <fieldset class="example">
       <legend>Example</legend>
-      <div class="row">
-        <div class="col-auto">
-          ${PushButtonDropdownAppended}
+        <div class="${row}">
+          <div class="col-auto">
+            ${PushButtonDropdownAppended}
+          </div>
         </div>
-      </div>
       ${src PushButtonDropdownAppended}
       <p>
         Here is the corresponding XML template (with
@@ -2511,11 +2446,11 @@
   </message>
 
   <message id="pushButtonAction-template">
-    <div class="row">
-      <div class="col-auto">
-        ${button-save} ${button-cancel}
+      <div class="row-fluid">
+        <div class="col-auto">
+          ${button-save} ${button-cancel}
+        </div>
       </div>
-    </div>
   </message>
 
   <message id="forms-validation">
@@ -2639,33 +2574,39 @@
   </message>
 
   <message id="validation-template">
-    <div class="row">
-      <label class="form-label col-sm-3" for="${id:age}">
-        Please enter your age:
-      </label>
-      <div class="col-sm-2">${age}</div>
-    </div>
-    <div class="row">
-      <div class="col-sm-offset-3 col-sm-7">
-        ${button}
+    <div class="input">
+      <div class="row-fluid">
+        <label class="form-label col-sm-2" for="${id:age}">
+          Please enter your age:
+        </label>
+        <div class="col-sm-3">${age}</div>
+      </div>
+      <div class="row-fluid">
+        <div class="col-sm-1">
+          ${button}
+        </div>
       </div>
     </div>
-    ${age-info}
+    <div class="row">
+      ${age-info}
+    </div>
   </message>
 
   <message id="date-template">
-    <div class="row">
-      <label class="form-label col-sm-3" for="${id:birth-date}">
+    <div class="row-fluid">
+      <label class="form-label col-sm-2" for="${id:birth-date}">
         Enter your birthdate:
       </label>
-      <div class="col-sm-2">${birth-date}</div>
+      <div class="col-sm-3">${birth-date}</div>
     </div>
-    <div class="row">
-      <div class="col-sm-offset-3 col-sm-7">
+    <div class="row-fluid">
+      <div class="col-sm-1">
         ${button}
       </div>
     </div>
-    ${info}
+    <div class="row">
+      ${info}
+    </div>
   </message>
 
   <message id="forms-integration-example">
@@ -2992,15 +2933,7 @@
       using inline or external CSS as appropriate.
     </p>
 
-    <fieldset class="example">
-      <legend>Example</legend>
-      <div class="row">
-        <div class="col-auto">
-          ${Stack}
-        </div>
-      </div>
-      ${src Stack}
-    </fieldset>
+    ${block:basic-example Stack}
 
   </message>
 
@@ -3019,15 +2952,7 @@
       The panel at the left is implemented using a <code>WMenu</code>.
     </p>
 
-    <fieldset class="example">
-      <legend>Example</legend>
-      <div class="row">
-        <div class="col-auto">
-          ${Menu}
-        </div>
-      </div>
-      ${src Menu}
-    </fieldset>
+    ${block:basic-example Menu}
 
     <p>
       You can create items with submenus by using the <code>WSubMenuItem</code>
@@ -3068,15 +2993,7 @@
       options like a title or multiple menus.
     </p>
 
-    <fieldset class="example">
-      <legend>Example</legend>
-      <div class="row">
-        <div class="col-auto">
-          ${Tab}
-        </div>
-      </div>
-      ${src Tab}
-    </fieldset>
+    ${block:basic-example Tab}
 
     <p>
       The tab widget is styled by the current CSS theme. The look (of the

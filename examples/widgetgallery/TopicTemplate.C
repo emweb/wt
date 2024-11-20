@@ -24,6 +24,12 @@ TopicTemplate::TopicTemplate(const char *trKey)
 
   namespaceToPackage["Chart"] = "chart";
   namespaceToPackage["Render"] = "render";
+
+  if (Wt::WApplication::instance()->theme()->name() == "bootstrap2") {
+    bindString("row", "row-fluid");
+  } else {
+    bindString("row", "row");
+  }
 }
 
 std::string TopicTemplate::getString(const std::string& varName)

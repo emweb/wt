@@ -8,6 +8,7 @@
 
 #include <Wt/Utils.h>
 #include <Wt/WApplication.h>
+#include <Wt/WTheme.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -16,6 +17,7 @@ BaseTemplate::BaseTemplate(const char *trKey)
 {
   setInternalPathEncoding(true);
   addFunction("tr", &Functions::tr);
+  addFunction("block", &Functions::block);
 
 #ifndef WT_TARGET_JAVA
   setCondition("if:cpp", true);
