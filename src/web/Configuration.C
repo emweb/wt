@@ -297,6 +297,7 @@ void Configuration::reset()
   bootstrapConfig_.clear();
   numSessionThreads_ = -1;
   allowedOrigins_.clear();
+  useXFrameSameOrigin_ = true;
 
   if (!appRoot_.empty())
     setAppRoot(appRoot_);
@@ -589,6 +590,12 @@ bool Configuration::delayLoadAtBoot() const
 {
   READ_LOCK;
   return delayLoadAtBoot_;
+}
+
+bool Configuration::useXFrameSameOrigin() const
+{
+  READ_LOCK;
+  return useXFrameSameOrigin_;
 }
 
 int Configuration::numSessionThreads() const
@@ -1315,6 +1322,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     }
     headMatter_.push_back(HeadMatter(ss.str(), userAgent));
   }
+  setBoolean(app, "x-frame-same-origin", useXFrameSameOrigin_);
 
   std::string allowedOrigins
     = singleChildElementValue(app, "allowed-origins", "");

@@ -633,6 +633,8 @@
           <meta name="robots" content="noindex" />
         </head-matter>
 
+        <x-frame-same-origin>true</x-frame-same-origin>
+
         <!-- Configure allowed origins for CORS (only for WidgetSet entry points)
 
          Since Wt 3.3.8, cross-origin requests are disallowed by default.

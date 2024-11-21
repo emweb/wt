@@ -479,7 +479,9 @@ void WebRenderer::serveBootstrap(WebResponse& response)
   boot.setVar("BOOT_STYLE_URL", bootStyleUrl.str());
 
   addNoCacheHeaders(response);
-  response.addHeader("X-Frame-Options", "SAMEORIGIN");
+  if (conf.useXFrameSameOrigin()) {
+    response.addHeader("X-Frame-Options", "SAMEORIGIN");
+  }
 
   std::string contentType = "text/html; charset=UTF-8";
 
@@ -1515,7 +1517,9 @@ void WebRenderer::serveMainpage(WebResponse& response)
   std::string contentType = "text/html; charset=UTF-8";
 
   addNoCacheHeaders(response);
-  response.addHeader("X-Frame-Options", "SAMEORIGIN");
+  if (conf.useXFrameSameOrigin()) {
+    response.addHeader("X-Frame-Options", "SAMEORIGIN");
+  }
   setHeaders(response, contentType);
 
   currentFormObjectsList_ = createFormObjectsList(app);

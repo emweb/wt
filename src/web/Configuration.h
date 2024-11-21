@@ -258,6 +258,7 @@ public:
   bool needReadBodyBeforeResponse() const;
   bool webglDetect() const;
   bool delayLoadAtBoot() const;
+  bool useXFrameSameOrigin() const;
 
   bool agentIsBot(const std::string& agent) const;
   bool agentSupportsAjax(const std::string& agent) const;
@@ -354,6 +355,7 @@ private:
   std::vector<BootstrapEntry> bootstrapConfig_;
   std::vector<MetaHeader> metaHeaders_;
   std::vector<HeadMatter> headMatter_;
+  bool useXFrameSameOrigin_;
 
   bool connectorSlashException_;
   bool connectorNeedReadBody_;
