@@ -883,6 +883,12 @@ appRoot=C:\Program Files\MyApplications\AppRoot
     <dd>HTML that should be inserted into the <tt>&lt;head&gt;</tt>
         of every page. This can be used e.g. for adding meta and
         link tags.</dd>
+    
+    <dt><strong>x-frame-same-origin</strong></dt>
+    
+    <dd>This boolean configuration option configures whether the header
+        X-Frame-Option "SAMEORIGIN" is sent when serving the main page
+        or the bootstrap.</dd>
   </dl>
 
   \subsection config_wthttpd 10.3 Wt httpd (command-line or configuration file) options
