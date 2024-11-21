@@ -218,7 +218,7 @@
       In a template text, a <code>$${<i>var</i>}</code> indicates a placeholder
       named <strong>var</strong> which is substituted with a widget or string
       that is bound to that variable. Other syntactical constructs are:
-      <dl class="row">
+      <dl class="${dl-class}">
         <dt class="col-sm-2 text-sm-end">arguments</dt>
         <dd class="col-sm-10"><code>$${<i>var arg1 arg2</i>}</code></dd>
         <dt class="col-sm-2 text-sm-end">conditions</dt>
@@ -665,7 +665,7 @@
     <p>
       There are different techniques and technologies available to
       determine the size (width and height) of a rendered widget.
-      <dl class="row">
+      <dl class="${dl-class}">
         <dt class="col-sm-2 text-sm-end">CSS</dt>
         <dd class="col-sm-10">The browser uses CSS (Cascading Style Sheets) as a
         technology for defining visual aspects, such as fonts, colors,
@@ -702,7 +702,7 @@
 
     <p>
       Three ways to use CSS in Wt.
-      <dl class="row">
+      <dl class="${dl-class}">
         <dt class="col-sm-2 text-sm-end">Inline CSS</dt>
         <dd class="col-sm-10">A single widget's style properties can be modified directly using
         C++ API</dd>
@@ -937,7 +937,7 @@
     </p>
     <p>
       You can choose from three themes:
-      <dl class="row">
+      <dl class="${dl-class}">
         <dt class="col-sm-2 text-sm-end">default</dt>
         <dd class="col-sm-10">You don't have to do anything to use this theme from the
           ${doc-link WCssTheme} class as it is the default theme.
@@ -1063,7 +1063,7 @@
       invokes and reflects the validation status. For each model field, the
       view uses a number of conventional variable names to represent the
       label, editor, and validation messages in the template:
-      <dl class="row">
+      <dl class="${dl-class}">
         <dt class="col-sm-2 text-sm-end">field</dt>
         <dd class="col-sm-10">
           This variable name refers to the <strong>form widget</strong> which
@@ -3222,7 +3222,7 @@
       table. These styles are enabled by adding the <code>"table"</code>
       style class, and other optional style classes. The other styling
       options are enabled by adding one of the following classes:
-      <dl class="row">
+      <dl class="${dl-class}">
         <dt class="col-sm-2 text-sm-end">table-bordered</dt>
         <dd class="col-sm-10">Adds borders</dd>
         <dt class="col-sm-2 text-sm-end">table-hover</dt>
@@ -3529,7 +3529,7 @@
       The built-in views will thus interpret
       subsets of this data to render a single item. In particular, the
       following data roles are commonly supported:
-      <dl class="row">
+      <dl class="${dl-class}">
         <dt class="col-sm-2 text-sm-end">DisplayRole</dt>
         <dd class="col-sm-10">Rendered as text</dd>
         <dt class="col-sm-2 text-sm-end">DecorationRole</dt>
@@ -3570,7 +3570,7 @@
       a ${doc-link WModelIndex} to uniquely identify an item. A model
       index is a data structure containing:
 
-      <dl class="row no-clear">
+      <dl class="${dl-class} no-clear">
         <dt class="col-sm-2 text-sm-end">row</dt>
         <dd class="col-sm-10">The row number</dd>
         <dt class="col-sm-2 text-sm-end">column</dt>
@@ -3645,7 +3645,7 @@
     <p>
       As a minimum, a custom table model should reimplement the
       following methods from ${doc-link WAbstractTableModel}:
-      <dl class="row">
+      <dl class="${dl-class}">
         <dt class="col-sm-2 text-sm-end">int rowCount()</dt>
         <dd class="col-sm-10">Returns the table row count (only for the invalid parent!)</dd>
         <dt class="col-sm-2 text-sm-end">int columnCount()</dt>
@@ -3687,7 +3687,7 @@
     <p>
       The following methods must be implemented for a minimally
       compliant hierarchical model:
-      <dl class="row">
+      <dl class="${dl-class}">
         <dt class="col-sm-2 text-sm-end">int rowCount()</dt>
         <dd class="col-sm-10">Returns the item children count</dd>
         <dt class="col-sm-2 text-sm-end">int columnCount()</dt>
@@ -3733,7 +3733,7 @@
       can be implemented within the model itself.
     </p>
 
-    <dl class="row">
+    <dl class="${dl-class}">
       <dt class="col-sm-2 text-sm-end">void sort()</dt>
       <dd class="col-sm-10">Sorts the model according to one of its columns.</dd>
     </dl>
@@ -3769,7 +3769,7 @@
     <p>
       If a custom wants to support this editing API, it needs to reimplement the
       following methods from ${doc-link WAbstractTableModel}:
-      <dl class="row">
+      <dl class="${dl-class}">
         <dt class="col-sm-2 text-sm-end">bool setData()</dt>
         <dd class="col-sm-10">Updates data. Views typically use the <code>EditRole</code>
         for the data used in editing</dd>
