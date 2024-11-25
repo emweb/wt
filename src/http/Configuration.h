@@ -58,6 +58,7 @@ public:
   bool compression() const { return compression_; }
   bool gdb() const { return gdb_; }
   const std::string& configPath() const { return configPath_; }
+  const std::string& fileExtMapPath() const { return fileExtMapPath_; }
   const std::string& staticCacheControl() const { return staticCacheControl_; }
 
   const std::vector<std::string>& httpListen() const { return httpListen_; }
@@ -114,6 +115,7 @@ private:
   bool compression_;
   bool gdb_;
   std::string configPath_;
+  std::string fileExtMapPath_;
   std::string staticCacheControl_;
 
   std::vector<std::string> httpListen_;

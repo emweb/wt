@@ -11,6 +11,7 @@
 #include "Configuration.h"
 #include "WebUtils.h"
 #include "StringUtils.h"
+#include "MimeTypes.h"
 
 #include <boost/filesystem.hpp>
 
@@ -49,6 +50,7 @@ Configuration::Configuration(Wt::WLogger& logger, bool silent)
     compression_(true),
     gdb_(false),
     configPath_(),
+    fileExtMapPath_(),
     staticCacheControl_("max-age=3600"),
     httpPort_("80"),
     httpsPort_("443"),
@@ -148,6 +150,15 @@ void Configuration::createOptions(po::options_description& options,
       "variable $WT_CONFIG_XML is used, or else the built-in default "
       "(" + std::string(WT_CONFIG_XML) + ") is tried, or else built-in "
       "defaults are used").c_str())
+
+    ("mime-map-append",
+     po::value<std::string>(&fileExtMapPath_),
+     "location of wt_mimeMap.csv; the mappings in wt_mimeMap will be added to the default mappings.")
+
+     ("mime-map-override",
+     po::value<std::string>(&fileExtMapPath_),
+     "location of wt_mimeMap.csv; if unspecified, the built-in default is used. "
+     "The mappings in wt_mimeMap will be used instead of to the default mappings.")
 
     ("static-cache-control",
      po::value<std::string>(&staticCacheControl_)->default_value(staticCacheControl_),
@@ -368,6 +379,14 @@ void Configuration::readOptions(const po::variables_map& vm)
     checkPath(docRoot_, "Document root", Directory);
   } else
     throw Wt::WServer::Exception("Document root (--docroot) was not set.");
+
+  if (vm.count("mime-map-append")) {
+    mime_types::updateMapping(vm["mime-map-append"].as<std::string>());
+  }
+
+  if (vm.count("mime-map-override")) {
+    mime_types::setMapping(vm["mime-map-override"].as<std::string>());
+  }
 
   if (vm.count("http-address"))
     httpAddress_ = vm["http-address"].as<std::string>();

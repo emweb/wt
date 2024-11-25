@@ -23,8 +23,14 @@ namespace http {
 namespace server {
 namespace mime_types {
 
+/// Override file extension to MIME type mapping.
+void setMapping(const std::string& csvFile);
+
+/// Update file extension to MIME type mapping.
+void updateMapping(const std::string& csvFile);
+
 /// Convert a file extension into a MIME type.
-const char *extensionToType(const std::string& extension);
+std::string extensionToType(const std::string& extension);
 
 } // namespace mime_types
 } // namespace server
