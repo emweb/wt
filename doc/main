@@ -1010,6 +1010,13 @@ General options:
                                         used, or else the built-in default 
                                         (/etc/wt/wt_config.xml) is tried, or else 
                                         built-in defaults are used
+  --mime-map-append arg                 location of wt_mimeMap.csv; the 
+                                        mappings in wt_mimeMap will be added to
+                                        the default mappings.
+  --mime-map-override arg               location of wt_mimeMap.csv; if 
+                                        unspecified, the built-in default is 
+                                        used. The mappings in wt_mimeMap will 
+                                        be used instead of the default mappings.
   --max-memory-request-size arg (=131072)
                                         threshold for request size (bytes), for
                                         spooling the entire request to disk, to
@@ -1148,6 +1155,19 @@ Settings may be set in the configuration file /etc/wt/wthttpd
     </dd>
   </dl>
 
+  \subsection mime_type_mapping 10.6 extending MIME type support (wt_mimeMap.csv)
+
+  By default, Wt comes with a handful of file extensions for which it knows the
+  MIME type. When Wt serves a static file with one of these extension, it
+  will set the corresponding content-type header to the correct MIME type
+  in the response.
+
+  If you wish to customize the mapping from file extension to MIME type,
+  this can be done by specifying the path to a CSV file. This file must
+  be a CSV file with two columns. The first column is the file extension
+  (without the '.' in front) and the second column is the corresponding
+  MIME type. Capitalization does not matter in the file, as the content is
+  always sent in lower case.
 
    \section error_sec &nbsp;11. Error handling and logging
 
