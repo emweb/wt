@@ -149,6 +149,7 @@ namespace Wt {
   class WPopupWidget;
   class WProgressBar;
   class WPushButton;
+  class WQrCode;
   class WRadioButton;
   class WRandom;
   class WReadOnlyProxyModel;

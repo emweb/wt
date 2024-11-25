@@ -204,6 +204,7 @@ Wt/WPopupMenu.h Wt/WPopupMenu.C
 Wt/WPopupWidget.h Wt/WPopupWidget.C
 Wt/WProgressBar.h Wt/WProgressBar.C
 Wt/WPushButton.h Wt/WPushButton.C
+Wt/WQrCode.h Wt/WQrCode.C
 Wt/WRadioButton.h Wt/WRadioButton.C
 Wt/WRandom.h Wt/WRandom.C
 Wt/WReadOnlyProxyModel.h Wt/WReadOnlyProxyModel.C
