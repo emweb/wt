@@ -112,6 +112,12 @@ behaviour.
     disabled throttling during TOTP setup.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13188" target="_blank">Issue #13188</a>:
+    add the possibility to customize the mapping between file extensions and MIME types. This is done by specifying the path to a CSV with the <code>--mime-map-append</code> or 
+    <code>--mime-map-override</code> parameter in the run command or in the wthttp config file. This file must be a CSV file with two column, the first column containing the
+    file extension and the second column containing the corresponding MIME type.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13489" target="_blank">Issue #13489</a>:
     in case server-side rendering is used for some <a href="classWt_1_1WPaintDevice.html" target="_blank">WPaintDevice</a>s,
   the font metrics it constructs, are now only constructed once, and not once per <code>WPaintDevice</code>.
