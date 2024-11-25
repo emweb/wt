@@ -7,7 +7,7 @@
 #ifndef WT_AUTH_MFA_TOTPQRCODE_H_
 #define WT_AUTH_MFA_TOTPQRCODE_H_
 
-#include "Wt/WPaintedWidget.h"
+#include "Wt/WQrCode.h"
 
 #include "thirdparty/qrcodegen/QrCode.hpp"
 
@@ -26,11 +26,9 @@ namespace Wt {
    * \sa formatKey for a full list of what items are required.
    * \sa generateSecretKey()
    */
-  class WT_API TotpQrCode : public WPaintedWidget
+  class WT_API TotpQrCode : public WQrCode
   {
   public:
-    static constexpr qrcodegen::Ecc ErrorLevelCorrection = qrcodegen::Ecc::LOW;
-    static constexpr double SQUARE_SIZE = 5;
 
     /*! \brief Constructor
      *
@@ -63,14 +61,6 @@ namespace Wt {
      *  - period: the size of the time frame/window
      */
     virtual std::string formatKey(const std::string& key, const std::string& serviceName, const std::string& userName, int codeDigits) const;
-
-  protected:
-    void paintEvent(WPaintDevice* paintDevice) override;
-
-  private:
-    qrcodegen::QrCode code_;
-
-    const qrcodegen::QrCode& code() { return code_; }
   };
     }
   }
