@@ -33,17 +33,19 @@ public:
   void setSquareSize(double size);
   double squareSize() const { return squareSize_; }
 
+  bool error() const { return !code(); }
+
 protected:
   void paintEvent(WPaintDevice* paintDevice) override;
 
 private:
   ErrorCorrectionLevel errCorrLvl_;
   std::string msg_;
-  qrcodegen::QrCode code_;
+  std::unique_ptr<qrcodegen::QrCode> code_;
   double squareSize_;
 
   void init();
-  const qrcodegen::QrCode& code() const { return code_; }
+  const qrcodegen::QrCode* code() const { return code_.get(); }
   void generateCode();
   void updateSize();
 };

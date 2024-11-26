@@ -5,6 +5,7 @@
 #include <Wt/WPainter.h>
 
 #include <string>
+#include <exception>
 #include <thirdparty/qrcodegen/QrCode.hpp>
 
 namespace Wt {
@@ -70,12 +71,14 @@ void WQrCode::paintEvent(WPaintDevice* paintDevice)
   WPainter painter(paintDevice);
   auto brush = WBrush(StandardColor::Black);
 
-  for (auto line = 0; line < code().getSize(); ++line) {
-    for (auto column = 0; column < code().getSize(); ++column) {
-      if (code().getModule(column, line)) {
-        painter.fillRect(line * squareSize(), column * squareSize(),
-                          squareSize(), squareSize(),
-                          brush);
+  if (code()) {
+    for (auto line = 0; line < code()->getSize(); ++line) {
+      for (auto column = 0; column < code()->getSize(); ++column) {
+        if (code()->getModule(column, line)) {
+          painter.fillRect(line * squareSize(), column * squareSize(),
+                            squareSize(), squareSize(),
+                            brush);
+        }
       }
     }
   }
@@ -88,13 +91,23 @@ void WQrCode::init()
 
 void WQrCode::generateCode()
 {
-  code_ = qrcodegen::QrCode::encodeText(msg_.c_str(), errCorrLvl_);
+  try {
+#ifndef WT_TARGET_JAVA
+    code_ = std::make_unique<qrcodegen::QrCode>(qrcodegen::QrCode::encodeText(msg_.c_str(), errCorrLvl_));
+#else
+    qrcodegen::QrCode code = qrcodegen::QrCode::encodeText(msg_.c_str(), errCorrLvl_);
+    code_ = &code;
+#endif
+  } catch (std::exception& e) {
+    code_.reset();
+    LOG_ERROR("Error while generating QR code: "<<e.what());
+  }
   updateSize();
 }
 
 void WQrCode::updateSize()
 {
-  auto size = code().getSize() * squareSize_;
+  auto size = code() ? code()->getSize() * squareSize_ : 0;
   resize(size, size);
   update();
 }
