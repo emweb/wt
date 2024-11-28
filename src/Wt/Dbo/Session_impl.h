@@ -289,7 +289,9 @@ void Session::prune(MetaDbo<C> *obj)
 {
   getMapping<C>()->registry_.erase(obj->id());
 
-  discardChanges(obj);
+  if (mustDiscardChange()) {
+    discardChanges(obj);
+  }
 }
 
 template<class C>
@@ -443,6 +445,21 @@ void Session::Mapping<C>::init(Session& session)
     InitSchema action(session, *this);
     MutC dummy;
     action.visit(dummy);
+  }
+}
+
+template <class C>
+void Session::Mapping<C>::releaseMemory()
+{
+  std::vector<ptr<C>> objects;
+  for (typename Registry::iterator i = registry_.begin();
+       i != registry_.end(); ++i) {
+    // we cannot call purge() here because that would change the
+    // registry and invalidate the iterators
+    objects.push_back(ptr<C>(i->second));
+  }
+  for (typename std::vector<ptr<C>>::iterator i = objects.begin(); i != objects.end(); ++i) {
+    (*i).purge();
   }
 }
 

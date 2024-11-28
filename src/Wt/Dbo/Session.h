@@ -73,6 +73,7 @@ namespace Wt {
         virtual void load(Session& session, MetaDboBase *obj);
         virtual MetaDboBase *load(Session& session, SqlStatement *statement,
                                   int& column);
+        virtual void releaseMemory();
 
         std::string primaryKeys() const;
       };
@@ -543,6 +544,7 @@ private:
     virtual void load(Session& session, MetaDboBase *obj) override;
     virtual MetaDbo<C> *load(Session& session, SqlStatement *statement,
                              int& column) override;
+    virtual void releaseMemory() override;
   };
 
   typedef const std::type_info * const_typeinfo_ptr;
@@ -566,6 +568,7 @@ private:
   SqlConnectionPool *connectionPool_;
   Transaction::Impl *transaction_;
   FlushMode flushMode_;
+  bool mustDiscardChange_;
 
   void initSchema() const;
   void resolveJoinIds(Impl::MappingInfo *mapping);
@@ -613,6 +616,7 @@ private:
                        std::ostream *sout);
 
   void needsFlush(MetaDboBase *dbo);
+  bool mustDiscardChange() const { return mustDiscardChange_; }
 
   template <class C> Mapping<C> *getMapping() const;
   Impl::MappingInfo *getMapping(const char *tableName) const;

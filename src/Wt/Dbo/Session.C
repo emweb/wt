@@ -109,6 +109,11 @@ MetaDboBase *MappingInfo::load(WT_MAYBE_UNUSED Session& session, WT_MAYBE_UNUSED
   throw Exception("Not to be done.");
 }
 
+void MappingInfo::releaseMemory()
+{
+  throw Exception("Not to be done.");
+}
+
 std::string MappingInfo::primaryKeys() const
 {
   if (surrogateIdFieldName)
@@ -147,7 +152,8 @@ Session::Session()
     connection_(nullptr),
     connectionPool_(nullptr),
     transaction_(nullptr),
-    flushMode_(FlushMode::Auto)
+    flushMode_(FlushMode::Auto),
+    mustDiscardChange_(true)
 { }
 
 Session::~Session()
@@ -164,9 +170,12 @@ Session::~Session()
   dirtyObjects_->clear();
   delete dirtyObjects_;
 
+  mustDiscardChange_ = false;
   for (ClassRegistry::iterator i = classRegistry_.begin();
-       i != classRegistry_.end(); ++i)
+       i != classRegistry_.end(); ++i) {
+    i->second->releaseMemory();
     delete i->second;
+  }
 }
 
 void Session::setConnection(std::unique_ptr<SqlConnection> connection)
