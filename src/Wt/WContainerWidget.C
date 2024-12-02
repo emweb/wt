@@ -197,6 +197,8 @@ void WContainerWidget::clear()
 {
 #ifndef WT_NO_LAYOUT
   layout_.reset();
+  flags_.set(BIT_LAYOUT_NEEDS_RERENDER);
+  repaint();
 #endif
 
   while (!children_.empty())
