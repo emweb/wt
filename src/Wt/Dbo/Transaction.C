@@ -7,6 +7,7 @@
 #include <exception>
 #include <iostream>
 
+#include "Wt/Dbo/Exception.h"
 #include "Wt/Dbo/Logger.h"
 #include "Wt/Dbo/Session.h"
 #include "Wt/Dbo/SqlConnection.h"
@@ -23,8 +24,11 @@ Transaction::Transaction(Session& session)
   : committed_(false),
     session_(session)
 {
-  if (!session_.transaction_)
+  if (!session_.transaction_) {
     session_.transaction_ = new Impl(session_);
+  } else if (!session_.allowNestedTransaction_) {
+    throw Exception(std::string("Using nested transaction while nested transaction is disable."));
+  }
 
   impl_ = session_.transaction_;
 

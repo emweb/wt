@@ -153,7 +153,8 @@ Session::Session()
     connectionPool_(nullptr),
     transaction_(nullptr),
     flushMode_(FlushMode::Auto),
-    mustDiscardChange_(true)
+    mustDiscardChange_(true),
+    allowNestedTransaction_(true)
 { }
 
 Session::~Session()
@@ -1286,6 +1287,14 @@ void Session::load(MetaDboBase *dbo)
 {
   Impl::MappingInfo *mapping = dbo->getMapping();
   mapping->load(*this, dbo);
+}
+
+void Session::setAllowNestedTransaction(bool enable)
+{
+  allowNestedTransaction_ = enable;
+  if (!allowNestedTransaction_ && transaction_ && transaction_->transactionCount_ > 1) {
+    throw Exception("Using nested transaction while nested transaction is disable.");
+  }
 }
 
   }
