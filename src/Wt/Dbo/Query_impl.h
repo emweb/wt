@@ -250,7 +250,10 @@ Query<Result, DirectBinding>&
 Query<Result, DirectBinding>::bind(const T& value)
 {
   sql_value_traits<T>::bind(value, this->statement_, column_, -1);
-  sql_value_traits<T>::bind(value, this->countStatement_, column_, -1);
+
+  if (!countQuery()) {
+    sql_value_traits<T>::bind(value, this->countStatement_, column_, -1);
+  }
 
   ++column_;
 
@@ -297,6 +300,14 @@ template <class Result>
 Query<Result, DirectBinding>::operator collection<Result> () const
 {
   return resultList();
+}
+
+template <class Result>
+Query<Result, DirectBinding>& Query<Result, DirectBinding>::setCountQuery(const Query<Result, DirectBinding>& query)
+{
+  altCountQuery_ = std::make_shared<Query<Result, DirectBinding>>(query);
+  countStatement_ = altCountQuery();
+  return *this;
 }
 
 template <class Result>
@@ -350,8 +361,13 @@ template <class Result>
 Query<Result, DynamicBinding>
 ::Query(const Query<Result, DynamicBinding>& other)
   : AbstractQuery(other),
-    Impl::QueryBase<Result>(other)
-{ }
+    Impl::QueryBase<Result>(other),
+    altCountQuery_()
+{
+  if (other.altCountQuery_) {
+    setCountQuery(*(other.countQuery()));
+  }
+}
 
 template <class Result>
 Query<Result, DynamicBinding>&
@@ -360,6 +376,11 @@ Query<Result, DynamicBinding>::operator=
 {
   Impl::QueryBase<Result>::operator=(other);
   AbstractQuery::operator=(other);
+  if (other.altCountQuery_) {
+    setCountQuery(*(other.countQuery()));
+  } else {
+    altCountQuery_.reset();
+  }
   return *this;
 }
 
@@ -496,6 +517,13 @@ Query<Result, DynamicBinding>::limit(int limit)
 }
 
 template <class Result>
+Query<Result, DynamicBinding>& Query<Result, DynamicBinding>::setCountQuery(const Query<Result, DynamicBinding>& query)
+{
+  altCountQuery_ = std::make_unique<Query<Result, DynamicBinding>>(query);
+  return *this;
+}
+
+template <class Result>
 Result Query<Result, DynamicBinding>::resultValue() const
 {
   return this->singleResult(resultList());
@@ -515,9 +543,29 @@ collection<Result> Query<Result, DynamicBinding>::resultList() const
     = this->statements(join_, where_, groupBy_, having_, orderBy_, limit_, offset_);
 
   bindParameters(this->session_, statement);
-  bindParameters(this->session_, countStatement);
+
+  if (countQuery()) {
+    countStatement->done();
+    countStatement = countQuery()->countStatement();
+    countQuery()->bindParameters(this->session_, countStatement);
+  } else {
+    bindParameters(this->session_, countStatement);
+  }
 
   return collection<Result>(this->session_, statement, countStatement);
+}
+
+template <class Result>
+SqlStatement *Query<Result, DynamicBinding>::countStatement() const
+{ 
+  SqlStatement *statement, *countStatement;
+
+  std::tie(statement, countStatement) = 
+    this->statements(join_, where_, groupBy_, having_, orderBy_, limit_, offset_);
+
+  statement->done();
+
+  return countStatement;
 }
 
 template <class Result>
