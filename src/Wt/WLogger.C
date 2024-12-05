@@ -234,7 +234,8 @@ WLogger::Field::Field(const std::string& name, bool isString)
 
 WLogger::WLogger()
   : o_(&std::cerr),
-    ownStream_(false)
+    ownStream_(false),
+    useLock_(true)
 {
   Rule r;
   r.type = "*";
@@ -314,9 +315,16 @@ WLogEntry WLogger::entry(const std::string& type) const
 void WLogger::addLine(const std::string& type,
                       const std::string& scope, const WStringStream& s) const
 {
-  if (logging(type, scope))
-    if (o_)
+  if (logging(type, scope)) {
+    std::unique_lock<std::mutex> l;
+    if (useLock_) {
+      l = std::unique_lock<std::mutex>(addLineLock_);
+    }
+
+    if (o_) {
       *o_ << s.str() << std::endl;
+    }
+  }
 }
 
 void WLogger::configure(const std::string& config)
@@ -381,6 +389,11 @@ bool WLogger::logging(const std::string& type, const std::string& scope) const
         result = rules_[i].include;
 
   return result;
+}
+
+void WLogger::setUseLock(bool enable)
+{
+  useLock_ = enable;
 }
 
 WLogger& logInstance()

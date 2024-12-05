@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -257,9 +258,15 @@ public:
    */
   bool logging(const std::string& type, const std::string& scope) const;
 
+  void setUseLock(bool enable);
+
+  bool useLock() const { return useLock_; }
+
 private:
   std::ostream* o_;
   bool ownStream_;
+  bool useLock_;
+  mutable std::mutex addLineLock_;
   std::vector<Field> fields_;
 
   struct Rule {
