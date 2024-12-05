@@ -134,15 +134,17 @@ void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
                    + widget(currentIndex_)->jsRef() + ");");
   }
 
-  if (loadPolicies_[currentIndex_] == ContentLoading::Lazy) {
-    WContainerWidget* container = dynamic_cast<WContainerWidget*>(currentWidget());
+  if (currentIndex_ >= 0) {
+    if (loadPolicies_[currentIndex_] == ContentLoading::Lazy) {
+      WContainerWidget* container = dynamic_cast<WContainerWidget*>(currentWidget());
 
-    // If the container is empty, the content is not yet loaded. We rely on the function calling this one to emit the signal.
-    if (container->count()) {
-      currentWidgetChanged().emit(container->widget(0)); 
+      // If the container is empty, the content is not yet loaded. We rely on the function calling this one to emit the signal.
+      if (container->count()) {
+        currentWidgetChanged().emit(container->widget(0)); 
+      }
+    } else {
+      currentWidgetChanged().emit(currentWidget());
     }
-  } else {
-    currentWidgetChanged().emit(currentWidget());
   }
 }
 

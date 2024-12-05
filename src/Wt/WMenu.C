@@ -314,6 +314,7 @@ void WMenu::select(int index, bool changePath)
       //if the item was not loaded before selectVisual we emit the signal
       if (!itemLoaded && 
         contentsStack_ && 
+        contentsStack_->currentIndex_ >= 0 &&
         contentsStack_->loadPolicies_[contentsStack_->currentIndex_] == ContentLoading::Lazy) {
         WContainerWidget* container = dynamic_cast<WContainerWidget*>(contentsStack_->currentWidget());
         contentsStack_->currentWidgetChanged().emit(container->widget(0));
