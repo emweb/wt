@@ -143,13 +143,43 @@ public:
    */
   Wt::Dbo::Session& session() const { return session_; }
 
+  /*! \brief Sets the item of the model
+   * 
+   * Changes the item of the model. This will emit the itemChanged() signal,
+   * making the FormView update.
+   * 
+   * Setting the item to \p nullptr will result in a new item being
+   * constructed. This will load the default values of the item. The
+   * item remains transient (ptr::isTransient()), until it is saved,
+   * using saveDboValues() or FormView::save().
+   */
+  void setItem(Wt::Dbo::ptr<C> ptr)
+  {
+    item_ = ptr;
+    initDboValues();
+    itemChanged_.emit();
+  }
+
   /*! \brief Returns the database object used by this class
+   *
+   * \sa setItem()
    */
   const Wt::Dbo::ptr<C>& item() const { return item_; }
+
+  /*! \brief Signal emited when the item is changed
+   * 
+   * Signal emitted when setItem() is called.
+   * 
+   * If this model is used as the model of a FormView, (using
+   * FormView::setModel()), the FormView will listen to this signal and
+   * update when it is emitted.
+   */
+  Signal<>& itemChanged() { return itemChanged_; }
 
 private:
   Wt::Dbo::Session& session_;
   Wt::Dbo::ptr<C> item_;
+  Wt::Signal<> itemChanged_;
 
   bool valuesInitialized_ = false;
 };
