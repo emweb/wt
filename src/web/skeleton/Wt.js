@@ -2125,7 +2125,7 @@ if (!window._$_WT_CLASS_$_) {
               newState = stateMap[w.location.pathname + w.location.search];
             }
 
-            if (newState === null) {
+            if (newState === null || typeof newState === UNDEFINED) {
               const endw = w.location.pathname.lastIndexOf(currentState);
               if (
                 endw !== -1 &&
