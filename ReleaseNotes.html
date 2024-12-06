@@ -55,6 +55,12 @@ behaviour.
     <a href="https://redmine.emweb.be/issues/12934" target="_blank">Issue #12934</a>:
     Fixed a bug in layouts using js implementation where a widget size could be set higher than it's maximum size, leading to additional space after that widget.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13300" target="_blank">Issue #13300</a>:
+    fixed a missing fallback in Wt's main JavaScript, when handling browser history navigation (using the back and forward buttons).
+    In case of rewritten browser history, the retrieval would fail, and encounter an `undefined` state. Throwing a JavaScript error. This error should be guarded against,
+    and the fallback should always kick in.
+  </li>
 </ul>
 
 <h2>Release 4.11.1 (November 5, 2024)</h2>
