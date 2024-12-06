@@ -41,30 +41,46 @@ pipeline {
         pollSCM('H/5 * * * *')
     }
     stages {
-        stage('Single-threaded') {
-            steps {
-                dir('build-st') {
-                    wt_configure(mt: 'OFF')
-                    sh "make -k -j${thread_count}"
-                    sh "make -C examples -k -j${thread_count}"
+        stage('Build') {
+            stages {
+                stage('Single-threaded') {
+                    steps {
+                        dir('build-st') {
+                            wt_configure(mt: 'OFF')
+                            sh "make -k -j${thread_count}"
+                            sh "make -C examples -k -j${thread_count}"
+                        }
+                    }
                 }
-                dir('test') {
-                    warnError('st test.wt failed') {
-                        sh "../build-st/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_test_log.xml"
+                stage('Multi-threaded') {
+                    steps {
+                        dir('build-mt') {
+                            wt_configure(mt: 'ON')
+                            sh "make -k -j${thread_count}"
+                            sh "make -C examples -k -j${thread_count}"
+                        }
                     }
                 }
             }
         }
-        stage('Multi-threaded') {
-            steps {
-                dir('build-mt') {
-                    wt_configure(mt: 'ON')
-                    sh "make -k -j${thread_count}"
-                    sh "make -C examples -k -j${thread_count}"
+        stage('Test') {
+            stages {
+                stage('Single-threaded') {
+                    steps {
+                        dir('test') {
+                            warnError('st test.wt failed') {
+                                sh "../build-st/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_test_log.xml"
+                            }
+                        }
+                    }
                 }
-                dir('test') {
-                    warnError('mt test.wt failed') {
-                        sh "../build-mt/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_test_log.xml"
+                stage('Multi-threaded') {
+                    steps {
+                        dir('test') {
+                            warnError('mt test.wt failed') {
+                                sh "../build-mt/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_test_log.xml"
+                            }
+                        }
                     }
                 }
             }
