@@ -9,6 +9,7 @@
 
 #include "Wt/WObject.h"
 #include "Wt/WSignal.h"
+#include "Wt/WString.h"
 
 namespace Wt {
 
@@ -27,10 +28,28 @@ public:
     Denied   //!< Permission denied by the user. Notifications won't be displayed.
   };
 
+  explicit WNotification(const WString& title = WString(), const WString& body = WString());
+
+  void setTitle(const WString& title);
+  WString title() const { return title_; }
+
+  void setBody(const WString& body);
+  WString body() const { return body_; }
+
+  void send();
+  void close();
+
   static bool supported();
   static void askPermission();
   static Permission permission();
   static Signal<Permission>& permissionUpdated();
+
+private:
+  WString title_;
+  WString body_;
+
+  std::string jsRef();
+  void defineJavaScript();
 };
 
 
