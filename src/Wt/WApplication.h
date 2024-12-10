@@ -29,6 +29,7 @@ namespace boost {
 #include <Wt/WJavaScriptSlot.h>
 #include <Wt/WLocale.h>
 #include <Wt/WMessageResourceBundle.h>
+#include <Wt/WNotification.h>
 #include <Wt/WSignal.h>
 #include <Wt/WString.h>
 
@@ -2463,6 +2464,9 @@ private:
   // Remove the added cookie, for correct bookkeeping.
   void removeAddedCookies(const std::string& name);
 
+  JSignal<std::string> updateNotificationPermission_;
+  Signal<WNotification::Permission> notificationPermissionChanged_;
+
   WContainerWidget *timerRoot() const { return timerRoot_; }
   WEnvironment& env(); // short-hand for session_->env()
 
@@ -2523,6 +2527,7 @@ private:
   bool exposeSignals() const { return exposeSignals_; }
   void doUnload();
   void doIdleTimeout();
+  void onUpdateNotificationPermission(const std::string& permission);
 
 #ifndef WT_TARGET_JAVA
   int startWaitingAtLock();
@@ -2568,6 +2573,7 @@ private:
   friend class WInteractWidget;
   friend class WLineEdit;
   friend class WMenu;
+  friend class WNotification;
   friend class WResource;
   friend class WSelfDeletingResource;
   friend class WSound;

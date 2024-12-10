@@ -50,6 +50,8 @@ WEnvironment::WEnvironment()
     dpiScale_(1),
     webGLsupported_(false),
     isLikelyBotGetRequest_(false),
+    notificationSupported_(false),
+    notificationPermission_(WNotification::Permission::Default),
     timeZoneOffset_(0)
 { }
 
@@ -63,6 +65,8 @@ WEnvironment::WEnvironment(WebSession *session)
     dpiScale_(1),
     webGLsupported_(false),
     isLikelyBotGetRequest_(false),
+    notificationSupported_(false),
+    notificationPermission_(WNotification::Permission::Default),
     timeZoneOffset_(0)
 { }
 
@@ -210,6 +214,12 @@ void WEnvironment::enableAjax(const WebRequest& request)
 
   timeZoneName_ = tzSE ? *tzSE : std::string("");
 
+  const std::string *notifE = request.getParameter("notif");
+  notificationSupported_ = notifE;
+  if (notificationSupported_) {
+    setNotificationPermission(*notifE);
+  }
+
   const std::string *hashE = request.getParameter("_");
 
   // the internal path, when present as an anchor (#), is only
@@ -238,6 +248,17 @@ void WEnvironment::enableAjax(const WebRequest& request)
       screenHeight_ = Utils::stoi(*scrHE);
     } catch (std::exception &e) {
     }
+  }
+}
+
+void WEnvironment::setNotificationPermission(const std::string& permission)
+{
+  if (permission == "denied") {
+    notificationPermission_ = WNotification::Permission::Denied;
+  } else if (permission == "granted") {
+    notificationPermission_ = WNotification::Permission::Granted;
+  } else if (permission == "default") {
+    notificationPermission_ = WNotification::Permission::Default;
   }
 }
 

@@ -15,6 +15,7 @@
 #include <Wt/WDllDefs.h>
 #include <Wt/Http/Request.h>
 #include <Wt/WLocale.h>
+#include <Wt/WNotification.h>
 #include <Wt/WSignal.h>
 
 namespace Wt {
@@ -264,6 +265,10 @@ public:
    * WGLWidget.
    */
   bool webGL() const { return webGLsupported_; }
+
+  bool supportsNotifications() const { return notificationSupported_; }
+
+  WNotification::Permission notificationPermission() const { return notificationPermission_; }
 
   /*! \brief Returns the horizontal resolution of the client's screen.
    *
@@ -711,17 +716,19 @@ public:
   virtual bool isTest() const;
 
 protected:
-  WebSession *session_;
-  bool        doesAjax_;
-  bool        doesCookies_;
-  bool        internalPathUsingFragments_;
-  UserAgent   agent_;
-  int         screenWidth_;
-  int         screenHeight_;
-  double      dpiScale_;
-  std::string queryString_;
-  bool        webGLsupported_;
-  bool        isLikelyBotGetRequest_;
+  WebSession               *session_;
+  bool                      doesAjax_;
+  bool                      doesCookies_;
+  bool                      internalPathUsingFragments_;
+  UserAgent                 agent_;
+  int                       screenWidth_;
+  int                       screenHeight_;
+  double                    dpiScale_;
+  std::string               queryString_;
+  bool                      webGLsupported_;
+  bool                      isLikelyBotGetRequest_;
+  bool                      notificationSupported_;
+  WNotification::Permission notificationPermission_;
 
   Http::ParameterMap parameters_;
   CookieMap   cookies_;
@@ -759,6 +766,7 @@ private:
   void updateHostName(const WebRequest& request);
   void updateUrlScheme(const WebRequest& request);
   void enableAjax(const WebRequest& request);
+  void setNotificationPermission(const std::string& permission);
 
   bool agentSupportsAjax() const;
   static void parseCookies(const std::string& cookie,

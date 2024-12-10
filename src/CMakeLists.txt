@@ -196,6 +196,7 @@ Wt/WMessageResourceBundle.h Wt/WMessageResourceBundle.C
 Wt/WMessageResources.h Wt/WMessageResources.C
 Wt/WModelIndex.h Wt/WModelIndex.C
 Wt/WNavigationBar.h Wt/WNavigationBar.C
+Wt/WNotification.h Wt/WNotification.C
 Wt/WObject.h Wt/WObject.C
 Wt/WOverlayLoadingIndicator.h Wt/WOverlayLoadingIndicator.C
 Wt/WPaintDevice.h Wt/WPaintDevice.C

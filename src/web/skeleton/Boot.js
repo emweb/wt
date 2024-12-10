@@ -290,6 +290,11 @@ _$_$endif_$_();
       otherInfo += "&tzS=" + encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone);
     }
 
+    // determine notification permission status
+    if ("Notification" in window) {
+      otherInfo += "&notif=" + Notification.permission;
+    }
+
     let needSessionInUrl = !no_replace || !ajax;
 
     if (needSessionInUrl) {

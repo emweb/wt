@@ -136,6 +136,7 @@ WApplication::WApplication(const WEnvironment& env
     hideLoadingIndicator_("hideload", this),
     unloaded_(this, "Wt-unload"),
     idleTimeout_(this, "Wt-idleTimeout"),
+    updateNotificationPermission_(this, "Wt-updateNotificationPermission"),
     soundManager_(nullptr),
     serverSideFontMetrics_(nullptr)
 {
@@ -294,6 +295,7 @@ WApplication::WApplication(const WEnvironment& env
 
   unloaded_.connect(this, &WApplication::doUnload);
   idleTimeout_.connect(this, &WApplication::doIdleTimeout);
+  updateNotificationPermission_.connect(this, &WApplication::onUpdateNotificationPermission);
 }
 
 void WApplication::setJavaScriptClass(const std::string& javaScriptClass)
@@ -840,6 +842,12 @@ void WApplication::idleTimeout()
   const Configuration& conf = environment().server()->configuration();
   LOG_INFO("User idle for " << conf.idleTimeout() << " seconds, quitting due to idle timeout");
   quit();
+}
+
+void WApplication::onUpdateNotificationPermission(const std::string& permission)
+{
+  env().setNotificationPermission(permission);
+  notificationPermissionChanged_.emit(env().notificationPermission());
 }
 
 void WApplication::handleJavaScriptError(const std::string& errorText)
