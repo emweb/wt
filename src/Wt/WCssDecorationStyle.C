@@ -370,14 +370,19 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
   if (textDecorationChanged_ ||  all) {
     std::string options;
 
-    if (textDecoration_.test(TextDecoration::Underline))
-      options += " underline";
-    if (textDecoration_.test(TextDecoration::Overline))
-      options += " overline";
-    if (textDecoration_.test(TextDecoration::LineThrough))
-      options += " line-through";
-    if (textDecoration_.test(TextDecoration::Blink))
-      options += " blink";
+    if (textDecoration_.empty())
+      options = "none";
+    else
+    {
+      if (textDecoration_.test(TextDecoration::Underline))
+        options += " underline";
+      if (textDecoration_.test(TextDecoration::Overline))
+        options += " overline";
+      if (textDecoration_.test(TextDecoration::LineThrough))
+        options += " line-through";
+      if (textDecoration_.test(TextDecoration::Blink))
+        options += " blink";
+    }
 
     if (!options.empty() || textDecorationChanged_)
       element.setProperty(Property::StyleTextDecoration, options);
