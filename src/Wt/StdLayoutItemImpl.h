@@ -17,20 +17,52 @@ namespace Wt {
   class WApplication;
   class WContainerWidget;
 
+/*! \class StdLayoutItemImpl Wt/StdLayoutItemImpl.h Wt/StdLayoutItemImpl.h
+ *  \brief An abstract class for implementing layout managers.
+ *
+ * \sa WLayoutItem
+ */
 class WT_API StdLayoutItemImpl : public WObject, public WLayoutItemImpl
 {
 public:
+  /*! \brief Constructor.
+   */
   StdLayoutItemImpl();
+
+  /*! \brief Destructor.
+   */
   virtual ~StdLayoutItemImpl();
 
+  /*! \brief Returns the container of the of the parent layout.
+   */
   WContainerWidget *container() const;
+
+  /*! \brief Returns the actual WLayoutItem.
+   */
   virtual WLayoutItem *layoutItem() const = 0;
 
+  /*! \brief Returns the minimum width of the item.
+   */
   virtual int minimumWidth() const = 0;
+
+  /*! \brief Returns the minimum height of the item.
+   */
   virtual int minimumHeight() const = 0;
+
+  /*! \brief Returns the maximum width of the item.
+   */
   virtual int maximumWidth() const = 0;
+
+  /*! \brief Returns the maximum height of the item.
+   */
   virtual int maximumHeight() const = 0;
 
+  /*! \brief Returns the parent layout of the item.
+   * 
+   * Returns the parent layout of the item as a StdLayoutImpl
+   * if the layout is a subclass of StdLayoutImpl. Otherwise
+   * returns nullptr;
+   */
   StdLayoutImpl *parentLayoutImpl() const;
 
   virtual DomElement *createDomElement(DomElement *parent,
