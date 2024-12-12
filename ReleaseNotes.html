@@ -87,6 +87,21 @@ behaviour.
   </li>
 </ul>
 
+<p>
+  Wt 4.11.4 also comes with the following improvements:
+</p>
+
+<ul>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13125" target="_blank">Issue #13125</a>:
+    Added
+    <a href="classWt_1_1StdLayoutImpl.html" target="_blank">StdLayoutImpl</a> and
+    <a href="classWt_1_1StdLayoutItemImpl.html" target="_blank">StdLayoutItemImpl</a> to the public API. These classes were already used by Wt to create layout but were not public.
+    Since those classes are necessary to create a custom layout for a <a href="classWt_1_1WContainerWidget.html" target="_blank">WContainerWidget</a>
+    it has now be made public to allow developers to create their own layouts. An example of a simple layout was also added in <code>examples/feature/custom_layout</code>.
+  </li>
+</ul>
+
 <h2>Release 4.11.3 (February 19, 2025)</h2>
 
 <p>
