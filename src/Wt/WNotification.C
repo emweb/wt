@@ -20,7 +20,11 @@ namespace Wt {
 
 WNotification::WNotification(const WString& title, const WString& body)
   : title_(title),
-    body_(body)
+    body_(body),
+    clicked_(this, "clicked"),
+    closed_(this, "closed"),
+    shown_(this, "shown"),
+    error_(this, "error")
 { }
 
 void WNotification::setTitle(const WString& title)
@@ -35,11 +39,25 @@ void WNotification::setBody(const WString& body)
 
 void WNotification::send()
 {
-  defineJavaScript();
+  loadJavaScript();
+
+  WApplication *app = WApplication::instance();
+  WStringStream js;
+ js << app->javaScriptClass() << ".WNotification.create("
+     << jsRef() << ","
+     << title_.jsStringLiteral() << ",{";
+  if (!body_.empty()) {
+    js << "body:"<< body_.jsStringLiteral();
+  }
+  js << "});";
+
+  app->doJavaScript(js.str().c_str());
 }
 
 void WNotification::close()
 {
+  loadJavaScript();
+
   WApplication *app = WApplication::instance();
   WStringStream js;
   js << app->javaScriptClass() << ".WNotification.close(" << jsRef() << ");";
@@ -81,25 +99,17 @@ std::string WNotification::jsRef()
   return WString(id()).jsStringLiteral();
 }
 
-void WNotification::defineJavaScript()
+void WNotification::loadJavaScript()
 {
   WApplication *app = WApplication::instance();
   const char *THIS_JS = "js/WNotification.js";
+
   if (!app->javaScriptLoaded(THIS_JS)) {
-    LOAD_JAVASCRIPT(app, THIS_JS, "WNotification", appjs1);
+    WStringStream js;
+    LOAD_JAVASCRIPT(app, THIS_JS, "WNotificationSetup", appjs2);
+    js << app->javaScriptClass() << ".WNotificationSetup("<< app->javaScriptClass() <<");\n";
+    app->doJavaScript(js.str().c_str());
   }
-
-  WStringStream js;
-
-  js << app->javaScriptClass() << ".WNotification.create("
-     << jsRef() << ","
-     << title_.jsStringLiteral() << ",{";
-  if (!body_.empty()) {
-    js << "body:"<< body_.jsStringLiteral();
-  }
-  js << "});";
-
-  app->doJavaScript(js.str().c_str());
 }
 
 }

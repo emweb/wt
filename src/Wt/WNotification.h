@@ -8,6 +8,7 @@
 #define WT_WNOTIFICATION_H_
 
 #include "Wt/WObject.h"
+#include "Wt/WJavaScript.h"
 #include "Wt/WSignal.h"
 #include "Wt/WString.h"
 
@@ -17,7 +18,7 @@ class WT_API WNotification : public WObject
 {
 public:
   /*! \brief Enumeration representing the permission status of notifications.
-  * 
+  *
   * For an application to show notifications, it must first ask the authorization of the
   * user. This enumeration represent the different possible permisson status that the
   * application can have.
@@ -39,6 +40,11 @@ public:
   void send();
   void close();
 
+  JSignal<>& clicked() { return clicked_; }
+  JSignal<>& closed() { return closed_; }
+  JSignal<>& shown() { return shown_; }
+  JSignal<>& error() { return error_; }
+
   static bool supported();
   static void askPermission();
   static Permission permission();
@@ -48,8 +54,10 @@ private:
   WString title_;
   WString body_;
 
+  JSignal<> clicked_, closed_, shown_, error_;
+
   std::string jsRef();
-  void defineJavaScript();
+  void loadJavaScript();
 };
 
 
