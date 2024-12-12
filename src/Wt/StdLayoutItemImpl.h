@@ -17,7 +17,7 @@ namespace Wt {
   class WApplication;
   class WContainerWidget;
 
-class StdLayoutItemImpl : public WObject, public WLayoutItemImpl
+class WT_API StdLayoutItemImpl : public WObject, public WLayoutItemImpl
 {
 public:
   StdLayoutItemImpl();

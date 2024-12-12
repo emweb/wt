@@ -14,7 +14,7 @@ namespace Wt {
 
 class WLayout;
 
-class StdLayoutImpl : public StdLayoutItemImpl, public WLayoutImpl
+class WT_API StdLayoutImpl : public StdLayoutItemImpl, public WLayoutImpl
 {
 public:
   StdLayoutImpl(WLayout *layout);
