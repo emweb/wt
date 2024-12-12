@@ -3,6 +3,7 @@ SUBDIRS(
   auth2
   broadcast
   client-ssl-auth
+  custom_layout
   dbo
   locale
   mediaplayer
