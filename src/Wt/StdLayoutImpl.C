@@ -24,6 +24,15 @@ WLayoutItem *StdLayoutImpl::layoutItem() const
   return layout_;
 }
 
+void StdLayoutImpl::update()
+{
+  WContainerWidget *c = container();
+
+  if (c) {
+    c->layoutChanged(false);
+  }
+}
+
 StdLayoutItemImpl *StdLayoutImpl::getImpl(WLayoutItem *item)
 {
   return dynamic_cast<StdLayoutItemImpl *>(item->impl());

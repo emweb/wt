@@ -259,15 +259,6 @@ void FlexLayoutImpl::itemRemoved(WLayoutItem *item)
   update();
 }
 
-void FlexLayoutImpl::update()
-{
-  WContainerWidget *c = container();
-
-  if (c) {
-    c->layoutChanged(false);
-  }
-}
-
 int FlexLayoutImpl::count(WT_MAYBE_UNUSED Orientation orientation) const
 {
   return grid_.rows_.size() * grid_.columns_.size();

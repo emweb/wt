@@ -390,11 +390,7 @@ void StdGridLayoutImpl2::itemRemoved(WLayoutItem *item)
 
 void StdGridLayoutImpl2::update()
 {
-  WContainerWidget *c = container();
-
-  if (c)
-    c->layoutChanged(false);
-
+  StdLayoutImpl::update();
   needConfigUpdate_ = true;
 }
 

@@ -33,8 +33,6 @@ public:
 
   void updateDom(DomElement& parent) override;
 
-  void update() override;
-
   DomElement *createDomElement(DomElement *parent, bool fitWidth,
                                bool fitHeight, WApplication *app) override;
 

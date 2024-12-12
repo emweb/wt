@@ -27,6 +27,7 @@ public:
   virtual bool parentResized() = 0;
 
   virtual WLayoutItem *layoutItem() const override;
+  void update() override;
 
 protected:
   WLayout *layout() const { return layout_; }
