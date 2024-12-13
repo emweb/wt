@@ -61,46 +61,26 @@ void WNotification::setRequireInteraction(bool enable)
 
 void WNotification::send()
 {
-  loadJavaScript();
-
-  WApplication *app = WApplication::instance();
-  WStringStream js;
- js << app->javaScriptClass() << ".WNotification.create("
-     << jsRef() << ","
-     << title_.jsStringLiteral() << ",{"
-     << "tag:"<< WString(id()).jsStringLiteral()<<",";
-  if (!body_.empty()) {
-    js << "body:"<< body_.jsStringLiteral()<<",";
+  update();
+  if (permission() == Permission::Default) {
+    askPermission();
+    conn_ = permissionUpdated().connect(this, &WNotification::sendJs);
+  } else {
+    sendJs();
   }
-  if (!iconLink_.isNull()) {
-    std::string url = app->resolveRelativeUrl(iconLink_.url());
-    url = app->encodeUntrustedUrl(url);
-    js << "icon:"<< WString(url).jsStringLiteral()<<",";
-  }
-  if (!badgeLink_.isNull()) {
-    std::string url = app->resolveRelativeUrl(badgeLink_.url());
-    url = app->encodeUntrustedUrl(url);
-    js << "badge:"<< WString(url).jsStringLiteral()<<",";
-  }
-  if (silent_) {
-    js << "silent:true,";
-  }
-  if (requireInteraction_) {
-    js << "requireInteraction:true,";
-  }
-  js << "});";
-
-  app->doJavaScript(js.str().c_str());
 }
 
 void WNotification::close()
 {
-  loadJavaScript();
+  if (permission() == Permission::Granted) {
+    loadJavaScript();
 
-  WApplication *app = WApplication::instance();
-  WStringStream js;
-  js << app->javaScriptClass() << ".WNotification.close(" << jsRef() << ");";
-  WApplication::instance()->doJavaScript(js.str().c_str());
+    WApplication *app = WApplication::instance();
+    WStringStream js;
+    js << app->javaScriptClass() << ".WNotification.close(" << jsRef() << ");";
+    WApplication::instance()->doJavaScript(js.str().c_str());
+  }
+  conn_.disconnect();
 }
 
 bool WNotification::supported()
@@ -149,6 +129,49 @@ void WNotification::loadJavaScript()
     js << app->javaScriptClass() << ".WNotificationSetup("<< app->javaScriptClass() <<");\n";
     app->doJavaScript(js.str().c_str());
   }
+}
+
+void WNotification::update()
+{
+  if (permission() != Permission::Denied) {
+    WApplication *app = WApplication::instance();
+    WStringStream js;
+    js << app->javaScriptClass() << ".WNotification.create("
+      << jsRef() << ","
+      << title_.jsStringLiteral() << ",{"
+      << "tag:"<< WString(id()).jsStringLiteral()<<",";
+    if (!body_.empty()) {
+      js << "body:"<< body_.jsStringLiteral()<<",";
+    }
+    if (!iconLink_.isNull()) {
+      std::string url = app->resolveRelativeUrl(iconLink_.url());
+      url = app->encodeUntrustedUrl(url);
+      js << "icon:"<< WString(url).jsStringLiteral()<<",";
+    }
+    if (!badgeLink_.isNull()) {
+      std::string url = app->resolveRelativeUrl(badgeLink_.url());
+      url = app->encodeUntrustedUrl(url);
+      js << "badge:"<< WString(url).jsStringLiteral()<<",";
+    }
+    if (silent_) {
+      js << "silent:true,";
+    }
+    if (requireInteraction_) {
+      js << "requireInteraction:true,";
+    }
+    js << "});";
+
+    js_ = js.str();
+  }
+}
+
+void WNotification::sendJs()
+{
+  if (permission() == Permission::Granted) {
+    loadJavaScript();
+    WApplication::instance()->doJavaScript(js_.c_str());
+  }
+  conn_.disconnect();
 }
 
 }

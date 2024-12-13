@@ -73,8 +73,13 @@ private:
 
   JSignal<> clicked_, closed_, shown_, error_;
 
+  std::string js_;
+  Signals::connection conn_;
+
   std::string jsRef();
   void loadJavaScript();
+  void update();
+  void sendJs();
 };
 
 
