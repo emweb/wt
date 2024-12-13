@@ -136,6 +136,7 @@ WApplication::WApplication(const WEnvironment& env
     hideLoadingIndicator_("hideload", this),
     unloaded_(this, "Wt-unload"),
     idleTimeout_(this, "Wt-idleTimeout"),
+    notificationPermissionAsked_(false),
     updateNotificationPermission_(this, "Wt-updateNotificationPermission"),
     soundManager_(nullptr),
     serverSideFontMetrics_(nullptr)

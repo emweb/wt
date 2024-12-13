@@ -2464,6 +2464,7 @@ private:
   // Remove the added cookie, for correct bookkeeping.
   void removeAddedCookies(const std::string& name);
 
+  bool notificationPermissionAsked_;
   JSignal<std::string> updateNotificationPermission_;
   Signal<WNotification::Permission> notificationPermissionChanged_;
 

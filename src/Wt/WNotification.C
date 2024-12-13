@@ -95,16 +95,19 @@ bool WNotification::supported()
 void WNotification::askPermission()
 {
   WApplication *app = WApplication::instance();
-  WStringStream js;
-  js << "if ("<<WString("Notification").jsStringLiteral()<<" in window){"
-     <<   "Notification.requestPermission((result) => {"
-     <<     "Wt.emit("
-     <<       app->javaScriptClass()
-     <<       ","<<WString("Wt-updateNotificationPermission").jsStringLiteral()
-     <<       ",result);"
-     <<   "});"
-     << "}";
-  app->doJavaScript(js.str().c_str());
+  if (!app->notificationPermissionAsked_) {
+    WStringStream js;
+    js << "if ("<<WString("Notification").jsStringLiteral()<<" in window){"
+      <<   "Notification.requestPermission((result) => {"
+      <<     "Wt.emit("
+      <<       app->javaScriptClass()
+      <<       ","<<WString("Wt-updateNotificationPermission").jsStringLiteral()
+      <<       ",result);"
+      <<   "});"
+      << "}";
+    app->doJavaScript(js.str().c_str());
+    app->notificationPermissionAsked_ = true;
+  }
 }
 
 WNotification::Permission WNotification::permission()
