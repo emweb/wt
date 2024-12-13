@@ -58,6 +58,12 @@ public:
   JSignal<>& shown() { return shown_; }
   JSignal<>& error() { return error_; }
 
+  static void setDefaultIcon(const WLink& iconLink);
+  static WLink defaultIcon() { return defaultIconLink_; }
+
+  static void setDefaultBadge(const WLink& badgeLink);
+  static WLink defaultBadge() { return defaultBadgeLink_; }
+
   static bool supported();
   static void askPermission();
   static Permission permission();
@@ -80,6 +86,9 @@ private:
   void loadJavaScript();
   void update();
   void sendJs();
+
+  static WLink defaultIconLink_;
+  static WLink defaultBadgeLink_;
 };
 
 

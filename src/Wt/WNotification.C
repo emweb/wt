@@ -18,9 +18,14 @@
 
 namespace Wt {
 
+WLink WNotification::defaultIconLink_ = WLink();
+WLink WNotification::defaultBadgeLink_ = WLink();
+
 WNotification::WNotification(const WString& title, const WString& body)
   : title_(title),
     body_(body),
+    iconLink_(defaultIconLink_),
+    badgeLink_(defaultBadgeLink_),
     silent_(false),
     requireInteraction_(false),
     clicked_(this, "clicked"),
@@ -110,6 +115,16 @@ void WNotification::askPermission()
   }
 }
 
+void WNotification::setDefaultIcon(const WLink& iconLink)
+{
+  defaultIconLink_ = iconLink;
+}
+
+void WNotification::setDefaultBadge(const WLink& badgeLink)
+{
+  defaultBadgeLink_ = badgeLink;
+}
+
 WNotification::Permission WNotification::permission()
 {
   return WApplication::instance()->environment().notificationPermission();
@@ -150,13 +165,13 @@ void WNotification::update()
     if (!body_.empty()) {
       js << "body:"<< body_.jsStringLiteral()<<",";
     }
-    if (!iconLink_.isNull()) {
-      std::string url = app->resolveRelativeUrl(iconLink_.url());
+    if (!icon().isNull()) {
+      std::string url = icon().resolveUrl(app);
       url = app->encodeUntrustedUrl(url);
       js << "icon:"<< WString(url).jsStringLiteral()<<",";
     }
-    if (!badgeLink_.isNull()) {
-      std::string url = app->resolveRelativeUrl(badgeLink_.url());
+    if (!badge().isNull()) {
+      std::string url = badge().resolveUrl(app);
       url = app->encodeUntrustedUrl(url);
       js << "badge:"<< WString(url).jsStringLiteral()<<",";
     }
