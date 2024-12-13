@@ -44,6 +44,12 @@ public:
   void setBadge(const WLink& badgeLink);
   WLink badge() const { return badgeLink_; }
 
+  void setSilent(bool enable = true);
+  bool silent() const { return silent_; }
+
+  void setRequireInteraction(bool enable = true);
+  bool requireInteraction() const { return requireInteraction_; }
+
   void send();
   void close();
 
@@ -62,6 +68,8 @@ private:
   WString body_;
   WLink iconLink_;
   WLink badgeLink_;
+  bool silent_;
+  bool requireInteraction_;
 
   JSignal<> clicked_, closed_, shown_, error_;
 

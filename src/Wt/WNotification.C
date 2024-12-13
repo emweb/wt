@@ -21,6 +21,8 @@ namespace Wt {
 WNotification::WNotification(const WString& title, const WString& body)
   : title_(title),
     body_(body),
+    silent_(false),
+    requireInteraction_(false),
     clicked_(this, "clicked"),
     closed_(this, "closed"),
     shown_(this, "shown"),
@@ -47,6 +49,16 @@ void WNotification::setBadge(const WLink& badgeLink)
   badgeLink_ = badgeLink;
 }
 
+void WNotification::setSilent(bool enable)
+{
+  silent_ = enable;
+}
+
+void WNotification::setRequireInteraction(bool enable)
+{
+  requireInteraction_ = enable;
+}
+
 void WNotification::send()
 {
   loadJavaScript();
@@ -69,6 +81,12 @@ void WNotification::send()
     std::string url = app->resolveRelativeUrl(badgeLink_.url());
     url = app->encodeUntrustedUrl(url);
     js << "badge:"<< WString(url).jsStringLiteral()<<",";
+  }
+  if (silent_) {
+    js << "silent:true,";
+  }
+  if (requireInteraction_) {
+    js << "requireInteraction:true,";
   }
   js << "});";
 
