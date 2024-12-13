@@ -34,7 +34,6 @@ WT_DECLARE_APP_MEMBER(
 
         this.create = function(id, title, params) {
           removeSignals(id);
-          this.close(id);
           notifications[id] = new Notification(title, params);
           const notif = notifications[id];
 

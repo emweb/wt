@@ -55,7 +55,8 @@ void WNotification::send()
   WStringStream js;
  js << app->javaScriptClass() << ".WNotification.create("
      << jsRef() << ","
-     << title_.jsStringLiteral() << ",{";
+     << title_.jsStringLiteral() << ",{"
+     << "tag:"<< WString(id()).jsStringLiteral()<<",";
   if (!body_.empty()) {
     js << "body:"<< body_.jsStringLiteral()<<",";
   }
