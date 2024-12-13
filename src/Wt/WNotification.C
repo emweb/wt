@@ -37,6 +37,16 @@ void WNotification::setBody(const WString& body)
   body_ = body;
 }
 
+void WNotification::setIcon(const WLink& iconLink)
+{
+  iconLink_ = iconLink;
+}
+
+void WNotification::setBadge(const WLink& badgeLink)
+{
+  badgeLink_ = badgeLink;
+}
+
 void WNotification::send()
 {
   loadJavaScript();
@@ -47,7 +57,17 @@ void WNotification::send()
      << jsRef() << ","
      << title_.jsStringLiteral() << ",{";
   if (!body_.empty()) {
-    js << "body:"<< body_.jsStringLiteral();
+    js << "body:"<< body_.jsStringLiteral()<<",";
+  }
+  if (!iconLink_.isNull()) {
+    std::string url = app->resolveRelativeUrl(iconLink_.url());
+    url = app->encodeUntrustedUrl(url);
+    js << "icon:"<< WString(url).jsStringLiteral()<<",";
+  }
+  if (!badgeLink_.isNull()) {
+    std::string url = app->resolveRelativeUrl(badgeLink_.url());
+    url = app->encodeUntrustedUrl(url);
+    js << "badge:"<< WString(url).jsStringLiteral()<<",";
   }
   js << "});";
 

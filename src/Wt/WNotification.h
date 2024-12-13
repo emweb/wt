@@ -9,6 +9,7 @@
 
 #include "Wt/WObject.h"
 #include "Wt/WJavaScript.h"
+#include "Wt/WLink.h"
 #include "Wt/WSignal.h"
 #include "Wt/WString.h"
 
@@ -37,6 +38,12 @@ public:
   void setBody(const WString& body);
   WString body() const { return body_; }
 
+  void setIcon(const WLink& iconLink);
+  WLink icon() const { return iconLink_; }
+
+  void setBadge(const WLink& badgeLink);
+  WLink badge() const { return badgeLink_; }
+
   void send();
   void close();
 
@@ -53,6 +60,8 @@ public:
 private:
   WString title_;
   WString body_;
+  WLink iconLink_;
+  WLink badgeLink_;
 
   JSignal<> clicked_, closed_, shown_, error_;
 
