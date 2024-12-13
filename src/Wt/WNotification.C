@@ -61,26 +61,30 @@ void WNotification::setRequireInteraction(bool enable)
 
 void WNotification::send()
 {
-  update();
-  if (permission() == Permission::Default) {
-    askPermission();
-    conn_ = permissionUpdated().connect(this, &WNotification::sendJs);
-  } else {
-    sendJs();
+  if (supported()) {
+    update();
+    if (permission() == Permission::Default) {
+      askPermission();
+      conn_ = permissionUpdated().connect(this, &WNotification::sendJs);
+    } else {
+      sendJs();
+    }
   }
 }
 
 void WNotification::close()
 {
-  if (permission() == Permission::Granted) {
-    loadJavaScript();
+  if (supported()) {
+    if (permission() == Permission::Granted) {
+      loadJavaScript();
 
-    WApplication *app = WApplication::instance();
-    WStringStream js;
-    js << app->javaScriptClass() << ".WNotification.close(" << jsRef() << ");";
-    WApplication::instance()->doJavaScript(js.str().c_str());
+      WApplication *app = WApplication::instance();
+      WStringStream js;
+      js << app->javaScriptClass() << ".WNotification.close(" << jsRef() << ");";
+      WApplication::instance()->doJavaScript(js.str().c_str());
+    }
+    conn_.disconnect();
   }
-  conn_.disconnect();
 }
 
 bool WNotification::supported()
