@@ -266,8 +266,14 @@ public:
    */
   bool webGL() const { return webGLsupported_; }
 
+  /*! \brief Returns whether the browser has support for notifications.
+   *
+   * Support for notifications is required for sending notifications.
+   */
   bool supportsNotifications() const { return notificationSupported_; }
 
+  /*! \brief Returns the status of the permission to send notifications.
+   */
   WNotification::Permission notificationPermission() const { return notificationPermission_; }
 
   /*! \brief Returns the horizontal resolution of the client's screen.
