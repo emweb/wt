@@ -196,7 +196,6 @@ CssPropertyMap createCssCamelNamesMap()
 {
   CssPropertyMap cssCamelNames;
   Wt::Utils::insert(cssCamelNames, Wt::Property::Style,std::string("cssText"));
-  Wt::Utils::insert(cssCamelNames, Wt::Property::Style,std::string("width"));
   Wt::Utils::insert(cssCamelNames, Wt::Property::StylePosition,std::string("position"));
   Wt::Utils::insert(cssCamelNames, Wt::Property::StyleZIndex,std::string("zIndex"));
   Wt::Utils::insert(cssCamelNames, Wt::Property::StyleFloat,std::string("cssFloat"));
