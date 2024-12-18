@@ -502,9 +502,9 @@ IF(HAVE_HARU)
 ENDIF(HAVE_HARU)
 
 IF("${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "GraphicsMagick")
-  SET(libsources ${libsources} Wt/WRasterImage.h Wt/WRasterImage-gm.C)
+  SET(libsources ${libsources} Wt/WRasterImage.h Wt/WRasterImage-gm.C Wt/WRasterFavicon.h Wt/WRasterFavicon.C)
 ELSEIF("${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "Direct2D")
-  SET(libsources ${libsources} Wt/WRasterImage.h Wt/WRasterImage-d2d1.C)
+  SET(libsources ${libsources} Wt/WRasterImage.h Wt/WRasterImage-d2d1.C Wt/WRasterFavicon.h Wt/WRasterFavicon.C)
 ENDIF("${WT_WRASTERIMAGE_IMPLEMENTATION}" STREQUAL "GraphicsMagick")
 
 if(WT_USE_OPENGL)
