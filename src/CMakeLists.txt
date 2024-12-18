@@ -135,6 +135,7 @@ Wt/WEmailValidator.h Wt/WEmailValidator.C
 Wt/WEnvironment.h Wt/WEnvironment.C
 Wt/WEvent.h Wt/WEvent.C
 Wt/WException.h Wt/WException.C
+Wt/WFavicon.h Wt/WFavicon.C
 Wt/WFileDropWidget.h Wt/WFileDropWidget.C
 Wt/WFileResource.h Wt/WFileResource.C
 Wt/WFileUpload.h Wt/WFileUpload.C
