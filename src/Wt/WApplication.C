@@ -16,6 +16,7 @@
 #include "Wt/WFileUpload.h"
 #include "Wt/WLinkedCssStyleSheet.h"
 #include "Wt/WMemoryResource.h"
+#include "Wt/WStringStream.h"
 #include "Wt/WServer.h"
 #include "Wt/WTimer.h"
 #ifndef WT_TARGET_JAVA
@@ -140,7 +141,8 @@ WApplication::WApplication(const WEnvironment& env
     notificationPermissionAsked_(false),
     updateNotificationPermission_(this, "Wt-updateNotificationPermission"),
     soundManager_(nullptr),
-    serverSideFontMetrics_(nullptr)
+    serverSideFontMetrics_(nullptr),
+    favicon_(nullptr)
 {
   session_->setApplication(this);
   locale_ = environment().locale();
@@ -343,6 +345,20 @@ void WApplication
     loadingIndicator_->hide();
   }
 }
+
+void WApplication::setFavicon(std::unique_ptr<WFavicon> icon)
+{
+  favicon_ = std::move(icon);
+  updateFavicon();
+  if (favicon_) {
+    favicon_->urlChanged().connect(this, &WApplication::updateFavicon);
+  }
+}
+
+ WFavicon *WApplication::favicon() const
+ {
+  return favicon_.get();
+ }
 
 #ifndef WT_TARGET_JAVA
 
@@ -1851,6 +1867,27 @@ SoundManager *WApplication::getSoundManager()
     soundManager_ = domRoot_->addWidget(std::make_unique<SoundManager>());
 
   return soundManager_;
+}
+
+void WApplication::updateFavicon()
+{
+  WStringStream js;
+
+  js << "link = document.querySelector(\"link[rel~='icon']\");"
+      << "if (!link) {"
+      <<   "link = document.createElement('link');"
+      <<   "link.rel = 'icon';"
+      <<   "document.head.appendChild(link);"
+      << "}"
+      << "link.href = ";
+  if (favicon_) {
+    js << WString(favicon_->url()).jsStringLiteral();
+  } else {
+    js << WString(session_->favicon()).jsStringLiteral();
+  }
+  js <<";";
+
+  doJavaScript(js.str().c_str());
 }
 
 #ifdef WT_DEBUG_JS

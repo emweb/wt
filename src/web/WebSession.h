@@ -81,7 +81,7 @@ public:
   bool attachThreadToLockedHandler();
 
   EntryPointType type() const { return type_; }
-  std::string favicon() const { return favicon_; }
+  std::string favicon() const;
   std::string docType() const;
 
   std::string sessionId() const { return sessionId_; }

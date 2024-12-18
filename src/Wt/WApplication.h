@@ -8,6 +8,7 @@
 #define WAPPLICATION_
 
 #include <chrono>
+#include <memory>
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -25,6 +26,7 @@ namespace boost {
 #include <Wt/WCssStyleSheet.h>
 #include <Wt/WEnvironment.h>
 #include <Wt/WEvent.h>
+#include <Wt/WFavicon.h>
 #include <Wt/WJavaScriptPreamble.h>
 #include <Wt/WJavaScriptSlot.h>
 #include <Wt/WLocale.h>
@@ -1888,6 +1890,10 @@ public:
    */
   WLoadingIndicator *loadingIndicator() const { return loadingIndicator_; }
 
+  void setFavicon(std::unique_ptr<WFavicon> icon);
+
+  WFavicon *favicon() const;
+
   /*
    * A url to a resource that provides a one pixel gif. This is sometimes
    * useful for CSS hackery to make IE behave.
@@ -2575,6 +2581,12 @@ private:
   // Server-side font metrics, constructed once (on demand),
   // and reused by all painters that require it.
   std::unique_ptr<ServerSideFontMetrics> serverSideFontMetrics_;
+
+  /*
+   * Methods for favicon handling
+   */
+  std::unique_ptr<WFavicon> favicon_;
+  void updateFavicon();
 
   static const char *RESOURCES_URL;
 

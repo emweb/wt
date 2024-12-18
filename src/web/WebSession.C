@@ -313,6 +313,14 @@ void WebSession::destruct()
 }
 #endif // WT_TARGET_JAVA
 
+std::string WebSession::favicon() const
+{
+  if (app_ && app_->favicon()) {
+    return app_->favicon()->url();
+  }
+  return favicon_;
+}
+
 std::string WebSession::docType() const
 {
   const bool xhtml = env_->contentType() == HtmlContentType::XHTML1;
