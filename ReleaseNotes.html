@@ -78,6 +78,20 @@ behaviour.
     <a href="classWt_1_1WPainter.html" target="_blank">WPainter</a> have been updated to use WTextF instead of
     <a href="classWt_1_1WString.html" target="_blank">WString</a>.
   </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/12967" target="_blank">Issue #12967</a>:
+    It is now possible to change the favicon of an individual
+    <a href="classWt_1_1WApplication.html" target="_blank">WApplication</a> using
+    <a href="classWt_1_1WApplication.html#a2681edc4e1b0edbb22c5e1aa72381101" target="_blank">WApplication::setFavicon()</a>. This takes as parameter a
+    <a href="classWt_1_1WFavicon.html" target="_blank">WFavicon</a> which is a new class representing favicons. Since the main goal of this feature is to allow developpers to notify
+    the user using the favicon, the WFavicon is mainly designed to make arround this idea. While WFavicon is an abstract class, we also added two specialisations of this class.
+    The first one is
+    <a href="classWt_1_1WRasterFavicon.html" target="_blank">WRasterFavicon</a>, which uses a
+    <a href="classWt_1_1WRasterImage.html" target="_blank">WRasterImage</a> to update the favicon (this is only available if WRasterImage is available).
+    The second one is
+    <a href="classWt_1_1WResourcePairFavicon.html" target="_blank">WResourcePairFavicon</a>, which can switch between two
+    <a href="classWt_1_1WResource.html" target="_blank">WResource</a> to update the favicon.
+  </li>
 </ul>
 
 <p>Wt 4.13.0 also fixes the following bugs:</p>
@@ -152,6 +166,11 @@ behaviour.
     <a href="https://redmine.emweb.be/issues/14431" target="_blank">Issue #14431</a>:
     added a workaround for libc++ not supporting <code>std::chrono::clock_cast</code> yet,
     as this was causing a compilation error when compiling with libc++ with c++ version 20.
+  </li>
+  <li>
+    Fixed
+    <a href="classWt_1_1WRasterImage.html" target="_blank">WRasterImage</a> unable to read dataUri when using
+    <a href="http://www.graphicsmagick.org/" target="_blank">GraphicsMagick</a>.
   </li>
 </ul>
 
