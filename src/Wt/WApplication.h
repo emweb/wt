@@ -1890,8 +1890,22 @@ public:
    */
   WLoadingIndicator *loadingIndicator() const { return loadingIndicator_; }
 
+  /*! \brief Sets the favicon for this application.
+   *
+   * This sets the favicon for this application. This overwrite the
+   * favicon defined in the configuration unless the favicon is a
+   * nullptr, in which case the favicon defined in the configuration
+   * is used.
+   */
   void setFavicon(std::unique_ptr<WFavicon> icon);
 
+  /*! \brief Returns the favicon of this application.
+   * 
+   * Returns the last favicon set to this application using
+   * setFavicon().
+   * 
+   * \sa setFavicon()
+   */
   WFavicon *favicon() const;
 
   /*

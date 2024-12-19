@@ -9,18 +9,18 @@
 namespace Wt {
 
 WFavicon::WFavicon()
-  : isUpdate_(false)
+  : isUpdated_(false)
 { }
 
 void WFavicon::update()
 {
-  isUpdate_ = true;
+  isUpdated_ = true;
   doUpdate();
 }
 
 void WFavicon::reset()
 {
-  isUpdate_ = false;
+  isUpdated_ = false;
   doReset();
 }
 

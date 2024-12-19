@@ -33,31 +33,31 @@ WRasterFavicon::WRasterFavicon(std::shared_ptr<WAbstractDataInfo> info,
 void WRasterFavicon::init()
 {
   WRasterFavicon::doReset();
-  setBigCirleBrush(WBrush(WColor(StandardColor::White)));
-  setSmallCirleBrush(WBrush(WColor((StandardColor::Red))));
+  setOutlineBrush(WBrush(WColor(StandardColor::White)));
+  setFillBrush(WBrush(WColor((StandardColor::Red))));
 }
 
 void WRasterFavicon::setdefaultFavicon(std::shared_ptr<WAbstractDataInfo> info)
 {
   defaultFaviconInfo_ = info;
   doReset();
-  if (isUpdate()) {
+  if (isUpdated()) {
     doUpdate();
   }
 }
 
-void WRasterFavicon::setBigCirleBrush(const WBrush& brush)
+void WRasterFavicon::setOutlineBrush(const WBrush& brush)
 {
   bigBrush_ = brush;
-  if (isUpdate()) {
+  if (isUpdated()) {
     doUpdate();
   }
 }
 
-void WRasterFavicon::setSmallCirleBrush(const WBrush& brush)
+void WRasterFavicon::setFillBrush(const WBrush& brush)
 {
   smallBrush_ = brush;
-  if (isUpdate()) {
+  if (isUpdated()) {
     doUpdate();
   }
 }
