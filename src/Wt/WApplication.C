@@ -349,10 +349,6 @@ void WApplication
 void WApplication::setFavicon(std::unique_ptr<WFavicon> icon)
 {
   favicon_ = std::move(icon);
-  updateFavicon();
-  if (favicon_) {
-    favicon_->urlChanged().connect(this, &WApplication::updateFavicon);
-  }
 }
 
  WFavicon *WApplication::favicon() const
@@ -1770,6 +1766,7 @@ void WApplication::streamAfterLoadJavaScript(WStringStream& out)
 {
   out << afterLoadJavaScript_;
   afterLoadJavaScript_.clear();
+  streamFaviconUpdate(out);
 }
 
 void WApplication::streamBeforeLoadJavaScript(WStringStream& out, bool all, bool withPreamble)
@@ -1869,25 +1866,26 @@ SoundManager *WApplication::getSoundManager()
   return soundManager_;
 }
 
-void WApplication::updateFavicon()
+void WApplication::streamFaviconUpdate(WStringStream& out)
 {
-  WStringStream js;
-
-  js << "link = document.querySelector(\"link[rel~='icon']\");"
-      << "if (!link) {"
-      <<   "link = document.createElement('link');"
-      <<   "link.rel = 'icon';"
-      <<   "document.head.appendChild(link);"
-      << "}"
-      << "link.href = ";
-  if (favicon_) {
-    js << WString(favicon_->url()).jsStringLiteral();
-  } else {
-    js << WString(session_->favicon()).jsStringLiteral();
+  if ((!faviconUrl_.empty() && ! favicon_) ||
+      (favicon_ && favicon_->url() != faviconUrl_)) {
+    out << "link = document.querySelector(\"link[rel~='icon']\");"
+        << "if (!link) {"
+        <<   "link = document.createElement('link');"
+        <<   "link.rel = 'icon';"
+        <<   "document.head.appendChild(link);"
+        << "}"
+        << "link.href = ";
+    if (favicon_) {
+      faviconUrl_ = favicon_->url();
+      out << WString(faviconUrl_).jsStringLiteral();
+    } else {
+      faviconUrl_.clear();
+      out << WString(session_->favicon()).jsStringLiteral();
+    }
+    out <<";";
   }
-  js <<";";
-
-  doJavaScript(js.str().c_str());
 }
 
 #ifdef WT_DEBUG_JS

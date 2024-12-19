@@ -7,16 +7,15 @@
 #ifndef WFAVICON_H_
 #define WFAVICON_H_
 
-#include "Wt/WObject.h"
-#include "Wt/WSignal.h"
+#include "Wt/WDllDefs.h"
+#include <string>
 
 namespace Wt {
 
-class WT_API WFavicon : public WObject
+class WT_API WFavicon
 {
 public:
   virtual std::string url() const = 0;
-  virtual Signal<>& urlChanged() = 0;
 
   void update();
   void reset();

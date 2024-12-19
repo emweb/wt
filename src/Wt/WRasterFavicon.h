@@ -34,8 +34,6 @@ public:
   void setSmallCirleBrush(const WBrush& brush);
   WBrush smallCirleBrush() const { return smallBrush_; }
 
-  Signal<>& urlChanged() override { return favicon_->dataChanged(); }
-
 protected:
   WRasterImage* favicon() const { return favicon_.get(); }
   void doUpdate() override;

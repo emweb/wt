@@ -2586,7 +2586,8 @@ private:
    * Methods for favicon handling
    */
   std::unique_ptr<WFavicon> favicon_;
-  void updateFavicon();
+  std::string faviconUrl_;
+  void streamFaviconUpdate(WStringStream& out);
 
   static const char *RESOURCES_URL;
 
