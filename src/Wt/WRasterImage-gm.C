@@ -707,7 +707,7 @@ void WRasterImage::doDrawImage(const WRectF& rect, const WAbstractDataInfo* data
       throw WException("Unsupported image mimetype: " + uri.mimeType);
     }
 
-    cImage = ReadInlineImage(&info, imgUri.substr(imgUri.find(',') + 1).c_str(), &exception);
+    cImage = ReadInlineImage(&info, imgUri.substr(imgUri.find(';') + 1).c_str(), &exception);
   } else {
     std::string filePath = dataInfo->hasFilePath() ? dataInfo->filePath() : "";
     strncpy(info.filename, filePath.c_str(), 2048);
