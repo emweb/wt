@@ -88,6 +88,8 @@ enum ElementThemeRole {
   FileUploadForm = 7,
   FileUploadInput = 8,
 
+  Badge = 9,
+
   ProgressBarBar = 100,
   ProgressBarLabel = 101
 };

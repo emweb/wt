@@ -95,6 +95,7 @@ Wt/WAny.h Wt/WAny.C
 Wt/WApplication.h Wt/WApplication.C
 Wt/WAudio.h Wt/WAudio.C
 Wt/WBatchEditProxyModel.h Wt/WBatchEditProxyModel.C
+Wt/WBadge.h Wt/WBadge.C
 Wt/WBootstrapTheme.h Wt/WBootstrapTheme.C
 Wt/WBootstrap2Theme.h Wt/WBootstrap2Theme.C
 Wt/WBootstrap3Theme.h Wt/WBootstrap3Theme.C
