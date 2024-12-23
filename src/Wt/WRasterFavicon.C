@@ -32,7 +32,7 @@ WRasterFavicon::WRasterFavicon(std::shared_ptr<WAbstractDataInfo> info,
 
 void WRasterFavicon::init()
 {
-  WRasterFavicon::doReset();
+  resetRasterImage();
   setOutlineBrush(WBrush(WColor(StandardColor::White)));
   setFillBrush(WBrush(WColor((StandardColor::Red))));
 }
@@ -80,14 +80,23 @@ void WRasterFavicon::doUpdate()
   p.setBrush(smallBrush_);
   p.drawEllipse(WRectF(bRLeft + widthDif, bRUp + heighDif,
                        bRWidth - widthDif*2, bRHeight - heighDif*2));
+
+  p.end();
 }
 
 void WRasterFavicon::doReset()
+{
+  resetRasterImage();
+}
+
+void WRasterFavicon::resetRasterImage()
 {
   favicon_->clear();
   Wt::WPainter p(favicon());
   p.drawImage(WRectF(0, 0, favicon_->width().toPixels(), favicon_->height().toPixels()),
               WPainter::Image(defaultFaviconInfo_));
+
+  p.end();
 }
 
 

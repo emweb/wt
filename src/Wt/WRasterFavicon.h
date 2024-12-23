@@ -123,6 +123,7 @@ private:
   WBrush bigBrush_, smallBrush_;
 
   void init();
+  void resetRasterImage();
 };
 
 }

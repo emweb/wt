@@ -26,6 +26,13 @@ class WIOService;
 #ifndef WT_TARGET_JAVA
 class WWebSocketResource;
 #endif // WT_TARGET_JAVA
+
+#ifdef WT_CNOR
+class ServletContext
+{
+  std::string getRealPath(std::string);
+};
+#endif //WT_CNOR
 /*! \class WServer Wt/WServer.h Wt/WServer.h
  *  \brief A class encapsulating a web application server.
  *
@@ -87,6 +94,10 @@ class WTCONNECTOR_API WServer
 public:
   typedef std::function<std::string (std::size_t max_length, int purpose)>
     SslPasswordCallback;
+
+#ifdef WT_CNOR
+  ServletContext getServletContext();
+#endif //WT_CNOR
 
   /*! \class Exception
    *  \brief Server %Exception class.
