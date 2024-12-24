@@ -24,6 +24,7 @@ namespace {
     } catch (Wt::WInvalidFormatException& ife) {
     } catch (Wt::WInvalidOperationException& ioe) {
     }
+    return 0;
   }
 }
 
