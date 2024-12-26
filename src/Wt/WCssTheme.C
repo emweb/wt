@@ -184,6 +184,14 @@ void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
     }
     break;
 
+  case DomElementType::SPAN:
+    {
+      WBadge *badge = dynamic_cast<WBadge *>(widget);
+      if (badge) {
+        element.addPropertyWord(Property::Class, "Wt-badge");
+      }
+    }
+
   default:
     break;
   }

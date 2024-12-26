@@ -69,6 +69,36 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
 }
 
 /*
+ * WBadge
+ */
+ .Wt-badge {
+    display: inline-block;
+    position: relative;
+    min-width: 5px;
+    padding: 3px 7px;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 1;
+    color: #cccccc;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    background-color: #000000;
+    border-radius: 10px;
+    border: 1px inset #999;
+}
+
+.Wt-badge:empty {
+    display: none;
+}
+
+.Wt-btn .Wt-badge,
+.item .Wt-badge,
+.itemselected .Wt-badge {
+  margin-inline-start: 2px;
+}
+
+/*
  * WCalendar
  */
 .Wt-cal {

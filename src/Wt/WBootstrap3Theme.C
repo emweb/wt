@@ -351,8 +351,14 @@ void WBootstrap3Theme::apply(WWidget *widget, DomElement& element,
       else {
         WDatePicker *picker
           = dynamic_cast<WDatePicker *>(widget);
-        if (picker)
+        if (picker) {
           element.addPropertyWord(Property::Class, "Wt-datepicker");
+        } else {
+          WBadge *badge = dynamic_cast<WBadge *>(widget);
+          if (badge) {
+            element.addPropertyWords(Property::Class, "Wt-badge badge");
+          }
+        }
       }
     }
     break;

@@ -359,6 +359,9 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
       element.addPropertyWord(Property::Class, "form-file-text");
     else if (elementRole == FormButton)
       element.addPropertyWord(Property::Class, "form-file-button");
+    else if (elementRole == Badge) {
+      element.addPropertyWords(Property::Class, "Wt-badge badge bg-primary");
+    }
 
     auto inPlaceEdit = dynamic_cast<WInPlaceEdit *>(widget);
     if (inPlaceEdit)

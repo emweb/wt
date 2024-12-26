@@ -1079,6 +1079,14 @@ body.Wt-rtl .Wt-treeview .Wt-ctrl.noexpand {
   position: relative;
 }
 /*
+ * WBadge
+ */
+.btn .Wt-badge,
+.nav .Wt-badge,
+.dropdown-menu .Wt-badge {
+ margin-inline-start: 2px;
+}
+/*
  * WResizable
  */
 .Wt-resizable,
