@@ -5,6 +5,7 @@
  */
 #include "Wt/WApplication.h"
 #include "Wt/WEnvironment.h"
+#include "Wt/WLogger.h"
 #include "Wt/WPopupMenu.h"
 #include "Wt/WPushButton.h"
 #include "Wt/WResource.h"
@@ -14,23 +15,25 @@
 
 namespace Wt {
 
+LOGGER("WPushedButton");
+
 const char *WPushButton::CHECKED_SIGNAL = "M_checked";
 const char *WPushButton::UNCHECKED_SIGNAL = "M_unchecked";
 
 WPushButton::WPushButton()
 {
-  text_.format = TextFormat::Plain;
+  init();
 }
 
 WPushButton::WPushButton(const WString& text)
 {
-  text_.format = TextFormat::Plain;
+  init();
   text_.text = text;
 }
 
 WPushButton::WPushButton(const WString& text, TextFormat format)
 {
-  text_.format = TextFormat::Plain;
+  init();
   text_.text = text;
   setTextFormat(format);
 }
@@ -45,6 +48,14 @@ WPushButton::~WPushButton()
     popupMenu_.reset();
 #endif
   }
+
+  setBadge(nullptr);
+}
+
+void WPushButton::init()
+{
+  text_.format = TextFormat::Plain;
+  badge_ = nullptr;
 }
 
 bool WPushButton::setText(const WString& text)
@@ -142,6 +153,35 @@ bool WPushButton::setFirstFocus()
   return false;
 }
 
+void WPushButton::iterateChildren(const HandleWidgetMethod& method) const
+{
+  if (badge_) {
+#ifndef WT_TARGET_JAVA
+    method(badge_);
+#else
+    method.handle(badge_);
+#endif
+  }
+}
+
+std::unique_ptr<WWidget> WPushButton::removeWidget(WT_MAYBE_UNUSED WWidget* widget)
+{
+  if (badge_ && badge_ == widget) {
+    badge_->setParentWidget(nullptr);
+#ifndef WT_TARGET_JAVA
+    removeChild(badge_).release();
+#endif
+    std::unique_ptr<WBadge> res(badge_);
+    badge_ = nullptr;
+
+    flags_.set(BIT_BADGE_CHANGED);
+    repaint(RepaintFlag::SizeAffected);
+    return res;
+  }
+  LOG_ERROR("removeWidget(): widget not in button");
+  return std::unique_ptr<WWidget>();
+}
+
 void WPushButton::setIcon(const WLink& link)
 {
   if (canOptimizeUpdates() && (link == icon_))
@@ -149,6 +189,24 @@ void WPushButton::setIcon(const WLink& link)
 
   icon_ = link;
   flags_.set(BIT_ICON_CHANGED);
+
+  repaint(RepaintFlag::SizeAffected);
+}
+
+void WPushButton::setBadge(std::unique_ptr<WBadge> badge)
+{
+  if (badge_) {
+    badge_->removeFromParent();
+  }
+  badge_ = badge.get();
+  if (badge) {
+#ifndef WT_TARGET_JAVA
+    addChild(std::move(badge));
+#endif
+    badge_->setParentWidget(this);
+  }
+
+  flags_.set(BIT_BADGE_CHANGED);
 
   repaint(RepaintFlag::SizeAffected);
 }
@@ -221,6 +279,14 @@ void WPushButton::updateDom(DomElement& element, bool all)
     element.insertChildAt(image, 0);
     flags_.set(BIT_ICON_RENDERED);
     flags_.reset(BIT_ICON_CHANGED);
+  }
+
+  if (badge_ && (flags_.test(BIT_BADGE_CHANGED) || all || flags_.test(BIT_TEXT_CHANGED))) {
+    DomElement *badge = badge_->createSDomElement(WApplication::instance());
+    element.addChild(badge);
+    renderedBadgeId_ = badge_->id();
+
+    flags_.reset(BIT_BADGE_CHANGED);
   }
 
   if (flags_.test(BIT_TEXT_CHANGED) || all) {
@@ -321,6 +387,13 @@ void WPushButton::getDomChanges(std::vector<DomElement *>& result,
     flags_.reset(BIT_ICON_CHANGED);
   }
 
+  if (!renderedBadgeId_.empty() && flags_.test(BIT_BADGE_CHANGED)) {
+    DomElement *badge = DomElement::getForUpdate(renderedBadgeId_, DomElementType::SPAN);
+    badge->removeFromParent();
+    renderedBadgeId_.clear();
+    result.push_back(badge);
+  }
+
   WFormWidget::getDomChanges(result, app);
 }
 
@@ -330,6 +403,7 @@ void WPushButton::propagateRenderOk(bool deep)
   flags_.reset(BIT_ICON_CHANGED);
   flags_.reset(BIT_LINK_CHANGED);
   flags_.reset(BIT_CHECKED_CHANGED);
+  flags_.reset(BIT_BADGE_CHANGED);
 
   WFormWidget::propagateRenderOk(deep);
 }
@@ -353,6 +427,10 @@ void WPushButton::refresh()
 {
   if (text_.text.refresh()) {
     flags_.set(BIT_TEXT_CHANGED);
+    repaint(RepaintFlag::SizeAffected);
+  }
+  if (badge_ && badge_->text_.text.refresh()) {
+    flags_.set(BIT_BADGE_CHANGED);
     repaint(RepaintFlag::SizeAffected);
   }
 

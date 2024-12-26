@@ -8,6 +8,7 @@
 #define WPUSHBUTTON_H_
 
 #include <Wt/WAnchor.h>
+#include <Wt/WBadge.h>
 #include <Wt/WFormWidget.h>
 #include <Wt/WJavaScript.h>
 #include <Wt/WLink.h>
@@ -185,6 +186,10 @@ public:
    */
   WLink icon() const { return icon_; }
 
+  void setBadge(std::unique_ptr<WBadge> badge);
+
+  WBadge* badge() const { return badge_; };
+
   /*! \brief Sets a destination link.
    *
    * This method can be used to make the button behave like a WAnchor
@@ -258,6 +263,10 @@ public:
 
   virtual bool setFirstFocus() override;
 
+  void iterateChildren(const HandleWidgetMethod& method) const override;
+
+  std::unique_ptr<WWidget> removeWidget(WWidget* widget) override;
+
 private:
   static const char *CHECKED_SIGNAL;
   static const char *UNCHECKED_SIGNAL;
@@ -270,13 +279,16 @@ private:
   static const int BIT_IS_CHECKABLE = 5;
   static const int BIT_IS_CHECKED = 6;
   static const int BIT_CHECKED_CHANGED = 7;
+  static const int BIT_BADGE_CHANGED = 8;
 
   WAnchor::LinkState linkState_;
   WText::RichText text_;
 
   WLink          icon_;
-  std::bitset<8> flags_;
+  std::bitset<9> flags_;
   std::unique_ptr<WPopupMenu> popupMenu_;
+  WBadge *badge_;
+  std::string renderedBadgeId_;
 
 protected:
   virtual void updateDom(DomElement& element, bool all) override;
@@ -289,6 +301,7 @@ protected:
   virtual void enableAjax() override;
 
 private:
+  void init();
   void doRedirect();
   void resourceChanged();
   void renderHRef(DomElement& href);
