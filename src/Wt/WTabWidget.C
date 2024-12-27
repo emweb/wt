@@ -179,6 +179,18 @@ WString WTabWidget::tabToolTip(int index) const
   return item->toolTip();
 }
 
+void WTabWidget::setTabBadge(int index, std::unique_ptr<WBadge> badge)
+{
+  WMenuItem *item = menu_->itemAt(index);
+  item->setBadge(std::move(badge));
+}
+
+WBadge *WTabWidget::tabBadge(int index) const
+{
+  WMenuItem *item = menu_->itemAt(index);
+  return item->badge();
+}
+
 bool WTabWidget::internalPathEnabled() const
 {
   return menu_->internalPathEnabled();

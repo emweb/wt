@@ -169,6 +169,21 @@ void WMenuItem::setIcon(const std::string& path)
   icon_->decorationStyle().setBackgroundImage(WLink(path));
 }
 
+void WMenuItem::setBadge(std::unique_ptr<WBadge> badge)
+{
+  WAnchor *a = anchor();
+  if (!a)
+    return;
+
+  if (badge_) {
+    a->removeWidget(badge_);
+  }
+  badge_ = badge.get();
+  if (badge) {
+    a->addWidget(std::move(badge));
+  }
+}
+
 std::string WMenuItem::icon() const
 {
   if (icon_)
@@ -180,7 +195,7 @@ std::string WMenuItem::icon() const
 void WMenuItem::setText(const WString& text)
 {
   if (!text_) {
-    text_ = anchor()->addWidget(std::make_unique<WLabel>());
+    text_ = anchor()->insertWidget(icon_ ? 1 : 0, std::make_unique<WLabel>());
     text_->setTextFormat(TextFormat::Plain);
   }
 
@@ -386,6 +401,18 @@ void WMenuItem::setHidden(bool hidden,
   if (hidden)
     if (menu_ && !menu_->isHidden())
       menu_->onItemHidden(menu_->indexOf(this), true);
+}
+
+std::unique_ptr<WWidget> WMenuItem::removeWidget(WWidget* widget)
+{
+  if (badge_ && widget == badge_) {
+    WAnchor *a = anchor();
+    if (a) {
+      badge_ = nullptr;
+      return a->removeWidget(widget);
+    }
+  }
+  return WContainerWidget::removeWidget(widget);
 }
 
 void WMenuItem::render(WFlags<RenderFlag> flags)
