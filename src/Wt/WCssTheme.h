@@ -75,6 +75,11 @@ namespace Wt {
  *   <td>(for the HTML4 implementation)</td>
  *  </tr>
  *  <tr>
+ *   <td>WBadge</td>
+ *   <td>.Wt-badge</td>
+ *   <td></td>
+ *  </tr>
+ *  <tr>
  *   <td rowspan="11">WCalendar *</td>
  *   <td>.Wt-cal</td>
  *   <td></td>

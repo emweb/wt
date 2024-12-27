@@ -95,8 +95,18 @@ public:
    */
   std::string icon() const;
 
+  /*! \brief Sets the item's badge.
+   *
+   * To remove the badge again, call this function with \p nullptr.
+   *
+   * \sa removeWidget() 
+   */
   void setBadge(std::unique_ptr<WBadge> badge);
 
+  /*! \brief Returns the item's badge.
+   *
+   * \sa setBadge()
+   */
   WBadge* badge() const { return badge_; };
 
   /*! \brief Sets if the item is checkable.

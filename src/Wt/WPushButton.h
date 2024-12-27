@@ -186,8 +186,19 @@ public:
    */
   WLink icon() const { return icon_; }
 
+  /*! \brief Sets a badge.
+   *
+   * To remove the badge again, call this function with \p nullptr.
+   *
+   * \sa removeWidget() 
+   */
+
   void setBadge(std::unique_ptr<WBadge> badge);
 
+  /*! \brief Returns the badge.
+   *
+   * \sa setBadge()
+   */
   WBadge* badge() const { return badge_; };
 
   /*! \brief Sets a destination link.
