@@ -401,6 +401,7 @@ private:
   void setCheckBox();
   void setUnCheckBox();
   void menuItemCheckedPropagate();
+  std::string pathComponentFromText() const;
 
   std::unique_ptr<WWidget> takeContentsForStack();
   WWidget *contentsInStack() const;

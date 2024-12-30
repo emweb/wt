@@ -186,29 +186,10 @@ void WMenuItem::setText(const WString& text)
   text_->setText(text);
 
   if (!customPathComponent_) {
-    std::string result;
-#ifdef WT_TARGET_JAVA
-    WString t = text;
-#else
-    const WString& t = text;
-#endif
-
-    if (t.literal())
-      result = t.narrow();
-    else
-      result = t.key();
-
-    for (unsigned i = 0; i < result.length(); ++i) {
-      if (std::isspace((unsigned char)result[i]))
-        result[i] = '-';
-      else if (std::isalnum((unsigned char)result[i]))
-        result[i] = std::tolower((unsigned char)result[i]);
-      else
-        result[i] = '_';
+    updateInternalPath();
+    if (menu_) {
+      menu_->itemPathChanged(this);
     }
-
-    setPathComponent(result);
-    customPathComponent_ = false;
   }
 }
 
@@ -222,7 +203,7 @@ WString WMenuItem::text() const
 
 std::string WMenuItem::pathComponent() const
 {
-  return pathComponent_;
+  return customPathComponent_ ? pathComponent_ : pathComponentFromText();
 }
 
 void WMenuItem::setInternalPathEnabled(bool enabled)
@@ -234,6 +215,28 @@ void WMenuItem::setInternalPathEnabled(bool enabled)
 bool WMenuItem::internalPathEnabled() const
 {
   return internalPathEnabled_;
+}
+
+std::string WMenuItem::pathComponentFromText() const
+{
+  std::string result;
+  WString t = text();
+
+  if (t.literal())
+    result = t.narrow();
+  else
+    result = t.key();
+
+  for (unsigned i = 0; i < result.length(); ++i) {
+    if (std::isspace((unsigned char)result[i]))
+      result[i] = '-';
+    else if (std::isalnum((unsigned char)result[i]))
+      result[i] = std::tolower((unsigned char)result[i]);
+    else
+      result[i] = '_';
+  }
+
+  return result;
 }
 
 void WMenuItem::setLink(const WLink& link)
