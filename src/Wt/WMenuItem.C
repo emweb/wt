@@ -76,6 +76,7 @@ void WMenuItem::create(const std::string& iconPath, const WString& text,
   menuItemCheckedConnected_ = false;
   selected_ = false;
   setThemeStyle_ = false;
+  textChanged_ = true;
 
   text_ = nullptr;
   icon_ = nullptr;
@@ -184,6 +185,7 @@ void WMenuItem::setText(const WString& text)
   }
 
   text_->setText(text);
+  textChanged_ = true;
 
   if (!customPathComponent_) {
     updateInternalPath();
@@ -203,7 +205,11 @@ WString WMenuItem::text() const
 
 std::string WMenuItem::pathComponent() const
 {
-  return customPathComponent_ ? pathComponent_ : pathComponentFromText();
+  if (!customPathComponent_ && textChanged_) {
+    pathComponent_ = pathComponentFromText();
+    textChanged_ = false;
+  }
+  return pathComponent_;
 }
 
 void WMenuItem::setInternalPathEnabled(bool enabled)
