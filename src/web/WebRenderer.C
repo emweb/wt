@@ -948,7 +948,11 @@ void WebRenderer::serveMainscript(WebResponse& response)
   FileServe script(skeletons::Wt_js);
 
   script.setCondition
-    ("CATCH_ERROR", conf.errorReporting() != Configuration::NoErrors);
+    ("CATCH_ERROR", conf.errorReporting() != Configuration::NoErrors &&
+                    conf.clientSideErrorReportingLevel() == Configuration::Framework);
+  script.setCondition
+    ("CATCH_ALL_ERROR", conf.clientSideErrorReportingLevel() == Configuration::All &&
+                        conf.errorReporting() != Configuration::NoErrors);
   script.setCondition
     ("SHOW_ERROR", conf.errorReporting() == Configuration::ErrorMessage);
   script.setCondition

@@ -21,6 +21,7 @@
   _$_WS_PATH_$_
   _$_WT_CLASS_$_
   _$_$if_CATCH_ERROR_$_
+  _$_$if_CATCH_ALL_ERROR_$_
   _$_$if_DYNAMIC_JS_$_
   _$_$ifnot_DYNAMIC_JS_$_
   _$_$if_SHOW_ERROR_$_
@@ -4090,6 +4091,25 @@ window._$_APP_CLASS_$_ = new (function() {
       }
     }
   }
+
+  _$_$if_CATCH_ALL_ERROR_$_();
+  window.onerror = function(message, source, lineno, colno, error) {
+    let code;
+    const err = { "exception_code": code, "exception_description": message };
+    if (typeof error !== "undefined") {
+      code = error.code;
+      err.stack = error.stack || error.stacktrace;
+    }
+
+    const codeStr = code === null ? "" : "code: " + code + ", ";
+    sendError(
+      err,
+      "JavaScript error; " + codeStr +
+        "description: " + message
+    );
+    return false;
+  };
+  _$_$endif_$_();
 
   this._p_ = {
     ieAlternative,
