@@ -272,6 +272,7 @@ void Configuration::reset()
   serverPushTimeout_ = 50;
   valgrindPath_ = "";
   errorReporting_ = ErrorMessage;
+  clientSideErrorReportLevel_ = Framework;
   if (!runDirectory_.empty()) // disabled by connector
     runDirectory_ = RUNDIR;
   sessionIdLength_ = 16;
@@ -434,6 +435,12 @@ Configuration::ErrorReporting Configuration::errorReporting() const
 {
   READ_LOCK;
   return errorReporting_;
+}
+
+Configuration::ClientSideErrorReportLevel Configuration::clientSideErrorReportingLevel() const
+{
+  READ_LOCK;
+  return clientSideErrorReportLevel_;
 }
 
 bool Configuration::debug() const
@@ -1094,6 +1101,17 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     else
       throw WServer::Exception("<debug>: expecting 'true', 'false',"
                                "'naked', or 'stack'");
+  }
+
+  std::string debugLvlStr = singleChildElementValue(app, "debug-level", "");
+
+  if (!debugLvlStr.empty()) {
+    if (debugLvlStr == "framework")
+      clientSideErrorReportLevel_ = Framework;
+    else if (debugLvlStr == "all")
+      clientSideErrorReportLevel_ = All;
+    else
+      throw WServer::Exception("<debug-level>: expecting 'script' or 'all'");
   }
 
   setInt(app, "num-threads", numThreads_);

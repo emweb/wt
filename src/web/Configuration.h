@@ -147,6 +147,11 @@ public:
     ErrorMessage
   };
 
+  enum ClientSideErrorReportLevel {
+    Framework, /* exclude inline JavaScript and additional scripts, not part of Wt's framework */
+    All
+  };
+
   enum BootstrapMethod {
     DetectAjax,
     Progressive
@@ -213,6 +218,7 @@ public:
   int serverPushTimeout() const;
   std::string valgrindPath() const;
   ErrorReporting errorReporting() const;
+  ClientSideErrorReportLevel clientSideErrorReportingLevel() const;
   bool debug() const;
   std::string runDirectory() const;
   int sessionIdLength() const;
@@ -343,6 +349,7 @@ private:
   int             serverPushTimeout_;
   std::string     valgrindPath_;
   ErrorReporting  errorReporting_;
+  ClientSideErrorReportLevel clientSideErrorReportLevel_;
   std::string     runDirectory_;
   int             sessionIdLength_;
   PropertyMap     properties_;

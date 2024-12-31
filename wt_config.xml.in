@@ -200,6 +200,8 @@
           -->
         <debug>false</debug>
 
+        <debug-level>script</debug-level>
+
         <!-- Log file
 
            When the log file is empty, or omitted, logging is done to
