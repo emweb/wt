@@ -2819,7 +2819,9 @@ EventType WebSession::getEventType(const WEvent& event) const
       } else
         return EventType::Other;
     }
-    // FIXME: suspicious fallthrough
+    /* 
+     * If we don't recognise the event type it is defaulted to Other
+     */
     WT_FALLTHROUGH
   default:
     return EventType::Other;
