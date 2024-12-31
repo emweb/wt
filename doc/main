@@ -653,6 +653,12 @@ appRoot=C:\Program Files\MyApplications\AppRoot
     and thus will provide stack information when using a JavaScript
     debugger.</dd>
 
+    <dt><strong>debug-level</strong></dt>
+
+    <dd>Allow to choose what JavaScript error are handle by Wt, and
+    thus, affected by the debug option. The other JavaScript errors
+    are ignored.</dd>
+
     <dt><strong>log-file</strong></dt>
 
     <dd>Path to the log file used for application logging (see
