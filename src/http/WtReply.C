@@ -451,7 +451,11 @@ bool WtReply::consumeWebSocketMessage(ws_opcode opcode,
     case continuation:
       LOG_DEBUG("WtReply::consumeWebSocketMessage(): rx continuation");
 
-      // FIXME: suspicious fallthrough
+      /*
+       * Because this switch only happens when the state is Complete,
+       * continuation is equivalent to having a complete frame since
+       * all the other frames are already in memory.
+       */
       WT_FALLTHROUGH
 
     case text_frame:
