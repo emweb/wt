@@ -7,12 +7,15 @@
 #include "Wt/WEvent.h"
 #include "Wt/WException.h"
 #include "Wt/WItemSelectionModel.h"
+#include "Wt/WLogger.h"
 #include "Wt/WStandardItem.h"
 #include "Wt/WStandardItemModel.h"
 
 #ifndef DOXYGEN_ONLY
 
 namespace Wt {
+
+LOGGER("WStandardItemModel");
 
 WStandardItemModel::WStandardItemModel()
   : sortRole_(ItemDataRole::Display)
@@ -378,6 +381,13 @@ bool WStandardItemModel::setHeaderData(int section, Orientation orientation,
   std::vector<HeaderData>& header
     = (orientation == Orientation::Horizontal)
     ? columnHeaderData_ : rowHeaderData_;
+
+  if (section < 0 || header.size() <= section) {
+    LOG_ERROR("Cannot set header of "
+           << (orientation == Orientation::Horizontal ? "column " : "row ")
+           << section << " because it does not exist.");
+    return false;
+  }
 
   HeaderData& d = header[section];
 
