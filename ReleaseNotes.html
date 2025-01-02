@@ -52,6 +52,12 @@ behaviour.
     <a href="classWt_1_1WWebWidget.html" target="_blank">WWebWidget</a> could lead to a segmentation fault for some tag names.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13366" target="_blank">Issue #13366</a>:
+    Ensure that when the application's working directory and the docroot are not the same directory, the image rendering fallback
+    will attempt to resolve the image relative to both locations.
+    This is so that clients that do not have JavaScript enabled, are still able to see the same images as JavaScript-enabled clients.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/12860" target="_blank">Issue #12860</a>:
     fixed a bug where a 
     <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> would not be centered if 
