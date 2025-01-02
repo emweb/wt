@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WDate2 )
   BOOST_REQUIRE(!wd.isNull());
 
   wd = Wt::WDate::fromString("31/07/9999", "dd/MM/yyyy");
-  
+
   BOOST_REQUIRE(wd.isValid());
   BOOST_REQUIRE(!wd.isNull());
 }
@@ -162,6 +162,12 @@ BOOST_AUTO_TEST_CASE( WDateTime_test_WTime3 )
   Wt::WTime wt = Wt::WTime::fromString("13:05:12:not-valid", "hh:mm:ss");
   BOOST_REQUIRE(!wt.isValid());
   BOOST_REQUIRE(wt.isNull());
+}
+
+BOOST_AUTO_TEST_CASE( WDateTime_test_WTime_formatToRegexp_single_quote )
+{
+  auto info = Wt::WTime::formatToRegExp("'hh':'HH':'mm':'ss':'zz':'ZZ':'aa':'AA':'++'");
+  BOOST_CHECK_EQUAL(info.regexp, "hh:HH:mm:ss:zz:ZZ:aa:AA:\\+\\+");
 }
 
 BOOST_AUTO_TEST_CASE( WDateTime_test_WDateTime )

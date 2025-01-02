@@ -679,8 +679,7 @@ WTime::RegExpInfo WTime::formatToRegExp(const WT_USTRING& format)
         result.regexp += f[i];
       else
         inQuote = !inQuote;
-      // FIXME: suspicious fallthrough
-      WT_FALLTHROUGH
+      break;
     case 'h':
     case 'H':
       formatHourToRegExp(result, f, i, currentGroup);
