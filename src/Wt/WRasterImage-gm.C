@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/WApplication.h"
 #include "Wt/WBrush.h"
 #include "Wt/WException.h"
 #include "Wt/WFontMetrics.h"
@@ -25,10 +26,14 @@
 #include "WebUtils.h"
 #include "UriUtils.h"
 
+#include <magick/api.h>
+
+#include <boost/algorithm/string.hpp>
+
+#include <boost/filesystem/path.hpp>
+
 #include <cstdio>
 #include <cmath>
-#include <magick/api.h>
-#include <boost/algorithm/string.hpp>
 
 #if MagickLibVersion < 0x020002
 #error GraphicsMagick version must be at least 1.3.0
@@ -687,6 +692,39 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
   } else {
     strncpy(info.filename, imgUri.c_str(), 2048);
     cImage = ReadImage(&info, &exception);
+
+    // Temporary fix #13366, see also #13367.
+    if (cImage == nullptr) {
+      boost::filesystem::path imagePath = boost::filesystem::path(imgUri);
+      // If this is a relative path, this can potentially be the fallback for the "normal" draw in JS, using
+      // gfxutils, with the file being part of the docroot.
+      if (imagePath.is_relative()) {
+        ExceptionInfo docrootCatchException;
+        GetExceptionInfo(&docrootCatchException);
+        imagePath = boost::filesystem::path(Wt::WApplication::instance()->docRoot()) / imagePath;
+        LOG_WARN("drawImage failed on " << imgUri
+                  << " attempt to prefix docroot: " << imagePath.string());
+        strncpy(info.filename, imagePath.c_str(), 2048);
+        cImage = ReadImage(&info, &docrootCatchException);
+
+        if (cImage == nullptr) {
+          LOG_ERROR("drawImage (and its fallback) failed - original: "
+                    << (exception.reason ? exception.reason :
+                        "(unknown reason)") << ", "
+                    << (exception.description ? exception.description :
+                        "(unknown description)")
+                    << " - fallback: "
+                    << (docrootCatchException.reason ? docrootCatchException.reason :
+                        "(unknown reason)") << ", "
+                    << (docrootCatchException.description ? docrootCatchException.description :
+                        "(unknown description)"));
+          DestroyExceptionInfo(&exception);
+          DestroyExceptionInfo(&docrootCatchException);
+          return;
+        }
+        DestroyExceptionInfo(&docrootCatchException);
+      }
+    }
   }
 
   if (cImage == nullptr) {
