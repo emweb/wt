@@ -524,6 +524,7 @@ void WTreeNode::setLabelIcon(std::unique_ptr<WIconPair> labelIcon)
 
     labelIcon_->setState(isExpanded() ? 1 : 0);
   }
+  resetLearnedSlots();
 }
 
 void WTreeNode::renderSelected(bool isSelected)
