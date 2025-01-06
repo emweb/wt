@@ -4,6 +4,7 @@
 #include "Layout.h"
 #include "Media.h"
 #include "Navigation.h"
+#include "Notification.h"
 #include "TreesTables.h"
 #include "WidgetGallery.h"
 
@@ -58,6 +59,7 @@ WidgetGallery::WidgetGallery()
   addToMenu(menu, "Graphics & Charts", std::make_unique<GraphicsWidgets>())
     ->setPathComponent("graphics-charts");
   addToMenu(menu, "Media", std::make_unique<Media>());
+  addToMenu(menu, "Notification", std::make_unique<Notification>());
 
   if (menu->currentIndex() < 0) {
     menu->select(0);

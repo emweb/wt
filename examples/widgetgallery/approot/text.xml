@@ -5316,4 +5316,74 @@
 
     <p><a href="#pdf">Top</a></p>
   </message>
+
+  <!--NOTIFICATION message blocks-->
+
+  <message id="notification-intro">
+    <p class="lead">Notification &#8212; Tools for notifying the user</p>
+  </message>
+
+  <message id="notification-wnotification">
+    <h2 id="wnotification">WNotification</h2>
+    <p>
+      A ${doc-link WNotification} is an object that represents a
+      notification that can be sent to the user.
+    </p>
+
+      <h3 id="wnotification/permission">Asking Permission</h3>
+      <p>
+        In order for a notification to be displayed to the user, you
+        first need to have it's permission. Wt will automatically ask
+        the permission the first time you send a notification to a user,
+        but you can also do it manually. You can react to the user
+        accepting or refusing to give you the permission by listening to
+        the <code>WNotification::permissionUpdated()</code> signal.
+      </p>
+      <p>
+        Tips: You can reset your notification settings for the site in
+        your browser settings.
+      </p>
+
+      <fieldset class="example">
+        <legend>Example</legend>
+        ${AskNotificationPermission}
+        ${src AskNotificationPermission}
+      </fieldset>
+
+      <h3 id="wnotification/sending">Sending Notifications</h3>
+      <p>
+        You can send a notification by using its <code>send()</code>
+        method. If you try to send a notification without having
+        permission from the user to send notifications, the
+        notifications will wait for the user to give permission. Once
+        the user gives permission, all still relevant notification that
+        are waiting will be sent. A notification is relevant if it was
+        not closed or destroyed.
+      </p>
+
+      <fieldset class="example">
+        <legend>Example</legend>
+        ${NotificationSend}
+        ${src NotificationSend}
+      </fieldset>
+
+      <p>
+        As long as the a notification was not closed, sending it again
+        will only update it. This can be used to avoid spamming the
+        user with many notifications while only the last one needs to
+        be kept. For instance, in a chat application, if several new
+        messages are sent in the same channel, it is better to have no
+        more than 1 notification for that channel which says how many
+        new messages arrived, rather than having one notification per
+        new message.
+      </p>
+
+      <fieldset class="example">
+        <legend>Example</legend>
+        ${NotificationChat}
+        ${src NotificationChat}
+      </fieldset>
+
+  </message>
+
 </messages>

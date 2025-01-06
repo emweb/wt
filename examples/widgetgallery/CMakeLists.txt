@@ -8,6 +8,7 @@ SET(WIDGETGALLERY_SOURCES
   Layout.h Layout.C
   Media.h Media.C
   Navigation.h Navigation.C
+  Notification.h Notification.C
   Sample.h
   Theme.h Theme.C
   Topic.h Topic.C
