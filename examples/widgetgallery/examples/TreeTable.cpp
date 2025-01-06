@@ -1,4 +1,3 @@
-#include <Wt/WIconPair.h>
 #include <Wt/WText.h>
 #include <Wt/WTree.h>
 #include <Wt/WTreeTable.h>
