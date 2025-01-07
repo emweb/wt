@@ -20,8 +20,6 @@
 
 namespace Wt {
 
-class ServerSideFontMetrics;
-
 /*! \class WSvgImage Wt/WSvgImage.h Wt/WSvgImage.h
  *  \brief A paint device for rendering using Scalable Vector Graphics (SVG).
  *
@@ -122,7 +120,6 @@ private:
   WRectF      pathBoundingBox_;
 
   WStringStream shapes_;
-  ServerSideFontMetrics *fontMetrics_;
 
   void finishPath();
   void makeNewGroup();

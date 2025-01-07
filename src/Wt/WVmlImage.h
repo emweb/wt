@@ -19,8 +19,6 @@
 
 namespace Wt {
 
-class ServerSideFontMetrics;
-
 /*! \class WVmlImage Wt/WVmlImage.h Wt/WVmlImage.h
  *  \brief A paint device for rendering using the VML pseudo-standard.
  *
@@ -86,7 +84,6 @@ private:
   WBrush     currentBrush_;
   WPen       currentPen_;
   WShadow    currentShadow_;
-  ServerSideFontMetrics *fontMetrics_;
 
   struct ActivePath {
     std::string path;

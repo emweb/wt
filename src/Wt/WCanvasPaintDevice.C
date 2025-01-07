@@ -91,8 +91,7 @@ WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
     height_(height),
     painter_(nullptr),
     paintUpdate_(paintUpdate),
-    currentClippingEnabled_(false),
-    fontMetrics_(nullptr)
+    currentClippingEnabled_(false)
 {
   textMethod_ = TextMethod::Html5Text;
 
@@ -118,9 +117,7 @@ WCanvasPaintDevice::WCanvasPaintDevice(const WLength& width,
 }
 
 WCanvasPaintDevice::~WCanvasPaintDevice()
-{
-  delete fontMetrics_;
-}
+{ }
 
 WFlags<PaintDeviceFeatureFlag> WCanvasPaintDevice::features() const
 {
@@ -657,18 +654,14 @@ void WCanvasPaintDevice::drawTextOnPath(const WRectF &rect,
 WTextItem WCanvasPaintDevice::measureText(const WString& text, double maxWidth,
                                           bool wordWrap)
 {
-  if (!fontMetrics_)
-    fontMetrics_ = new ServerSideFontMetrics();
-
-  return fontMetrics_->measureText(painter()->font(), text, maxWidth, wordWrap);
+  Wt::WApplication *app = Wt::WApplication::instance();
+  return app->serverSideFontMetrics()->measureText(painter()->font(), text, maxWidth, wordWrap);
 }
 
 WFontMetrics WCanvasPaintDevice::fontMetrics()
 {
-  if (!fontMetrics_)
-    fontMetrics_ = new ServerSideFontMetrics();
-
-  return fontMetrics_->fontMetrics(painter()->font());
+  Wt::WApplication *app = Wt::WApplication::instance();
+  return app->serverSideFontMetrics()->fontMetrics(painter()->font());
 }
 
 void WCanvasPaintDevice::setChanged(WFlags<PainterChangeFlag> flags)

@@ -29,6 +29,7 @@
 #include "SoundManager.h"
 #include "WebController.h"
 #include "WebUtils.h"
+#include "ServerSideFontMetrics.h"
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/pool/pool.hpp>
@@ -134,7 +135,8 @@ WApplication::WApplication(const WEnvironment& env
     hideLoadingIndicator_("hideload", this),
     unloaded_(this, "Wt-unload"),
     idleTimeout_(this, "Wt-idleTimeout"),
-    soundManager_(nullptr)
+    soundManager_(nullptr),
+    serverSideFontMetrics_(nullptr)
 {
   session_->setApplication(this);
   locale_ = environment().locale();
@@ -388,6 +390,8 @@ std::string WApplication::onePixelGifUrl()
 
 WApplication::~WApplication()
 {
+  delete serverSideFontMetrics_;
+  
 #ifndef WT_TARGET_JAVA
   // Fix issue #5331: if WTimer is a child of WApplication,
   // it will outlive timerRoot_. Delete it now already.
@@ -430,6 +434,14 @@ WWebWidget *WApplication::domRoot() const
   return domRoot_.get();
 }
 
+ServerSideFontMetrics *WApplication::serverSideFontMetrics()
+{
+  if (!serverSideFontMetrics_)
+    serverSideFontMetrics_ = new ServerSideFontMetrics();
+
+  return serverSideFontMetrics_;
+}
+  
 void WApplication::attachThread(bool attach)
 {
 #ifndef WT_CNOR

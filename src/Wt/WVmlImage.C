@@ -77,14 +77,11 @@ WVmlImage::WVmlImage(const WLength& width, const WLength& height,
     height_(height),
     painter_(nullptr),
     paintUpdate_(paintUpdate),
-    clippingChanged_(false),
-    fontMetrics_(nullptr)
+    clippingChanged_(false)
 { }
 
 WVmlImage::~WVmlImage()
-{
-  delete fontMetrics_;
-}
+{ }
 
 WFlags<PaintDeviceFeatureFlag> WVmlImage::features() const
 {
@@ -573,18 +570,14 @@ void WVmlImage::drawText(const WRectF& rect,
 WTextItem WVmlImage::measureText(const WString& text, double maxWidth,
                                  bool wordWrap)
 {
-  if (!fontMetrics_)
-    fontMetrics_ = new ServerSideFontMetrics();
-
-  return fontMetrics_->measureText(painter()->font(), text, maxWidth, wordWrap);
+  Wt::WApplication *app = Wt::WApplication::instance();
+  return app->serverSideFontMetrics()->measureText(painter()->font(), text, maxWidth, wordWrap);
 }
 
 WFontMetrics WVmlImage::fontMetrics()
 {
-  if (!fontMetrics_)
-    fontMetrics_ = new ServerSideFontMetrics();
-
-  return fontMetrics_->fontMetrics(painter()->font());
+  Wt::WApplication *app = Wt::WApplication::instance();
+  return app->serverSideFontMetrics()->fontMetrics(painter()->font());
 }
 
 std::string WVmlImage::quote(const std::string& s)

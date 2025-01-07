@@ -23,7 +23,6 @@ namespace Wt {
 
 class DomElement;
 class WTransform;
-class ServerSideFontMetrics;
 
 /*! \class WCanvasPaintDevice Wt/WCanvasPaintDevice.h Wt/WCanvasPaintDevice.h
  *  \brief A paint device for rendering using the HTML 5 &lt;canvas&gt; element.
@@ -116,7 +115,6 @@ private:
   WPainterPath currentClipPath_;
   WTransform currentClipTransform_;
   bool currentClippingEnabled_;
-  ServerSideFontMetrics *fontMetrics_;
 
   std::stringstream js_;
   std::vector<DomElement *> textElements_;

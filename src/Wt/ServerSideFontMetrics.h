@@ -11,13 +11,15 @@
 
 namespace Wt {
 
+class WFontMetrics;
+class WTextItem;
+
 /*
  * A private utility class that provides server-side font metrics.
  */
 class ServerSideFontMetrics
 {
 public:
-  ServerSideFontMetrics();
   ~ServerSideFontMetrics();
 
   WFontMetrics fontMetrics(const WFont& font);
@@ -28,10 +30,14 @@ public:
   static bool available();
 
 private:
+  ServerSideFontMetrics();
+
 #ifdef WT_HAS_WPDFIMAGE
   std::unique_ptr<WPdfImage> img_;
   std::unique_ptr<WPainter> painter_;
 #endif
+
+  friend class WApplication;
 };
 
 }

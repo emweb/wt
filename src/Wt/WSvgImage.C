@@ -59,14 +59,12 @@ WSvgImage::WSvgImage(const WLength& width, const WLength& height,
     currentFillGradientId_(-1),
     currentStrokeGradientId_(-1),
     currentShadowId_(-1),
-    nextShadowId_(0),
-    fontMetrics_(nullptr)
+    nextShadowId_(0)
 { }
 
 WSvgImage::~WSvgImage()
 {
   beingDeleted();
-  delete fontMetrics_;
 }
 
 WFlags<PaintDeviceFeatureFlag> WSvgImage::features() const
@@ -746,18 +744,14 @@ void WSvgImage::drawText(const WRectF& rect,
 WTextItem WSvgImage::measureText(const WString& text, double maxWidth,
                                  bool wordWrap)
 {
-  if (!fontMetrics_)
-    fontMetrics_ = new ServerSideFontMetrics();
-
-  return fontMetrics_->measureText(painter()->font(), text, maxWidth, wordWrap);
+  Wt::WApplication *app = Wt::WApplication::instance();
+  return app->serverSideFontMetrics()->measureText(painter()->font(), text, maxWidth, wordWrap);
 }
 
 WFontMetrics WSvgImage::fontMetrics()
 {
-  if (!fontMetrics_)
-    fontMetrics_ = new ServerSideFontMetrics();
-
-  return fontMetrics_->fontMetrics(painter()->font());
+  Wt::WApplication *app = Wt::WApplication::instance();
+  return app->serverSideFontMetrics()->fontMetrics(painter()->font());
 }
 
 std::string WSvgImage::quote(const std::string& s)

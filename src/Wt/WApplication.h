@@ -60,6 +60,7 @@ class WebSession;
 class RootContainer;
 class UpdateLockImpl;
 class SoundManager;
+class ServerSideFontMetrics;
 
   namespace Http {
     class Cookie;
@@ -2129,6 +2130,16 @@ public:
    */
   Signal<>& unsuspended() { return unsuspended_; }
 
+  /*! \brief Returns the font metrics for server-side rendering
+   *
+   * In case we require the fallback to render things server-side, this
+   * will require the construction of font metrics. The application will
+   * construct this object only once, as an optimization.
+   *
+   * In case the object did not yet exist, a new instance is created.
+   */
+  ServerSideFontMetrics *serverSideFontMetrics();
+
 protected:
   /*! \brief Notifies an event to the application.
    *
@@ -2528,6 +2539,11 @@ private:
   SoundManager *getSoundManager();
   SoundManager *soundManager_;
 
+  /*
+   * Server-side font metrics
+   */
+  ServerSideFontMetrics *serverSideFontMetrics_;
+  
   static const char *RESOURCES_URL;
 
 #ifdef WT_TARGET_JAVA
