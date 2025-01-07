@@ -13,26 +13,26 @@ namespace Wt {
 
 WIconPair::WIconPair(const std::string& icon1Str, const std::string& icon2Str,
                      bool clickIsSwitch)
-  : icon1Str_(icon1Str),
-    icon2Str_(icon2Str),
-    clickIsSwitch_(clickIsSwitch),
-    impl_(new WContainerWidget()),
-    wicon1_(nullptr),
-    wicon2_(nullptr)
+  : clickIsSwitch_(clickIsSwitch),
+    impl_(new WContainerWidget())
 {
+  iconStr_[0] = icon1Str;
+  iconStr_[1] = icon2Str;
+  wicon_[0] = nullptr;
+  wicon_[1] = nullptr;
   setImplementation(std::unique_ptr<WWidget>(impl_));
-  image1_ = impl_->addWidget(std::make_unique<WImage>(icon1Str));
-  image2_ = impl_->addWidget(std::make_unique<WImage>(icon2Str));
+  image_[0] = impl_->addWidget(std::make_unique<WImage>(WLink(icon1Str)));
+  image_[1] = impl_->addWidget(std::make_unique<WImage>(WLink(icon2Str)));
   impl_->setLoadLaterWhenInvisible(false);
 
   setInline(true);
 
-  image2_->hide();
+  image_[1]->hide();
 
   if (clickIsSwitch) {
 #ifndef WT_TARGET_JAVA
-    std::string fic1 = image1_->id();
-    std::string fic2 = image2_->id();
+    std::string fic1 = image_[0]->id();
+    std::string fic2 = image_[1]->id();
     std::string hide_1 = WT_CLASS ".hide('" + fic1 +"');";
     std::string show_1 = WT_CLASS ".inline('" + fic1 +"');";
     std::string hide_2 = WT_CLASS ".hide('" + fic2 +"');";
@@ -42,12 +42,12 @@ WIconPair::WIconPair(const std::string& icon1Str, const std::string& icon2Str,
     implementJavaScript(&WIconPair::showIcon2, hide_1 + show_2
                         + WT_CLASS ".cancelEvent(e);");
 #else
-    image1_->clicked().preventPropagation();
-    image2_->clicked().preventPropagation();
+    image_[0]->clicked().preventPropagation();
+    image_[1]->clicked().preventPropagation();
 #endif // WT_TARGET_JAVA
 
-    image1_->clicked().connect(this, &WIconPair::showIcon2);
-    image2_->clicked().connect(this, &WIconPair::showIcon1);
+    image_[0]->clicked().connect(this, &WIconPair::showIcon2);
+    image_[1]->clicked().connect(this, &WIconPair::showIcon1);
 
     decorationStyle().setCursor(Cursor::PointingHand);
   }
@@ -60,7 +60,7 @@ void WIconPair::setIconsType(IconType type)
 
 void WIconPair::setIcon1Type(IconType type)
 {
-  resetIcon(image1_, wicon1_, icon1Str_, type);
+  resetIcon(0, type);
   if (clickIsSwitch_) {
     usedIcon1()->clicked().connect(this, &WIconPair::showIcon2);
   }
@@ -68,7 +68,7 @@ void WIconPair::setIcon1Type(IconType type)
 
 void WIconPair::setIcon2Type(IconType type)
 {
-  resetIcon(image2_, wicon2_, icon2Str_, type);
+  resetIcon(1, type);
   if (clickIsSwitch_) {
     usedIcon2()->clicked().connect(this, &WIconPair::showIcon1);
   }
@@ -110,37 +110,29 @@ EventSignal<WMouseEvent>& WIconPair::icon2Clicked()
   return usedIcon2()->clicked();
 }
 
-WInteractWidget *WIconPair::usedIcon1() const
+WInteractWidget *WIconPair::usedIcon(int i) const
 {
-  if (wicon1_) {
-    return wicon1_;
+  if (wicon_[i]) {
+    return wicon_[i];
   }
-  return image1_;
+  return image_[i];
 }
 
-WInteractWidget *WIconPair::usedIcon2() const
-{
-  if (wicon2_) {
-    return wicon2_;
-  }
-  return image2_;
-}
-
-void WIconPair::resetIcon(WImage *&image, WIcon *&wicon, const std::string &iconStr, IconType type)
+void WIconPair::resetIcon(int i, IconType type)
 {
   int currentState = state();
-  if (wicon) {
-    impl_->removeWidget(wicon);
+  if (wicon_[i]) {
+    impl_->removeWidget(wicon_[i]);
   }
-  if (image) {
-    impl_->removeWidget(image);
+  if (image_[i]) {
+    impl_->removeWidget(image_[i]);
   }
   if (type == IconType::IconName) {
-    wicon = impl_->addWidget(std::make_unique<WIcon>(iconStr));
-    image = nullptr;
+    wicon_[i] = impl_->addWidget(std::make_unique<WIcon>(iconStr_[i]));
+    image_[i] = nullptr;
   } else {
-    image = impl_->addWidget(std::make_unique<WImage>(iconStr));
-    wicon = nullptr;
+    image_[i] = impl_->addWidget(std::make_unique<WImage>(WLink(iconStr_[i])));
+    wicon_[i] = nullptr;
   }
   resetLearnedSlots();
   setState(currentState);

@@ -144,7 +144,7 @@ public:
    * 
    * \sa iconNameIcon1()
    */
-  WImage *uriIcon1() const { return image1_; }
+  WImage *uriIcon1() const { return image_[0]; }
 
   /*! \brief Returns the second icon as WImage
    * 
@@ -153,7 +153,7 @@ public:
    * 
    * \sa iconNameIcon2()
    */
-  WImage *uriIcon2() const { return image2_; }
+  WImage *uriIcon2() const { return image_[1]; }
 
   /*! \brief Returns the first icon as WIcon
    * 
@@ -162,7 +162,7 @@ public:
    * 
    * \sa uriIcon1()
    */
-  WIcon *iconNameIcon1() const { return wicon1_; }
+  WIcon *iconNameIcon1() const { return wicon_[0]; }
 
   /*! \brief Returns the second icon as WIcon
    * 
@@ -171,7 +171,7 @@ public:
    * 
    * \sa uriIcon2()
    */
-  WIcon *iconNameIcon2() const { return wicon2_; }
+  WIcon *iconNameIcon2() const { return wicon_[1]; }
   
   /*! \brief Sets the state to 0 (show icon 1).
    *
@@ -206,18 +206,16 @@ public:
   EventSignal<WMouseEvent>& icon2Clicked();
 
 private:
-  const std::string icon1Str_;
-  const std::string icon2Str_;
   const bool clickIsSwitch_;
   WContainerWidget *impl_;
-  WIcon *wicon1_;
-  WIcon *wicon2_;
-  WImage *image1_;
-  WImage *image2_;
+  std::string iconStr_[2];
+  WIcon *wicon_[2];
+  WImage *image_[2];
 
-  WInteractWidget *usedIcon1() const;
-  WInteractWidget *usedIcon2() const;
-  void resetIcon(WImage *&image, WIcon *&wicon, const std::string &iconStr, IconType type);
+  WInteractWidget *usedIcon(int i) const;
+  WInteractWidget *usedIcon1() const { return usedIcon(0); }
+  WInteractWidget *usedIcon2() const { return usedIcon(1); }
+  void resetIcon(int i, IconType type);
 };
 
 }
