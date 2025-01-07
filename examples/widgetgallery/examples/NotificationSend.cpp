@@ -7,9 +7,13 @@
 SAMPLE_BEGIN(NotificationSend)
 auto container = std::make_unique<Wt::WContainerWidget>();
 
+#ifndef WT_TARGET_JAVA
 std::unique_ptr<Wt::WNotification> persistant = std::make_unique<Wt::WNotification>("You will see me everytime");
 Wt::WNotification *p = persistant.get();
 container->addChild(std::move(persistant));
+#else
+Wt::WNotification *p = new Wt::WNotification("You will see me everytime");
+#endif
 p->setSilent();
 Wt::WPushButton * button = container->addNew<Wt::WPushButton>("Receive notifications");
 

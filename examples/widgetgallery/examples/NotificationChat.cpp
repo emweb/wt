@@ -4,7 +4,6 @@
 #include <Wt/WString.h>
 #include <Wt/WText.h>
 
-SAMPLE_BEGIN(NotificationChat)
 
 class Channel: public Wt::WContainerWidget
 {
@@ -12,7 +11,11 @@ public:
     Channel()
         : newMsg_(0)
     {
+#ifndef WT_TARGET_JAVA
         notif_.setIcon("icons/wt.png");
+#else
+        notif_.setIcon("icons/jwt.png");
+#endif
         notif_.setSilent();
         notif_.clicked().connect(this, &Channel::onNotifClick);
     }
@@ -35,8 +38,9 @@ private:
     }
 };
 
-auto container = std::make_unique<Channel>();
-auto channel = container.get();
+SAMPLE_BEGIN(NotificationChat)
+auto container = std::make_unique<Wt::WContainerWidget>();
+Channel *channel = container->addWidget(std::make_unique<Channel>());
 
 Wt::WPushButton * button = channel->addNew<Wt::WPushButton>("Send Message");
 
