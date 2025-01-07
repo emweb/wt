@@ -7,6 +7,7 @@
 #include "Wt/WRasterImage.h"
 
 #include "Wt/FontSupport.h"
+#include "Wt/WApplication.h"
 #include "Wt/WBrush.h"
 #include "Wt/WException.h"
 #include "Wt/WFontMetrics.h"
@@ -23,6 +24,8 @@
 #include <cmath>
 
 #include <boost/algorithm/string.hpp>
+
+#include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
 // Direct2D
@@ -707,7 +710,28 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
       &decoder
     );
     if (hr == HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND)) {
-      throw WException("drawImage failed: file not found: " + imgUri);
+      // Temporary fix #13366, see also #13367
+      boost::filesystem::path imagePath = boost::filesystem::path(imgUri);
+      // If this is a relative path, this can potentially be the fallback for the "normal" draw in JS, using
+      // gfxutils, with the file being part of the docroot.
+      if (imagePath.is_relative()) {
+        imagePath = boost::filesystem::path(Wt::WApplication::instance()->docRoot()) / imagePath;
+        LOG_WARN("drawImage failed on " << imgUri
+                 << " attempt to prefix docroot: " << imagePath.string());
+
+        hr = impl_->wicFactory_->CreateDecoderFromFilename(
+          imagePath.c_str(),
+          NULL,
+          GENERIC_READ,
+          WICDecodeMetadataCacheOnLoad,
+          &decoder
+        );
+
+        if (hr == HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND)) {
+          throw WException("drawImage (and its fallback) failed - original: " + imgUri
+                           + " - fallback: " + imagePath.string());
+        }
+      }
     } else if (!SUCCEEDED(hr)) {
       throw WException("drawImage failed: HRESULT " + boost::lexical_cast<std::string>(hr) + ", uri: " + imgUri);
     }
