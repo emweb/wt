@@ -58,6 +58,9 @@ public:
    */
   std::chrono::steady_clock::duration timeout() const;
 
+  //! Get the total number of free connections available
+  int freeConnections() const;
+
   virtual ~FixedSqlConnectionPool();
   virtual std::unique_ptr<SqlConnection> getConnection() override;
   virtual void returnConnection(std::unique_ptr<SqlConnection>) override;

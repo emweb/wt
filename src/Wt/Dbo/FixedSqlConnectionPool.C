@@ -59,6 +59,11 @@ std::chrono::steady_clock::duration FixedSqlConnectionPool::timeout() const
   return impl_->timeout;
 }
 
+int FixedSqlConnectionPool::freeConnections() const
+{
+  return impl_->freeList.size();
+}
+
 std::unique_ptr<SqlConnection> FixedSqlConnectionPool::getConnection()
 {
 #ifdef WT_THREADED
