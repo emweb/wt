@@ -190,7 +190,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, a
 
     if (hidden) {
       el.style.position = "";
-      el.style.display = "";
+      el.style.display = "none";
       el.style.left = "";
       el.style.top = "";
       document.removeEventListener("mousedown", onDocumentDown);
