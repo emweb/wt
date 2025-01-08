@@ -71,7 +71,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupWidget", function(APP, el,
   }
 
   function isHidden() {
-    return el.style.display === "hidden";
+    return el.style.display === "none";
   }
 
   function onDocumentClick(event) {

@@ -838,7 +838,7 @@ DomElement *StdGridLayoutImpl2::createDomElement(DomElement *parent,
 
     if (tr) {
       if (!rowVisible)
-        tr->setProperty(Property::StyleDisplay, "hidden");
+        tr->setProperty(Property::StyleDisplay, "none");
       else
         prevRowWithItem = row;
       tbody->addChild(tr);
