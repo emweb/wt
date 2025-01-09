@@ -193,6 +193,12 @@ void WPaintedWidget::update(WFlags<PaintFlag> flags)
   repaint();
 }
 
+void WPaintedWidget::refresh()
+{ 
+  update();
+  WInteractWidget::refresh();
+}
+
 void WPaintedWidget::enableAjax()
 {
   if (dynamic_cast<WWidgetCanvasPainter *>(painter_.get())

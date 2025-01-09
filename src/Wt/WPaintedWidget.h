@@ -172,6 +172,8 @@ public:
    */
   void update(WFlags<PaintFlag> flags = None);
 
+  void refresh() override;
+
   virtual void resize(const WLength& width, const WLength& height) override;
 
   /*! \brief Adds an interactive area.
