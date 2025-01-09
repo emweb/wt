@@ -35,8 +35,8 @@ public:
 
   /*! \brief Adds a button.
    */
-  void addButton(std::unique_ptr<WPushButton> button,
-                 AlignmentFlag alignmentFlag = AlignmentFlag::Left);
+  WPushButton *addButton(std::unique_ptr<WPushButton> button,
+                         AlignmentFlag alignmentFlag = AlignmentFlag::Left);
 
   /*! \brief Adds a split button.
    *
@@ -46,8 +46,8 @@ public:
    *
    * \sa setCompact()
    */
-  void addButton(std::unique_ptr<WSplitButton> button,
-                 AlignmentFlag alignmentFlag = AlignmentFlag::Left);
+  WSplitButton *addButton(std::unique_ptr<WSplitButton> button,
+                          AlignmentFlag alignmentFlag = AlignmentFlag::Left);
 
   /*! \brief Adds a widget.
    *

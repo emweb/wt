@@ -191,6 +191,28 @@ public:
    */
   void addArea(std::unique_ptr<WAbstractArea> area);
 
+  /*! \brief Adds an interactive area, returning a raw pointer.
+   *
+   * This is implemented as:
+   *
+   * \code
+   * WAbstractArea *result = area.get();
+   * addArea(std::unique_ptr<WAbstractArea>(std::move(area)));
+   * return result;
+   * \endcode
+   */
+  template <typename Area>
+    Area *addArea(std::unique_ptr<Area> area)
+#ifndef WT_TARGET_JAVA
+  {
+    Area *result = area.get();
+    addArea(std::unique_ptr<WAbstractArea>(std::move(area)));
+    return result;
+  }
+#else // WT_TARGET_JAVA
+  ;
+#endif // WT_TARGET_JAVA
+
   /*! \brief Inserts an interactive area.
    *
    * Inserts the \p area which listens to events in the
