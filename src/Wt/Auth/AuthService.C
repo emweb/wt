@@ -242,7 +242,7 @@ std::string AuthService::createAuthToken(const User& user, AuthTokenType authTok
 {
   int authTokenValidity;
   switch (authTokenType) {
-  case AuthTokenType::Regular:
+  case AuthTokenType::Password:
     authTokenValidity = authTokenValidity_;
     break;
   case AuthTokenType::MFA:
@@ -291,7 +291,7 @@ AuthTokenResult AuthService::processAuthToken(const std::string& token,
 {
   int authTokenValidity;
   switch (authTokenType) {
-  case AuthTokenType::Regular:
+  case AuthTokenType::Password:
     authTokenValidity = authTokenValidity_;
     break;
   case AuthTokenType::MFA:

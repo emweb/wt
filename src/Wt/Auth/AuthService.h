@@ -113,7 +113,7 @@ enum class AuthTokenState {
 /*! \brief Enumeration that describes the possible auth token type.
  */
 enum class AuthTokenType {
-  Regular, //!< Regular username/password login
+  Password, //!< Regular username/password login
   MFA      //!< Multi Factor Authantification
 };
 
@@ -417,13 +417,31 @@ public:
   /*! \brief Creates and stores an authentication token for the user.
    *
    * This creates and stores a new authentication token for the given
-   * user.
+   * user. The token will expire after \p authTokenValidity minutes if
+   * \p authTokenValidity is positive and after authTokenValidity()
+   * minutes otherwise.
    *
    * The returned value is the token that may be used to re-identify
    * the user in processAuthToken().
+   * 
+   * \sa createAuthToken(const User&, AuthTokenType) const
    */
   std::string createAuthToken(const User& user, int authTokenValidity = -1) const;
 
+  /*! \brief Creates and stores an authentication token for the user.
+   *
+   * This creates and stores a new authentication token for the given
+   * user. The token will expire after the token validity time
+   * configured for the tokens of type \p authTokenType.
+   *
+   * For AuthTokenType::Password this uses authTokenValidity(),
+   * for AuthTokenType::MFA this will utilize mfaTokenValidity().
+   *
+   * The returned value is the token that may be used to re-identify
+   * the user in processAuthToken().
+   * 
+   * \sa createAuthToken(const User&, int) const
+   */
   std::string createAuthToken(const User& user, AuthTokenType authTokenType) const;
 
   /*! \brief Processes an authentication token.
@@ -435,17 +453,59 @@ public:
    *
    * If it matches and auth token update is enabled
    * (setAuthTokenUpdateEnabled()), the token is updated with a new hash.
+   * In case AbstractUserDatabase::updateAuthToken() returns -1, a new
+   * token that expires after authTokenValidity() minutes will be
+   * stored for the user.
    *
    * \sa setAuthTokensEnabled()
+   * \sa authTokenValidity()
    * \sa AbstractUserDatabase::updateAuthToken()
    */
   virtual AuthTokenResult processAuthToken(const std::string& token,
                                            AbstractUserDatabase& users) const;
   
+  /*! \brief Processes an authentication token.
+   *
+   * This verifies an authentication token, and considers whether it
+   * matches with a token hash value stored in database. This indicates
+   * that the cookie a User has in their browser is still valid, and can
+   * be used to uniquely identify them.
+   *
+   * If it matches and auth token update is enabled
+   * (setAuthTokenUpdateEnabled()), the token is updated with a new
+   * hash. In case AbstractUserDatabase::updateAuthToken() returns -1,
+   * a new token is stored that will expire after the token validity
+   * time configured for the tokens of type \p authTokenType. If
+   * \p authTokenValidity is negative, then the new token will expire
+   * after authTokenValidity() minutes.
+   * 
+   * \sa setAuthTokensEnabled()
+   * \sa authTokenValidity()
+   * \sa mfaTokenValidity()
+   * \sa AbstractUserDatabase::updateAuthToken()
+   */
   virtual AuthTokenResult processAuthToken(const std::string& token,
                                            AbstractUserDatabase& users,
                                            int authTokenValidity) const;
   
+  /*! \brief Processes an authentication token.
+   *
+   * This verifies an authentication token, and considers whether it
+   * matches with a token hash value stored in database. This indicates
+   * that the cookie a User has in their browser is still valid, and can
+   * be used to uniquely identify them.
+   *
+   * If it matches and auth token update is enabled
+   * (setAuthTokenUpdateEnabled()), the token is updated with a new hash.
+   * In case AbstractUserDatabase::updateAuthToken() returns -1, a new
+   * token is stored that will expire after the token validity time
+   * configured for the tokens of type \p authTokenType.
+   *
+   * \sa setAuthTokensEnabled()
+   * \sa authTokenValidity()
+   * \sa mfaTokenValidity()
+   * \sa AbstractUserDatabase::updateAuthToken()
+   */
   virtual AuthTokenResult processAuthToken(const std::string& token,
                                            AbstractUserDatabase& users,
                                            AuthTokenType authTokenType) const;
