@@ -115,9 +115,13 @@ public:
 
   /*! \brief Returns whether a user has successfully logged in.
    *
-   * This returns \c true only if the state is LoginState::Weak or LoginState::Strong.
+   * This returns \c true only if the user is valid and the state is
+   * LoginState::Weak or LoginState::Strong.
+   * 
+   * In case the state is LoginState::RequiresMfa, the user still needs
+   * to go through the MFA process before being logged in.
    *
-   * \sa state()
+   * \sa state(), User::isValid()
    */
   bool loggedIn() const;
 
