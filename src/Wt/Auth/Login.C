@@ -49,7 +49,7 @@ LoginState Login::state() const
 
 bool Login::loggedIn() const
 {
-  return user_.isValid() && state_ != LoginState::Disabled;
+  return user_.isValid() && (state_ == LoginState::Strong || state_ == LoginState::Weak);
 }
 
 const User& Login::user() const
