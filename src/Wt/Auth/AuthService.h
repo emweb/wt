@@ -415,7 +415,7 @@ public:
    * The returned value is the token that may be used to re-identify
    * the user in processAuthToken().
    */
-  std::string createAuthToken(const User& user) const;
+  std::string createAuthToken(const User& user, int authTokenValidity = -1) const;
 
   /*! \brief Processes an authentication token.
    *
@@ -432,6 +432,10 @@ public:
    */
   virtual AuthTokenResult processAuthToken(const std::string& token,
                                            AbstractUserDatabase& users) const;
+  
+  virtual AuthTokenResult processAuthToken(const std::string& token,
+                                           AbstractUserDatabase& users,
+                                           int authTokenValidity) const;
 
   /*! \brief Configures the duration for an authenticaton to remain valid.
    *

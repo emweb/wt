@@ -238,7 +238,7 @@ HashFunction *AuthService::tokenHashFunction() const
   return tokenHashFunction_.get();
 }
 
-std::string AuthService::createAuthToken(const User& user) const
+std::string AuthService::createAuthToken(const User& user, int authTokenValidity) const
 {
   if (!user.isValid())
     throw WException("Auth: createAuthToken(): user invalid");
@@ -249,8 +249,12 @@ std::string AuthService::createAuthToken(const User& user) const
   std::string random = WRandom::generateId(tokenLength_);
   std::string hash = tokenHashFunction()->compute(random, std::string());
 
+  if (authTokenValidity < 0) {
+    authTokenValidity = authTokenValidity_;
+  }
+  
   Token token
-    (hash, WDateTime::currentDateTime().addSecs(authTokenValidity_ * 60));
+    (hash, WDateTime::currentDateTime().addSecs(authTokenValidity * 60));
   user.addAuthToken(token);
 
   if (t.get()) t->commit();
@@ -260,6 +264,13 @@ std::string AuthService::createAuthToken(const User& user) const
 
 AuthTokenResult AuthService::processAuthToken(const std::string& token,
                                               AbstractUserDatabase& users) const
+{
+  return processAuthToken(token, users, -1);
+}
+
+AuthTokenResult AuthService::processAuthToken(const std::string& token,
+                                              AbstractUserDatabase& users,
+                                              int authTokenValidity) const
 {
   std::unique_ptr<AbstractUserDatabase::Transaction> t(users.startTransaction());
 
@@ -279,8 +290,11 @@ AuthTokenResult AuthService::processAuthToken(const std::string& token,
          * token.
          */
         user.removeAuthToken(hash);
-        newToken = createAuthToken(user);
-        validity = authTokenValidity_ * 60;
+        if (authTokenValidity < 0) {
+          authTokenValidity = authTokenValidity_;
+        }
+        newToken = createAuthToken(user, authTokenValidity);
+        validity = authTokenValidity * 60;
       }
 
       if (t.get())
