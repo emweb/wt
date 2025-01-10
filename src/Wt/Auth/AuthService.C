@@ -238,6 +238,23 @@ HashFunction *AuthService::tokenHashFunction() const
   return tokenHashFunction_.get();
 }
 
+std::string AuthService::createAuthToken(const User& user, AuthTokenType authTokenType) const
+{
+  int authTokenValidity;
+  switch (authTokenType) {
+  case AuthTokenType::Regular:
+    authTokenValidity = authTokenValidity_;
+    break;
+  case AuthTokenType::MFA:
+    authTokenValidity = mfaTokenValidity_;
+    break;
+  default:
+    throw WException("Auth: createAuthToken(): invalid AuthTokenType");
+  }
+
+  return createAuthToken(user, authTokenValidity);
+}
+
 std::string AuthService::createAuthToken(const User& user, int authTokenValidity) const
 {
   if (!user.isValid())
@@ -266,6 +283,25 @@ AuthTokenResult AuthService::processAuthToken(const std::string& token,
                                               AbstractUserDatabase& users) const
 {
   return processAuthToken(token, users, -1);
+}
+
+AuthTokenResult AuthService::processAuthToken(const std::string& token,
+                                              AbstractUserDatabase& users,
+                                              AuthTokenType authTokenType) const
+{
+  int authTokenValidity;
+  switch (authTokenType) {
+  case AuthTokenType::Regular:
+    authTokenValidity = authTokenValidity_;
+    break;
+  case AuthTokenType::MFA:
+    authTokenValidity = mfaTokenValidity_;
+    break;
+  default:
+    throw WException("Auth: processAuthToken(): invalid AuthTokenType");
+  }
+
+  return processAuthToken(token, users, authTokenValidity);
 }
 
 AuthTokenResult AuthService::processAuthToken(const std::string& token,

@@ -110,6 +110,13 @@ enum class AuthTokenState {
   Valid    //!< The presented auth token could be used to identify a user.
 };
 
+/*! \brief Enumeration that describes the possible auth token type.
+ */
+enum class AuthTokenType {
+  Regular, //!< Regular username/password login
+  MFA      //!< Multi Factor Authantification
+};
+
 /*! \class EmailTokenResult Wt/Auth/AuthService.h Wt/Auth/AuthService.h
  *  \brief The result of processing an email-sent token.
  *
@@ -417,6 +424,8 @@ public:
    */
   std::string createAuthToken(const User& user, int authTokenValidity = -1) const;
 
+  std::string createAuthToken(const User& user, AuthTokenType authTokenType) const;
+
   /*! \brief Processes an authentication token.
    *
    * This verifies an authentication token, and considers whether it
@@ -436,6 +445,10 @@ public:
   virtual AuthTokenResult processAuthToken(const std::string& token,
                                            AbstractUserDatabase& users,
                                            int authTokenValidity) const;
+  
+  virtual AuthTokenResult processAuthToken(const std::string& token,
+                                           AbstractUserDatabase& users,
+                                           AuthTokenType authTokenType) const;
 
   /*! \brief Configures the duration for an authenticaton to remain valid.
    *
