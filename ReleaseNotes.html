@@ -23,10 +23,17 @@ behaviour.
 <h2>Release 4.11.3 (TBD)</h2>
 
 <p>
-  Wt 4.11.3 is a patch release that addresses the following issue:
+  Wt 4.11.3 is a patch release that addresses the following issues:
 </p>
 
 <ul>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13387" target="_blank">Issue #13387</a>:
+    Fixed incorrect expiration date for a MFA authentication token being stored in the database.
+    Additionally, the possibility to give a custom expiration time for authentication tokens at creation when using
+    <a href="classWt_1_1Auth_1_1AuthService.html#aa0c7e178c21d6fac659e4664b4cd865c" target="_blank">Auth::AuthService::createAuthToken()</a>
+    was added.
+  </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13261" target="_blank">Issue #13261</a>:
     Fixed a bug where
