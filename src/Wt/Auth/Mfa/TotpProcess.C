@@ -52,9 +52,9 @@ namespace Wt {
   {
     auto setupView = createBaseView();
     bindQRCode(setupView.get());
-    bindCodeInput(setupView.get());
+    bindCodeInput(setupView.get(), false);
     bindRememberMe(setupView.get());
-    bindLoginButton(setupView.get());
+    bindLoginButton(setupView.get(), false);
     bindLogoutButton(setupView.get());
     return setupView;
   }
@@ -62,9 +62,9 @@ namespace Wt {
   std::unique_ptr<WWidget> TotpProcess::createInputView()
   {
     auto inputView = createBaseView();
-    bindCodeInput(inputView.get());
+    bindCodeInput(inputView.get(), true);
     bindRememberMe(inputView.get());
-    bindLoginButton(inputView.get());
+    bindLoginButton(inputView.get(), true);
     bindLogoutButton(inputView.get());
     return inputView;
   }
@@ -87,11 +87,11 @@ namespace Wt {
     view->bindString("secret-key", currentSecretKey());
   }
 
-  void TotpProcess::bindCodeInput(WTemplate* view)
+  void TotpProcess::bindCodeInput(WTemplate* view, bool throttle)
   {
     codeEdit_ = view->bindNew<WLineEdit>("totp-code");
     codeEdit_->setFocus(true);
-    codeEdit_->enterPressed().connect(std::bind(&TotpProcess::verifyCode, this, view));
+    codeEdit_->enterPressed().connect(std::bind(&TotpProcess::verifyCode, this, view, throttle));
     view->bindString("totp-code-info", WString::tr("Wt.Auth.totp-code-info"));
 
     auto totpSecretKey = userIdentity();
@@ -102,12 +102,12 @@ namespace Wt {
     }
   }
 
-  void TotpProcess::bindLoginButton(WTemplate* view)
+  void TotpProcess::bindLoginButton(WTemplate* view, bool throttle)
   {
     auto login = view->bindNew<WPushButton>("login", WString::tr("Wt.Auth.login"));
-    login->clicked().connect(std::bind(&TotpProcess::verifyCode, this, view));
+    login->clicked().connect(std::bind(&TotpProcess::verifyCode, this, view, throttle));
 
-    if (mfaThrottle()) {
+    if (mfaThrottle() && throttle) {
       configureThrottling(login);
     }
   }
@@ -132,7 +132,7 @@ namespace Wt {
     view->bindString("remember-me-info", info);
   }
 
-  void TotpProcess::verifyCode(WTemplate* view)
+  void TotpProcess::verifyCode(WTemplate* view, bool throttle)
   {
     auto code = codeEdit_->text().toUTF8();
 #ifndef WT_TARGET_JAVA
@@ -143,7 +143,7 @@ namespace Wt {
 
     LOG_INFO("verifyCode(): The validation resulted in " << (validation ? "success" : "failure") << " for user: " << login().user().id());
 
-    if (mfaThrottle()) {
+    if (mfaThrottle() && throttle) {
       throttlingDelay_ = mfaThrottle()->delayForNextAttempt(login().user());
       if (throttlingDelay_ > 0) {
         validation = false;
@@ -156,12 +156,12 @@ namespace Wt {
 
     if (!validation) {
       if (throttlingDelay_ > 0) {
-        update(view);
+        update(view, throttle);
         authenticated_.emit(AuthenticationResult(AuthenticationStatus::Failure, WString::tr("Wt.Auth.totp-code-info-throttle")));
         return;
       }
 
-      update(view);
+      update(view, throttle);
       authenticated_.emit(AuthenticationResult(AuthenticationStatus::Failure, WString::tr("Wt.Auth.totp-code-info-invalid")));
     } else {
       createUserIdentity(currentSecretKey());
@@ -175,13 +175,13 @@ namespace Wt {
     }
   }
 
-  void TotpProcess::update(WTemplate* view)
+  void TotpProcess::update(WTemplate* view, bool throttle)
   {
     codeEdit_->addStyleClass("is-invalid Wt-invalid");
     view->bindString("totp-code-info", WString::tr("Wt.Auth.totp-code-info-invalid"));
     view->bindString("label", "error has-error");
 
-    if (mfaThrottle()) {
+    if (mfaThrottle() && throttle) {
       auto login = static_cast<WInteractWidget*>(view->resolveWidget("login"));
       updateThrottling(login);
     }

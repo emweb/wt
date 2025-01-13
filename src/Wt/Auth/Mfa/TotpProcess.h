@@ -116,12 +116,12 @@ namespace Wt {
     std::unique_ptr<WTemplate> createBaseView();
 
     void bindQRCode(WTemplate* view);
-    void bindCodeInput(WTemplate* view);
+    void bindCodeInput(WTemplate* view, bool throttle);
     void bindRememberMe(WTemplate* view);
-    void bindLoginButton(WTemplate* view);
+    void bindLoginButton(WTemplate* view, bool throttle);
     void bindLogoutButton(WTemplate* view);
-    void verifyCode(WTemplate* view);
-    void update(WTemplate* view);
+    void verifyCode(WTemplate* view, bool throttle);
+    void update(WTemplate* view, bool throttle);
 
     const std::string& currentSecretKey() const { return currentSecretKey_; }
   };
