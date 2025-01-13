@@ -221,7 +221,7 @@
             </span>
           </div>
         </div>
-	${block:Wt.Auth.checkbox.field remember-me}
+        ${block:Wt.Auth.checkbox.field remember-me}
       </div>
 
       <div class="form-actions">
