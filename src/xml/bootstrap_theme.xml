@@ -49,6 +49,14 @@
     ]]>
   </message>
 
+  <message id="Wt.Auth.checkbox.field">
+    <![CDATA[
+    ${<if:{1}>}
+    ${block:Wt.Auth.field {1}}
+    ${</if:{1}>}
+    ]]>
+  </message>
+
   <message id="Wt.Auth.template.login">
     <div class="span8 offset2 Wt-auth-login">
       <legend>${tr:Wt.Auth.login-form-title}</legend>
@@ -58,7 +66,7 @@
 	${<if:passwords>}
 	  ${block:Wt.Auth.field3 user-name user-name-label user-confirm-email}
 	  ${block:Wt.Auth.field password}
-	  ${block:Wt.Auth.field remember-me}
+	  ${block:Wt.Auth.checkbox.field remember-me}
 	${</if:passwords>}
 
         ${<if:oauth>}
@@ -211,7 +219,7 @@
             </span>
           </div>
         </div>
-	${block:Wt.Auth.field remember-me}
+	${block:Wt.Auth.checkbox.field remember-me}
       </div>
 
       <div class="form-actions">

@@ -54,6 +54,25 @@
     ]]>
   </message>
 
+    <message id="Wt.Auth.checkbox.field">
+    <![CDATA[
+    ${<if:{1}>}
+    <div class="form-group">
+      <label for="${id:{1}}" class="control-label col-sm-2">
+        ${tr:Wt.Auth.{1}}
+      </label>
+      <div class="col-sm-10">
+        <div class="checkbox">
+          <label>
+            ${{1}} ${{1}-info}
+          </label>
+        </div>
+      </div>
+    </div>
+    ${</if:{1}>}
+    ]]>
+  </message>
+
   <message id="Wt.WNavigationBar.template">
     <div>
       ${collapse-button}
