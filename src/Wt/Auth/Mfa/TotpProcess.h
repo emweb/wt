@@ -119,6 +119,7 @@ namespace Wt {
     void bindCodeInput(WTemplate* view);
     void bindRememberMe(WTemplate* view);
     void bindLoginButton(WTemplate* view);
+    void bindLogoutButton(WTemplate* view);
     void verifyCode(WTemplate* view);
     void update(WTemplate* view);
 

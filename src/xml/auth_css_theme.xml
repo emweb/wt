@@ -168,7 +168,7 @@
       </div>
 
       <div class="Wt-buttons">
-        ${login}
+        ${login} ${logout}
       </div>
     </div>
   </message>

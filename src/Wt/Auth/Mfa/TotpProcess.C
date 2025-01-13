@@ -55,6 +55,7 @@ namespace Wt {
     bindCodeInput(setupView.get());
     bindRememberMe(setupView.get());
     bindLoginButton(setupView.get());
+    bindLogoutButton(setupView.get());
     return setupView;
   }
 
@@ -64,6 +65,7 @@ namespace Wt {
     bindCodeInput(inputView.get());
     bindRememberMe(inputView.get());
     bindLoginButton(inputView.get());
+    bindLogoutButton(inputView.get());
     return inputView;
   }
 
@@ -108,6 +110,12 @@ namespace Wt {
     if (mfaThrottle()) {
       configureThrottling(login);
     }
+  }
+
+  void TotpProcess::bindLogoutButton(WTemplate* view)
+  {
+    auto logout = view->bindNew<WPushButton>("logout", WString::tr("Wt.Auth.totp-back"));
+    logout->clicked().connect(std::bind(&Login::logout, &login()));
   }
 
   void TotpProcess::bindRememberMe(WTemplate* view)

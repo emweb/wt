@@ -215,7 +215,7 @@
       </div>
 
       <div class="form-actions">
-        <p>${login class="btn-primary"}</p>
+        <p>${login class="btn-primary"} ${logout class="btn-secondary"}</p>
       </div>
     </div>
   </message>
