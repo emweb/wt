@@ -57,7 +57,7 @@ RUN choco install `
       7zip.install `
       -y
 
-ARG BOOST_URL=https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.7z
+ARG BOOST_URL=https://archives.boost.io/release/1.81.0/source/boost_1_81_0.7z
 RUN powershell `
       -NoProfile `
       -ExecutionPolicy Bypass `
