@@ -78,10 +78,12 @@
           </div>
         ${</if:oauth>}
 
-        <div class="form-actions">
-          <p>${login class="btn-primary"}</p>
-          <p>${lost-password class="btn-link"} ${sep}
-          ${register class="btn-link"}</p>
+        <div class="form-actions form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <p>${login class="btn-primary"}</p>
+            <p>${lost-password class="btn-link"} ${sep}
+            ${register class="btn-link"}</p>
+          </div>
         </div>
       </div>
     </div>
