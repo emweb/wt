@@ -97,8 +97,10 @@
         </div>
         ${block:Wt.Auth.checkbox.field remember-me}
 
-        <div class="form-actions col-sm-offset-2">
-          <p>${login class="btn-primary"}</p>
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <p>${login class="btn-primary"}</p>
+          </div>
         </div>
       </div>
     </div>

@@ -222,10 +222,10 @@
           </div>
         </div>
         ${block:Wt.Auth.checkbox.field remember-me}
-      </div>
 
-      <div class="form-actions">
-        <p>${login class="btn-primary"} ${logout class="btn-secondary"}</p>
+        <div class="form-actions">
+          <p>${login class="btn-primary"} ${logout class="btn-secondary"}</p>
+        </div>
       </div>
     </div>
   </message>
