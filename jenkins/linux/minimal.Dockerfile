@@ -28,7 +28,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 RUN BOOST_VERSION=1.71.0 ;\
     BOOSTDIR=boost_${BOOST_VERSION//[.]/_} ;\
-    wget https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION}/source/${BOOSTDIR}.tar.bz2 -O ${BOOSTDIR}.tar.bz2 \
+    wget https://archives.boost.io/release/${BOOST_VERSION}/source/${BOOSTDIR}.tar.bz2 -O ${BOOSTDIR}.tar.bz2 \
  && tar xf ${BOOSTDIR}.tar.bz2 \
  && rm ${BOOSTDIR}.tar.bz2 \
  && (cd ${BOOSTDIR} \
