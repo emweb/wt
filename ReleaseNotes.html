@@ -20,48 +20,31 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.11.2 (TBD)</h2>
+<h2>Release 4.11.2 (January 16, 2025)</h2>
 
 <p>
-  Wt 4.11.2 is a patch release that addresses the following issue:
+  Wt 4.11.2 is a patch release that addresses the following issues:
 </p>
 
 <ul>
   <li>
-    <a href="https://redmine.emweb.be/issues/13187" target="_blank">Issue #13187</a>:
-    Add the possibility to configure headers that are sent in every reply. This can be defined in
-    the XML config using the <code>http-headers</code> tag.
-    It is now also possible to configure Wt to use nonces for script by setting the "use-script-nonce" to <code>true</code>,
-    to help protect against XSS attack. If you need to serve a script in a 
-    <a href="classWt_1_1WResource.html" target="_blank">WResource</a>, the nonce is available through the
-    response parameter of the
-    <a href="classWt_1_1WResource.html#a3a740f8cc29e2e6e4e58defc9c88b8b6" target="_blank">WResource::handleRequest()</a> function by using
-    <a href="classWt_1_1Http_1_1Response.html#a5ade98a7d1e3edc76f4ffc7634a25298" target="_blank">Http::Response::nonce()</a>.
-    The nonce is facilitated through the <h href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP" target="_blank">CSP (Content Security Policy) header</a>.
-    Enabling the nonce will serve CSP headers in your responses. A minimal (fairly nonrestrictive) configuration is taken by default, namely:
-    <code>Content-Security-Policy: script-src 'nonce-{randomNonce}' 'strict-dynamic' 'unsafe-eval'</code>
-    This CSP header can be configured in the XML config under <code>http-headers</code> as well. If the nonce is enabled, only MORE restrictive CSP headers will
-    be allowed by the browser.
-  </li>
-  </li>
-  <li>
     <a href="https://redmine.emweb.be/issues/12935" target="_blank">Issue #12935</a>:
-    resize handles in layouts now have a fixed height or width instead of it scaling with the spacing of the layout.
+    resize handles in layouts now have a fixed height or width instead of them scaling with the spacing of the layout.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/10903" target="_blank">Issue #10903</a>:
-    Add support for many common MIME types. Every file of the common types will now be sent with the correct MIME type instead of the default "application/octet-stream".
+    add support for many common MIME types. Every file of the common types will now be sent with the correct MIME type instead of the default <code>application/octet-stream</code>.
     The list comes from <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/MIME_types/Common_types" target="_blank">MDN</a> (taken on September 16, 2024), and is in no way exhaustive.
     A way to provide more types will be added soon in <a href="https://redmine.emweb.be/issues/13188" target="_blank">Issue #13188</a>.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/12866" target="_blank">Issue #12866</a>:
-    Added the <code>&lt;delay-load-at-boot&gt;</code> option which can be changed in the configuration file. This option 
+    added the <code>&lt;delay-load-at-boot&gt;</code> option which can be changed in the configuration file. This option
     allows developers to choose whether the loading of the application at boot should be delayed or not. Instead of
-    immediately calling the loading method, a small delay is introduced to allow additional JS to be executed before
-    loading. By default this option is set to true, which keeps the delay. This delay can causes the loading of the
+    immediately calling the loading method, a small delay is introduced to allow additional JavaScript to be executed before
+    loading. By default this option is set to true, which keeps the delay. This delay can cause the loading of the
     application to take a long time in some very specific case. Setting this option to false could however impact any
-    JS code added at boot time.
+    JavaScript code added at boot time.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13063" target="_blank">Issue #13063</a>:
@@ -70,19 +53,19 @@ behaviour.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13366" target="_blank">Issue #13366</a>:
-    Ensure that when the application's working directory and the docroot are not the same directory, the image rendering fallback
+    ensure that when the application's working directory and the docroot are not the same directory, the image rendering fallback
     will attempt to resolve the image relative to both locations.
     This is so that clients that do not have JavaScript enabled, are still able to see the same images as JavaScript-enabled clients.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/12860" target="_blank">Issue #12860</a>:
-    fixed a bug where a 
-    <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> would not be centered if 
+    fixed a bug where a
+    <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> would not be centered if
     <a href="classWt_1_1WDialog.html#a223f8635e38a6e9809b867f247b2185f" target="_blank">WDialog::exec()</a> was called after the <code>WDialog</code> was loaded.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/13082" target="_blank">Issue #13082</a>:
-    Fixed styling of element in layout not being updated in some cases if the change happened while the layout was hidden.
+    fixed styling of elements in layout not being updated in some cases if the change happened while the layout was hidden.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/12951" target="_blank">Issue #12951</a>:
@@ -91,12 +74,12 @@ behaviour.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/12934" target="_blank">Issue #12934</a>:
-    Fixed a bug in layouts using js implementation where a widget size could be set higher than it's maximum size, leading to additional space after that widget.
+    fixed a bug in layouts using JavaScript implementation where a widget size could be set higher than it's maximum size, leading to additional space after that widget.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13300" target="_blank">Issue #13300</a>:
     fixed a missing fallback in Wt's main JavaScript, when handling browser history navigation (using the back and forward buttons).
-    In case of rewritten browser history, the retrieval would fail, and encounter an `undefined` state. Throwing a JavaScript error. This error should be guarded against,
+    In case of rewritten browser history, the retrieval would fail, and encounter an <code>undefined</code> state. Throwing a JavaScript error. This error should be guarded against,
     and the fallback should always kick in.
   </li>
 </ul>
@@ -107,36 +90,52 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.emweb.be/issues/13187" target="_blank">Issue #13187</a>:
+    add the possibility to configure headers that are sent in every reply. This can be defined in
+    the XML config using the <code>http-headers</code> tag.
+    It is now also possible to configure Wt to use nonces for script by setting the <code>use-script-nonce</code> to <code>true</code>,
+    to help protect against XSS attack. If you need to serve a script in a
+    <a href="classWt_1_1WResource.html" target="_blank">WResource</a>, the nonce is available through the
+    response parameter of the
+    <a href="classWt_1_1WResource.html#a3a740f8cc29e2e6e4e58defc9c88b8b6" target="_blank">WResource::handleRequest()</a> function by using
+    <a href="classWt_1_1Http_1_1Response.html#a5ade98a7d1e3edc76f4ffc7634a25298" target="_blank">Http::Response::nonce()</a>.
+    The nonce is facilitated through the <h href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP" target="_blank">CSP (Content Security Policy) header</a>.
+    Enabling the nonce will serve CSP headers in your responses. A minimal (fairly nonrestrictive) configuration is taken by default, namely:
+    <code>Content-Security-Policy: script-src 'nonce-{randomNonce}' 'strict-dynamic' 'unsafe-eval'</code>
+    This CSP header can be configured in the XML config under <code>http-headers</code> as well. If the nonce is enabled, only MORE restrictive CSP headers will
+    be allowed by the browser.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/12945" target="_blank">Issue #12945</a>:
-    Allow to use icons from 
+    allow to use icons from
     <a href="http://fontawesome.io" target="_blank">Font Awesome</a> in
-    <a href="classWt_1_1WIconPair.html" target="_blank">WIconPair</a>. This can be done by giving the name of the icon instead of the URI to an image in the constructor. This also means that the icons can either be a 
-    <a href="classWt_1_1WImage.html" target="_blank">WImage</a> or a 
-    <a href="classWt_1_1WIcon.html" target="_blank">WIcon</a>. Accessing the icons of WIconPair using 
+    <a href="classWt_1_1WIconPair.html" target="_blank">WIconPair</a>. This can be done by giving the name of the icon instead of the URI to an image in the constructor. This also means that the icons can either be a
+    <a href="classWt_1_1WImage.html" target="_blank">WImage</a> or a
+    <a href="classWt_1_1WIcon.html" target="_blank">WIcon</a>. Accessing the icons of WIconPair using
     <a href="classWt_1_1WIconPair.html#a2cb1d36dea7c7f0a145a0ac2e6c2ac0b" target="_blank">WIconPair::icon1()</a> and
-    <a href="classWt_1_1WIconPair.html#ab3a373c00c3ba582790c31f02f6caf6b" target="_blank">WIconPair::icon2()</a> is now deprecated in favor of 
-    <a href="classWt_1_1WIconPair.html#a3e2e9c090569bc72e859cf05bdef16d7" target="_blank">WIconPair::uriIcon1()</a>, 
-    <a href="classWt_1_1WIconPair.html#a9c70933778493df41c4332b0c6ed4943" target="_blank">WIconPair::uriIcon2()</a>, 
+    <a href="classWt_1_1WIconPair.html#ab3a373c00c3ba582790c31f02f6caf6b" target="_blank">WIconPair::icon2()</a> is now deprecated in favor of
+    <a href="classWt_1_1WIconPair.html#a3e2e9c090569bc72e859cf05bdef16d7" target="_blank">WIconPair::uriIcon1()</a>,
+    <a href="classWt_1_1WIconPair.html#a9c70933778493df41c4332b0c6ed4943" target="_blank">WIconPair::uriIcon2()</a>,
     <a href="classWt_1_1WIconPair.html#aba22073c807ad08ef1c5122d773573e8" target="_blank">WIconPair::iconNameIcon1()</a>, and
     <a href="classWt_1_1WIconPair.html#a90d9fd8fe2e8f9d1ea20efa2098b4385" target="_blank">WIconPair::iconNameIcon2()</a>.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/13131" target="_blank">Issue #13131</a>:
-    Make the refresh after
-    <a href="classWt_1_1WApplication.html#ac0f26388d68e9ebf5962c6bb477b4d83" target="_blank">WApplication::setLocal()</a> optional.
+    make the refresh after
+    <a href="classWt_1_1WApplication.html#ac0f26388d68e9ebf5962c6bb477b4d83" target="_blank">WApplication::setLocale()</a> optional.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/6584" target="_blank">Issue #6584</a>:
-    Add the <code>x-frame-same-origin</code> configuration option that allows to configure whether the header X-Frame-Option "SAMEORIGIN" is used or not.
+    add the <code>x-frame-same-origin</code> configuration option that allows to configure whether the header <code>X-Frame-Options: SAMEORIGIN</code> is used or not.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/8508" target="_blank">Issue #8508</a>:
-    Make Wt use std::chrono for time zones by default when compiled with c++20 or higher, and allow automatic conversion of
+    make Wt use <code>std::chrono</code> for time zones by default when compiled with C++20 or higher, and allow automatic conversion of
     <a href="classWt_1_1WTime.html" target="_blank">WTime</a>,
     <a href="classWt_1_1WDateTime.html" target="_blank">WDateTime</a>,
     <a href="classWt_1_1WDate.html" target="_blank">WDate</a> and
-    <a href="classWt_1_1WLocalDateTime.html" target="_blank">WStackedWidget</a> from/to their std::chrono equivalent. In the case of <code>WDate</code> and <code>WLocalDateTime</code>,
-    it is only available if std::chrono is used for time zones.
+    <a href="classWt_1_1WLocalDateTime.html" target="_blank">WLocalDateTime</a> from/to their <code>std::chrono</code> equivalent. In the case of <code>WDate</code> and <code>WLocalDateTime</code>,
+    it is only available if <code>std::chrono</code> is used for time zones.
   </li>
 </ul>
 
