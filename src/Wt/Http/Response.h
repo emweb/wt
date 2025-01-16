@@ -10,7 +10,6 @@
 #include <string>
 #include <Wt/WGlobal.h>
 #include <Wt/Http/ResponseContinuation.h>
-#include <web/WebRequest.h>
 #include <ostream>
 
 namespace Wt {
@@ -133,10 +132,10 @@ public:
    * "use-script-nonce" is configured to true in the configuration file and
    * "use-script-nonce" is configured to \p true true in the
    * configuration file and returns an empty string otherwise.
-   * 
+   *
    * By default this is configured to be \p false.
    */
-  std::string nonce() { return response_ ? response_->nonce() : std::string(); }
+  std::string nonce() const;
 
 private:
   WResource *resource_;

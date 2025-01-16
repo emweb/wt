@@ -138,6 +138,11 @@ WT_BOSTREAM& Response::out()
     return response_->out();
 }
 
+std::string Response::nonce() const
+{
+  return response_ ? response_->nonce() : std::string();
+}
+
 Response::Response(WResource *resource, WebResponse *response,
                    ResponseContinuationPtr continuation)
   : resource_(resource),
