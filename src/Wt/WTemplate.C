@@ -197,8 +197,12 @@ void WTemplate::clear()
   // when WWebWidget calls removeFromParent(), the parent should be null.
   for (WidgetMap::iterator it = widgets_.begin(); it != widgets_.end(); ++it) {
     WWidget *w = it->second.get();
-    if (w)
+    if (w) {
       widgetRemoved(w, false);
+#ifdef WT_TARGET_JAVA
+      manageWidget(w, std::unique_ptr<WWidget>());
+#endif
+    }
   }
 
   widgets_.clear();
