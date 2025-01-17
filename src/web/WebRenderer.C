@@ -1488,9 +1488,9 @@ void WebRenderer::serveMainpage(WebResponse& response)
     DomElement::htmlAttributeValue(styleSheets, session_.fixRelativeUrl(url));
 
     if (conf.useScriptNonce()) {
-      styleSheets << " nonce=\"" << response.nonce() << "\""
-                  << "></script>\n";
+      styleSheets << " nonce=\"" << response.nonce() << "\"";
     }
+    styleSheets << "></script>\n";
 
     beforeLoadJS_ << app->scriptLibraries_[i].beforeLoadJS;
   }
