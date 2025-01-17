@@ -64,6 +64,11 @@ class WTransform;
  * This paint device has the following limitations:
  * - drop shadows are (not yet?) supported.
  *
+ * \note To paint an image (WPainter::drawImage()), this requires its
+ *       file path or its data URI.
+ *
+ * \sa WAbstractDataInfo
+ *
  * \ingroup painting
  */
 class WT_API WRasterImage : public WResource, public WPaintDevice

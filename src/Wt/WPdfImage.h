@@ -63,8 +63,11 @@ namespace Wt {
  *
  * This paint device has the following limitations:
  * - images (WPainter::drawImage()) can only be included from local
- * files, and only JPG and PNG images are supported.
+ * files (or from a data URI when using version 2.2.0 or above of
+ * libharu), and only JPG and PNG images are supported.
  * - drop shadows are not supported.
+ *
+ * \sa WAbstractDataInfo
  *
  * \ingroup painting
  */

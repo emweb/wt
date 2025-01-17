@@ -167,6 +167,15 @@ public:
                          int imgWidth, int imgHeight,
                          const WRectF& sourceRect);
   
+  /*! \brief Draws an image.
+   *
+   * Draws \p sourceRect from the image with the information
+   * contained in \p imageInfo and original dimensions \p imgWidth
+   * and \p imgHeight to the location, into the rectangle defined by
+   * \p rect.
+   *
+   * The image is transformed using the current painter settings.
+   */
   virtual void drawImage(const WRectF& rect,
                          const WAbstractDataInfo* imageInfo,
                          int imgWidth, int imgHeight,

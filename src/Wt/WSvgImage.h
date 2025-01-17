@@ -42,6 +42,11 @@ namespace Wt {
  * \endcode
  * \endif
  *
+ * \note To paint an image (WPainter::drawImage()), this requires its
+ *       URI.
+ *
+ * \sa WAbstractDataInfo
+ *
  * \ingroup painting
  */
 class WT_API WSvgImage : public WResource, public WVectorImage

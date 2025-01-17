@@ -292,6 +292,13 @@ public:
      */
     Image(const std::string& url, int width, int height);
 
+    /*! \brief Creates an image.
+     *
+     * Create an image which URI and/or file path is given by \p info,
+     * and which has dimensions \p width x \p height.
+     *
+     * \note The information required depends on the WPaintDevice used.
+     */
     Image(std::shared_ptr<const WAbstractDataInfo> info, int width, int height);
 
     /*! \brief Creates an image.
@@ -302,12 +309,21 @@ public:
      */
     Image(const std::string& url, const std::string& file);
 
+    /*! \brief Creates an image.
+     *
+     * Create an image which URI and/or file path is given by \p info.
+     * The image dimensions are retrieved from the file (or the URI if
+     * it is a data URI).
+     *
+     * \note The information required depends on the WPaintDevice used.
+     */
     Image(std::shared_ptr<const WAbstractDataInfo> info);
 
     /*! \brief Returns the url.
      */
     std::string uri() const { return info_->hasUri() ? info_->uri() : ""; }
 
+    //! Returns the data info of the image.
     const WAbstractDataInfo* info() const { return info_.get(); }
 
     /*! \brief Returns the image width.

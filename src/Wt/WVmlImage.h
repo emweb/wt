@@ -30,6 +30,11 @@ namespace Wt {
  * clipping: only rectangular areas aligned with the X/Y axes can be used
  * as clipping path.
  *
+ * \note To paint an image (WPainter::drawImage()), this requires its
+ *       URI.
+ *
+ * \sa WAbstractDataInfo
+ *
  * \ingroup painting
  */
 class WT_API WVmlImage : public WVectorImage

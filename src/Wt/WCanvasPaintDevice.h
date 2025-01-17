@@ -39,6 +39,11 @@ class WTransform;
  * browser you can use the WSvgImage or WVmlImage paint devices which
  * do support text natively.
  *
+ * \note To paint an image (WPainter::drawImage()), this requires its
+ *       uri.
+ *
+ * \sa WAbstractDataInfo
+ *
  * \ingroup painting
  */
 class WT_API WCanvasPaintDevice : public WObject, public WPaintDevice
