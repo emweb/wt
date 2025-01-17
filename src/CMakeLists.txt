@@ -74,6 +74,7 @@ Wt/StdLayoutItemImpl.h Wt/StdLayoutItemImpl.C
 Wt/StdWidgetItemImpl.h Wt/StdWidgetItemImpl.C
 Wt/Utils.h Wt/Utils.C
 Wt/WAbstractArea.h Wt/WAbstractArea.C
+Wt/WAbstractDataInfo.h Wt/WAbstractDataInfo.C
 Wt/WAbstractItemDelegate.h Wt/WAbstractItemDelegate.C
 Wt/WAbstractItemModel.h Wt/WAbstractItemModel.C
 Wt/WAbstractItemView.h Wt/WAbstractItemView.C
