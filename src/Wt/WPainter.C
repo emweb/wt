@@ -14,6 +14,7 @@
 #endif
 
 #include "Wt/WApplication.h"
+#include "Wt/WDataInfo.h"
 #include "Wt/WException.h"
 #include "Wt/WLineF.h"
 #include "Wt/WPainter.h"
@@ -148,17 +149,37 @@ WPainter::State WPainter::State::clone()
 
 WPainter::Image::Image(const std::string& url, int width, int height)
   : width_(width),
-    height_(height)
-{
-  setUrl(url);
-}
+    height_(height),
+    useOld_(true),
+    info_(std::make_shared<WDataInfo>(url, ""))
+{ }
+
+WPainter::Image::Image(std::shared_ptr<const WAbstractDataInfo> info, int width, int height)
+  : width_(width),
+    height_(height),
+    useOld_(false),
+    info_(info)
+{ }
 
 WPainter::Image::Image(const std::string& url, const std::string& fileName)
+  : useOld_(true),
+    info_(std::make_shared<WDataInfo>(url, fileName))
 {
-  setUrl(url);
+  evaluateSize();
+}
 
-  if (DataUri::isDataUri(url)) {
-    DataUri uri(url);
+WPainter::Image::Image(std::shared_ptr<const WAbstractDataInfo> info)
+  : useOld_(false),
+    info_(info)
+{
+  evaluateSize();
+}
+
+void WPainter::Image::evaluateSize()
+{
+  if (info_->hasUri() && DataUri::isDataUri(info_->uri())) {
+
+    DataUri uri(info_->uri());
 
     WPoint size = Wt::ImageUtils::getSize(uri.data);
     if (size.x() == 0 || size.y() == 0)
@@ -167,7 +188,8 @@ WPainter::Image::Image(const std::string& url, const std::string& fileName)
 
     width_ = size.x();
     height_ = size.y();
-  } else {
+  } else if (info_->hasFilePath()) {
+    std::string fileName = info_->filePath();
     WPoint size = Wt::ImageUtils::getSize(fileName);
 
     if (size.x() == 0 || size.y() == 0)
@@ -176,12 +198,9 @@ WPainter::Image::Image(const std::string& url, const std::string& fileName)
 
     width_ = size.x();
     height_ = size.y();
+  } else {
+    throw WException("'" + info_->name() + "': could not determine image size due to missing filePath. Add a filePath or use a data uri.");
   }
-}
-
-void WPainter::Image::setUrl(const std::string& url)
-{
-  url_ = url; // url is resolved (to url or filesystem) in the paintdevice
 }
 
 WPainter::WPainter()
@@ -365,7 +384,13 @@ void WPainter::drawImage(const WRectF& rect, const Image& image)
 void WPainter::drawImage(const WRectF& rect, const Image& image,
                          const WRectF& sourceRect)
 {
-  device_->drawImage(rect.normalized(), image.uri(),
+  if (image.useOld_) {
+    device_->drawImage(rect.normalized(), image.info()->uri(),
+                     image.width(), image.height(),
+                     sourceRect.normalized());
+    return;
+  }
+  device_->drawImage(rect.normalized(), image.info(),
                      image.width(), image.height(),
                      sourceRect.normalized());
 }
@@ -378,8 +403,15 @@ void WPainter::drawImage(double x, double y, const Image& image,
   if (sh <= 0)
     sh = image.height() - sy;
 
+  if (image.useOld_) {
+    device_->drawImage(WRectF(x, y, sw, sh),
+                       image.info()->uri(),
+                       image.width(), image.height(),
+                       WRectF(sx, sy, sw, sh));
+    return;
+  }
   device_->drawImage(WRectF(x, y, sw, sh),
-                     image.uri(), image.width(), image.height(),
+                     image.info(), image.width(), image.height(),
                      WRectF(sx, sy, sw, sh));
 }
 

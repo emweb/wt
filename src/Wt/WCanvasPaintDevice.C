@@ -6,6 +6,7 @@
 
 #include "Wt/WApplication.h"
 #include "Wt/WCanvasPaintDevice.h"
+#include "Wt/WDataInfo.h"
 #include "Wt/WEnvironment.h"
 #include "Wt/WException.h"
 #include "Wt/WFontMetrics.h"
@@ -321,15 +322,34 @@ int WCanvasPaintDevice::createImage(const std::string& imgUri)
 
 void WCanvasPaintDevice::drawImage(const WRectF& rect,
                                    const std::string& imageUri,
-                                   WT_MAYBE_UNUSED int imgWidth, WT_MAYBE_UNUSED int imgHeight,
+                                   int imgWidth, int imgHeight,
                                    const WRectF& sourceRect)
+{
+  WDataInfo dataInfo(imageUri, "");
+  doDrawImage(rect, &dataInfo, imgWidth, imgHeight, sourceRect);
+}
+
+void WCanvasPaintDevice::drawImage(const WRectF& rect,
+                                   const WAbstractDataInfo* info,
+                                   int imgWidth, int imgHeight,
+                                   const WRectF& sourceRect)
+{
+  doDrawImage(rect, info, imgWidth, imgHeight, sourceRect);
+}
+
+void WCanvasPaintDevice::doDrawImage(const WRectF& rect,
+                                     const WAbstractDataInfo* info,
+                                     WT_MAYBE_UNUSED int imgWidth,
+                                     WT_MAYBE_UNUSED int imgHeight,
+                                     const WRectF& sourceRect)
 {
   renderStateChanges(true);
 
   WApplication *app = WApplication::instance();
   std::string imgUri;
-  if (app)
-    imgUri = app->resolveRelativeUrl(imageUri);
+  if (app && info->hasUri()) {
+    imgUri = app->resolveRelativeUrl(info->uri());
+  }
 
   int imageIndex = createImage(imgUri);
 

@@ -6,6 +6,7 @@
 
 #include "Wt/WApplication.h"
 #include "Wt/WBrush.h"
+#include "Wt/WDataInfo.h"
 #include "Wt/WException.h"
 #include "Wt/WFontMetrics.h"
 #include "Wt/WLogger.h"
@@ -668,6 +669,20 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
                              WT_MAYBE_UNUSED int imgWidth, WT_MAYBE_UNUSED int imgHeight,
                              const WRectF& srect)
 {
+  WDataInfo dataInfo(imgUri, imgUri);
+  doDrawImage(rect, &dataInfo, imgWidth, imgHeight, srect, true);
+}
+
+void WRasterImage::drawImage(const WRectF& rect, const WAbstractDataInfo* dataInfo,
+                             int imgWidth, int imgHeight, const WRectF& srect)
+{
+  doDrawImage(rect, dataInfo, imgWidth, imgHeight, srect);
+}
+
+void WRasterImage::doDrawImage(const WRectF& rect, const WAbstractDataInfo* dataInfo,
+                               WT_MAYBE_UNUSED int imgWidth, WT_MAYBE_UNUSED int imgHeight,
+                               const WRectF& srect, bool testRelativePath)
+{
   ImageInfo info;
   GetImageInfo(&info);
 
@@ -675,34 +690,37 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
   GetExceptionInfo(&exception);
 
   Image *cImage;
+  std::string imgUri = dataInfo->hasUri() ? dataInfo->uri() : "";
   if (DataUri::isDataUri(imgUri)) {
     DataUri uri(imgUri);
 
-    if (boost::istarts_with(uri.mimeType, "image/png"))
+    if (boost::istarts_with(uri.mimeType, "image/png")) {
       strcpy(info.magick, "PNG");
-    else if (boost::istarts_with(uri.mimeType, "image/gif"))
+    } else if (boost::istarts_with(uri.mimeType, "image/gif")) {
       strcpy(info.magick, "GIF");
-    else if (boost::istarts_with(uri.mimeType, "image/jpg")
-             || boost::istarts_with(uri.mimeType, "image/jpeg"))
+    } else if (boost::istarts_with(uri.mimeType, "image/jpg")
+             || boost::istarts_with(uri.mimeType, "image/jpeg")) {
       strcpy(info.magick, "JPG");
-    else
+    } else {
       throw WException("Unsupported image mimetype: " + uri.mimeType);
+    }
 
     cImage = ReadInlineImage(&info, imgUri.substr(imgUri.find(',') + 1).c_str(), &exception);
   } else {
-    strncpy(info.filename, imgUri.c_str(), 2048);
+    std::string filePath = dataInfo->hasFilePath() ? dataInfo->filePath() : "";
+    strncpy(info.filename, filePath.c_str(), 2048);
     cImage = ReadImage(&info, &exception);
 
     // Temporary fix #13366, see also #13367.
-    if (cImage == nullptr) {
-      cpp17::filesystem::path imagePath = cpp17::filesystem::path(imgUri);
+    if (cImage == nullptr && testRelativePath) {
+      cpp17::filesystem::path imagePath = cpp17::filesystem::path(filePath);
       // If this is a relative path, this can potentially be the fallback for the "normal" draw in JS, using
       // gfxutils, with the file being part of the docroot.
       if (imagePath.is_relative()) {
         ExceptionInfo docrootCatchException;
         GetExceptionInfo(&docrootCatchException);
         imagePath = cpp17::filesystem::path(Wt::WApplication::instance()->docRoot()) / imagePath;
-        LOG_WARN("drawImage failed on " << imgUri
+        LOG_WARN("drawImage failed on " << filePath
                   << " attempt to prefix docroot: " << imagePath.string());
         strncpy(info.filename, imagePath.c_str(), 2048);
         cImage = ReadImage(&info, &docrootCatchException);
@@ -750,8 +768,9 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
   bool directComposite = false;
   if (isTranslation(t)
       && rect.width() == srect.width()
-      && rect.height() == srect.height())
+      && rect.height() == srect.height()) {
     directComposite = true;
+  }
 
   if (!directComposite) {
     impl_->internalInit();

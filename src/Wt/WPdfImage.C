@@ -5,6 +5,7 @@
  */
 
 #include "Wt/WBrush.h"
+#include "Wt/WDataInfo.h"
 #include "Wt/WException.h"
 #include "Wt/WFontMetrics.h"
 #include "Wt/WLogger.h"
@@ -445,35 +446,67 @@ void WPdfImage::drawImage(const WRectF& rect, const std::string& imgUrl,
                           int imgWidth, int imgHeight,
                           const WRectF& srect)
 {
-  HPDF_Image img = nullptr;
+  WDataInfo imgInfo(imgUrl, imgUrl);
+  WPdfImage::drawImage(rect, &imgInfo, imgWidth, imgHeight, srect);
+}
 
-  if (DataUri::isDataUri(imgUrl)) {
+void WPdfImage::drawImage(const WRectF& rect, const WAbstractDataInfo* info,
+                          int imgWidth, int imgHeight,
+                          const WRectF& srect)
+{
+  HPDF_Image img = nullptr;
+  std::string imgUri = info->hasUri() ? info->uri() : "";
+
+  drawImageFromDataUri(img, imgUri);
+
+  if (!img) {
+    std::string imgPath = info->hasFilePath() ? info->filePath() : "";
+    drawImageFromFilePath(img, imgPath);
+  }
+
+  if (!img) {
+    throw WException("WPdfImage::drawImage(): cannot load image: " + info->name());
+  }
+
+  renderOutLoadedImage(rect, img, imgWidth, imgHeight, srect);
+}
+
+void WPdfImage::drawImageFromDataUri(HPDF_Image img, const std::string& imgUri)
+{
+  if (DataUri::isDataUri(imgUri)) {
 #define HAVE_LOAD_FROM_MEM HPDF_MAJOR_VERSION > 2 || (HPDF_MAJOR_VERSION == 2 && (HPDF_MINOR_VERSION >= 2))
 
 #if HAVE_LOAD_FROM_MEM
-    DataUri uri(imgUrl);
-    if ("image/png" == uri.mimeType)
+    DataUri uri(imgUri);
+    if ("image/png" == uri.mimeType) {
       img = HPDF_LoadPngImageFromMem(pdf_,
                                      (HPDF_BYTE*)&uri.data[0],
                                      uri.data.size());
-    else if ("image/jpeg" == uri.mimeType)
+    } else if ("image/jpeg" == uri.mimeType) {
       img = HPDF_LoadJpegImageFromMem(pdf_,
                                       (HPDF_BYTE*)&uri.data[0],
                                       uri.data.size());
+    }
 #else
-      LOG_ERROR("drawImage: data URI support requires libharu 2.2.0 or later");
+      LOG_WARN("drawImage: data URI support requires libharu 2.2.0 or later");
 #endif
-  } else {
-    std::string mimeType = ImageUtils::identifyMimeType(imgUrl);
-    if ("image/png" == mimeType)
-      img = HPDF_LoadPngImageFromFile2(pdf_, imgUrl.c_str());
-    else if ("image/jpeg" == mimeType)
-      img = HPDF_LoadJpegImageFromFile(pdf_, imgUrl.c_str());
   }
+}
 
-  if (!img)
-    throw WException("WPdfImage::drawImage(): cannot load image: " + imgUrl);
+void WPdfImage::drawImageFromFilePath(HPDF_Image img, const std::string& imgPath)
+{
+  std::string mimeType = ImageUtils::identifyMimeType(imgPath);
+  if ("image/png" == mimeType) {
+    img = HPDF_LoadPngImageFromFile2(pdf_, imgPath.c_str());
+  } else if ("image/jpeg" == mimeType) {
+    img = HPDF_LoadJpegImageFromFile(pdf_, imgPath.c_str());
+  }
+}
 
+void WPdfImage::renderOutLoadedImage(const WRectF& rect, HPDF_Image img,
+                                     int imgWidth, int imgHeight,
+                                     const WRectF& srect)
+{
   double x = rect.x();
   double y = rect.y();
   double width = rect.width();

@@ -9,6 +9,7 @@
 #include "Wt/FontSupport.h"
 #include "Wt/WApplication.h"
 #include "Wt/WBrush.h"
+#include "Wt/WDataInfo.h"
 #include "Wt/WException.h"
 #include "Wt/WFontMetrics.h"
 #include "Wt/WGradient.h"
@@ -683,11 +684,28 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
                              int imgWidth, int imgHeight,
                              const WRectF& srect)
 {
+  WDataInfo dataInfo(imgUri, imgUri);
+  doDrawImage(rect, &dataInfo, imgWidth, imgHeight, srect, true);
+}
+
+void WRasterImage::drawImage(const WRectF& rect, const WAbstractDataInfo* info,
+                             int imgWidth, int imgHeight,
+                             const WRectF& srect)
+{
+  doDrawImage(rect, info, imgWidth, imgHeight, srect);
+}
+
+void WRasterImage::doDrawImage(const WRectF& rect, const WAbstractDataInfo* info,
+                               int imgWidth, int imgHeight,
+                               const WRectF& srect,
+                               bool testRelativePath)
+{
   ID2D1Bitmap *bitmap = NULL;
   IWICBitmapDecoder *decoder = NULL;
   IWICBitmapFrameDecode *source = NULL;
   IWICFormatConverter *converter = NULL;
   HRESULT hr = S_OK;
+  std::string imgUri = info->hasUri() ? info->uri(), "";
   if (DataUri::isDataUri(imgUri)) {
     DataUri uri(imgUri);
     IStream *istream = SHCreateMemStream(&uri.data[0], uri.data.size());
@@ -701,7 +719,8 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
       throw WException("drawImage failed to read data: HRESULT " + boost::lexical_cast<std::string>(hr) + ", mime type: " + uri.mimeType);
     }
   } else {
-    std::wstring wUri = WString::fromUTF8(imgUri);
+    std::string filePath = info->hasFilePath() ? info->filePath() : "";
+    std::wstring wUri = WString::fromUTF8(filePath);
     hr = impl_->wicFactory_->CreateDecoderFromFilename(
       wUri.c_str(),
       NULL,
@@ -710,13 +729,17 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
       &decoder
     );
     if (hr == HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND)) {
+      if (!testRelativePath) {
+        throw WException("drawImage failed: file not found: " + filePath);
+      }
+
       // Temporary fix #13366, see also #13367
-      cpp17::filesystem::path imagePath = cpp17::filesystem::path(imgUri);
+      cpp17::filesystem::path imagePath = cpp17::filesystem::path(filePath);
       // If this is a relative path, this can potentially be the fallback for the "normal" draw in JS, using
       // gfxutils, with the file being part of the docroot.
       if (imagePath.is_relative()) {
         imagePath = cpp17::filesystem::path(Wt::WApplication::instance()->docRoot()) / imagePath;
-        LOG_WARN("drawImage failed on " << imgUri
+        LOG_WARN("drawImage failed on " << filePath
                  << " attempt to prefix docroot: " << imagePath.string());
 
         hr = impl_->wicFactory_->CreateDecoderFromFilename(

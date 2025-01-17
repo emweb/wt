@@ -8,6 +8,7 @@
 #define WPAINTER_H_
 
 #include <Wt/WBrush.h>
+#include <Wt/WAbstractDataInfo.h>
 #include <Wt/WFont.h>
 #include <Wt/WGlobal.h>
 #include <Wt/WPaintDevice.h>
@@ -291,6 +292,8 @@ public:
      */
     Image(const std::string& url, int width, int height);
 
+    Image(std::shared_ptr<const WAbstractDataInfo> info, int width, int height);
+
     /*! \brief Creates an image.
      *
      * Create an image which is located at <i>uri</i> which is available on
@@ -299,9 +302,13 @@ public:
      */
     Image(const std::string& url, const std::string& file);
 
+    Image(std::shared_ptr<const WAbstractDataInfo> info);
+
     /*! \brief Returns the url.
      */
-    std::string uri() const { return url_; }
+    std::string uri() const { return info_->hasUri() ? info_->uri() : ""; }
+
+    const WAbstractDataInfo* info() const { return info_.get(); }
 
     /*! \brief Returns the image width.
      */
@@ -312,10 +319,13 @@ public:
     int height() const { return height_; }
 
   private:
-    std::string url_;
     int width_, height_;
+    bool useOld_;
+    std::shared_ptr<const WAbstractDataInfo> info_;
 
-    void setUrl(const std::string& url);
+    void evaluateSize();
+
+    friend class WPainter;
   };
 
   /*! \brief Draws an image.

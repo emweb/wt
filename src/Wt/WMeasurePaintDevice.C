@@ -78,6 +78,14 @@ void WMeasurePaintDevice::drawImage(const WRectF& rect,
   expandBounds(rect);
 }
 
+void WMeasurePaintDevice::drawImage(const WRectF& rect,
+                                    WT_MAYBE_UNUSED const WAbstractDataInfo* info,
+                                    WT_MAYBE_UNUSED int imgWidth, WT_MAYBE_UNUSED int imgHeight,
+                                    WT_MAYBE_UNUSED const WRectF& sourceRect)
+{
+  expandBounds(rect);
+}
+
 void WMeasurePaintDevice::drawPath(const WPainterPath& path)
 {
   if (path.isEmpty())

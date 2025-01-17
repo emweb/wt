@@ -153,6 +153,9 @@ public:
   virtual void drawImage(const WRectF& rect, const std::string& imgUri,
                          int imgWidth, int imgHeight, const WRectF& sourceRect)
     override;
+  virtual void drawImage(const WRectF& rect, const WAbstractDataInfo* info,
+                         int imgWidth, int imgHeight, const WRectF& sourceRect)
+    override;
   virtual void drawLine(double x1, double y1, double x2, double y2) override;
   virtual void drawRect(const WRectF& rect) override;
   virtual void drawPath(const WPainterPath& path) override;
@@ -204,6 +207,12 @@ private:
   void applyTransform(const WTransform& f);
   void setStrokeColor(WColor color);
   void setFillColor(WColor color);
+
+  void drawImageFromDataUri(HPDF_Image img, const std::string& imgUri);
+  void drawImageFromFilePath(HPDF_Image img, const std::string& filePath);
+  void renderOutLoadedImage(const WRectF& rect, HPDF_Image img,
+                            int imgWidth, int imgHeight,
+                            const WRectF& srect);
 };
 
 }

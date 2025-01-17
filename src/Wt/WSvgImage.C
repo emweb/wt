@@ -5,6 +5,7 @@
  */
 
 #include "Wt/WApplication.h"
+#include "Wt/WDataInfo.h"
 #include "Wt/WFontMetrics.h"
 #include "Wt/WPainter.h"
 #include "Wt/WPainterPath.h"
@@ -530,13 +531,29 @@ void WSvgImage::drawImage(const WRectF& rect, const std::string& imgUri,
                           int imgWidth, int imgHeight,
                           const WRectF& srect)
 {
+  WDataInfo dataInfo(imgUri, imgUri);
+  doDrawImage(rect, &dataInfo, imgWidth, imgHeight, srect);
+}
+
+void WSvgImage::drawImage(const WRectF& rect, const WAbstractDataInfo* info,
+                          int imgWidth, int imgHeight,
+                          const WRectF& srect)
+{
+  doDrawImage(rect, info, imgWidth, imgHeight, srect);
+}
+
+void WSvgImage::doDrawImage(const WRectF& rect, const WAbstractDataInfo* info,
+                            int imgWidth, int imgHeight,
+                            const WRectF& srect)
+{
   finishPath();
   makeNewGroup();
 
   WApplication *app = WApplication::instance();
-  std::string imageUri = imgUri;
-  if (app)
-    imageUri = app->resolveRelativeUrl(imgUri);
+  std::string imageUri = info->hasUri() ? info->uri() : "";
+  if (app) {
+    imageUri = app->resolveRelativeUrl(imageUri);
+  }
 
   WRectF drect = rect;
 
@@ -588,13 +605,15 @@ void WSvgImage::drawImage(const WRectF& rect, const std::string& imgUri,
   shapes_ << " width=\"" << Utils::round_js_str(width, 3, buf) << '"';
   shapes_ << " height=\"" << Utils::round_js_str(height, 3, buf) << '"';
 
-  if (useClipPath)
+  if (useClipPath) {
     shapes_ << " clip-path=\"url(#imgClip" << imgClipId << ")\"";
+  }
 
   shapes_ << "/>";
 
-  if (transformed)
+  if (transformed) {
     shapes_ << "</" SVG "g>";
+  }
 }
 
 void WSvgImage::drawLine(double x1, double y1, double x2, double y2)

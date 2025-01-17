@@ -7,6 +7,7 @@
 #ifndef WPAINTDEVICE_H_
 #define WPAINTDEVICE_H_
 
+#include <Wt/WAbstractDataInfo.h>
 #include <Wt/WLength.h>
 #include <Wt/WString.h>
 #include <Wt/WGlobal.h>
@@ -164,7 +165,12 @@ public:
    */
   virtual void drawImage(const WRectF& rect, const std::string& imageUri,
                          int imgWidth, int imgHeight,
-                         const WRectF& sourceRect) = 0;
+                         const WRectF& sourceRect);
+  
+  virtual void drawImage(const WRectF& rect,
+                         const WAbstractDataInfo* imageInfo,
+                         int imgWidth, int imgHeight,
+                         const WRectF& sourceRect);
 
   /*! \brief Draws a line.
    *

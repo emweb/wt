@@ -26,6 +26,7 @@
  */
 
 #include "Wt/WApplication.h"
+#include "Wt/WDataInfo.h"
 #include "Wt/WEnvironment.h"
 #include "Wt/WException.h"
 #include "Wt/WFontMetrics.h"
@@ -136,13 +137,27 @@ void WVmlImage::drawArc(const WRectF& rect, double startAngle, double spanAngle)
 void WVmlImage::drawImage(const WRectF& rect, const std::string& imageUri,
                           int imgWidth, int imgHeight, const WRectF& sourceRect)
 {
+  WDataInfo dataInfo(imageUri, imageUri);
+  doDrawImage(rect, &dataInfo, imgWidth, imgHeight, sourceRect);
+}
+
+void WVmlImage::drawImage(const WRectF& rect, const WAbstractDataInfo* info,
+                          int imgWidth, int imgHeight, const WRectF& sourceRect)
+{
+  doDrawImage(rect, info, imgWidth, imgHeight, sourceRect);
+}
+
+void WVmlImage::doDrawImage(const WRectF& rect, const WAbstractDataInfo* info,
+                            int imgWidth, int imgHeight, const WRectF& sourceRect)
+{
   finishPaths();
   processClipping();
 
   WApplication *app = WApplication::instance();
   std::string imgUri;
-  if (app)
-    imgUri = app->resolveRelativeUrl(imageUri);
+  if (app && info->hasUri()) {
+    imgUri = app->resolveRelativeUrl(info->uri());
+  }
 
   WTransform t = painter()->combinedTransform();
   WPointF tl = t.map(rect.topLeft());
@@ -162,8 +177,9 @@ void WVmlImage::drawImage(const WRectF& rect, const std::string& imageUri,
               << t.m11() / cx << "',M12='" << t.m21() / cy << "',M21='"
               << t.m12() / cx << "',M22='" << t.m22() / cy << "',Dx='"
               << tl.x() << "',Dy='" << tl.y() << "',sizingmethod='clip');";
-  } else
+  } else {
     rendered_ << "top:" << Z * tl.y() << "px;left:" << Z * tl.x() << "px;";
+  }
 
   rendered_ << "\"><v:image src=\"" << imgUri
             << "\" style=\"width:" << Z * rect.width() * cx

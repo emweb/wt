@@ -67,6 +67,9 @@ public:
   virtual void drawImage(const WRectF& rect, const std::string& imgUri,
                          int imgWidth, int imgHeight, const WRectF& sourceRect)
     override;
+  virtual void drawImage(const WRectF& rect, const WAbstractDataInfo* info,
+                         int imgWidth, int imgHeight, const WRectF& sourceRect)
+    override;
   virtual void drawLine(double x1, double y1, double x2, double y2) override;
   virtual void drawRect(const WRectF& rectangle) override;
   virtual void drawPath(const WPainterPath& path) override;
@@ -136,6 +139,8 @@ private:
   static std::string quote(const std::string& s);
 
   void drawPlainPath(WStringStream& s, const WPainterPath& path);
+  void doDrawImage(const WRectF& rect, const WAbstractDataInfo* info,
+                   int imgWidth, int imgHeight, const WRectF& sourceRect);
 
   void streamResourceData(std::ostream& stream);
 };

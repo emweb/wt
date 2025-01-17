@@ -49,6 +49,8 @@ public:
   virtual void drawArc(const WRectF& rect, double startAngle, double spanAngle) override;
   virtual void drawImage(const WRectF& rect, const std::string& imgUri,
                          int imgWidth, int imgHeight, const WRectF& sourceRect) override;
+  virtual void drawImage(const WRectF& rect, const WAbstractDataInfo* info,
+                         int imgWidth, int imgHeight, const WRectF& sourceRect) override;
   virtual void drawLine(double x1, double y1, double x2, double y2) override;
   virtual void drawRect(const WRectF& rectangle) override;
   virtual void drawPath(const WPainterPath& path) override;
@@ -112,6 +114,9 @@ private:
 
   void startClip(const WRectF& rect);
   void stopClip();
+
+  void doDrawImage(const WRectF& rect, const WAbstractDataInfo* info,
+                   int imgWidth, int imgHeight, const WRectF& sourceRect);
 
   WRectF currentRect_;
 };
