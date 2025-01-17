@@ -122,6 +122,7 @@ Wt/WDateTime.h Wt/WDateTime.C
 Wt/WDateValidator.h Wt/WDateValidator.C
 Wt/WDefaultLoadingIndicator.h Wt/WDefaultLoadingIndicator.C
 Wt/WDialog.h Wt/WDialog.C
+Wt/WDocRootDataInfo.h Wt/WDocRootDataInfo.C
 Wt/WDoubleSpinBox.h Wt/WDoubleSpinBox.C
 Wt/WDoubleValidator.h Wt/WDoubleValidator.C
 Wt/WEmailEdit.h Wt/WEmailEdit.C
