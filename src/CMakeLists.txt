@@ -114,6 +114,7 @@ Wt/WContainerWidget.h Wt/WContainerWidget.C
 Wt/WCssDecorationStyle.h Wt/WCssDecorationStyle.C
 Wt/WCssStyleSheet.h Wt/WCssStyleSheet.C
 Wt/WCssTheme.h Wt/WCssTheme.C
+Wt/WDataInfo.h Wt/WDataInfo.C
 Wt/WDate.h Wt/WDate.C
 Wt/WDateEdit.h Wt/WDateEdit.C
 Wt/WDatePicker.h Wt/WDatePicker.C
