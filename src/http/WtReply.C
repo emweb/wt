@@ -288,8 +288,8 @@ void WtReply::consumeRequestBody(const char *begin,
         if (entryPoint_->resource())
           connection()->server()->controller()->handleRequest(httpRequest_);
         else
-          connection()->server()->service().post
-            (std::bind(&Wt::WebController::handleRequest,
+          asio::post
+            (connection()->server()->service(), std::bind(&Wt::WebController::handleRequest,
                        connection()->server()->controller(),
                        httpRequest_));
       }
@@ -432,8 +432,8 @@ bool WtReply::consumeWebSocketMessage(ws_opcode opcode,
 
       // We need to post since in Wt we may be entering a recursive event
       // loop and we need to release the strand
-      connection()->server()->service().post
-        (std::bind(cb, Wt::WebReadEvent::Error));
+      asio::post
+        (connection()->server()->service(), std::bind(cb, Wt::WebReadEvent::Error));
 
       return false;
     } else
@@ -468,8 +468,8 @@ bool WtReply::consumeWebSocketMessage(ws_opcode opcode,
 
         // We need to post since in Wt we may be entering a recursive event
         // loop and we need to release the strand
-        connection()->server()->service().post
-          (std::bind(cb, Wt::WebReadEvent::Message));
+        asio::post
+          (connection()->server()->service(), std::bind(cb, Wt::WebReadEvent::Message));
 
         break;
       }
@@ -482,8 +482,8 @@ bool WtReply::consumeWebSocketMessage(ws_opcode opcode,
 
         // We need to post since in Wt we may be entering a recursive event
         // loop and we need to release the strand
-        connection()->server()->service().post
-          (std::bind(cb, Wt::WebReadEvent::Ping));
+        asio::post
+          (connection()->server()->service(), std::bind(cb, Wt::WebReadEvent::Ping));
 
         break;
       }
@@ -604,7 +604,7 @@ void WtReply::readWebSocketMessage(const Wt::WebRequest::ReadCallback& callBack)
   in_mem_.str("");
   in_mem_.clear();
 
-  connection()->strand().post(std::bind(&Connection::handleReadBody,
+  asio::post(connection()->strand(), std::bind(&Connection::handleReadBody,
                                         connection(),
                                         shared_from_this()));
 }
@@ -660,7 +660,7 @@ void WtReply::formatResponse(std::vector<asio::const_buffer>& result)
 #ifdef WTHTTP_WITH_ZLIB
         } else  {
           result.push_back(asio::buffer(&misc_strings::char0xC1, 1)); // RSV1 = 1
-          const unsigned char* data = asio::buffer_cast<const unsigned char*>(out_buf_.data());
+          const unsigned char* data = (const unsigned char*)(out_buf_.data().data());
           int size = asio::buffer_size(out_buf_.data());
           bool hasMore = false;
           payloadLength = 0;

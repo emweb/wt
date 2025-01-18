@@ -107,12 +107,13 @@ public:
     tcp::resolver resolver(io_service_);
 
     AsioWrapper::error_code error = asio::error::host_not_found;
-    tcp::resolver::iterator endpoint_iterator = resolver.resolve(host, std::to_string(port), error);
+    auto resolver_result = resolver.resolve(host, std::to_string(port), error);
+    auto endpoint_iterator = resolver_result.begin();
+    auto end = resolver_result.end();
     if (error) {
       LOG_ERROR("could not resolve: '" << host << ":" << port << "': " << error.message());
       return;
     }
-    tcp::resolver::iterator end;
 
     // Try each endpoint until we successfully establish a connection.
     error = asio::error::host_not_found;

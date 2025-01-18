@@ -35,7 +35,7 @@ public:
   {
   }
   int threadCount_;
-  asio::io_service::work *work_;
+  asio::executor_work_guard<asio::io_service::executor_type> *work_;
 
 #ifdef WT_THREADED
   std::mutex blockedThreadMutex_;
@@ -70,7 +70,7 @@ int WIOService::threadCount() const
 void WIOService::start()
 {
   if (!impl_->work_) {
-    impl_->work_ = new asio::io_service::work(*this);
+    impl_->work_ = new asio::executor_work_guard<asio::io_service::executor_type>(this->get_executor());
 
 #ifdef WT_THREADED
 
@@ -119,7 +119,7 @@ void WIOService::stop()
   impl_->threads_.clear();
 #endif // WT_THREADED
 
-  reset();
+  restart();
 }
 
 void WIOService::post(const std::function<void ()>& function)
@@ -130,10 +130,10 @@ void WIOService::post(const std::function<void ()>& function)
 void WIOService::schedule(std::chrono::steady_clock::duration millis, const std::function<void()>& function)
 {
   if (millis.count() == 0)
-    strand_.post(function); // guarantees execution order
+    asio::post(strand_, function); // guarantees execution order
   else {
     std::shared_ptr<asio::steady_timer> timer = std::make_shared<asio::steady_timer>(*this);
-    timer->expires_from_now(millis);
+    timer->expires_after(millis);
     timer->async_wait
       (std::bind(&WIOService::handleTimeout, this, timer, function,
                  std::placeholders::_1));

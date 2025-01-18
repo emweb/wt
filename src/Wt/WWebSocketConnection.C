@@ -925,7 +925,7 @@ void WWebSocketConnection::doSendPing(const AsioWrapper::error_code& e)
 bool WWebSocketConnection::sendPing()
 {
   if (pingTimeout_ > 0) {
-    pongTimeoutTimer_.expires_from_now(std::chrono::seconds(pingTimeout_));
+    pongTimeoutTimer_.expires_after(std::chrono::seconds(pingTimeout_));
     pongTimeoutTimer_.async_wait(std::bind(&WWebSocketConnection::missingPong, this, std::placeholders::_1));
   }
 
@@ -996,7 +996,7 @@ void WWebSocketConnection::startPingTimer()
 
   // Socket "keep-alive", performed through ping-pong mechanism.
   if (pingInterval_ > 0) {
-    pingSignalTimer_.expires_from_now(std::chrono::seconds(pingInterval_));
+    pingSignalTimer_.expires_after(std::chrono::seconds(pingInterval_));
     pingSignalTimer_.async_wait(std::bind(&WWebSocketConnection::doSendPing, this, std::placeholders::_1));
   }
 }

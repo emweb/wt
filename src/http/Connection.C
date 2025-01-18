@@ -85,8 +85,7 @@ void Connection::finishReply()
 
 void Connection::scheduleStop()
 {
-  server_->service()
-    .post(strand_.wrap(std::bind(&Connection::stop, shared_from_this())));
+  asio::post(server_->service(), strand_.wrap(std::bind(&Connection::stop, shared_from_this())));
 }
 
 void Connection::start()
@@ -128,7 +127,7 @@ void Connection::setReadTimeout(int seconds)
               << request_.webSocketVersion << ")");
     state_ |= Reading;
 
-    readTimer_.expires_from_now(asio_timer_seconds(seconds));
+    readTimer_.expires_after(asio_timer_seconds(seconds));
     readTimer_.async_wait(std::bind(&Connection::timeout, shared_from_this(),
                                     std::placeholders::_1));
   }
@@ -140,7 +139,7 @@ void Connection::setWriteTimeout(int seconds)
             << request_.webSocketVersion << ")");
   state_ |= Writing;
 
-  writeTimer_.expires_from_now(asio_timer_seconds(seconds));
+  writeTimer_.expires_after(asio_timer_seconds(seconds));
   writeTimer_.async_wait(std::bind(&Connection::timeout, shared_from_this(),
                                    std::placeholders::_1));
 }
@@ -164,7 +163,7 @@ void Connection::cancelWriteTimer()
 void Connection::timeout(const Wt::AsioWrapper::error_code& e)
 {
   if (e != asio::error::operation_aborted)
-    strand_.post(std::bind(&Connection::doTimeout, shared_from_this()));
+    asio::post(strand_, std::bind(&Connection::doTimeout, shared_from_this()));
 }
 
 void Connection::doTimeout()
@@ -374,8 +373,7 @@ bool Connection::readAvailable()
 void Connection::detectDisconnect(ReplyPtr reply,
                                   const std::function<void()>& callback)
 {
-  server_->service()
-    .post(strand_.wrap(std::bind(&Connection::asyncDetectDisconnect, this, reply, callback)));
+  asio::post(server_->service(), strand_.wrap(std::bind(&Connection::asyncDetectDisconnect, this, reply, callback)));
 }
 
 void Connection::asyncDetectDisconnect(ReplyPtr reply,
@@ -437,8 +435,7 @@ void Connection::startWriteResponse(ReplyPtr reply)
   if (state_ & Writing) {
     LOG_ERROR("Connection::startWriteResponse(): connection already writing");
     close();
-    server_->service()
-      .post(strand_.wrap(std::bind(&Reply::writeDone, reply, false)));
+    asio::post(server_->service(), strand_.wrap(std::bind(&Reply::writeDone, reply, false)));
     return;
   }
 

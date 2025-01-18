@@ -11,11 +11,29 @@
 
 #ifdef WT_ASIO_IS_BOOST_ASIO
 
+#include <boost/asio/version.hpp>
+#if BOOST_ASIO_VERSION >= 103300
+#include <boost/asio/io_context.hpp>
+namespace boost {
+  namespace asio {
+    using io_service = boost::asio::io_context;
+  }
+}
+#else
 #include <boost/asio/io_service.hpp>
+#endif
 
 #else // WT_ASIO_IS_STANDALONE_ASIO
 
+#include <asio/version.hpp>
+#if ASIO_VERSION >= 103300
+#include <asio/io_context.hpp>
+namespace asio {
+  using io_service = asio::io_context;
+}
+#else
 #include <asio/io_service.hpp>
+#endif
 
 #endif // WT_ASIO_IS_BOOST_ASIO
 
