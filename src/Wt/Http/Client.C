@@ -143,21 +143,17 @@ public:
     if (method == Http::Method::Post || method == Http::Method::Put || method == Http::Method::Delete || method == Http::Method::Patch)
       request_stream << message.body();
 
-    tcp::resolver::query query(server, std::to_string(port));
-
     startTimer();
-    resolver_.async_resolve
-      (query,
-       strand_.wrap(std::bind(&Impl::handleResolve,
-                              shared_from_this(),
-                              std::placeholders::_1,
-                              std::placeholders::_2)));
+    resolver_.async_resolve(server, std::to_string(port), 
+      strand_.wrap([self = shared_from_this()](const auto& error, tcp::resolver::results_type results){
+        self->handleResolve(error, results.begin());
+      })
+    );
   }
 
   void asyncStop()
   {
-    ioService_.post
-      (strand_.wrap(std::bind(&Impl::stop, shared_from_this())));
+    asio::post(ioService_, strand_.wrap(std::bind(&Impl::stop, shared_from_this())));
   }
 
 protected:
@@ -195,7 +191,7 @@ private:
 
   void startTimer()
   {
-    timer_.expires_from_now(timeout_);
+    timer_.expires_after(timeout_);
     timer_.async_wait
       (strand_.wrap(std::bind(&Impl::timeout, shared_from_this(),
                               std::placeholders::_1)));
@@ -222,7 +218,7 @@ private:
   }
 
   void handleResolve(const AsioWrapper::error_code& err,
-                     tcp::resolver::iterator endpoint_iterator)
+                     tcp::resolver::results_type::iterator endpoint_iterator)
   {
     /* Within strand */
 
@@ -250,7 +246,7 @@ private:
   }
 
   void handleConnect(const AsioWrapper::error_code& err,
-                     tcp::resolver::iterator endpoint_iterator)
+                     tcp::resolver::results_type::iterator endpoint_iterator)
   {
     /* Within strand */
 
@@ -263,7 +259,7 @@ private:
         (strand_.wrap(std::bind(&Impl::handleHandshake,
                                 shared_from_this(),
                                 std::placeholders::_1)));
-    } else if (endpoint_iterator != tcp::resolver::iterator()) {
+    } else if (endpoint_iterator != tcp::resolver::results_type::iterator()) {
       // The connection failed. Try the next endpoint in the list.
       socket().close();
 

@@ -66,9 +66,9 @@ void WebMain::run()
       // simultaneously. Additionally, this breaks recursive event loops.
       // Asio's io_service::post does no such thing, so calling the function
       // of the superclass if fine.
-      static_cast<Wt::AsioWrapper::asio::io_service&>(server_->ioService())
-        .post(std::bind(&WebController::handleRequest,
-              &controller(), request));
+      AsioWrapper::asio::post(
+        static_cast<Wt::AsioWrapper::asio::io_service&>(server_->ioService()),
+        std::bind(&WebController::handleRequest, &controller(), request));
     }
   }
 

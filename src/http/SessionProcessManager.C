@@ -50,7 +50,7 @@ SessionProcessManager::SessionProcessManager(asio::io_service &ioService,
     (std::bind(&SessionProcessManager::processDeadChildren, this,
                std::placeholders::_1));
 #else // !SIGNAL_SET
-  timer_.expires_from_now(std::chrono::seconds(CHECK_CHILDREN_INTERVAL));
+  timer_.expires_after(std::chrono::seconds(CHECK_CHILDREN_INTERVAL));
   timer_.async_wait
     (std::bind(&SessionProcessManager::processDeadChildren, this,
                std::placeholders::_1));
@@ -231,7 +231,7 @@ void SessionProcessManager::processDeadChildren(Wt::AsioWrapper::error_code ec)
     (std::bind(&SessionProcessManager::processDeadChildren, this,
                std::placeholders::_1));
 #else // !SIGNAL_SET
-  timer_.expires_from_now(std::chrono::seconds(CHECK_CHILDREN_INTERVAL));
+  timer_.expires_after(std::chrono::seconds(CHECK_CHILDREN_INTERVAL));
   timer_.async_wait
     (std::bind(&SessionProcessManager::processDeadChildren, this,
                std::placeholders::_1));

@@ -175,7 +175,7 @@ void Server::start()
       config_.parentPort() != -1) {
     // If we have one shared process, or this is the only session process,
     // run expireSessions() every SESSION_EXPIRE_INTERVAL seconds
-    expireSessionsTimer_.expires_from_now
+    expireSessionsTimer_.expires_after
       (std::chrono::seconds(SESSION_EXPIRE_INTERVAL));
     expireSessionsTimer_.async_wait
       (std::bind(&Server::expireSessions, this, std::placeholders::_1));
@@ -312,7 +312,7 @@ std::vector<asio::ip::address> Server::resolveAddress(asio::ip::tcp::resolver &r
 {
   std::vector<asio::ip::address> result;
   Wt::AsioWrapper::error_code errc;
-  asio::ip::address fromStr = asio::ip::address::from_string(address, errc);
+  asio::ip::address fromStr = asio::ip::make_address(address, errc);
   if (!errc) {
     // The address is not a hostname, because it can be parsed as an
     // IP address, so we don't need to resolve it
@@ -321,20 +321,17 @@ std::vector<asio::ip::address> Server::resolveAddress(asio::ip::tcp::resolver &r
   } else {
 #ifndef NO_RESOLVE_ACCEPT_ADDRESS
     // Resolve IPv4
-    asio::ip::tcp::resolver::query query4(asio::ip::tcp::v4(), address, "http");
-    asio::ip::tcp::resolver::iterator end;
-    for (asio::ip::tcp::resolver::iterator it = resolver.resolve(query4, errc);
-         !errc && it != end; ++it) {
-      result.push_back(it->endpoint().address());
+    for (auto it : resolver.resolve(asio::ip::tcp::v4(), address, "http", errc)) {
+      if (errc) break;
+      result.push_back(it.endpoint().address());
     }
     if (errc)
       LOG_DEBUG_S(&wt_, "Failed to resolve hostname \"" << address << "\" as IPv4: " <<
                   Wt::AsioWrapper::system_error(errc).what());
     // Resolve IPv6
-    Wt::AsioWrapper::asio::ip::tcp::resolver::query query6(Wt::AsioWrapper::asio::ip::tcp::v6(), address, "http");
-    for (Wt::AsioWrapper::asio::ip::tcp::resolver::iterator it = resolver.resolve(query6, errc);
-         !errc && it != end; ++it) {
-      result.push_back(it->endpoint().address());
+    for (auto it : resolver.resolve(asio::ip::tcp::v6(), address, "http", errc)) {
+      if (errc) break;
+      result.push_back(it.endpoint().address());
     }
     if (errc)
       LOG_DEBUG_S(&wt_, "Failed to resolve hostname \"" << address << "\" as IPv6: " <<
@@ -692,7 +689,7 @@ void Server::expireSessions(Wt::AsioWrapper::error_code ec)
         config_.parentPort() != -1)
       wt_.scheduleStop();
     else {
-      expireSessionsTimer_.expires_from_now
+      expireSessionsTimer_.expires_after
         (std::chrono::seconds(SESSION_EXPIRE_INTERVAL));
       expireSessionsTimer_.async_wait
         (std::bind(&Server::expireSessions, this, std::placeholders::_1));

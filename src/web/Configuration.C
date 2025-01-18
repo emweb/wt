@@ -197,7 +197,7 @@ Configuration::Network Configuration::Network::fromString(const std::string &s)
   const auto slashPos = s.find('/');
   if (slashPos == std::string::npos) {
     AsioWrapper::error_code ec;
-    const auto address = AsioWrapper::asio::ip::address::from_string(s, ec);
+    const auto address = AsioWrapper::asio::ip::make_address(s, ec);
     if (ec) {
       throw std::invalid_argument("'" + s + "' is not a valid IP address");
     }
@@ -205,7 +205,7 @@ Configuration::Network Configuration::Network::fromString(const std::string &s)
     return Network { address, prefixLength };
   } else {
     AsioWrapper::error_code ec;
-    const auto address = AsioWrapper::asio::ip::address::from_string(s.substr(0, slashPos), ec);
+    const auto address = AsioWrapper::asio::ip::make_address(s.substr(0, slashPos), ec);
     if (ec) {
       throw std::invalid_argument("'" + s + "' is not a valid IP address");
     }
@@ -485,7 +485,7 @@ std::vector<Configuration::Network> Configuration::trustedProxies() const {
 bool Configuration::isTrustedProxy(const std::string &ipAddress) const {
   READ_LOCK;
   AsioWrapper::error_code ec;
-  const auto address = AsioWrapper::asio::ip::address::from_string(ipAddress, ec);
+  const auto address = AsioWrapper::asio::ip::make_address(ipAddress, ec);
   if (ec) {
     return false;
   }

@@ -12,10 +12,28 @@
 #ifdef WT_ASIO_IS_BOOST_ASIO
 
 #include <boost/asio/ssl.hpp>
+#if BOOST_ASIO_VERSION >= 103300
+namespace boost {
+  namespace asio {
+    namespace ssl {
+      using rfc2818_verification = boost::asio::ssl::host_name_verification;
+    }
+  }
+}
+#endif
 
 #else // WT_ASIO_IS_STANDALONE_ASIO
 
 #include <asio/ssl.hpp>
+#if ASIO_VERSION >= 103300
+namespace boost {
+  namespace asio {
+    namespace ssl {
+      using rfc2818_verification = boost::asio::ssl::host_name_verification;
+    }
+  }
+}
+#endif
 
 #endif // WT_ASIO_IS_BOOST_ASIO
 

@@ -8,6 +8,7 @@
 #define WT_ASIO_ASIO_H_
 
 #include "Wt/WConfig.h"
+#include "io_service.hpp"
 
 #ifdef WT_ASIO_IS_BOOST_ASIO
 
