@@ -12,14 +12,6 @@
 #ifdef WT_ASIO_IS_BOOST_ASIO
 
 #include <boost/asio/steady_timer.hpp>
-#if BOOST_ASIO_VERSION >= 103300
-#include <boost/asio/io_context.hpp>
-namespace boost {
-  namespace asio {
-    using io_service = boost::asio::io_context;
-  }
-}
-#endif
 
 #else // WT_ASIO_IS_STANDALONE_ASIO
 
