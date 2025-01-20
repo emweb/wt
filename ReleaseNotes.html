@@ -167,6 +167,39 @@ behaviour.
     updated the <a href="https://fontawesome.com/" target="_blank">Font Awsome library</a>
     bundled with Wt to version 4.7.0.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13367" target="_blank">Issue #13367</a>:
+    <p>
+      when <a href="classWt_1_1WPainter.html#ae36e5ce0c6a324ec83ebbc397a513202" target="_blank">WPainter::drawImage()</a> was called, the information needed to identify
+      the image was given via a string. Depending on what <a href="classWt_1_1WPaintDevice.html" target="_blank">WPaintDevice</a> is used to draw the image, the content of this string could differ.
+      Some devices expected a URI, others a file path to the image or a data URI. This is problematic when using a <a href="classWt_1_1WPaintedWidget.html" target="_blank">WPaintedWidget</a>
+      since you do not know in advance what <code>WPaintDevice</code> will be used. While this was kind of handled by assuming the file was in the docroot, this did not
+      give much control to the developer on how it should be handled, and could result in errors due to bad assumptions.
+    </p>
+    <p>
+      To solve this issue we introduce the <a href="classWt_1_1WAbstractDataInfo.html" target="_blank">WAbstractDataInfo</a> class. This class is used by painters
+      and paint devices to get the location information of the image required to draw it. While <code>WAbstractDataInfo</code> is an abstract class, two subclasses are available
+      in Wt:
+      <ul>
+        <li>
+          <a href="classWt_1_1WDataInfo.html" target="_blank">WDataInfo</a>, which is constructed by taking both the uri and the path to the file.
+        </li>
+        <li>
+          <a href="classWt_1_1WDocRootDataInfo.html" target="_blank">WDocRootDataInfo</a>, which stores the information about a file in the document root, and is
+          constructed using the file path relative to the docroot.
+        </li>
+      </ul>
+    </p>
+    <p>
+      The methods:
+      <ul>
+        <li><a href="classWt_1_1WPainter_1_1Image.html#a54578ddf7c3c625ce0e32173a9f0e781" target="_blank">WPainter::Image::Image(string, int, int)</a></li>
+        <li><a href="classWt_1_1WPainter_1_1Image.html#a7a82ffdf4f9222bf44175ee0e7f62582" target="_blank">WPainter::Image::Image(string, string)</a></li>
+        <li><a href="classWt_1_1WPaintDevice.html#a4746873743ea66e4e5bd9adb51782095" target="_blank">WPaintDevice::drawImage(WRectF, string, int, int, WRectF)</a></li>
+      </ul>
+      are now deprecated in favor of versions that use <code>WAbstractDataInfo</code> in place of <code>std::string</code>.
+    </p>
+  </li>
 </ul>
 
 <p>
