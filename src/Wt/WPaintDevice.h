@@ -166,7 +166,11 @@ public:
   WT_DEPRECATED("Use drawImage() with WAbstractDataInfo* instead of a string")
   virtual void drawImage(const WRectF& rect, const std::string& imageUri,
                          int imgWidth, int imgHeight,
-                         const WRectF& sourceRect);
+                         const WRectF& sourceRect)
+#ifdef WT_TARGET_JAVA
+  = 0
+#endif
+                         ;
   
   /*! \brief Draws an image.
    *
@@ -180,7 +184,11 @@ public:
   virtual void drawImage(const WRectF& rect,
                          const WAbstractDataInfo* imageInfo,
                          int imgWidth, int imgHeight,
-                         const WRectF& sourceRect);
+                         const WRectF& sourceRect)
+#ifdef WT_TARGET_JAVA
+  = 0
+#endif
+                        ;
 
   /*! \brief Draws a line.
    *

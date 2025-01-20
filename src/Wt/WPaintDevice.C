@@ -24,6 +24,7 @@ WTextItem::WTextItem(const WString& text, double width, double nextWidth)
 WPaintDevice::~WPaintDevice()
 { }
 
+#ifndef WT_TARGET_JAVA
 void WPaintDevice::drawImage(const WRectF& rect, const std::string& imageUri,
                              int imgWidth, int imgHeight,
                              const WRectF& sourceRect)
@@ -50,5 +51,6 @@ void WPaintDevice::drawImage(const WRectF& rect,
 
   drawImage(rect, uri, imgWidth, imgHeight, sourceRect);
 }
+#endif
 
 }

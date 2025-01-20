@@ -11,7 +11,7 @@
 #include <vector>
 
 namespace Wt {
-
+  //! Internal class. Necessary for wt-port.
   class DataUri
   {
   public:
