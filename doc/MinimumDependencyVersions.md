@@ -135,5 +135,11 @@ The current list consists of:
     <td>Depends</td>
     <td>Used for the compression of data over HTTP or using WebSockets. This will only affect the <strong>wthttpd</strong> connector. This can be configured by <strong>HTTP_WITH_ZLIB</strong> (<strong>ON/OFF</strong>). If zlib is not installed in a default location, its prefix needs to be specified with <strong>ZLIB_PREFIX</strong> (as a path).</td>
   </tr>
+  <tr>
+    <td><a href="http://think-async.com/Asio/" target="_blank">standalone Asio</a></td>
+    <td>WT_ASIO_IMPLEMENTATION/td>
+    <td>boost</td>
+    <td>It is possible to use the standalone version of Asio (Asio 1.12.0 or higher) instead of the one in the Boost library. This can be configured by <strong>WT_ASIO_IMPLEMENTATION</strong> (<strong>boost/standalone</strong>). If standalone Asio is not installed in a default location, its prefix needs to be specified with <strong>ASIO_PREFIX</strong> (as a path).</td>
+  </tr>
 </table>
 //! [OptDep]
