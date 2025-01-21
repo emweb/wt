@@ -213,25 +213,19 @@ namespace Wt {
     asio::ssl::context createSslContext(asio::io_service &io_service,
                                         bool addCACerts)
     {
-#if defined(WT_ASIO_IS_BOOST_ASIO) && BOOST_VERSION >= 106600
+#if defined(WT_ASIO_IS_BOOST_ASIO)
       (void)io_service;
       asio::ssl::context context(asio::ssl::context::tls);
-#elif defined(WT_ASIO_IS_STANDALONE_ASIO) && ASIO_VERSION >= 101100
+#elif defined(WT_ASIO_IS_STANDALONE_ASIO)
       (void)io_service;
       asio::ssl::context context(asio::ssl::context::sslv23);
-#else
-      asio::ssl::context context
-        (io_service, asio::ssl::context::sslv23);
 #endif
 
       long sslOptions = asio::ssl::context::no_sslv2 |
                         asio::ssl::context::no_sslv3 |
                         asio::ssl::context::no_tlsv1;
 
-#if (defined(WT_ASIO_IS_BOOST_ASIO) && BOOST_VERSION >= 105800) || \
-     defined(WT_ASIO_IS_STANDALONE_ASIO)
       sslOptions |= asio::ssl::context::no_tlsv1_1;
-#endif
 
       context.set_options(sslOptions);
 

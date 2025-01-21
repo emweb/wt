@@ -11,7 +11,7 @@
 #include <sys/wait.h>
 #endif
 
-#if !defined(WT_WIN32) && BOOST_VERSION >= 104700
+#if !defined(WT_WIN32)
 #define SIGNAL_SET
 #endif
 

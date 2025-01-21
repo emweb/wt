@@ -57,7 +57,7 @@ private:
   SessionMap sessions_;
 
   asio::io_service &ioService_;
-#if !defined(WT_WIN32) && BOOST_VERSION >= 104700
+#if !defined(WT_WIN32)
   asio::signal_set signals_;
 #else
   asio::steady_timer timer_;
