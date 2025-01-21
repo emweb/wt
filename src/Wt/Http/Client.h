@@ -14,7 +14,9 @@
 #include <Wt/Http/Message.h>
 #include <Wt/Http/Method.h>
 
+#ifndef WT_TARGET_JAVA
 #include <Wt/AsioWrapper/io_service.hpp>
+#endif
 #include <Wt/AsioWrapper/namespace.hpp>
 #include <Wt/AsioWrapper/system_error.hpp>
 
@@ -23,6 +25,15 @@
 #include <mutex>
 
 namespace Wt {
+
+#ifdef WT_TARGET_JAVA
+  namespace AsioWrapper {
+    namespace asio {
+      struct io_service;
+    }
+  }
+#endif // WT_TARGET_JAVA
+
   /*! \brief Namespace for \ref http handling
    */
   namespace Http {

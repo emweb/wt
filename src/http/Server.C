@@ -321,16 +321,16 @@ std::vector<asio::ip::address> Server::resolveAddress(asio::ip::tcp::resolver &r
   } else {
 #ifndef NO_RESOLVE_ACCEPT_ADDRESS
     // Resolve IPv4
-    for (auto it : resolver.resolve(asio::ip::tcp::v4(), address, "http", errc)) {
-      if (errc) break;
+    auto endpoints = resolver.resolve(asio::ip::tcp::v4(), address, "http", errc);
+    for (auto it : endpoints) {
       result.push_back(it.endpoint().address());
     }
     if (errc)
       LOG_DEBUG_S(&wt_, "Failed to resolve hostname \"" << address << "\" as IPv4: " <<
                   Wt::AsioWrapper::system_error(errc).what());
     // Resolve IPv6
-    for (auto it : resolver.resolve(asio::ip::tcp::v6(), address, "http", errc)) {
-      if (errc) break;
+    endpoints = resolver.resolve(asio::ip::tcp::v6(), address, "http", errc);
+    for (auto it : endpoints) {
       result.push_back(it.endpoint().address());
     }
     if (errc)

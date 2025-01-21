@@ -161,9 +161,11 @@ void SslConnection::handleReadRequestSsl(const Wt::AsioWrapper::error_code& e,
   // return in case of a recursive event loop, so the SSL write
   // deadlocks a session. Hence, post the processing of the data
   // read, so that the read handler can return here immediately.
-  asio::post(strand_, std::bind(&SslConnection::handleReadRequest,
-                         shared_from_this(),
-                         e, bytes_transferred));
+  asio::post(strand_,
+             std::bind(&SslConnection::handleReadRequest,
+                       shared_from_this(),
+                       e,
+                       bytes_transferred));
 }
 
 void SslConnection::startAsyncReadBody(ReplyPtr reply,
@@ -197,8 +199,12 @@ void SslConnection::handleReadBodySsl(ReplyPtr reply,
   // See handleReadRequestSsl for explanation
   std::shared_ptr<SslConnection> sft
     = std::static_pointer_cast<SslConnection>(shared_from_this());
-  asio::post(strand_, std::bind(&SslConnection::handleReadBody0,
-                         sft, reply, e, bytes_transferred));
+  post(strand_,
+       std::bind(&SslConnection::handleReadBody0,
+                 sft,
+                 reply,
+                 e,
+                 bytes_transferred));
 }
 
 void SslConnection

@@ -144,16 +144,18 @@ public:
       request_stream << message.body();
 
     startTimer();
-    resolver_.async_resolve(server, std::to_string(port), 
-      strand_.wrap([self = shared_from_this()](const auto& error, tcp::resolver::results_type results){
-        self->handleResolve(error, results.begin());
-      })
-    );
+    resolver_.async_resolve
+      (server, std::to_string(port),
+       strand_.wrap(std::bind(&Impl::handleResolveList,
+                              shared_from_this(),
+                              std::placeholders::_1,
+                              std::placeholders::_2)));
   }
 
   void asyncStop()
   {
-    asio::post(ioService_, strand_.wrap(std::bind(&Impl::stop, shared_from_this())));
+    asio::post(ioService_,
+               strand_.wrap(std::bind(&Impl::stop, shared_from_this())));
   }
 
 protected:
@@ -216,6 +218,13 @@ private:
       err_ = asio::error::timed_out;
     }
   }
+
+  void handleResolveList(const AsioWrapper::error_code& err,
+                       tcp::resolver::results_type endpoints)
+  {
+    handleResolve(err, endpoints.begin());
+  }
+
 
   void handleResolve(const AsioWrapper::error_code& err,
                      tcp::resolver::results_type::iterator endpoint_iterator)
