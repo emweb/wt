@@ -274,6 +274,7 @@ public:
   bool persistentSessions() const;
   bool progressiveBoot(const std::string& internalPath) const;
   float maxPlainSessionsRatio() const;
+  int minSessionsForDoS() const;
   bool ajaxPuzzle() const;
   bool sessionIdCookie() const;
   bool cookieChecks() const;
@@ -368,6 +369,7 @@ private:
   bool            ajaxAgentWhiteList_;
   bool            persistentSessions_;
   float           maxPlainSessionsRatio_;
+  int             minSessionsForDoS_;
   bool            ajaxPuzzle_;
   bool            sessionIdCookie_;
   bool            cookieChecks_;

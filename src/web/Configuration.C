@@ -290,6 +290,7 @@ void Configuration::reset()
   ajaxAgentWhiteList_ = false;
   persistentSessions_ = false;
   maxPlainSessionsRatio_ = 1;
+  minSessionsForDoS_ = 100;
   ajaxPuzzle_ = false;
   sessionIdCookie_ = false;
   cookieChecks_ = true;
@@ -553,6 +554,11 @@ float Configuration::maxPlainSessionsRatio() const
 {
   READ_LOCK;
   return maxPlainSessionsRatio_;
+}
+int Configuration::minSessionsForDoS() const
+{
+  READ_LOCK;
+  return minSessionsForDoS_;
 }
 
 bool Configuration::ajaxPuzzle() const
@@ -1229,6 +1235,13 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 
   if (!plainAjaxSessionsRatioLimit.empty())
     maxPlainSessionsRatio_ = Utils::stof(plainAjaxSessionsRatioLimit);
+
+  std::string minSessionsForDoS
+    = singleChildElementValue(app, "sessions-threshold-for-dos-protection", "");
+
+  if (!minSessionsForDoS.empty()) {
+    minSessionsForDoS_ = Utils::stoi(minSessionsForDoS);
+  }
 
   setBoolean(app, "ajax-puzzle", ajaxPuzzle_);
   setInt(app, "indicator-timeout", indicatorTimeout_);

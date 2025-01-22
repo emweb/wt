@@ -346,6 +346,8 @@
           -->
         <plain-ajax-sessions-ratio-limit>1</plain-ajax-sessions-ratio-limit>
 
+        <sessions-threshold-for-dos-protection>100</sessions-threshold-for-dos-protection>
+
         <!-- DoS prevention: adds a puzzle to validate Ajax sessions
 
            This is a simple measure which avoids Denial-of-Service

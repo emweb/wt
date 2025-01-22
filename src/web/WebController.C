@@ -936,7 +936,7 @@ bool WebController::limitPlainHtmlSessions()
     std::unique_lock<std::recursive_mutex> lock(mutex_);
 #endif // WT_THREADED
 
-    if (plainHtmlSessions_ + ajaxSessions_ > 20)
+    if (plainHtmlSessions_ + ajaxSessions_ > conf_.minSessionsForDoS())
       return plainHtmlSessions_ > conf_.maxPlainSessionsRatio()
         * (ajaxSessions_ + plainHtmlSessions_);
     else
