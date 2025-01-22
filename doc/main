@@ -713,8 +713,21 @@ appRoot=C:\Program Files\MyApplications\AppRoot
       ratio of plain HTML versus Ajax sessions under a certain
       ratio. Typically, most of your sessions will be Ajax sessions,
       and only a tiny fraction (e.g. less than 5%) will be plain HTML
-      sessions. This ratio is only enforced when more than 20 sessions
-      have been created.  </dd>
+      sessions. This ratio is only enforced when more than
+      <code>sessions-threshold-for-dos-protection</code> sessions have
+      been created. To enforce this ratio, when the ratio of plain HTML
+      sessions versus Ajax sessions exceeds it, new plain HTML sessions
+      are created only to be upgraded to Ajax, and are timed out after
+      <code>bootstrap-timeout</code> seconds if not upgraded.</dd>
+
+    <dt><strong>sessions-threshold-for-dos-protection</strong></dt>
+
+    <dd>Total number of sessions required to start limiting plain HTML
+      sessions. This setting controls the total number of sessions
+      required before the <code>plain-ajax-sessions-ratio-limit</code>
+      is checked. Only if the total number of sessions exceed this value,
+      will potential new HTML-only sessions be limited to prevent DoS
+      attacks.</dd>
 
     <dt><strong>ajax-puzzle</strong></dt>
 
