@@ -26,6 +26,11 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.emweb.be/issues/13417" target="_blank">Issue #13417</a>:
+    fixed a heap buffer overflow when using <code>Auth::AuthUtils::createSalt()</code> with a size that is
+    not a multiple of 3.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/11505" target="_blank">Issue #11505</a>:
     <a href="classWt_1_1WStandardItemModel.html" target="_blank">WStandardItemModel</a>::setHeaderData will now
     correctly return false instead of making Wt crash when given a wrong section. An error will be logged to let
