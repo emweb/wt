@@ -7,6 +7,7 @@
 #ifndef WCORE_SERVER_H_
 #define WCORE_SERVER_H_
 
+#include <Wt/AsioWrapper/asio.hpp>
 #include <Wt/AsioWrapper/io_service.hpp>
 #include <Wt/AsioWrapper/steady_timer.hpp>
 #include <Wt/AsioWrapper/strand.hpp>
