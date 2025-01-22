@@ -26,7 +26,7 @@ namespace Wt {
 
 std::string createSalt(unsigned int length)
 {
-  auto saltBuf = std::unique_ptr<unsigned char[]>(new unsigned char[length]);
+  auto saltBuf = std::unique_ptr<unsigned char[]>(new unsigned char[length + 2]);
   for (unsigned i = 0; i < length; i += 3) {
     unsigned r = WRandom::get();
     std::memcpy(saltBuf.get() + i, &r, 3);
