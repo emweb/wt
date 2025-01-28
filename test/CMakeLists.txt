@@ -15,6 +15,7 @@ IF(ENABLE_LIBWTTEST)
     http/CookieTest.C
     http/HttpClientTest.C
     formdelegate/WFormDelegate.C
+    logger/ConcurentLoggingTest.C
     mail/MailClientTest.C
     mail/MailMessageTest.C
     matrix/MatrixTest.C
