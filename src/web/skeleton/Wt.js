@@ -1807,6 +1807,13 @@ if (!window._$_WT_CLASS_$_) {
         hside = 0;
       } else if (x + reserveWidth > windowX + windowSize.x) {
         // too far right, chose other side
+        if (reserveWidth > rightx - windowX) {
+          /*
+           * Too large to be displayed from the left starting from the
+           * current rightx
+           */
+          rightx = windowX + reserveWidth;
+        }
         let scrollX = op.scrollLeft;
         if (op === document.body) {
           scrollX = op.clientWidth - windowSize.x;
@@ -1835,7 +1842,10 @@ if (!window._$_WT_CLASS_$_) {
           bottomy = windowY + windowSize.y;
         }
         if (reserveHeight > bottomy - windowY) {
-          // popup is too tall to be displayed upwards starting from the current bottomy
+          /*
+           * Too tall to be displayed upwards starting from the current
+           * bottomy
+           */
           bottomy = windowY + reserveHeight;
         }
         let scrollY = op.scrollTop;
