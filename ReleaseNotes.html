@@ -109,6 +109,25 @@ behaviour.
   </li>
 </ul>
 
+<p>
+  Wt 4.11.4 also comes with the following improvements:
+</p>
+
+<ul>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13075" target="_blank">Issue #13075</a>:
+    <a href="classWt_1_1WWidget.html#a2d627cbf964560995ac51c25d69d8b54" target="_blank">WWidget::positionAt()</a>
+    now correctly positions the widget over the given widget when there is not enough place on either
+    side to place the widget. The same issue that occurred for popups was resolved as well.
+    Since this potentially puts content over other widgets (e.g. when entering information into a
+    <a href="classWt_1_1WSuggestionPopup.html" target="_blank">WSuggestionPopup</a>), the options
+    <a href="classWt_1_1WPopupMenu.html#a47a35b9b9ff72ea1c9daf86897730bd3">WPopupMenu::setAdjust()</a> and
+    <a href="classWt_1_1WPopupWidget.html#a0c14602b64c0d1f5aea2429a5ec1b415">WPopupWidget::setAdjust()</a>
+    were added. This allows the default adjustment behaviour to be overridden, so that content is never
+    placed over the widget it popped up from.
+  </li>
+</ul>
+
 <h2>Release 4.11.3 (February 19, 2025)</h2>
 
 <p>
