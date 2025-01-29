@@ -347,7 +347,8 @@ public:
                          const WAnimation& animation = WAnimation()) override;
 
   virtual void positionAt(const WWidget *widget,
-                          Orientation orientation = Orientation::Vertical)
+                          Orientation orientation = Orientation::Vertical,
+                          WFlags<Orientation> adjustOrientations = AllOrientations)
     override;
 
   /*! \brief Set the position of the widget at the mouse position

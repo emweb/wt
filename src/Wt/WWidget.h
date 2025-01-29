@@ -370,11 +370,24 @@ public:
    * case there is not enough room to the right). It is aligned so
    * that the top edges align (or the bottom edges if there is not
    * enough room below).
+   * 
+   * \p adjustOrientations allows to specify the axes on which the
+   * widget can adjust it's position if there is not enough room next
+   * to the other widget, breaking the previous rules if necessary. For
+   * example, if Orientation::Vertical flag of \p adjustOrientations is
+   * set, and part of the widget would be cut off by the top of the
+   * window, the widget would be move downward until the top of the
+   * widget is fully visible (or the widget reaches the bottom of the
+   * window). In that case, the widget would not be aligned with the
+   * other widget, in case \p orientation = Wt::Orientation::Horizontal,
+   * or would be displayed over the other widget, in case \p orientation
+   * = Wt::Orientation::Vertical.
    *
    * \note This only works if JavaScript is available.
    */
   virtual void positionAt(const WWidget *widget,
-                          Orientation orientation = Orientation::Vertical);
+                          Orientation orientation = Orientation::Vertical,
+                          WFlags<Orientation> adjustOrientations = AllOrientations);
 
   /*! \brief Sets the CSS line height for contained text.
    */

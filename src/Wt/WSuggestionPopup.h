@@ -49,12 +49,15 @@ enum class PopupTrigger {
  * popup will show when the user starts editing the edit field, or
  * when the user opens the suggestions explicitly using a drop down
  * icon or with the down key. The popup positions itself intelligently
- * just below or just on top of the edit field. It offers a list of
- * suggestions that match in some way with the current edit field, and
- * dynamically adjusts this list. The implementation for matching
- * individual suggestions with the current text is provided through a
- * JavaScript function. This function may also highlight part(s) of
- * the suggestions to provide feed-back on how they match.
+ * just below or just on top of the edit field. This may cause the
+ * popup to appear on top of the widget it gives suggestion for.
+ * See setAdjust() to know how this can be avoided. The popup
+ * offers a list of suggestions that match in some way with the current
+ * edit field, and dynamically adjusts this list. The implementation
+ * for matching individual suggestions with the current text is
+ * provided through a JavaScript function. This function may also
+ * highlight part(s) of the suggestions to provide feed-back on how
+ * they match.
  *
  * %WSuggestionPopup is an MVC view class, using a simple
  * WStringListModel by default. You can set a custom model using
@@ -486,7 +489,12 @@ public:
    */
   ItemDataRole editRole() const { return editRole_; }
 
+  void setAdjust(WFlags<Orientation> adjustOrientations) override;
+
 private:
+  static const int BIT_ADJUST_CHANGED = 0;
+  static const int BIT_FILTER_SCHEDULED = 1;
+
   WContainerWidget *impl_;
   std::shared_ptr<WAbstractItemModel> model_;
   int modelColumn_;
@@ -500,6 +508,8 @@ private:
 
   std::string       matcherJS_;
   std::string       replacerJS_;
+
+  std::bitset<2> flags_;
 
   Signal<WT_USTRING> filterModel_;
   Signal<int, WFormWidget *> activated_;

@@ -18,6 +18,7 @@ WPopupWidget::WPopupWidget(std::unique_ptr<WWidget> impl)
   : anchorWidget_(nullptr),
     orientation_(Orientation::Vertical),
     transient_(false),
+    adjustFlags_(AllOrientations),
     autoHideDelay_(0),
     jsHidden_(impl.get(), "hidden"),
     jsShown_(impl.get(), "shown")
@@ -73,7 +74,7 @@ void WPopupWidget::setHidden(bool hidden, const WAnimation& animation)
   WCompositeWidget::setHidden(hidden, animation);
 
   if (!hidden && anchorWidget_)
-    positionAt(anchorWidget_.get(), orientation_);
+    positionAt(anchorWidget_.get(), orientation_, adjustFlags_);
 
   if (!WWebWidget::canOptimizeUpdates() || isRendered()) {
     if (hidden)
@@ -89,6 +90,11 @@ void WPopupWidget::setHidden(bool hidden, const WAnimation& animation)
     this->hidden().emit();
   else
     this->shown().emit();
+}
+
+void WPopupWidget::setAdjust(WFlags<Orientation> adjustOrientations)
+{
+  adjustFlags_ = adjustOrientations;
 }
 
 void WPopupWidget::defineJS()

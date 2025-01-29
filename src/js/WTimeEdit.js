@@ -31,7 +31,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTimeEdit", function(APP, edit, 
   function showPopup() {
     const p = getPopup();
     p.bindHide(resetButton);
-    p.show(edit, WT.Vertical);
+    p.show(edit, WT.Vertical, true, true);
   }
 
   this.mouseOut = function(_o, _event) {

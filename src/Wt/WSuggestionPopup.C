@@ -139,11 +139,22 @@ void WSuggestionPopup::defineJavaScript()
 
 void WSuggestionPopup::render(WFlags<RenderFlag> flags)
 {
-  if (flags.test(RenderFlag::Full))
+  if (flags.test(RenderFlag::Full)) {
     defineJavaScript();
+  }
+  if (flags_.test(BIT_ADJUST_CHANGED)) { 
+    std::string doAdjustX = adjust().test(Orientation::Horizontal) ? "true" : "false";
+    std::string doAdjustY = adjust().test(Orientation::Vertical) ? "true" : "false";
 
-  if (WApplication::instance()->environment().ajax())
+    doJavaScript(jsRef() + ".wtObj.setAdjust(" + doAdjustX + "," + doAdjustY + ");");
+    flags_.reset(BIT_ADJUST_CHANGED);
+  }
+
+  if (WApplication::instance()->environment().ajax() && 
+      flags_.test(BIT_FILTER_SCHEDULED)) {
     doFilter(currentInputText_);
+    flags_.reset(BIT_FILTER_SCHEDULED);
+  }
 
   WPopupWidget::render(flags);
 }
@@ -325,6 +336,13 @@ void WSuggestionPopup::setAutoSelectEnabled(bool enabled)
   isAutoSelectEnabled_ = enabled;
 }
 
+ void WSuggestionPopup::setAdjust(WFlags<Orientation> adjustOrientations)
+ {
+  WPopupWidget::setAdjust(adjustOrientations);
+  flags_.set(BIT_ADJUST_CHANGED);
+  scheduleRender();
+ }
+
 void WSuggestionPopup::showAt(WFormWidget *edit)
 {
   doJavaScript(jsRef() + ".wtObj.showAt("
@@ -366,6 +384,7 @@ void WSuggestionPopup::setFilterLength(int length)
 void WSuggestionPopup::scheduleFilter(std::string input)
 {
   currentInputText_ = input;
+  flags_.set(BIT_FILTER_SCHEDULED);
   scheduleRender();
 }
 

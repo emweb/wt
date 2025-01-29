@@ -234,6 +234,23 @@ public:
    */
   bool hideOnSelect() const { return hideOnSelect_; }
 
+  /*! \brief Sets in which direction this popup menu can adjust its coordinates on popup.
+   *
+   * This sets in which orientations the popup menu can adjust its
+   * position in order to be fully visible in the window, potentially
+   * hiding the widget (or point) from which it popped up.
+   * \sa WWidget::positionAt() for more informations.
+   * 
+   * By default, it can adjust in both orientations.
+   */
+  void setAdjust(WFlags<Orientation> adjustOrientations);
+  
+  /*! \brief Returns in which orientations this popup widget can adjust its coordinates on popup.
+   * 
+   * \sa setAdjust()
+   */
+  WFlags<Orientation> adjust() const { return adjustFlags_; }
+
 protected:
   virtual void renderSelected(WMenuItem *item, bool selected) override;
   virtual void setCurrent(int index) override;
@@ -254,6 +271,7 @@ private:
   bool recursiveEventLoop_;
   bool willPopup_;
   bool hideOnSelect_;
+  WFlags<Orientation> adjustFlags_;
   int autoHideDelay_;
 
   void exec();

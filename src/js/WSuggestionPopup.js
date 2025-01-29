@@ -45,7 +45,9 @@ WT_DECLARE_WT_MEMBER(
       filterPartial = filterMore,
       delayHideTimeout = null,
       lastFilterValue = null,
-      droppedDown = false;
+      droppedDown = false,
+      adjustX = false,
+      adjustY = false;
 
     this.defaultValue = defaultValue;
 
@@ -61,13 +63,18 @@ WT_DECLARE_WT_MEMBER(
         edit.classList.contains("Wt-suggest-dropdown");
     }
 
+    self.setAdjust = function(enableX, enableY) {
+      adjustX = enableX;
+      adjustY = enableY;
+    };
+
     function visible() {
       return el.style.display !== "none";
     }
 
     function positionPopup(edit) {
       el.style.display = "block";
-      WT.positionAtWidget(el.id, edit.id, WT.Vertical);
+      WT.positionAtWidget(el.id, edit.id, WT.Vertical, false, adjustX, adjustY);
     }
 
     function contentClicked(event) {

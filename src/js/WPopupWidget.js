@@ -121,12 +121,12 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupWidget", function(APP, el,
     }
   };
 
-  this.show = function(anchorWidget, side) {
+  this.show = function(anchorWidget, side, adjustX = true, adjustY = true) {
     if (el.style.display !== "") {
       el.style.display = "";
 
       if (anchorWidget) {
-        WT.positionAtWidget(el.id, anchorWidget.id, side);
+        WT.positionAtWidget(el.id, anchorWidget.id, side, false, adjustX, adjustY);
       }
 
       APP.emit(el, "shown");

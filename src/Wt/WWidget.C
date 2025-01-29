@@ -415,18 +415,25 @@ int WWidget::boxBorder(WT_MAYBE_UNUSED Orientation orientation) const
   return 0;
 }
 
-void WWidget::positionAt(const WWidget *widget, Orientation orientation)
+void WWidget::positionAt(const WWidget *widget, Orientation orientation,
+                         WFlags<Orientation> adjustOrientations)
 {
   if (isHidden())
     show();
 
   std::string side = (orientation == Orientation::Horizontal
                       ? ".Horizontal" : ".Vertical");
+  
+  std::string canAdjustX = adjustOrientations.test(Orientation::Horizontal) ? "true" : "false";
+  std::string canAdjustY = adjustOrientations.test(Orientation::Vertical) ? "true" : "false";
 
   doJavaScript(WT_CLASS ".positionAtWidget('"
                + id() + "','"
                + widget->id() + "',"
-               WT_CLASS + side + ");");
+               WT_CLASS + side + ","
+               + "false,"
+               + canAdjustX + ","
+               + canAdjustY + ");");
 }
 
 void WWidget::setLayoutSizeAware(bool aware)

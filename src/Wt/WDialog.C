@@ -653,12 +653,13 @@ void WDialog::setHidden(bool hidden, const WAnimation& animation)
   WPopupWidget::setHidden(hidden, animation);
 }
 
-void WDialog::positionAt(const WWidget *widget, Orientation orientation)
+void WDialog::positionAt(const WWidget *widget, Orientation orientation,
+                         WFlags<Orientation> adjustOrientations)
 {
   setPositionScheme(PositionScheme::Absolute);
   if (wApp->environment().javaScript())
     setOffsets(0, Side::Left | Side::Top);
-  WPopupWidget::positionAt(widget, orientation);
+  WPopupWidget::positionAt(widget, orientation, adjustOrientations);
 }
 
 void WDialog::positionAt(const Wt::WMouseEvent& ev)

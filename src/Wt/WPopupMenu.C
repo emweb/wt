@@ -33,6 +33,7 @@ WPopupMenu::WPopupMenu(WStackedWidget *contentsStack)
     recursiveEventLoop_(false),
     willPopup_(false),
     hideOnSelect_(true),
+    adjustFlags_(AllOrientations),
     autoHideDelay_(-1)
 {
   const char *CSS_RULES_NAME = "Wt::WPopupMenu";
@@ -159,7 +160,7 @@ void WPopupMenu::popup(WWidget *location, Orientation orientation)
   doJavaScript(jsRef() + ".wtObj.popupAt("
                + location->jsRef() + ");");
 
-  positionAt(location, orientation);
+  positionAt(location, orientation, adjustFlags_);
 }
 
 void WPopupMenu::popup(const WMouseEvent& e)
@@ -188,9 +189,14 @@ void WPopupMenu::popup(const WPoint& p)
   setOffsets(42, Side::Left | Side::Top);
   setOffsets(-10000, Side::Left | Side::Top);
 
+  std::string canAdjustX = adjustFlags_.test(Orientation::Horizontal) ? "true" : "false";
+  std::string canAdjustY = adjustFlags_.test(Orientation::Vertical) ? "true" : "false";
+
   doJavaScript(WT_CLASS ".positionXY('" + id() + "',"
                + std::to_string(p.x()) + ","
-               + std::to_string(p.y()) + ");");
+               + std::to_string(p.y()) + ","
+               + canAdjustX + ","
+               + canAdjustY + ");");
 }
 
 void WPopupMenu::prepareRender(WApplication *app)
@@ -335,6 +341,12 @@ std::string WPopupMenu::renderRemoveJs(WT_MAYBE_UNUSED bool recursive)
 void WPopupMenu::setHideOnSelect(bool enabled)
 {
   hideOnSelect_ = enabled;
+}
+
+void WPopupMenu::setAdjust(WFlags<Orientation> adjustOrientations)
+{
+  adjustFlags_ = adjustOrientations;
+  refresh();
 }
 
 }

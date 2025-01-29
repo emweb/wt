@@ -349,6 +349,9 @@ enum class Orientation {
 
 W_DECLARE_OPERATORS_FOR_FLAGS(Orientation)
 
+static const WFlags<Orientation> AllOrientations =
+  Orientation::Horizontal | Orientation::Vertical;
+
 /*! \brief Enumeration that indicates a standard button.
  *
  * Multiple buttons may be specified by logically or'ing these values

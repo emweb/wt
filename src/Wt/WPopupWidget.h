@@ -98,6 +98,23 @@ public:
   virtual void setHidden(bool hidden,
                          const WAnimation& animation = WAnimation()) override;
 
+  /*! \brief Sets in which direction this popup widget can adjust its coordinates on popup.
+   *
+   * This sets in which orientations the popup widget can adjust its
+   * position in order to be fully visible in the window, potentially
+   * hiding the widget (or point) from which it popped up.
+   * \sa WWidget::positionAt() for more informations.
+   * 
+   * By default, it ca adjust in both orientations.
+   */
+  virtual void setAdjust(WFlags<Orientation> adjustOrientations);
+  
+  /*! \brief Returns in which orientations this popup widget can adjust it's coordinates on popup.
+   * 
+   * \sa setAdjust()
+   */
+  WFlags<Orientation> adjust() const { return adjustFlags_; }
+
   /*! \brief %Signal emitted when the popup is hidden.
    *
    * This signal is emitted when the popup is being hidden because of a
@@ -120,6 +137,7 @@ private:
   observing_ptr<WWidget> anchorWidget_;
   Orientation orientation_;
   bool transient_;
+  WFlags<Orientation> adjustFlags_;
   int autoHideDelay_;
   Signal<> hidden_, shown_;
   JSignal<> jsHidden_, jsShown_;
