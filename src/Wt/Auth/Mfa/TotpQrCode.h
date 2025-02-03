@@ -29,7 +29,7 @@ namespace Wt {
   class TotpQrCode : public WPaintedWidget
   {
   public:
-    static constexpr qrcodegen::Ecc ErrorLevelCorrection = qrcodegen::Ecc::HIGH;
+    static constexpr qrcodegen::Ecc ErrorLevelCorrection = qrcodegen::Ecc::LOW;
     static constexpr double SQUARE_SIZE = 5;
 
     /*! \brief Constructor
