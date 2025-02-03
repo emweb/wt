@@ -120,9 +120,9 @@ protected:
       LOG_DEBUG("Resource handleRequest(): no signal");
     }
 
-    o << "}\n"
+    o << "}window.onload=function() { load(); };\n"
       "</script></head>"
-      "<body onload=\"load();\"></body></html>";
+      "<body></body></html>";
 
     if (!request.tooLarge() && !files.empty())
       fileUpload_->setFiles(files);
