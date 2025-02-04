@@ -2539,11 +2539,10 @@ private:
   SoundManager *getSoundManager();
   SoundManager *soundManager_;
 
-  /*
-   * Server-side font metrics
-   */
-  ServerSideFontMetrics *serverSideFontMetrics_;
-  
+  // Server-side font metrics, constructed once (on demand),
+  // and reused by all painters that require it.
+  std::unique_ptr<ServerSideFontMetrics> serverSideFontMetrics_;
+
   static const char *RESOURCES_URL;
 
 #ifdef WT_TARGET_JAVA

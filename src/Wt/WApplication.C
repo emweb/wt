@@ -390,8 +390,6 @@ std::string WApplication::onePixelGifUrl()
 
 WApplication::~WApplication()
 {
-  delete serverSideFontMetrics_;
-  
 #ifndef WT_TARGET_JAVA
   // Fix issue #5331: if WTimer is a child of WApplication,
   // it will outlive timerRoot_. Delete it now already.
@@ -437,11 +435,11 @@ WWebWidget *WApplication::domRoot() const
 ServerSideFontMetrics *WApplication::serverSideFontMetrics()
 {
   if (!serverSideFontMetrics_)
-    serverSideFontMetrics_ = new ServerSideFontMetrics();
+    serverSideFontMetrics_.reset(new ServerSideFontMetrics());
 
-  return serverSideFontMetrics_;
+  return serverSideFontMetrics_.get();
 }
-  
+
 void WApplication::attachThread(bool attach)
 {
 #ifndef WT_CNOR
