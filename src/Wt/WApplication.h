@@ -23,6 +23,7 @@ namespace boost {
 
 #include <Wt/WObject.h>
 #include <Wt/WCssStyleSheet.h>
+#include <Wt/WEnvironment.h>
 #include <Wt/WEvent.h>
 #include <Wt/WJavaScriptPreamble.h>
 #include <Wt/WJavaScriptSlot.h>
@@ -2442,6 +2443,13 @@ private:
   EventSignal<> showLoadingIndicator_, hideLoadingIndicator_;
   JSignal<> unloaded_;
   JSignal<> idleTimeout_;
+
+  // Track cookies added over application lifetime.
+  // WEnvironment does not update itself, so `setCookie` is not reflected by it.
+  WEnvironment::CookieMap addedCookies_;
+  const std::string* findAddedCookies(const std::string& name) const;
+  // Remove the added cookie, for correct bookkeeping.
+  void removeAddedCookies(const std::string& name);
 
   WContainerWidget *timerRoot() const { return timerRoot_; }
   WEnvironment& env(); // short-hand for session_->env()

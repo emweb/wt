@@ -1217,6 +1217,8 @@ void WApplication::setCookie(const std::string& name,
   cookie.setSecure(secure);
 
   session_->renderer().setCookie(cookie);
+
+  addedCookies_[name] = value;
 }
 
 #ifndef WT_TARGET_JAVA
@@ -1872,5 +1874,20 @@ void WApplication::resumeRendering()
   session_->resumeRendering();
 }
 #endif // WT_TARGET_JAVA
+
+const std::string* WApplication::findAddedCookies(const std::string& name) const
+{
+  WEnvironment::CookieMap::const_iterator i = addedCookies_.find(name);
+
+  if (i == addedCookies_.end())
+    return nullptr;
+  else
+    return &i->second;
+}
+
+void WApplication::removeAddedCookies(const std::string& name)
+{
+  addedCookies_.erase(name);
+}
 
 }
