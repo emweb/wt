@@ -82,9 +82,11 @@ WPushButton *WMessageBox::addButton(const WString& text, StandardButton result)
   return b;
 }
 
-void WMessageBox::addButton(std::unique_ptr<WPushButton> button,
-                            const StandardButton result)
+WPushButton* WMessageBox::addButton(std::unique_ptr<WPushButton> button,
+                                    const StandardButton result)
 {
+  auto buttonPtr = button.get();
+
   buttons_.push_back(Button());
   buttons_.back().button = button.get();
   buttons_.back().result = result;
@@ -96,6 +98,8 @@ void WMessageBox::addButton(std::unique_ptr<WPushButton> button,
     setDefaultButton(button.get());
 
   footer()->addWidget(std::move(button));
+
+  return buttonPtr;
 }
 
 void WMessageBox::setDefaultButton(WPushButton *button)

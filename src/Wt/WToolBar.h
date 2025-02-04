@@ -56,6 +56,29 @@ public:
   void addWidget(std::unique_ptr<WWidget> widget,
                  AlignmentFlag alignmentFlag = AlignmentFlag::Left);
 
+  /*! \brief Adds a widget, returning a raw pointer.
+   *
+   * This is implemented as:
+   *
+   * \code
+   * Widget *result = widget.get();
+   * addWidget(std::unique_ptr<WWidget>(std::move(widget), alignmentFlag));
+   * return result;
+   * \endcode
+   */
+  template <typename Widget>
+  Widget *addWidget(std::unique_ptr<Widget> widget,
+                    AlignmentFlag alignmentFlag = AlignmentFlag::Left)
+#ifndef WT_TARGET_JAVA
+  {
+    Widget *result = widget.get();
+    addWidget(std::unique_ptr<WWidget>(std::move(widget), alignmentFlag));
+    return result;
+  }
+#else // WT_TARGET_JAVA
+  ;
+#endif // WT_TARGET_JAVA
+
   using WWidget::removeWidget;
   virtual std::unique_ptr<WWidget> removeWidget(WWidget *widget) override;
 

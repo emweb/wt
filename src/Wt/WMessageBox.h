@@ -110,7 +110,7 @@ public:
    *
    * When the button is clicked, the associated result will be returned.
    */
-  void addButton(std::unique_ptr<WPushButton> button, const StandardButton result);
+  WPushButton* addButton(std::unique_ptr<WPushButton> button, const StandardButton result);
 
   /*! \brief Adds a custom button with given text.
    *
