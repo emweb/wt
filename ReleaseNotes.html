@@ -35,6 +35,11 @@ behaviour.
     was added.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13481" target="_blank">Issue #13481</a>:
+    fixes a bug where a cookie that <a href="classWt_1_1Auth_1_1AuthModel.html#a9186da13a4a2d9f2842db8e3d64bcce4" target="_blank">remembers the login</a>
+    (using "Remember me") was not correctly removed when the user logged out. It was correctly removed from the browser, but server-side a reference to it remained.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13261" target="_blank">Issue #13261</a>:
     Fixed a bug where
     <a href="classWt_1_1WContainerWidget.html#a608f748cbdda763f1a11556ddad9fbe1" target="_blank">WContainerWidget::clear()</a> would not work correctly when using layouts with JavaScript implementation.
