@@ -1252,6 +1252,9 @@ void WApplication::setCookie(const Http::Cookie& cookie)
 void WApplication::removeCookie(const Http::Cookie& cookie)
 {
   session_->renderer().removeCookie(cookie);
+
+  // Stop tracking this previously added cookie.
+  removeAddedCookies(cookie.name());
 }
 
 void WApplication::removeCookie(const std::string& name,
@@ -1263,6 +1266,9 @@ void WApplication::removeCookie(const std::string& name,
   rmCookie.setPath(path);
 
   session_->renderer().removeCookie(rmCookie);
+
+  // Stop tracking this previously added cookie.
+  removeAddedCookies(name);
 }
 
 void WApplication::addMetaLink(const std::string &href,

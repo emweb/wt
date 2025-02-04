@@ -2535,6 +2535,7 @@ private:
   JSlot hideLoadJS;
 #endif
 
+  friend class Auth::AuthModel;
   friend class WCssStyleSheet;
   friend class WebRenderer;
   friend class WebSession;

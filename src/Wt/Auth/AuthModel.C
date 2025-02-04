@@ -9,6 +9,7 @@
 #include "Wt/Auth/AuthService.h"
 #include "Wt/Auth/Login.h"
 #include "Wt/Auth/AuthModel.h"
+#include "Wt/Auth/HashFunction.h"
 
 #include "Wt/WApplication.h"
 #include "Wt/WEnvironment.h"
@@ -217,12 +218,30 @@ void AuthModel::logout(Login& login)
   if (login.loggedIn()) {
     if (baseAuth()->authTokensEnabled()) {
       WApplication *app = WApplication::instance();
-      app->removeCookie(baseAuth()->authTokenCookieName());
 
-      /*
-       * FIXME: it would be nice if we also delete the relevant token
-       * from the database!
-       */
+      // Retrieve current cookie, if it is present.
+      // This retrieves it from the environment. Which is only constructed once, and does NOT update.
+      const std::string* token = app->environment().getCookie(baseAuth()->authTokenCookieName());
+      // Ensure cookies added by the application during its lifetime are also scanned.
+      const std::string* addedToken = app->findAddedCookies(baseAuth()->authTokenCookieName());
+
+      std::unique_ptr<AbstractUserDatabase::Transaction> t(users().startTransaction());
+      if (token) {
+        std::string hash = baseAuth()->tokenHashFunction()->compute(*token, std::string());
+        users().removeAuthToken(login.user(), hash);
+      }
+
+      if (addedToken) {
+        std::string hash = baseAuth()->tokenHashFunction()->compute(*addedToken, std::string());
+        users().removeAuthToken(login.user(), hash);
+      }
+
+      if (t.get()) {
+        t->commit();
+      }
+
+      // Mark the cookie to be removed
+      app->removeCookie(baseAuth()->authTokenCookieName());
     }
 
     login.logout();
