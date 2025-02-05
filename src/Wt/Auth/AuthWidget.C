@@ -346,7 +346,8 @@ void AuthWidget::onLoginChange()
   if (!(isRendered() || created_))
     return;
 
-  if (login_.loggedIn()) {
+  if (login_.loggedIn() ||
+      (login_.user().isValid() && login_.state() == LoginState::RequiresMfa)) {
 #ifndef WT_TARGET_JAVA
     if (created_) // do not do this if onLoginChange() is called from create()
       WApplication::instance()->changeSessionId();
