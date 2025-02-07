@@ -11,6 +11,9 @@ namespace Wt {
      */
     namespace Mfa {
 #ifdef WT_TARGET_JAVA
+    /*! \class Totp Wt/Auth/Mfa/Totp.h
+     *  \brief Utility class containing functions for TOTP functionality.
+     */
     class Totp {
     private:
       Totp() { }
