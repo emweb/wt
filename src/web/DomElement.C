@@ -995,8 +995,6 @@ void DomElement::asHTML(EscapeOStream& out,
 
   const bool supportButton = true;
 
-  bool needAnchorWrap = false;
-
   if (!supportButton && type_ == DomElementType::BUTTON) {
     renderedType = DomElementType::INPUT;
 
@@ -1079,10 +1077,6 @@ void DomElement::asHTML(EscapeOStream& out,
       else
         out << "\"\"";
     }
-  } else if (needAnchorWrap) {
-    out << "<a href=\"#\" class=\"Wt-wrap\" onclick=";
-    fastHtmlAttributeValue(out, attributeValues, clickEvent->second.jsCode);
-    out << "><" << elementNames_[static_cast<unsigned int>(renderedType)];
   } else if (renderedType == DomElementType::OTHER)  // Custom tag name
         out << '<' << elementTagName_;
   else
@@ -1263,20 +1257,23 @@ void DomElement::asHTML(EscapeOStream& out,
           && app->environment().agent() == UserAgent::IE6
           && innerHTML.empty()
           && childrenToAdd_.empty()
-          && childrenHtml_.empty())
+          && childrenHtml_.empty()) {
         out << "&nbsp;";
-          if (renderedType  == DomElementType::OTHER) // Custom tag name
-            out << "</" << elementTagName_ << ">";
-          else
-            out << "</" << elementNames_[static_cast<unsigned int>(renderedType)]
-                << ">";
-    } else
-      out << " />";
+      }
 
-    if (needButtonWrap && supportButton)
+      if (renderedType  == DomElementType::OTHER) {// Custom tag name
+        out << "</" << elementTagName_ << ">";
+      } else {
+        out << "</" << elementNames_[static_cast<unsigned int>(renderedType)]
+            << ">";
+      }
+    } else {
+      out << " />";
+    }
+
+    if (needButtonWrap && supportButton) {
       out << "</button>";
-    else if (needAnchorWrap)
-      out << "</a>";
+    }
   }
 
   javaScript << javaScriptEvenWhenDeleted_ << javaScript_;
