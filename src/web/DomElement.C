@@ -1112,8 +1112,21 @@ void DomElement::asHTML(EscapeOStream& out,
                 static_cast<unsigned int>(UserAgent::IE9)))
           setJavaScriptEvent(javaScript, i->first, i->second, app);
         else {
-          out << " on" << const_cast<char *>(i->first) << '=';
-          fastHtmlAttributeValue(out, attributeValues, i->second.jsCode);
+          // All event handlers ought to be JS, not DOM: #13501
+          std::string elementId = id();
+          if (elementId.empty()) {
+            WObject dummy;
+            elementId = dummy.id();
+            out << " id=";
+            fastHtmlAttributeValue(out, attributeValues, elementId);
+          }
+          auto eventName = const_cast<char *>(i->first);
+          WStringStream eventJS;
+          eventJS << WT_CLASS << ".$('" << elementId << "').on" << eventName << " = "
+                  << "function() {"
+                  <<   i->second.jsCode << ";"
+                  << "};";
+          app->doJavaScript(eventJS.str());
         }
       }
     }
