@@ -1675,12 +1675,19 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     if (flags_.test(BIT_SET_UNSELECTABLE)) {
       element.addPropertyWord(Property::Class, "unselectable");
       element.setAttribute("unselectable", "on");
-      element.setAttribute("onselectstart", "return false;");
+      // All event handlers ought to be JS, not DOM: #13501
+      WStringStream selectJS;
+      selectJS << WT_CLASS << ".$('" << id() << "').onselectstart = "
+               << "function() { return false; };";
+      Wt::WApplication::instance()->doJavaScript(selectJS.str());
     } else if (flags_.test(BIT_SET_SELECTABLE)) {
       element.addPropertyWord(Property::Class, "selectable");
       element.setAttribute("unselectable", "off");
-      element.setAttribute("onselectstart",
-                           "event.cancelBubble=true; return true;");
+      // All event handlers ought to be JS, not DOM: #13501
+      WStringStream selectJS;
+      selectJS << WT_CLASS << ".$('" << id() << "').onselectstart = "
+               << "function() { event.cancelBubble=true; return false; };";
+      Wt::WApplication::instance()->doJavaScript(selectJS.str());
     }
 
     flags_.reset(BIT_SELECTABLE_CHANGED);

@@ -802,8 +802,6 @@ void WWidgetRasterPainter::createContents
   img->setAttribute("height", hstr);
   img->setAttribute("class", "unselectable");
   img->setAttribute("unselectable", "on");
-  img->setAttribute("onselectstart", "return false;");
-  img->setAttribute("onmousedown", "return false;");
 
   WResource *resource = dynamic_cast<WResource *>(device.get());
   img->setAttribute("src", resource->generateUrl());
@@ -811,6 +809,16 @@ void WWidgetRasterPainter::createContents
   result->addChild(img);
 
   device_ = std::move(device);
+
+  // All event handlers ought to be JS, not DOM: #13501
+  WStringStream selectJS;
+  selectJS << WT_CLASS << ".$('" << "i" << widget_->id() << "').onselectstart = "
+           << "function() { return false; };";
+  Wt::WApplication::instance()->doJavaScript(selectJS.str());
+  WStringStream mouseJS;
+  mouseJS << WT_CLASS << ".$('" << "i" << widget_->id() << "').onmousedown = "
+           << "function() { return false; };";
+  Wt::WApplication::instance()->doJavaScript(mouseJS.str());
 }
 
 void WWidgetRasterPainter

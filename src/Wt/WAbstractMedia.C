@@ -158,20 +158,26 @@ void WAbstractMedia::renderSource(DomElement* element,
 
   if (isLast && alternative_) {
     // Last element -> add error handler for unsupported content
-    element->setAttribute("onerror",
-      """var media = this.parentNode;"
-      """if(media){"
-      ""  "while (media && media.children.length)"
-      ""    "if (" WT_CLASS ".hasTag(media.firstChild,'SOURCE')){"
-      ""      "media.removeChild(media.firstChild);"
-      ""    "}else{"
-      ""      "media.parentNode.insertBefore(media.firstChild, media);"
-      ""    "}"
-      ""  "media.style.display= 'none';"
-      """}"
-      );
+    // All event handlers ought to be JS, not DOM: #13501
+    WStringStream errorJS;
+    errorJS << WT_CLASS << ".$('" << element->id() << "').onerror = "
+            << "function() {"
+            <<   "var media = this.parentNode;"
+            <<   "if(media) {"
+            <<     "while (media && media.children.length)"
+            <<       "if (" << WT_CLASS << ".hasTag(media.firstChild,'SOURCE')) {"
+            <<         "media.removeChild(media.firstChild);"
+            <<       "} else {"
+            <<         "media.parentNode.insertBefore(media.firstChild, media);"
+            <<       "}"
+            <<     "media.style.display= 'none';"
+            <<   "};"
+            << "};";
+    Wt::WApplication::instance()->doJavaScript(errorJS.str());
   } else {
-    element->setAttribute("onerror", "");
+    WStringStream errorJS;
+    errorJS << WT_CLASS << ".$('" << element->id() << "').onerror = null;";
+    Wt::WApplication::instance()->doJavaScript(errorJS.str());
   }
 }
 
@@ -179,18 +185,23 @@ void WAbstractMedia::updateMediaDom(DomElement& element, bool all)
 {
   // Only if not IE
   if (all && alternative_) {
-    element.setAttribute("onerror",
-      """if(event.target.error && event.target.error.code=="
-      ""   "event.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED){"
-      ""  "while (this.hasChildNodes())"
-      ""    "if (" WT_CLASS ".hasTag(this.firstChild,'SOURCE')){"
-      ""      "this.removeChild(this.firstChild);"
-      ""    "}else{"
-      ""      "this.parentNode.insertBefore(this.firstChild, this);"
-      ""    "}"
-      ""  "this.style.display= 'none';"
-      """}"
-      );
+    // All event handlers ought to be JS, not DOM: #13501
+    WStringStream errorJS;
+    errorJS << WT_CLASS << ".$('" << id() << "').onerror = "
+            << "function() {"
+            <<   "if(event.target.error && event.target.error.code=="
+            <<      "event.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED) {"
+            <<     "while (this.hasChildNodes()) {"
+            <<       "if (" << WT_CLASS << ".hasTag(this.firstChild,'SOURCE')) {"
+            <<         "this.removeChild(this.firstChild);"
+            <<       "} else {"
+            <<         "this.parentNode.insertBefore(this.firstChild, this);"
+            <<       "}"
+            <<     "}"
+            <<     "this.style.display= 'none';"
+            <<   "}"
+            << "};";
+    Wt::WApplication::instance()->doJavaScript(errorJS.str());
   }
   if (all || flagsChanged_) {
     if ((!all) || flags_.test(PlayerOption::Controls))

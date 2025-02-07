@@ -790,6 +790,8 @@ void WVmlImage::startClip(const WRectF& rect)
             << rect.left() << "px;top:" << rect.top() << "px;width:"
             << rect.width() << "px;height:" << rect.height()
             << "px;overflow:hidden;\""
+            // #13501 note: this should only occur in IE9. We do not
+            // care about CSP in IE9.
             << " onselectstart=\"return false;\">"
             << "<v:group style=\"position:absolute;left:0px;top:0px;width:"
             << rect.width() << "px;height:"
