@@ -44,7 +44,7 @@
           <header name="Referrer-Policy" content="strict-origin-when-cross-origin" />
         </http-headers>
 
-        <use-script-nonce>false</use-script-nonce>
+        <use-script-nonce>true</use-script-nonce>
 
         <!-- <log-config>debug:wthttp/async</log-config> -->
         <UA-Compatible>IE8=IE7</UA-Compatible>
