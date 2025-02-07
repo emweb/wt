@@ -141,8 +141,9 @@ void Process::PrivateAcsResource::handleRequest(const Http::Request &request,
         ""  "window.close();"
         "}\n"
         "}\n"
+        "window.onload = function() { load(); };\n"
         "</script></head>"
-        "<body onload=\"load();\"></body></html>";
+        "<body></body></html>";
     }
   } else {
     response.setStatus(500);
