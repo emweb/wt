@@ -40,6 +40,13 @@ behaviour.
     (using "Remember me") was not correctly removed when the user logged out. It was correctly removed from the browser, but server-side a reference to it remained.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13501" target="_blank">Issue #13501</a>:
+    fixed several instances of CSP (Content Security Policy) violations, in case of <code>use-script-nonce</code> being enabled.
+    The generated header <code>Content-Security-Policy: script-src 'nonce-{randomNonce}' 'strict-dynamic' 'unsafe-eval'</code>, does not allow <code>unsafe-inline</code>.
+    All instances of code that still produced inline handlers have been replaced with JavaScript handlers.
+    A nice side-effect is that this makes a lot of the DOM more readable.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13261" target="_blank">Issue #13261</a>:
     Fixed a bug where
     <a href="classWt_1_1WContainerWidget.html#a608f748cbdda763f1a11556ddad9fbe1" target="_blank">WContainerWidget::clear()</a> would not work correctly when using layouts with JavaScript implementation.
