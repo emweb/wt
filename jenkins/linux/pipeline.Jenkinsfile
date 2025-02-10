@@ -479,7 +479,7 @@ EOF"""
             post {
                 success {
                     updateGitlabCommitStatus name: 'Overarching Pipeline', state: 'success'
-                    archiveArtifacts artifacts: 'wt-port/java/dist/*.jar', fingerprint: true
+                    archiveArtifacts artifacts: 'wt-port/java/dist/*.jar,wt-port/java/*.pom', fingerprint: true
                 }
                 aborted {
                     updateGitlabCommitStatus name: 'Overarching Pipeline', state: 'canceled'
