@@ -11,6 +11,8 @@
 #include "Wt/Auth/AuthModel.h"
 #include "Wt/Auth/HashFunction.h"
 
+#include "Wt/Http/Cookie.h"
+
 #include "Wt/WApplication.h"
 #include "Wt/WEnvironment.h"
 #include "Wt/WInteractWidget.h"
@@ -241,7 +243,7 @@ void AuthModel::logout(Login& login)
       }
 
       // Mark the cookie to be removed
-      app->removeCookie(baseAuth()->authTokenCookieName());
+      app->removeCookie(Http::Cookie(baseAuth()->authTokenCookieName()));
     }
 
     login.logout();
