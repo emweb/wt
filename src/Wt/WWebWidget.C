@@ -656,7 +656,10 @@ void WWebWidget::setParentWidget(WWidget *parent)
     if (isPopup()) {
       calcZIndex();
     }
-    propagateSetEnabled(parent->isEnabled());
+
+    if (!isDisabled()) {
+      propagateSetEnabled(parent->isEnabled());
+    }
   }
 }
 
