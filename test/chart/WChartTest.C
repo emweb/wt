@@ -11,6 +11,9 @@
 
 #include <Wt/Chart/WCartesianChart.h>
 #include <Wt/Chart/WDataSeries.h>
+
+#include <Wt/Test/WTestEnvironment.h>
+
 #include <Wt/WStandardItemModel.h>
 #include <Wt/WSvgImage.h>
 #include <Wt/WPainter.h>
@@ -71,6 +74,10 @@ double plotTimeSeriesChart(const std::shared_ptr<WStandardItemModel>& model,
 
 BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartMinutes )
 {
+  // Required for singular font metrics
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
   auto model = std::make_shared<WStandardItemModel>();
 
   WDate d(2009, 10, 1);
@@ -93,9 +100,13 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartMinutes )
 
   plotTimeSeriesChart(model, "out/minutes.svg", AxisScale::DateTime);
 }
-  
+
 BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartHours )
-{ 
+{
+  // Required for singular font metrics
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
   auto model = std::make_shared<WStandardItemModel>();
 
   WDate d(2009, 10, 1);
@@ -118,8 +129,12 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartHours )
 
 BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartDays )
 {
+  // Required for singular font metrics
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
   auto model = std::make_shared<WStandardItemModel>();
-  
+
   WDate start(2009, 10, 1);
   WDate end(2009, 11, 10);
 
@@ -137,9 +152,13 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartDays )
   plotTimeSeriesChart(model, "out/days.svg", AxisScale::Date);
 }
 
-  
+
 BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartWeeks )
 {
+  // Required for singular font metrics
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
   auto model = std::make_shared<WStandardItemModel>();
 
   WDate start(2009, 10, 1);
@@ -158,14 +177,18 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartWeeks )
 
   plotTimeSeriesChart(model, "out/weeks.svg", AxisScale::Date);
 }
-  
+
 BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartMonths )
 {
+  // Required for singular font metrics
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
   auto model = std::make_shared<WStandardItemModel>();
 
   WDate start(2008, 4, 1);
   WDate end(2008, 12, 1);
-  
+
   WDate d = start;
   int row = 0;
   model->insertColumns(0, 2);
@@ -182,11 +205,15 @@ BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChartMonths )
 
 BOOST_AUTO_TEST_CASE( chart_test_WDateTimeChart0Range )
 {
+  // Required for singular font metrics
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
   auto model = std::make_shared<WStandardItemModel>();
 
   WDate start(2008, 4, 1);
   WDate end(2008, 12, 1);
-  
+
   WDate d = start;
   int row = 0;
   model->insertColumns(0, 2);
