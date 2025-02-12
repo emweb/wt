@@ -272,6 +272,8 @@ protected:
 
   virtual std::string renderRemoveJs(bool recursive) override;
 
+  void setParentWidget(WWidget* parent) override;
+
 private:
   std::unique_ptr<WWidget> impl_;
 };
