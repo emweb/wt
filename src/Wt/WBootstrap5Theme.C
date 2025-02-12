@@ -258,12 +258,17 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
   switch (element.type()) {
 
   case DomElementType::A: {
-    if (creating && dynamic_cast<WPushButton *>(widget))
-      element.addPropertyWord(Property::Class, classBtn(widget));
-
     auto btn = dynamic_cast<WPushButton *>(widget);
-    if (creating && btn && btn->isDefault())
-      element.addPropertyWord(Property::Class, "btn-primary");
+
+    if (btn) {
+      if (creating) {
+        element.addPropertyWord(Property::Class, classBtn(widget));
+        if (btn->isDefault()) {
+          element.addPropertyWord(Property::Class, "btn-primary");
+        }
+      }
+      break;
+    }
 
     auto item = dynamic_cast<WMenuItem *>(widget->parent());
     if (item) {
