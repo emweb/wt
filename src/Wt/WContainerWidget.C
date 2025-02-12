@@ -586,8 +586,16 @@ DomElement *WContainerWidget::createDomElement(WApplication *app,
 
   DomElement *result = WWebWidget::createDomElement(app);
 
-  if (addChildren)
+  if (addChildren) {
     createDomChildren(*result, app);
+  }
+
+  // #13517: Do not let these flags remain active.
+  // These ought to be set once, and then consumed after the container
+  // renders. This is signaled in propagateRenderOk, but that doesn't
+  // catch all cases.
+  flags_.reset(BIT_LAYOUT_NEEDS_RERENDER);
+  flags_.reset(BIT_LAYOUT_NEEDS_UPDATE);
 
   return result;
 }
