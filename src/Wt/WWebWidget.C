@@ -1180,6 +1180,11 @@ void WWebWidget::setDisabled(bool disabled)
 
 void WWebWidget::propagateSetEnabled(bool enabled)
 {
+  // Apply visual styling
+  WApplication *app = WApplication::instance();
+  std::string disabledClass = app->theme()->disabledClass();
+  toggleStyleClass(disabledClass, !enabled, true);
+
   iterateChildren
     ([=](WWidget *c) {
       if (!c->isDisabled())

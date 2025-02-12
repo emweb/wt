@@ -666,10 +666,6 @@ void WInteractWidget::propagateSetEnabled(bool enabled)
 {
   flags_.set(BIT_ENABLED, enabled);
 
-  WApplication *app = WApplication::instance();
-  std::string disabledClass = app->theme()->disabledClass();
-  toggleStyleClass(disabledClass, !enabled, true);
-
   WWebWidget::propagateSetEnabled(enabled);
 }
 
