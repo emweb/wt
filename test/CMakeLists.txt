@@ -50,6 +50,7 @@ IF(ENABLE_LIBWTTEST)
     utils/RoundJsString.C
     utils/XmlUtils.C
     validators/WEmailValidator.C
+    widgets/DisabledTest.C
     widgets/WCompositeWidgetTest.C
     widgets/WContainerWidgetTest.C
     widgets/WDateEditTest.C
