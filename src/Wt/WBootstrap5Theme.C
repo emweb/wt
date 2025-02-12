@@ -451,10 +451,12 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
         if (element.getProperty(Property::Class).find("navbar-nav") == std::string::npos)
           element.addPropertyWord(Property::Class, "nav");
 
-        auto tabs = dynamic_cast<WTabWidget *>(menu->parent()->parent());
+        if (menu->parent()) {
+          auto tabs = dynamic_cast<WTabWidget *>(menu->parent()->parent());
 
-        if (tabs)
-          element.addPropertyWord(Property::Class, "nav-tabs");
+          if (tabs)
+            element.addPropertyWord(Property::Class, "nav-tabs");
+        }
       } else {
         auto suggestions = dynamic_cast<WSuggestionPopup *>(widget);
 
