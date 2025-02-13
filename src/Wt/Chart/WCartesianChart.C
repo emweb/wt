@@ -3083,7 +3083,8 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
       ss << "width:" << Utils::round_js_str(xAxes_[i].calculatedWidth, 16, buf) << ',';
       ss << "side:'" << locToJsString(xAxes_[i].location.initLoc) << "',";
       ss << "minOffset:" << xAxes_[i].location.minOffset << ',';
-      ss << "maxOffset:" << xAxes_[i].location.maxOffset;
+      ss << "maxOffset:" << xAxes_[i].location.maxOffset << ',';
+      ss << "scale:" << static_cast<int>(xAxes_[i].axis->scale());
       ss << '}';
     }
     ss << "],";
@@ -3095,7 +3096,8 @@ void WCartesianChart::paintEvent(WPaintDevice *paintDevice)
       ss << "width:" << Utils::round_js_str(yAxes_[i].calculatedWidth, 16, buf) << ',';
       ss << "side:'" << locToJsString(yAxes_[i].location.initLoc) << "',";
       ss << "minOffset:" << yAxes_[i].location.minOffset << ',';
-      ss << "maxOffset:" << yAxes_[i].location.maxOffset;
+      ss << "maxOffset:" << yAxes_[i].location.maxOffset << ',';
+      ss << "scale:" << static_cast<int>(yAxes_[i].axis->scale());
       ss << '}';
     }
     ss << "]});";

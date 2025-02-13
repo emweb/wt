@@ -41,11 +41,20 @@ WT_DECLARE_WT_MEMBER_BIG(
   //   hasToolTips // whether there are any tooltips
   //   pens // {x: [[linePen,textPen,gridPen],...], y: [[linePen,textPen,gridPen],...] }
   //   penAlpha: {x: [[linePenAlpha,textPenAlpha,gridPenAlpha],...], y: [[linePenAlpha,textPenAlpha,gridPenAlpha],...] }
-  //   xAxes: [{width: float, side: side, minOffset: float, maxOffset: float}] side = min max zero both
-  //   yAxes: [{width: float, side: side, minOffset: float, maxOffset: float}] side = min max zero both
+  //   xAxes: [{width: float, side: side, minOffset: float, maxOffset: float, scale: scale}] side = min max zero both
+  //   yAxes: [{width: float, side: side, minOffset: float, maxOffset: float, scale: scale}] side = min max zero both
   //
   function(APP, widget, target, config) {
     widget.wtCObj = this;
+
+    const _SCALE_DISCRETE = 0,
+      _SCALE_LINEAR = 1,
+      _SCALE_LOG = 2,
+      SCALE_DATE = 3,
+      SCALE_DATETIME = 4;
+
+    const JULIAN_DAY_OFFSET = 2440587.5;
+    const SECOND_PER_DAY = 24 * 60 * 60;
 
     const self = this;
     const WT = APP.WT;
@@ -588,20 +597,23 @@ WT_DECLARE_WT_MEMBER_BIG(
       } else {
         u = [(p[X] - configArea()[0]) / configArea()[2], 1 - (p[Y] - configArea()[1]) / configArea()[3]];
       }
+      let xAxis, yAxis;
       if (followCurve() !== -1) {
-        const area = modelArea(seriesXAxis(followCurve()), seriesYAxis(followCurve()));
-        p = [area[0] + u[X] * area[2], area[1] + u[Y] * area[3]];
+        xAxis = seriesXAxis(followCurve());
+        yAxis = seriesYAxis(followCurve());
       } else {
-        const area = modelArea(crosshairXAxis(), crosshairYAxis());
-        p = [area[0] + u[X] * area[2], area[1] + u[Y] * area[3]];
+        xAxis = crosshairXAxis();
+        yAxis = crosshairYAxis();
       }
+      const area = modelArea(xAxis, yAxis);
+      p = [area[0] + u[X] * area[2], area[1] + u[Y] * area[3]];
 
       ctx.fillStyle = ctx.strokeStyle = config.crosshairColor;
       ctx.font = "16px sans-serif";
       ctx.textAlign = "right";
       ctx.textBaseline = "top";
-      let textX = p[0].toFixed(2);
-      let textY = p[1].toFixed(2);
+      let textX = valueToString(p[0], config.xAxes[xAxis].scale);
+      let textY = valueToString(p[1], config.yAxes[yAxis].scale);
       if (textX === "-0.00") {
         textX = "0.00";
       }
@@ -633,6 +645,18 @@ WT_DECLARE_WT_MEMBER_BIG(
         bottom(area) >= bottom(insideArea()) - BOUNDS_SLACK &&
         left(area) <= left(insideArea()) + BOUNDS_SLACK &&
         right(area) >= right(insideArea()) - BOUNDS_SLACK;
+    }
+
+    function valueToString(v, scale) {
+      let res = v.toFixed(2);
+      if (scale === SCALE_DATE) {
+        // v is in Julian days
+        res = new Date((v - JULIAN_DAY_OFFSET) * SECOND_PER_DAY * 1000).toDateString();
+      } else if (scale === SCALE_DATETIME) {
+        // v is in seconds since 1/1/1970:00:00:00 UTC
+        res = new Date(v * 1000).toString();
+      }
+      return res;
     }
 
     function enforceLimits(flags = null) {
