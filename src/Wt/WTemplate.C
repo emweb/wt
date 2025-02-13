@@ -595,36 +595,29 @@ bool WTemplate::renderTemplateText(std::ostream& result, const WString& template
 {
   errorText_ = "";
 
-  std::string text;
 #ifndef WT_TARGET_JAVA
-  if (encodeTemplateText_)
-    text = encode(templateText.toXhtmlUTF8());
-  else
-    text = templateText.toXhtmlUTF8();
-#else // WT_TARGET_JAVA
-  if (encodeTemplateText_)
-    text = encode(WString(templateText).toXhtmlUTF8());
-  else
-    text = WString(templateText).toXhtmlUTF8();
+  std::string text = templateText.toXhtmlUTF8();
+#else
+  std::string text = WString(templateText).toXhtmlUTF8();
 #endif
-
   std::size_t lastPos = 0;
   std::vector<WString> args;
   std::vector<std::string> conditions;
   int suppressing = 0;
 
+  std::stringstream output;
   for (std::size_t pos = text.find('$'); pos != std::string::npos;
        pos = text.find('$', pos)) {
 
     if (!suppressing)
-      result << text.substr(lastPos, pos - lastPos);
+      output << text.substr(lastPos, pos - lastPos);
 
     lastPos = pos;
 
     if (pos + 1 < text.length()) {
       if (text[pos + 1] == '$') { // $$ -> $
         if (!suppressing)
-          result << '$';
+          output << '$';
 
         lastPos += 2;
       } else if (text[pos + 1] == '{') {
@@ -675,33 +668,47 @@ bool WTemplate::renderTemplateText(std::ostream& result, const WString& template
               std::string fname = name.substr(0, colonPos);
               std::string arg0 = name.substr(colonPos + 1);
               args.insert(args.begin(), WString::fromUTF8(arg0));
-              if (resolveFunction(fname, args, result))
+              if (resolveFunction(fname, args, output))
                 handled = true;
               else
                 args.erase(args.begin());
             }
 
             if (!handled)
-              resolveString(name, args, result);
+              resolveString(name, args, output);
           }
         }
 
         lastPos = endVar + 1;
       } else {
         if (!suppressing)
-          result << '$'; // $. -> $.
+          output << '$'; // $. -> $.
         lastPos += 1;
       }
     } else {
       if (!suppressing)
-        result << '$'; // $ at end of template -> $
+        output << '$'; // $ at end of template -> $
       lastPos += 1;
     }
 
     pos = lastPos;
   }
 
-  result << text.substr(lastPos);
+  output << text.substr(lastPos);
+#ifndef WT_TARGET_JAVA
+  if (encodeTemplateText_) {
+    result << encode(output.str());
+  } else {
+    result << output.str();
+  }
+#else // WT_TARGET_JAVA
+  if (encodeTemplateText_) {
+    result << encode(WString(output.str()).toXhtmlUTF8());
+  } else {
+    result << WString(output.str()).toXhtmlUTF8();
+  }
+#endif
+
   return true;
 }
 
