@@ -73,6 +73,11 @@ behaviour.
     Fixed a potential memory leak, when Dbo items reference each other cyclically.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13507" target="_blank">Issue #13507</a>:
+    fixed an issue with enabled state propagation. In more complex layouts, where widgets would be reparented,
+    the enabled state could be wrongly assigned.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13385" target="_blank">Issue #13385</a>:
     fixed
     <a href="classWt_1_1Auth_1_1Login.html#ab80cb200923961dbd1c6573b0845addb" target="_blank">Auth::Login::loggedIn()</a>
