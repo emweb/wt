@@ -45,7 +45,7 @@ behaviour.
   <li>
     <a href="https://redmine.emweb.be/issues/13373" target="_blank">Issue #13373</a>:
     Fixed an issue where
-    <a href="classWt_1_1WPaintedWidget.html" target="_blank">WPaintedWidget</a> would not be updated when 
+    <a href="classWt_1_1WPaintedWidget.html" target="_blank">WPaintedWidget</a> would not be updated when
     <a href="classWt_1_1WApplication.html#a02b9d8aa1b6c2d0dc9edc1b9c63f86dc">WApplication::refresh()</a> was called.
   </li>
   <li>
@@ -94,6 +94,12 @@ behaviour.
 </p>
 
 <ul>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13510" target="_blank">Issue #13510</a>:
+    fixed the crosshair coordinates in
+    <a href="classWt_1_1Chart_1_1WCartesianChart.html" target="_blank">Chart::WCartesianGraph</a>
+    showing dates as double.
+  </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13630" target="_blank">Issue #13630</a>:
     allows more control over and customization for <a href="classWt_1_1Auth_1_1Mfa_1_1TotpProcess.html" target="_blank">TotpProcess</a>.
@@ -385,7 +391,7 @@ behaviour.
 <ul>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/12675" target="_blank">Issue #12675</a>:
-    Add built-in type support for 
+    Add built-in type support for
     <a href="classWt_1_1Dbo_1_1JsonSerializer.html" target="_blank">Dbo::JsonSerializer</a>. This can be activated by including <code>Wt/Dbo/WtJsonSqlTraits.h</code>.
   </li>
   <li>
@@ -396,8 +402,8 @@ behaviour.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/11868" target="_blank">Issue #11868</a>:
-    Added the 
-    <a href="classWt_1_1WStackedWidget.html#a8342aac06b58cdedb7b1f43132673cb8" target="_blank">WStackedWidget::currentWidgetChanged()</a> signal that is emitted when the 
+    Added the
+    <a href="classWt_1_1WStackedWidget.html#a8342aac06b58cdedb7b1f43132673cb8" target="_blank">WStackedWidget::currentWidgetChanged()</a> signal that is emitted when the
     <a href="classWt_1_1WStackedWidget.html" target="_blank">WStackedWidget</a> changes the element that it shows.
   </li>
   <li>
@@ -507,9 +513,9 @@ behaviour.
 <ul>
   <li>
     <a href="https://redmine.emweb.be/issues/12367" target="_blank">Issue #12367</a>:
-    Fix a bug where the checkbox in a 
-    <a href="classWt_1_1WPopupMenu.html" target="_blank">WPopupMenu</a> would not be checked if a 
-    <a href="classWt_1_1WMenuItem.html" target="_blank">WMenuItem</a> was clicked, and not the 
+    Fix a bug where the checkbox in a
+    <a href="classWt_1_1WPopupMenu.html" target="_blank">WPopupMenu</a> would not be checked if a
+    <a href="classWt_1_1WMenuItem.html" target="_blank">WMenuItem</a> was clicked, and not the
     <a href="classWt_1_1WCheckBox.html" target="_blank">WCheckBox</a> or its label. Also fixes a bug where the signal of a <code>WMenuItem</code> checkbox would not be emitted after switching between the item being checkable or not.
   </li>
   <li>
@@ -3433,7 +3439,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
     <p>Additionally, we've made the <code>Wt::Json</code> API a bit more friendly, by adding support
     for initializer lists (when using C++11), and implicit constructors for
     <a href="classWt_1_1Json_1_1Value.html">Wt::Json::Value</a>
-    from 
+    from
     <a href="classWt_1_1Json_1_1Object.html">Wt::Json::Object</a> and
     <a href="classWt_1_1Json_1_1Array.html">Wt::Json::Array</a>.</p>
   </dd>
@@ -3556,7 +3562,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
 	method was added to WPainter.
       </li>
       <li>
-	Previously, WDialogs were movable by default. It's now possible to disable this with 
+	Previously, WDialogs were movable by default. It's now possible to disable this with
 	<a href="classWt_1_1WDialog.html#afbccf557a0343591f3087c9a0a9b7051">WDialog::setMovable()</a>.
       </li>
     </ul>
@@ -3708,7 +3714,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
 
 	This is only available if the chart is drawn
 	on an HTML canvas. This is the default rendering method on modern browsers.
-	
+
 	When enabled, the crosshair will follow mouse movement,
 	and show in the top right corner the coordinate
 	(according to X axis and the first Y axis)  corresponding to this position.
@@ -3824,7 +3830,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
     proper polymorphic class, and you can provide your own
     implementation. In this way you can customize things like for
     example label strings.
-  </dd>  
+  </dd>
 
   <dt>
     Several new features in the 3D charts library.
@@ -4213,7 +4219,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
     i.e. in <a href="classWt_1_1WIntValidator.html">WIntValidator</a> and
     <a href="classWt_1_1WDoubleValidato.htmlr">WDoubleValidator</a>.
   </dd>
-  
+
   <dt>
     <a href="classWt_1_1WNavigationBar.html">WNavigationBar</a>
   </dt>
@@ -4254,7 +4260,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
     from Paul Harrisson who maintained this backend so far outside the
     Wt distribution. The backend has been designed for MariaDB, but
     should work fine for MySQL as well.
-  </dd>  
+  </dd>
 </dl>
 
 <h3>B) Main improvements:</h3>
@@ -4291,7 +4297,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
   </dt>
   <dd>
     Addition of a validator() function that returns the validator for
-    a field set using setValidator(), 
+    a field set using setValidator(),
   </dd>
 
   <dt>
@@ -4301,7 +4307,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
     Support for binary transfers which avoids serialization and
     deserialization of floats to text.
   </dd>
-  
+
   <dt>
     <a href="classWt_1_1WPushButton.html">WPushButton</a>
   </dt>
@@ -4356,7 +4362,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
     updateModelValue() which only update the value but not other
     aspects such as visibility, validation state, or messages.
   </dd>
-  
+
   <dt>
     Built-in httpd improvements
   </dt>
@@ -4414,7 +4420,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
     noticeable API changes, except for the changes in markup and CSS
     documented above.
   </dd>
-  
+
   <dt>
     <a href="classWt_1_1WTreeNode.html">WTreeNode</a>,
     <a href="classWt_1_1WTreeTable.html">WTreeTable</a>
@@ -4967,7 +4973,7 @@ was undesirable, like the <a href="group__dbo.html#ga1d0ec6819b1bf5b7a88ad030b91
   </dd>
 
   <dt>
-    <a href="classWt_1_1Http_1_1Client.html">Http::Client</a>, 
+    <a href="classWt_1_1Http_1_1Client.html">Http::Client</a>,
     <a href="classWt_1_1Http_1_1Message.html">Http::Message</a>
   </dt>
   <dd>
@@ -5366,14 +5372,14 @@ deprecated:
   <li>
     WHTMLAudio is now WAudio
   </li>
-</ul>    
+</ul>
 
 <hr>
 
 <h2>Release 3.1.10 (July 8, 2011)</h2>
 
 <p>
-  This release contains a mix of new features and bug fixes 
+  This release contains a mix of new features and bug fixes
 </p>
 
 <h3>A) New classes:</h3>
@@ -5620,7 +5626,7 @@ deprecated:
   </dt>
   <dd>
     Several quality improvements: correct rendering of alpha
-    compositing, text rendering by libpango, 
+    compositing, text rendering by libpango,
   </dd>
 
   <dt>
@@ -5728,7 +5734,7 @@ applications on these devices.</p>
     A font metrics class. Font metrics are only available for
     WPdfImage, and an implementation is planned for WRasterImage.
   </dd>
-  <dt><a href="classWt_1_1Render_1_1WTextRenderer.html">Render::WTextRenderer</a>, 
+  <dt><a href="classWt_1_1Render_1_1WTextRenderer.html">Render::WTextRenderer</a>,
   <a href="classWt_1_1Render_1_1WPdfRenderer.html">Render::WPdfRenderer</a></dt>
   <dd>
     A renderer class for a subset of XHTML, useful for e.g.~generating
@@ -5957,7 +5963,7 @@ applications on these devices.</p>
     <ul>
       <li>Provide a workaround for broken g++ compiler shipped in Ubuntu
       Maverick</li>
-      <li>Provide support for building without using 
+      <li>Provide support for building without using
       std::wstring (-DWT_NO_STD_WSTRING) or std::locale
       (-DWT_NO_STD_LOCALE=OFF) support.
       </li>
@@ -6541,7 +6547,7 @@ to upgrade live deployments of his application to the latest version.
     no-ops</dd>
   <dt><a href="classWt_1_1WWidget.html">WWidget</a></dt>
   <dd>Added positionAt() method which positions a widget (absolutely) besides
-    another widget.</dd>  
+    another widget.</dd>
   <dt><a href="classWt_1_1Chart_1_1WAxis.html">Chart/WAxis></a></dt>
   <dd>Added a setLabelFont() method.</dd>
   <dt><a href="classWt_1_1Http_1_1Request.html">Http/Request</a></dt>
@@ -7623,13 +7629,13 @@ Wt::WApplication *createApplication(const Wt::WEnvironment&amp; env)
 <h4>5) Configuration in /etc/wt/wt_config.xml</h4>
 
 <p>
-  Wt 2.0.0 uses a configuration file for a number of settings that 
+  Wt 2.0.0 uses a configuration file for a number of settings that
   could previously be configured at build time of the library, or
   in the API. The latter functions are:
 </p>
 <ul>
   <li><samp>WApplication::setMaximumRquestSize()</samp></li>
-  <li><samp>WApplication::setIdleTimeout()</samp></li>  
+  <li><samp>WApplication::setIdleTimeout()</samp></li>
 </ul>
 
 <h4>6) Removed obsolete classes</h4>
