@@ -517,11 +517,19 @@ public:
 
   /*! \brief Sets whether the widget is disabled.
    *
-   * Enables or disables the widget (including all its descendant
-   * widgets). setDisabled(false) will enable this widget and all
-   * descendant widgets that are not disabled. A widget is only
-   * enabled if it and all its ancestors in the widget tree are
-   * disabled.
+   * The widget can be set to being disabled, or enabled. This state
+   * will also be propagated to all its descendants. Those descendants
+   * will only be "visually" made disabled, their actual isDisabled()
+   * state will remain unaltered. All descendants will be assigned the
+   * disabled styleclass, which is dependent on the used Theme.
+   *
+   * The isDisabled() check will thus only return \p true in case
+   * setDisabled(true) has been called on the widget before. If the
+   * anscestor of a widget has been marked setDisabled(true), the
+   * widget's isDisabled() state will remain \p false.
+   *
+   * To check if a widget has been passively disabled, by one of its
+   * anscestors, use isEnabled().
    *
    * Typically, a disabled form widget will not allow changing the
    * value, and disabled widgets will not react to mouse click events.
@@ -538,9 +546,9 @@ public:
 
   /*! \brief Returns whether the widget is set disabled.
    *
-   * A widget that is not set disabled may still be disabled when one
-   * of its ancestor widgets is set disabled. Use isEnabled() to find
-   * out whether a widget is enabled.
+   * This method will return \p true if, and only if, it has been marked
+   * setDisabled(true) explicitly. It can still inherit the disabled
+   * state from one of its anscestors.
    *
    * \sa setDisabled(), isEnabled()
    */
