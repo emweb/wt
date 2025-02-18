@@ -63,8 +63,20 @@ platforms](https://www.webtoolkit.eu/wt/doc/reference/html/InstallationWindows.h
 
 Bug Reporting
 -------------
+
 Bugs can be reported here
 http://redmine.webtoolkit.eu/projects/wt/issues/new
+
+Security Issue Reporting
+------------------------
+
+We value the security of our users and take all vulnerability reports seriously. By reporting security vulnerabilities, you help us ensure the continued security and reliability of Wt.
+
+Please report vulnerabilities privately to the Wt security team. Public disclosure of a vulnerability before it has been addressed could put users at risk. Send your vulnerability report to [wt-security@emweb.be](mailto:wt-security@emweb.be). We will investigate each report.
+
+We will publicly disclose the vulnerability in the change log when a patch or update has been released.
+
+While we do not offer a formal bug bounty program, we appreciate the efforts of security researchers who help us improve the security of Wt. We will acknowledge and credit responsible disclosures in our release notes and security advisories, unless you prefer to remain anonymous.
 
 Demos, examples
 ---------------
