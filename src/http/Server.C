@@ -558,7 +558,7 @@ void Server::closeParentConnection()
   if (parentSocket_->is_open()) {
     Wt::AsioWrapper::error_code ignored_ec;
     parentSocket_->shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
-    parentSocket_->close();
+    parentSocket_->close(ignored_ec);
   }
 }
 

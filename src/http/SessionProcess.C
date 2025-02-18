@@ -56,7 +56,7 @@ void SessionProcess::closeClientSocket() noexcept
   Wt::AsioWrapper::error_code ignored_ec;
   if (socket_) {
     socket_->shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
-    socket_->cancel();
+    socket_->cancel(ignored_ec);
     socket_->close(ignored_ec);
     socket_ = nullptr;
   }

@@ -60,8 +60,8 @@ void ProxyReply::closeClientSocket()
   if (socket_) {
     Wt::AsioWrapper::error_code ignored_ec;
     socket_->shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
-    socket_->cancel();
-    socket_->close();
+    socket_->cancel(ignored_ec);
+    socket_->close(ignored_ec);
     socket_.reset();
   }
 }
