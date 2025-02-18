@@ -32,7 +32,7 @@ SessionProcess::SessionProcess(SessionProcessManager *manager) noexcept
   : io_service_(manager->ioService()),
     socket_(new asio::ip::tcp::socket(io_service_)),
     acceptor_(new asio::ip::tcp::acceptor(io_service_)),
-    strand_(io_service_), 
+    strand_(io_service_),
     port_(-1),
 #ifndef WT_WIN32
     pid_(0),
