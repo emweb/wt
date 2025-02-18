@@ -119,18 +119,15 @@ void SslConnection::stopNextLayer(const Wt::AsioWrapper::error_code& ec)
     LOG_DEBUG(native() << ": ssl_shutdown failed:"
       << ec.message());
   }
-  try {
-    if (socket().is_open()) {
-      Wt::AsioWrapper::error_code ignored_ec;
-      LOG_DEBUG(native() << ": socket shutdown");
-      socket().shutdown(asio::ip::tcp::socket::shutdown_both,
-                        ignored_ec);
-      socket().cancel(ignored_ec);
-      LOG_DEBUG(native() << "closing socket");
-      socket().close(ignored_ec);
-    }
-  } catch (Wt::AsioWrapper::system_error& e) {
-    LOG_DEBUG(native() << ": error " << e.what());
+
+  if (socket().is_open()) {
+    Wt::AsioWrapper::error_code ignored_ec;
+    LOG_DEBUG(native() << ": socket shutdown");
+    socket().shutdown(asio::ip::tcp::socket::shutdown_both,
+                      ignored_ec);
+    socket().cancel(ignored_ec);
+    LOG_DEBUG(native() << "closing socket");
+    socket().close(ignored_ec);
   }
 }
 

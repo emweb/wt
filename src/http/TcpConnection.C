@@ -52,15 +52,11 @@ void TcpConnection::stop()
     return;
   }
 
-  try {
-    Wt::AsioWrapper::error_code ignored_ec;
-    socket_->shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
-    LOG_DEBUG(native() << ": closing socket");
-    socket_->cancel(ignored_ec);
-    socket_->close(ignored_ec);
-  } catch (Wt::AsioWrapper::system_error& e) {
-    LOG_DEBUG(native() << ": error " << e.what());
-  }
+  Wt::AsioWrapper::error_code ignored_ec;
+  socket_->shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
+  LOG_DEBUG(native() << ": closing socket");
+  socket_->cancel(ignored_ec);
+  socket_->close(ignored_ec);
 
   Connection::stop();
 }
