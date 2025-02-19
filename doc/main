@@ -996,7 +996,8 @@ General options:
                                         used, or else the current working 
                                         directory
   --errroot arg                         root for error pages
-  --accesslog arg                       access log file (defaults to stdout), 
+  --accesslog arg                       access log file, if not specified, 
+                                        access logs are logged like other logs,
                                         to disable access logging completely, 
                                         use --accesslog=-
   --no-compression                      do not use compression
@@ -1217,6 +1218,10 @@ Wt::log("error") << "Message";
     <dt><strong>secure</strong></dt>
 
     <dd>Non-fatal security errors and/or notices.</dd>
+
+    <dt><strong>access</strong></dt>
+
+    <dd>Notices about the received HTTP requests.</dd>
 
     <dt><strong>fatal</strong></dt>
 
