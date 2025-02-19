@@ -20,7 +20,7 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.11.3 (TBD)</h2>
+<h2>Release 4.11.3 (February 19, 2025)</h2>
 
 <p>
   Wt 4.11.3 is a patch release that addresses the following issues:
@@ -29,14 +29,13 @@ behaviour.
 <ul>
   <li>
     <a href="https://redmine.emweb.be/issues/13387" target="_blank">Issue #13387</a>:
-    Fixed incorrect expiration date for a MFA authentication token being stored in the database.
-    Additionally, the possibility to give a custom expiration time for authentication tokens at creation when using
-    <a href="classWt_1_1Auth_1_1AuthService.html#aa0c7e178c21d6fac659e4664b4cd865c" target="_blank">Auth::AuthService::createAuthToken()</a>
-    was added.
+    fixed incorrect expiration date for an MFA authentication token being stored in the database.
+    Additionally, the possibility to give a custom expiration time for authentication tokens was added, for
+    <a href="classWt_1_1Auth_1_1AuthService.html#aa0c7e178c21d6fac659e4664b4cd865c" target="_blank">Auth::AuthService::createAuthToken()</a>.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13481" target="_blank">Issue #13481</a>:
-    fixes a bug where a cookie that <a href="classWt_1_1Auth_1_1AuthModel.html#a9186da13a4a2d9f2842db8e3d64bcce4" target="_blank">remembers the login</a>
+    fixed a lingering cookie that <a href="classWt_1_1Auth_1_1AuthModel.html#a9186da13a4a2d9f2842db8e3d64bcce4" target="_blank">remembers the login</a>
     (using "Remember me") was not correctly removed when the user logged out. It was correctly removed from the browser, but server-side a reference to it remained.
   </li>
   <li>
@@ -48,23 +47,22 @@ behaviour.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13261" target="_blank">Issue #13261</a>:
-    Fixed a bug where
-    <a href="classWt_1_1WContainerWidget.html#a608f748cbdda763f1a11556ddad9fbe1" target="_blank">WContainerWidget::clear()</a> would not work correctly when using layouts with JavaScript implementation.
+    fixed
+    <a href="classWt_1_1WContainerWidget.html#a608f748cbdda763f1a11556ddad9fbe1" target="_blank">WContainerWidget::clear()</a> not correctly removing content when using layouts with JavaScript implementation.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13361" target="_blank">Issue #13361</a>:
-    Wt should now work with boost version 1.87.0 instead of not compiling due to the use
-    of old boost::asio functions.
+    fixed a compilation issue with boost version 1.87.0 due to the use of deprecated boost::asio functions.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13262" target="_blank">Issue #13262</a>:
-    fixed a race condition leading to several log entries being written on the same line.
+    fixed a race condition for shared sessions leading to several log entries being written on the same line.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13466" target="_blank">Issue #13466</a>:
-    <a href="classWt_1_1WViewWidget.html" target="_blank">WViewWidget</a> should now correctly replace
-    the old content with the new one when calling
-    <a href="classWt_1_1WViewWidget.html#a7dcbc05eb15c4d4168141871d5908e37" target="_blank">WViewWidget::update()</a>
+    fixed <a href="classWt_1_1WViewWidget.html" target="_blank">WViewWidget</a>,
+    so that it now correctly replaces the old content with the new one when calling
+    <a href="classWt_1_1WViewWidget.html#a7dcbc05eb15c4d4168141871d5908e37" target="_blank">WViewWidget::update()</a>,
     instead of appending the new content to the old content.
   </li>
   <li>
@@ -74,11 +72,11 @@ behaviour.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/12831" target="_blank">Issue #12831</a>:
-    Fixed a potential memory leak, when Dbo items reference each other cyclically.
+    fixed a potential memory leak, when Dbo items reference each other cyclically.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13507" target="_blank">Issue #13507</a>:
-    fixed an issue with enabled state propagation. In more complex layouts, where widgets would be reparented,
+    fixed enabled state propagation. In more complex layouts, where widgets would be reparented,
     the enabled state could be wrongly assigned.
   </li>
   <li>
@@ -89,12 +87,12 @@ behaviour.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13517" target="_blank">Issue #13517</a>:
-    address a rendering edge-case with <a href="classWt_1_1WContainerWidget.html" target="_blank">WContainerWidget</a>,
+    fixed a rendering edge-case with <a href="classWt_1_1WContainerWidget.html" target="_blank">WContainerWidget</a>,
     which would result in a JavaScript error.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13534" target="_blank">Issue #13534</a>:
-    Added error code handling to socket cancel and close operations to ensure that the socket can be properly closed instead of throwing an exception in case of an error.
+    fixed error code handling with socket cancel and close operations to ensure that the socket can be properly closed instead of throwing an exception in case of an asio error.
   </li>
 </ul>
 
@@ -128,8 +126,8 @@ behaviour.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13188" target="_blank">Issue #13188</a>:
-    add the possibility to customize the mapping between file extensions and MIME types. This is done by specifying the path to a CSV with the <code>--mime-map-append</code> or 
-    <code>--mime-map-override</code> parameter in the run command or in the wthttp config file. This file must be a CSV file with two column, the first column containing the
+    add the possibility to customize the mapping between file extensions and MIME types. This is done by specifying the path to a CSV with the <code>--mime-map-append</code> or
+    <code>--mime-map-override</code> parameter in the run command or in the wthttp config file. This file must be a CSV file with two columns, the first column containing the
     file extension and the second column containing the corresponding MIME type.
   </li>
   <li>
@@ -148,7 +146,7 @@ behaviour.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/12117" target="_blank">Issue #12117</a>:
-    Add a way to set an alternative count query with
+    add a way to set an alternative count query with
     <a href="classWt_1_1Dbo_1_1Query.html#ad65dd5e2432e1cf101716ef8a0e7d5df" target="_blank">Query::setCountQuery()</a>. This allows
     to replace the default count query with a less expensive one.
   </li>
