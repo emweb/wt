@@ -77,6 +77,12 @@ behaviour.
     Additionally, <a href="classWt_1_1Auth_1_1Mfa_1_1TotpQrCode.html#a59c9cdfce092a5385daf010fceb3361e" target="_blank">Auth::Mfa::TotpQrCode::formatKey()</a> is now public. This allows developers to retrieve correct URI, which could be shown to end users, and allow them to copy it to a password manager.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13542" target="_blank">Issue #13542</a>:
+    fixed <code>--accesslog</code> option having no effect. The description of this option
+    was also updated to reflect its actual behavior. Additionally, access logs now have
+    their own type ("access") instead of the generic "info" type. These logs now also have a format more consistent with other logs.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13631" target="_blank">Issue #13631</a>:
     added the "Logout"/"Back" button from <a href="https://redmine.emweb.be/issues/13392" target="_blank">Issue #13392</a>
     to the <a href="classWt_1_1WBootstrap3Theme.html" target="_blank">WBootstrap3Theme</a> as well.
