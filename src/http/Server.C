@@ -131,12 +131,11 @@ Server::Server(const Configuration& config, Wt::WServer& wtServer)
 {
   if (config.parentPort() != -1) {
     accessLogger_.configure(std::string("-*"));
-  } else if (config.accessLog().empty())
-    accessLogger_.setStream(std::cout);
-  else if (config.accessLog() == "-")
+  } else if (config.accessLog() == "-") {
     accessLogger_.configure(std::string("-*"));
-  else
+  } else if (!config.accessLog().empty()) {
     accessLogger_.setFile(config.accessLog());
+  }
 
   if (wt_.configuration().sessionPolicy() == Wt::Configuration::DedicatedProcess &&
       config.parentPort() == -1) {
@@ -144,13 +143,11 @@ Server::Server(const Configuration& config, Wt::WServer& wtServer)
     request_handler_.setSessionManager(sessionManager_);
   }
 
-  accessLogger_.addField("remotehost", false);
-  accessLogger_.addField("rfc931", false);
-  accessLogger_.addField("authuser", false);
-  accessLogger_.addField("date", false);
-  accessLogger_.addField("request", true);
-  accessLogger_.addField("status", false);
-  accessLogger_.addField("bytes", false);
+  accessLogger_.addField("datetime", false);
+  accessLogger_.addField("app", false);
+  accessLogger_.addField("session", false);
+  accessLogger_.addField("type", false);
+  accessLogger_.addField("message", true);
 
   start();
 }

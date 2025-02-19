@@ -512,18 +512,29 @@ void Reply::logReply(Wt::WLogger& logger)
   if (relay_.get())
     return relay_->logReply(logger);
 
-  Wt::WStringStream e;
-  e << request_.remoteIP << " "
-    << /* rfc931 << */ " "
-    << /* authuser << */ " "
-    << request_.method.str() << ' '
-    << request_.uri.str() << " HTTP/"
-    << request_.http_version_major << '.'
-    << request_.http_version_minor << " "
-    << status_ << " "
-    << std::to_string(contentSent_);
-  LOG_INFO(e.str());
+  if (logger.logging("info", WT_LOGGER)) {
+    Wt::WStringStream msg;
+    msg << request_.remoteIP << " "
+        << /* rfc931 << */ " "
+        << /* authuser << */ " "
+        << request_.method.str() << ' '
+        << request_.uri.str() << " HTTP/"
+        << request_.http_version_major << '.'
+        << request_.http_version_minor << " "
+        << status_ << " "
+        << std::to_string(contentSent_);
 
+    if (configuration_.accessLog().empty()) {
+      LOG_INFO(msg.str());
+    } else {
+      Wt::WLogEntry e = logger.entry("info");
+      e << Wt::WLogger::timestamp << Wt::WLogger::sep
+        << getpid() << Wt::WLogger::sep
+        << /* sessionId << */ Wt::WLogger::sep
+        << "[info]" << Wt::WLogger::sep 
+        << WT_LOGGER << ": " << msg.str();
+    }
+  }
   /*
      if (gzipEncoding_)
      std::cerr << " <" << contentOriginalSize_ << ">";
