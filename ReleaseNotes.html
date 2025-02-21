@@ -56,6 +56,13 @@ behaviour.
     on update.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13550" target="_blank">Issue #13550</a>:
+    fixed a bug that would change the href of internal path links in
+    <a href="classWt_1_1WTemplate.html" target="_blank">WTemplate</a> or
+    <a href="classWt_1_1WText.html" target="_blank">WText</a> to the current
+    internal path if internal path encoding was enabled.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13585" target="_blank">Issue #13585</a>:
     fixed a segfault when a <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a>
     would select itself. The selection would happen based on the internal path, with the item having no content, but having a submenu (using
