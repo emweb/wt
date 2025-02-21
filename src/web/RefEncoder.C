@@ -92,7 +92,6 @@ void EncodeRefs(xml_node<> *x_node, WApplication *app,
                   << WWebWidget::jsStringLiteral(path) + ");"
                   << "};";
           app->doJavaScript(clickJS.str());
-          url = "#";
         } else {
           if (app->environment().agentIsSpiderBot())
             url = app->bookmarkUrl(path);
