@@ -386,9 +386,15 @@ std::string FlexLayoutImpl::styleFlex() const
 {
   switch (getDirection()) {
   case LayoutDirection::LeftToRight:
-    return "row";
+    if (LayoutDirection::LeftToRight == WApplication::instance()->layoutDirection())
+      return "row";
+    else
+      return "row-reverse";
   case LayoutDirection::RightToLeft:
-    return "row-reverse";
+    if (LayoutDirection::RightToLeft == WApplication::instance()->layoutDirection())
+      return "row";
+    else
+      return "row-reverse";
   case LayoutDirection::TopToBottom:
     return "column";
   case LayoutDirection::BottomToTop:
