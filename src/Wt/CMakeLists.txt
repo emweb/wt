@@ -16,6 +16,10 @@ if(ASCIIDOCTOR_FOUND)
   ASCIIDOC_FILE(wt-tutorial
     ${WT_SOURCE_DIR}/doc/tutorial/wt.adoc
     ${WT_SOURCE_DIR}/doc/tutorial/wt.html)
+
+  ASCIIDOC_FILE(localization-tutorial
+    ${WT_SOURCE_DIR}/doc/tutorial/localization.adoc
+    ${WT_SOURCE_DIR}/doc/tutorial/localization.html)
 endif()
 
 IF (WT_DATE_TZ_USE_DATE)

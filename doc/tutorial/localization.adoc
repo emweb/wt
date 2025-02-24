@@ -1,0 +1,652 @@
+= Introduction to localization in Wt
+
+For Wt 4.12.0
+
+:doc: link:../reference/html/
+:tutorials: link:./
+:wt-src: link:https://github.com/emweb/wt/tree/master/
+:cpp: pass:[C++]
+
+== Prerequisites
+
+This introduction assumes that you have a reasonable understanding of
+Wt itself, in particular its stateful session model and the widget
+concept. If you haven't done so yet, you may want to go through the
+{tutorials}wt.html[Wt tutorial] first.
+
+[TIP]
+===============================
+The complete full code of the examples used in this tutorial are
+included in the Wt distribution, in
+{wt-src}examples/feature/localization[`+examples/feature/localization+`].
+===============================
+
+== Introduction
+
+This tutorial explores the concept of localization in Wt. We'll
+explain how to manage localized text with message resource files and
+{doc}classWt_1_1WString.html[WString], enabling your application to
+support multiple languages. We'll also cover
+{doc}classWt_1_1WTemplate.html[WTemplate] in detail, showing you how to
+use its placeholder mechanism.
+
+By the end of this tutorial, you'll understand how localization works
+in Wt and how to use these tools effectively in your applications.
+
+== Message Resource and Localized WString
+
+A message resource is an XML file containing messages with an `+id+`
+attribute. These messages are used for localization.
+
+.messages.xml
+[source,xml]
+----
+<!-- This is not necessary, but can be handy -->
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- The wrapper containing all messages -->
+<messages>
+
+  <!-- A single message entry, with an `id` to identify it, and content it displays -->
+  <message id="language">English</message>
+
+  <message id="title">Localization example</message>
+  <message id="intro">
+    This is an example showing how to use localized WStrings. This
+    example is a complement to the tutorial on localization that can be
+    found
+    <a href="https://www.webtoolkit.eu/doc/tutorial/localization.html" target="_blank">
+      here
+    </a>.
+
+    For each examples, the file used for the example is given. To
+    really understand these examples, you will need to also read
+    those files.
+  </message>
+
+</messages>
+----
+
+Message resources are loaded into the application's
+{doc}classWt_1_1WMessageResourceBundle.html[WMessageResourceBundle]
+using
+{doc}classWt_1_1WMessageResourceBundle.html#a01368946b2a2aaceab3a64cddb1cb1e2[WMessageResourceBundle::use()].
+You refer to messages using
+{doc}classWt_1_1WString.html#a0afc7dc0f9897456d71b569a86ca26c1[WString::tr()]
+with the message's `+id+`. This creates a _localized_
+{doc}classWt_1_1WString.html[WString].
+
+.using messageResourceBundle (localization.C)
+[source,cpp]
+----
+app->messageResourceBundle().use(appRoot() + "/messages");
+app->messageResourceBundle().use(appRoot() + "/templates");
+----
+
+[IMPORTANT]
+===============================
+The used resources will not have their extension or (optional) suffix, when they are defined in the application.
+===============================
+
+A localized {doc}classWt_1_1WString.html[WString]'s value is resolved
+dynamically when needed by searching the
+{doc}classWt_1_1WMessageResourceBundle.html[WMessageResourceBundle] for
+the corresponding id. This allows you to change the application's
+language simply by providing different message resources.
+
+When
+{doc}classWt_1_1WMessageResourceBundle.html#a01368946b2a2aaceab3a64cddb1cb1e2[WMessageResourceBundle::use()]
+is called, it automatically loads language-specific versions of the
+message resource file (e.g., messages_nl.xml, messages_fr.xml) if they
+exist in the same directory. This means using a bundle called `+strings+`, will prompt Wt to load
+the files:
+* `+string.xml+`
+* `+string_{locale}.xml+`
+
+Here the `+locale+` can be any name of a valid locale (like `+nl+` or `+en+`).
+Wt automatically selects the appropriate
+resource file based on the name of the application's
+{doc}classWt_1_1WLocale.html[WLocale]. Changing the application's
+{doc}classWt_1_1WLocale.html[WLocale] triggers the use of the
+corresponding localized message resource file.
+
+Here's an example of a language selection dropdown button that uses
+this mechanism:
+
+.LanguageButton.C
+[source,cpp]
+----
+LanguageButton::LanguageButton()
+{
+  setText(Wt::WString::tr("language"));
+  auto popupMenu = std::make_unique<Wt::WPopupMenu>();
+  popup_ = popupMenu.get();
+  setMenu(std::move(popupMenu));
+
+  popup_->addItem("English");
+  popup_->addItem("Français");
+  popup_->addItem("Nederlands");
+
+  popup_->itemSelected().connect(this, &LanguageButton::onSelect);
+}
+
+void LanguageButton::onSelect(Wt::WMenuItem *item)
+{
+  Wt::WString lang = item->text();
+  if (lang == "English") {
+    Wt::WApplication::instance()->setLocale("en");
+  } else if (lang == "Français") {
+    Wt::WApplication::instance()->setLocale("fr");
+  } else if (lang == "Nederlands") {
+    Wt::WApplication::instance()->setLocale("nl");
+  }
+}
+----
+
+By default, the {doc}classWt_1_1WApplication.html[WApplication]'s
+{doc}classWt_1_1WLocale.html[WLocale] is set based on the browser's
+language preferences. Which means that the language the user configured is
+automatically selected.
+
+For instance, the following {doc}classWt_1_1WString.html[WString] is
+localized.
+
+.LocalStringExample.C
+[source,cpp]
+----
+// Will change depending on the locale.
+layout->addWidget(std::make_unique<Wt::WText>(Wt::WString::tr("LocalStringExample_baseText")));
+----
+
+It is defined in the default bundle:
+
+.LocalStringExample_baseText (messages.xml)
+[source,xml]
+----
+  <message id="LocalStringExample_baseText">
+    This text changes depending on the language chosen
+  </message>
+----
+
+Since the message is also found in both specific language bundles, it
+will be replaced with the correct value for the current
+{doc}classWt_1_1WLocale.html[WLocale].
+
+.LocalStringExample_baseText (messages_nl.xml)
+[source,xml]
+----
+  <message id="LocalStringExample_baseText">
+    Deze tekst verandert afhankelijk van de gekozen taal
+  </message>
+----
+
+.LocalStringExample_baseText (messages_fr.xml)
+[source,xml]
+----
+  <message id="LocalStringExample_baseText">
+    Ce texte change selon la langue choisie
+  </message>
+----
+
+If a language-specific file is not found, the default `+messages.xml+` is
+used as fallback. This fallback also applies to the messages
+themselves. If a message is not found in a language-specific file, it
+is looked up in the default message resource file.
+
+For instance, the following message is defined only in the default
+bundle and the French bundle but not in the Dutch bundle.
+
+.LocalStringExample_fallbackText (messages.xml)
+[source,xml]
+----
+  <message id="LocalStringExample_fallbackText">
+    This text will fallback to English if Dutch is selected because it
+    is not defined in messages_nl.xml
+  </message>
+----
+
+.LocalStringExample_fallbackText (messages_fr.xml)
+[source,xml]
+----
+  <message id="LocalStringExample_fallbackText">
+    Ce texte sera en anglais si le néerlandais est sélectionné car il
+    n'est pas défini dans messages_nl.xml
+  </message>
+----
+
+Therefore, the following {doc}classWt_1_1WString.html[WString] will
+fallback to the default message when Dutch is selected.
+
+.LocalStringExample.C
+[source,cpp]
+----
+// Not defined in message_nl.xml. Will fallback to English if Dutch language is selected.
+layout->addWidget(std::make_unique<Wt::WText>(Wt::WString::tr("LocalStringExample_fallbackText")));
+----
+
+In case the message is not defined in the default bundle, it will
+fallback to displaying `+??key??+`, where `+key+` is the message's id.
+
+For instance, the following {doc}classWt_1_1WString.html[WString] is not
+defined anywhere, and will therfore display `+??undefined_message??+`.
+
+.LocalStringExample.C
+[source,cpp]
+----
+// Is not defined anywhere. Will fallback to '??key??'.
+layout->addWidget(std::make_unique<Wt::WText>(Wt::WString::tr("undefined_message")));
+----
+
+A message that is not defined in the default bundle can still be
+defined in a language-specific bundle. In that case, it will display
+`+??key??+` for all {doc}classWt_1_1WLocale.html[WLocale] except the
+one for which it is defined.
+
+For instance, the following message is defined in the Dutch and French
+bundles, but not in the default bundle.
+
+.LocalStringExample_noFallbackText (messages_nl.xml)
+[source,xml]
+----
+  <message id="LocalStringExample_noFallbackText">
+    Deze tekst heeft geen terugvaloptie en wordt daarom als
+    ongedefinieerd weergegeven als Nederlands of Frans niet is
+    geselecteerd.
+    (This text has no fallback, so it will show as undefined if Dutch
+    or French is not selected.)
+  </message>
+----
+
+.LocalStringExample_noFallbackText (messages_fr.xml)
+[source,xml]
+----
+  <message id="LocalStringExample_noFallbackText">
+    Ce texte n'a pas de version par defaut, il s'affichera donc comme
+    indéfini si le néerlandais ou le français n'est pas sélectionné.
+    (This text has no fallback, so it will show as undefined if Dutch
+    or French is not selected.)
+  </message>
+----
+
+Therefore, the following {doc}classWt_1_1WString.html[WString] will
+display `+??LocalStringExample_noFallbackText??+` when English is
+selected. But will show the correct text when Dutch or French is
+selected.
+
+.LocalStringExample.C
+[source,cpp]
+----
+// Is not defined in message.xml. Will fallback to '??key??' when English is selected.
+layout->addWidget(std::make_unique<Wt::WText>(Wt::WString::tr("LocalStringExample_noFallbackText")));
+----
+
+=== Keeping WString localized
+
+As seen above, a {doc}classWt_1_1WString.html[WString] can be
+_localized_, meaning the value will be resolved when it is needed. This
+is in opposition with _literal_ {doc}classWt_1_1WString.html[WString],
+which have a fixed value. For multilingual applications, you almost
+always want localized WString objects so they update when the WLocale
+changes.
+
+However, you will sometimes not be able to use a localized
+{doc}classWt_1_1WString.html[WString] directly. For instance, to create
+a {doc}classWt_1_1WLink.html[WLink] object, you need to use a
+`+std::string+`, which cannot be localized. Another situation like this
+is when you need to concatenate a localized
+{doc}classWt_1_1WString.html[WString]. Regardless of what you
+concatenate to a localized {doc}classWt_1_1WString.html[WString],
+*the result will always be literal*. Even if you concatenate two
+localized {doc}classWt_1_1WString.html[WString] together. For this
+reason, you will probably never want to use the `++=+` operator on a
+localized {doc}classWt_1_1WString.html[WString], as it will make it
+literal.
+
+.ConcatenationExamples.C
+[source,cpp]
+----
+Wt::WString localWString = Wt::WString::tr("ConcatenationExamples_baseText");
+Wt::WString literalWString = Wt::WString("Literal WString");
+std::string str = "std::string";
+
+// Will not change.
+layout->addWidget(std::make_unique<Wt::WText>(localWString + str));
+
+// Will not change.
+layout->addWidget(std::make_unique<Wt::WText>(localWString + literalWString));
+
+// Will not change.
+layout->addWidget(std::make_unique<Wt::WText>(localWString + localWString));
+
+// Will change.
+layout->addWidget(std::make_unique<Wt::WText>(localWString));
+
+// localWString becomes literal due to += operator
+localWString += literalWString;
+
+// Will not change
+layout->addWidget(std::make_unique<Wt::WText>(localWString));
+----
+
+.ConcatenationExamples_baseText (messages.xml)
+[source,xml]
+----
+  <!-- This is also defined in messages_nl.xml and messages_fr.xml -->
+  <message id="ConcatenationExamples_baseText">
+    This is or was a localized WString
+  </message>
+----
+
+[TIP]
+===============================
+In the example, you can see that even though `+localWString+` becomes
+literal after the `++=+` operator, it does not impact the widgets where
+it was previously used. This is because the widgets keeps a copy of the
+{doc}classWt_1_1WString.html[WString] which stays localized.
+===============================
+
+==== Formatting WStrings
+
+Even though concatenating will always result in a literal
+{doc}classWt_1_1WString.html[WString], formatting won't.
+
+In a {doc}classWt_1_1WString.html[WString], you can use `+{1}+`,
+`+{2}+`, etc. as placeholders for other values. The first time
+{doc}classWt_1_1WString.html#a4761af728bf3cc5bca4ae3770243883e[WString::arg()]
+will be called the placeholders `+{1}+` in the
+{doc}classWt_1_1WString.html[WString], will be replaced by the value
+given as argument. The second time it is called, the same will happen
+for the placeholder `+{2}+`, and so on.
+
+For a localized {doc}classWt_1_1WString.html[WString], the replacement of
+the placeholders is deferred, as the value of the
+{doc}classWt_1_1WString.html[WString] is not yet known. Instead, the
+replacement is done every time the value of the
+{doc}classWt_1_1WString.html[WString] is needed. Because of this, a
+localized {doc}classWt_1_1WString.html[WString] replacing a placeholder
+in another localized {doc}classWt_1_1WString.html[WString] will
+correctly update when the locale changes. This does however not works
+when formatting a literal {doc}classWt_1_1WString.html[WString].
+
+.FormatExample.C
+[source,cpp]
+----
+Wt::WString localWString = Wt::WString::tr("FormatExample_baseText");
+
+Wt::WString literalWString = Wt::WString("Literal WString");
+
+std::string str = "std::string";
+
+// We need to copy localWString before calling arg() because it modifies the WString.
+
+layout->addWidget(std::make_unique<Wt::WText>
+    (Wt::WString(localWString).arg(str)));
+
+layout->addWidget(std::make_unique<Wt::WText>
+    (Wt::WString(localWString).arg(literalWString)));
+
+layout->addWidget(std::make_unique<Wt::WText>
+    (Wt::WString(localWString).arg(
+      // We remove the placeholder by passing an empty string.
+      Wt::WString(localWString).arg(""))));
+
+layout->addWidget(std::make_unique<Wt::WText>(localWString));
+
+Wt::WString literalWString2 = literalWString + " {1}";
+
+// This will not change update with the new locale because it is a literal WString.
+layout->addWidget(std::make_unique<Wt::WText>(literalWString2.arg(
+  // We remove the placeholder by passing an empty string.
+  Wt::WString(localWString).arg(""))));
+
+// literalWString2 is now modified.
+layout->addWidget(std::make_unique<Wt::WText>(literalWString2));
+----
+
+.FormatExample_baseText (messages.xml)
+[source,xml]
+----
+  <!-- This is also defined in messages_nl.xml and messages_fr.xml -->
+  <message id="FormatExample_baseText">
+    This is or was a localized WString {1}
+  </message>
+----
+
+[TIP]
+===============================
+Formatting a {doc}classWt_1_1WString.html[WString] does not creates a
+new one. This is shown with the last {doc}classWt_1_1WText.html[WText]
+in the example, and is the reason why we are copying `+localWString+`
+before formatting it.
+===============================
+
+==== Refreshing values
+
+While formatting helps preserve localization, it does not solve the
+problem completely. Sometimes, you may be forced to use literal
+strings, like when creating a {doc}classWt_1_1WLink.html[WLink]. In
+that case, you will need to manually refresh the value of the string
+when the locale changes.
+
+When the string is inside a {doc}classWt_1_1WWidget.html[WWidget], you
+should override the
+{doc}classWt_1_1WWidget.html#a15e1efb1c2e1030a3ad9565ef7fb0e15[refresh()]
+method. This method is called on all {doc}classWt_1_1WWidget.html[WWidget]
+in the DOM tree after the {doc}classWt_1_1WLocale.html[WLocale] is
+changed. By overriding it, you can replace the string with the
+appropriate value for the new locale.
+
+[WARNING]
+===============================
+Always call the base class's
+{doc}classWt_1_1WWidget.html#a15e1efb1c2e1030a3ad9565ef7fb0e15[refresh()]
+method within your overridden
+{doc}classWt_1_1WWidget.html#a15e1efb1c2e1030a3ad9565ef7fb0e15[refresh()]
+function. Not doing so can prevent the widget from being refreshed
+correctly.
+===============================
+
+.RefreshExamples.C
+[source,cpp]
+----
+RefreshExamples::RefreshExamples()
+{
+  auto layout = setLayout(std::make_unique<Wt::WVBoxLayout>());
+
+  localWString_ = Wt::WString::tr("ConcatenationExamples_baseText");
+
+  literalWString_ = Wt::WString("Literal WString");
+
+  str_ = "std::string";
+
+  concatStr_ = layout->addWidget(std::make_unique<Wt::WText>(localWString_ + str_));
+  concatLiteral_ = layout->addWidget(std::make_unique<Wt::WText>(localWString_ + literalWString_));
+  concatLocal_ = layout->addWidget(std::make_unique<Wt::WText>(localWString_ + localWString_));
+
+  layout->addWidget(std::make_unique<Wt::WText>(localWString_));
+}
+
+void RefreshExamples::refresh()
+{
+  concatStr_->setText(localWString_ + str_);
+  concatLiteral_->setText(localWString_ + literalWString_);
+  concatLocal_->setText(localWString_ + localWString_);
+
+  Wt::WContainerWidget::refresh();
+}
+----
+
+== WTemplate
+
+A {doc}classWt_1_1WTemplate.html[WTemplate] is a
+{doc}classWt_1_1WWidget.html[WWidget] that renders a XHTML template.
+
+=== Variables
+
+Within a {doc}classWt_1_1WTemplate.html[WTemplate], you can use
+variables as placeholders for dynamic content. These placeholders are
+replaced with actual values when the template is rendered. These
+variables, denoted by `+${variable-name}+`, are resolved each time the
+{doc}classWt_1_1WTemplate.html[WTemplate] is updated.
+
+[NOTE]
+===============================
+Variable names can contain alphanumeric characters, hyphens (`+-+`),
+underscores (`+_+`), and periods (`+.+`).
+===============================
+
+.Main-Page (templates.xml)
+[source,xml]
+----
+<message id="Main-Page">
+  <div style="position:sticky; top:0px; background-color:LightGray; padding:10px;">
+    Change examples language: ${language-btn}
+  </div>
+  <div style="padding:10px;">
+    <h2>Intro</h2>
+    <p>${intro}</p>
+    ${block:Element LocalStr}
+    ${block:Element Concat}
+    ${block:Element Refresh}
+    ${block:Element Format}
+  </div>
+</message>
+----
+
+You can bind values to variables using
+{doc}classWt_1_1WTemplate.html#a2d72efa9d932d6703e3ec012c960c259[bindString()],
+{doc}classWt_1_1WTemplate.html#a89426dcac3371befc127f7d5b04bb5ed[bindInt()],
+or
+{doc}classWt_1_1WTemplate.html#a494ede53b41270b1207a223ba5115420[bindWidget()]
+for strings, integers, and widgets, respectively.
+
+[TIP]
+===============================
+For widgets specifically the {doc}classWt_1_1WTemplate.html#aee05ce3c6afe524c410e8627cf557c7b[bindNew<Widget>()]
+functionality also exists. This allows for widgets to be added, and constructed at the same time.
+The arguments it takes are the constructor arguments for the `+Widget+` class.
+===============================
+
+.Binding values to template variables (localization.C)
+[source,cpp]
+----
+Wt::WTemplate *t = root()->addWidget(
+  std::make_unique<Wt::WTemplate>(Wt::WString::tr("Main-Page")));
+
+// Binding strings and widgets to the variables in the template
+t->bindString("intro", Wt::WString::tr("intro"));
+t->bindWidget("language-btn", std::make_unique<LanguageButton>());
+----
+
+[CAUTION]
+===============================
+While it is possible to provide styling directly in the template, it is
+recommended to use a separate CSS file.
+===============================
+
+=== Functions
+
+{doc}classWt_1_1WTemplate.html[WTemplate] also supports functions,
+which allow you to perform more complex operations within your
+templates. Functions are placeholders that are replaced using a C++
+function.
+
+Functions are represented by
+`+${function-name:argument1 argument2 ...}+`. Arguments are separated
+by spaces. In case an argument needs to contain spaces, it is possible to
+add them, by surrounding the the whole argument by single quotes(`+'+`).
+
+Before a function can be used in a template, it must be registered
+using
+{doc}classWt_1_1WTemplate.html#ae8f4d8e21baa953323f3c0ce1cb4314a[WTemplate::addFunction()].
+This method takes two arguments:
+
+. The function name (a string).
+. A function pointer with the signature
+  `+bool(WTemplate*, const std::vector<WString>&, std::ostream&)+`.
+
+Wt comes with several built-in functions:
+
+* `+id+`: Replaces the placeholder with the ID of the widget bound to
+          the given variable.
+* `+tr+`: Replaces the placeholder with a localized
+          {doc}classWt_1_1WString.html[WString] using the given
+          variable as the message ID.
+* `+block+`: Replaces the placeholder with a formatted, localized
+             {doc}classWt_1_1WString.html[WString]. The first argument
+             is the message ID, and subsequent arguments are used for
+             string formatting.
+
+.addFunction (localization.C)
+[source,cpp]
+----
+t->addFunction("tr", &Wt::WTemplate::Functions::tr);
+t->addFunction("block", &Wt::WTemplate::Functions::block);
+
+// Adding the examples
+t->bindWidget("LocalStr-example", std::make_unique<LocalStringExample>());
+t->bindWidget("Concat-example", std::make_unique<ConcatenationExamples>());
+t->bindWidget("Refresh-example", std::make_unique<RefreshExamples>());
+t->bindWidget("Format-example", std::make_unique<FormatExample>());
+----
+
+.Element (templates.xml)
+[source,xml]
+----
+<message id="Element">
+  <![CDATA[
+  <div>
+    <h2 id="{1}"> ${tr:{1}.title} </h2>
+    ${block:{1}.description}
+    ${block:Example {1}}
+  </div>
+  ]]>
+</message>
+
+<message id="Example">
+  <![CDATA[
+  <h4>Example:</h4>
+  <p style="color:CornflowerBlue;">
+    <i>See ${tr:{1}.file}</i>
+  </p>
+  <div style="border:1px solid Black; background-color:WhiteSmoke;">
+    ${{1}-example}
+  </div>
+  ]]>
+</message>
+----
+
+The `+block+` function first formats the
+{doc}classWt_1_1WString.html[WString] (resolving any embedded variables
+like `+{1}+`), then renders the resulting string as a template. This
+allows for nested template-like behavior. For example, in the
+`+Element+` template, `+{1}+` will be replaced with the element's
+name, and then the `+tr+` function will be called to replace the
+placeholder with the correct title.
+
+[NOTE]
+===============================
+Template placeholders cannot directly contain other template
+placeholders. This means that you cannot, for example, have
+`+${function1:${function2:arg}}+`.
+===============================
+
+=== Why use WTemplate
+
+{doc}classWt_1_1WTemplate.html[WTemplate] are very useful for building
+complex layouts in Wt. It's ideal when you have a fixed number of
+widgets and need precise control over their placement. It allows a
+clean separation between presentation and application logic, improving
+code readability making it easier to maintain. It also allows to change
+the layout on the fly without restarting your server since the XHTML
+can be given by a localized {doc}classWt_1_1WString.html[WString]. This
+also let designers tweak the look without needing C++ skills.
+
+However, {doc}classWt_1_1WTemplate.html[WTemplate] isn't the best
+choice for dynamic layouts. If you're dealing with a variable number of
+widgets, or if their positions might change, you'll likely want to use
+a {doc}classWt_1_1WContainerWidget.html[WContainerWidget] instead.
+
+Alternatively, you may wish to look at a theme that will do content
+positioning for you, if you provide the right style classes or data
+elements (e.g. https://getbootstrap.com/docs/5.3/layout/grid[Bootstrap Grid,window=_blank]).

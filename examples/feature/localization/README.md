@@ -1,7 +1,7 @@
 Auth1 feature example
 ---------------------
 
-This is an example that illustrate how localizatio works in Wt.
+This is an example that illustrates how localization works in Wt.
 
 See also the [tutorial](https://www.webtoolkit.eu/wt/doc/tutorial/localization.html).
 
