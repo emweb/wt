@@ -122,6 +122,12 @@ void SessionProcess::acceptHandler(const Wt::AsioWrapper::error_code& err,
 
 void SessionProcess::read() noexcept
 {
+  // #13567: Ensure for very quick processes they aren't closed before
+  // scheduling the read operation.
+  if (!socket_) {
+    return;
+  }
+
   asio::async_read_until
     (*socket_, buf_, '\n',
       strand_.wrap(
