@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<messages>
+  <message id="language">English</message>
+  <message id="title">Localization example</message>
+  <message id="intro">
+    This is an example showing how to use localized WStrings. This
+    example is a complement to the tutorial on localization that can be
+    found
+    <a href="https://www.webtoolkit.eu/doc/tutorial/localization.html" target="_blank">
+      here
+    </a>.
+
+    For each examples, the file used for the example is given. To
+    really understand these examples, you will need to also read
+    those files.
+  </message>
+
+  <message id="LocalStringExample_baseText">
+    This text changes depending on the language chosen
+  </message>
+  <message id="LocalStringExample_fallbackText">
+    This text will fallback to English if Dutch is selected because it
+    is not defined in messages_nl.xml
+  </message>
+
+  <message id="ConcatenationExamples_baseText">
+    This is or was a localized WString
+  </message>
+
+  <message id="FormatExample_baseText">
+    This is or was a localized WString {1}
+  </message>
+
+  <message id="LocalStr.title">Using Localized WStrings</message>
+  <message id="LocalStr.file">LocalStringExample.C</message>
+
+  <message id="Concat.title">Localized WStrings And Concatenation</message>
+  <message id="Concat.file">ConcatenationExamples.C</message>
+
+  <message id="Refresh.title">Refreshing Strings</message>
+  <message id="Refresh.file">RefreshExamples.C</message>
+
+  <message id="Format.title">Formating WStrings</message>
+  <message id="Format.file">FormatExample.C</message>
+</messages>

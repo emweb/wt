@@ -6,6 +6,7 @@ SUBDIRS(
   custom_layout
   dbo
   locale
+  localization
   mediaplayer
   miniwebgl
   multiple_servers

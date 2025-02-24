@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<messages>
+  <message id="language">Français</message>
+  <message id="title">Example de localisation</message>
+
+  <message id="LocalStringExample_baseText">
+    Ce texte change selon la langue choisie
+  </message>
+  <message id="LocalStringExample_fallbackText">
+    Ce texte sera en anglais si le néerlandais est sélectionné car il
+    n'est pas défini dans messages_nl.xml
+  </message>
+  <message id="LocalStringExample_noFallbackText">
+    Ce texte n'a pas de version par defaut, il s'affichera donc comme
+    indéfini si le néerlandais ou le français n'est pas sélectionné.
+    (This text has no fallback, so it will show as undefined if Dutch
+    or French is not selected.)
+  </message>
+
+  <message id="ConcatenationExamples_baseText">
+    Ceci est ou était une WString localisée
+  </message>
+  
+  <message id="FormatExample_baseText">
+    Ceci est ou était une WString localisée {1}
+  </message>
+</messages>

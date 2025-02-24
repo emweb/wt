@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<messages>
+  <message id="language">Nederlands</message>
+  <message id="title">Lokalisatievoorbeeld</message>
+
+  <message id="LocalStringExample_baseText">
+    Deze tekst verandert afhankelijk van de gekozen taal
+  </message>
+
+  <message id="LocalStringExample_noFallbackText">
+    Deze tekst heeft geen terugvaloptie en wordt daarom als
+    ongedefinieerd weergegeven als Nederlands of Frans niet is
+    geselecteerd.
+    (This text has no fallback, so it will show as undefined if Dutch
+    or French is not selected.)
+  </message>
+
+  <message id="ConcatenationExamples_baseText">
+    Dit is of was een gelokaliseerde WString
+  </message>
+  
+  <message id="FormatExample_baseText">
+    Dit is of was een gelokaliseerde WString {1}
+  </message>
+</messages>

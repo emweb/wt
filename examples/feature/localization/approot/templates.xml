@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<messages xmlns:if="Wt.WTemplate.conditions">
+
+  <message id="Warning-message">
+    <![CDATA[
+    <p style="color:Tomato;">
+      <i><b>Warning:</b> {1}</i>
+    </p>
+    ]]>
+  </message>
+
+  <message id="Element">
+    <![CDATA[
+    <div>
+      <h2 id="{1}"> ${tr:{1}.title} </h2>
+      ${block:{1}.description}
+      ${block:Example {1}}
+    </div>
+    ]]>
+  </message>
+
+  <message id="Example">
+    <![CDATA[
+    <h4>Example:</h4>
+    <p style="color:CornflowerBlue;">
+      <i>See ${tr:{1}.file}</i>
+    </p>
+    <div style="border:1px solid Black; background-color:WhiteSmoke;">
+      ${{1}-example}
+    </div>
+    ]]>
+  </message>
+
+  <message id="LocalStr.description">
+    <![CDATA[
+    <p>
+      You can create localized strings to have strings change depending
+      on the locale. This allows to easely change the language by
+      changing the locale.
+    </p>
+    ]]>
+  </message>
+
+  <message id="Concat.description">
+    <![CDATA[
+    <p>
+      When concatenating something to a localized string, the resulting
+      string will never be localized. This is especially important when
+      using the += operator since it will make the localized string
+      literal.
+    </p>
+    ]]>
+  </message>
+
+  <message id="Refresh.description">
+    <![CDATA[
+    <p>
+      One way to solve the concatenation problem is to refresh the
+      strings when the locale is changed. This can be done by
+      overriding the <code>refresh()</code> method of any widget.
+    </p>
+    ${block:Warning-message "You should always call the
+    <code>refresh()</code> method of the parent class when overriding
+    <code>refresh()</code>. Otherwise, the widget may not be refreshed
+    correctly."}
+    ]]>
+  </message>
+
+  <message id="Format.description">
+    <![CDATA[
+    <p>
+      Another way to solve the concatenation problem is to use WString
+      formatting mechanisms. This allows to replace placeholders in a
+      WSring with other strings or WStrings. 
+    </p>
+    ${block:Warning-message "A literal WSring will not be updated when
+    the locale is changed, even if a localized WString replaces one of
+    its placeholder."}
+    ${block:Warning-message "You should keep in mind that formating a
+    WString will not create a new WString, but modify the existing 
+    one."}
+    ]]>
+  </message>
+
+  <message id="Main-Page">
+    <div style="position:sticky; top:0px; background-color:LightGray; padding:10px;">
+      Change examples language: ${language-btn}
+    </div>
+    <div style="padding:10px;">
+      <h2>Introduction</h2>
+      <p>${intro}</p>
+      ${block:Element LocalStr}
+      ${block:Element Concat}
+      ${block:Element Refresh}
+      ${block:Element Format}
+    </div>
+  </message>
+</messages>
