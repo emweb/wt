@@ -20,6 +20,20 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
+<h2>Release 4.11.4 (TBD)</h2>
+
+<p>
+  Wt 4.11.4 is a patch release that addresses the following issues:
+</p>
+
+<ul>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13567" target="_blank">Issue #13567</a>:
+    fixed the handling of <code>SessionProcess::read()</code>, such that it is always called on existing asio context.
+    This was an edge-case when using <code>dedicated-process</code> mode.
+  </li>
+</ul>
+
 <h2>Release 4.11.3 (February 19, 2025)</h2>
 
 <p>
