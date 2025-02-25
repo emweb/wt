@@ -220,6 +220,24 @@ public:
    */
   const std::string *getCookie(const std::string& cookieName) const;
 
+  /*! \brief Returns a secure cookie value.
+   *
+   * Helper function that add the __Secure- prefix to the cookie name
+   * and calls getCookie().
+   *
+   * \sa getCookie()
+   */
+  const std::string *getSecureCookie(const std::string& cookieName) const { return getCookie("__Secure-" + cookieName); }
+
+  /*! \brief Returns a host cookie value.
+   *
+   * Helper function that add the __Host- prefix to the cookie name
+   * and calls getCookie().
+   *
+   * \sa getCookie()
+   */
+  const std::string *getHostCookie(const std::string& cookieName) const { return getCookie("__Host-" + cookieName); }
+  
   /*! \brief Returns a header value.
    *
    * Returns a header value, or an empty string if the header was
