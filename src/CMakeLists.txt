@@ -372,10 +372,12 @@ Wt/Json/Value.h Wt/Json/Value.C
 Wt/Http/HttpUtils.h Wt/Http/HttpUtils.C
 Wt/Http/Client.h Wt/Http/Client.C
 Wt/Http/Cookie.h Wt/Http/Cookie.C
+Wt/Http/HostCookie.h Wt/Http/HostCookie.C
 Wt/Http/Message.h Wt/Http/Message.C
 Wt/Http/Request.h Wt/Http/Request.C
 Wt/Http/Response.h Wt/Http/Response.C
 Wt/Http/ResponseContinuation.h Wt/Http/ResponseContinuation.C
+Wt/Http/SecureCookie.h Wt/Http/SecureCookie.C
 Wt/Http/WtClient.h Wt/Http/WtClient.C
 Wt/Mail/Client.h Wt/Mail/Client.C
 Wt/Mail/Mailbox.h Wt/Mail/Mailbox.C

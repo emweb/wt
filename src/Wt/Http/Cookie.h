@@ -133,7 +133,7 @@ public:
    *
    * \sa domain()
    */
-  void setDomain(const std::string& domain);
+  virtual void setDomain(const std::string& domain);
 
   /*! \brief The cookie domain.
    *
@@ -148,7 +148,7 @@ public:
    *
    * \sa path()
    */
-  void setPath(const std::string& path);
+  virtual void setPath(const std::string& path);
 
   /*! \brief The cookie path.
    *
@@ -162,7 +162,7 @@ public:
    *
    * \sa secure()
    */
-  void setSecure(bool secure);
+  virtual void setSecure(bool secure);
 
   /*! \brief Returns if the cookie must be sent over secure connection.
    *
