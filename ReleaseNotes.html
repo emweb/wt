@@ -56,6 +56,14 @@ behaviour.
     on update.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13585" target="_blank">Issue #13585</a>:
+    fixed a segfault when a <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a>
+    would select itself. The selection would happen based on the internal path, with the item having no content, but having a submenu (using
+    <a href="classWt_1_1WMenu.html#a792efe0a20114142b568a3e0f25dbcb2" target="_blank">WMenu::addMenu()</a>).
+    Additionally, the signal now only emits once if the <a href="classWt_1_1WStackedWidget.html" target="_blank">WStackedWidget</a>'s
+    content has changed.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13621" target="_blank">Issue #13621</a>:
         ensuring that <code>thirdparty/qrcodegen/QrCode.hpp</code> is installed in the include directory, and that the `TotpQrCode` symbol is exported.
     This allows developers to use the <a href="classWt_1_1Auth_1_1Mfa_1_1TotpQrCode.html" target="_blank">Auth::Mfa::TotpQrCode</a> class in their own code.
