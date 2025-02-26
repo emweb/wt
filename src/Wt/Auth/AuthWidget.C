@@ -24,6 +24,8 @@
 #include "Wt/Auth/Saml/Widget.h"
 #endif // WT_HAS_SAML
 
+#include "Wt/Http/Cookie.h"
+
 #include "Wt/WApplication.h"
 #include "Wt/WAnchor.h"
 #include "Wt/WCheckBox.h"
@@ -363,8 +365,7 @@ void AuthWidget::onLoginChange()
   } else {
     if (login_.state() != LoginState::Disabled) {
       if (model_->baseAuth()->authTokensEnabled()) {
-        WApplication::instance()->removeCookie
-          (model_->baseAuth()->authTokenCookieName());
+        WApplication::instance()->removeCookie(model_->createAuthCookie("", 0));
       }
 #ifndef WT_TARGET_JAVA
       if (created_) { // do not do this if onLoginChange() is called from create()

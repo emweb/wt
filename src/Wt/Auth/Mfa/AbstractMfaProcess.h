@@ -8,11 +8,15 @@
 #define WT_AUTH_MFA_ABSTRACTMFAPROCESS_H_
 
 #include "Wt/Auth/AuthThrottle.h"
+#include "Wt/Auth/AuthService.h"
 
 #include "Wt/WObject.h"
 #include "Wt/WString.h"
 
 namespace Wt {
+  namespace Http {
+    class Cookie;
+  }
   namespace Auth {
     namespace Mfa {
 
@@ -279,6 +283,14 @@ protected:
    * Look at TotpProcess::verifyCode() for an example.
    */
   virtual void updateThrottling(WInteractWidget* button);
+
+  /*! \brief Creates an authentication cookie.
+   *
+   * This creates the remember-me cookie and set it's value to \p value
+   * and it's duration to \p duration.
+   */
+  virtual Http::Cookie createMfaCookie(const std::string& value,
+                                       int duration) const;
 
   const AuthService& baseAuth() const { return baseAuth_; }
   AbstractUserDatabase& users() const { return users_; }

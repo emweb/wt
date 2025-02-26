@@ -118,6 +118,42 @@ enum class AuthTokenType {
   MFA      //!< Multi Factor Authantification
 };
 
+/*! \brief Enumeration that describes the possible auth cookie prefix.
+ * 
+ * Cookie prefixes are prefix that are added to the cookies name to
+ * enforce some rules on it. This allows to prevent some attacks where
+ * the attacker would try to update the cookies attribute.
+ * 
+ * \sa AuthService::authTokenCookiePrefix(),
+ *     AuthService::mfaTokenCookiePrefix()
+ */
+enum class AuthCookiePrefix {
+  Empty, //!< No prefix
+
+  /*! \brief __Secure- prefix
+   *
+   * This prefix ensure that the cookies has the Secure attribute set
+   * and ensure that the cookie is set by an HTTPS page.
+   * 
+   * This requires that the request was made over HTTPS.
+   * 
+   * \sa Http::Cookie::secure()
+   */
+  Secure,
+
+  /*! \brief __Host- prefix
+   *
+   * This prefix adds the same restriction as the __Secure- prefix with
+   * the addition that the cookie can only be sent to the host
+   * subdomain or domain that set it. It also enforces that the Domain
+   * atrribute is not set, and that the Path attribute is set to "/".
+   * 
+   * \sa AuthCookiePrefix::Secure, Http::Cookie::setDomain(),
+   *     Http::Cookie::setPath()
+   */
+  Host
+};
+
 /*! \class EmailTokenResult Wt/Auth/AuthService.h Wt/Auth/AuthService.h
  *  \brief The result of processing an email-sent token.
  *
@@ -342,7 +378,8 @@ public:
    */
   void setAuthTokensEnabled(bool enabled,
                             const std::string& cookieName = "wtauth",
-                            const std::string& cookieDomain = std::string());
+                            const std::string& cookieDomain = std::string(),
+                            AuthCookiePrefix cookiePrefix = AuthCookiePrefix::Empty);
 
   /*! \brief Returns whether authentication tokens are enabled.
    *
@@ -399,6 +436,14 @@ public:
    * \sa setAuthTokensEnabled()
    */
   std::string authTokenCookieDomain() const { return authTokenCookieDomain_; }
+
+  /*! \brief Returns the authentication token cookie prefix.
+   * 
+   * By default, this is set to AuthCookiePrefix::Empty
+   * 
+   * \sa setAuthTokensEnabled()
+   */
+  AuthCookiePrefix authTokenCookiePrefix() const { return authTokenCookiePrefix_; }
 
   /*! \brief Sets the token hash function.
    *
@@ -858,6 +903,20 @@ public:
    */
   const std::string& mfaTokenCookieDomain() const { return mfaTokenCookieDomain_; }
 
+  /*! \brief Sets the prefix of the MFA "remember-me" cookie.
+   *
+   * This can be configured by the developer, or otherwise uses the same
+   * name as authTokenCookiePrefix(). If nothing is changed, the default
+   * is AuthCookiePrefix::Empty.
+   */
+  void setMfaTokenCookiePrefix(AuthCookiePrefix cookiePrefix);
+
+  /*! \brief Returns the MFA token cookie prefix.
+   *
+   * \sa setMfaTokenCookiePrefix()
+   */
+  AuthCookiePrefix mfaTokenCookiePrefix() const { return mfaTokenCookiePrefix_; }
+
   /*! \brief Sets the validity duration of the MFA "remember-me" cookie
    *
    * The duration is specified in minutes. So a validity of 1440 will
@@ -952,6 +1011,7 @@ private:
   int authTokenValidity_;  // minutes
   std::string authTokenCookieName_;
   std::string authTokenCookieDomain_;
+  AuthCookiePrefix authTokenCookiePrefix_;
 
   std::string mfaProvider_;
   bool mfaRequired_;
@@ -962,6 +1022,7 @@ private:
   int mfaTokenValidity_;  // minutes
   std::string mfaTokenCookieName_;
   std::string mfaTokenCookieDomain_;
+  AuthCookiePrefix mfaTokenCookiePrefix_;
   bool mfaThrottleEnabled_;
 
   WString emailTokenValidityStr() const;

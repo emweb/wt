@@ -15,6 +15,10 @@
 #include <memory>
 
 namespace Wt {
+  namespace Http {
+    class Cookie;
+  }
+
   namespace Auth {
 
 class AbstractPasswordService;
@@ -177,6 +181,14 @@ public:
    *    to the user.
    */
   virtual bool hasMfaStep(const User& user) const;
+
+  /*! \brief Creates an authentication cookie.
+   *
+   * This creates a remember-me cookie and set it's value to \p value
+   * and it's duration to \p duration.
+   */
+  virtual Http::Cookie createAuthCookie(const std::string& value,
+                                        int duration) const;
 
 private:
   int throttlingDelay_;

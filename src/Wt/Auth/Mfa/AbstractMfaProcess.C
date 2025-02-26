@@ -7,6 +7,8 @@
 #include "Wt/Auth/User.h"
 
 #include "Wt/Http/Cookie.h"
+#include "Wt/Http/SecureCookie.h"
+#include "Wt/Http/HostCookie.h"
 
 #include "Wt/WApplication.h"
 #include "Wt/WEnvironment.h"
@@ -91,7 +93,23 @@ User AbstractMfaProcess::processMfaToken()
   const WEnvironment& env = app->environment();
 
   if (baseAuth().authTokensEnabled()) {
-    const std::string *token = env.getCookie(baseAuth().mfaTokenCookieName());
+    AuthCookiePrefix prefix = baseAuth().mfaTokenCookiePrefix();
+    const std::string &cookieName = baseAuth().mfaTokenCookieName();
+
+    const std::string *token = nullptr;
+    switch (prefix) {
+      case AuthCookiePrefix::Empty:
+        token = env.getCookie(cookieName);
+        break;
+      case AuthCookiePrefix::Secure:
+        token = env.getSecureCookie(cookieName);
+        break;
+      case AuthCookiePrefix::Host:
+        token = env.getHostCookie(cookieName);
+        break;
+      default:
+        break;
+    }
 
     if (token) {
       LOG_INFO("processMfaToken: Processing auth token for MFA for user: " << login().user().id());
@@ -102,12 +120,7 @@ User AbstractMfaProcess::processMfaToken()
           LOG_INFO("processMfaToken: Found valid match for auth token for MFA for user: " << login().user().id());
           if (!result.newToken().empty()) {
             LOG_DEBUG("processMfaToken: Renewing auth token for MFA.");
-            app->setCookie(baseAuth().mfaTokenCookieName(),
-                           result.newToken(),
-                           result.newTokenValidity(),
-                           baseAuth().mfaTokenCookieDomain(),
-                           "",
-                           app->environment().urlScheme() == "https");
+            app->setCookie(createMfaCookie(result.newToken(), result.newTokenValidity()));
           }
 
           // Has correct MFA provider?
@@ -128,12 +141,7 @@ User AbstractMfaProcess::processMfaToken()
         }
         case AuthTokenState::Invalid: {
           LOG_INFO("processMfaToken: Found no valid match for auth token for MFA for user:" << login().user().id() << ", removing token");
-          app->setCookie(baseAuth().mfaTokenCookieName(),
-                         std::string(),
-                         0,
-                         baseAuth().mfaTokenCookieDomain(),
-                         "",
-                         app->environment().urlScheme() == "https");
+          app->setCookie(createMfaCookie("", 0));
 
           return User();
         }
@@ -149,17 +157,11 @@ void AbstractMfaProcess::setRememberMeCookie(User user)
   WApplication *app = WApplication::instance();
 
   int duration = baseAuth().mfaTokenValidity() * 60;
+  const std::string& token = baseAuth().createAuthToken(user, AuthTokenType::MFA);
+  Http::Cookie cookie = createMfaCookie(token, duration);
 
-  LOG_INFO("Setting auth token for MFA named: " << baseAuth().mfaTokenCookieName() << " with validity (in seconds): " << duration);
-  auto cookie = Http::Cookie(baseAuth().mfaTokenCookieName(),
-                             baseAuth().createAuthToken(user, AuthTokenType::MFA));
-#ifndef WT_TARGET_JAVA
-  cookie.setMaxAge(std::chrono::seconds(duration));
-#else
-  cookie.setMaxAge(duration);
-#endif // WT_TARGET_JAVA
-  cookie.setDomain(baseAuth().mfaTokenCookieDomain());
-  cookie.setSecure(app->environment().urlScheme() == "https");
+  LOG_INFO("Setting auth token for MFA named: " << cookie.name() << " with validity (in seconds): " << duration);
+
   app->setCookie(cookie);
 }
 
@@ -180,6 +182,48 @@ void AbstractMfaProcess::updateThrottling(WInteractWidget* button)
   if (mfaThrottle()) {
     mfaThrottle_->updateThrottlingMessage(button, throttlingDelay_);
   }
+}
+
+Http::Cookie AbstractMfaProcess::createMfaCookie(const std::string& value,
+                                                 int duration) const
+{
+  WApplication *app = WApplication::instance();
+
+  AuthCookiePrefix prefix = baseAuth().mfaTokenCookiePrefix();
+  const std::string &cookieName = baseAuth().mfaTokenCookieName();
+
+  Http::Cookie cookie(cookieName);
+  switch (prefix) {
+  case AuthCookiePrefix::Secure:
+    cookie = Http::SecureCookie(cookieName);
+    break;
+  case AuthCookiePrefix::Host:
+    cookie = Http::HostCookie(cookieName);
+    break;
+  default:
+    break;
+  }
+  
+  switch (prefix) {
+  case AuthCookiePrefix::Empty:
+    cookie.setSecure(app->environment().urlScheme() == "https");
+    WT_FALLTHROUGH
+  case AuthCookiePrefix::Secure:
+    cookie.setDomain(baseAuth().mfaTokenCookieDomain());
+    break;
+  default:
+    break;
+  }
+
+  cookie.setValue(value);
+
+#ifndef WT_TARGET_JAVA
+  cookie.setMaxAge(std::chrono::seconds(duration));
+#else
+  cookie.setMaxAge(duration);
+#endif // WT_TARGET_JAVA
+
+  return cookie;
 }
     }
   }

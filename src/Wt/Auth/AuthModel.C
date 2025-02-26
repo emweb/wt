@@ -12,6 +12,8 @@
 #include "Wt/Auth/HashFunction.h"
 
 #include "Wt/Http/Cookie.h"
+#include "Wt/Http/SecureCookie.h"
+#include "Wt/Http/HostCookie.h"
 
 #include "Wt/WApplication.h"
 #include "Wt/WEnvironment.h"
@@ -165,14 +167,11 @@ bool AuthModel::validate()
 void AuthModel::setRememberMeCookie(const User& user)
 {
   WApplication *app = WApplication::instance();
-  const AuthService *s = baseAuth();
 
-  app->setCookie(s->authTokenCookieName(),
-                 s->createAuthToken(user),
-                 s->authTokenValidity() * 60,
-                 s->authTokenCookieDomain(),
-                 "",
-                 app->environment().urlScheme() == "https");
+  int duration = baseAuth()->authTokenValidity() * 60;
+  const std::string& token = baseAuth()->createAuthToken(user);
+
+  app->setCookie(createAuthCookie(token, duration));
 }
 
 bool AuthModel::login(Login& login)
@@ -223,9 +222,10 @@ void AuthModel::logout(Login& login)
 
       // Retrieve current cookie, if it is present.
       // This retrieves it from the environment. Which is only constructed once, and does NOT update.
-      const std::string* token = app->environment().getCookie(baseAuth()->authTokenCookieName());
+      Http::Cookie cookie = createAuthCookie("", 0);
+      const std::string* token = app->environment().getCookie(cookie.name());
       // Ensure cookies added by the application during its lifetime are also scanned.
-      const std::string* addedToken = app->findAddedCookies(baseAuth()->authTokenCookieName());
+      const std::string* addedToken = app->findAddedCookies(cookie.name());
 
       std::unique_ptr<AbstractUserDatabase::Transaction> t(users().startTransaction());
       if (token) {
@@ -243,7 +243,7 @@ void AuthModel::logout(Login& login)
       }
 
       // Mark the cookie to be removed
-      app->removeCookie(Http::Cookie(baseAuth()->authTokenCookieName()));
+      app->removeCookie(cookie);
     }
 
     login.logout();
@@ -261,8 +261,23 @@ User AuthModel::processAuthToken()
   const WEnvironment& env = app->environment();
 
   if (baseAuth()->authTokensEnabled()) {
-    const std::string *token =
-      env.getCookie(baseAuth()->authTokenCookieName());
+    AuthCookiePrefix prefix = baseAuth()->authTokenCookiePrefix();
+    const std::string *token = nullptr;
+    const std::string &cookieName = baseAuth()->authTokenCookieName();
+
+    switch (prefix) {
+      case AuthCookiePrefix::Empty:
+        token = env.getCookie(cookieName);
+        break;
+      case AuthCookiePrefix::Secure:
+        token = env.getSecureCookie(cookieName);
+        break;
+      case AuthCookiePrefix::Host:
+        token = env.getHostCookie(cookieName);
+        break;
+      default:
+        break;
+    }
 
     if (token) {
       AuthTokenResult result = baseAuth()->processAuthToken(*token, users());
@@ -273,14 +288,17 @@ User AuthModel::processAuthToken()
           /*
            * Only extend the validity from what we had currently.
            */
-          app->setCookie(baseAuth()->authTokenCookieName(), result.newToken(),
-                         result.newTokenValidity(), "", "", app->environment().urlScheme() == "https");
+          Http::Cookie cookie = createAuthCookie(result.newToken(), result.newTokenValidity());
+          cookie.setDomain("");
+          app->setCookie(cookie);
         }
 
         return result.user();
       }
       case AuthTokenState::Invalid:
-        app->setCookie(baseAuth()->authTokenCookieName(),std::string(), 0, "", "", app->environment().urlScheme() == "https");
+        Http::Cookie cookie = createAuthCookie("", 0);
+        cookie.setDomain("");
+        app->setCookie(cookie);
 
         return User();
       }
@@ -315,6 +333,48 @@ bool AuthModel::hasMfaStep(const User& user) const
   return ((baseAuth()->mfaEnabled() && !totpSecretKey.empty())
           || (baseAuth()->mfaEnabled() && baseAuth()->mfaRequired()));
 
+}
+
+Http::Cookie AuthModel::createAuthCookie(const std::string& value,
+                                         int duration) const
+{
+  WApplication *app = WApplication::instance();
+
+  AuthCookiePrefix prefix = baseAuth()->authTokenCookiePrefix();
+  const std::string &cookieName = baseAuth()->authTokenCookieName();
+
+  Http::Cookie cookie(cookieName);
+  switch (prefix) {
+  case AuthCookiePrefix::Secure:
+    cookie = Http::SecureCookie(cookieName);
+    break;
+  case AuthCookiePrefix::Host:
+    cookie = Http::HostCookie(cookieName);
+    break;
+  default:
+    break;
+  }
+  
+  switch (prefix) {
+  case AuthCookiePrefix::Empty:
+    cookie.setSecure(app->environment().urlScheme() == "https");
+    WT_FALLTHROUGH
+  case AuthCookiePrefix::Secure:
+    cookie.setDomain(baseAuth()->authTokenCookieDomain());
+    break;
+  default:
+    break;
+  }
+
+  cookie.setValue(value);
+
+#ifndef WT_TARGET_JAVA
+  cookie.setMaxAge(std::chrono::seconds(duration));
+#else
+  cookie.setMaxAge(duration);
+#endif // WT_TARGET_JAVA
+
+  return cookie;
 }
   }
 }
