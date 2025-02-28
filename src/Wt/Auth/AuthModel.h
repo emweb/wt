@@ -185,10 +185,21 @@ public:
   /*! \brief Creates an authentication cookie.
    *
    * This creates a remember-me cookie and set it's value to \p value
-   * and it's duration to \p duration.
+   * and it's duration to \p duration. The prefix of the cookie is
+   * determined by actualCookiePrefix().
    */
   virtual Http::Cookie createAuthCookie(const std::string& value,
                                         int duration) const;
+  
+  /*! \brief Returns the cookie prefix of the remember-me cookie.
+   *
+   * This returns the prefix that is used for the remember-me cookie.
+   * By default it is the value of AuthService::authTokenCookiePrefix()
+   * unless it's value is AuthCookiePrefix::Auto. In that case, it will
+   * return AuthCookiePrefix::Empty if the connection is over http, and
+   * AuthCookiePrefix::Empty otherwise.
+   */
+  virtual AuthCookiePrefix actualCookiePrefix() const;
 
 private:
   int throttlingDelay_;

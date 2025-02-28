@@ -261,7 +261,7 @@ User AuthModel::processAuthToken()
   const WEnvironment& env = app->environment();
 
   if (baseAuth()->authTokensEnabled()) {
-    AuthCookiePrefix prefix = baseAuth()->authTokenCookiePrefix();
+    AuthCookiePrefix prefix = actualCookiePrefix();
     const std::string *token = nullptr;
     const std::string &cookieName = baseAuth()->authTokenCookieName();
 
@@ -336,7 +336,7 @@ Http::Cookie AuthModel::createAuthCookie(const std::string& value,
 {
   WApplication *app = WApplication::instance();
 
-  AuthCookiePrefix prefix = baseAuth()->authTokenCookiePrefix();
+  AuthCookiePrefix prefix = actualCookiePrefix();
   const std::string &cookieName = baseAuth()->authTokenCookieName();
 
   Http::Cookie cookie(cookieName);
@@ -350,7 +350,7 @@ Http::Cookie AuthModel::createAuthCookie(const std::string& value,
   default:
     break;
   }
-  
+
   switch (prefix) {
   case AuthCookiePrefix::Empty:
     cookie.setSecure(app->environment().urlScheme() == "https");
@@ -371,6 +371,18 @@ Http::Cookie AuthModel::createAuthCookie(const std::string& value,
 #endif // WT_TARGET_JAVA
 
   return cookie;
+}
+
+AuthCookiePrefix AuthModel::actualCookiePrefix() const
+{
+  AuthCookiePrefix prefix = baseAuth()->authTokenCookiePrefix();
+  if (prefix != AuthCookiePrefix::Auto) {
+    return prefix;
+  }
+  if (WApplication::instance()->environment().urlScheme() != "https") {
+    return AuthCookiePrefix::Empty;
+  }
+  return AuthCookiePrefix::Secure;
 }
   }
 }

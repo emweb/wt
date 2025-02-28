@@ -151,7 +151,9 @@ enum class AuthCookiePrefix {
    * \sa AuthCookiePrefix::Secure, Http::Cookie::setDomain(),
    *     Http::Cookie::setPath()
    */
-  Host
+  Host,
+  
+  Auto //!< Automatically choose the prefix
 };
 
 /*! \class EmailTokenResult Wt/Auth/AuthService.h Wt/Auth/AuthService.h
@@ -379,7 +381,7 @@ public:
   void setAuthTokensEnabled(bool enabled,
                             const std::string& cookieName = "wtauth",
                             const std::string& cookieDomain = std::string(),
-                            AuthCookiePrefix cookiePrefix = AuthCookiePrefix::Empty);
+                            AuthCookiePrefix cookiePrefix = AuthCookiePrefix::Auto);
 
   /*! \brief Returns whether authentication tokens are enabled.
    *
@@ -439,7 +441,7 @@ public:
 
   /*! \brief Returns the authentication token cookie prefix.
    * 
-   * By default, this is set to AuthCookiePrefix::Empty
+   * By default, this is set to AuthCookiePrefix::Auto
    * 
    * \sa setAuthTokensEnabled()
    */

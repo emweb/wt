@@ -136,7 +136,7 @@ AuthService::AuthService()
     authTokens_(false),
     authTokenUpdateEnabled_(true),
     authTokenValidity_(14 * 24 * 60),  // two weeks
-    authTokenCookiePrefix_(AuthCookiePrefix::Empty),
+    authTokenCookiePrefix_(AuthCookiePrefix::Auto),
     mfaRequired_(false),
     mfaCodeLength_(6),
     mfaQrCodeSquareSize_(5),

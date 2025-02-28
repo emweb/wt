@@ -93,7 +93,7 @@ User AbstractMfaProcess::processMfaToken()
   const WEnvironment& env = app->environment();
 
   if (baseAuth().authTokensEnabled()) {
-    AuthCookiePrefix prefix = baseAuth().mfaTokenCookiePrefix();
+    AuthCookiePrefix prefix = actualCookiePrefix();
     const std::string &cookieName = baseAuth().mfaTokenCookieName();
 
     const std::string *token = nullptr;
@@ -189,7 +189,7 @@ Http::Cookie AbstractMfaProcess::createMfaCookie(const std::string& value,
 {
   WApplication *app = WApplication::instance();
 
-  AuthCookiePrefix prefix = baseAuth().mfaTokenCookiePrefix();
+  AuthCookiePrefix prefix = actualCookiePrefix();
   const std::string &cookieName = baseAuth().mfaTokenCookieName();
 
   Http::Cookie cookie(cookieName);
@@ -224,6 +224,18 @@ Http::Cookie AbstractMfaProcess::createMfaCookie(const std::string& value,
 #endif // WT_TARGET_JAVA
 
   return cookie;
+}
+
+AuthCookiePrefix AbstractMfaProcess::actualCookiePrefix() const
+{
+  AuthCookiePrefix prefix = baseAuth().mfaTokenCookiePrefix();
+  if (prefix != AuthCookiePrefix::Auto) {
+    return prefix;
+  }
+  if (WApplication::instance()->environment().urlScheme() != "https") {
+    return AuthCookiePrefix::Empty;
+  }
+  return AuthCookiePrefix::Secure;
 }
     }
   }
