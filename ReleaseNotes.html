@@ -39,6 +39,31 @@ behaviour.
     <a href="classWt_1_1WEventSignal.html#a493ddaa7a9332c7880f6e005c2a0b9cb" target="_blank">WEventSignal::ignoreBubbling()</a>.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13499" target="_blank">Issue #13499</a>:
+    adds support for cookies prefix in Wt::Auth. It is now possible to select the prefix of
+    the remember-me cookies via the
+    <a href="classWt_1_1Auth_1_1AuthService.html#a3fd5f9c0e4db84849d13665830ae6b54" target="_blank">AuthService::setAuthTokensEnabled()</a>,
+    and
+    <a href="classWt_1_1Auth_1_1AuthService.html#a0b5f5b5ed79f215b44d13861e5adceff" target="_blank">AuthService::setMfaTokenCookiePrefix()</a>
+    functions. By default the <code>__Secure-</code> is now used when the connection is done over https.
+    This might break existing applications that rely on
+    <a href="classWt_1_1Auth_1_1AuthService.html#a14681ebd1a116357762b577f9b770149" target="_blank">AuthService::authTokenCookieName()</a>
+    or
+    <a href="classWt_1_1Auth_1_1AuthService.html#a52db9a68ccb2ce29b50a560fe386f49d" target="_blank">AuthService::mfaTokenCookieName()</a>
+    to return the full name of the cookie, or applications that rely on the remember-me cookie having a specific name.
+    If that is your case, consider setting the cookie prefix to
+    <a href="namespaceWt_1_1Auth.html#a9057020ce69c5a162c0766dc63b466a5" target="_blank">AuthCookiePrefix::Empty()</a>.
+
+    This also adds some helper classes and functions that can be used to create and retrieve the
+    value of cookies with prefixes.
+    The <a href="classWt_1_1Http_1_1SecureCookie.html" target="_blank">Http::SecureCookie</a>
+    and <a href="classWt_1_1Http_1_1HostCookie.html" target="_blank">Http::HostCookie</a> classes
+    can be used to easily create cookies with prefix, and the
+    <a href="classWt_1_1WEnvironment.html#a535ed99087c3e2de6241b0219cdfad4a" target="_blank">WEnvironment::getSecureCookie()</a> and
+    <a href="classWt_1_1WEnvironment.html#ac9cb11d1d72b5e83b28df76ac7f43fa7" target="_blank">WEnvironment::getHostCookie()</a> can
+    be used to retrieve the value of cookies with the corresponding prefix from the user's browser.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13787" target="_blank">Issue #13787</a>:
     added
     <a href="classWt_1_1WTableView.html#a758e93e27af525ca489557bccf459da2" target="_blank">WTableView::visibleRowCount()</a>
