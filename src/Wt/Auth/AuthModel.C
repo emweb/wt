@@ -288,17 +288,13 @@ User AuthModel::processAuthToken()
           /*
            * Only extend the validity from what we had currently.
            */
-          Http::Cookie cookie = createAuthCookie(result.newToken(), result.newTokenValidity());
-          cookie.setDomain("");
-          app->setCookie(cookie);
+          app->setCookie(createAuthCookie(result.newToken(), result.newTokenValidity()));
         }
 
         return result.user();
       }
       case AuthTokenState::Invalid:
-        Http::Cookie cookie = createAuthCookie("", 0);
-        cookie.setDomain("");
-        app->setCookie(cookie);
+        app->setCookie(createAuthCookie("", 0));
 
         return User();
       }
