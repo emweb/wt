@@ -353,6 +353,14 @@ public:
   virtual void load() override;
   virtual bool isEnabled() const override;
 
+  /*! \brief Class name used to prevent default action of the events.
+   *
+   * Adding this class name to the an DomElement using
+   * DomElement::addPropertyWord() will disable the default browser
+   * action for all the events of that widget.
+   */
+  const static std::string noDefault;
+
 protected:
   virtual void updateDom(DomElement& element, bool all) override;
   virtual void propagateRenderOk(bool deep) override;

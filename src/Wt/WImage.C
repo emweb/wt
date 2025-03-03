@@ -255,6 +255,17 @@ void WImage::propagateRenderOk(bool deep)
   WInteractWidget::propagateRenderOk(deep);
 }
 
+void WImage::iterateChildren(const HandleWidgetMethod& method) const
+{
+  if (map_) {
+#ifndef WT_TARGET_JAVA
+    method(map_.get());
+#else
+    method.handle(map_.get());
+#endif
+  }
+}
+
 void WImage::defineJavaScript()
 {
   WApplication *app = WApplication::instance();

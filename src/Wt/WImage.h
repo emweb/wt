@@ -238,6 +238,7 @@ protected:
   virtual void render(WFlags<RenderFlag> flags) override;
   virtual DomElementType domElementType() const override;
   virtual void propagateRenderOk(bool deep) override;
+  void iterateChildren(const HandleWidgetMethod& method) const override;
   virtual std::string updateAreaCoordsJSON() const;
 
   friend class WLabel;

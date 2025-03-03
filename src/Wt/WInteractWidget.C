@@ -23,6 +23,8 @@
 
 namespace Wt {
 
+const std::string WInteractWidget::noDefault = "Wt-no-default";
+
 const char *WInteractWidget::KEYDOWN_SIGNAL = "M_keydown";
 const char *WInteractWidget::KEYPRESS_SIGNAL = "keypress";
 const char *WInteractWidget::KEYUP_SIGNAL = "keyup";
@@ -273,9 +275,10 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     = (mouseUp && mouseUp->needsUpdate(all))
     || updateMouseMove;
 
-  std::string CheckDisabled = "if(o.classList.contains('" +
+  std::string HandlerChecks = "if(o.classList.contains('" +
     app->theme()->disabledClass() +
-    "')){" WT_CLASS ".cancelEvent(e);return;}";
+    "')){" WT_CLASS ".cancelEvent(e);return;}" +
+    "if(o.classList.contains('"+noDefault+"')){e.preventDefault();}";
 
   if (updateMouseDown) {
     /*
@@ -290,7 +293,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
      */
     WStringStream js;
 
-    js << CheckDisabled;
+    js << HandlerChecks;
 
     if (mouseUp && mouseUp->isConnected())
       js << app->javaScriptClass() << "._p_.saveDownPos(event);";
@@ -321,7 +324,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
      * when we have a mouseMove or mouseDrag event, we need to keep track
      * of unpressing the button.
      */
-    js << CheckDisabled;
+    js << HandlerChecks;
 
     if ((mouseMove && mouseMove->isConnected())
         || (mouseDrag && mouseDrag->isConnected()))
@@ -396,7 +399,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
      */
     WStringStream js;
 
-    js << CheckDisabled;
+    js << HandlerChecks;
 
     if (touchEnd && touchEnd->isConnected())
       js << app->javaScriptClass() << "._p_.saveDownPos(event);";
@@ -422,7 +425,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
      * when we have a touchMove, we need to keep track
      * of removing touch.
      */
-    js << CheckDisabled;
+    js << HandlerChecks;
 
     if (touchEnd) {
       js << touchEnd->javaScript();
@@ -458,7 +461,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
   if (updateMouseClick) {
     WStringStream js;
 
-    js << CheckDisabled;
+    js << HandlerChecks;
 
     if (mouseDrag)
       js << "if (" WT_CLASS ".dragged()) return;";

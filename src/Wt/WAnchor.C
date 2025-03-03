@@ -203,7 +203,8 @@ bool WAnchor::renderHRef(WInteractWidget *widget,
   if (linkState.link.isNull() || widget->isDisabled()) {
     // WT-7645: Specific empty href attribute  for JS loaded content to avoid tab chain breaking
     if (app->environment().javaScript()) {
-      element.setAttribute("href", "javascript:void(0);");
+      element.setAttribute("href", "#");
+      element.addPropertyWord(Property::Class, WInteractWidget::noDefault);
     } else {
       element.removeAttribute("href");
     }

@@ -40,10 +40,12 @@ namespace Wt {
 
         WInteractWidget::updateDom(element, all);
 
-        if (!element.getProperty(Property::StyleCursor).empty()
-            && !wApp->environment().agentIsGecko()
-            && element.getAttribute("href").empty())
-          element.setAttribute("href", "javascript:void(0);");
+        if (element.getAttribute("href").empty()) {
+          if (!wApp->environment().agentIsGecko()) {
+            element.setAttribute("href", "#");
+          }
+          element.addPropertyWord(Property::Class, WInteractWidget::noDefault);
+        }
 
         if (needsUrlResolution)
           WAnchor::renderUrlResolution(this, element, all);
