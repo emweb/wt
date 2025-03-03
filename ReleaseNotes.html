@@ -142,6 +142,19 @@ behaviour.
   </li>
 </ul>
 
+<ul>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13600" target="_blank">Issue #13600</a>:
+    fixed CSP (Content Security Policy) violations in case of <code>use-script-nonce</code> being enabled, for
+    <a href="classWt_1_1WAnchor.html" target="_blank">WAnchor</a> and
+    <a href="classWt_1_1WAbstractArea.html" target="_blank">WAbstractArea</a> without a link. The default browser behavior is now disabled on all events
+    coming from those widgets as long as they have no link, and their href attribute is set to <code>#</code>.
+    Additionally, fixed
+    <a href="classWt_1_1WAbstractArea.html" target="_blank">WAbstractArea</a> sometimes trying to use it's href to send click event when ajax
+    was available.
+  </li>
+</ul>
+
 <h2>Release 4.11.3 (February 19, 2025)</h2>
 
 <p>
