@@ -19,6 +19,7 @@ Cookie::Cookie(const std::string& name, const std::string& value)
     value_(value)
 { }
 
+#ifndef WT_TARGET_JAVA
 Cookie::Cookie(const std::string& name, const std::string& value, const Wt::WDateTime& expires)
   : name_(name),
     value_(value),
@@ -31,6 +32,7 @@ Cookie::Cookie(const std::string& name, const std::string& value,
     value_(value),
     maxAge_(maxAge)
 { }
+#endif
 
 void Cookie::setValue(const std::string& value)
 {

@@ -50,6 +50,7 @@ public:
    */
   Cookie(const std::string& name, const std::string& value);
 
+#ifndef WT_TARGET_JAVA
   /*! \brief Constructor for a cookie that expires at a certain datetime.
    *
    * The name must be a valid cookie name (of type 'token': no special
@@ -71,6 +72,7 @@ public:
    */
   Cookie(const std::string& name, const std::string& value,
          const std::chrono::seconds& maxAge);
+#endif
 
   /*! \brief The cookie name.
    */
