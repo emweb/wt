@@ -201,7 +201,7 @@ public:
    * widget following CSS rules.
    *
    * When the widget is not managed by a layout manager, the automatic
-   * (natural) size of a widget depends on whether they widget is a
+   * (natural) size of a widget depends on whether the widget is a
    * <i>block</i> or <i>inline</i> widget:
    * - a <i>block</i> widget takes by default the width of the parent, and the height
    *   that it needs based on its contents
