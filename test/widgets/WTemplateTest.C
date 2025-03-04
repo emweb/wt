@@ -61,6 +61,7 @@
 #include <iterator>
 #include <memory>
 #include <sstream>
+#include <tuple>
 
 class TemplateLocalizedStrings final : public Wt::WLocalizedStrings {
 public:
@@ -159,8 +160,7 @@ std::string filterOutIds(const std::string& input)
   replacedStrings.clear();
   return output;
 }
-
-std::string markToday(const std::string& input)
+std::tuple<std::string, std::string> extractMonthAndToday(const std::string& input)
 {
   using namespace Wt::rapidxml;
 
@@ -170,24 +170,35 @@ std::string markToday(const std::string& input)
   xml_document<> doc;
   doc.parse<parse_trim_whitespace>(&text[0]);
 
-  // Found in div -> div -> table -> tr
+  std::string month;
+  std::string day;
+
+  // Found in div -> div -> table -> tr -> th (2) -> select
   xml_node<>* table = doc.first_node("div")->first_node("div")->first_node("table");
+  xml_node<>* header = table->first_node("tr")->first_node("th")->next_sibling("th");
+  xml_node<>* select = header->first_node("select");
+  for (xml_node<>* option = select->first_node("option"); option; option = option->next_sibling("option")) {
+    auto selectedAttr = option->first_attribute("selected");
+    if (selectedAttr && std::string(selectedAttr->value()) == "selected") {
+      month = option->value();
+    }
+  }
+
   for (xml_node<>* row = table->first_node("tr"); row; row = row->next_sibling("tr")) {
     for (xml_node<>* column = row->first_node("td"); column; column = column->next_sibling("td")) {
       for (xml_node<>* tableElement = column->first_node("div"); tableElement; tableElement = tableElement->next_sibling("div")) {
+        auto titleAttr = tableElement->first_attribute("title");
         auto classAttr = tableElement->first_attribute("class");
-        if (!classAttr &&
-            std::string(tableElement->value()) == std::to_string(Wt::WDate::currentDate().day())) {
-          tableElement->append_attribute(doc.allocate_attribute("title", "Today"));
-          tableElement->append_attribute(doc.allocate_attribute("class", " Wt-cal-now"));
+        if (classAttr && titleAttr
+            && std::string(classAttr->value()) == " Wt-cal-now"
+            && std::string(titleAttr->value()) == "Today") {
+          day = tableElement->value();
         }
       }
     }
   }
 
-  std::string output;
-  print(std::back_inserter(output), doc, print_no_indenting);
-  return output;
+  return std::make_tuple(month, day);
 }
 
 BOOST_AUTO_TEST_CASE(WTemplate_renderTemplateText_xss_filter)
@@ -656,7 +667,9 @@ BOOST_AUTO_TEST_CASE(WTemplate_renderTemplateText_bound_widgets)
   t.bindWidget("widget", std::make_unique<Wt::WCalendar>());
   resetStream(output);
   t.renderTemplateText(output, t.templateText());
-  BOOST_REQUIRE(filterOutIds(output.str()) == markToday("<div><div unselectable=\"on\" class=\"Wt-cal Wt-calendar unselectable\"><table class=\"days d3\" cellspacing=\"0\" cellpadding=\"0\"><tr><th class=\"caption\"><span class=\"Wt-cal-navbutton\">«</span></th><th class=\"caption\" colspan=\"5\"><select><option value=\"0\">January</option><option value=\"1\" selected=\"selected\">February</option><option value=\"2\">March</option><option value=\"3\">April</option><option value=\"4\">May</option><option value=\"5\">June</option><option value=\"6\">July</option><option value=\"7\">August</option><option value=\"8\">September</option><option value=\"9\">October</option><option value=\"10\">November</option><option value=\"11\">December</option></select><span class=\"Wt-cal-year\"><span style=\"cursor:default;\">2025</span><span style=\"display:none;\">...</span></span></th><th class=\"caption\"><span class=\"Wt-cal-navbutton\">»</span></th></tr><tr><th title=\"Monday\" scope=\"col\">Mon</th><th title=\"Tuesday\" scope=\"col\">Tue</th><th title=\"Wednesday\" scope=\"col\">Wed</th><th title=\"Thursday\" scope=\"col\">Thu</th><th title=\"Friday\" scope=\"col\">Fri</th><th title=\"Saturday\" scope=\"col\">Sat</th><th title=\"Sunday\" scope=\"col\">Sun</th></tr><tr><td><div class=\" Wt-cal-oom\">27</div></td><td><div class=\" Wt-cal-oom\">28</div></td><td><div class=\" Wt-cal-oom\">29</div></td><td><div class=\" Wt-cal-oom\">30</div></td><td><div class=\" Wt-cal-oom\">31</div></td><td><div>1</div></td><td><div>2</div></td></tr><tr><td><div>3</div></td><td><div>4</div></td><td><div>5</div></td><td><div>6</div></td><td><div>7</div></td><td><div>8</div></td><td><div>9</div></td></tr><tr><td><div>10</div></td><td><div>11</div></td><td><div>12</div></td><td><div>13</div></td><td><div>14</div></td><td><div>15</div></td><td><div>16</div></td></tr><tr><td><div>17</div></td><td><div>18</div></td><td><div>19</div></td><td><div>20</div></td><td><div>21</div></td><td><div>22</div></td><td><div>23</div></td></tr><tr><td><div>24</div></td><td><div>25</div></td><td><div>26</div></td><td><div>27</div></td><td><div>28</div></td><td><div class=\" Wt-cal-oom\">1</div></td><td><div class=\" Wt-cal-oom\">2</div></td></tr><tr><td><div class=\" Wt-cal-oom\">3</div></td><td><div class=\" Wt-cal-oom\">4</div></td><td><div class=\" Wt-cal-oom\">5</div></td><td><div class=\" Wt-cal-oom\">6</div></td><td><div class=\" Wt-cal-oom\">7</div></td><td><div class=\" Wt-cal-oom\">8</div></td><td><div class=\" Wt-cal-oom\">9</div></td></tr></table></div></div>"));
+  auto result = extractMonthAndToday(output.str());
+  BOOST_REQUIRE(std::get<0>(result) == Wt::WDate::longMonthName(Wt::WDate::currentDate().month()));
+  BOOST_REQUIRE(std::get<1>(result) == std::to_string(Wt::WDate::currentDate().day()));
   t.bindWidget("widget", std::make_unique<Wt::WDatePicker>());
   resetStream(output);
   t.renderTemplateText(output, t.templateText());
