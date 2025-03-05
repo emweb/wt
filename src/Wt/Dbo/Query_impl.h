@@ -210,6 +210,17 @@ Result QueryBase<Result>::singleResult(const collection<Result>& results) const
 }
     }
 
+#if defined(__GNUC__)
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#elif defined(__clang__)
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wdeprecated"
+#elif defined(_MSC_VER)
+# pragma warning( push )
+# pragma warning( disable : 4996 )
+#endif
+
 template <class Result>
 Query<Result, DirectBinding>::Query()
   : statement_(nullptr),
@@ -324,6 +335,14 @@ void Query<Result, DirectBinding>::prepareStatements() const
 
   column_ = 0;
 }
+
+#if defined(__GNUC__)
+# pragma GCC diagnostic pop
+#elif defined(__clang__)
+# pragma clang diagnostic pop
+#elif defined(_MSC_VER)
+# pragma warning( pop )
+#endif
 
 namespace Impl {
   template <typename T>
@@ -557,10 +576,10 @@ collection<Result> Query<Result, DynamicBinding>::resultList() const
 
 template <class Result>
 SqlStatement *Query<Result, DynamicBinding>::countStatement() const
-{ 
+{
   SqlStatement *statement, *countStatement;
 
-  std::tie(statement, countStatement) = 
+  std::tie(statement, countStatement) =
     this->statements(join_, where_, groupBy_, having_, orderBy_, limit_, offset_);
 
   statement->done();

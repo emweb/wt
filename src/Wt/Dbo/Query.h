@@ -758,7 +758,7 @@ public:
  };
 
 template <class Result>
-class Query<Result, DirectBinding> : private Impl::QueryBase<Result>
+class WT_DEPRECATED("Use DynamicBinding Query instead") Query<Result, DirectBinding> : private Impl::QueryBase<Result>
 {
 public:
   using Impl::QueryBase<Result>::fields;
