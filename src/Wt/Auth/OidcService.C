@@ -58,7 +58,11 @@ LOGGER("Auth.OidcService");
     std::string id = claims.get("sub").orIfNull(""); // ifNull -> Invalid
     std::string name = claims.get("name").orIfNull("");
     std::string email = claims.get("email").orIfNull("");
+#ifndef WT_TARGET_JAVA
+    bool emailVerified = claims.get("email_verified").toBool().orIfNull(false);
+#else
     bool emailVerified = claims.get("email_verified").orIfNull(false);
+#endif
     std::string providerName = this->service().name();
     return Identity(providerName, id, name, email, emailVerified);
   }
