@@ -26,7 +26,7 @@ namespace Wt {
    * \sa formatKey for a full list of what items are required.
    * \sa generateSecretKey()
    */
-  class TotpQrCode : public WPaintedWidget
+  class WT_API TotpQrCode : public WPaintedWidget
   {
   public:
     static constexpr qrcodegen::Ecc ErrorLevelCorrection = qrcodegen::Ecc::LOW;
