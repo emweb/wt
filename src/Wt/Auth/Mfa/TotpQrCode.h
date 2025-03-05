@@ -42,9 +42,6 @@ namespace Wt {
      */
     TotpQrCode(const std::string& key, const std::string& serviceName, const std::string& userName, int codeDigits);
 
-  protected:
-    void paintEvent(WPaintDevice* paintDevice) override;
-
     /*! \brief Format the key and other information to a correct QR code
      *
      * To generate a correct QR code, it needs to follow a specific
@@ -66,6 +63,9 @@ namespace Wt {
      *  - period: the size of the time frame/window
      */
     virtual std::string formatKey(const std::string& key, const std::string& serviceName, const std::string& userName, int codeDigits) const;
+
+  protected:
+    void paintEvent(WPaintDevice* paintDevice) override;
 
   private:
     qrcodegen::QrCode code_;
