@@ -285,7 +285,7 @@ WFlags<EnumType> WFlags<EnumType>::operator^(WFlags<EnumType> other) const
 template<typename EnumType>
 WFlags<EnumType> WFlags<EnumType>::operator^(EnumType other) const
 {
-  return WFlags<EnumType>::createFromInt(flags_ ^ other);
+  return WFlags<EnumType>::createFromInt(flags_ ^ static_cast<unsigned int>(other));
 }
 
 template<typename EnumType>
@@ -298,7 +298,7 @@ WFlags<EnumType>& WFlags<EnumType>::operator^=(WFlags<EnumType> other)
 template<typename EnumType>
 WFlags<EnumType>& WFlags<EnumType>::operator^=(EnumType other)
 {
-  flags_ ^= other;
+  flags_ ^= static_cast<unsigned int>(other);
   return *this;
 }
 
