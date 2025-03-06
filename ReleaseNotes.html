@@ -72,7 +72,7 @@ behaviour.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13621" target="_blank">Issue #13621</a>:
-        ensuring that <code>thirdparty/qrcodegen/QrCode.hpp</code> is installed in the include directory, and that the `TotpQrCode` symbol is exported.
+    ensuring that <code>thirdparty/qrcodegen/QrCode.hpp</code> is installed in the include directory, and that the `TotpQrCode` symbol is exported.
     This allows developers to use the <a href="classWt_1_1Auth_1_1Mfa_1_1TotpQrCode.html" target="_blank">Auth::Mfa::TotpQrCode</a> class in their own code.
     Additionally, <a href="classWt_1_1Auth_1_1Mfa_1_1TotpQrCode.html#a59c9cdfce092a5385daf010fceb3361e" target="_blank">Auth::Mfa::TotpQrCode::formatKey()</a> is now public. This allows developers to retrieve correct URI, which could be shown to end users, and allow them to copy it to a password manager.
   </li>
@@ -80,6 +80,12 @@ behaviour.
     <a href="https://redmine.emweb.be/issues/13631" target="_blank">Issue #13631</a>:
     added the "Logout"/"Back" button from <a href="https://redmine.emweb.be/issues/13392" target="_blank">Issue #13392</a>
     to the <a href="classWt_1_1WBootstrap3Theme.html" target="_blank">WBootstrap3Theme</a> as well.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13626" target="_blank">Issue #13626</a>:
+    ensuring that <a href="classWt_1_1Auth_1_1AuthWidget.html#a7e64d84a1717f437fa9a32d5901ca411" target="_blank">Auth::AuthWidget::processEnvironment()</a> will also process the MFA environment.
+    This ensures that MFA tokens are processed before the authentication widget is rendered.
+    </a>
   </li>
 </ul>
 
@@ -92,13 +98,6 @@ behaviour.
     <a href="https://redmine.emweb.be/issues/13630" target="_blank">Issue #13630</a>:
     allows more control over and customization for <a href="classWt_1_1Auth_1_1Mfa_1_1TotpProcess.html" target="_blank">TotpProcess</a>.
   </li>
-</ul>
-
-<p>
-  Wt 4.11.4 also comes with the following improvements:
-</p>
-
-<ul>
   <li>
     <a href="https://redmine.emweb.be/issues/13125" target="_blank">Issue #13125</a>:
     Added
@@ -107,13 +106,6 @@ behaviour.
     Since those classes are necessary to create a custom layout for a <a href="classWt_1_1WContainerWidget.html" target="_blank">WContainerWidget</a>
     it has now be made public to allow developers to create their own layouts. An example of a simple layout was also added in <code>examples/feature/custom_layout</code>.
   </li>
-</ul>
-
-<p>
-  Wt 4.11.4 also comes with the following improvements:
-</p>
-
-<ul>
   <li>
     <a href="https://redmine.emweb.be/issues/13075" target="_blank">Issue #13075</a>:
     <a href="classWt_1_1WWidget.html#a2d627cbf964560995ac51c25d69d8b54" target="_blank">WWidget::positionAt()</a>
