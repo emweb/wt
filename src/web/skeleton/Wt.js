@@ -1801,11 +1801,7 @@ if (!window._$_WT_CLASS_$_) {
 
       const offsetParent = WT.widgetPageCoordinates(op);
 
-      if (adjustX && reserveWidth > windowSize.x) {
-        // wider than window
-        x = windowX;
-        hside = 0;
-      } else if (x + reserveWidth > windowX + windowSize.x) {
+      if (x + reserveWidth > windowX + windowSize.x) {
         // too far right, chose other side
         if (adjustX && reserveWidth > rightx - windowX) {
           /*
@@ -1831,11 +1827,7 @@ if (!window._$_WT_CLASS_$_) {
         hside = 0;
       }
 
-      if (adjustY && reserveHeight > windowSize.y) {
-        // taller than window
-        y = windowY;
-        vside = 0;
-      } else if (y + reserveHeight > windowY + windowSize.y) {
+      if (y + reserveHeight > windowY + windowSize.y) {
         // too far below, chose other side
         if (bottomy > windowY + windowSize.y) {
           // requested bottom edge is already off screen
