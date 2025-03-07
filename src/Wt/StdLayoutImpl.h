@@ -66,7 +66,7 @@ public:
   virtual bool parentResized() = 0;
 
   //! Returns the WLayout as a WLayoutItem.
-  virtual WLayoutItem *layoutItem() const override;
+  WLayoutItem *layoutItem() const override;
 
   /*! \brief Updates the layout.
    * 
