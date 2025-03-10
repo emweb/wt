@@ -54,7 +54,7 @@ namespace Wt {
    * \sa AuthService::setMfaRequired()
    * \sa validateCode()
    */
-  class TotpProcess : public AbstractMfaProcess
+  class WT_API TotpProcess : public AbstractMfaProcess
   {
   public:
     /*! \brief Constructs the TotpProcess holding the TOTP "login".
@@ -105,6 +105,107 @@ namespace Wt {
      */
     Signal<AuthenticationResult>& authenticated() { return authenticated_; }
 
+  protected:
+    /*! \brief Creates the base of the UI.
+     *
+     * This retrieves the message <code>Wt.Auth.template.totp</code>
+     * from Wt's resource bundle. This is used as the main template
+     * to build the UI from, and bind all elements to it.
+     */
+    virtual std::unique_ptr<WTemplate> createBaseView();
+
+    /*! \brief Binds the QR Code to the UI.
+     *
+     * This binds both the rendered QR code, as well as the
+     * secret itself (to be copied over to a authenticator app).
+     *
+     * \sa createBaseView()
+     */
+    virtual void bindQRCode(WTemplate* view);
+
+    /*! \brief Binds the code input field to the UI.
+     *
+     * This creates and binds the field where the generated TOTP code
+     * will be entered.
+     *
+     * The \p throttle parameter manages whether or not pressing "enter"
+     * on this field will result in the verification of the code being
+     * subject to throttling (see AuthThrottle).
+     *
+     * \sa createBaseView()
+     */
+    virtual void bindCodeInput(WTemplate* view, bool throttle);
+
+    /*! \brief Binds "remember-me" checkbox to the UI.
+     *
+     * This creates and binds the checkbox which enables "remember-me"
+     * functionality, if this is enabled (see
+     * AuthService::setAuthTokensEnabled()).
+     *
+     * \sa createBaseView()
+     */
+    virtual void bindRememberMe(WTemplate* view);
+
+    /*! \brief Binds the "Login" button to the UI.
+     *
+     * This button will run the verification process on the entered TOTP
+     * code.
+     *
+     * The \p throttle parameter manages whether or not pressing the
+     * button will result in the verification of the code being subject
+     * to throttling (see AuthThrottle).
+     *
+     * \sa createBaseView()
+     */
+    virtual void bindLoginButton(WTemplate* view, bool throttle);
+
+    /*! \brief Binds the "Back" button to the UI.
+     *
+     * This button can be pressed to return to the original login page.
+     * This may be handy in case the user isn't able to provide the TOTP
+     * code.
+     *
+     * \sa createBaseView()
+     */
+    virtual void bindLogoutButton(WTemplate* view);
+
+    /*! \brief Updates the UI after a verification attempt.
+     *
+     * This updates the \p view with the effects of the verification
+     * attempt. Displaying a message in case it did not succeed, and
+     * updating the styling of the input field.
+     *
+     * The \p throttle parameter manages whether or not the attempt will
+     * result in the verification of the code being subject to
+     * throttling (see AuthThrottle).
+     *
+     * \sa createBaseView()
+     */
+    virtual void update(WTemplate* view, bool throttle);
+
+    /*! \brief Verifies the entered code.
+     *
+     * The code the user provided is verified, and the UI is updated
+     * accordingly (using update()).
+     *
+     * This also handles the actual authentication, in case the
+     * verification is successful. This logs in the user (see
+     * Login::login()), and fires the authenticated() signal.
+     *
+     * In case of the "remember-me" functionality being enabled, it will
+     * create the cookie.
+     */
+    virtual void verifyCode(WTemplate* view, bool throttle);
+
+    /*! \brief The secret key of the user.
+     *
+     * Either this is a newly generated key, in case the user is setting
+     * up their TOTP access. Or this is the one stored in the database.
+     * In case of the latter being true, be careful not to display this
+     * in the browser.
+     */
+    const std::string& currentSecretKey() const { return currentSecretKey_; }
+
   private:
     WLineEdit* codeEdit_ = nullptr;
     WCheckBox* rememberMeField_ = nullptr;
@@ -112,18 +213,6 @@ namespace Wt {
     std::string currentSecretKey_;
 
     Signal<AuthenticationResult> authenticated_;
-
-    std::unique_ptr<WTemplate> createBaseView();
-
-    void bindQRCode(WTemplate* view);
-    void bindCodeInput(WTemplate* view, bool throttle);
-    void bindRememberMe(WTemplate* view);
-    void bindLoginButton(WTemplate* view, bool throttle);
-    void bindLogoutButton(WTemplate* view);
-    void verifyCode(WTemplate* view, bool throttle);
-    void update(WTemplate* view, bool throttle);
-
-    const std::string& currentSecretKey() const { return currentSecretKey_; }
   };
     }
   }
