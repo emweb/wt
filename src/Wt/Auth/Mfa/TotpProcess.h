@@ -13,11 +13,11 @@
 #include "Wt/WContainerWidget.h"
 #include "Wt/WLineEdit.h"
 
-class AbstractUserDatabase;
-class Login;
-
 namespace Wt {
   namespace Auth {
+    class AbstractUserDatabase;
+    class Login;
+
     namespace Mfa {
   /*! \class TotpProcess Wt/Auth/Mfa/TotpProcess
    *  \brief A process managing the TOTP setup and validation.
