@@ -93,9 +93,9 @@ void WQrCode::generateCode()
 {
   try {
 #ifndef WT_TARGET_JAVA
-    code_ = std::make_unique<qrcodegen::QrCode>(qrcodegen::QrCode::encodeText(msg_.c_str(), errCorrLvl_));
+    code_ = std::make_unique<qrcodegen::QrCode>(qrcodegen::QrCode::encodeText(msg_.c_str(), ecc()));
 #else
-    qrcodegen::QrCode code = qrcodegen::QrCode::encodeText(msg_.c_str(), errCorrLvl_);
+    qrcodegen::QrCode code = qrcodegen::QrCode::encodeText(msg_.c_str(), ecc());
     code_ = &code;
 #endif
   } catch (std::exception& e) {
@@ -110,6 +110,31 @@ void WQrCode::updateSize()
   auto size = code() ? code()->getSize() * squareSize_ : 0;
   resize(size, size);
   update();
+}
+
+qrcodegen::Ecc WQrCode::ecc() const
+{
+  qrcodegen::Ecc res;
+
+  switch (errCorrLvl_) {
+  case ErrorCorrectionLevel::LOW:
+    res = qrcodegen::Ecc::LOW;
+    break;
+  case ErrorCorrectionLevel::MEDIUM:
+    res = qrcodegen::Ecc::MEDIUM;
+    break;
+  case ErrorCorrectionLevel::QUARTILE:
+    res = qrcodegen::Ecc::QUARTILE;
+    break;
+  case ErrorCorrectionLevel::HIGH:
+    res = qrcodegen::Ecc::HIGH;
+    break;
+  default:
+    // should never happen
+    throw Wt::WException("Invalid ErrorCorrectionLevel");
+  }
+
+  return res;
 }
 
 }

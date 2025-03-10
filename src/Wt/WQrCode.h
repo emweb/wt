@@ -16,7 +16,24 @@ namespace Wt {
 class WT_API WQrCode : public WPaintedWidget
 {
 public:
-  typedef qrcodegen::Ecc ErrorCorrectionLevel;
+
+  /*! \brief Represents the different error correction levels for QR codes.
+   * 
+   * The error correction level impacts how much erroneous squares the QR
+   * code can contains without becoming unreadable.
+   * 
+   * For most digital use, the default of LOW is sufficient. Higher levels
+   * can be considered for printed out media.
+   * 
+   * \sa setErrorCorrectionLevel()
+   */
+  enum class ErrorCorrectionLevel 
+  {
+    LOW = 0,      //!< About 7% of incorrect squares is tolerated
+    MEDIUM = 1,   //!< About 15% of incorrect squares is tolerated
+    QUARTILE = 2, //!< About 25% of incorrect squares is tolerated
+    HIGH = 3     //!< About 30% of incorrect squares is tolerated
+  };
 
   WQrCode();
 
@@ -48,6 +65,7 @@ private:
   const qrcodegen::QrCode* code() const { return code_.get(); }
   void generateCode();
   void updateSize();
+  qrcodegen::Ecc ecc() const;
 };
 
 }
