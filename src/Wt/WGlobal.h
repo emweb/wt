@@ -248,6 +248,13 @@ namespace Wt {
       class Widget;
     }
 #endif // WT_HAS_SAML
+
+    namespace Mfa {
+      class AbstractMfaProcess;
+      class AuthenticationResult;
+      class TotpProcess;
+      class TotpQrCode;
+    }
   }
 
   namespace Chart {
