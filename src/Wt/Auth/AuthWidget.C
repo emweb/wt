@@ -285,7 +285,9 @@ std::unique_ptr<Mfa::AbstractMfaProcess> AuthWidget::createMfaProcess()
 void AuthWidget::createMfaView()
 {
   setTemplateText("<div>${mfa}</div>");
-  mfaWidget_ = createMfaProcess();
+  if (!mfaWidget_) {
+    mfaWidget_ = createMfaProcess();
+  }
   Mfa::AbstractMfaProcess* defaultMfaWidget = static_cast<Mfa::AbstractMfaProcess*>(mfaWidget_.get());
 
   if (defaultMfaWidget) {
@@ -617,6 +619,14 @@ void AuthWidget::processEnvironment()
         state = LoginState::RequiresMfa;
       }
       model_->loginUser(login_, user, state);
+
+      // Immediately check the environment for MFA tokens for the user
+      if (login_.state() == LoginState::RequiresMfa) {
+        if (!mfaWidget_) {
+          mfaWidget_ = createMfaProcess();
+        }
+        mfaWidget_->processEnvironment();
+      }
     }
 
     /*
@@ -635,6 +645,14 @@ void AuthWidget::processEnvironment()
     state = LoginState::RequiresMfa;
   }
   model_->loginUser(login_, user, state);
+
+  // Immediately check the environment for MFA tokens for the user
+  if (login_.state() == LoginState::RequiresMfa) {
+    if (!mfaWidget_) {
+      mfaWidget_ = createMfaProcess();
+    }
+    mfaWidget_->processEnvironment();
+  }
 }
   }
 }
