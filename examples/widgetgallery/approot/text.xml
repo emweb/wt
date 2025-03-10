@@ -1410,16 +1410,23 @@
       <a href="https://getbootstrap.com" target="_blank">Bootstrap theme</a>
       includes other useful form components
       like prepended/appended inputs. You can add text or buttons before and/or
-      after any text-based input using the <code>.input-group-text</code> class. Note
-      that select elements are not supported.
+      after any text-based input using the <code>.input-group-text</code> class
+      for <a href="https://getbootstrap.com" target="_blank">Bootstrap 5</a>,
+      <code>.input-group-addon</code> for
+      <a href="https://getbootstrap.com/docs/3.3/" target="_blank">Bootstrap 3</a>,
+      and <code>.add-on</code> for
+      <a href="https://getbootstrap.com/2.3.2/" target="_blank">Bootstrap 2</a>.
+      Note that select elements are not supported.
     </p>
 
     <h4>Adding text</h4>
     <p>
-      Wrap an <code>.input-group-text</code> and an input control with the
-      <code>.input-group</code> class to prepend or append text to an input.
-      To prepend and append an input at once you can also use two instances
-      of the <code>.input-group-text</code> before and after the input control.
+      Wrap an <code>.input-group-text</code> (or your Bootstrap version's equivalent
+      class) and an input control with the <code>.input-group</code> class
+      (or <code>.input-prepend</code> and <code>.input-append</code> for Boostrap 2)
+      to prepend or append text to an input. To prepend and append an input at once you
+      can also use two instances of the <code>.input-group-text</code> before and after
+      the input control.
     </p>
 
     <fieldset class="example">
@@ -1430,6 +1437,7 @@
         Here is the corresponding XML template (with
         <code>message id="editSide-template"</code>) using style classes from
         the <a href="https://getbootstrap.com" target="_blank">Bootstrap theme</a>.
+        Note that the given code works with Bootstrap version 2, 3 and 5.
       </p>
       <fieldset class="src">
       <legend>source</legend>
@@ -1548,18 +1556,18 @@
   </message>
 
   <message id="editSide-template">
-    <div class="input-group mb-3">
-      <span class="input-group-text">@</span>
+    <div class="input-group mb-3 input-prepend">
+      <span class="input-group-text input-group-addon add-on">@</span>
       ${name}
     </div>
-    <div class="input-group mb-3">
+    <div class="input-group mb-3 input-append">
       ${amount1}
-      <span class="input-group-text">.00</span>
+      <span class="input-group-text input-group-addon add-on">.00</span>
     </div>
-    <div class="input-group mb-3">
-      <span class="input-group-text">$</span>
+    <div class="input-group mb-3 input-prepend input-append">
+      <span class="input-group-text input-group-addon add-on">$</span>
       ${amount2}
-      <span class="input-group-text">.00</span>
+      <span class="input-group-text input-group-addon add-on">.00</span>
     </div>
   </message>
 
