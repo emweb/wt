@@ -150,7 +150,7 @@ public:
   /*! \brief Processes the (initial) environment.
    *
    * This can be called to tell the widget to look through the
-   * environment for the relevent cookies. It will handle the
+   * environment for the relevant cookies. It will handle the
    * side-effect of finding such a cookie, and it still being valid. The
    * user will be logged in, in a weak state (LoginState::Weak), and the
    * authenticated() signal will be fired, with an
