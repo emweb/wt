@@ -99,7 +99,7 @@
 
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
-            <p>${login class="btn-primary"}</p>
+            <p>${login class="btn-primary"} ${logout class="btn-default"}</p>
           </div>
         </div>
       </div>
