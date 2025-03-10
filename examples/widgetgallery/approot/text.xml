@@ -969,7 +969,10 @@
             layout widgets in order to effectively use this theme, for
             which we refer to the <a
             href="https://getbootstrap.com/">Bootstrap
-            documentation</a>.
+            documentation</a>. Also, since this widget gallery must be
+            compatible with all 3 versions of Bootstrap, the XML
+            templates often mixes classes that are specific to
+            each version of Bootstrap.
           </p>
         </dd>
       </dl>
