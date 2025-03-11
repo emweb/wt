@@ -161,6 +161,7 @@ private:
   std::vector<ContentLoading> loadPolicies_;
 
   Signal<WWidget*> currentWidgetChanged_;
+  bool hasEmittedChanged_;
 
   void defineJavaScript();
   void loadAnimateJS();

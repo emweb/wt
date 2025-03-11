@@ -20,7 +20,8 @@ WStackedWidget::WStackedWidget()
     currentIndex_(-1),
     widgetsAdded_(false),
     javaScriptDefined_(false),
-    loadAnimateJS_(false)
+    loadAnimateJS_(false),
+    hasEmittedChanged_(false)
 {
   setOverflow(Overflow::Hidden);
   addStyleClass("Wt-stack");
@@ -100,6 +101,12 @@ void WStackedWidget::setCurrentIndex(int index)
 void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
                                      bool autoReverse)
 {
+  bool hasChanged = currentIndex_ != index;
+  if (hasChanged) {
+    // Emitting can now happen again
+    hasEmittedChanged_ = false;
+  }
+
   if (!animation.empty() &&
       WApplication::instance()->environment().supportsCss3Animations() &&
       ((isRendered() && javaScriptDefined_) || !canOptimizeUpdates())) {
@@ -133,7 +140,21 @@ void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
       doJavaScript(jsRef() + ".wtObj.setCurrent("
                    + widget(currentIndex_)->jsRef() + ");");
   }
-  currentWidgetChanged().emit(currentWidget());
+
+  // Only emit if the item has changed, or if emitting has not yet happened.
+  if (hasChanged || !hasEmittedChanged_) {
+    if (loadPolicies_[currentIndex_] == ContentLoading::Lazy) {
+      // Lazy loaded widgets are wrapped in a WContainerWidget
+      WContainerWidget* container = dynamic_cast<WContainerWidget*>(currentWidget());
+      if (container->count() > 0) {
+        currentWidgetChanged().emit(container->widget(0));
+        hasEmittedChanged_ = true;
+      }
+    } else {
+      currentWidgetChanged().emit(currentWidget());
+      hasEmittedChanged_ = true;
+    }
+  }
 }
 
 void WStackedWidget::loadAnimateJS()
