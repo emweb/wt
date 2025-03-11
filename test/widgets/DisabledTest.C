@@ -1282,57 +1282,57 @@ BOOST_AUTO_TEST_CASE(disabled_parent_widget_reparent_test)
 
   // Reparent the items, which removes the disabled visual state
   // WInteractWidget
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(container)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(image)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(label)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(progressBar)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(table)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(templat)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(text)));
+  enabledContainer->addWidget(disabledContainer->removeWidget(container));
+  enabledContainer->addWidget(disabledContainer->removeWidget(image));
+  enabledContainer->addWidget(disabledContainer->removeWidget(label));
+  enabledContainer->addWidget(disabledContainer->removeWidget(progressBar));
+  enabledContainer->addWidget(disabledContainer->removeWidget(table));
+  enabledContainer->addWidget(disabledContainer->removeWidget(templat));
+  enabledContainer->addWidget(disabledContainer->removeWidget(text));
 
   // WFormWidget
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(checkBox)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(radioButton)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(colorPicker)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(comboBox)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(emailEdit)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(spinBox)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(lineEdit)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(pushButton)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(slider)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(textArea)));
+  enabledContainer->addWidget(disabledContainer->removeWidget(checkBox));
+  enabledContainer->addWidget(disabledContainer->removeWidget(radioButton));
+  enabledContainer->addWidget(disabledContainer->removeWidget(colorPicker));
+  enabledContainer->addWidget(disabledContainer->removeWidget(comboBox));
+  enabledContainer->addWidget(disabledContainer->removeWidget(emailEdit));
+  enabledContainer->addWidget(disabledContainer->removeWidget(spinBox));
+  enabledContainer->addWidget(disabledContainer->removeWidget(lineEdit));
+  enabledContainer->addWidget(disabledContainer->removeWidget(pushButton));
+  enabledContainer->addWidget(disabledContainer->removeWidget(slider));
+  enabledContainer->addWidget(disabledContainer->removeWidget(textArea));
 
   // WWebWidget (not WInteractWidget)
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(wbreak)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(fileUpload)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(viewWidget)));
+  enabledContainer->addWidget(disabledContainer->removeWidget(wbreak));
+  enabledContainer->addWidget(disabledContainer->removeWidget(fileUpload));
+  enabledContainer->addWidget(disabledContainer->removeWidget(viewWidget));
 
   // WCompositeWidget
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(tableView)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(treeView)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(calendar)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(datePicker)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(loading)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(googleMap)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(iconPair)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(inPlaceEdit)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(mediaPlayer)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(menu)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(panel)));
+  enabledContainer->addWidget(disabledContainer->removeWidget(tableView));
+  enabledContainer->addWidget(disabledContainer->removeWidget(treeView));
+  enabledContainer->addWidget(disabledContainer->removeWidget(calendar));
+  enabledContainer->addWidget(disabledContainer->removeWidget(datePicker));
+  enabledContainer->addWidget(disabledContainer->removeWidget(loading));
+  enabledContainer->addWidget(disabledContainer->removeWidget(googleMap));
+  enabledContainer->addWidget(disabledContainer->removeWidget(iconPair));
+  enabledContainer->addWidget(disabledContainer->removeWidget(inPlaceEdit));
+  enabledContainer->addWidget(disabledContainer->removeWidget(mediaPlayer));
+  enabledContainer->addWidget(disabledContainer->removeWidget(menu));
+  enabledContainer->addWidget(disabledContainer->removeWidget(panel));
   // Special case: cannot be removed from container as this is a "global" widget.
-  //enabledContainer->addWidget(std::move(disabledContainer->removeWidget(popupWidget)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(splitButton)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(tabWidget)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(toolBar)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(tree)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(treeNode)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(treeTable)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(virtualImage)));
+  //enabledContainer->addWidget(disabledContainer->removeWidget(popupWidget));
+  enabledContainer->addWidget(disabledContainer->removeWidget(splitButton));
+  enabledContainer->addWidget(disabledContainer->removeWidget(tabWidget));
+  enabledContainer->addWidget(disabledContainer->removeWidget(toolBar));
+  enabledContainer->addWidget(disabledContainer->removeWidget(tree));
+  enabledContainer->addWidget(disabledContainer->removeWidget(treeNode));
+  enabledContainer->addWidget(disabledContainer->removeWidget(treeTable));
+  enabledContainer->addWidget(disabledContainer->removeWidget(virtualImage));
 
   // WPaintedWidget
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(axisSlider)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(cartesianChart)));
-  enabledContainer->addWidget(std::move(disabledContainer->removeWidget(pieChart)));
+  enabledContainer->addWidget(disabledContainer->removeWidget(axisSlider));
+  enabledContainer->addWidget(disabledContainer->removeWidget(cartesianChart));
+  enabledContainer->addWidget(disabledContainer->removeWidget(pieChart));
 
   // WInteractWidget
   BOOST_REQUIRE(!container->isDisabled());
@@ -1730,57 +1730,57 @@ BOOST_AUTO_TEST_CASE(enabled_parent_disabled_widget_reparent_test)
 
   // Reparent the items, which does not change their state
   // WInteractWidget
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(container)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(image)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(label)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(progressBar)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(table)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(templat)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(text)));
+  enabledContainer->addWidget(app.root()->removeWidget(container));
+  enabledContainer->addWidget(app.root()->removeWidget(image));
+  enabledContainer->addWidget(app.root()->removeWidget(label));
+  enabledContainer->addWidget(app.root()->removeWidget(progressBar));
+  enabledContainer->addWidget(app.root()->removeWidget(table));
+  enabledContainer->addWidget(app.root()->removeWidget(templat));
+  enabledContainer->addWidget(app.root()->removeWidget(text));
 
   // WFormWidget
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(checkBox)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(radioButton)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(colorPicker)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(comboBox)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(emailEdit)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(spinBox)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(lineEdit)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(pushButton)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(slider)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(textArea)));
+  enabledContainer->addWidget(app.root()->removeWidget(checkBox));
+  enabledContainer->addWidget(app.root()->removeWidget(radioButton));
+  enabledContainer->addWidget(app.root()->removeWidget(colorPicker));
+  enabledContainer->addWidget(app.root()->removeWidget(comboBox));
+  enabledContainer->addWidget(app.root()->removeWidget(emailEdit));
+  enabledContainer->addWidget(app.root()->removeWidget(spinBox));
+  enabledContainer->addWidget(app.root()->removeWidget(lineEdit));
+  enabledContainer->addWidget(app.root()->removeWidget(pushButton));
+  enabledContainer->addWidget(app.root()->removeWidget(slider));
+  enabledContainer->addWidget(app.root()->removeWidget(textArea));
 
   // WWebWidget (not WInteractWidget)
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(wbreak)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(fileUpload)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(viewWidget)));
+  enabledContainer->addWidget(app.root()->removeWidget(wbreak));
+  enabledContainer->addWidget(app.root()->removeWidget(fileUpload));
+  enabledContainer->addWidget(app.root()->removeWidget(viewWidget));
 
   // WCompositeWidget
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(tableView)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(treeView)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(calendar)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(datePicker)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(loading)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(googleMap)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(iconPair)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(inPlaceEdit)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(mediaPlayer)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(menu)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(panel)));
+  enabledContainer->addWidget(app.root()->removeWidget(tableView));
+  enabledContainer->addWidget(app.root()->removeWidget(treeView));
+  enabledContainer->addWidget(app.root()->removeWidget(calendar));
+  enabledContainer->addWidget(app.root()->removeWidget(datePicker));
+  enabledContainer->addWidget(app.root()->removeWidget(loading));
+  enabledContainer->addWidget(app.root()->removeWidget(googleMap));
+  enabledContainer->addWidget(app.root()->removeWidget(iconPair));
+  enabledContainer->addWidget(app.root()->removeWidget(inPlaceEdit));
+  enabledContainer->addWidget(app.root()->removeWidget(mediaPlayer));
+  enabledContainer->addWidget(app.root()->removeWidget(menu));
+  enabledContainer->addWidget(app.root()->removeWidget(panel));
   // Special case: cannot be removed from container as this is a "global" widget.
-  //enabledContainer->addWidget(std::move(app.root()->removeWidget(popupWidget)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(splitButton)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(tabWidget)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(toolBar)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(tree)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(treeNode)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(treeTable)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(virtualImage)));
+  //enabledContainer->addWidget(app.root()->removeWidget(popupWidget));
+  enabledContainer->addWidget(app.root()->removeWidget(splitButton));
+  enabledContainer->addWidget(app.root()->removeWidget(tabWidget));
+  enabledContainer->addWidget(app.root()->removeWidget(toolBar));
+  enabledContainer->addWidget(app.root()->removeWidget(tree));
+  enabledContainer->addWidget(app.root()->removeWidget(treeNode));
+  enabledContainer->addWidget(app.root()->removeWidget(treeTable));
+  enabledContainer->addWidget(app.root()->removeWidget(virtualImage));
 
   // WPaintedWidget
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(axisSlider)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(cartesianChart)));
-  enabledContainer->addWidget(std::move(app.root()->removeWidget(pieChart)));
+  enabledContainer->addWidget(app.root()->removeWidget(axisSlider));
+  enabledContainer->addWidget(app.root()->removeWidget(cartesianChart));
+  enabledContainer->addWidget(app.root()->removeWidget(pieChart));
 
   // WInteractWidget
   BOOST_REQUIRE(container->isDisabled());
