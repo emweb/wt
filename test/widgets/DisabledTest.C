@@ -242,6 +242,17 @@ BOOST_AUTO_TEST_CASE(disabled_widget_test)
   BOOST_REQUIRE(virtualImage->isEnabled());
   BOOST_REQUIRE(!virtualImage->hasStyleClass("Wt-disabled"));
 
+  // WPaintedWidget
+  BOOST_REQUIRE(!axisSlider->isDisabled());
+  BOOST_REQUIRE(axisSlider->isEnabled());
+  BOOST_REQUIRE(!axisSlider->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!cartesianChart->isDisabled());
+  BOOST_REQUIRE(cartesianChart->isEnabled());
+  BOOST_REQUIRE(!cartesianChart->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!pieChart->isDisabled());
+  BOOST_REQUIRE(pieChart->isEnabled());
+  BOOST_REQUIRE(!pieChart->hasStyleClass("Wt-disabled"));
+
   // WInteractWidget
   container->setDisabled(true);
   image->setDisabled(true);
@@ -288,6 +299,11 @@ BOOST_AUTO_TEST_CASE(disabled_widget_test)
   treeNode->setDisabled(true);
   treeTable->setDisabled(true);
   virtualImage->setDisabled(true);
+
+  // WPaintedWidget
+  axisSlider->setDisabled(true);
+  cartesianChart->setDisabled(true);
+  pieChart->setDisabled(true);
 
   // WInteractWidget
   BOOST_REQUIRE(container->isDisabled());
@@ -374,6 +390,17 @@ BOOST_AUTO_TEST_CASE(disabled_widget_test)
   BOOST_REQUIRE(treeTable->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(virtualImage->isDisabled());
   BOOST_REQUIRE(virtualImage->hasStyleClass("Wt-disabled"));
+
+  // WPaintedWidget
+  BOOST_REQUIRE(axisSlider->isDisabled());
+  BOOST_REQUIRE(!axisSlider->isEnabled());
+  BOOST_REQUIRE(axisSlider->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(cartesianChart->isDisabled());
+  BOOST_REQUIRE(!cartesianChart->isEnabled());
+  BOOST_REQUIRE(cartesianChart->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(pieChart->isDisabled());
+  BOOST_REQUIRE(!pieChart->isEnabled());
+  BOOST_REQUIRE(pieChart->hasStyleClass("Wt-disabled"));
 }
 
 BOOST_AUTO_TEST_CASE(disabled_parent_widget_test)
@@ -571,6 +598,17 @@ BOOST_AUTO_TEST_CASE(disabled_parent_widget_test)
   BOOST_REQUIRE(!popupWidget->isDisabled());
   BOOST_REQUIRE(popupWidget->isEnabled());
   BOOST_REQUIRE(!popupWidget->hasStyleClass("Wt-disabled"));
+
+  // WPaintedWidget
+  BOOST_REQUIRE(!axisSlider->isDisabled());
+  BOOST_REQUIRE(!axisSlider->isEnabled());
+  BOOST_REQUIRE(axisSlider->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!cartesianChart->isDisabled());
+  BOOST_REQUIRE(!cartesianChart->isEnabled());
+  BOOST_REQUIRE(cartesianChart->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!pieChart->isDisabled());
+  BOOST_REQUIRE(!pieChart->isEnabled());
+  BOOST_REQUIRE(pieChart->hasStyleClass("Wt-disabled"));
 }
 
 BOOST_AUTO_TEST_CASE(disabled_parent_widget_added_after_test)
@@ -770,6 +808,17 @@ BOOST_AUTO_TEST_CASE(disabled_parent_widget_added_after_test)
   BOOST_REQUIRE(!popupWidget->isDisabled());
   BOOST_REQUIRE(popupWidget->isEnabled());
   BOOST_REQUIRE(!popupWidget->hasStyleClass("Wt-disabled"));
+
+  // WPaintedWidget
+  BOOST_REQUIRE(!axisSlider->isDisabled());
+  BOOST_REQUIRE(!axisSlider->isEnabled());
+  BOOST_REQUIRE(axisSlider->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!cartesianChart->isDisabled());
+  BOOST_REQUIRE(!cartesianChart->isEnabled());
+  BOOST_REQUIRE(cartesianChart->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!pieChart->isDisabled());
+  BOOST_REQUIRE(!pieChart->isEnabled());
+  BOOST_REQUIRE(pieChart->hasStyleClass("Wt-disabled"));
 }
 
 BOOST_AUTO_TEST_CASE(disabled_parent_widget_later_enabled_test)
@@ -969,6 +1018,17 @@ BOOST_AUTO_TEST_CASE(disabled_parent_widget_later_enabled_test)
   BOOST_REQUIRE(!popupWidget->isDisabled());
   BOOST_REQUIRE(popupWidget->isEnabled());
   BOOST_REQUIRE(!popupWidget->hasStyleClass("Wt-disabled"));
+
+  // WPaintedWidget
+  BOOST_REQUIRE(!axisSlider->isDisabled());
+  BOOST_REQUIRE(axisSlider->isEnabled());
+  BOOST_REQUIRE(!axisSlider->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!cartesianChart->isDisabled());
+  BOOST_REQUIRE(cartesianChart->isEnabled());
+  BOOST_REQUIRE(!cartesianChart->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!pieChart->isDisabled());
+  BOOST_REQUIRE(pieChart->isEnabled());
+  BOOST_REQUIRE(!pieChart->hasStyleClass("Wt-disabled"));
 }
 
 BOOST_AUTO_TEST_CASE(disabled_parent_widget_reparent_test)
@@ -1170,6 +1230,17 @@ BOOST_AUTO_TEST_CASE(disabled_parent_widget_reparent_test)
   BOOST_REQUIRE(popupWidget->isEnabled());
   BOOST_REQUIRE(!popupWidget->hasStyleClass("Wt-disabled"));
 
+  // WPaintedWidget
+  BOOST_REQUIRE(!axisSlider->isDisabled());
+  BOOST_REQUIRE(!axisSlider->isEnabled());
+  BOOST_REQUIRE(axisSlider->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!cartesianChart->isDisabled());
+  BOOST_REQUIRE(!cartesianChart->isEnabled());
+  BOOST_REQUIRE(cartesianChart->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!pieChart->isDisabled());
+  BOOST_REQUIRE(!pieChart->isEnabled());
+  BOOST_REQUIRE(pieChart->hasStyleClass("Wt-disabled"));
+
   // Reparent the items, which removes the disabled visual state
   // WInteractWidget
   enabledContainer->addWidget(std::move(disabledContainer->removeWidget(container)));
@@ -1351,6 +1422,17 @@ BOOST_AUTO_TEST_CASE(disabled_parent_widget_reparent_test)
   BOOST_REQUIRE(!popupWidget->isDisabled());
   BOOST_REQUIRE(popupWidget->isEnabled());
   BOOST_REQUIRE(!popupWidget->hasStyleClass("Wt-disabled"));
+
+  // WPaintedWidget
+  BOOST_REQUIRE(!axisSlider->isDisabled());
+  BOOST_REQUIRE(axisSlider->isEnabled());
+  BOOST_REQUIRE(!axisSlider->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!cartesianChart->isDisabled());
+  BOOST_REQUIRE(cartesianChart->isEnabled());
+  BOOST_REQUIRE(!cartesianChart->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!pieChart->isDisabled());
+  BOOST_REQUIRE(pieChart->isEnabled());
+  BOOST_REQUIRE(!pieChart->hasStyleClass("Wt-disabled"));
 }
 
 BOOST_AUTO_TEST_CASE(enabled_parent_disabled_widget_reparent_test)
@@ -1465,6 +1547,11 @@ BOOST_AUTO_TEST_CASE(enabled_parent_disabled_widget_reparent_test)
   treeNode->setDisabled(true);
   treeTable->setDisabled(true);
   virtualImage->setDisabled(true);
+
+  // WPaintedWidget
+  axisSlider->setDisabled(true);
+  cartesianChart->setDisabled(true);
+  pieChart->setDisabled(true);
 
   // WInteractWidget
   BOOST_REQUIRE(container->isDisabled());
@@ -1590,6 +1677,17 @@ BOOST_AUTO_TEST_CASE(enabled_parent_disabled_widget_reparent_test)
   BOOST_REQUIRE(virtualImage->isDisabled());
   BOOST_REQUIRE(!virtualImage->isEnabled());
   BOOST_REQUIRE(virtualImage->hasStyleClass("Wt-disabled"));
+
+  // WPaintedWidget
+  BOOST_REQUIRE(axisSlider->isDisabled());
+  BOOST_REQUIRE(!axisSlider->isEnabled());
+  BOOST_REQUIRE(axisSlider->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(cartesianChart->isDisabled());
+  BOOST_REQUIRE(!cartesianChart->isEnabled());
+  BOOST_REQUIRE(cartesianChart->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(pieChart->isDisabled());
+  BOOST_REQUIRE(!pieChart->isEnabled());
+  BOOST_REQUIRE(pieChart->hasStyleClass("Wt-disabled"));
 
   // Reparent the items, which does not change their state
   // WInteractWidget
@@ -1769,6 +1867,17 @@ BOOST_AUTO_TEST_CASE(enabled_parent_disabled_widget_reparent_test)
   BOOST_REQUIRE(virtualImage->isDisabled());
   BOOST_REQUIRE(!virtualImage->isEnabled());
   BOOST_REQUIRE(virtualImage->hasStyleClass("Wt-disabled"));
+
+  // WPaintedWidget
+  BOOST_REQUIRE(axisSlider->isDisabled());
+  BOOST_REQUIRE(!axisSlider->isEnabled());
+  BOOST_REQUIRE(axisSlider->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(cartesianChart->isDisabled());
+  BOOST_REQUIRE(!cartesianChart->isEnabled());
+  BOOST_REQUIRE(cartesianChart->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(pieChart->isDisabled());
+  BOOST_REQUIRE(!pieChart->isEnabled());
+  BOOST_REQUIRE(pieChart->hasStyleClass("Wt-disabled"));
 }
 
 BOOST_AUTO_TEST_CASE(disabled_parent_reparent_enabled_parent_test)
@@ -1974,6 +2083,17 @@ BOOST_AUTO_TEST_CASE(disabled_parent_reparent_enabled_parent_test)
   BOOST_REQUIRE(popupWidget->isEnabled());
   BOOST_REQUIRE(!popupWidget->hasStyleClass("Wt-disabled"));
 
+  // WPaintedWidget
+  BOOST_REQUIRE(!axisSlider->isDisabled());
+  BOOST_REQUIRE(!axisSlider->isEnabled());
+  BOOST_REQUIRE(axisSlider->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!cartesianChart->isDisabled());
+  BOOST_REQUIRE(!cartesianChart->isEnabled());
+  BOOST_REQUIRE(cartesianChart->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!pieChart->isDisabled());
+  BOOST_REQUIRE(!pieChart->isEnabled());
+  BOOST_REQUIRE(pieChart->hasStyleClass("Wt-disabled"));
+
   // Reparent the items' parent, which does not change their state
   enabledContainer->addWidget(app.root()->removeWidget(disabledContainer));
 
@@ -2112,6 +2232,17 @@ BOOST_AUTO_TEST_CASE(disabled_parent_reparent_enabled_parent_test)
   BOOST_REQUIRE(!popupWidget->isDisabled());
   BOOST_REQUIRE(popupWidget->isEnabled());
   BOOST_REQUIRE(!popupWidget->hasStyleClass("Wt-disabled"));
+
+  // WPaintedWidget
+  BOOST_REQUIRE(!axisSlider->isDisabled());
+  BOOST_REQUIRE(!axisSlider->isEnabled());
+  BOOST_REQUIRE(axisSlider->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!cartesianChart->isDisabled());
+  BOOST_REQUIRE(!cartesianChart->isEnabled());
+  BOOST_REQUIRE(cartesianChart->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!pieChart->isDisabled());
+  BOOST_REQUIRE(!pieChart->isEnabled());
+  BOOST_REQUIRE(pieChart->hasStyleClass("Wt-disabled"));
 }
 
 BOOST_AUTO_TEST_CASE(enabled_parent_reparent_disabled_parent_test)
@@ -2315,6 +2446,17 @@ BOOST_AUTO_TEST_CASE(enabled_parent_reparent_disabled_parent_test)
   BOOST_REQUIRE(popupWidget->isEnabled());
   BOOST_REQUIRE(!popupWidget->hasStyleClass("Wt-disabled"));
 
+  // WPaintedWidget
+  BOOST_REQUIRE(!axisSlider->isDisabled());
+  BOOST_REQUIRE(axisSlider->isEnabled());
+  BOOST_REQUIRE(!axisSlider->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!cartesianChart->isDisabled());
+  BOOST_REQUIRE(cartesianChart->isEnabled());
+  BOOST_REQUIRE(!cartesianChart->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!pieChart->isDisabled());
+  BOOST_REQUIRE(pieChart->isEnabled());
+  BOOST_REQUIRE(!pieChart->hasStyleClass("Wt-disabled"));
+
   // Reparent the items' parent, which does change their state to being
   // passible disabled.
   disabledContainer->addWidget(app.root()->removeWidget(enabledContainer));
@@ -2453,4 +2595,15 @@ BOOST_AUTO_TEST_CASE(enabled_parent_reparent_disabled_parent_test)
   BOOST_REQUIRE(!popupWidget->isDisabled());
   BOOST_REQUIRE(popupWidget->isEnabled());
   BOOST_REQUIRE(!popupWidget->hasStyleClass("Wt-disabled"));
+
+  // WPaintedWidget
+  BOOST_REQUIRE(!axisSlider->isDisabled());
+  BOOST_REQUIRE(!axisSlider->isEnabled());
+  BOOST_REQUIRE(axisSlider->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!cartesianChart->isDisabled());
+  BOOST_REQUIRE(!cartesianChart->isEnabled());
+  BOOST_REQUIRE(cartesianChart->hasStyleClass("Wt-disabled"));
+  BOOST_REQUIRE(!pieChart->isDisabled());
+  BOOST_REQUIRE(!pieChart->isEnabled());
+  BOOST_REQUIRE(pieChart->hasStyleClass("Wt-disabled"));
 }
