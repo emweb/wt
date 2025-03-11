@@ -230,7 +230,13 @@ WMenuItem *WMenu::insertItem(int index, std::unique_ptr<WMenuItem> item)
       contentsStack_->setLoadPolicy(contentsStack_->count()-1, result->loadPolicy_);
 
       if (contentsStack_->count() == 1) {
-        select(0, false);
+        setCurrent(0);
+        if (loaded()) {
+          currentItem()->loadContents();
+        }
+        contentsStack_->setCurrentWidget(contents);
+
+        renderSelected(result, true);
       } else
         renderSelected(result, false);
     } else
@@ -302,23 +308,11 @@ void WMenu::select(int index, bool changePath)
 
   selectVisual(current_, changePath, true);
 
-  WMenuItem *item;
-
   if (index != -1) {
-    item = itemAt(index);
+    WMenuItem *item = itemAt(index);
     item->show();
-    if (loaded()) {
-      bool itemLoaded = item->contentsLoaded();
+    if (loaded())
       item->loadContents();
-
-      //if the item was not loaded before selectVisual we emit the signal
-      if (!itemLoaded && 
-        contentsStack_ && 
-        contentsStack_->loadPolicies_[contentsStack_->currentIndex_] == ContentLoading::Lazy) {
-        WContainerWidget* container = dynamic_cast<WContainerWidget*>(contentsStack_->currentWidget());
-        contentsStack_->currentWidgetChanged().emit(container->widget(0));
-      }
-    }
 
     observing_ptr<WMenu> self = this;
 
@@ -521,9 +515,8 @@ void WMenu::undoSelectVisual()
     app->setInternalPath(prevPath);
   }
 
-  if (contentsStack_) {
+  if (contentsStack_)
     contentsStack_->setCurrentIndex(prevStackIndex);
-  }
 }
 
 WMenuItem *WMenu::currentItem() const
