@@ -307,88 +307,127 @@ BOOST_AUTO_TEST_CASE(disabled_widget_test)
 
   // WInteractWidget
   BOOST_REQUIRE(container->isDisabled());
+  BOOST_REQUIRE(!container->isEnabled());
   BOOST_REQUIRE(container->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(image->isDisabled());
+  BOOST_REQUIRE(!image->isEnabled());
   BOOST_REQUIRE(image->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(label->isDisabled());
+  BOOST_REQUIRE(!label->isEnabled());
   BOOST_REQUIRE(label->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(progressBar->isDisabled());
+  BOOST_REQUIRE(!progressBar->isEnabled());
   BOOST_REQUIRE(progressBar->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(table->isDisabled());
+  BOOST_REQUIRE(!table->isEnabled());
   BOOST_REQUIRE(table->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(templat->isDisabled());
+  BOOST_REQUIRE(!templat->isEnabled());
   BOOST_REQUIRE(templat->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(text->isDisabled());
+  BOOST_REQUIRE(!text->isEnabled());
   BOOST_REQUIRE(text->hasStyleClass("Wt-disabled"));
 
   // WFormWidget
   BOOST_REQUIRE(checkBox->isDisabled());
+  BOOST_REQUIRE(!checkBox->isEnabled());
   BOOST_REQUIRE(checkBox->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(radioButton->isDisabled());
+  BOOST_REQUIRE(!radioButton->isEnabled());
   BOOST_REQUIRE(radioButton->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(colorPicker->isDisabled());
+  BOOST_REQUIRE(!colorPicker->isEnabled());
   BOOST_REQUIRE(colorPicker->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(comboBox->isDisabled());
+  BOOST_REQUIRE(!comboBox->isEnabled());
   BOOST_REQUIRE(comboBox->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(emailEdit->isDisabled());
+  BOOST_REQUIRE(!emailEdit->isEnabled());
   BOOST_REQUIRE(emailEdit->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(spinBox->isDisabled());
+  BOOST_REQUIRE(!spinBox->isEnabled());
   BOOST_REQUIRE(spinBox->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(lineEdit->isDisabled());
+  BOOST_REQUIRE(!lineEdit->isEnabled());
   BOOST_REQUIRE(lineEdit->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(pushButton->isDisabled());
+  BOOST_REQUIRE(!pushButton->isEnabled());
   BOOST_REQUIRE(pushButton->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(slider->isDisabled());
+  BOOST_REQUIRE(!slider->isEnabled());
   BOOST_REQUIRE(slider->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(textArea->isDisabled());
+  BOOST_REQUIRE(!textArea->isEnabled());
   BOOST_REQUIRE(textArea->hasStyleClass("Wt-disabled"));
 
   // WWebWidget (not WInteractWidget)
   BOOST_REQUIRE(wbreak->isDisabled());
+  BOOST_REQUIRE(!wbreak->isEnabled());
   BOOST_REQUIRE(wbreak->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(fileUpload->isDisabled());
+  BOOST_REQUIRE(!fileUpload->isEnabled());
   BOOST_REQUIRE(fileUpload->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(viewWidget->isDisabled());
+  BOOST_REQUIRE(!viewWidget->isEnabled());
   BOOST_REQUIRE(viewWidget->hasStyleClass("Wt-disabled"));
 
   // WCompositeWidget
   BOOST_REQUIRE(tableView->isDisabled());
+  BOOST_REQUIRE(!tableView->isEnabled());
   BOOST_REQUIRE(tableView->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(treeView->isDisabled());
+  BOOST_REQUIRE(!treeView->isEnabled());
   BOOST_REQUIRE(treeView->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(calendar->isDisabled());
+  BOOST_REQUIRE(!calendar->isEnabled());
   BOOST_REQUIRE(calendar->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(datePicker->isDisabled());
+  BOOST_REQUIRE(!datePicker->isEnabled());
   BOOST_REQUIRE(datePicker->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(googleMap->isDisabled());
+  BOOST_REQUIRE(!googleMap->isEnabled());
   BOOST_REQUIRE(googleMap->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(iconPair->isDisabled());
+  BOOST_REQUIRE(!iconPair->isEnabled());
   BOOST_REQUIRE(iconPair->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(inPlaceEdit->isDisabled());
+  BOOST_REQUIRE(!inPlaceEdit->isEnabled());
   BOOST_REQUIRE(inPlaceEdit->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(loading->isDisabled());
+  BOOST_REQUIRE(!loading->isEnabled());
   BOOST_REQUIRE(loading->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(mediaPlayer->isDisabled());
+  BOOST_REQUIRE(!mediaPlayer->isEnabled());
   BOOST_REQUIRE(mediaPlayer->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(menu->isDisabled());
+  BOOST_REQUIRE(!menu->isEnabled());
   BOOST_REQUIRE(menu->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(panel->isDisabled());
+  BOOST_REQUIRE(!panel->isEnabled());
   BOOST_REQUIRE(panel->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(popupWidget->isDisabled());
+  BOOST_REQUIRE(!popupWidget->isEnabled());
   BOOST_REQUIRE(popupWidget->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(splitButton->isDisabled());
+  BOOST_REQUIRE(!splitButton->isEnabled());
   BOOST_REQUIRE(splitButton->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(tabWidget->isDisabled());
+  BOOST_REQUIRE(!tabWidget->isEnabled());
   BOOST_REQUIRE(tabWidget->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(toolBar->isDisabled());
+  BOOST_REQUIRE(!toolBar->isEnabled());
   BOOST_REQUIRE(toolBar->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(tree->isDisabled());
+  BOOST_REQUIRE(!tree->isEnabled());
   BOOST_REQUIRE(tree->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(treeNode->isDisabled());
+  BOOST_REQUIRE(!treeNode->isEnabled());
   BOOST_REQUIRE(treeNode->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(treeTable->isDisabled());
+  BOOST_REQUIRE(!treeTable->isEnabled());
   BOOST_REQUIRE(treeTable->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(virtualImage->isDisabled());
+  BOOST_REQUIRE(!virtualImage->isEnabled());
   BOOST_REQUIRE(virtualImage->hasStyleClass("Wt-disabled"));
 
   // WPaintedWidget
@@ -2316,6 +2355,7 @@ BOOST_AUTO_TEST_CASE(enabled_parent_reparent_disabled_parent_test)
   BOOST_REQUIRE(enabledContainer->isEnabled());
   BOOST_REQUIRE(!enabledContainer->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(disabledContainer->isDisabled());
+  BOOST_REQUIRE(!disabledContainer->isEnabled());
   BOOST_REQUIRE(disabledContainer->hasStyleClass("Wt-disabled"));
 
   // WInteractWidget
@@ -2466,6 +2506,7 @@ BOOST_AUTO_TEST_CASE(enabled_parent_reparent_disabled_parent_test)
   BOOST_REQUIRE(!enabledContainer->isEnabled());
   BOOST_REQUIRE(enabledContainer->hasStyleClass("Wt-disabled"));
   BOOST_REQUIRE(disabledContainer->isDisabled());
+  BOOST_REQUIRE(!disabledContainer->isEnabled());
   BOOST_REQUIRE(disabledContainer->hasStyleClass("Wt-disabled"));
 
   // WInteractWidget
