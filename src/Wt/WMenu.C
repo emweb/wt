@@ -285,6 +285,25 @@ std::unique_ptr<WMenuItem> WMenu::removeItem(WMenuItem *item)
   return result;
 }
 
+void WMenu::moveItem(int fromIndex, int toIndex)
+{
+  moveItem(itemAt(fromIndex), toIndex);
+}
+
+void WMenu::moveItem(WMenuItem* item, int toIndex)
+{
+  if (item) {
+    bool needReload = item->loadPolicy_ == ContentLoading::Lazy && item->contentsLoaded();
+    std::unique_ptr<WMenuItem> realItem = removeItem(item);
+    if (realItem) {
+      insertItem(toIndex, std::move(realItem));
+      if (needReload) {
+        item->loadContents();
+      }
+    }
+  }
+}
+
 void WMenu::select(int index)
 {
   select(index, true);

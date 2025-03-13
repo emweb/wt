@@ -354,6 +354,18 @@ public:
    */
   virtual std::unique_ptr<WMenuItem> removeItem(WMenuItem *item);
 
+  /*! \brief Moves an item.
+   *
+   * Moves the item at the index \p fromIndex to the index \p toIndex.
+   */
+  void moveItem(int fromIndex, int toIndex);
+
+  /*! \brief Moves an item.
+   *
+   * Moves the item at the \p item to the index \p toIndex.
+   */
+  void moveItem(WMenuItem* item, int toIndex);
+
   /*! \brief Selects an item.
    *
    * Select the menu item \p item.
