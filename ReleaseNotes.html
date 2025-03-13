@@ -37,6 +37,20 @@ behaviour.
     <a href="classWt_1_1WFormWidget.html#a1bf85706ce6af9324706457bf2f9ca83" target="_blank">WFormWidget::validate()</a>.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13464" target="_blank">Issue #13464</a>:
+    fixed an error happening when re-adding a
+    <a href="classWt_1_1WMenuItem.html" target="_blank">WMenuItem</a> to a
+    <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a> if the load policy of the
+    <a href="classWt_1_1WMenuItem.html" target="_blank">WMenuItem</a> was set to
+    <a href="namespaceWt.html#af25a7f0bb1d50c5b8bc98c4db9080313" target="_blank">LoadPolicy::Lazy</a>.
+    Additionally,
+    <a href="classWt_1_1WMenu.html#afad580a15fd6ed88630c03068cce696b" target="_blank">WMenu::moveItem(int fromIndex, int toIndex)</a>
+    and
+    <a href="classWt_1_1WMenu.html#ad376486fb13bfe50629b389b1614bb4d" target="_blank">WMenu::moveItem(WMenuItem* item, int toIndex)</a>
+    were added to make it easier to move items in
+    <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a>s.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13530" target="_blank">Issue #13530</a>:
     fixed <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> being always too small by <code>2px</code> when using both
     <a href="classWt_1_1WBootstrap5Theme.html" target="_blank">WBootstrap5Theme</a> and
