@@ -473,7 +473,7 @@ void WMenuItem::connectSignals()
         } else if (selectFromCheckbox && !menuItemCheckedConnected_) {
           /*  #12367: Fixes a bug where the checkbox of a menu item is not
           *  clicked if the menu item itself is clicked, but the checkbox
-          *  or its label were not clicked. 
+          *  or its label were not clicked.
           */
           (&a->clicked())->connect(this, &WMenuItem::menuItemCheckedPropagate);
           menuItemCheckedConnected_ = true;
