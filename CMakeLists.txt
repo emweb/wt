@@ -109,6 +109,10 @@ SET(LIB_INSTALL_DIR "lib" CACHE STRING
 SET(CMAKE_INSTALL_DIR "${LIB_INSTALL_DIR}/cmake" CACHE STRING
   "Name for CMake package configuration directory within ${CMAKE_INSTALL_PREFIX}")
 
+if(NOT DEFINED CMAKE_INSTALL_INCLUDEDIR)
+  set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_PREFIX}/include)
+endif()
+
 IF(WIN32)
 
   SET(RUNDIR "c:/witty") # Does not apply to win32
