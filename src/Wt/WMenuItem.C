@@ -26,7 +26,11 @@
 #include <cctype>
 #include <memory>
 
+#include <Wt/WLogger.h>
+
 namespace Wt {
+
+LOGGER("WMenuItem");
 
 WMenuItem::WMenuItem(const WString& text, std::unique_ptr<WWidget> contents,
                      ContentLoading policy)
@@ -573,7 +577,17 @@ void WMenuItem::returnContentsInStack(std::unique_ptr<WWidget> widget)
   if (oContentsContainer_) {
     if (!uContents_)
       uContents_ = oContentsContainer_->removeWidget(oContents_.get());
-    oContentsContainer_ = nullptr;
+
+    WWidget* realWidget = widget.release();
+    WContainerWidget* uContentsContainer = dynamic_cast<WContainerWidget*>(realWidget);
+    if (uContentsContainer) {
+      uContentsContainer_ = std::unique_ptr<WContainerWidget>(uContentsContainer);
+      oContentsContainer_ = uContentsContainer_.get();
+    } else {
+      delete realWidget;
+      oContentsContainer_ = nullptr;
+      LOG_ERROR("returnContentsInStack: widget is not oContentsContainer_. This should not happen.");
+    }
   } else
     uContents_ = std::move(widget);
 }
