@@ -1168,8 +1168,8 @@ WT_DECLARE_WT_MEMBER(
       DC.cSize = cSize;
 
       if (dir === VERTICAL && container && container.wtResize) {
-        const w = OC.cSize,
-          h = DC.cSize;
+        const w = OC.cSize + sizePadding(container, HORIZONTAL),
+          h = DC.cSize + sizePadding(container, VERTICAL);
         container.wtResize(container, Math.round(w), Math.round(h), true);
       }
 
