@@ -544,7 +544,7 @@ void WebSocketConnection::handleAsyncWritten(OpCode type, const AsioWrapper::err
 
   LOG_DEBUG("handleAsyncWritten: Outgoing frame of size: " << bytes_transferred << " bytes has been written");
 
-  if (type == OpCode::Binary || type == OpCode::Text) {
+  if (type == OpCode::Binary || type == OpCode::Text || type == OpCode::Close) {
     hasDataWrittenCallback_(e, bytes_transferred);
   }
 }
