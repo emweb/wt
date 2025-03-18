@@ -271,6 +271,7 @@ private:
   std::vector<std::unique_ptr<WWebSocketConnection>> clients_;
 
   WWebSocketConnection* registerConnection(std::unique_ptr<WWebSocketConnection> connection);
+  void removeConnection(WWebSocketConnection* connection);
 
   size_t frameSize_;
   size_t messageSize_;

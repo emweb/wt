@@ -82,6 +82,7 @@ WWebSocketConnection* WWebSocketResource::registerConnection(std::unique_ptr<WWe
   connection->setMaximumReceivedSize(frameSize_, messageSize_);
   connection->setTakesUpdateLock(takesUpdateLock_);
   connection->setPingTimeout(pingInterval_, pingTimeout_);
+  connection->closed().connect(this, std::bind(&WWebSocketResource::removeConnection, this, connection.get()));
 
   {
     std::unique_lock<std::recursive_mutex> lock(clientsMutex_);
@@ -129,5 +130,16 @@ void WWebSocketResource::setPingTimeout(int intervalSeconds, int timeoutSeconds)
 {
   pingInterval_ = intervalSeconds;
   pingTimeout_ = timeoutSeconds;
+}
+
+void WWebSocketResource::removeConnection(WWebSocketConnection* connection)
+{
+  std::unique_lock<std::recursive_mutex> lock(clientsMutex_);
+  for (auto it = clients_.begin(); it != clients_.end(); ++it) {
+    if (it->get() == connection) {
+      clients_.erase(it);
+      return;
+    }
+  }
 }
 }

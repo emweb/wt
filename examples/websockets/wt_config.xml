@@ -1,0 +1,8 @@
+<server>
+  <application-settings location="*">
+
+    <debug>true</debug>
+    <log-config>*</log-config>
+    <web-sockets>true</web-sockets>
+  </application-settings>
+</server>
