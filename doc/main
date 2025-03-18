@@ -7,7 +7,7 @@ namespace Wt {
 
    <a href="http://www.webtoolkit.eu/wt">%Wt</a> is a C++ library for
    developing web applications.
-  
+
    For learning web application programming with %Wt, we recommend
    reading the <a href="../../tutorial/wt.html"> hands-on introduction
    to %Wt</a>, which includes a complete tutorial (reworked in
@@ -36,9 +36,9 @@ namespace Wt {
      - \ref saml_windows "Windows"
 
    \page overview Library overview
-  
+
    \section contents Contents
-  
+
    <div style="margin-left: 10px; margin-bottom: 5px;">
    \ref wwidget_sec
      <div style="margin-left: 10px; margin-bottom: 7px;">
@@ -80,9 +80,9 @@ namespace Wt {
      <div style="margin-left: 10px; margin-bottom: 7px;"></div>
    \ref error_sec
    </div>
-  
+
    \section wwidget_sec &nbsp;1. Widgets
-  
+
    The WWidget class represents a widget, which provides an
    abstraction of a visual entity. The entire user interface is
    specified by creating a hierarchical structure of WWidgets, rooted
@@ -97,13 +97,13 @@ namespace Wt {
    the WApplication object is deleted, the root of the tree is
    deleted, and in this way all resources associated with any widget
    are freed.
-  
+
    Any descendent class of WWidget is a self-contained (reusable)
    class that encapsulates both the look and behaviour, enabling the
    design of the user interface in an orthogonal way.
 
    \subsection layout 1.1 Layout
-  
+
    Widgets are layed out (with a few exceptions) following this
    hierarchical structure. You have two choices for layout of
    children within a container.
@@ -155,7 +155,7 @@ namespace Wt {
    manipulation of a widget's style, using WWidget::decorationStyle().
 
    \subsection containers 1.3 Widget containers
-  
+
    With a few exceptions, all widgets are children of (and contained in)
    a container widget such as WContainerWidget or WTableCell. A widget
    may be inserted into a WContainerWidget by adding the widget to the
@@ -176,7 +176,7 @@ namespace Wt {
 
    To avoid rerendering the entire widget tree for each internal path
    change, when Ajax is available, the internal path is indicated
-   either by manipulating the URL using the HTML5 History API, or by 
+   either by manipulating the URL using the HTML5 History API, or by
    using a named anchor (#) after the deployment URL. For a plain HTML
    session, the session ID is appended to the URL to avoid the session
    from reloading when the user navigates to a new internal URL using
@@ -196,7 +196,7 @@ namespace Wt {
    navigating through his history.
 
    \section application_sec &nbsp;3. Startup and session management
-  
+
    In your application, e.g. from within your main(), you can use
    WRun() to start the %Wt application server. This method will return
    only when shutdown is signaled by the environment, and after the
@@ -213,7 +213,7 @@ namespace Wt {
    are passed to this createApplication function, and may be used to
    customize the application or authenticate the user. See also \ref
    bootstrap for details on the application bootstrap method.
-  
+
    At all times, the WApplication instance is accessible using the
    static method WApplication::instance(), and is useful to inspect
    startup arguments and settings (using WApplication::environment()),
@@ -222,14 +222,14 @@ namespace Wt {
    many other application-wide settings. In a multi-threaded
    environment, access to this instance is implemented using thread
    local storage.
-  
+
    A session exits when the user browses away from the application,
    when WApplication::quit() is called, or when the application server
    is shut down. In any case, the application object together with the
    entire widget tree for that session is first properly
    deleted. Therefore, you should release resources held by your
    widgets or application in the destructors of these objects.
-  
+
    The library offers two different mechanisms to map sessions onto
    processes: <b>dedicated processes</b> (not with ISAPI
    deployment) and <b>shared processes</b>. The first mechanism forks
@@ -244,10 +244,10 @@ namespace Wt {
    any other mechanism but correct programming.
 
    \section signal_slot &nbsp;4. Signal/slot event handling
-  
+
    To respond to user-interactivity events, or in general to communicate
    events from one widget to any other, %Wt uses a signal/slot system.
-  
+
    A slot can be any function, bound using std::bind(), but special support exists
    for methods of descendants of WObject with respect to connection management:
    the signal will be disconnected when the bound object is deleted.
@@ -261,35 +261,35 @@ namespace Wt {
    emphasize that these functions can be used as slots, or, if you
    have done extra work to optimize the implementation of these
    methods as client-side JavaScript code (see below).
-  
+
    A signal may be created by adding a \link Signal Signal<X,
    ...>\endlink object. You may specify arguments which may be
    of arbitrary types that are Copyable, that may be passed through
    the signal to connected slots.
-  
+
    The library defines several user event signals on various widgets,
    and it is easy and convenient to add signals and slots to widget
    classes to communicate events and trigger callbacks.
-  
+
    Event signals (\link EventSignal EventSignal<E>\endlink)
    are signals that may be triggered internally by the library to
    respond to user interactivity events. The abstract base classes
    WInteractWidget and WFormWidget define most of these event
    signals. To react to one of these events, the programmer connects a
    self-defined or already existing slot to such a signal.
-  
+
    \section eventhandling &nbsp;5. Optimizing client-side event handling
-  
+
    By default, %Wt performs all event processing server-side. Every
    connected event signal will cause the web browser to communicate
    with the web server in order to invoke the callback code, and
    visual changes will be updated in the web page.
-  
+
    However, %Wt offers several options for incorporating client-side event
    handling. This may in general increase responsiveness of the application
    since the user gets an instant feedback, avoiding the typical
    communication delay is avoided.
-  
+
    The least flexible but most convenient option for client-side event
    handling is letting %Wt learn the visual effect of a slot and cache
    it in JavaScript code in the browser.  In this way, the
@@ -303,12 +303,12 @@ namespace Wt {
    implementations to create a treelist widget that does all node
    expansion / collapsing client-side, at least if JavaScript is
    available.
-  
+
    The stateless slot learning allows applications to be developed entirely
    in C++, with only one specification of the desired behaviour, and decide
    at run-time to optimize certain event handling in client-side JavaScript
    if possible, and fallback to server-side event handling otherwise.
-  
+
    When the requirements for stateless slot learning cannot be met you will
    have to resort to writing JavaScript manually. %Wt provides a number
    of mechanisms to integrate JavaScript code with C++:
@@ -357,7 +357,7 @@ namespace Wt {
     setting)
 
   - there is an additional roundtrip before any contents is rendered
- 
+
   - for an Ajax user interface, all contents will be loaded through
     JavaScript. This has a drawback that some 3rd party JavaScript
     libraries do not support being loaded on-demand (with as most
@@ -426,8 +426,8 @@ namespace Wt {
 
   %Wt also supports plural forms of nouns, to translate such string
   use the static WString::trn("key", n) function. The WMessageResourceBundle
-  class documentation contains an example on how to format the xml resource 
-  bundle to use this functionality. 
+  class documentation contains an example on how to format the xml resource
+  bundle to use this functionality.
 
   \section deployment &nbsp;9. Deployment
 
@@ -531,7 +531,7 @@ $ ../../build/examples/wt-homepage/Home.wt --docroot=".;/favicon.ico,/css,/resou
 appRoot=C:\Program Files\MyApplications\AppRoot
 </pre> \endhtmlonly
   - the compile-time default (<tt>/etc/wt/wt_config.xml</tt>)
- 
+
   \section configuration_sec &nbsp;10. Configuration
 
   %Wt has one main XML configuration file, which by default is located
@@ -628,7 +628,7 @@ appRoot=C:\Program Files\MyApplications\AppRoot
       application is being used from is left behind, and is most effective in
       combination with a fairly short session timeout.</p><p>When omitted,
       or left empty, this feature is disabled</p></dd>
-  
+
     <dt><strong>server-push-timeout</strong></dt>
 
     <dd>When using server-initiated updates, the client uses
@@ -857,9 +857,9 @@ appRoot=C:\Program Files\MyApplications\AppRoot
     <dd> This boolean configuration option configures whether loading
          the application is delayed at boot.
 
-        By default, the loading of the application is delayed. This can in 
+        By default, the loading of the application is delayed. This can in
         some very specific circumstances lead to the browser waiting several
-        seconds before loading the application. 
+        seconds before loading the application.
         If this is a bug that you are facing, consider setting this to false.
         This could however impact your code if you inject JS during boot.
     </dd>
@@ -883,7 +883,7 @@ appRoot=C:\Program Files\MyApplications\AppRoot
     <dd>HTML that should be inserted into the <tt>&lt;head&gt;</tt>
         of every page. This can be used e.g. for adding meta and
         link tags.</dd>
-    
+
     <dt><strong>http-headers</strong></dt>
 
     <dd>HTTP headers that should be added to every HTTP response
@@ -899,9 +899,9 @@ appRoot=C:\Program Files\MyApplications\AppRoot
         </http-headers>
         \endcode
     </dd>
-    
+
     <dt><strong>x-frame-same-origin</strong></dt>
-    
+
     <dd>This boolean configuration option configures whether the header
         X-Frame-Option "SAMEORIGIN" is sent when serving the main page
         or the bootstrap.</dd>
@@ -968,157 +968,157 @@ Allowed options:
 
 General options:
   -h [ --help ]                         produce help message
-  -t [ --threads ] arg (=-1)            number of threads (-1 indicates that 
+  -t [ --threads ] arg (=-1)            number of threads (-1 indicates that
                                         num_threads from wt_config.xml is to be
                                         used, which defaults to 10)
   --servername arg                      servername (IP address or DNS name)
-  --docroot arg                         document root for static files, 
-                                        optionally followed by a 
-                                        comma-separated list of paths with 
+  --docroot arg                         document root for static files,
+                                        optionally followed by a
+                                        comma-separated list of paths with
                                         static files (even if they are within a
-                                        deployment path), after a ';' 
-                                        
+                                        deployment path), after a ';'
+
                                         e.g. --docroot=".;/favicon.ico,/resourc
                                         es,/style"
-                                        
-  --resources-dir arg                   path to the Wt resources folder. By 
+
+  --resources-dir arg                   path to the Wt resources folder. By
                                         default, Wt will look for its resources
-                                        in the resources subfolder of the 
-                                        docroot (see --docroot). If a file is 
-                                        not found in that resources folder, 
-                                        this folder will be checked instead as 
-                                        a fallback. If this option is omitted, 
-                                        then Wt will not use a fallback 
+                                        in the resources subfolder of the
+                                        docroot (see --docroot). If a file is
+                                        not found in that resources folder,
+                                        this folder will be checked instead as
+                                        a fallback. If this option is omitted,
+                                        then Wt will not use a fallback
                                         resources folder.
-  --approot arg                         application root for private support 
+  --approot arg                         application root for private support
                                         files; if unspecified, the value of the
-                                        environment variable $WT_APP_ROOT is 
-                                        used, or else the current working 
+                                        environment variable $WT_APP_ROOT is
+                                        used, or else the current working
                                         directory
   --errroot arg                         root for error pages
-  --accesslog arg                       access log file, if not specified, 
+  --accesslog arg                       access log file, if not specified,
                                         access logs are logged like other logs,
-                                        to disable access logging completely, 
+                                        to disable access logging completely,
                                         use --accesslog=-
   --no-compression                      do not use compression
   --deploy-path arg (=/)                location for deployment
-  --session-id-prefix arg               prefix for session IDs (overrides 
+  --session-id-prefix arg               prefix for session IDs (overrides
                                         wt_config.xml setting)
   -p [ --pid-file ] arg                 path to pid file (optional)
-  -c [ --config ] arg                   location of wt_config.xml; if 
-                                        unspecified, the value of the 
-                                        environment variable $WT_CONFIG_XML is 
-                                        used, or else the built-in default 
-                                        (/etc/wt/wt_config.xml) is tried, or else 
+  -c [ --config ] arg                   location of wt_config.xml; if
+                                        unspecified, the value of the
+                                        environment variable $WT_CONFIG_XML is
+                                        used, or else the built-in default
+                                        (/etc/wt/wt_config.xml) is tried, or else
                                         built-in defaults are used
-  --mime-map-append arg                 location of wt_mimeMap.csv; the 
+  --mime-map-append arg                 location of wt_mimeMap.csv; the
                                         mappings in wt_mimeMap will be added to
                                         the default mappings.
-  --mime-map-override arg               location of wt_mimeMap.csv; if 
-                                        unspecified, the built-in default is 
-                                        used. The mappings in wt_mimeMap will 
+  --mime-map-override arg               location of wt_mimeMap.csv; if
+                                        unspecified, the built-in default is
+                                        used. The mappings in wt_mimeMap will
                                         be used instead of the default mappings.
   --max-memory-request-size arg (=131072)
                                         threshold for request size (bytes), for
                                         spooling the entire request to disk, to
                                         avoid DoS
-  --gdb                                 do not shutdown when receiving Ctrl-C 
+  --gdb                                 do not shutdown when receiving Ctrl-C
                                         (and let gdb break instead)
   --static-cache-control                Cache-Control header value for static
                                         files (defaults to max-age=3600)
 
 HTTP/WebSocket server options:
-  --http-listen arg                     address/port pair to listen on. If no 
-                                        port is specified, 80 is used as the 
+  --http-listen arg                     address/port pair to listen on. If no
+                                        port is specified, 80 is used as the
                                         default, e.g. 127.0.0.1:8080 will cause
-                                        the server to listen on port 8080 of 
-                                        127.0.0.1 (localhost). For IPv6, use 
-                                        square brackets, e.g. [::1]:8080 will 
+                                        the server to listen on port 8080 of
+                                        127.0.0.1 (localhost). For IPv6, use
+                                        square brackets, e.g. [::1]:8080 will
                                         cause the server to listen on port 8080
                                         of [::1] (localhost). This argument can
-                                        be repeated, e.g. --http-listen 
-                                        0.0.0.0:8080 --http-listen [0::0]:8080 
+                                        be repeated, e.g. --http-listen
+                                        0.0.0.0:8080 --http-listen [0::0]:8080
                                         will cause the server to listen on port
-                                        8080 of all interfaces using IPv4 and 
-                                        IPv6. You must specify this option or 
+                                        8080 of all interfaces using IPv4 and
+                                        IPv6. You must specify this option or
                                         --https-listen at least once. The older
-                                        style --http-address and 
-                                        --https-address can also be used for 
-                                        backwards compatibility. If a hostname 
-                                        is provided instead of an IP address, 
-                                        the server will listen on all of the 
-                                        addresses (IPv4 and IPv6) that this 
+                                        style --http-address and
+                                        --https-address can also be used for
+                                        backwards compatibility. If a hostname
+                                        is provided instead of an IP address,
+                                        the server will listen on all of the
+                                        addresses (IPv4 and IPv6) that this
                                         hostname resolves to.
-  --http-address arg                    IPv4 (e.g. 0.0.0.0) or IPv6 Address 
-                                        (e.g. 0::0). You must specify either 
-                                        --http-listen, --https-listen, 
+  --http-address arg                    IPv4 (e.g. 0.0.0.0) or IPv6 Address
+                                        (e.g. 0::0). You must specify either
+                                        --http-listen, --https-listen,
                                         --http-address, or --https-address.
   --http-port arg (=80)                 HTTP port (e.g. 80)
 
 HTTPS/Secure WebSocket server options:
-  --https-listen arg                    address/port pair to listen on. If no 
-                                        port is specified, 80 is used as the 
+  --https-listen arg                    address/port pair to listen on. If no
+                                        port is specified, 80 is used as the
                                         default, e.g. 127.0.0.1:8080 will cause
-                                        the server to listen on port 8080 of 
-                                        127.0.0.1 (localhost). For IPv6, use 
-                                        square brackets, e.g. [::1]:8080 will 
+                                        the server to listen on port 8080 of
+                                        127.0.0.1 (localhost). For IPv6, use
+                                        square brackets, e.g. [::1]:8080 will
                                         cause the server to listen on port 8080
                                         of [::1] (localhost). This argument can
-                                        be repeated, e.g. --https-listen 
+                                        be repeated, e.g. --https-listen
                                         0.0.0.0:8080 --https-listen [0::0]:8080
                                         will cause the server to listen on port
-                                        8080 of all interfaces using IPv4 and 
+                                        8080 of all interfaces using IPv4 and
                                         IPv6. If a hostname is provided instead
-                                        of an IP address, the server will 
-                                        listen on all of the addresses (IPv4 
-                                        and IPv6) that this hostname resolves 
+                                        of an IP address, the server will
+                                        listen on all of the addresses (IPv4
+                                        and IPv6) that this hostname resolves
                                         to.
-  --https-address arg                   IPv4 (e.g. 0.0.0.0) or IPv6 Address 
-                                        (e.g. 0::0). You must specify either 
-                                        --http-listen, --https-listen, 
+  --https-address arg                   IPv4 (e.g. 0.0.0.0) or IPv6 Address
+                                        (e.g. 0::0). You must specify either
+                                        --http-listen, --https-listen,
                                         --http-address, or --https-address.
   --https-port arg (=443)               HTTPS port (e.g. 443)
   --ssl-certificate arg                 SSL server certificate chain file
                                         e.g. "/etc/ssl/certs/vsign1.pem"
   --ssl-private-key arg                 SSL server private key file
                                         e.g. "/etc/ssl/private/company.pem"
-  --ssl-tmp-dh arg                      File for temporary Diffie-Hellman 
+  --ssl-tmp-dh arg                      File for temporary Diffie-Hellman
                                         parameters
                                         e.g. "/etc/ssl/dh512.pem"
-  --ssl-enable-v3                       Switch on SSLv3 support (not 
+  --ssl-enable-v3                       Switch on SSLv3 support (not
                                         recommended; disabled by default)
-  --ssl-client-verification arg (=none) The verification mode for client 
+  --ssl-client-verification arg (=none) The verification mode for client
                                         certificates.
-                                        This is either 'none', 'optional' or 
-                                        'required'. When 'none', the server 
-                                        will not request a client certificate. 
-                                        When 'optional', the server will 
-                                        request a certificate, but the client 
-                                        does not have to supply one. With 
-                                        'required', the connection will be 
-                                        terminated if the client does not 
+                                        This is either 'none', 'optional' or
+                                        'required'. When 'none', the server
+                                        will not request a client certificate.
+                                        When 'optional', the server will
+                                        request a certificate, but the client
+                                        does not have to supply one. With
+                                        'required', the connection will be
+                                        terminated if the client does not
                                         provide a valid certificate.
-  --ssl-verify-depth arg (=1)           Specifies the maximum length of the 
+  --ssl-verify-depth arg (=1)           Specifies the maximum length of the
                                         server certificate chain.
-                                        
-  --ssl-ca-certificates arg             Path to a file containing the 
-                                        concatenated trusted CA certificates, 
-                                        which can be used to authenticate the 
-                                        client. The file should contains a a 
+
+  --ssl-ca-certificates arg             Path to a file containing the
+                                        concatenated trusted CA certificates,
+                                        which can be used to authenticate the
+                                        client. The file should contains a a
                                         number of PEM-encoded certificates.
-                                        
-  --ssl-cipherlist arg                  List of acceptable ciphers for SSL. 
-                                        This list is passed as-is to the SSL 
-                                        layer, so see openssl for the proper 
-                                        syntax. When empty, the default 
-                                        acceptable cipher list will be used. 
-                                        Example cipher list string: 
+
+  --ssl-cipherlist arg                  List of acceptable ciphers for SSL.
+                                        This list is passed as-is to the SSL
+                                        layer, so see openssl for the proper
+                                        syntax. When empty, the default
+                                        acceptable cipher list will be used.
+                                        Example cipher list string:
                                         "TLSv1+HIGH:!SSLv2"
-                                        
-  --ssl-prefer-server-ciphers arg (=0)  By default, the client's preference is 
+
+  --ssl-prefer-server-ciphers arg (=0)  By default, the client's preference is
                                         used for determining the cipher that is
-                                        choosen during a SSL or TLS handshake. 
-                                        By enabling this option, the server's 
+                                        choosen during a SSL or TLS handshake.
+                                        By enabling this option, the server's
                                         preference will be used.
 
 Settings may be set in the configuration file /etc/wt/wthttpd
@@ -1238,37 +1238,37 @@ Wt::log("error") << "Message";
 */
 
 /*! \page example Treelist example
-  
+
    In this example we will step through the code of the <a
    href="https://webtoolkit.eu/wt/examples/treelist/demotreelist.wt">
    Tree List example</a>. The source code of the entire example is
    available as leaves of the tree. Note that %Wt offers a Tree List
    widget as part of the library (see WTreeNode), of which this
    example is a stripped down version.
-  
+
    The example in particular demonstrates the use of stateless slot
    learning to simultaneously implement client-side and server-side
    event handling in C++.
-  
+
    The tree is constructed as a hierarchy of tree nodes. A single tree node
    is implemented in the class TreeNode. TreeNode uses the helper
    class IconPair for rendering icons that have a state (such as the
    expand/collapse icons). We start with a walk-over of this class.
-  
+
    \section stateicon_sec IconPair: a pair of icons that reflects state.
-  
+
    For the implementation of the tree list expand/collapse icons, as
    well as the label icons (such as the folder icon), we use the
    IconPair class. It takes a pair of icons and shows only one at a
    time. Passing clickIsSwitch = true to the constructor will make the
    icon react to click events to switch the current icon.
-  
+
    This is the class definition of IconPair:
-  
+
    \dontinclude examples/treelist/IconPair.h
    \skipline class IconPair
    \until };
-  
+
    IconPair is a composite widget, implemented as a WContainerWidget
    which contains two WImage objects. The class defines two slots:
    IconPair::showIcon1() and IconPair::showIcon2(), which show the
@@ -1285,13 +1285,13 @@ Wt::log("error") << "Message";
    implementation, with JavaScript in the client for visual response
    -- when JavaScript is available, and C++ at the server. When no
    JavaScript is available, everything happens at the server.
-  
+
    The key concept behind %Wt's capability to implement things at the
    client-side is stateless slot implementations. A stateless slot is,
    besides a normal C++ function that may be connected to a signal, a
    C++ function that promises to always have the same behaviour (until
    it is reset, as we will see later).
-  
+
    This applies to the two functions showIcon1() and showIcon2(), as
    they simply set the corresponding icon, irrespective of any
    application state. The library offers two methods for stateless
@@ -1306,83 +1306,83 @@ Wt::log("error") << "Message";
    stateless however, we need to do some extra work by providing
    methods that exactly undo the effect of the slot. We provide here
    two such undo methods: undoShowIcon1() and undoShowIcon2().
-  
+
    Enough talk! Let's look at the implementation, starting with
    the constructor.
-  
+
    \dontinclude examples/treelist/IconPair.C
    \skip IconPair::
    \until icon2_->clicked();
-  
+
    IconPair inherits from WCompositeWidget. A composite widget is
    a widget which is composed from other widgets, in a way not exposed
    in its API. In this way, you may later change the implementation
    without any problem.
-  
+
    Notice how we constructed three widgets that are used in the
    implementation: two images (icon1_ and icon2_), and a container
    (impl_) to hold them. The images are added to the container by
    passing the container as the last argument in their constructor.
-  
+
    WCompositeWidget requires to set the implementation widget,
    which is in our case a WContainerWidget:
-  
+
    \line setImplementation
-  
+
    We declare the slots showIcon1() and showIcon2() as stateless
    slots, allowing for client-side optimisation, and offer an undo
    function which facilitates a PreLearned client-side implementation.
-  
+
    The calls to WObject::implementStateless() state that the slots
    showIcon1() and showIcon2() are stateless slots, and their visual
    effect may be learned in advance. The effect of these statements is
    merely an optimization. Any non-visual effects of these slots are
    still propagated and executed, as expected.
-  
+
    \skipline undoShowIcon1
    \until undoShowIcon2
-  
+
    Next, we declare the widget to be an inline widget. An inline
    widget will be layed out following the natural flow of text (left
    to right).  This does not really matter for our example, since
    TreeNode will do the layout with a WTable, but we do so to
    provide consistency with a WImage which is also inline by
    default.
-  
-   \line setInline 
-  
+
+   \line setInline
+
    The initial state is to show the first icon:
-  
+
    \line hide
-  
+
    To react to click events, we connect signals with slots:
-  
+
    \skipline clickIsSwitch
    \until ; //
-  
+
    We change the cursor to a pointer to hint that clicking these icons
    may do something useful.
 
    \skipline decorationStyle
    \until } //
-  
+
    We also change the cursor to a pointer to
    hint that clicking these icons will in fact perform an action.
-  
+
    The rest of the class definition is:
-  
+
    \skipline setState
    \until } //
-  
+
    Note the implementations of undoShowIcon1() and undoShowIcon2():
    they simply, but accurately, reset the state to what it was before
    the respective showIcon1() and showIcon2() calls.
-  
+
    \section treenode_sec TreeNode: an expandable tree node.
-  
+
    TreeNode contains the implementation of the tree, as a hierarchy of
    tree nodes. The layout of a single node is done using a 2x2 WTable:
-  
+
    \verbatim
    |-----------------------|
    | +/- | label           |
@@ -1392,134 +1392,134 @@ Wt::log("error") << "Message";
    |     | child3          |
    |     |       ...       |
    |-----------------------| \endverbatim
-  
+
    The TreeNode manages a list of child nodes in a WContainerWidget
    which will be hidden and shown when the node is expanded or
    collapsed, and children are collapsed when the node is expanded.
-  
+
    This is the TreeNode class definition:
-  
+
    \dontinclude examples/treelist/TreeNode.h
    \skip class TreeNode
    \until }; //
-  
+
    The public interface of the TreeNode provides methods to manage
    its children, and two public slots to expand or collapse the node.
    Remember, a slot is nothing more than a method (and the public slots:
    does not actually mean anything, except providing a hint to the user
    of this class that these methods are made to be connected to signals).
-  
+
    We start with the implementation of the constructor:
-  
+
    \dontinclude examples/treelist/TreeNode.C
    \skip TreeNode::TreeNode
    \until {
-  
+
    We start with declaring stateless implementations for the slots.
    It is good practice to do this first, since it must be done before
    any connections are made to the slots.
-  
+
    \until undoCollapse
-  
+
    We will implement the treenode as 2 by 2 table.
-  
+
    \skipline setNewImplementation
-  
+
    We create all icons. Since currently the node is empty, we only
    show the no-expand version (which is simply a horizontal line).
-  
+
    \skipline expandIcon_
    \until noExpandIcon
-  
+
    The expanded content is a WContainerWidget.
-  
+
    \skipline expandedContent_
    \until hide
-  
+
    We create the label and child count text widgets:
-  
+
    \skipline labelTextWidget
    \until treenodechildcount
-  
+
    Now we add all widgets in the proper table cell, and set the correct
    alignment.
 
    \skipline labelIcon
    \until setContentAlignment(AlignmentFlag::Middle)
-  
+
    Finally, we connect the click events of the expandIcon to the expand
    and collapse slots.
-  
+
    \skipline expandIcon_
    \until } //
-  
+
    WTable::elementAt(int row, int column) is used repeatedly to add or
    modify contents of the table cells, expanding the table geometry as
    needed. Finally, we make connections from the expand and collapse
    icons to the slots we define in the TreeNode class.
-  
+
    Again, we optimize the visual effect of expand() and collaps() in
    client-side JavaScript, which is possible since they both have an
    effect independent of application state. Typically, one will start
    with a default dynamic slot implementation, and indicate stateless
    implementations where desired and possible, using one of the two
    mechanisms of stateless slot learning.
-  
+
    The "business logic" of the TreeNode is simply to manage its children.
    Whenever a child is added or removed, adjustments to its look are
    updated by calling childNodesChanged().
 
    \skipline isLastChildNode
    \until } //
-  
+
    The expand icon of the last child is rendered differently, as it
    needs to terminate the vertical guide line. To keep the
    implementation simple, we simply let every child reset its proper
    look by calling adjustExpandIcon().
-  
+
    \skipline childNodesChanged
    \until adjustExpandIcon
-  
+
    When getting a first child, or losing the last child, the expand icon
    changes too.
-  
+
    \line adjustExpandIcon
-  
+
    We also update the childCount label.
 
    \skipline childNodes_
    \until }
    \until }
-  
+
    Finally, we call WObject::resetLearnedSlots(). Because the expand()
    slot depends on the number of children, because it needs to
    collapse all children -- this slot is not entirely stateless,
    breaking the contract for a stateless slot. However, we can get
    away with still implementing as a stateless slot, by indicating
    when the state has changed.
-  
+
    \skipline resetLearnedSlots
    \until } //
-  
+
    The implementation of the collapse slot is as follows:
 
    \skipline collapse
    \until {
-  
+
    First we record the current state, so the undo method can exactly undo
    what happened.
 
    \until isHidden()
-  
+
    Next, we implement the actual collapse logic:
-  
+
    \until } //
-  
+
    Similarly, the implementation of the expand slot. However, in this
    case we need to collapse all children as well.
-  
+
    \until } //
-  
+
    Since we implement these slots as prelearned stateless slots, we
    also need to define the undo functions. Note that Because expand()
    also collapses all child nodes, the undo function of expand() is
@@ -1527,39 +1527,39 @@ Wt::log("error") << "Message";
 
    \skipline undoCollapse
    \until } //
-  
+
    Finally, the adjustExpandIcon() function sets the correct images,
    which depends on how the node relates to its siblings. The last
    node looks a bit different.
 
    \skipline adjustExpandIcon
    \until {
-  
+
    We set the expand icon images:
-  
+
    \until (imageLine
-  
+
    Then, we set the vertical guide line if not the last child, and nothing
    if the last child:
 
    \skipline == Last
    \until } //
-  
+
    Finally, we select the correct icon, depending on whether the node
    has children:
 
    \skipline childNodes_
    \until } //
-  
+
    And that's it. By using the TreeNode class in a hierarchy, we can
    create a tree widget. The tree widget will be implemented entirely
    in JavaScript, if available, and otherwise as plain HTML. In any case,
    client-side and server-side state are completely synchronized, and
    identical by definition since they are derived from the same C++ code.
-  
+
 */
 /*! \page InstallationUnix Installation: Unix-like platforms (Linux, macOS, BSD,...)
- 
+
    <h1>Before you start</h1>
    Before you start building %Wt, you need to ensure you have the proper tools set up to do so.
    \snippet{doc} doc/MinimumDependencyVersions.md MinDep
@@ -1573,7 +1573,7 @@ Wt::log("error") << "Message";
    \htmlinclude INSTALL.html
 */
 /*! \page InstallationWindows Installation: Windows
-  
+
    <h1>Before you start</h1>
    \note Most people on Windows will be using prebuilt binaries. So most of the configuration here is not necessary.
 
@@ -1590,7 +1590,7 @@ Wt::log("error") << "Message";
 */
 
 /*! \page Releasenotes Release notes
-  
+
    \htmlinclude ReleaseNotes.html
  */
 

@@ -142,7 +142,7 @@ void toText(S& stream, Reply::status_type status)
 
 } // namespace status_strings
 
-Reply::Reply(Request& request, 
+Reply::Reply(Request& request,
         const Configuration& config,
         const Wt::Configuration* wtConfig)
   : request_(request),
