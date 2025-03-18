@@ -27,6 +27,14 @@
 #include <chrono>
 #include <string>
 
+#ifdef WT_BUILDING
+#  define LOG_ACCESS_S(s,m) (s)->log("access") << WT_LOGGER << ": " << m
+#  define LOG_ACCESS(m) do { \
+    if ( WT_LOGGING("access", WT_LOGGER)) \
+      WT_LOG("access") << WT_LOGGER << ": " << m; \
+    }  while(0)
+#endif
+
 namespace {
 bool ichar_equals(char a, char b)
 {
@@ -512,7 +520,7 @@ void Reply::logReply(Wt::WLogger& logger)
   if (relay_.get())
     return relay_->logReply(logger);
 
-  if (logger.logging("info", WT_LOGGER)) {
+  if (logger.logging("access", WT_LOGGER)) {
     Wt::WStringStream msg;
     msg << request_.remoteIP << " "
         << /* rfc931 << */ " "
@@ -525,13 +533,13 @@ void Reply::logReply(Wt::WLogger& logger)
         << std::to_string(contentSent_);
 
     if (configuration_.accessLog().empty()) {
-      LOG_INFO(msg.str());
+      LOG_ACCESS(msg.str());
     } else {
-      Wt::WLogEntry e = logger.entry("info");
+      Wt::WLogEntry e = logger.entry("access");
       e << Wt::WLogger::timestamp << Wt::WLogger::sep
         << getpid() << Wt::WLogger::sep
         << /* sessionId << */ Wt::WLogger::sep
-        << "[info]" << Wt::WLogger::sep 
+        << "[access]" << Wt::WLogger::sep
         << WT_LOGGER << ": " << msg.str();
     }
   }
