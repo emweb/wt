@@ -161,6 +161,15 @@
 .modal .Wt-msgbox-text {
   overflow: auto;
 }
+
+/*
+ * Allow to change help-block and help-inline default color
+ */
+ span.help-block.Wt-auth-help,
+ span.help-inline.Wt-auth-help {
+  color: #6c757d;
+}
+
 /*
  * Non-bootstrap widgets
  */

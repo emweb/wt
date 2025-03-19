@@ -15,7 +15,7 @@
         ${tr:Wt.Auth.{1}}
       </label>
       <div class="controls">
-        ${{1}} <span class="help-inline">${{1}-info}</span>
+        ${{1}} <span class="help-inline Wt-auth-help">${{1}-info}</span>
       </div>
     </div>
     ]]>
@@ -36,7 +36,7 @@
         ${{2}}
       </label>
       <div class="controls">
-        ${{1}} <span class="help-inline">
+        ${{1}} <span class="help-inline Wt-auth-help">
           ${{1}-info}
         </span>
       </div>
@@ -59,7 +59,7 @@
         ${{2}}
       </label>
       <div class="controls">
-        ${{1}} <span class="help-inline">
+        ${{1}} <span class="help-inline Wt-auth-help">
           ${{1}-info} ${{3} class="btn-link"}
         </span>
       </div>
@@ -214,7 +214,7 @@
           </label>
           <div class="controls">
             ${totp-code}
-            <span class="form-text help-inline help-block">
+            <span class="form-text help-inline help-block Wt-auth-help">
               <span>${totp-code-info}</span>
             </span>
           </div>
