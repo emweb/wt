@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <messages xmlns:if="Wt.WTemplate.conditions">
-  <message id="Wt.Auth.field">
+  <message id="Wt.Auth.field.active">
     <![CDATA[
-    ${<if:{1}>}
     <div class="form-group row">
       <label for="${id:{1}}" class="col-form-label">
         ${tr:Wt.Auth.{1}}
@@ -14,7 +13,6 @@
         ${{1}-info}
       </div>
     </div>
-    ${</if:{1}>}
     ]]>
   </message>
 
@@ -36,9 +34,8 @@
     ]]>
   </message>
 
-  <message id="Wt.Auth.field2">
+  <message id="Wt.Auth.field2.active">
     <![CDATA[
-    ${<if:{1}>}
     <div class="form-group row">
       <label for="${id:{1}}" class="col-form-label">
         ${{2}}
@@ -50,13 +47,11 @@
         ${{1}-info}
       </div>
     </div>
-    ${</if:{1}>}
     ]]>
   </message>
 
-  <message id="Wt.Auth.field3">
+  <message id="Wt.Auth.field3.active">
     <![CDATA[
-    ${<if:{1}>}
     <div class="form-group row">
       <label for="${id:{1}}" class="col-form-label">
         ${{2}}
@@ -68,7 +63,6 @@
         ${{1}-info} ${{3} class="btn-link"}
       </div>
     </div>
-    ${</if:{1}>}
     ]]>
   </message>
 

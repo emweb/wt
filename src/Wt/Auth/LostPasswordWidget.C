@@ -29,6 +29,7 @@ LostPasswordWidget::LostPasswordWidget(AbstractUserDatabase& users,
   addFunction("block", &Functions::block);
 
   WLineEdit *email = bindWidget("email", std::make_unique<WLineEdit>());
+  bindString("email-info", tr("Wt.Auth.email-info"));
   email->setFocus(true);
 
   WPushButton *okButton = bindWidget

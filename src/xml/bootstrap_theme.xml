@@ -3,6 +3,13 @@
   <message id="Wt.Auth.field">
     <![CDATA[
     ${<if:{1}>}
+    ${block:Wt.Auth.field.active {1}}
+    ${</if:{1}>}
+    ]]>
+  </message>
+
+  <message id="Wt.Auth.field.active">
+    <![CDATA[
     <div class="control-group">
       <label for="${id:{1}}" class="control-label">
         ${tr:Wt.Auth.{1}}
@@ -11,13 +18,19 @@
         ${{1}} <span class="help-inline">${{1}-info}</span>
       </div>
     </div>
-    ${</if:{1}>}
     ]]>
   </message>
 
   <message id="Wt.Auth.field2">
     <![CDATA[
     ${<if:{1}>}
+    ${block:Wt.Auth.field2.active {1} {2}}
+    ${</if:{1}>}
+    ]]>
+  </message>
+
+  <message id="Wt.Auth.field2.active">
+    <![CDATA[
     <div class="control-group">
       <label for="${id:{1}}" class="control-label">
         ${{2}}
@@ -28,13 +41,19 @@
         </span>
       </div>
     </div>
-    ${</if:{1}>}
     ]]>
   </message>
 
   <message id="Wt.Auth.field3">
     <![CDATA[
     ${<if:{1}>}
+    ${block:Wt.Auth.field3.active {1} {2} {3}}
+    ${</if:{1}>}
+    ]]>
+  </message>
+
+  <message id="Wt.Auth.field3.active">
+    <![CDATA[
     <div class="control-group">
       <label for="${id:{1}}" class="control-label">
         ${{2}}
@@ -45,7 +64,6 @@
         </span>
       </div>
     </div>
-    ${</if:{1}>}
     ]]>
   </message>
 
@@ -139,17 +157,7 @@
     <p>${tr:Wt.Auth.resend-verification-msg}</p>
     <div class="Wt-form">
       <div class="form-horizontal">
-        <div class="control-group">
-          <label for="${id:email}" class="control-label">
-            ${tr:Wt.Auth.email}
-          </label>
-          <div class="controls">
-            ${email}
-            <span class="help-inline">
-              <span>${email-info}</span>
-            </span>
-          </div>
-        </div>
+        ${block:Wt.Auth.field.active email}
 
         <div class="modal-footer"> <!-- assuming here we're in a dialog -->
           ${send-button class="btn-primary"} ${cancel-button}
@@ -161,17 +169,7 @@
   <message id="Wt.Auth.template.lost-password">
     <div class="Wt-form Wt-auth-lost-password">
       <div class="form-horizontal">
-        <div class="control-group">
-          <label for="${id:email}" class="control-label">
-            ${tr:Wt.Auth.email}
-          </label>
-          <div class="controls">
-            ${email}
-            <span class="help-inline">
-              <span>${tr:Wt.Auth.email-info}</span>
-            </span>
-          </div>
-        </div>
+        ${block:Wt.Auth.field.active email}
 
         <div class="modal-footer"> <!-- assuming here we're in a dialog -->
           ${send-button class="btn-primary"} ${cancel-button}
