@@ -66,6 +66,12 @@
     ]]>
   </message>
 
+  <message id="Wt.Auth.checkbox.field">
+    <![CDATA[
+    ${block:Wt.Auth.field {1}}
+    ]]>
+  </message>
+
   <message id="Wt.WNavigationBar.template">
     <div class="container-fluid">
       ${title-link}

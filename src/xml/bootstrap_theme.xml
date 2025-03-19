@@ -70,7 +70,16 @@
   <message id="Wt.Auth.checkbox.field">
     <![CDATA[
     ${<if:{1}>}
-    ${block:Wt.Auth.field {1}}
+    <div class="control-group">
+      <label for="${id:{1}}" class="control-label">
+        ${tr:Wt.Auth.{1}}
+      </label>
+      <div class="controls">
+        <label class="checkbox">
+          ${{1}} <span class="help-inline Wt-auth-help">${{1}-info}</span>
+        </label>
+      </div>
+    </div>
     ${</if:{1}>}
     ]]>
   </message>
