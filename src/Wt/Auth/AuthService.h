@@ -723,8 +723,8 @@ public:
    * LoginState::Strong (when authenticating with a password), the state
    * will be set to LoginState::RequiresMfa.
    *
-   * This will only take effect is mfaEnabled() is \p true as well (and
-   * thus if an MFA provider has been configured (setMfaProvider()). If
+   * This will only take effect if mfaEnabled() is \p true as well (and
+   * thus if an MFA provider has been configured (setMfaProvider())). If
    * this is the case, all users will be enforced to verify their login
    * with an extra step, for more security.
    *
