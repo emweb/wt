@@ -15,7 +15,7 @@
         ${tr:Wt.Auth.{1}}
       </label>
       <div class="controls">
-        ${{1}} <span class="help-inline Wt-auth-help">${{1}-info}</span>
+        ${{1}} <span class="help-block Wt-auth-help">${{1}-info}</span>
       </div>
     </div>
     ]]>
@@ -36,7 +36,7 @@
         ${{2}}
       </label>
       <div class="controls">
-        ${{1}} <span class="help-inline Wt-auth-help">
+        ${{1}} <span class="help-block Wt-auth-help">
           ${{1}-info}
         </span>
       </div>
@@ -59,7 +59,7 @@
         ${{2}}
       </label>
       <div class="controls">
-        ${{1}} <span class="help-inline Wt-auth-help">
+        ${{1}} <span class="help-block Wt-auth-help">
           ${{1}-info} ${{3} class="btn-link"}
         </span>
       </div>
@@ -71,12 +71,10 @@
     <![CDATA[
     ${<if:{1}>}
     <div class="control-group">
-      <label for="${id:{1}}" class="control-label">
-        ${tr:Wt.Auth.{1}}
-      </label>
       <div class="controls">
         <label class="checkbox">
-          ${{1}} <span class="help-inline Wt-auth-help">${{1}-info}</span>
+          ${tr:Wt.Auth.{1}} ${{1}} <br/>
+          <span class="help-block Wt-auth-help">${{1}-info}</span>
         </label>
       </div>
     </div>
@@ -217,13 +215,13 @@
           ${tr:Wt.Auth.totp-qr-code-explanation}
           <p> Secret key: ${secret-key}</p>
         ${</if:no-secret-key>}
-        <div class="control-group ${label}">
+        <div class="control-group ${label} mb-3">
           <label for="${id:totp-code}" class="control-label">
             ${tr:Wt.Auth.totp-code}
           </label>
           <div class="controls">
             ${totp-code}
-            <span class="form-text help-inline help-block Wt-auth-help">
+            <span class="form-text help-block Wt-auth-help">
               <span>${totp-code-info}</span>
             </span>
           </div>

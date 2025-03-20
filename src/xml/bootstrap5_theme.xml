@@ -2,7 +2,7 @@
 <messages xmlns:if="Wt.WTemplate.conditions">
   <message id="Wt.Auth.field.active">
     <![CDATA[
-    <div class="form-group row">
+    <div class="row mb-3">
       <label for="${id:{1}}" class="col-form-label">
         ${tr:Wt.Auth.{1}}
       </label>
@@ -19,7 +19,7 @@
   <message id="Wt.Auth.field-check">
     <![CDATA[
     ${<if:{1}>}
-    <div class="form-group row">
+    <div class="row mb-3">
       <label for="${id:{1}}" class="col-form-label">
         ${tr:Wt.Auth.{1}}
       </label>
@@ -36,7 +36,7 @@
 
   <message id="Wt.Auth.field2.active">
     <![CDATA[
-    <div class="form-group row">
+    <div class="row mb-3">
       <label for="${id:{1}}" class="col-form-label">
         ${{2}}
       </label>
@@ -52,7 +52,7 @@
 
   <message id="Wt.Auth.field3.active">
     <![CDATA[
-    <div class="form-group row">
+    <div class="row mb-3">
       <label for="${id:{1}}" class="col-form-label">
         ${{2}}
       </label>
@@ -68,7 +68,19 @@
 
   <message id="Wt.Auth.checkbox.field">
     <![CDATA[
-    ${block:Wt.Auth.field {1}}
+    ${<if:{1}>}
+    <div class="mb-3">
+    <div class="form-check">
+      ${{1}}
+      <label for="${id:{1}}" class="form-check-label">
+        ${tr:Wt.Auth.{1}}
+      </label>
+      <div class="form-text">
+          ${{1}-info}
+      </div>
+    </div>
+    </div>
+    ${</if:{1}>}
     ]]>
   </message>
 
