@@ -3,14 +3,14 @@
   <message id="Wt.Auth.field.active">
     <![CDATA[
     <div class="row mb-3">
-      <label for="${id:{1}}" class="col-form-label">
+      <label for="${id:{1}}" class="col-sm-2 col-form-label text-sm-end" style="min-width: 100px;">
         ${tr:Wt.Auth.{1}}
       </label>
-      <div class="">
+      <div class="col-sm-8">
         ${{1}}
-      </div>
-      <div class="form-text">
-        ${{1}-info}
+        <div class="form-text">
+          ${{1}-info}
+        </div>
       </div>
     </div>
     ]]>
@@ -20,14 +20,14 @@
     <![CDATA[
     ${<if:{1}>}
     <div class="row mb-3">
-      <label for="${id:{1}}" class="col-form-label">
+      <label for="${id:{1}}" class="col-sm-2 col-form-label text-sm-end" style="min-width: 100px;">
         ${tr:Wt.Auth.{1}}
       </label>
-      <div class="">
+      <div class="col-sm-8">
         ${{1}}
-      </div>
-      <div class="form-text">
-        ${{1}-info}
+        <span class="form-text">
+          ${{1}-info}
+        </span>
       </div>
     </div>
     ${</if:{1}>}
@@ -37,14 +37,14 @@
   <message id="Wt.Auth.field2.active">
     <![CDATA[
     <div class="row mb-3">
-      <label for="${id:{1}}" class="col-form-label">
+      <label for="${id:{1}}" class="col-sm-2 col-form-label text-sm-end" style="min-width: 100px;">
         ${{2}}
       </label>
-      <div class="">
+      <div class="col-sm-8">
         ${{1}}
-      </div>
-      <div class="form-text">
-        ${{1}-info}
+        <span class="form-text">
+          ${{1}-info}
+        </span>
       </div>
     </div>
     ]]>
@@ -53,14 +53,14 @@
   <message id="Wt.Auth.field3.active">
     <![CDATA[
     <div class="row mb-3">
-      <label for="${id:{1}}" class="col-form-label">
+      <label for="${id:{1}}" class="col-sm-2 col-form-label text-sm-end" style="min-width: 100px;">
         ${{2}}
       </label>
-      <div class="">
+      <div class="col-sm-8">
         ${{1}}
-      </div>
-      <div class="form-text">
-        ${{1}-info} ${{3} class="btn-link"}
+        <span class="form-text">
+          ${{1}-info} ${{3} class="btn-link"}
+        </span>
       </div>
     </div>
     ]]>
@@ -69,16 +69,18 @@
   <message id="Wt.Auth.checkbox.field">
     <![CDATA[
     ${<if:{1}>}
-    <div class="mb-3">
-    <div class="form-check">
-      ${{1}}
-      <label for="${id:{1}}" class="form-check-label">
-        ${tr:Wt.Auth.{1}}
-      </label>
-      <div class="form-text">
-          ${{1}-info}
+    <div class="row mb-3">
+      <div class="offset-sm-2 col-sm-8">
+        <div class="form-check">
+          ${{1}}
+          <label for="${id:{1}}" class="form-check-label">
+            ${tr:Wt.Auth.{1}}
+          </label>
+          <div class="form-text">
+              ${{1}-info}
+          </div>
+        </div>
       </div>
-    </div>
     </div>
     ${</if:{1}>}
     ]]>

@@ -104,7 +104,7 @@
         ${</if:oauth>}
 
         <div class="form-actions form-group">
-          <div class="col-sm-offset-2 col-sm-10">
+          <div class="col-sm-offset-2 offset-sm-2 col-sm-10">
             <p>${login class="btn-primary"}</p>
             <p>${lost-password class="btn-link"} ${sep}
             ${register class="btn-link"}</p>
@@ -215,11 +215,11 @@
           ${tr:Wt.Auth.totp-qr-code-explanation}
           <p> Secret key: ${secret-key}</p>
         ${</if:no-secret-key>}
-        <div class="control-group ${label} mb-3">
-          <label for="${id:totp-code}" class="control-label">
+        <div class="control-group ${label} row mb-3">
+          <label for="${id:totp-code}" class="col-sm-2 control-label text-sm-end">
             ${tr:Wt.Auth.totp-code}
           </label>
-          <div class="controls">
+          <div class="controls col-sm-8">
             ${totp-code}
             <span class="form-text help-block Wt-auth-help">
               <span>${totp-code-info}</span>
@@ -228,7 +228,7 @@
         </div>
         ${block:Wt.Auth.checkbox.field remember-me}
 
-        <div class="form-actions">
+        <div class="form-actions offset-sm-2">
           <p>${login class="btn-primary"} ${logout class="btn-secondary"}</p>
         </div>
       </div>
