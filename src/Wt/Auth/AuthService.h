@@ -887,7 +887,7 @@ public:
    *
    * By default this is not enabled.
    *
-   * \sa mfaThrottleEnabled(), AbstractMfaProcess::setMfaThrottle()
+   * \sa mfaThrottleEnabled(), Mfa::AbstractMfaProcess::setMfaThrottle()
    */
   void setMfaThrottleEnabled(bool enabled);
 
