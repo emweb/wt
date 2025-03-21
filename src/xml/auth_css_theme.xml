@@ -105,6 +105,23 @@
     </div>
   </message>
 
+  <message id="Wt.Auth.template.resend-email-verification">
+    <div class="Wt-form">
+      <p>${tr:Wt.Auth.resend-verification-msg}</p>
+
+      <div class="Wt-fields">
+         <label for="${id:email}">
+          ${tr:Wt.Auth.email}
+        </label>
+        ${email}
+      </div>
+
+      <div class="Wt-buttons">
+        ${send-button} ${cancel-button}
+      </div>
+    </div>
+  </message>
+
   <message id="Wt.Auth.template.lost-password">
     <div class="Wt-form Wt-auth-lost-password">
       <h2>${tr:Wt.Auth.lost-password-form-title}</h2>
