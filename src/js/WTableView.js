@@ -39,6 +39,7 @@ WT_DECLARE_WT_MEMBER(
     let initialScrollTopSet = initialScrollTop === 0;
 
     let itemDropsEnabled = false, betweenRowsDropsEnabled = false;
+    let waitingForContent = true;
 
     /*
     * We need to remember this for when going through a hide()
@@ -53,7 +54,13 @@ WT_DECLARE_WT_MEMBER(
         (contentsContainer.scrollTop < scrollY1 ||
           contentsContainer.scrollTop > scrollY2 ||
           contentsContainer.scrollLeft < scrollX1 ||
-          contentsContainer.scrollLeft > scrollX2)
+          contentsContainer.scrollLeft > scrollX2 ||
+          /*
+           * If we are waiting to recieve the content, we also need to
+           * emit the scrolled because the current content will be
+           * removed once the new one arrives.
+           */
+          waitingForContent)
       ) {
         APP.emit(
           el,
@@ -63,6 +70,8 @@ WT_DECLARE_WT_MEMBER(
           Math.round(contentsContainer.clientWidth),
           Math.round(contentsContainer.clientHeight)
         );
+
+        waitingForContent = true;
       }
     }
 
@@ -327,6 +336,7 @@ WT_DECLARE_WT_MEMBER(
       scrollX2 = X2;
       scrollY1 = Y1;
       scrollY2 = Y2;
+      waitingForContent = false;
     };
 
     this.resetScroll = function() {
