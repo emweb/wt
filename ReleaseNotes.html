@@ -42,6 +42,13 @@ behaviour.
     <a href="classWt_1_1WAbstractArea.html" target="_blank">WAbstractArea</a> with no link losing their style classes.
   </li>
   <li>
+    <a href="classWt_1_1Dbo_1_1QueryModel.html">QueryModel</a> sometimes not completely filling its row cache when loading rows at the end
+    of the table.
+
+    Additionally, fixed WTableView scrolling sometimes not being syncronised with the server, leading to the wrong data being sent to the
+    client. This was more likely to occur when the connection with the server was slow.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13867" target="_blank">Issue #13867</a>:
     corrected the default value of the <code>&lt;debug-level&gt;</code> configuration. Due to a previous rename this still carried the name <code>script</code>, instead of <code>framework</code>.
   </li>
@@ -59,6 +66,15 @@ behaviour.
     <a href="classWt_1_1WFormWidget.html" target="_blank">WFormWidget</a> on its first
     rendering. Now, the validation is only applied once the user selects the widget, or when validation is called, using
     <a href="classWt_1_1WFormWidget.html#a1bf85706ce6af9324706457bf2f9ca83" target="_blank">WFormWidget::validate()</a>.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13536" target="_blank">Issue #13536</a>:
+    fixed
+    <a href="classWt_1_1Dbo_1_1QueryModel.html" target="_blank">QueryModel</a> sometimes not completely filling it's row cache when loading rows at the end
+    of the table.
+
+    Additionally, fixed <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a> scrolling sometimes not being synchronised with the server, leading to the wrong data being sent to the
+    client. This was more likely to occur when the connection with the server was slow.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13464" target="_blank">Issue #13464</a>:
