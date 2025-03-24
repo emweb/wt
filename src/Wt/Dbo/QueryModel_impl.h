@@ -281,8 +281,7 @@ void QueryModel<Result>::cacheRow(int row) const
 {
   if (row < cacheStart_
       || row >= cacheStart_ + static_cast<int>(cache_.size())) {
-    cacheStart_ = std::max(row - batchSize_ / 4, 0);
-
+    cacheStart_ = std::max(std::min(row - batchSize_ / 4, cachedRowCount_ - batchSize_), 0);
     int qOffset = cacheStart_;
     if (queryOffset_ > 0)
       qOffset += queryOffset_;
