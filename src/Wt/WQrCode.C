@@ -1,6 +1,5 @@
 #include "Wt/WQrCode.h"
 
-#include <Wt/WBrush.h>
 #include <Wt/WPaintedWidget.h>
 #include <Wt/WPainter.h>
 
@@ -66,10 +65,15 @@ void WQrCode::setSquareSize(double size)
   }
 }
 
+void WQrCode::setBrush(const WBrush& brush)
+{
+  brush_ = brush;
+  update();
+}
+
 void WQrCode::paintEvent(WPaintDevice* paintDevice)
 {
   WPainter painter(paintDevice);
-  auto brush = WBrush(StandardColor::Black);
 
   if (code()) {
     for (auto line = 0; line < code()->getSize(); ++line) {
@@ -77,7 +81,7 @@ void WQrCode::paintEvent(WPaintDevice* paintDevice)
         if (code()->getModule(column, line)) {
           painter.fillRect(line * squareSize(), column * squareSize(),
                             squareSize(), squareSize(),
-                            brush);
+                            brush_);
         }
       }
     }
@@ -86,6 +90,7 @@ void WQrCode::paintEvent(WPaintDevice* paintDevice)
 
 void WQrCode::init()
 {
+  brush_ = WBrush(StandardColor::Black);
   generateCode();
 }
 

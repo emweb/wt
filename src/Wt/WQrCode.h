@@ -7,6 +7,7 @@
 #ifndef WT_QRCODE_H_
 #define WT_QRCODE_H_
 
+#include "Wt/WBrush.h"
 #include "Wt/WPaintedWidget.h"
 
 #include "thirdparty/qrcodegen/QrCode.hpp"
@@ -52,6 +53,10 @@ public:
 
   bool error() const { return !code(); }
 
+  void setBrush(const WBrush& brush);
+
+  WBrush brush() const { return brush_; }
+
 protected:
   void paintEvent(WPaintDevice* paintDevice) override;
 
@@ -60,6 +65,7 @@ private:
   std::string msg_;
   std::unique_ptr<qrcodegen::QrCode> code_;
   double squareSize_;
+  WBrush brush_;
 
   void init();
   const qrcodegen::QrCode* code() const { return code_.get(); }
