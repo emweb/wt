@@ -44,6 +44,7 @@ private:
   std::vector<WLayoutItem *> addedItems_;
   std::vector<std::string> removedItems_;
   std::string elId_;
+  bool canAdjustLayout_;
 
   int minimumHeightForRow(int row) const;
   int minimumWidthForColumn(int column) const;

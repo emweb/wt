@@ -26,7 +26,8 @@ WT_MAYBE_UNUSED LOGGER("FlexLayout");
 
 FlexLayoutImpl::FlexLayoutImpl(WLayout *layout, Impl::Grid& grid)
   : StdLayoutImpl(layout),
-    grid_(grid)
+    grid_(grid),
+    canAdjustLayout_(false)
 {
   const char *THIS_JS = "js/FlexLayoutImpl.js";
 
@@ -63,7 +64,15 @@ void FlexLayoutImpl::updateDom(DomElement& parent)
 
   DomElement *div = DomElement::getForUpdate(elId_, DomElementType::DIV);
 
+  bool skipLayoutAdjust = false;
   Orientation orientation = getOrientation();
+  if (grid_.items_.size() > 0) {
+    auto layoutParentWidget = item(orientation, 0).item_->parentWidget();
+    if (layoutParentWidget && !layoutParentWidget->isEnabled()) {
+      skipLayoutAdjust = true;
+    }
+  }
+
 
   std::vector<int> orderedInserts;
   for (unsigned i = 0; i < addedItems_.size(); ++i)
@@ -87,7 +96,13 @@ void FlexLayoutImpl::updateDom(DomElement& parent)
 
   removedItems_.clear();
 
-  div->callMethod("layout.adjust()");
+  if (canAdjustLayout_) {
+    div->callMethod("layout.adjust()");
+  }
+
+  if (!canAdjustLayout_ && skipLayoutAdjust) {
+    canAdjustLayout_ = true;
+  }
 
   parent.addChild(div);
 }
