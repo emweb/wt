@@ -453,7 +453,7 @@ Orientation FlexLayoutImpl::getOrientation() const
 }
 
 DomElement *FlexLayoutImpl::createElement(Orientation orientation,
-                                          unsigned index,
+                                          int index,
                                           int totalStretch,
                                           WApplication *app)
 {

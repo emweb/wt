@@ -50,7 +50,7 @@ private:
   int minimumWidthForColumn(int column) const;
   int maximumHeightForRow(int row) const;
   int maximumWidthForColumn(int column) const;
-  DomElement *createElement(Orientation orientation, unsigned index,
+  DomElement *createElement(Orientation orientation, int index,
                             int totalStretch, WApplication *app);
   Orientation getOrientation() const;
   LayoutDirection getDirection() const;
