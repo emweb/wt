@@ -13,6 +13,7 @@
 
 using namespace Wt;
 
+// Requirement: security wt-auth-bcrypt-password-10-iteration
 BOOST_AUTO_TEST_CASE( bcrypt_test )
 {
   for (int i = 0; i < 11; i++) {
