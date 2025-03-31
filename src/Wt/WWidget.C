@@ -423,7 +423,7 @@ void WWidget::positionAt(const WWidget *widget, Orientation orientation,
 
   std::string side = (orientation == Orientation::Horizontal
                       ? ".Horizontal" : ".Vertical");
-  
+
   std::string canAdjustX = adjustOrientations.test(Orientation::Horizontal) ? "true" : "false";
   std::string canAdjustY = adjustOrientations.test(Orientation::Vertical) ? "true" : "false";
 

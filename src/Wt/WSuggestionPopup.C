@@ -142,7 +142,7 @@ void WSuggestionPopup::render(WFlags<RenderFlag> flags)
   if (flags.test(RenderFlag::Full)) {
     defineJavaScript();
   }
-  if (flags_.test(BIT_ADJUST_CHANGED)) { 
+  if (flags_.test(BIT_ADJUST_CHANGED)) {
     std::string doAdjustX = adjust().test(Orientation::Horizontal) ? "true" : "false";
     std::string doAdjustY = adjust().test(Orientation::Vertical) ? "true" : "false";
 
@@ -150,7 +150,7 @@ void WSuggestionPopup::render(WFlags<RenderFlag> flags)
     flags_.reset(BIT_ADJUST_CHANGED);
   }
 
-  if (WApplication::instance()->environment().ajax() && 
+  if (WApplication::instance()->environment().ajax() &&
       flags_.test(BIT_FILTER_SCHEDULED)) {
     doFilter(currentInputText_);
     flags_.reset(BIT_FILTER_SCHEDULED);
