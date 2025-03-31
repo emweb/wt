@@ -276,11 +276,17 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
       } else {
         element.addPropertyWord(Property::Class, "nav-link");
       }
+      break;
     }
 
-    if (element.getAttribute("href").empty() &&
-        element.getProperty(Property::Class).empty())
+    auto row = dynamic_cast<WContainerWidget*>(widget->parent());
+    WContainerWidget* list = row ? dynamic_cast<WContainerWidget*>(row->parent()) : nullptr;
+    WSuggestionPopup* suggestionPopup = list ? dynamic_cast<WSuggestionPopup*>(list->parent()) : nullptr;
+
+    std::string href = element.getAttribute("href");
+    if (suggestionPopup && (href.empty() || href == "#")) {
       element.addPropertyWord(Property::Class, "dropdown-item");
+    }
 
     break;
   }
