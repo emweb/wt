@@ -30,6 +30,14 @@ behaviour.
     corrected the default value of the <code>&lt;debug-level&gt;</code> configuration. Due to a previous rename this still carried the name <code>script</code>, instead of <code>framework</code>.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13508" target="_blank">Issue #13508</a>:
+    fixed validation style being applied to a
+    <a href="classWt_1_1WFormWidget.html" target="_blank">WFormWidget</a> on its first
+    rendering. Now, the validation is only applied once the user selects the widget, or when validation is called, using
+    <a href="classWt_1_1WFormWidget.html#a1bf85706ce6af9324706457bf2f9ca83" target="_blank">WFormWidget::validate()</a>.
+
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13361" target="_blank">Issue #13361</a>:
     correct standalone Asio versioning checks, and Boost included Asio versioning checks.
   </li>
