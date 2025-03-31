@@ -143,13 +143,6 @@ void WFormWidget::render(WFlags<RenderFlag> flags)
   if (flags.test(RenderFlag::Full)) {
     if (flags_.test(BIT_JS_OBJECT))
       defineJavaScript(true);
-
-    if (realValidator()) {
-      WValidator::Result result = realValidator()->validate(valueText());
-      WApplication::instance()->theme()
-        ->applyValidationStyle(this, result,
-                               ValidationStyleFlag::InvalidStyle);
-    }
   }
 
   WInteractWidget::render(flags);
