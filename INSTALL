@@ -188,10 +188,10 @@ Trying the examples (or your own Wt application)
    the build option EXAMPLES_CONNECTOR (see supra).
 
    Some examples need TinyMCE:
-     * Download TinyMCE from [17]http://tinymce.moxiecode.com/ and install
-       its tiny_mce folder into the resources/ folder.
+     * Download TinyMCE from [17]https://github.com/tinymce/tinymce and install
+       its tiny_mce, or tinymce folder into the resources/ folder.
 
-   You will notice 404 File not Found errors for resources/tiny_mce/ if
+   You will notice 404 File not Found errors for resources/tiny(_)mce/ if
    you are missing this library.
 
   A. Using wthttpd
@@ -421,5 +421,5 @@ References
   14. http://www.unixodbc.org/
   15. http://www.nongnu.org/libunwind/
   16. http://www.fastcgi.com/
-  17. http://tinymce.moxiecode.com/
+  17. https://github.com/tinymce/tinymce
   18. http://127.0.0.1:8080/

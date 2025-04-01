@@ -20,7 +20,7 @@ in the README.md for each example.
 Some examples need third-party JavaScript libraries (ExtJS or TinyMCE).
 
 - Download [ExtJS](http://yogurtearl.com/ext-2.0.2.zip), and install it according to [these instructions](http://www.webtoolkit.eu/wt/doc/reference/html/group__ext.html)
-- Download [TinyMCE](http://tinymce.moxiecode.com/) and install its tiny_mce folder into the resources/ folder.
+- Download [TinyMCE](https://github.com/tinymce/tinymce) and install its tiny_mce, or tinymce folder into the resources/ folder.
 
 You will notice 404 File not Found errors for `ext/` or
-`resources/tiny_mce/` if you are missing these JavaScript libraries.
+`resources/tiny(_)mce/` if you are missing these JavaScript libraries.

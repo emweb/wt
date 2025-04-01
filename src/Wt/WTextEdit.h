@@ -22,8 +22,8 @@ namespace Wt {
  * add additional formatting options.
  *
  * The implementation is based on <a
- * href="http://tinymce.moxiecode.com/">TinyMCE</a>. The widget may be
- * configured and tailored using the setConfigurationSetting() and
+ * href="https://github.com/tinymce/tinymce">TinyMCE</a>. The widget may
+ * be configured and tailored using the setConfigurationSetting() and
  * related methods that provide direct access to the underlying
  * TinyMCE component.
  *
@@ -47,7 +47,7 @@ namespace Wt {
  * deploy the <tt>js/tinymce</tt> folder to <i>tinyMCEBaseURL</i>. The
  * default value for <i>tinyMCEBaseURL</i> for TinyMCE 4 (or later) is
  * is <i>resourcesURL</i><tt>/tinymce</tt> (i.e., we assume by default that you
- * copy the <tt>tiny_mce</tt> folder to the <tt>resources/</tt>
+ * copy the <tt>tinymce</tt> folder to the <tt>resources/</tt>
  * folder).
  *
  * If the name of the main TinyMCE JavaScript file is not tinymce.js
@@ -203,7 +203,9 @@ public:
   /*! \brief Configure a TinyMCE setting.
    *
    * A list of possible settings can be found at:
-   * http://tinymce.moxiecode.com/wiki.php/Configuration
+   * https://www.tiny.cloud/docs/tinymce/5/configure/
+   * or for older versions:
+   * https://github.com/tinymce/tinymce-docs/
    *
    * The widget itself will also define a number of configuration settings
    * and these may be overridden using this method.
