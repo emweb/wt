@@ -26,6 +26,16 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.emweb.be/issues/13669" target="_blank">Issue #13669</a>:
+    <a href="classWt_1_1WObject.html#a64ce31cadb378c4eba81224f43bf493d" target="_blank">setObjectName()</a> should now correctly set the
+    <code>data-object-name</code> attribute of the DOM element representing
+    <a href="classWt_1_1WLayout.html" target="_blank">WLayout</a>,
+    <a href="classWt_1_1WAbstractArea.html" target="_blank">WAbstractArea</a>,
+    <a href="classWt_1_1WTableRow.html" target="_blank">WTableRow</a>, and
+    <a href="classWt_1_1WTableColumn.html" target="_blank">WTableColumn</a>.
+    Additionally, flexbox-based sub-layouts should now correctly be updated when removing or adding a widget to it, or when update is called.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13867" target="_blank">Issue #13867</a>:
     corrected the default value of the <code>&lt;debug-level&gt;</code> configuration. Due to a previous rename this still carried the name <code>script</code>, instead of <code>framework</code>.
   </li>
