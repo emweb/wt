@@ -192,6 +192,8 @@ public:
   // true if flex is preferred and supported (by the layout and the browser)
   virtual bool implementationIsFlexLayout() const;
 
+  void setObjectName(const std::string& name) override;
+
 protected:
   /*! \brief Create a layout.
    */

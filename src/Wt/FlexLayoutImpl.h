@@ -39,7 +39,13 @@ public:
   bool itemResized(WLayoutItem *item) override;
   bool parentResized() override;
 
+  void setObjectName(const std::string& name) override;
+
 private:
+  static const int BIT_OBJECT_NAME_CHANGED = 0;
+
+  std::bitset<1> flags_;
+
   Impl::Grid& grid_;
   std::vector<WLayoutItem *> addedItems_;
   std::vector<std::string> removedItems_;

@@ -83,6 +83,15 @@ bool StdGridLayoutImpl2::parentResized()
     return false;
 }
 
+void StdGridLayoutImpl2::setObjectName(const std::string& name)
+{
+  if (objectName() != name) {
+    WObject::setObjectName(name);
+    flags_.set(BIT_OBJECT_NAME_CHANGED);
+    update();
+  }
+}
+
 int StdGridLayoutImpl2::nextRowWithItem(int row, int c) const
 {
   for (row += grid_.items_[row][c].rowSpan_; row < (int)grid_.rows_.size();
@@ -140,6 +149,15 @@ void StdGridLayoutImpl2::updateDom(DomElement& parent)
     flags_.reset(BIT_NEED_CONFIG_UPDATE);
 
     DomElement *div = DomElement::getForUpdate(this, DomElementType::DIV);
+
+    if (flags_.test(BIT_OBJECT_NAME_CHANGED)) {
+      if (!objectName().empty()) {
+        div->setAttribute("data-object-name", objectName());
+      } else {
+        div->removeAttribute("data-object-name");
+      }
+      flags_.reset(BIT_OBJECT_NAME_CHANGED);
+    }
 
     for (unsigned i = 0; i < addedItems_.size(); ++i) {
       WLayoutItem *item = addedItems_[i];
@@ -525,6 +543,7 @@ DomElement *StdGridLayoutImpl2::createDomElement(DomElement *parent,
   flags_.reset(BIT_NEED_ADJUST);
   flags_.reset(BIT_NEED_REMEASURE);
   flags_.reset(BIT_NEED_CONFIG_UPDATE);
+  flags_.reset(BIT_OBJECT_NAME_CHANGED);
   addedItems_.clear();
   removedItems_.clear();
 
@@ -589,6 +608,9 @@ DomElement *StdGridLayoutImpl2::createDomElement(DomElement *parent,
 
   DomElement *div = DomElement::createNew(DomElementType::DIV);
   div->setId(id());
+  if (!objectName().empty()) {
+    div->setAttribute("data-object-name", objectName());
+  }
   div->setProperty(Property::StylePosition, "relative");
 
   DomElement *table = nullptr, *tbody = nullptr, *tr = nullptr;

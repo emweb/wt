@@ -212,6 +212,15 @@ bool WLayout::implementationIsFlexLayout() const
   return false;
 }
 
+void WLayout::setObjectName(const std::string& name)
+{
+  StdLayoutImpl *stdImpl = dynamic_cast<StdLayoutImpl *>(impl_.get());
+  if (stdImpl) {
+    stdImpl->setObjectName(name);
+  }
+  WObject::setObjectName(name);
+}
+
 void WLayout::updateImplementation()
 {
   // If StdGridLayoutImpl2 is the only option, don't update anything

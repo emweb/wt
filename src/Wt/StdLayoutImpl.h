@@ -79,6 +79,8 @@ public:
    */
   void update() override;
 
+  virtual void setObjectName(const std::string& name);
+
 protected:
 
   //! Returns the WLayout.

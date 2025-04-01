@@ -44,14 +44,17 @@ public:
   bool itemResized(WLayoutItem *item) override;
   bool parentResized() override;
 
+  void setObjectName(const std::string& name) override;
+
 private:
   Impl::Grid& grid_;
 
   static const int BIT_NEED_ADJUST = 0;
   static const int BIT_NEED_REMEASURE = 1;
   static const int BIT_NEED_CONFIG_UPDATE = 2;
+  static const int BIT_OBJECT_NAME_CHANGED = 3;
 
-  std::bitset<3> flags_;
+  std::bitset<4> flags_;
   std::vector<WLayoutItem *> addedItems_;
   std::vector<std::string> removedItems_;
 

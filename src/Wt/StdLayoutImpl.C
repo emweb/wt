@@ -33,6 +33,9 @@ void StdLayoutImpl::update()
   }
 }
 
+void StdLayoutImpl::setObjectName(const std::string& name)
+{ }
+
 StdLayoutItemImpl *StdLayoutImpl::getImpl(WLayoutItem *item)
 {
   return dynamic_cast<StdLayoutItemImpl *>(item->impl());

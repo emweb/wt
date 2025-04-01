@@ -58,11 +58,29 @@ bool FlexLayoutImpl::parentResized()
   return false;
 }
 
+void FlexLayoutImpl::setObjectName(const std::string& name)
+{
+  if (objectName() != name) {
+    WObject::setObjectName(name);
+    flags_.set(BIT_OBJECT_NAME_CHANGED);
+    update();
+  }
+}
+
 void FlexLayoutImpl::updateDom(DomElement& parent)
 {
   WApplication *app = WApplication::instance();
 
   DomElement *div = DomElement::getForUpdate(elId_, DomElementType::DIV);
+
+  if (flags_.test(BIT_OBJECT_NAME_CHANGED) && layout()->parentLayout()) {
+    if (!objectName().empty()) {
+      div->setAttribute("data-object-name", objectName());
+    } else {
+      div->removeAttribute("data-object-name");
+    }
+    flags_.reset(BIT_OBJECT_NAME_CHANGED);
+  }
 
   bool skipLayoutAdjust = false;
   Orientation orientation = getOrientation();
@@ -370,6 +388,9 @@ DomElement *FlexLayoutImpl::createDomElement(DomElement *parent,
     elId_ = id();
     result->setId(elId_);
     result->setProperty(Property::StyleDisplay, styleDisplay());
+    if (!objectName().empty()) {
+      result->setAttribute("data-object-name", objectName());
+    }
   }
 
   if (margin[0] != 0 || margin[1] != 0 || margin[2] != 0 || margin[3] != 0) {
