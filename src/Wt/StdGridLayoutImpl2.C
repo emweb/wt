@@ -30,10 +30,7 @@ WT_MAYBE_UNUSED LOGGER("WGridLayout2");
 
 StdGridLayoutImpl2::StdGridLayoutImpl2(WLayout *layout, Impl::Grid& grid)
   : StdLayoutImpl(layout),
-    grid_(grid),
-    needAdjust_(false),
-    needRemeasure_(false),
-    needConfigUpdate_(false)
+    grid_(grid)
 {
   const char *THIS_JS = "js/StdGridLayoutImpl2.js";
 
@@ -70,7 +67,7 @@ bool StdGridLayoutImpl2::itemResized(WLayoutItem *item)
       if (grid_.items_[row][col].item_.get() == item &&
           !grid_.items_[row][col].update_) {
         grid_.items_[row][col].update_ = true;
-        needAdjust_ = true;
+        flags_.set(BIT_NEED_ADJUST);
         return true;
       }
 
@@ -79,8 +76,8 @@ bool StdGridLayoutImpl2::itemResized(WLayoutItem *item)
 
 bool StdGridLayoutImpl2::parentResized()
 {
-  if (!needRemeasure_) {
-    needRemeasure_ = true;
+  if (!flags_.test(BIT_NEED_REMEASURE)) {
+    flags_.set(BIT_NEED_REMEASURE);
     return true;
   } else
     return false;
@@ -139,8 +136,8 @@ void StdGridLayoutImpl2::updateDom(DomElement& parent)
 {
   WApplication *app = WApplication::instance();
 
-  if (needConfigUpdate_) {
-    needConfigUpdate_ = false;
+  if (flags_.test(BIT_NEED_CONFIG_UPDATE)) {
+    flags_.reset(BIT_NEED_CONFIG_UPDATE);
 
     DomElement *div = DomElement::getForUpdate(this, DomElementType::DIV);
 
@@ -168,19 +165,19 @@ void StdGridLayoutImpl2::updateDom(DomElement& parent)
 
     app->doJavaScript(js.str());
 
-    needRemeasure_ = false;
-    needAdjust_ = false;
+    flags_.reset(BIT_NEED_REMEASURE);
+    flags_.reset(BIT_NEED_ADJUST);
   }
 
-  if (needRemeasure_) {
-    needRemeasure_ = false;
+  if (flags_.test(BIT_NEED_REMEASURE)) {
+    flags_.reset(BIT_NEED_REMEASURE);
     WStringStream js;
     js << app->javaScriptClass() << ".layouts2.setDirty('" << id() << "');";
     app->doJavaScript(js.str());
   }
 
-  if (needAdjust_) {
-    needAdjust_ = false;
+  if (flags_.test(BIT_NEED_ADJUST)) {
+    flags_.reset(BIT_NEED_ADJUST);
 
     WStringStream js;
     js << app->javaScriptClass() << ".layouts2.adjust('" << id() << "', [";
@@ -391,7 +388,7 @@ void StdGridLayoutImpl2::itemRemoved(WLayoutItem *item)
 void StdGridLayoutImpl2::update()
 {
   StdLayoutImpl::update();
-  needConfigUpdate_ = true;
+  flags_.set(BIT_NEED_CONFIG_UPDATE);
 }
 
 void StdGridLayoutImpl2
@@ -525,7 +522,9 @@ DomElement *StdGridLayoutImpl2::createDomElement(DomElement *parent,
                                                  bool fitWidth, bool fitHeight,
                                                  WApplication *app)
 {
-  needAdjust_ = needConfigUpdate_ = needRemeasure_ = false;
+  flags_.reset(BIT_NEED_ADJUST);
+  flags_.reset(BIT_NEED_REMEASURE);
+  flags_.reset(BIT_NEED_CONFIG_UPDATE);
   addedItems_.clear();
   removedItems_.clear();
 

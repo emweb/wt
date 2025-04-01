@@ -46,7 +46,12 @@ public:
 
 private:
   Impl::Grid& grid_;
-  bool needAdjust_, needRemeasure_, needConfigUpdate_;
+
+  static const int BIT_NEED_ADJUST = 0;
+  static const int BIT_NEED_REMEASURE = 1;
+  static const int BIT_NEED_CONFIG_UPDATE = 2;
+
+  std::bitset<3> flags_;
   std::vector<WLayoutItem *> addedItems_;
   std::vector<std::string> removedItems_;
 

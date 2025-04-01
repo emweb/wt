@@ -109,7 +109,7 @@ public:
    *
    * \sa setHidden()
    */
-  bool isHidden() const { return hidden_; }
+  bool isHidden() const { return flags_.test(BIT_HIDDEN); }
 
   /*! \brief Hides the row.
    *
@@ -144,10 +144,15 @@ private:
   WTable *table_;
   std::vector<std::unique_ptr<WTableCell> > cells_;
 
+  static const int BIT_HIDDEN = 0;
+  static const int BIT_WAS_HIDDEN = 1;
+  static const int BIT_HIDDEN_CHANGED = 2;
+
+  std::bitset<3> flags_;
+
   WLength height_;
   std::string id_;
   WT_USTRING styleClass_;
-  bool hidden_, hiddenChanged_, wasHidden_;
 
   void updateDom(DomElement& element, bool all);
   void setTable(WTable *table);

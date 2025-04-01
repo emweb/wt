@@ -16,9 +16,7 @@
 namespace Wt {
 
 WTableRow::WTableRow()
-  : table_(nullptr),
-    hidden_(false),
-    hiddenChanged_(false)
+  : table_(nullptr)
 {
   implementStateless(&WTableRow::hide, &WTableRow::undoHide);
   implementStateless(&WTableRow::show, &WTableRow::undoHide);
@@ -165,17 +163,19 @@ void WTableRow::show()
 
 void WTableRow::undoHide()
 {
-  setHidden(wasHidden_);
+  setHidden(flags_.test(BIT_WAS_HIDDEN));
 }
 
 void WTableRow::setHidden(bool how)
 {
-  if (WWebWidget::canOptimizeUpdates() && hidden_ == how)
+  if (WWebWidget::canOptimizeUpdates() &&
+      flags_.test(BIT_HIDDEN) == how)
     return;
 
-  wasHidden_ = hidden_;
-  hidden_ = how;
-  hiddenChanged_ = true;
+  flags_.set(BIT_WAS_HIDDEN, flags_.test(BIT_HIDDEN));
+  flags_.set(BIT_HIDDEN, how);
+
+  flags_.set(BIT_HIDDEN_CHANGED);
 
   if (table_)
     table_->repaintRow(this);
@@ -202,9 +202,10 @@ void WTableRow::updateDom(DomElement& element, bool all)
   if (!all || !styleClass_.empty())
     element.setProperty(Property::Class, styleClass_.toUTF8());
 
-  if ((all && hidden_) || (!all && hiddenChanged_)) {
-    element.setProperty(Property::StyleDisplay, hidden_ ? "none" : "");
-    hiddenChanged_ = false;
+  if ((all && flags_.test(BIT_HIDDEN)) ||
+      (!all && flags_.test(BIT_HIDDEN_CHANGED))) {
+    element.setProperty(Property::StyleDisplay, flags_.test(BIT_HIDDEN) ? "none" : "");
+    flags_.reset(BIT_HIDDEN_CHANGED);
   }
 }
 
