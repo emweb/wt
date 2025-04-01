@@ -43,6 +43,7 @@ private:
   Impl::Grid& grid_;
   std::vector<WLayoutItem *> addedItems_;
   std::vector<std::string> removedItems_;
+  std::vector<StdLayoutImpl *> childLayouts_;
   std::string elId_;
   bool canAdjustLayout_;
 
@@ -60,6 +61,8 @@ private:
   int count(Orientation orientation) const;
   int indexOf(WLayoutItem *item, Orientation orientation);
   int getTotalStretch(Orientation orientation);
+
+  static StdLayoutImpl *getStdLayoutImpl(WLayoutItem *item);
 
   Impl::Grid::Item& item(Orientation orientation, int i);
   Impl::Grid::Section& section(Orientation orientation, int i);

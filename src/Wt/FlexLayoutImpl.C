@@ -88,6 +88,17 @@ void FlexLayoutImpl::updateDom(DomElement& parent)
     div->insertChildAt(el, pos);
   }
 
+  for (unsigned i = 0; i < childLayouts_.size(); ++i) {
+    bool justAdded = false;
+    WLayoutItem *childItem = childLayouts_[i]->layoutItem();
+    for (unsigned j = 0; j < addedItems_.size() && !justAdded; ++j) {
+      justAdded = childItem == addedItems_[j];
+    }
+    if (!justAdded) {
+      childLayouts_[i]->updateDom(*div);
+    }
+  }
+
   addedItems_.clear();
 
   for (unsigned i = 0; i < removedItems_.size(); ++i)
@@ -264,12 +275,20 @@ int FlexLayoutImpl::maximumHeight() const
 void FlexLayoutImpl::itemAdded(WLayoutItem *item)
 {
   addedItems_.push_back(item);
+  StdLayoutImpl* child = getStdLayoutImpl(item);
+  if (child) {
+    childLayouts_.push_back(child);
+  }
   update();
 }
 
 void FlexLayoutImpl::itemRemoved(WLayoutItem *item)
 {
   Utils::erase(addedItems_, item);
+  StdLayoutImpl* child = getStdLayoutImpl(item);
+  if (child) {
+    Utils::erase(childLayouts_, child);
+  }
   removedItems_.push_back(getImpl(item)->id());
   update();
 }
@@ -450,6 +469,15 @@ Orientation FlexLayoutImpl::getOrientation() const
     return Orientation::Vertical;
   }
   return Orientation::Horizontal;
+}
+
+StdLayoutImpl *FlexLayoutImpl::getStdLayoutImpl(WLayoutItem *item)
+{
+  WLayout *layout = dynamic_cast<WLayout *>(item);
+  if (layout) {
+    return dynamic_cast<StdLayoutImpl *>(layout->impl());
+  }
+  return nullptr;
 }
 
 DomElement *FlexLayoutImpl::createElement(Orientation orientation,
