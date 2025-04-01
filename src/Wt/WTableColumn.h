@@ -104,7 +104,13 @@ public:
 
   virtual const std::string id() const override;
 
+  void setObjectName(const std::string& name) override;
+
 private:
+  static const int BIT_OBJECT_NAME_CHANGED = 0;
+
+  std::bitset<1> flags_;
+
   WTable *table_;
 
   std::unique_ptr<WLength> width_;

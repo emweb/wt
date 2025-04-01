@@ -141,6 +141,12 @@ EventSignal<WMouseEvent>& WAbstractArea::mouseWheel()
   return widget_->mouseWheel();
 }
 
+void WAbstractArea::setObjectName(const std::string& name)
+{
+  widget_->setObjectName(name);
+  WObject::setObjectName(name);
+}
+
 void WAbstractArea::setImage(WImage *image)
 {
   image_ = image;

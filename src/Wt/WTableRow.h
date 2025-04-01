@@ -135,6 +135,8 @@ public:
 
   virtual const std::string id() const override;
 
+  void setObjectName(const std::string& name) override;
+
 protected:
   virtual std::unique_ptr<WTableCell> createCell(int column);
 
@@ -147,8 +149,9 @@ private:
   static const int BIT_HIDDEN = 0;
   static const int BIT_WAS_HIDDEN = 1;
   static const int BIT_HIDDEN_CHANGED = 2;
+  static const int BIT_OBJECT_NAME_CHANGED = 3;
 
-  std::bitset<3> flags_;
+  std::bitset<4> flags_;
 
   WLength height_;
   std::string id_;

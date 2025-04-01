@@ -317,6 +317,8 @@ public:
    */
   EventSignal<WMouseEvent>& mouseWheel();
 
+  void setObjectName(const std::string& name) override;
+
 protected:
   WAbstractArea();
 

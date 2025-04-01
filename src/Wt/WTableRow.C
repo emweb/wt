@@ -194,6 +194,17 @@ const std::string WTableRow::id() const
     return WObject::id();
 }
 
+void WTableRow::setObjectName(const std::string& name)
+{
+  if (objectName() != name) {
+    WObject::setObjectName(name);
+    flags_.set(BIT_OBJECT_NAME_CHANGED);
+    if (table_) {
+      table_->repaintRow(this);
+    }
+  }
+}
+
 void WTableRow::updateDom(DomElement& element, bool all)
 {
   if (!height_.isAuto())
@@ -206,6 +217,15 @@ void WTableRow::updateDom(DomElement& element, bool all)
       (!all && flags_.test(BIT_HIDDEN_CHANGED))) {
     element.setProperty(Property::StyleDisplay, flags_.test(BIT_HIDDEN) ? "none" : "");
     flags_.reset(BIT_HIDDEN_CHANGED);
+  }
+
+  if (all || flags_.test(BIT_OBJECT_NAME_CHANGED)) {
+    if (!objectName().empty()) {
+      element.setAttribute("data-object-name", objectName());
+    } else if (!all) {
+      element.removeAttribute("data-object-name");
+    }
+    flags_.reset(BIT_OBJECT_NAME_CHANGED);
   }
 }
 

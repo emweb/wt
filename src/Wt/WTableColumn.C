@@ -72,6 +72,17 @@ const std::string WTableColumn::id() const
     return WObject::id();
 }
 
+void WTableColumn::setObjectName(const std::string& name)
+{
+  if (objectName() != name) {
+    WObject::setObjectName(name);
+    flags_.set(BIT_OBJECT_NAME_CHANGED);
+    if (table_) {
+      table_->repaintColumn(this);
+    }
+  }
+}
+
 void WTableColumn::updateDom(DomElement& element, bool all)
 {
   if (width_)
@@ -79,6 +90,15 @@ void WTableColumn::updateDom(DomElement& element, bool all)
 
   if (!all || !styleClass_.empty())
     element.setProperty(Property::Class, styleClass_.toUTF8());
+
+    if (all || flags_.test(BIT_OBJECT_NAME_CHANGED)) {
+      if (!objectName().empty()) {
+        element.setAttribute("data-object-name", objectName());
+      } else if (!all) {
+        element.removeAttribute("data-object-name");
+      }
+      flags_.reset(BIT_OBJECT_NAME_CHANGED);
+    }
 }
 
 void WTableColumn::setTable(WTable *table)
