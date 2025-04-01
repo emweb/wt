@@ -969,7 +969,7 @@ Allowed options:
 General options:
   -h [ --help ]                         produce help message
   -t [ --threads ] arg (=-1)            number of threads (-1 indicates that
-                                        num_threads from wt_config.xml is to be
+                                        num-threads from wt_config.xml is to be
                                         used, which defaults to 10)
   --servername arg                      servername (IP address or DNS name)
   --docroot arg                         document root for static files,

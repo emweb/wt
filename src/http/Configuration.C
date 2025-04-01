@@ -92,7 +92,7 @@ void Configuration::createOptions(po::options_description& options,
 
     ("threads,t",
      po::value<int>(&threads_)->default_value(threads_),
-     "number of threads (-1 indicates that num_threads from wt_config.xml "
+     "number of threads (-1 indicates that num-threads from wt_config.xml "
      "is to be used, which defaults to 10)")
 
     ("servername",
