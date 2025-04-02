@@ -1335,7 +1335,7 @@ WT_DECLARE_WT_MEMBER(
               toDistribute -= totalPreferred[STRETCHABLES];
 
               let canEnlarge = true;
-              while (canEnlarge && toDistribute > 0) {
+              while (canEnlarge && Math.round(toDistribute) > 0) {
                 const factor = toDistribute / totalStretch;
 
                 let r = 0;
