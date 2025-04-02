@@ -83,7 +83,9 @@ namespace Wt {
       currentSecretKey_ = totpSecretKey.toUTF8();
     }
 
-    view->bindWidget("qr-code", std::make_unique<TotpQrCode>(currentSecretKey(), baseAuth().mfaProvider(), login().user().email(), baseAuth().mfaCodeLength()));
+    TotpQrCode* qrcode = view->bindNew<TotpQrCode>("qr-code", currentSecretKey(), baseAuth().mfaProvider(), login().user().email(), baseAuth().mfaCodeLength());
+    qrcode->setSquareSize(baseAuth().mfaQrCodeSquareSize());
+    qrcode->setErrorCorrectionLevel(baseAuth().mfaQrCodeErrCorrLvl());
     view->bindString("secret-key", currentSecretKey());
   }
 

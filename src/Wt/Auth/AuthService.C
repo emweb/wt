@@ -138,6 +138,8 @@ AuthService::AuthService()
     authTokenValidity_(14 * 24 * 60),  // two weeks
     mfaRequired_(false),
     mfaCodeLength_(6),
+    mfaQrCodeSquareSize_(5),
+    mfaQrCodeErrCorrLvl_(WQrCode::ErrorCorrectionLevel::LOW),
     mfaTokenValidity_(90 * 24 * 60),   // 90 days
     mfaThrottleEnabled_(false)
 {
@@ -269,7 +271,7 @@ std::string AuthService::createAuthToken(const User& user, int authTokenValidity
   if (authTokenValidity < 0) {
     authTokenValidity = authTokenValidity_;
   }
-  
+
   Token token
     (hash, WDateTime::currentDateTime().addSecs(authTokenValidity * 60));
   user.addAuthToken(token);
@@ -533,6 +535,15 @@ void AuthService::setMfaRequired(bool require)
 void AuthService::setMfaCodeLength(int length)
 {
   mfaCodeLength_ = length;
+}
+
+void AuthService::setMfaQrCodeSquareSize(int size)
+{
+  mfaQrCodeSquareSize_ = size;
+}
+void AuthService::setMfaQrCodeErrCorrLvl(WQrCode::ErrorCorrectionLevel ecl)
+{
+  mfaQrCodeErrCorrLvl_ = ecl;
 }
 
 void AuthService::setMfaTokenCookieName(const std::string& name)
