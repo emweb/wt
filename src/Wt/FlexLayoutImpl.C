@@ -518,17 +518,6 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
   }
 
   int m[] = { 0, 0, 0, 0 };
-  FlexLayoutImpl *flexImpl = dynamic_cast<FlexLayoutImpl*>(getImpl(it.item_.get()));
-  if (flexImpl) {
-    Orientation elOrientation = flexImpl->getOrientation();
-    if (elOrientation == Orientation::Horizontal) {
-      m[3] -= (flexImpl->grid_.horizontalSpacing_) / 2;
-      m[1] -= (flexImpl->grid_.horizontalSpacing_ + 1) / 2;
-    } else {
-      m[0] -= (flexImpl->grid_.verticalSpacing_) / 2;
-      m[2] -= (flexImpl->grid_.horizontalSpacing_ + 1) / 2;
-    }
-  }
 
   AlignmentFlag hAlign = it.alignment_ & AlignHorizontalMask;
   AlignmentFlag vAlign = it.alignment_ & AlignVerticalMask;
