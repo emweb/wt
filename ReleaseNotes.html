@@ -20,7 +20,7 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.11.4 (TBD)</h2>
+<h2>Release 4.11.4 (April 3, 2025)</h2>
 
 <p>
   Wt 4.11.4 is a patch release that addresses the following issues:
@@ -28,64 +28,47 @@ behaviour.
 
 <ul>
   <li>
-    <a href="https://redmine.emweb.be/issues/13067" target="_blank">Issue #13067</a>:
-    fixed the internal path being sent in the request URL after changing the session ID for applications deployed at a non-empty path.
+    <a href="https://redmine.emweb.be/issues/13600" target="_blank">Issue #13600</a>:
+    fixed CSP (Content Security Policy) violations in case of <code>use-script-nonce</code> being enabled, for
+    <a href="classWt_1_1WAnchor.html" target="_blank">WAnchor</a> and
+    <a href="classWt_1_1WAbstractArea.html" target="_blank">WAbstractArea</a> without a link. The default browser behavior is now disabled on all events
+    coming from those widgets as long as they have no link, and their href attribute is set to <code>#</code>.
+    Additionally, fixed
+    <a href="classWt_1_1WAbstractArea.html" target="_blank">WAbstractArea</a> sometimes trying to use it's href to send click event when ajax
+    was available.
   </li>
-  <il>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13542" target="_blank">Issue #13542</a>:
+    fixed the <code>--accesslog</code> option having no effect. The description of this option
+    was also updated to reflect its actual behavior. Additionally, access logs now have
+    their own type ("access") instead of the generic "info" type. These logs now also have a format more consistent with other logs.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13376" target="_blank">Issue #13376</a>:
-    fixed the hiding of a
-    <a href="classWt_1_1WPopupMenu.html" target="_blank">WPopupMenu</a>, which would sometimes be displayed at the bottom of the
-    page instead of being hidden.
-  </il>
+    fixed an issue where attempting to hide a
+    <a href="classWt_1_1WPopupMenu.html" target="_blank">WPopupMenu</a>
+    would sometimes be display the popup at the bottom of the page instead of actually hiding the popup.
+  </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13567" target="_blank">Issue #13567</a>:
     fixed the handling of <code>SessionProcess::read()</code>, such that it is always called on existing asio context.
     This was an edge-case when using <code>dedicated-process</code> mode.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/13373" target="_blank">Issue #13373</a>:
-    Fixed an issue where
-    <a href="classWt_1_1WPaintedWidget.html" target="_blank">WPaintedWidget</a> would not be updated when
-    <a href="classWt_1_1WApplication.html#a02b9d8aa1b6c2d0dc9edc1b9c63f86dc">WApplication::refresh()</a> was called.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13511" target="_blank">Issue #13511</a>:
-    fixed a bug where a
-    <a href="classWt_1_1WPushButton.html" target="_blank">WPushButton</a> rendered as an anchor
-    with the Bootstrap 5 theme, would sometimes change its class property to a <code>dropdown-item</code>
-    on update.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13550" target="_blank">Issue #13550</a>:
-    fixed a bug that would change the href of internal path links in
-    <a href="classWt_1_1WTemplate.html" target="_blank">WTemplate</a> or
-    <a href="classWt_1_1WText.html" target="_blank">WText</a> to the current
-    internal path if internal path encoding was enabled.
-  </li>
-  <li>
     <a href="https://redmine.emweb.be/issues/13585" target="_blank">Issue #13585</a>:
-    fixed a segfault when a <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a>
-    would select itself. The selection would happen based on the internal path, with the item having no content, but having a submenu (using
+    resolved a segfault when a <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a>
+    would be selected. The selection would happen based on the internal path, with the item having no content, but having a submenu (using
     <a href="classWt_1_1WMenu.html#a792efe0a20114142b568a3e0f25dbcb2" target="_blank">WMenu::addMenu()</a>).
-    Additionally, the signal now only emits once if the <a href="classWt_1_1WStackedWidget.html" target="_blank">WStackedWidget</a>'s
+    Additionally, the <a href="classWt_1_1WStackedWidget.html#a8342aac06b58cdedb7b1f43132673cb8" target="_blank">currentWidgetChanged()</a>
+    signal now only emits once if the <a href="classWt_1_1WStackedWidget.html" target="_blank">WStackedWidget</a>'s
     content has changed.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/12288" target="_blank">Issue #12288</a>:
-    corrected a JavaScript error when using <a href="namespaceWt.html#aeb0e4f49ce4a28d8ce9b0c6005027876" target="_blank">Wt::LayoutImplementation::Flex</a>
-    with a disabled ancestor widget.
-  </li>
-  <li>
     <a href="https://redmine.emweb.be/issues/13621" target="_blank">Issue #13621</a>:
-    ensuring that <code>thirdparty/qrcodegen/QrCode.hpp</code> is installed in the include directory, and that the `TotpQrCode` symbol is exported.
+    ensured that <code>thirdparty/qrcodegen/QrCode.hpp</code> is installed in the include directory, and that the <code>TotpQrCode</code> symbol is exported.
     This allows developers to use the <a href="classWt_1_1Auth_1_1Mfa_1_1TotpQrCode.html" target="_blank">Auth::Mfa::TotpQrCode</a> class in their own code.
-    Additionally, <a href="classWt_1_1Auth_1_1Mfa_1_1TotpQrCode.html#a59c9cdfce092a5385daf010fceb3361e" target="_blank">Auth::Mfa::TotpQrCode::formatKey()</a> is now public. This allows developers to retrieve correct URI, which could be shown to end users, and allow them to copy it to a password manager.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13542" target="_blank">Issue #13542</a>:
-    fixed <code>--accesslog</code> option having no effect. The description of this option
-    was also updated to reflect its actual behavior. Additionally, access logs now have
-    their own type ("access") instead of the generic "info" type. These logs now also have a format more consistent with other logs.
+    Additionally, <a href="classWt_1_1Auth_1_1Mfa_1_1TotpQrCode.html#a59c9cdfce092a5385daf010fceb3361e" target="_blank">Auth::Mfa::TotpQrCode::formatKey()</a> is now public.
+    This allows developers to retrieve correct URI, which could be shown to end users, and allow them to copy it to a password manager.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13631" target="_blank">Issue #13631</a>:
@@ -94,14 +77,49 @@ behaviour.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13626" target="_blank">Issue #13626</a>:
-    ensuring that <a href="classWt_1_1Auth_1_1AuthWidget.html#a7e64d84a1717f437fa9a32d5901ca411" target="_blank">Auth::AuthWidget::processEnvironment()</a> will also process the MFA environment.
-    This ensures that MFA tokens are processed before the authentication widget is rendered.
+    ensured that <a href="classWt_1_1Auth_1_1AuthWidget.html#a7e64d84a1717f437fa9a32d5901ca411" target="_blank">Auth::AuthWidget::processEnvironment()</a> will also process the MFA environment.
+    This results in MFA tokens being processed before the authentication widget is rendered.
     </a>
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13550" target="_blank">Issue #13550</a>:
+    resolved an issue that would change the href of internal path links in
+    <a href="classWt_1_1WTemplate.html" target="_blank">WTemplate</a> or
+    <a href="classWt_1_1WText.html" target="_blank">WText</a> to the current
+    internal path if internal path encoding was enabled.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13511" target="_blank">Issue #13511</a>:
+    fixed a bug where a
+    <a href="classWt_1_1WPushButton.html" target="_blank">WPushButton</a> rendered as an anchor
+    with the <a href="classWt_1_1WBootstrap5Theme" target="_blank">WBootstrap5Theme</a>,
+    would sometimes change its class property to a <code>dropdown-item</code> on update.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13373" target="_blank">Issue #13373</a>:
+    resolved an issue where
+    <a href="classWt_1_1WPaintedWidget.html" target="_blank">WPaintedWidget</a> would not be updated when
+    <a href="classWt_1_1WApplication.html#a02b9d8aa1b6c2d0dc9edc1b9c63f86dc">WApplication::refresh()</a> was called.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/12288" target="_blank">Issue #12288</a>:
+    corrected a JavaScript error when using <a href="namespaceWt.html#aeb0e4f49ce4a28d8ce9b0c6005027876" target="_blank">Wt::LayoutImplementation::Flex</a>
+    with a disabled ancestor widget.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13685" target="_blank">Issue #13685</a>:
     limited the possible size calculations in stretchable layouts that could loop infinitely.
     </a>
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13510" target="_blank">Issue #13510</a>:
+    fixed the crosshair coordinates in
+    <a href="classWt_1_1Chart_1_1WCartesianChart.html" target="_blank">Chart::WCartesianGraph</a>
+    showing dates as double.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13067" target="_blank">Issue #13067</a>:
+    corrected the internal path being sent in the request URL after changing the session ID for applications deployed at a non-empty path.
   </li>
 </ul>
 
@@ -111,28 +129,23 @@ behaviour.
 
 <ul>
   <li>
-    <a href="https://redmine.emweb.be/issues/13510" target="_blank">Issue #13510</a>:
-    fixed the crosshair coordinates in
-    <a href="classWt_1_1Chart_1_1WCartesianChart.html" target="_blank">Chart::WCartesianGraph</a>
-    showing dates as double.
-  </li>
-  <li>
     <a href="https://redmine.emweb.be/issues/13630" target="_blank">Issue #13630</a>:
-    allows more control over and customization for <a href="classWt_1_1Auth_1_1Mfa_1_1TotpProcess.html" target="_blank">TotpProcess</a>.
+    allow more control over and customization for <a href="classWt_1_1Auth_1_1Mfa_1_1TotpProcess.html" target="_blank">TotpProcess</a>.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13125" target="_blank">Issue #13125</a>:
-    Added
+    added
     <a href="classWt_1_1StdLayoutImpl.html" target="_blank">StdLayoutImpl</a> and
-    <a href="classWt_1_1StdLayoutItemImpl.html" target="_blank">StdLayoutItemImpl</a> to the public API. These classes were already used by Wt to create layout but were not public.
-    Since those classes are necessary to create a custom layout for a <a href="classWt_1_1WContainerWidget.html" target="_blank">WContainerWidget</a>
+    <a href="classWt_1_1StdLayoutItemImpl.html" target="_blank">StdLayoutItemImpl</a> to the public API.
+    These classes were already used by Wt to create layout but were not public. Since those classes are necessary to create a custom layout for a
+    <a href="classWt_1_1WContainerWidget.html" target="_blank">WContainerWidget</a>
     it has now be made public to allow developers to create their own layouts. An example of a simple layout was also added in <code>examples/feature/custom_layout</code>.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13075" target="_blank">Issue #13075</a>:
     <a href="classWt_1_1WWidget.html#a2d627cbf964560995ac51c25d69d8b54" target="_blank">WWidget::positionAt()</a>
     now correctly positions the widget over the given widget when there is not enough place on either
-    side to place the widget. The same issue that occurred for popups was resolved as well.
+    side to place the widget. This same issue affecting popups was resolved as well.
     Since this potentially puts content over other widgets (e.g. when entering information into a
     <a href="classWt_1_1WSuggestionPopup.html" target="_blank">WSuggestionPopup</a>), the options
     <a href="classWt_1_1WPopupMenu.html#a47a35b9b9ff72ea1c9daf86897730bd3">WPopupMenu::setAdjust()</a> and
@@ -149,19 +162,6 @@ behaviour.
     <a href="https://redmine.emweb.be/issues/12944" target="_blank">Issue #12944</a>:
     added documentation for the
     <a href="classWt_1_1WIcon.html" target="_blank">WIcon</a> class.
-  </li>
-</ul>
-
-<ul>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13600" target="_blank">Issue #13600</a>:
-    fixed CSP (Content Security Policy) violations in case of <code>use-script-nonce</code> being enabled, for
-    <a href="classWt_1_1WAnchor.html" target="_blank">WAnchor</a> and
-    <a href="classWt_1_1WAbstractArea.html" target="_blank">WAbstractArea</a> without a link. The default browser behavior is now disabled on all events
-    coming from those widgets as long as they have no link, and their href attribute is set to <code>#</code>.
-    Additionally, fixed
-    <a href="classWt_1_1WAbstractArea.html" target="_blank">WAbstractArea</a> sometimes trying to use it's href to send click event when ajax
-    was available.
   </li>
 </ul>
 
