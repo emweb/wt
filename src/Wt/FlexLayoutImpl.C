@@ -640,19 +640,19 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
 
   case LayoutDirection::TopToBottom:
     if (index != 0) {
-      m[0] += (grid_.horizontalSpacing_ + 1) / 2;
+      m[0] += (grid_.verticalSpacing_ + 1) / 2;
     }
     if (index != count(orientation)-1) {
-      m[2] += (grid_.horizontalSpacing_) / 2;
+      m[2] += (grid_.verticalSpacing_) / 2;
     }
     break;
 
   case LayoutDirection::BottomToTop:
     if (index != 0) {
-      m[2] += (grid_.horizontalSpacing_ + 1) / 2;
+      m[2] += (grid_.verticalSpacing_ + 1) / 2;
     }
     if (index != count(orientation)-1) {
-      m[0] += (grid_.horizontalSpacing_) / 2;
+      m[0] += (grid_.verticalSpacing_) / 2;
     }
     break;
   }
