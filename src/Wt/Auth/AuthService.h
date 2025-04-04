@@ -848,7 +848,7 @@ public:
    * is an empty string.
    *
    * This should best be used if multiple applications are living on the
-   * same
+   * same domain.
    */
   void setMfaTokenCookieDomain(const std::string& domain);
 
