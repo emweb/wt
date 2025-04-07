@@ -448,8 +448,8 @@ WT_DECLARE_WT_MEMBER(
       if (tw === 0) {
         tw = el.clientWidth;
       } else if (WT.boxSizing(el)) {
-        tw -= WT.px(el, "borderLeftWidth");
-        tw -= WT.px(el, "borderRightWidth");
+        tw -= WT.pxComputedStyle(el, "borderLeftWidth");
+        tw -= WT.pxComputedStyle(el, "borderRightWidth");
       }
 
       let scrollwidth = contentsContainer.offsetWidth -

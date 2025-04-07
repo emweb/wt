@@ -663,8 +663,8 @@ WT_DECLARE_WT_MEMBER(
             scrollTop;
       }
 
-      let tw = el.offsetWidth - WT.px(el, "borderLeftWidth") -
-        WT.px(el, "borderRightWidth");
+      let tw = el.offsetWidth - WT.pxComputedStyle(el, "borderLeftWidth") -
+        WT.pxComputedStyle(el, "borderRightWidth");
 
       const scrollwidth = contentsContainer.offsetWidth -
         contentsContainer.clientWidth;

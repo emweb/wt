@@ -213,8 +213,8 @@ WT_DECLARE_WT_MEMBER(
         scrollSize = WT.pxself(element, DC.size);
 
         if (scrollSize !== 0 && !WT.isOpera && !WT.isGecko) {
-          scrollSize -= WT.px(element, "border" + DC.Left + "Width") +
-            WT.px(element, "border" + DC.Right + "Width");
+          scrollSize -= WT.pxComputedStyle(element, "border" + DC.Left + "Width") +
+            WT.pxComputedStyle(element, "border" + DC.Right + "Width");
         }
       }
 
@@ -247,8 +247,8 @@ WT_DECLARE_WT_MEMBER(
         }
       }
 
-      const border = WT.px(element, "border" + DC.Left + "Width") +
-        WT.px(element, "border" + DC.Right + "Width");
+      const border = WT.pxComputedStyle(element, "border" + DC.Left + "Width") +
+        WT.pxComputedStyle(element, "border" + DC.Right + "Width");
 
       const scrollbar = offsetSize - (clientSize + border) !== 0;
 
@@ -321,8 +321,8 @@ WT_DECLARE_WT_MEMBER(
 
       /* Second condition: IE9 applys boxsizing to 'BUTTON' objects ? */
       if (!WT.boxSizing(el)) {
-        result += WT.px(el, "border" + DC.Left + "Width") +
-          WT.px(el, "border" + DC.Right + "Width") +
+        result += WT.pxComputedStyle(el, "border" + DC.Left + "Width") +
+          WT.pxComputedStyle(el, "border" + DC.Right + "Width") +
           WT.px(el, "padding" + DC.Left) +
           WT.px(el, "padding" + DC.Right);
       }
@@ -346,8 +346,8 @@ WT_DECLARE_WT_MEMBER(
       if (WT.boxSizing(el)) {
         const DC = DirConfig[dir];
 
-        return WT.px(el, "border" + DC.Left + "Width") +
-          WT.px(el, "border" + DC.Right + "Width") +
+        return WT.pxComputedStyle(el, "border" + DC.Left + "Width") +
+          WT.pxComputedStyle(el, "border" + DC.Right + "Width") +
           WT.px(el, "padding" + DC.Left) +
           WT.px(el, "padding" + DC.Right);
       } else {
@@ -362,8 +362,8 @@ WT_DECLARE_WT_MEMBER(
       const DC = DirConfig[dir];
 
       return Math.round(
-        WT.px(el, "border" + DC.Left + "Width") +
-          WT.px(el, "border" + DC.Right + "Width") +
+        WT.pxComputedStyle(el, "border" + DC.Left + "Width") +
+          WT.pxComputedStyle(el, "border" + DC.Right + "Width") +
           WT.px(el, "margin" + DC.Left) +
           WT.px(el, "margin" + DC.Right) +
           WT.px(el, "padding" + DC.Left) +

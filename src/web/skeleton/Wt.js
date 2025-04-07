@@ -1251,6 +1251,10 @@ if (!window._$_WT_CLASS_$_) {
       return WT.parsePct(c.style[s], 0);
     };
 
+    this.pxComputedStyle = function(c, s) {
+      return WT.parsePx(getComputedStyle(c)[s]);
+    };
+
     // Convert from css property to element attribute (possibly a vendor name)
     this.styleAttribute = function(cssProp) {
       function toCamelCase(str) {
@@ -1307,7 +1311,7 @@ if (!window._$_WT_CLASS_$_) {
       let result = el.offsetWidth;
       if (!WT.boxSizing(el)) {
         result -= WT.px(el, "paddingLeft") + WT.px(el, "paddingRight") +
-          WT.px(el, "borderLeftWidth") + WT.px(el, "borderRightWidth");
+          WT.pxComputedStyle(el, "borderLeftWidth") + WT.pxComputedStyle(el, "borderRightWidth");
       }
       return result;
     };
@@ -1316,7 +1320,7 @@ if (!window._$_WT_CLASS_$_) {
       let result = el.offsetHeight;
       if (!WT.boxSizing(el)) {
         result -= WT.px(el, "paddingTop") + WT.px(el, "paddingBottom") +
-          WT.px(el, "borderTopWidth") + WT.px(el, "borderBottomWidth");
+          WT.pxComputedStyle(el, "borderTopWidth") + WT.pxComputedStyle(el, "borderBottomWidth");
       }
       return result;
     };
@@ -1326,8 +1330,8 @@ if (!window._$_WT_CLASS_$_) {
         const r = c.parentNode.clientWidth -
           WT.px(c, "marginLeft") -
           WT.px(c, "marginRight") -
-          WT.px(c, "borderLeftWidth") -
-          WT.px(c, "borderRightWidth") -
+          WT.pxComputedStyle(c, "borderLeftWidth") -
+          WT.pxComputedStyle(c, "borderRightWidth") -
           WT.px(c.parentNode, "paddingLeft") -
           WT.px(c.parentNode, "paddingRight");
 
@@ -1847,7 +1851,7 @@ if (!window._$_WT_CLASS_$_) {
         }
         bottomy = bottomy - offsetParent.y + scrollY;
         y = op.clientHeight -
-          (bottomy + WT.px(e, "marginBottom") + WT.px(e, "borderBottomWidth"));
+          (bottomy + WT.px(e, "marginBottom") + WT.pxComputedStyle(e, "borderBottomWidth"));
         vside = 1;
       } else {
         let scrollY = op.scrollTop;
@@ -1855,7 +1859,7 @@ if (!window._$_WT_CLASS_$_) {
           scrollY = 0;
         }
         y = y - offsetParent.y + scrollY;
-        y = y - WT.px(e, "marginTop") + WT.px(e, "borderTopWidth");
+        y = y - WT.px(e, "marginTop") + WT.pxComputedStyle(e, "borderTopWidth");
         vside = 0;
       }
 

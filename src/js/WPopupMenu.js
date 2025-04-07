@@ -70,7 +70,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, g
       * we actually want to align the first item, so we need to adjust
       * for the menu padding and border
       */
-    const margin = WT.px(menu, "paddingTop") + WT.px(menu, "borderTopWidth");
+    const margin = WT.px(menu, "paddingTop") + WT.pxComputedStyle(menu, "borderTopWidth");
     WT.positionAtWidget(
       menu.id,
       menu.parentItem.id,

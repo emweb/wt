@@ -43,15 +43,15 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WStackedWidget", function(APP, w
     if (WT.boxSizing(self)) {
       h -= WT.px(self, "marginTop");
       h -= WT.px(self, "marginBottom");
-      h -= WT.px(self, "borderTopWidth");
-      h -= WT.px(self, "borderBottomWidth");
+      h -= WT.pxComputedStyle(self, "borderTopWidth");
+      h -= WT.pxComputedStyle(self, "borderBottomWidth");
       h -= WT.px(self, "paddingTop");
       h -= WT.px(self, "paddingBottom");
 
       w -= WT.px(self, "marginLeft");
       w -= WT.px(self, "marginRight");
-      w -= WT.px(self, "borderLeftWidth");
-      w -= WT.px(self, "borderRightWidth");
+      w -= WT.pxComputedStyle(self, "borderLeftWidth");
+      w -= WT.pxComputedStyle(self, "borderRightWidth");
       w -= WT.px(self, "paddingLeft");
       w -= WT.px(self, "paddingRight");
     }
@@ -61,8 +61,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WStackedWidget", function(APP, w
       result += WT.px(el, "marginBottom");
 
       if (!WT.boxSizing(el)) {
-        result += WT.px(el, "borderTopWidth");
-        result += WT.px(el, "borderBottomWidth");
+        result += WT.pxComputedStyle(el, "borderTopWidth");
+        result += WT.pxComputedStyle(el, "borderBottomWidth");
         result += WT.px(el, "paddingTop");
         result += WT.px(el, "paddingBottom");
       }
@@ -294,8 +294,8 @@ WT_DECLARE_WT_MEMBER(
       h -= WT.px(stack, "paddingBottom");
       h -= WT.px(to, "marginTop");
       h -= WT.px(to, "marginBottom");
-      h -= WT.px(to, "borderTopWidth");
-      h -= WT.px(to, "borderBottomWidth");
+      h -= WT.pxComputedStyle(to, "borderTopWidth");
+      h -= WT.pxComputedStyle(to, "borderBottomWidth");
       h -= WT.px(to, "paddingTop");
       h -= WT.px(to, "paddingBottom");
 
@@ -303,8 +303,8 @@ WT_DECLARE_WT_MEMBER(
       w -= WT.px(stack, "paddingRight");
       w -= WT.px(to, "marginLeft");
       w -= WT.px(to, "marginRight");
-      w -= WT.px(to, "borderLeftWidth");
-      w -= WT.px(to, "borderRightWidth");
+      w -= WT.pxComputedStyle(to, "borderLeftWidth");
+      w -= WT.pxComputedStyle(to, "borderRightWidth");
       w -= WT.px(to, "paddingLeft");
       w -= WT.px(to, "paddingRight");
 

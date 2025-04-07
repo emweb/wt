@@ -169,8 +169,8 @@ WT_DECLARE_WT_MEMBER(
             const elRect = el.getBoundingClientRect();
             const elcRect = elc.getBoundingClientRect();
             return {
-              left: elcRect.x - elRect.x - WT.px(el, "border-left-width"),
-              top: elcRect.y - elRect.y - WT.px(el, "border-top-width"),
+              left: elcRect.x - elRect.x - WT.pxComputedStyle(el, "border-left-width"),
+              top: elcRect.y - elRect.y - WT.pxComputedStyle(el, "border-top-width"),
             };
           })();
 

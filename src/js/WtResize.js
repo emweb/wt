@@ -26,15 +26,15 @@ WT_DECLARE_WT_MEMBER(10, JavaScriptFunction, "ChildrenResize", function(self, w,
   if (WT.boxSizing(self)) {
     h -= WT.px(self, "marginTop");
     h -= WT.px(self, "marginBottom");
-    h -= WT.px(self, "borderTopWidth");
-    h -= WT.px(self, "borderBottomWidth");
+    h -= WT.pxComputedStyle(self, "borderTopWidth");
+    h -= WT.pxComputedStyle(self, "borderBottomWidth");
     h -= WT.px(self, "paddingTop");
     h -= WT.px(self, "paddingBottom");
 
     w -= WT.px(self, "marginLeft");
     w -= WT.px(self, "marginRight");
-    w -= WT.px(self, "borderLeftWidth");
-    w -= WT.px(self, "borderRightWidth");
+    w -= WT.pxComputedStyle(self, "borderLeftWidth");
+    w -= WT.pxComputedStyle(self, "borderRightWidth");
     w -= WT.px(self, "paddingLeft");
     w -= WT.px(self, "paddingRight");
   }
@@ -44,8 +44,8 @@ WT_DECLARE_WT_MEMBER(10, JavaScriptFunction, "ChildrenResize", function(self, w,
     result += WT.px(el, "marginBottom");
 
     if (!WT.boxSizing(el)) {
-      result += WT.px(el, "borderTopWidth");
-      result += WT.px(el, "borderBottomWidth");
+      result += WT.pxComputedStyle(el, "borderTopWidth");
+      result += WT.pxComputedStyle(el, "borderBottomWidth");
       result += WT.px(el, "paddingTop");
       result += WT.px(el, "paddingBottom");
     }

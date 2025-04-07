@@ -92,13 +92,13 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "ResizeSensor", function(WT, elem
     let h = lastHeight;
 
     if (!WT.boxSizing(element)) {
-      h -= WT.px(element, "borderTopWidth");
-      h -= WT.px(element, "borderBottomWidth");
+      h -= WT.pxComputedStyle(element, "borderTopWidth");
+      h -= WT.pxComputedStyle(element, "borderBottomWidth");
       h -= WT.px(element, "paddingTop");
       h -= WT.px(element, "paddingBottom");
 
-      w -= WT.px(element, "borderLeftWidth");
-      w -= WT.px(element, "borderRightWidth");
+      w -= WT.pxComputedStyle(element, "borderLeftWidth");
+      w -= WT.pxComputedStyle(element, "borderRightWidth");
       w -= WT.px(element, "paddingLeft");
       w -= WT.px(element, "paddingRight");
     }

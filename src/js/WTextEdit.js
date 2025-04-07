@@ -123,8 +123,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
         //   WT.px(e, "borderRightWidth") +
         //   WT.px(e, "paddingLeft") +
         //   WT.px(e, "paddingRight");
-        my += WT.px(e, "borderTopWidth") +
-          WT.px(e, "borderBottomWidth") +
+        my += WT.pxComputedStyle(e, "borderTopWidth") +
+          WT.pxComputedStyle(e, "borderBottomWidth") +
           WT.px(e, "paddingTop") +
           WT.px(e, "paddingBottom");
       }
