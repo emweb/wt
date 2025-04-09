@@ -64,15 +64,11 @@ IF(ENABLE_LIBWTDBO)
           DESTINATION ${CMAKE_INSTALL_DIR}/wt
           NAMESPACE Wt::)
 
-
-  if(MSVC)
-  install(FILES $<TARGET_PDB_FILE:wtdbo>
-          DESTINATION bin
-          OPTIONAL)
+  if(MSVC AND SHARED_LIBS)
+    install(FILES $<TARGET_PDB_FILE:wtdbo>
+            DESTINATION bin
+            OPTIONAL)
   endif()
-
-
-
 
   SET_TARGET_PROPERTIES(
     wtdbo

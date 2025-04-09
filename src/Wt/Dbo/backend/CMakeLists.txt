@@ -69,14 +69,11 @@ IF(ENABLE_SQLITE)
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
 
-
-  if(MSVC)
-      install(FILES $<TARGET_PDB_FILE:wtdbosqlite3>
+  if(MSVC AND SHARED_LIBS)
+    install(FILES $<TARGET_PDB_FILE:wtdbosqlite3>
             DESTINATION bin
             OPTIONAL)
   endif()
-
-    
 
   INSTALL(EXPORT wt-target-dbosqlite3
           DESTINATION ${CMAKE_INSTALL_DIR}/wt
@@ -154,12 +151,11 @@ IF(ENABLE_POSTGRES AND POSTGRES_FOUND)
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
 
-  if(MSVC)
-      install(FILES $<TARGET_PDB_FILE:wtdbopostgres>
+  if(MSVC AND SHARED_LIBS)
+    install(FILES $<TARGET_PDB_FILE:wtdbopostgres>
             DESTINATION bin
             OPTIONAL)
   endif()
-
 
   INSTALL(EXPORT wt-target-dbopostgres
           DESTINATION ${CMAKE_INSTALL_DIR}/wt
@@ -255,7 +251,7 @@ IF(ENABLE_FIREBIRD AND FIREBIRD_FOUND)
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
 
-  if(MSVC)
+  if(MSVC AND SHARED_LIBS)
     install(FILES $<TARGET_PDB_FILE:wtdbofirebird>
             DESTINATION bin
             OPTIONAL)
@@ -327,8 +323,8 @@ IF(ENABLE_MYSQL AND MYSQL_FOUND)
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
 
-  if(MSVC)
-      install(FILES $<TARGET_PDB_FILE:wtdbomysql>
+  if(MSVC AND SHARED_LIBS)
+    install(FILES $<TARGET_PDB_FILE:wtdbomysql>
             DESTINATION bin
             OPTIONAL)
   endif()
@@ -401,9 +397,8 @@ IF(ENABLE_MSSQLSERVER AND ODBC_FOUND)
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
 
-
-  if(MSVC)
-      install(FILES $<TARGET_PDB_FILE:wtdbomssqlserver>
+  if(MSVC AND SHARED_LIBS)
+    install(FILES $<TARGET_PDB_FILE:wtdbomssqlserver>
             DESTINATION bin
             OPTIONAL)
   endif()

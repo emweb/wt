@@ -602,11 +602,11 @@ IF(ENABLE_LIBWTTEST)
           LIBRARY DESTINATION ${LIB_INSTALL_DIR}
           ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
 
-if(MSVC)
-install(FILES $<TARGET_PDB_FILE:wttest>
-        DESTINATION bin
-        OPTIONAL)
-endif()
+  if(MSVC AND SHARED_LIBS)
+    install(FILES $<TARGET_PDB_FILE:wttest>
+            DESTINATION bin
+            OPTIONAL)
+  endif()
 
   INSTALL(EXPORT wt-target-test
           DESTINATION ${CMAKE_INSTALL_DIR}/wt
@@ -715,10 +715,10 @@ INSTALL(TARGETS wt
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
 
-if(MSVC)
-    install(FILES $<TARGET_PDB_FILE:wt>
-            DESTINATION bin
-            OPTIONAL)
+if(MSVC AND SHARED_LIBS)
+  install(FILES $<TARGET_PDB_FILE:wt>
+          DESTINATION bin
+          OPTIONAL)
 endif()
 
 INSTALL(EXPORT wt-target-wt
