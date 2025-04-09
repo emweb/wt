@@ -142,7 +142,7 @@ void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
   }
 
   // Only emit if the item has changed, or if emitting has not yet happened.
-  if (hasChanged || !hasEmittedChanged_) {
+  if ((hasChanged || !hasEmittedChanged_) && currentIndex_ >= 0) {
     if (loadPolicies_[currentIndex_] == ContentLoading::Lazy) {
       // Lazy loaded widgets are wrapped in a WContainerWidget
       WContainerWidget* container = dynamic_cast<WContainerWidget*>(currentWidget());
