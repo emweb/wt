@@ -21,7 +21,8 @@ enum class TextDecoration {
   Underline   = 0x1, //!< Underline
   Overline    = 0x2, //!< Overline
   LineThrough = 0x4, //!< LineThrough
-  Blink       = 0x8  //!< Blink
+  Blink       = 0x8, //!< Blink
+  None        = 0x10 //!< None
 };
 
 class DomElement;
