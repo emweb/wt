@@ -51,6 +51,24 @@ behaviour.
   </li>
 </ul>
 
+<p>Wt 4.12.0 also fixes the following bugs:</p>
+
+<ul>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13701" target="_blank">Issue #13701</a>:
+    checked the index's validity on changing the <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a>, when using a
+    <a href="classWt_1_1WStackedWidget.html" target="_blank">WStackedWidget</a> to display content.
+    Unselecting the previous item uses a set <code>-1<code> index, which the <code>WStackedWidget</code> omitted to validate.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13699" target="_blank">Issue #13699</a>:
+    added the <a href="namespaceWt.html#a1709f88923d174d4a9d27271d3e30f28" target="_blank">Wt::TextFormat::None</a> option.
+    This allows for widgets to specify the <code>none</code> value in the <code>text-decoration</code> attribute.
+    This used to be unavailable, in lieu of <a href="classWt_1_1WFlags.html#a866ce1716c87b4c1f47b3021b0805ace" target="_blank">Wt::None</a>,
+    which rendered the "default" <code>text-decoration</code>, not allowing widget-specific control in case of CSS rules applying to the widget.
+  </li>
+</ul>
+
 <p>Wt 4.12.0 also comes with the following improvements:</p>
 
 <ul>
@@ -63,17 +81,6 @@ behaviour.
     ensured that calling <a href="classWt_1_1WLeafletMap.html#a9263f7ce85484a91034c39484c68fda5" target="_blank">WLeafletMap::removeMarker()</a>
     and <a href="classWt_1_1WLeafletMap.html#a1d75431893349d8b9d707a0cdb1d41ec" target="_blank">WLeafletMap::addMarker()</a> using the same
     <code>unique_ptr<Marker></code>, and performing changes to it will result in the update taking place.
-  </li>
-</ul>
-
-<p>Wt 4.12.0 also comes with the following bug Fixes:</p>
-
-<ul>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13701" target="_blank">Issue #13701</a>:
-    checked the index's validity on changing the <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a>, when using a
-    <a href="classWt_1_1WStackedWidget.html" target="_blank">WStackedWidget</a> to display content.
-    Unselecting the previous item uses a set <code>-1<code> index, which the <code>WStackedWidget</code> omitted to validate.
   </li>
 </ul>
 
