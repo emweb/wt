@@ -174,8 +174,8 @@ WT_DECLARE_WT_MEMBER(
   2,
   JavaScriptPrototype,
   "WStackedWidget.prototype.animateChild",
-  function(WT, child, effects, timing, duration, style) {
-    const doAnimateChild = function(WT, child, effects, timing, duration, style) {
+  function(APP, WT, child, effects, timing, duration, style) {
+    const doAnimateChild = function(APP, WT, child, effects, timing, duration, style) {
       const SlideInFromLeft = 0x1;
       const SlideInFromRight = 0x2;
       const SlideInFromBottom = 0x3;
@@ -256,6 +256,10 @@ WT_DECLARE_WT_MEMBER(
         }
         to.style[WT.styleAttribute("animation-duration")] = "";
         to.style[WT.styleAttribute("animation-timing-function")] = "";
+
+        if (APP.layouts2) {
+          APP.layouts2.scheduleAdjust();
+        }
       }
 
       function restoreFrom() {
@@ -270,6 +274,9 @@ WT_DECLARE_WT_MEMBER(
 
         from.style[WT.styleAttribute("animation-duration")] = "";
         from.style[WT.styleAttribute("animation-timing-function")] = "";
+        if (APP.layouts2) {
+          APP.layouts2.scheduleAdjust();
+        }
       }
 
       /*
@@ -280,12 +287,12 @@ WT_DECLARE_WT_MEMBER(
       */
       if (from.classList.contains("in")) {
         from.addEventListener(animationEventEnd, function() {
-          doAnimateChild(WT, child, effects, timing, 1, style);
+          doAnimateChild(APP, WT, child, effects, timing, 1, style);
         }, { once: true });
         return;
       } else if (to.classList.contains("out")) {
         from.addEventListener(animationEventEnd, function() {
-          doAnimateChild(WT, child, effects, timing, 1, style);
+          doAnimateChild(APP, WT, child, effects, timing, 1, style);
         }, { once: true });
         return;
       }
@@ -360,6 +367,6 @@ WT_DECLARE_WT_MEMBER(
       to.addEventListener(animationEventEnd, restoreTo, { once: true });
     };
 
-    doAnimateChild(WT, child, effects, timing, duration, style);
+    doAnimateChild(APP, WT, child, effects, timing, duration, style);
   }
 );

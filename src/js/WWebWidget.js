@@ -100,7 +100,7 @@ WT_DECLARE_WT_MEMBER(
         const p = el.parentNode;
 
         if (p.wtAnimateChild) {
-          p.wtAnimateChild(WT, el, effects, timing, duration, { display });
+          p.wtAnimateChild(APP, WT, el, effects, timing, duration, { display });
           return;
         }
 
