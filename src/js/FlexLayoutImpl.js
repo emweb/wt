@@ -9,6 +9,13 @@
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id) {
   const WT = APP.WT;
 
+  function copySizeLimits(from, to) {
+    to.style.maxHeight = from.style.maxHeight;
+    to.style.minHeight = from.style.minHeight;
+    to.style.maxWidth = from.style.maxWidth;
+    to.style.minWidth = from.style.minWidth;
+  }
+
   function init() {
     const el = WT.getElement(id);
     if (!el) {
@@ -28,10 +35,52 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id) {
       if (overflow === "visible" || overflow === "") {
         c.style.overflow = "hidden";
       }
+
+      if (c.classList.contains("Wt-fill-width")) {
+        const unwrapped = c.children[0];
+        c.style.flexBasis = unwrapped.style.height;
+        unwrapped.style.height = "auto";
+        copySizeLimits(unwrapped, c);
+      }
+
+      if (c.classList.contains("Wt-fill-height")) {
+        const unwrapped = c.children[0];
+        c.style.flexBasis = unwrapped.style.width;
+        unwrapped.style.width = "auto";
+        copySizeLimits(unwrapped, c);
+      }
     }
   }
 
   setTimeout(init, 0);
+
+  this.resizeItem = function(item, width, height) {
+    setTimeout(adjustItem, 0, item, width, height);
+  };
+
+  function adjustItem(item, width, height) {
+    if (!item) {
+      return;
+    }
+
+    const p = item.parentElement;
+    if (!p) {
+      return;
+    }
+
+    if (p.classList.contains("Wt-fill-width")) {
+      p.style.flexBasis = height;
+      item.style.height = "auto";
+
+      copySizeLimits(item, p);
+    }
+
+    if (p.classList.contains("Wt-fill-height")) {
+      p.style.flexBasis = width;
+      item.style.width = "auto";
+      copySizeLimits(item, p);
+    }
+  }
 
   this.adjust = function() {
     setTimeout(function() {

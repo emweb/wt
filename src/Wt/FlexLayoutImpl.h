@@ -48,6 +48,7 @@ private:
 
   Impl::Grid& grid_;
   std::vector<WLayoutItem *> addedItems_;
+  std::vector<WLayoutItem *> resizedItems_;
   std::vector<std::string> removedItems_;
   std::vector<StdLayoutImpl *> childLayouts_;
   std::string elId_;
@@ -59,10 +60,12 @@ private:
   int maximumWidthForColumn(int column) const;
   DomElement *createElement(Orientation orientation, int index,
                             int totalStretch, WApplication *app);
+  DomElement *wrap(DomElement *el, const std::string& flow);
   Orientation getOrientation() const;
   LayoutDirection getDirection() const;
   std::string styleDisplay() const;
   std::string styleFlex() const;
+  std::string otherStyleFlex() const;
 
   int count(Orientation orientation) const;
   int indexOf(WLayoutItem *item, Orientation orientation);

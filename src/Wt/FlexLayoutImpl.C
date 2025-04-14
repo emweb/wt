@@ -44,8 +44,12 @@ FlexLayoutImpl::FlexLayoutImpl(WLayout *layout, Impl::Grid& grid)
   }
 }
 
-bool FlexLayoutImpl::itemResized(WT_MAYBE_UNUSED WLayoutItem* item)
+bool FlexLayoutImpl::itemResized(WLayoutItem* item)
 {
+  if (item) {
+    resizedItems_.push_back(item);
+  }
+  update();
   /*
    * Actually, we should only return true if the direct child's
    * visibility changed. We need an itemVisibilityChanged() ?
@@ -93,8 +97,10 @@ void FlexLayoutImpl::updateDom(DomElement& parent)
 
 
   std::vector<int> orderedInserts;
-  for (unsigned i = 0; i < addedItems_.size(); ++i)
+  for (unsigned i = 0; i < addedItems_.size(); ++i) {
     orderedInserts.push_back(indexOf(addedItems_[i], orientation));
+    resizedItems_.push_back(addedItems_[i]);
+  }
 
   Utils::sort(orderedInserts);
 
@@ -118,6 +124,20 @@ void FlexLayoutImpl::updateDom(DomElement& parent)
   }
 
   addedItems_.clear();
+
+  for (unsigned i = 0; i < resizedItems_.size(); ++i) {
+    WWidget *item = resizedItems_[i]->widget();
+    WStringStream method;
+    method << "layout.resizeItem("
+           << item->id() << ","
+           << '"' << item->width().cssText() << "\","
+           << '"' << item->height().cssText() << "\","
+           << ")";
+
+    div->callMethod(method.str());
+  }
+
+  resizedItems_.clear();
 
   for (unsigned i = 0; i < removedItems_.size(); ++i)
     div->callJavaScript(WT_CLASS ".remove('" + removedItems_[i] + "');",
@@ -443,6 +463,21 @@ std::string FlexLayoutImpl::styleFlex() const
   return "";
 }
 
+std::string FlexLayoutImpl::otherStyleFlex() const
+{
+  switch (getDirection()) {
+  case LayoutDirection::TopToBottom:
+    return "row";
+  case LayoutDirection::BottomToTop:
+    return "row-reverse";
+  case LayoutDirection::LeftToRight:
+    return "column";
+  case LayoutDirection::RightToLeft:
+    return "column-reverse";
+  }
+  return "";
+}
+
 int FlexLayoutImpl::getTotalStretch(Orientation orientation)
 {
   int totalStretch = 0;
@@ -492,6 +527,16 @@ Orientation FlexLayoutImpl::getOrientation() const
   return Orientation::Horizontal;
 }
 
+DomElement *FlexLayoutImpl::wrap(DomElement *el, const std::string& flow)
+{
+  DomElement *wrapper = DomElement::createNew(DomElementType::DIV);
+  wrapper->setId("w" + el->id());
+  wrapper->setProperty(Property::StyleDisplay, styleDisplay());
+  wrapper->setProperty(Property::StyleFlexFlow, flow);
+  wrapper->addChild(el);
+  return wrapper;
+}
+
 StdLayoutImpl *FlexLayoutImpl::getStdLayoutImpl(WLayoutItem *item)
 {
   WLayout *layout = dynamic_cast<WLayout *>(item);
@@ -529,13 +574,7 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
   if (orientation == Orientation::Horizontal) {
     if (hAlign != static_cast<AlignmentFlag>(0)) {
       el->setProperty(Property::StyleFlex, "0 0 auto");
-
-      DomElement *wrap = DomElement::createNew(DomElementType::DIV);
-      wrap->setId("w" + el->id());
-      wrap->setProperty(Property::StyleDisplay, styleDisplay());
-      wrap->setProperty(Property::StyleFlexFlow, styleFlex());
-      wrap->addChild(el);
-      el = wrap;
+      el = wrap(el, styleFlex());
 
       switch (hAlign) {
       case AlignmentFlag::Left:
@@ -551,32 +590,31 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
       }
     }
 
-    if (vAlign != static_cast<AlignmentFlag>(0))
-      switch (vAlign) {
-      case AlignmentFlag::Top:
-        el->setProperty(Property::StyleAlignSelf, "flex-start");
-        break;
-      case AlignmentFlag::Middle:
-        el->setProperty(Property::StyleAlignSelf, "center");
-        break;
-      case AlignmentFlag::Bottom:
-        el->setProperty(Property::StyleAlignSelf, "flex-end");
-        break;
-      case AlignmentFlag::Baseline:
-        el->setProperty(Property::StyleAlignSelf, "baseline");
-      default:
-        break;
+    switch (vAlign) {
+    case AlignmentFlag::Top:
+      el->setProperty(Property::StyleAlignSelf, "flex-start");
+      break;
+    case AlignmentFlag::Middle:
+      el->setProperty(Property::StyleAlignSelf, "center");
+      break;
+    case AlignmentFlag::Bottom:
+      el->setProperty(Property::StyleAlignSelf, "flex-end");
+      break;
+    case AlignmentFlag::Baseline:
+      el->setProperty(Property::StyleAlignSelf, "baseline");
+      break;
+    default:
+      if (hAlign == static_cast<AlignmentFlag>(0)) {
+        el->setProperty(Property::StyleFlex, "1 1 auto");
+        el = wrap(el, otherStyleFlex());
+        el->addPropertyWord(Property::Class, "Wt-fill-height");
       }
+      break;
+    }
   } else {
     if (vAlign != static_cast<AlignmentFlag>(0)) {
       el->setProperty(Property::StyleFlex, "0 0 auto");
-
-      DomElement *wrap = DomElement::createNew(DomElementType::DIV);
-      wrap->setId("w" + el->id());
-      wrap->setProperty(Property::StyleDisplay, styleDisplay());
-      wrap->setProperty(Property::StyleFlexFlow, styleFlex());
-      wrap->addChild(el);
-      el = wrap;
+      el = wrap(el, styleFlex());
 
       switch (vAlign) {
       case AlignmentFlag::Top:
@@ -592,20 +630,24 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
       }
     }
 
-    if (hAlign != static_cast<AlignmentFlag>(0))
-      switch (hAlign) {
-      case AlignmentFlag::Left:
-        el->setProperty(Property::StyleAlignSelf, "flex-start");
-        break;
-      case AlignmentFlag::Center:
-        el->setProperty(Property::StyleAlignSelf, "center");
-        break;
-      case AlignmentFlag::Right:
-        el->setProperty(Property::StyleAlignSelf, "flex-end");
-        break;
-      default:
-        break;
+    switch (hAlign) {
+    case AlignmentFlag::Left:
+      el->setProperty(Property::StyleAlignSelf, "flex-start");
+      break;
+    case AlignmentFlag::Center:
+      el->setProperty(Property::StyleAlignSelf, "center");
+      break;
+    case AlignmentFlag::Right:
+      el->setProperty(Property::StyleAlignSelf, "flex-end");
+      break;
+    default:
+      if (vAlign == static_cast<AlignmentFlag>(0)) {
+        el->setProperty(Property::StyleFlex, "1 1 auto");
+        el = wrap(el, otherStyleFlex());
+        el->addPropertyWord(Property::Class, "Wt-fill-width");
       }
+      break;
+    }
   }
 
   {
