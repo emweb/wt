@@ -1726,6 +1726,7 @@ private:
   bool onDemandLoadingEnabled_;
   WBrush loadingBackground_;
   bool cObjCreated_;
+  bool hasAjax_;
 
   Signal<const WDataSeries *, WPointF> seriesSelected_;
   JSignal<double, double> jsSeriesSelected_;
@@ -1764,6 +1765,8 @@ private:
   mutable std::vector<BarTooltip> barTooltips_;
 
   void init();
+  void enableEventHandlers();
+  virtual void enableAjax() override;
   static std::string wheelActionsToJson(WheelActions wheelActions);
 
   static WColor lightenColor(const WColor &in);
