@@ -62,7 +62,7 @@ public:
    *
    * \code
    * Widget *result = widget.get();
-   * addWidget(std::unique_ptr<WWidget>(std::move(widget), alignmentFlag));
+   * addWidget(std::unique_ptr<WWidget>(std::move(widget)), alignmentFlag);
    * return result;
    * \endcode
    */
@@ -72,7 +72,7 @@ public:
 #ifndef WT_TARGET_JAVA
   {
     Widget *result = widget.get();
-    addWidget(std::unique_ptr<WWidget>(std::move(widget), alignmentFlag));
+    addWidget(std::unique_ptr<WWidget>(std::move(widget)), alignmentFlag);
     return result;
   }
 #else // WT_TARGET_JAVA
