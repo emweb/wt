@@ -59,6 +59,7 @@ bool FlexLayoutImpl::itemResized(WLayoutItem* item)
 
 bool FlexLayoutImpl::parentResized()
 {
+  update();
   return false;
 }
 
@@ -437,7 +438,9 @@ DomElement *FlexLayoutImpl::createDomElement(DomElement *parent,
 
   WStringStream js;
   js << "layout=new " WT_CLASS ".FlexLayout("
-     << app->javaScriptClass() << ",'" << elId_ << "');";
+     << app->javaScriptClass() << ","
+     << "'" << elId_<< "',"
+     << "'" << container()->id() << "');";
   result->callMethod(js.str());
 
   return result;
@@ -567,14 +570,38 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
   AlignmentFlag hAlign = it.alignment_ & AlignHorizontalMask;
   AlignmentFlag vAlign = it.alignment_ & AlignVerticalMask;
 
-  /*
-   * If not justifying along main axis, then we need to wrap inside
-   * an additional (flex) element
-   */
   if (orientation == Orientation::Horizontal) {
+    std::string alignSelfStyle;
+    switch (vAlign) {
+    case AlignmentFlag::Top:
+      alignSelfStyle = "flex-start";
+      break;
+    case AlignmentFlag::Middle:
+      alignSelfStyle = "center";
+      break;
+    case AlignmentFlag::Bottom:
+      alignSelfStyle = "flex-end";
+      break;
+    case AlignmentFlag::Baseline:
+      alignSelfStyle = "baseline";
+      break;
+    default:
+      el->setProperty(Property::StyleFlex, "1 1 auto");
+      el = wrap(el, styleFlex());
+      el->setProperty(Property::StyleFlex, "1 1 auto");
+      el = wrap(el, otherStyleFlex());
+      el->addPropertyWord(Property::Class, "Wt-fill-height");
+      break;
+    }
+
+    /*
+     * If not justifying along main axis, then we need to wrap inside
+     * an additional (flex) element
+     */
     if (hAlign != static_cast<AlignmentFlag>(0)) {
       el->setProperty(Property::StyleFlex, "0 0 auto");
       el = wrap(el, styleFlex());
+      el->addPropertyWord(Property::Class, "Wt-justify-wrap");
 
       switch (hAlign) {
       case AlignmentFlag::Left:
@@ -590,31 +617,32 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
       }
     }
 
-    switch (vAlign) {
-    case AlignmentFlag::Top:
-      el->setProperty(Property::StyleAlignSelf, "flex-start");
-      break;
-    case AlignmentFlag::Middle:
-      el->setProperty(Property::StyleAlignSelf, "center");
-      break;
-    case AlignmentFlag::Bottom:
-      el->setProperty(Property::StyleAlignSelf, "flex-end");
-      break;
-    case AlignmentFlag::Baseline:
-      el->setProperty(Property::StyleAlignSelf, "baseline");
-      break;
-    default:
-      if (hAlign == static_cast<AlignmentFlag>(0)) {
-        el->setProperty(Property::StyleFlex, "1 1 auto");
-        el = wrap(el, otherStyleFlex());
-        el->addPropertyWord(Property::Class, "Wt-fill-height");
-      }
-      break;
+    if (!alignSelfStyle.empty()) {
+      el->setProperty(Property::StyleAlignSelf, alignSelfStyle);
     }
   } else {
+    std::string alignSelfStyle;
+    switch (hAlign) {
+    case AlignmentFlag::Left:
+      alignSelfStyle = "flex-start";
+      break;
+    case AlignmentFlag::Center:
+      alignSelfStyle = "center";
+      break;
+    case AlignmentFlag::Right:
+      alignSelfStyle = "flex-end";
+      break;
+    default:
+      el->setProperty(Property::StyleFlex, "1 1 auto");
+      el = wrap(el, otherStyleFlex());
+      el->addPropertyWord(Property::Class, "Wt-fill-width");
+      break;
+    }
+
     if (vAlign != static_cast<AlignmentFlag>(0)) {
       el->setProperty(Property::StyleFlex, "0 0 auto");
       el = wrap(el, styleFlex());
+      el->addPropertyWord(Property::Class, "Wt-justify-wrap");
 
       switch (vAlign) {
       case AlignmentFlag::Top:
@@ -630,23 +658,8 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
       }
     }
 
-    switch (hAlign) {
-    case AlignmentFlag::Left:
-      el->setProperty(Property::StyleAlignSelf, "flex-start");
-      break;
-    case AlignmentFlag::Center:
-      el->setProperty(Property::StyleAlignSelf, "center");
-      break;
-    case AlignmentFlag::Right:
-      el->setProperty(Property::StyleAlignSelf, "flex-end");
-      break;
-    default:
-      if (vAlign == static_cast<AlignmentFlag>(0)) {
-        el->setProperty(Property::StyleFlex, "1 1 auto");
-        el = wrap(el, otherStyleFlex());
-        el->addPropertyWord(Property::Class, "Wt-fill-width");
-      }
-      break;
+    if (!alignSelfStyle.empty()) {
+      el->setProperty(Property::StyleAlignSelf, alignSelfStyle);
     }
   }
 

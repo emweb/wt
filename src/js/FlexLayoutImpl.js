@@ -6,7 +6,7 @@
 
 /* Note: this is at the same time valid JavaScript and C++. */
 
-WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id) {
+WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, topLayout) {
   const WT = APP.WT;
 
   function copySizeLimits(from, to) {
@@ -20,6 +20,24 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id) {
     const el = WT.getElement(id);
     if (!el) {
       return;
+    }
+
+    if (
+      el.style.maxHeight !== "none" &&
+      el.style.maxHeight !== "" &&
+      (el.style.height === "auto" ||
+        el.style.height === "")
+    ) {
+      el.style.height = "fit-content";
+    }
+
+    if (
+      el.style.maxWidth !== "none" &&
+      el.style.maxWidth !== "" &&
+      (el.style.width === "auto" ||
+        el.style.width === "")
+    ) {
+      el.style.width = "fit-content";
     }
 
     for (const c of el.childNodes) {
@@ -36,18 +54,32 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id) {
         c.style.overflow = "hidden";
       }
 
-      if (c.classList.contains("Wt-fill-width")) {
-        const unwrapped = c.children[0];
-        c.style.flexBasis = unwrapped.style.height;
+      const unjustified = c.classList.contains("Wt-justify-wrap") ? c.childNodes[0] : c;
+
+      if (unjustified.classList.contains("Wt-fill-width")) {
+        const unwrapped = unjustified.children[0];
+        unjustified.style.flexBasis = unwrapped.style.height;
+
         unwrapped.style.height = "auto";
-        copySizeLimits(unwrapped, c);
+        copySizeLimits(unwrapped, unjustified);
       }
 
-      if (c.classList.contains("Wt-fill-height")) {
-        const unwrapped = c.children[0];
+      if (unjustified.classList.contains("Wt-fill-height")) {
+        const internalWrap = unjustified.children[0];
+        const unwrapped = internalWrap.children[0];
+
         c.style.flexBasis = unwrapped.style.width;
-        unwrapped.style.width = "auto";
-        copySizeLimits(unwrapped, c);
+        unjustified.style.flexBasis = unwrapped.style.width;
+        internalWrap.style.flexBasis = unwrapped.style.height;
+        unwrapped.style.height = "auto";
+        copySizeLimits(unwrapped, unjustified);
+
+        const top = WT.getElement(topLayout);
+        setTimeout(function() {
+          if (top && top.style.width !== "fit-content") {
+            unwrapped.style.width = "auto";
+          }
+        }, 0);
       }
     }
   }
@@ -63,7 +95,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id) {
       return;
     }
 
-    const p = item.parentElement;
+    let p = item.parentElement;
     if (!p) {
       return;
     }
@@ -75,10 +107,29 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id) {
       copySizeLimits(item, p);
     }
 
+    p = p.parentElement;
+    if (!p) {
+      return;
+    }
+
     if (p.classList.contains("Wt-fill-height")) {
+      const justifyWrap = p.parentElement;
+      if (justifyWrap && justifyWrap.classList.contains("Wt-justify-wrap")) {
+        justifyWrap.style.flexBasis = width;
+      }
       p.style.flexBasis = width;
-      item.style.width = "auto";
+      const internalWrap = p.children[0];
+      internalWrap.style.flexBasis = height;
+      item.style.height = "auto";
+
       copySizeLimits(item, p);
+
+      const top = WT.getElement(topLayout);
+      setTimeout(function() {
+        if (top && top.style.width !== "fit-content") {
+          item.style.width = "auto";
+        }
+      }, 0);
     }
   }
 
@@ -138,6 +189,15 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id) {
         }
 
         c.style.flexGrow = stretch;
+
+        const unjustified = c.classList.contains("Wt-justify-wrap") ? c.childNodes[0] : c;
+        if (unjustified.classList.contains("Wt-fill-height")) {
+          const top = WT.getElement(topLayout);
+          if (top && top.style.width !== "fit-content") {
+            const unwrapped = unjustified.childNodes[0].childNodes[0];
+            unwrapped.style.width = "auto";
+          }
+        }
       }
     }, 0);
   };
