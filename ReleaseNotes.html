@@ -68,6 +68,43 @@ behaviour.
     only checking if the top of the row was in the viewport in order to decide whether to scroll or not. It will now scroll if
     either the top or the bottom of the row are not in the viewport.
   </li>
+    <li>
+    <a href="https://redmine.emweb.be/issues/13670" target="_blank">Issue #13670</a>:
+    fixed the folowing issues with layouts:
+    <ul>
+      <li>
+        a bug where JavaScript layouts would sometimes not allow its
+        <a href="classWt_1_1WContainerWidget.html" target="_blank">WContainerWidget</a> to be resized.
+      </li>
+      <li>
+        a bug leading to items in flex layouts to have negative margins.
+      </li>
+      <li>
+        JavaScript layouts not taking margins into account if those margins width were set using
+        "thin", "medium" or "thick".
+      </li>
+      <li>
+        JavaScript layouts sometimes leaving a pixel between its content and the border of its
+        <a href="classWt_1_1WContainerWidget.html" target="_blank">WContainerWidget</a>. This was
+        espescially visible when zooming in or out on the page.
+      </li>
+      <li>
+        elements inside of
+        <a href="classWt_1_1WHBoxLayout.html" target="_blank">WHBoxLayout</a> or
+        <a href="classWt_1_1WVBoxLayout.html" target="_blank">WVBoxLayout</a> respectively not filling
+        the entire column/row, if its height/width was not set to "auto".
+      </li>
+      <li>
+        flex layouts not making their
+        <a href="classWt_1_1WContainerWidget.html" target="_blank">WContainerWidget</a> fit its content
+        when the <code>WContainerWidget</code> had a <code>max-width</code> or a <code>max-height</code>
+        set, without having a <code>width</code> or a <code>height</code> set.
+      </li>
+      <li>
+        flex layouts not allowing their content aligned in the same direction as itself to be shrinked.
+        This could lead to several ellements overlapping each other.
+      </li>
+  </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13388" target="_blank">Issue #13388</a>:
     fixed segmentation fault happening when authenticating a user with
