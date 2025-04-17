@@ -599,7 +599,7 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
      * an additional (flex) element
      */
     if (hAlign != static_cast<AlignmentFlag>(0)) {
-      el->setProperty(Property::StyleFlex, "0 0 auto");
+      el->setProperty(Property::StyleFlex, "0 1 auto");
       el = wrap(el, styleFlex());
       el->addPropertyWord(Property::Class, "Wt-justify-wrap");
 
@@ -640,7 +640,7 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
     }
 
     if (vAlign != static_cast<AlignmentFlag>(0)) {
-      el->setProperty(Property::StyleFlex, "0 0 auto");
+      el->setProperty(Property::StyleFlex, "0 1 auto");
       el = wrap(el, styleFlex());
       el->addPropertyWord(Property::Class, "Wt-justify-wrap");
 
