@@ -190,7 +190,11 @@ void StdGridLayoutImpl2::updateDom(DomElement& parent)
   if (flags_.test(BIT_NEED_REMEASURE)) {
     flags_.reset(BIT_NEED_REMEASURE);
     WStringStream js;
-    js << app->javaScriptClass() << ".layouts2.setDirty('" << id() << "');";
+    js << app->javaScriptClass() << ".layouts2.updateSizeSet('"
+       << id() << "',"
+       << !container()->width().isAuto() << ","
+       << !container()->height().isAuto() << ");";
+
     app->doJavaScript(js.str());
   }
 

@@ -1145,7 +1145,6 @@ WT_DECLARE_WT_MEMBER(
       } else {
         if (DC.sizeSet) {
           cSize = WT.pxself(container, DC.size);
-          cPaddedSize = true;
         }
       }
 
@@ -1760,6 +1759,11 @@ WT_DECLARE_WT_MEMBER(
       itemDirty = true;
     };
 
+    this.updateSizeSet = function(widthSet, heightSet) {
+      DirConfig[HORIZONTAL].sizeSet = widthSet;
+      DirConfig[VERTICAL].sizeSet = heightSet;
+    };
+
     this.setDirty = function() {
       layoutDirty = true;
     };
@@ -1932,6 +1936,14 @@ WT_DECLARE_APP_MEMBER(
     this.find = function(id) {
       const el = document.getElementById(id);
       return el ? el.wtLayout : null;
+    };
+
+    this.updateSizeSet = function(id, widthSet, heightSet) {
+      const layout = this.find(id);
+      if (layout) {
+        layout.updateSizeSet(widthSet, heightSet);
+      }
+      self.setDirty(id);
     };
 
     this.setDirty = function(id) {
