@@ -61,6 +61,16 @@ behaviour.
     <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a>s.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/12424" target="_blank">Issue #12424</a>:
+    fixed a crash that could happen when a
+    <a href="classWt_1_1WAbstractMedia.html" target="_blank">WAbstractMedia</a> was
+    added in the same page as a large
+    <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a>.
+
+    Additionally, the rendering of the event handlers is now the same regardless
+    of whether or not nonces (see <a href="https://redmine.emweb.be/issues/13600" target="_blank">Issue #13600</a>) are enabled.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13530" target="_blank">Issue #13530</a>:
     fixed <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> being always too small by <code>2px</code> when using both
     <a href="classWt_1_1WBootstrap5Theme.html" target="_blank">WBootstrap5Theme</a> and
