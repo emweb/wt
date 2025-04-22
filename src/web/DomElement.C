@@ -1098,30 +1098,15 @@ void DomElement::asHTML(EscapeOStream& out,
     for (EventHandlerMap::const_iterator i = eventHandlers_.begin();
          i != eventHandlers_.end(); ++i) {
       if (!i->second.jsCode.empty()) {
-        if (globalUnfocused_
-            || app->environment().server()->configuration().useScriptNonce()
-            || (i->first == WInteractWidget::WHEEL_SIGNAL &&
-                app->environment().agentIsIE() &&
-                static_cast<unsigned int>(app->environment().agent()) >=
-                static_cast<unsigned int>(UserAgent::IE9)))
-          setJavaScriptEvent(javaScript, i->first, i->second, app);
-        else {
-          // All event handlers ought to be JS, not DOM: #13501
-          std::string elementId = id();
-          if (elementId.empty()) {
-            WObject dummy;
-            elementId = dummy.id();
-            out << " id=";
-            fastHtmlAttributeValue(out, attributeValues, elementId);
-          }
-          auto eventName = const_cast<char *>(i->first);
-          WStringStream eventJS;
-          eventJS << WT_CLASS << ".$('" << elementId << "').on" << eventName << " = "
-                  << "function() {"
-                  <<   i->second.jsCode << ";"
-                  << "};";
-          app->doJavaScript(eventJS.str());
+        // All event handlers ought to be JS, not DOM: #13501
+        std::string elementId = id();
+        if (elementId.empty()) {
+          WObject dummy;
+          elementId = dummy.id();
+          out << " id=";
+          fastHtmlAttributeValue(out, attributeValues, elementId);
         }
+        setJavaScriptEvent(javaScript, i->first, i->second, app);
       }
     }
   }
