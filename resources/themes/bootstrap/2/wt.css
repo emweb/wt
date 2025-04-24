@@ -707,10 +707,12 @@ body.Wt-rtl .Wt-itemview .Wt-tv-no-rh {
 .Wt-tableview .Wt-tv-contents {
   background-color: #fff;
 }
-.Wt-tableview .Wt-tv-contents.Wt-striped div.Wt-tv-c:nth-child(odd) {
+.Wt-tableview .Wt-tv-contents.Wt-striped div.Wt-tv-c:nth-child(odd),
+.Wt-tableview .Wt-tv-contents.Wt-striped a.Wt-tv-c:nth-child(odd) {
   background-color: #f9f9f9;
 }
-.Wt-tableview .Wt-tv-contents.Wt-striped div.active:nth-child(odd) {
+.Wt-tableview .Wt-tv-contents.Wt-striped div.active:nth-child(odd),
+.Wt-tableview .Wt-tv-contents.Wt-striped a.active:nth-child(odd) {
   background-color: #08c;
 }
 .Wt-tableview .Wt-tv-contents .Wt-tv-c,

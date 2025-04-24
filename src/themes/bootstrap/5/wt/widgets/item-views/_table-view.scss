@@ -12,11 +12,13 @@
     background-color: #fff;
 
     &.Wt-striped {
-      div.Wt-tv-c:nth-child(odd) {
+      div.Wt-tv-c:nth-child(odd),
+      a.Wt-tv-c:nth-child(odd) {
         background-color: #f9f9f9;
       }
 
-      div.active:nth-child(odd) {
+      div.active:nth-child(odd),
+      a.active:nth-child(odd) {
         background-color: #428bca;
       }
     }
