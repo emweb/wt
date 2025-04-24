@@ -648,7 +648,7 @@ BOOST_AUTO_TEST_CASE(WTemplate_renderTemplateText_bound_widgets)
   t.bindWidget("widget", std::make_unique<Wt::WFileUpload>());
   resetStream(output);
   t.renderTemplateText(output, t.templateText());
-  BOOST_REQUIRE(filterOutIds(output.str()) == "<div><form action=\".?wtd=testwtd&amp;request=resource&amp;resource=&amp;ver=1\" enctype=\"multipart/form-data\" method=\"post\" style=\"display:inline-block;\"><span><iframe src=\".?wtd=testwtd&amp;request=resource&amp;resource=&amp;ver=1\" class=\"Wt-resource\"/></span><input accept=\"\" size=\"20\" type=\"file\"/></form></div>");
+  BOOST_REQUIRE(filterOutIds(output.str()) == "<div><form action=\"?wtd=testwtd&amp;request=resource&amp;resource=&amp;ver=1\" enctype=\"multipart/form-data\" method=\"post\" style=\"display:inline-block;\"><span><iframe src=\"?wtd=testwtd&amp;request=resource&amp;resource=&amp;ver=1\" class=\"Wt-resource\"/></span><input accept=\"\" size=\"20\" type=\"file\"/></form></div>");
   auto staticModel = Wt::makeStaticModel<std::function<std::unique_ptr<Wt::WWidget>()>>([] { return std::make_unique<Wt::WText>(); });
   t.bindWidget("widget", std::move(staticModel));
   resetStream(output);

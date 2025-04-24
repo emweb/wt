@@ -670,7 +670,7 @@ std::string WebSession::appendInternalPath(const std::string& baseUrl,
   if (internalPath.empty() || internalPath == "/")
     if (baseUrl.empty())
       if (applicationName_.empty())
-        return ".";
+        return "";
       else
         return applicationName_;
     else
