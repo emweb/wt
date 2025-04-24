@@ -2339,7 +2339,7 @@ private:
   struct ScriptLibrary {
     ScriptLibrary(const std::string& uri, const std::string& symbol);
 
-    std::string uri, symbol, beforeLoadJS;
+    std::string uri, symbol, beforeLoadJS, beforeLoadPreambles;
     bool operator< (const ScriptLibrary& other) const;
     bool operator== (const ScriptLibrary& other) const;
   };
@@ -2508,7 +2508,7 @@ private:
    * semantics
    */
   void streamAfterLoadJavaScript(WStringStream& out);
-  void streamBeforeLoadJavaScript(WStringStream& out, bool all);
+  void streamBeforeLoadJavaScript(WStringStream& out, bool all, bool withPreamble = true);
   void streamJavaScriptPreamble(WStringStream& out, bool all);
 #ifdef WT_DEBUG_JS
   void loadJavaScriptFile(WStringStream& out, const char *jsFile);

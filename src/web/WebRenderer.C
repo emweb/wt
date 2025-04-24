@@ -1489,15 +1489,21 @@ void WebRenderer::serveMainpage(WebResponse& response)
   beforeLoadJS_.clear();
   for (unsigned i = 0; i < app->scriptLibraries_.size(); ++i) {
     std::string url = app->scriptLibraries_[i].uri;
+    std::string nonce;
+    if (conf.useScriptNonce()) {
+      nonce = " nonce=\"" + response.nonce() + "\"";
+    }
+
+    if (!app->scriptLibraries_[i].beforeLoadJS.empty()) {
+      styleSheets << "<script" << nonce << ">\n";
+      styleSheets << app->scriptLibraries_[i].beforeLoadJS;
+      styleSheets << "</script>\n";
+    }
     styleSheets << "<script src=";
     DomElement::htmlAttributeValue(styleSheets, session_.fixRelativeUrl(url));
+    styleSheets << nonce << "></script>\n";
 
-    if (conf.useScriptNonce()) {
-      styleSheets << " nonce=\"" << response.nonce() << "\"";
-    }
-    styleSheets << "></script>\n";
-
-    beforeLoadJS_ << app->scriptLibraries_[i].beforeLoadJS;
+    beforeLoadJS_ << app->scriptLibraries_[i].beforeLoadPreambles;
   }
   app->scriptLibrariesAdded_ = 0;
 
@@ -1600,7 +1606,8 @@ int WebRenderer::loadScriptLibraries(WStringStream& out,
     for (unsigned i = first; i < app->scriptLibraries_.size(); ++i) {
       std::string uri = session_.fixRelativeUrl(app->scriptLibraries_[i].uri);
 
-      out << app->scriptLibraries_[i].beforeLoadJS
+      out << app->scriptLibraries_[i].beforeLoadPreambles
+          << app->scriptLibraries_[i].beforeLoadJS
           << app->javaScriptClass() << "._p_.loadScript('" << uri << "',";
       DomElement::jsStringLiteral(out, app->scriptLibraries_[i].symbol, '\'');
       out << ");\n";

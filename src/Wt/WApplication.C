@@ -1698,9 +1698,11 @@ void WApplication::streamAfterLoadJavaScript(WStringStream& out)
   afterLoadJavaScript_.clear();
 }
 
-void WApplication::streamBeforeLoadJavaScript(WStringStream& out, bool all)
+void WApplication::streamBeforeLoadJavaScript(WStringStream& out, bool all, bool withPreamble)
 {
-  streamJavaScriptPreamble(out, all);
+  if (withPreamble) {
+    streamJavaScriptPreamble(out, all);
+  }
 
   if (!all) {
     if (newBeforeLoadJavaScript_)
@@ -1737,9 +1739,12 @@ bool WApplication::require(const std::string& uri, const std::string& symbol)
   ScriptLibrary sl(uri, symbol);
 
   if (Utils::indexOf(scriptLibraries_, sl) == -1) {
-    WStringStream ss;
-    streamBeforeLoadJavaScript(ss, false);
-    sl.beforeLoadJS = ss.str();
+    WStringStream bs, ps;
+    streamJavaScriptPreamble(ps, false);
+    sl.beforeLoadPreambles = ps.str();
+    streamBeforeLoadJavaScript(bs, false, false);
+    sl.beforeLoadJS = bs.str();
+    beforeLoadJavaScript_.clear();
 
     scriptLibraries_.push_back(sl);
     ++scriptLibrariesAdded_;
