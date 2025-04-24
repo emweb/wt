@@ -108,6 +108,17 @@ behaviour.
     being unnecessarily present.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13623" target="_blank">Issue #13623</a>:
+    fixed JavaScript executed via
+    <a href="classWt_1_1WApplication.html#a2a92457b9212cef4057cb54e56183967" target="_blank">WApplication::doJavaScript()</a>
+    with <code>afterLoaded = false</code> being sometimes executed twice on application startup if the call happened before a call to
+    <a href="classWt_1_1WApplication.html#ae88546224ed32cade783da188b145138" target="_blank">WApplication::require()</a>.
+
+    Additionally, fixed libraries being loaded before the JavaScript executed via
+    <a href="classWt_1_1WApplication.html#a2a92457b9212cef4057cb54e56183967" target="_blank">WApplication::doJavaScript()</a>
+    with <code>afterLoaded = false</code> when using progressive bootstrap.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13361" target="_blank">Issue #13361</a>:
     correct standalone Asio versioning checks, and Boost included Asio versioning checks.
   </li>
