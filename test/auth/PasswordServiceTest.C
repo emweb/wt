@@ -109,11 +109,18 @@ BOOST_AUTO_TEST_CASE( throttle_enabled_failure_test )
 
   // Test for 10 failure attempts
   for (std::size_t failures = 0; failures < 10; ++failures) {
+    auto start = std::chrono::system_clock::now();
     // Have one additional login failure
     user.setAuthenticated(false);
     transaction.commit();
 
-    BOOST_REQUIRE(f.myPasswordService_->delayForNextAttempt(user) == attemptResults[failures]);
+    int delay = f.myPasswordService_->delayForNextAttempt(user);
+    auto end = std::chrono::system_clock::now();
+    int elapsed = static_cast<int>(std::chrono::duration_cast<std::chrono::seconds>(end - start).count());
+    elapsed++; // Add 1 second because it was rounded down
+
+    BOOST_REQUIRE(attemptResults[failures] - elapsed <= delay);
+    BOOST_REQUIRE(delay <= attemptResults[failures]);
   }
 }
 
