@@ -79,7 +79,7 @@ public:
    *
    * \sa validate()
    */
-  void setValidator(const std::shared_ptr<WValidator>& validator);
+  virtual void setValidator(const std::shared_ptr<WValidator>& validator);
 
   /*! \brief Returns the validator.
    */
@@ -184,6 +184,15 @@ protected:
    * last render.
    */
   WT_NODISCARD bool hasValidatorChanged() const noexcept;
+
+  /*! \internal
+   * \brief Called whenever the validator is needed.
+   *
+   * By default, this returns the same value as validator(), but it can
+   * be overridden to return a different validator. This allows to hide
+   * the validator from the user, while still using it internally.
+   */
+  virtual std::shared_ptr<WValidator> realValidator() const { return validator(); }
 
 private:
   static const int BIT_ENABLED_CHANGED  = 0;

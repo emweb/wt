@@ -16,7 +16,8 @@ WPasswordEdit::WPasswordEdit()
     nativeControl_(false)
 {
   pwdValidator_ = std::make_shared<WPasswordValidator>();
-  setValidator(pwdValidator_);
+  WLineEdit::setValidator(std::make_shared<WStackedValidator>());
+  stackedValidator()->addValidator(pwdValidator_);
 }
 
 WPasswordEdit::WPasswordEdit(const WT_USTRING& content)
@@ -33,9 +34,9 @@ void WPasswordEdit::setNativeControl(bool nativeControl)
     flags_.set(BIT_CONTROL_CHANGED);
 
     if (!nativeControl) {
-      setValidator(pwdValidator_);
+      stackedValidator()->addValidator(pwdValidator_);
     } else {
-      setValidator(nullptr);
+      stackedValidator()->removeValidator(pwdValidator_);
     }
 
   }
@@ -93,6 +94,23 @@ void WPasswordEdit::setInvalidBlankText(const WString& text)
 void WPasswordEdit::setInvalidNoMatchText(const WString& text)
 {
   pwdValidator_->setInvalidNoMatchText(text);
+}
+
+void WPasswordEdit::setValidator(const std::shared_ptr<WValidator>& validator)
+{
+  if (otherValidator_ != validator) {
+    if (otherValidator_) {
+      stackedValidator()->removeValidator(otherValidator_);
+    }
+
+    otherValidator_ = validator;
+
+    if (otherValidator_) {
+      stackedValidator()->insertValidator(0, otherValidator_);
+    }
+  }
+
+  WLineEdit::setValidator(stackedValidator());
 }
 
 ValidationState WPasswordEdit::validate()

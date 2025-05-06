@@ -9,6 +9,7 @@
 
 #include "Wt/WLineEdit.h"
 #include "Wt/WPasswordValidator.h"
+#include "Wt/WStackedValidator.h"
 
 namespace Wt {
 
@@ -134,15 +135,21 @@ public:
    */
   WString invalidBlankText() const { return pwdValidator_->invalidBlankText(); }
 
+  void setValidator(const std::shared_ptr<WValidator>& validator) override;
+
+  std::shared_ptr<WValidator> validator() const override { return otherValidator_; }
+
   ValidationState validate() override;
 
 protected:
   void updateDom(DomElement& element, bool all) override;
   WT_NODISCARD std::string type() const noexcept override { return "password"; }
+  virtual std::shared_ptr<WValidator> realValidator() const { return WLineEdit::validator(); }
 
 private:
   bool nativeControl_;
   std::shared_ptr<WPasswordValidator> pwdValidator_;
+  std::shared_ptr<WValidator> otherValidator_;
 
   static const int BIT_MIN_LENGTH_CHANGED   = 0;
   static const int BIT_REQUIRED_CHANGED     = 1;
@@ -150,6 +157,8 @@ private:
   static const int BIT_PATTERN_CHANGED      = 3;
 
   std::bitset<4> flags_;
+
+  std::shared_ptr<WStackedValidator> stackedValidator() const { return std::dynamic_pointer_cast<WStackedValidator>(WLineEdit::validator()); }
 
 };
 

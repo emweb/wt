@@ -144,8 +144,8 @@ void WFormWidget::render(WFlags<RenderFlag> flags)
     if (flags_.test(BIT_JS_OBJECT))
       defineJavaScript(true);
 
-    if (validator()) {
-      WValidator::Result result = validator()->validate(valueText());
+    if (realValidator()) {
+      WValidator::Result result = realValidator()->validate(valueText());
       WApplication::instance()->theme()
         ->applyValidationStyle(this, result,
                                ValidationStyleFlag::InvalidStyle);
@@ -357,8 +357,8 @@ void WFormWidget::setValidator(const std::shared_ptr<WValidator>& validator)
 
 ValidationState WFormWidget::validate()
 {
-  if (validator()) {
-    WValidator::Result result = validator()->validate(valueText());
+  if (realValidator()) {
+    WValidator::Result result = realValidator()->validate(valueText());
 
     if (isRendered())
       WApplication::instance()->theme()
