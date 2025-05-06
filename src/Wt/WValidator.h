@@ -187,7 +187,7 @@ public:
 
 protected:
   /*! \internal
-   * \brief Notifies all form widgets that this validator has changed
+   * \brief Notifies all form widgets and parent validators that this validator has changed.
    */
   void repaint();
 
@@ -196,11 +196,15 @@ private:
   WString      mandatoryText_;
 
   std::vector<WFormWidget *> formWidgets_;
+  std::vector<WValidator *> parentValidators_;
 
   void addFormWidget(WFormWidget *w);
   void removeFormWidget(WFormWidget *w);
+  void addParentValidator(WValidator *v);
+  void removeParentValidator(WValidator *v);
 
   friend class WFormWidget;
+  friend class WStackedValidator;
 };
 
 }

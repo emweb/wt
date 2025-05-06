@@ -170,6 +170,7 @@ namespace Wt {
   class WSound;
   class WSpinBox;
   class WSplitButton;
+  class WStackedValidator;
   class WStackedWidget;
   class WStandardItem;
   class WStandardItemModel;

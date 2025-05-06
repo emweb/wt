@@ -226,6 +226,7 @@ Wt/WSplitButton.h Wt/WSplitButton.C
 Wt/WSound.h Wt/WSound.C
 Wt/WSslCertificate.h Wt/WSslCertificate.C
 Wt/WSslInfo.h Wt/WSslInfo.C
+Wt/WStackedValidator.h Wt/WStackedValidator.C
 Wt/WStackedWidget.h Wt/WStackedWidget.C
 Wt/WStandardItem.h Wt/WStandardItem.C
 Wt/WStandardItemModel.h Wt/WStandardItemModel.C

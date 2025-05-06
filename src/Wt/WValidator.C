@@ -99,6 +99,10 @@ void WValidator::repaint()
 {
   for (unsigned i = 0; i < formWidgets_.size(); ++i)
     formWidgets_[i]->validatorChanged();
+
+  for (unsigned i = 0; i < parentValidators_.size(); ++i) {
+    parentValidators_[i]->repaint();
+  }
 }
 
 void WValidator::addFormWidget(WFormWidget *w)
@@ -109,6 +113,16 @@ void WValidator::addFormWidget(WFormWidget *w)
 void WValidator::removeFormWidget(WFormWidget *w)
 {
   Utils::erase(formWidgets_, w);
+}
+
+void WValidator::addParentValidator(WValidator *v)
+{
+  parentValidators_.push_back(v);
+}
+
+void WValidator::removeParentValidator(WValidator *v)
+{
+  Utils::erase(parentValidators_, v);
 }
 
 }
