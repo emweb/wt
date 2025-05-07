@@ -61,7 +61,13 @@ Wt::WValidator::Result WPasswordValidator::validate(const WT_USTRING& input) con
     }
   }
 
-  int size = input.value().size();
+
+#ifndef WT_TARGET_JAVA
+  std::u32string text = input.toUTF32();
+#else
+  std::string text = input;
+#endif
+  int size = static_cast<int>(text.length());
 
   if (size < minLength_ && (minLength_ <= maxLength_ || maxLength_ < 0)) {
     return Result(ValidationState::Invalid, invalidTooShortText());
@@ -89,11 +95,11 @@ std::string WPasswordValidator::javaScriptValidate() const
      << isMandatory() << ","
      << minLength() << ","
      << maxLength() << ","
-     << regExpPattern().jsStringLiteral() << ","
-     << invalidBlankText().jsStringLiteral() << ","
-     << invalidTooShortText().jsStringLiteral() << ","
-     << invalidTooLongText().jsStringLiteral() << ","
-     << invalidNoMatchText().jsStringLiteral()
+     << WWebWidget::jsStringLiteral(regExpPattern()) << ","
+     << WWebWidget::jsStringLiteral(invalidBlankText()) << ","
+     << WWebWidget::jsStringLiteral(invalidTooShortText()) << ","
+     << WWebWidget::jsStringLiteral(invalidTooLongText()) << ","
+     << WWebWidget::jsStringLiteral(invalidNoMatchText())
      << ");";
 
   return js.str();

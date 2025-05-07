@@ -15,15 +15,21 @@ WPasswordEdit::WPasswordEdit()
   : WLineEdit(),
     nativeControl_(false)
 {
-  pwdValidator_ = std::make_shared<WPasswordValidator>();
-  WLineEdit::setValidator(std::make_shared<WStackedValidator>());
-  stackedValidator()->addValidator(pwdValidator_);
+  init();
 }
 
 WPasswordEdit::WPasswordEdit(const WT_USTRING& content)
-  : WPasswordEdit()
+  : WLineEdit(content),
+    nativeControl_(false)
 {
-  setText(content);
+  init();
+}
+
+void WPasswordEdit::init()
+{
+  pwdValidator_ = std::make_shared<WPasswordValidator>();
+  WLineEdit::setValidator(std::make_shared<WStackedValidator>());
+  stackedValidator()->addValidator(pwdValidator_);
 }
 
 void WPasswordEdit::setNativeControl(bool nativeControl)

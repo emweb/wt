@@ -160,6 +160,7 @@ private:
 
   std::shared_ptr<WStackedValidator> stackedValidator() const { return std::dynamic_pointer_cast<WStackedValidator>(WLineEdit::validator()); }
 
+  void init();
 };
 
 }

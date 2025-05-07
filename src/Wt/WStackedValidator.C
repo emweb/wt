@@ -91,7 +91,7 @@ std::string WStackedValidator::javaScriptValidate() const
     }
     std::string validatorJs = validators_[i]->javaScriptValidate();
     if (validatorJs[validatorJs.size() - 1] == ';') {
-      validatorJs = validatorJs.erase(validatorJs.size() - 1);
+      validatorJs = validatorJs.substr(0, validatorJs.size() - 1);
     }
     js << validatorJs;
   }
