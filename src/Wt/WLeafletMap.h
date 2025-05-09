@@ -377,6 +377,7 @@ public:
 
     bool changed() const override { return flags_.any() || AbstractMapItem::changed(); }
     void applyChangeJS(WStringStream& ss, long long id) override;
+    void init();
 
     std::string addFunctionJs() const override { return "addOverlayItem"; }
 

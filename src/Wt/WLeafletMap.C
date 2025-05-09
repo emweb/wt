@@ -328,15 +328,21 @@ WLeafletMap::AbstractOverlayItem::~AbstractOverlayItem()
 { }
 
 WLeafletMap::AbstractOverlayItem::AbstractOverlayItem(const Coordinate& pos)
-  : AbstractMapItem(pos),
-    content_(),
-    open_(true)
-{ }
+  : AbstractMapItem(pos)
+{
+  init();
+}
 
 WLeafletMap::AbstractOverlayItem::AbstractOverlayItem(const Coordinate& pos, std::unique_ptr<WWidget> content)
-  : AbstractOverlayItem(pos)
+  : AbstractMapItem(pos)
 {
+  init();
   setContent(std::move(content));
+}
+
+void WLeafletMap::AbstractOverlayItem::init()
+{
+  open_ = true;
 }
 
 void  WLeafletMap::AbstractOverlayItem::setOptions(const Json::Object& options)
