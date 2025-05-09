@@ -47,6 +47,47 @@ required. The options are the following:
 - <strong>Boost_ADDITIONAL_VERSIONS</strong>: a list defining the viable Boost versions. You may need to append your version here. This will mainly be the case for custom installations that do not use the expected versioning system.
 - <strong>Boost_USE_STATIC_LIBS</strong>: can be defined on Windows, indicating whether Boost ought to be linked statically or dynamically.
 
+Not all components of Boost are required to build %Wt, and some are only
+required under certain conditions.
+The current list consists of:
+<table>
+  <tr>
+    <td>Boost component</td>
+    <td>Requirement conditions</td>
+  </tr>
+  <tr>
+    <td>Program Options</td>
+    <td>Always required</td>
+  </tr>
+  <tr>
+    <td>System</td>
+    <td>Always required</td>
+  </tr>
+  <tr>
+    <td>Thread</td>
+    <td>Always required</td>
+  </tr>
+  <tr>
+    <td>Filesystem</td>
+    <td>
+      Required if the configuration flag
+      <strong>WT_CPP17_FILESYSTEM_IMPLEMENTATION</strong> is set to
+      <strong>boost</strong>. This is flag can be set to
+      <strong>std</strong>, which will make %Wt use
+      <code>std::filesystem</code> (only available for C++17 or higher)
+      instead of <code>boost::filesystem</code>.
+    </td>
+  </tr>
+  <tr>
+    <td>Unit Test Framework</td>
+    <td>
+      Required to compile the tests that comes with %Wt. You can set
+      the configuration flag <strong>BUILD_TESTS</strong> to
+      <strong>OFF</strong> if you do not want to compile those tests.
+    </td>
+  </tr>
+</table>
+
 More information on including Boost can be found <a href="https://cmake.org/cmake/help/latest/module/FindBoost.html" target="_blank">here</a>.
 //! [CoreDep]
 
