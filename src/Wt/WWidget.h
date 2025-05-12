@@ -370,7 +370,7 @@ public:
    * case there is not enough room to the right). It is aligned so
    * that the top edges align (or the bottom edges if there is not
    * enough room below).
-   * 
+   *
    * \p adjustOrientations allows to specify the axes on which the
    * widget can adjust it's position if there is not enough room next
    * to the other widget, breaking the previous rules if necessary. For
@@ -1155,7 +1155,8 @@ public:
    * outside of the theme.
    *
    * \note This should be changed after the construction but before the rendering
-   * of the widget.
+   * of the widget or before the call to applyThemeStyles() (depending
+   * on what happens first).
    */
   virtual void setThemeStyleEnabled(bool enabled) = 0;
 
@@ -1168,6 +1169,28 @@ public:
    * \sa setThemeStyleEnabled()
    */
   virtual bool isThemeStyleEnabled() const = 0;
+
+  /*! \brief Schedules a theme style to be applied at the next render.
+   *
+   * This schedules a theme style to be applied at the end of the next
+   * rendering of the widget, or when the next applyThemeStyles() is
+   * called (depending on what happens first).
+   *
+   * \sa applyThemeStyles(), setThemeStyleEnabled()
+   */
+  virtual void scheduleThemeStyleApply(std::shared_ptr<Wt::WTheme> theme, WWidget* child, int role);
+
+  /*! \brief Apply the theme style scheduled.
+   *
+   * This apllies the theme styles scheduled for the next render of
+   * this widget.
+   *
+   * \warning setThemeStyleEnabled() should not be called after using
+   *          this method.
+   *
+   * \sa scheduleThemeStyleApply(), setThemeStyleEnabled()
+   */
+  virtual void applyThemeStyles();
 
   DomElement *createSDomElement(WApplication *app);
 
@@ -1394,6 +1417,17 @@ private:
   std::vector<EventSignalBase*> jsignals_;
 
   WWidget *parent_;
+
+  struct ThemeStyle {
+    std::shared_ptr<Wt::WTheme> theme_;
+    Core::observing_ptr<WWidget> oChild_;
+    int role_;
+
+    ThemeStyle(std::shared_ptr<Wt::WTheme> theme, WWidget *child, int role);
+  };
+
+  std::vector<ThemeStyle> themeStyles_;
+
   void setJsSize();
   void undoHideShow();
   void undoDisableEnable();

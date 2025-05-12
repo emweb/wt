@@ -11,6 +11,7 @@
 #include "Wt/WContainerWidget.h"
 #include "Wt/WLayout.h"
 #include "Wt/WJavaScript.h"
+#include "Wt/WTheme.h"
 
 #include "DomElement.h"
 #include "EscapeOStream.h"
@@ -94,7 +95,9 @@ void WWidget::setJsSize()
 }
 
 void WWidget::render(WT_MAYBE_UNUSED WFlags<RenderFlag> flags)
-{ }
+{
+  applyThemeStyles();
+}
 
 bool WWidget::isRendered() const
 {
@@ -358,6 +361,23 @@ void WWidget::getDropTouch(const std::string sourceId, const std::string mimeTyp
 void WWidget::dropEvent(WT_MAYBE_UNUSED WDropEvent event)
 { }
 
+void WWidget::scheduleThemeStyleApply(std::shared_ptr<Wt::WTheme> theme, WWidget* child, int role)
+{
+  themeStyles_.push_back(ThemeStyle(theme, child, role));
+}
+
+void WWidget::applyThemeStyles()
+{
+  for (std::size_t i = 0; i < themeStyles_.size(); ++i) {
+    ThemeStyle& ts = themeStyles_[i];
+    if (ts.oChild_) {
+      ts.theme_->apply(this, ts.oChild_.get(), ts.role_);
+    }
+  }
+
+  themeStyles_.clear();
+}
+
 DomElement *WWidget::createSDomElement(WApplication *app)
 {
   if (!needsToBeRendered()) {
@@ -528,5 +548,11 @@ void WWidget::setGlobalWidget(bool globalWidget)
 {
   flags_.set(BIT_GLOBAL_WIDGET, globalWidget);
 }
+
+WWidget::ThemeStyle::ThemeStyle(std::shared_ptr<Wt::WTheme> theme, WWidget *child, int role)
+  : theme_(theme),
+    oChild_(child),
+    role_(role)
+{ }
 
 }

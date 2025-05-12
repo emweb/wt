@@ -509,6 +509,7 @@ void WCompositeWidget::render(WFlags<RenderFlag> flags)
 {
   impl_->render(flags);
 
+  WWidget::render(flags);
   renderOk();
 }
 
