@@ -8,6 +8,7 @@
 #include "Wt/WCssTheme.h"
 #include "Wt/WLinkedCssStyleSheet.h"
 #include "Wt/WLogger.h"
+#include "Wt/WWidget.h"
 
 namespace Wt {
 LOGGER("WTheme");
@@ -25,6 +26,16 @@ WTheme::~WTheme()
 
 void WTheme::init(WT_MAYBE_UNUSED WApplication* app) const
 { }
+
+void WTheme::apply(WWidget *widget, WWidget *child, int widgetRole) const
+{
+  // Always apply functional styling.
+  applyFunctionalStyling(widget, child, widgetRole);
+
+  if (widget->isThemeStyleEnabled()) {
+    applyOptionalStyling(widget, child, widgetRole);
+  }
+}
 
 void WTheme::serveCss(WStringStream& out) const
 {

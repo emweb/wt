@@ -168,9 +168,10 @@ public:
    *
    * The \p widgetRole indicates the role that \p child has within the
    * implementation of the \p widget.
+   *
+   * \sa WWidget::setThemeStyleEnabled()
    */
-  virtual void apply(WWidget *widget, WWidget *child, int widgetRole)
-    const = 0;
+  virtual void apply(WWidget *widget, WWidget *child, int widgetRole) const;
 
   /*! \brief Applies the theme to a DOM element that renders a widget.
    *
@@ -220,6 +221,36 @@ public:
    * Side is assumed to be Side::Left or Side::Right, other sides are not supported.
    */
   virtual Side panelCollapseIconSide() const;
+
+protected:
+  /*! \brief Applies the functional part of the theme to a widget's child.
+   *
+   * Only applies the functional part of the theme. This means that
+   * only things that are mandatory for the widget to function properly
+   * but depend on the theme are applied.
+   *
+   * \sa apply(), applyOptionalStyling()
+   */
+  virtual void applyFunctionalStyling(WWidget *widget, WWidget *child, int widgetRole)
+    const = 0;
+
+  /*! \brief Applies the optional part of the theme to a widget's child.
+   *
+   * Only applies the optional part of the theme. This means that
+   * only things that are purely cosmetic and do not affect the
+   * functionality of the widget are applied.
+   *
+   * This should only be called for widgets that have theme styling
+   * enabled.
+   *
+   * \sa apply(),
+   *     applyFunctionalStyling(),
+   *     WWidget::setThemeStyleEnabled()
+   */
+  virtual void applyOptionalStyling(WWidget *widget, WWidget *child, int widgetRole)
+    const = 0;
+
+  friend class WBootstrapTheme;
 };
 
 }

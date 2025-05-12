@@ -82,7 +82,6 @@ public:
   virtual std::string resourcesUrl() const override;
   virtual std::vector<WLinkedCssStyleSheet> styleSheets() const override;
   virtual void init(WApplication *app) const override;
-  virtual void apply(WWidget *widget, WWidget *child, int widgetRole) const override;
   virtual void apply(WWidget *widget, DomElement &element, int elementRole) const override;
   virtual std::string disabledClass() const override;
   virtual std::string activeClass() const override;
@@ -93,6 +92,10 @@ public:
                                     const Wt::WValidator::Result &validation,
                                     WFlags<ValidationStyleFlag> flags) const override;
   virtual bool canBorderBoxElement(const DomElement &element) const override;
+
+protected:
+  void applyFunctionalStyling(WWidget *widget, WWidget *child, int widgetRole) const override;
+  void applyOptionalStyling(WWidget *widget, WWidget *child, int widgetRole) const override;
 
 private:
   bool responsive_, formControlStyle_;

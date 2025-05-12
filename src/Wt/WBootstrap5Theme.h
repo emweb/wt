@@ -61,7 +61,6 @@ public:
   std::string name() const override;
   std::string resourcesUrl() const override;
   std::vector<WLinkedCssStyleSheet> styleSheets() const override;
-  void apply(WWidget *widget, WWidget *child, int widgetRole) const override;
   void apply(WWidget *widget, DomElement &element, int elementRole) const override;
   std::string disabledClass() const override;
   std::string activeClass() const override;
@@ -73,6 +72,10 @@ public:
                             WFlags<ValidationStyleFlag> flags) const override;
   bool canBorderBoxElement(const DomElement &element) const override;
   Side panelCollapseIconSide() const override;
+
+protected:
+  void applyFunctionalStyling(WWidget *widget, WWidget *child, int widgetRole) const override;
+  void applyOptionalStyling(WWidget *widget, WWidget *child, int widgetRole) const override;
 
 private:
   static std::string classBtn(const WWidget *widget);

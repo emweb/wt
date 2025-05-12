@@ -143,6 +143,12 @@ public:
     const override;
   virtual bool canBorderBoxElement(const DomElement& element) const override;
 
+protected:
+  void applyFunctionalStyling(WWidget *widget, WWidget *child, int widgetRole)
+    const override;
+  void applyOptionalStyling(WWidget *widget, WWidget *child, int widgetRole)
+    const override;
+
 private:
   std::unique_ptr<WTheme> impl_;
   BootstrapVersion version_;

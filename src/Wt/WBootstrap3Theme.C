@@ -114,122 +114,6 @@ void WBootstrap3Theme::init(WApplication *app) const
   app->builtinLocalizedStrings().useBuiltin(skeletons::Bootstrap3Theme_xml);
 }
 
-  void WBootstrap3Theme::apply(WWidget *widget, WWidget *child, int widgetRole)
-  const
-{
-  if (!widget->isThemeStyleEnabled())
-    return;
-
-  switch (widgetRole) {
-  case MenuItemIcon:
-    child->addStyleClass("Wt-icon");
-    break;
-  case MenuItemCheckBox:
-    child->setStyleClass("Wt-chkbox");
-    ((WFormWidget *)child)->label()->addStyleClass("checkbox-inline");
-    break;
-  case MenuItemClose:
-    {
-      child->addStyleClass("close");
-      WText *t = dynamic_cast<WText *>(child);
-      t->setText("&times;");
-      break;
-    }
-  case DialogContent:
-    child->addStyleClass("modal-content");
-    break;
-  case DialogCoverWidget:
-    child->addStyleClass("modal-backdrop in");
-    break;
-  case DialogTitleBar:
-    child->addStyleClass("modal-header");
-    break;
-  case DialogBody:
-    child->addStyleClass("modal-body");
-    break;
-  case DialogFooter:
-    child->addStyleClass("modal-footer");
-    break;
-  case DialogCloseIcon:
-    {
-      child->addStyleClass("close");
-      WText *t = dynamic_cast<WText *>(child);
-      t->setText("&times;");
-      break;
-    }
-
-  case TableViewRowContainer:
-    {
-      WAbstractItemView *view = dynamic_cast<WAbstractItemView *>(widget);
-      child->toggleStyleClass("Wt-striped", view->alternatingRowColors());
-      break;
-    }
-
-  case DatePickerPopup:
-    child->addStyleClass("Wt-datepicker");
-    break;
-
-  case DatePickerIcon:
-    {
-      auto icon = dynamic_cast<WImage*>(child);
-      icon->setImageLink(WApplication::relativeResourcesUrl() + "date.gif");
-      icon->setVerticalAlignment(AlignmentFlag::Middle);
-      icon->resize(16, 16);
-      break;
-    }
-
-  case TimePickerPopup:
-    child->addStyleClass("Wt-timepicker");
-    break;
-
-  case PanelTitleBar:
-    child->addStyleClass("panel-heading");
-    break;
-
-  case PanelCollapseButton:
-    child->addStyleClass("Wt-collapse-button");
-    break;
-
-  case PanelTitle:
-    child->addStyleClass("accordion-toggle");
-    break;
-
-  case PanelBody:
-    child->addStyleClass("panel-body");
-    break;
-  case InPlaceEditing:
-    child->addStyleClass("input-group");
-    break;
-  case InPlaceEditingButtonsContainer:
-    child->addStyleClass("input-group-btn");
-    break;
-  case NavCollapse:
-    child->addStyleClass("navbar-collapse");
-    break;
-  case NavBrand:
-    child->addStyleClass("navbar-brand");
-    break;
-  case NavbarForm:
-    child->addStyleClass("navbar-form");
-    break;
-  case NavbarSearchForm:
-    child->addStyleClass("navbar-form");
-    break;
-  case NavbarAlignLeft:
-    child->addStyleClass("navbar-left");
-    break;
-  case NavbarAlignRight:
-    child->addStyleClass("navbar-right");
-    break;
-  case NavbarMenu:
-    child->addStyleClass("navbar-nav");
-    break;
-  case NavbarBtn:
-    child->addStyleClass("navbar-toggle");
-    break;
-  }
-}
-
 void WBootstrap3Theme::apply(WWidget *widget, DomElement& element,
                              int elementRole) const
 {
@@ -558,6 +442,131 @@ void WBootstrap3Theme::setResponsive(bool enabled)
 void WBootstrap3Theme::setFormControlStyleEnabled(bool enabled)
 {
   formControlStyle_ = enabled;
+}
+
+void WBootstrap3Theme::applyFunctionalStyling(WWidget *widget,
+                                              WWidget *child,
+                                              int widgetRole) const
+{
+  switch (widgetRole) {
+  case DialogCloseIcon:
+    {
+      child->addStyleClass("close");
+      WText *t = dynamic_cast<WText *>(child);
+      t->setText("&times;");
+      break;
+    }
+
+  case MenuItemIcon:
+    child->addStyleClass("Wt-icon");
+    break;
+
+  case MenuItemCheckBox:
+    child->setStyleClass("Wt-chkbox");
+    ((WFormWidget *)child)->label()->addStyleClass("checkbox-inline");
+    break;
+
+  case MenuItemClose:
+    {
+      child->addStyleClass("close");
+      WText *t = dynamic_cast<WText *>(child);
+      t->setText("&times;");
+      break;
+    }
+
+  case TableViewRowContainer:
+    {
+      WAbstractItemView *view = dynamic_cast<WAbstractItemView *>(widget);
+      child->toggleStyleClass("Wt-striped", view->alternatingRowColors());
+      break;
+    }
+  }
+}
+
+void WBootstrap3Theme::applyOptionalStyling(WWidget *widget,
+                                            WWidget *child,
+                                            int widgetRole) const
+{
+  switch (widgetRole) {
+  case DialogContent:
+    child->addStyleClass("modal-content");
+    break;
+  case DialogCoverWidget:
+    child->addStyleClass("modal-backdrop in");
+    break;
+  case DialogTitleBar:
+    child->addStyleClass("modal-header");
+    break;
+  case DialogBody:
+    child->addStyleClass("modal-body");
+    break;
+  case DialogFooter:
+    child->addStyleClass("modal-footer");
+    break;
+
+  case DatePickerPopup:
+    child->addStyleClass("Wt-datepicker");
+    break;
+
+  case DatePickerIcon:
+    {
+      auto icon = dynamic_cast<WImage*>(child);
+      icon->setImageLink(WApplication::relativeResourcesUrl() + "date.gif");
+      icon->setVerticalAlignment(AlignmentFlag::Middle);
+      icon->resize(16, 16);
+      break;
+    }
+
+  case TimePickerPopup:
+    child->addStyleClass("Wt-timepicker");
+    break;
+
+  case PanelTitleBar:
+    child->addStyleClass("panel-heading");
+    break;
+
+  case PanelCollapseButton:
+    child->addStyleClass("Wt-collapse-button");
+    break;
+
+  case PanelTitle:
+    child->addStyleClass("accordion-toggle");
+    break;
+
+  case PanelBody:
+    child->addStyleClass("panel-body");
+    break;
+  case InPlaceEditing:
+    child->addStyleClass("input-group");
+    break;
+  case InPlaceEditingButtonsContainer:
+    child->addStyleClass("input-group-btn");
+    break;
+  case NavCollapse:
+    child->addStyleClass("navbar-collapse");
+    break;
+  case NavBrand:
+    child->addStyleClass("navbar-brand");
+    break;
+  case NavbarForm:
+    child->addStyleClass("navbar-form");
+    break;
+  case NavbarSearchForm:
+    child->addStyleClass("navbar-form");
+    break;
+  case NavbarAlignLeft:
+    child->addStyleClass("navbar-left");
+    break;
+  case NavbarAlignRight:
+    child->addStyleClass("navbar-right");
+    break;
+  case NavbarMenu:
+    child->addStyleClass("navbar-nav");
+    break;
+  case NavbarBtn:
+    child->addStyleClass("navbar-toggle");
+    break;
+  }
 }
 
 std::string WBootstrap3Theme::classBtn(WWidget *widget) const

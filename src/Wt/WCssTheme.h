@@ -400,7 +400,6 @@ public:
    */
   virtual std::vector<WLinkedCssStyleSheet> styleSheets() const override;
 
-  virtual void apply(WWidget *widget, WWidget *child, int widgetRole) const override;
   virtual void apply(WWidget *widget, DomElement& element, int elementRole)
     const override;
 
@@ -431,6 +430,10 @@ public:
                                     WFlags<ValidationStyleFlag> styles) const override;
 
   virtual bool canBorderBoxElement(const DomElement& element) const override;
+
+protected:
+  void applyFunctionalStyling(WWidget *widget, WWidget *child, int widgetRole) const override;
+  void applyOptionalStyling(WWidget *widget, WWidget *child, int widgetRole) const override;
 
 private:
   std::string name_;

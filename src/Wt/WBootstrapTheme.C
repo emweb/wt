@@ -149,4 +149,18 @@ void WBootstrapTheme::setFormControlStyleEnabled(bool enabled)
   }
 }
 
+void WBootstrapTheme::applyFunctionalStyling(WWidget *widget,
+                                             WWidget *child,
+                                             int widgetRole) const
+{
+  impl_->applyFunctionalStyling(widget, child, widgetRole);
+}
+
+void WBootstrapTheme::applyOptionalStyling(WWidget *widget,
+                                            WWidget *child,
+                                            int widgetRole) const
+{
+  impl_->applyOptionalStyling(widget, child, widgetRole);
+}
+
 }

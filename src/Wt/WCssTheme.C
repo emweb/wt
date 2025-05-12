@@ -66,89 +66,6 @@ std::vector<WLinkedCssStyleSheet> WCssTheme::styleSheets() const
   return result;
 }
 
-void WCssTheme::apply(WWidget *widget, WWidget *child, int widgetRole) const
-{
-  if (!widget->isThemeStyleEnabled())
-    return;
-
-  switch (widgetRole) {
-  case MenuItemIcon:
-    child->addStyleClass("Wt-icon");
-    break;
-  case MenuItemCheckBox:
-    child->addStyleClass("Wt-chkbox");
-    break;
-  case MenuItemClose:
-    widget->addStyleClass("Wt-closable");
-    child->addStyleClass("closeicon");
-    break;
-
-  case DialogCoverWidget:
-    child->setStyleClass("Wt-dialogcover in");
-    break;
-  case DialogTitleBar:
-    child->addStyleClass("titlebar");
-    break;
-  case DialogBody:
-    child->addStyleClass("body");
-    break;
-  case DialogFooter:
-    child->addStyleClass("footer");
-    break;
-  case DialogCloseIcon:
-    child->addStyleClass("closeicon");
-    break;
-
-  case TableViewRowContainer:
-    {
-      WAbstractItemView *view = dynamic_cast<WAbstractItemView *>(widget);
-
-      std::string backgroundImage;
-
-      if (view->alternatingRowColors())
-        backgroundImage = "stripes/stripe-";
-      else
-        backgroundImage = "no-stripes/no-stripe-";
-
-      backgroundImage = resourcesUrl() + backgroundImage
-        + std::to_string(static_cast<int>(view->rowHeight().toPixels()))
-        + "px.gif";
-
-      child->decorationStyle().setBackgroundImage(WLink(backgroundImage));
-
-      break;
-    }
-
-  case DatePickerPopup:
-    child->addStyleClass("Wt-datepicker");
-    break;
-  case DatePickerIcon:
-    {
-      auto icon = dynamic_cast<WImage*>(child);
-      icon->setImageLink(WApplication::relativeResourcesUrl() + "date.gif");
-      icon->setVerticalAlignment(AlignmentFlag::Middle);
-      icon->resize(16, 16);
-      break;
-    }
-
-  case PanelTitleBar:
-    child->addStyleClass("titlebar");
-    break;
-  case PanelBody:
-    child->addStyleClass("body");
-    break;
-  case PanelCollapseButton:
-    child->addStyleClass("Wt-collapse-button");
-    break;
-
-  case AuthWidgets:
-    WApplication *app = WApplication::instance();
-    app->useStyleSheet(WApplication::relativeResourcesUrl() + "form.css");
-    app->builtinLocalizedStrings().useBuiltin(skeletons::AuthCssTheme_xml);
-    break;
-  }
-}
-
 void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
   const
 {
@@ -337,6 +254,95 @@ void WCssTheme::applyValidationStyle(WWidget *widget,
 bool WCssTheme::canBorderBoxElement(WT_MAYBE_UNUSED const DomElement& element) const
 {
   return true;
+}
+
+void WCssTheme::applyFunctionalStyling(WWidget *widget,
+                                       WWidget *child,
+                                       int widgetRole) const
+{
+  switch (widgetRole) {
+  case DialogCloseIcon:
+    child->addStyleClass("closeicon");
+    break;
+
+  case MenuItemIcon:
+    child->addStyleClass("Wt-icon");
+    break;
+  case MenuItemCheckBox:
+    child->addStyleClass("Wt-chkbox");
+    break;
+  case MenuItemClose:
+    widget->addStyleClass("Wt-closable");
+    child->addStyleClass("closeicon");
+    break;
+
+  case TableViewRowContainer:
+    {
+      WAbstractItemView *view = dynamic_cast<WAbstractItemView *>(widget);
+
+      std::string backgroundImage;
+
+      if (view->alternatingRowColors())
+        backgroundImage = "stripes/stripe-";
+      else
+        backgroundImage = "no-stripes/no-stripe-";
+
+      backgroundImage = resourcesUrl() + backgroundImage
+        + std::to_string(static_cast<int>(view->rowHeight().toPixels()))
+        + "px.gif";
+
+      child->decorationStyle().setBackgroundImage(WLink(backgroundImage));
+
+      break;
+    }
+  }
+}
+
+void WCssTheme::applyOptionalStyling(WWidget *widget,
+                                     WWidget *child,
+                                     int widgetRole) const
+{
+  switch (widgetRole) {
+  case DialogCoverWidget:
+    child->setStyleClass("Wt-dialogcover in");
+    break;
+  case DialogTitleBar:
+    child->addStyleClass("titlebar");
+    break;
+  case DialogBody:
+    child->addStyleClass("body");
+    break;
+  case DialogFooter:
+    child->addStyleClass("footer");
+    break;
+  case DatePickerPopup:
+    child->addStyleClass("Wt-datepicker");
+    break;
+  case DatePickerIcon:
+    {
+      auto icon = dynamic_cast<WImage*>(child);
+      icon->setImageLink(WApplication::relativeResourcesUrl() + "date.gif");
+      icon->setVerticalAlignment(AlignmentFlag::Middle);
+      icon->resize(16, 16);
+      break;
+    }
+
+  case PanelTitleBar:
+    child->addStyleClass("titlebar");
+    break;
+  case PanelBody:
+    child->addStyleClass("body");
+    break;
+  case PanelCollapseButton:
+    child->addStyleClass("Wt-collapse-button");
+    break;
+
+  case AuthWidgets:
+    WApplication *app = WApplication::instance();
+    app->useStyleSheet(WApplication::relativeResourcesUrl() + "form.css");
+    app->builtinLocalizedStrings().useBuiltin(skeletons::AuthCssTheme_xml);
+    break;
+  }
 }
 
 }

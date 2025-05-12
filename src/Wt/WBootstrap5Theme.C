@@ -105,138 +105,6 @@ std::vector<WLinkedCssStyleSheet> WBootstrap5Theme::styleSheets() const
   return result;
 }
 
-void WBootstrap5Theme::apply(WWidget *widget, WWidget *child, int widgetRole)
-  const
-{
-  if (!widget->isThemeStyleEnabled())
-    return;
-
-  switch (widgetRole) {
-  case MenuItemIcon:
-    child->addStyleClass("Wt-icon");
-    break;
-
-  case MenuItemCheckBox:
-    child->addStyleClass("Wt-chkbox");
-    ((WFormWidget *)child)->label()->addStyleClass("form-checkbox");
-    break;
-
-  case MenuItemClose:
-    child->addStyleClass("Wt-close-icon");
-    ((WText *)child)->setText("&times;");
-    break;
-
-  case DialogContent:
-    child->addStyleClass("modal-content");
-    break;
-
-  case DialogCoverWidget:
-    child->addStyleClass("modal-backdrop in");
-    child->setAttributeValue("style", "opacity:0.5");
-    break;
-
-  case DialogTitleBar:
-    child->addStyleClass("modal-header");
-    break;
-
-  case DialogBody:
-    child->addStyleClass("modal-body");
-    break;
-
-  case DialogFooter:
-    child->addStyleClass("modal-footer");
-    break;
-
-  case DialogCloseIcon:
-    child->addStyleClass("btn-close");
-    break;
-
-  case TableViewRowContainer:
-    {
-      auto view = dynamic_cast<WAbstractItemView *>(widget);
-      child->toggleStyleClass("Wt-striped", view->alternatingRowColors());
-      break;
-    }
-
-  case DatePickerPopup:
-    child->addStyleClass("Wt-datepicker");
-    break;
-
-  case DatePickerIcon:
-    {
-      auto icon = dynamic_cast<WImage*>(child);
-      icon->setImageLink(resourcesUrl() + "calendar-date.svg");
-      icon->setVerticalAlignment(AlignmentFlag::Middle);
-      icon->resize(20, 20);
-      icon->setMargin(5, Side::Left);
-      icon->addStyleClass("Wt-datepicker-icon");
-      break;
-    }
-
-  case TimePickerPopup:
-    child->addStyleClass("Wt-timepicker");
-    break;
-
-  case PanelTitleBar:
-    child->addStyleClass("card-header");
-    break;
-
-  case PanelBody:
-    child->addStyleClass("card-body");
-    break;
-
-  case PanelCollapseButton: {
-    auto app = WApplication::instance();
-    auto iconPair = dynamic_cast<WIconPair *>(child);
-    // this sets display: block, which makes sure the icons are aligned properly
-    iconPair->uriIcon1()->setInline(false);
-    iconPair->uriIcon2()->setInline(false);
-    iconPair->addStyleClass("Wt-collapse-button");
-    break;
-  }
-
-  case InPlaceEditing:
-    child->addStyleClass("input-group");
-    break;
-
-  case InPlaceEditingButton:
-    child->addStyleClass("btn-outline-secondary");
-    break;
-
-  case NavCollapse:
-    child->addStyleClass("navbar-collapse collapse");
-    break;
-
-  case NavBrand:
-    child->addStyleClass("navbar-brand");
-    break;
-
-  case NavbarSearchForm:
-    child->addStyleClass("d-flex");
-    break;
-
-  case NavbarMenu:
-    child->addStyleClass("navbar-nav");
-    break;
-
-  case NavbarBtn:
-    child->addStyleClass("navbar-toggler");
-    break;
-
-  case TimePickerPopupContent:
-    child->addStyleClass("d-flex");
-    break;
-
-  // Test to remove old BS formatting
-  default:
-    if (child->hasStyleClass("form-inline")) {
-      child->removeStyleClass("form-inline");
-      child->addStyleClass("row");
-    }
-    break;
-  }
-}
-
 void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
                              int elementRole) const
 {
@@ -584,6 +452,143 @@ bool WBootstrap5Theme::canBorderBoxElement(WT_MAYBE_UNUSED const DomElement& ele
 Side WBootstrap5Theme::panelCollapseIconSide() const
 {
   return Side::Right;
+}
+
+void WBootstrap5Theme::applyFunctionalStyling(WWidget *widget,
+                                              WWidget *child,
+                                              int widgetRole) const
+{
+  switch (widgetRole) {
+  case DialogCloseIcon:
+    child->addStyleClass("btn-close");
+    break;
+
+  case MenuItemIcon:
+    child->addStyleClass("Wt-icon");
+    break;
+
+  case MenuItemCheckBox:
+    child->addStyleClass("Wt-chkbox");
+    ((WFormWidget *)child)->label()->addStyleClass("form-checkbox");
+    break;
+
+  case MenuItemClose:
+    child->addStyleClass("Wt-close-icon");
+    ((WText *)child)->setText("&times;");
+    break;
+
+  case TableViewRowContainer:
+    {
+      auto view = dynamic_cast<WAbstractItemView *>(widget);
+      child->toggleStyleClass("Wt-striped", view->alternatingRowColors());
+      break;
+    }
+  }
+}
+
+void WBootstrap5Theme::applyOptionalStyling(WWidget *widget,
+                                            WWidget *child,
+                                            int widgetRole) const
+{
+  switch (widgetRole) {
+  case DialogContent:
+    child->addStyleClass("modal-content");
+    break;
+
+  case DialogCoverWidget:
+    child->addStyleClass("modal-backdrop in");
+    child->setAttributeValue("style", "opacity:0.5");
+    break;
+
+  case DialogTitleBar:
+    child->addStyleClass("modal-header");
+    break;
+
+  case DialogBody:
+    child->addStyleClass("modal-body");
+    break;
+
+  case DialogFooter:
+    child->addStyleClass("modal-footer");
+    break;
+
+  case DatePickerPopup:
+    child->addStyleClass("Wt-datepicker");
+    break;
+
+  case DatePickerIcon:
+    {
+      auto icon = dynamic_cast<WImage*>(child);
+      icon->setImageLink(resourcesUrl() + "calendar-date.svg");
+      icon->setVerticalAlignment(AlignmentFlag::Middle);
+      icon->resize(20, 20);
+      icon->setMargin(5, Side::Left);
+      icon->addStyleClass("Wt-datepicker-icon");
+      break;
+    }
+
+  case TimePickerPopup:
+    child->addStyleClass("Wt-timepicker");
+    break;
+
+  case PanelTitleBar:
+    child->addStyleClass("card-header");
+    break;
+
+  case PanelBody:
+    child->addStyleClass("card-body");
+    break;
+
+  case PanelCollapseButton: {
+    auto app = WApplication::instance();
+    auto iconPair = dynamic_cast<WIconPair *>(child);
+    // this sets display: block, which makes sure the icons are aligned properly
+    iconPair->uriIcon1()->setInline(false);
+    iconPair->uriIcon2()->setInline(false);
+    iconPair->addStyleClass("Wt-collapse-button");
+    break;
+  }
+
+  case InPlaceEditing:
+    child->addStyleClass("input-group");
+    break;
+
+  case InPlaceEditingButton:
+    child->addStyleClass("btn-outline-secondary");
+    break;
+
+  case NavCollapse:
+    child->addStyleClass("navbar-collapse collapse");
+    break;
+
+  case NavBrand:
+    child->addStyleClass("navbar-brand");
+    break;
+
+  case NavbarSearchForm:
+    child->addStyleClass("d-flex");
+    break;
+
+  case NavbarMenu:
+    child->addStyleClass("navbar-nav");
+    break;
+
+  case NavbarBtn:
+    child->addStyleClass("navbar-toggler");
+    break;
+
+  case TimePickerPopupContent:
+    child->addStyleClass("d-flex");
+    break;
+
+  // Test to remove old BS formatting
+  default:
+    if (child->hasStyleClass("form-inline")) {
+      child->removeStyleClass("form-inline");
+      child->addStyleClass("row");
+    }
+    break;
+  }
 }
 
 std::string WBootstrap5Theme::classBtn(const WWidget *widget)
