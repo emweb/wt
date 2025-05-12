@@ -109,6 +109,10 @@
   <message id="Wt.WDefaultLoadingIndicator.Loading">Loading...</message>
 
   <message id="Wt.WDialog.template">
+    ${block:Wt.WDialog.template.default}
+  </message>
+
+  <message id="Wt.WDialog.template.default">
     ${center-script}
     ${layout}
   </message>
@@ -246,14 +250,14 @@
   </message>
 
   <message id="Wt.WNavigationBar.template">
-    <div class="navbar-inner">
-      <div class="container">
-        ${collapse-button}
-        ${expand-button}
-        ${title-link}
-        ${contents}
-      </div>
-    </div>
+    ${block:Wt.WNavigationBar.template.default}
+  </message>
+
+  <message id="Wt.WNavigationBar.template.default">
+    ${collapse-button}
+    ${expand-button}
+    ${title-link}
+    ${contents}
   </message>
 
   <message id="Wt.WNavigationBar.expand-button">
@@ -279,6 +283,10 @@
   </message>
 
   <message id="Wt.WDialog.titlebar">
+    ${block:Wt.WDialog.titlebar.default}
+  </message>
+
+  <message id="Wt.WDialog.titlebar.default">
     <h4>${title}</h4>
   </message>
 </messages>

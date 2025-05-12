@@ -140,6 +140,10 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
 
     auto item = dynamic_cast<WMenuItem *>(widget->parent());
     if (item) {
+      if (!item->isThemeStyleEnabled()) {
+        return;
+      }
+
       auto popupMenu = dynamic_cast<WPopupMenu* >(item->parentMenu());
       if (popupMenu) {
         element.addPropertyWord(Property::Class, "dropdown-item");

@@ -50,8 +50,10 @@ public:
 };
 
 WNavigationBar::WNavigationBar()
-  : WTemplate(tr("Wt.WNavigationBar.template"))
+  : WTemplate(tr("Wt.WNavigationBar.template")),
+    wantResponsive_(false)
 {
+  addFunction("block", &Functions::block);
   bindEmpty("collapse-button");
   bindEmpty("expand-button");
   bindEmpty("title-link");
@@ -77,7 +79,7 @@ void WNavigationBar::setTitle(const WString& title, const WLink& link)
   if (!titleLink) {
     titleLink = bindWidget("title-link", std::make_unique<WAnchor>());
     auto app = WApplication::instance();
-    app->theme()->apply(this, titleLink, NavBrand);
+    scheduleThemeStyleApply(app->theme(), titleLink, NavBrand);
   }
 
   titleLink->setText(title);
@@ -86,14 +88,22 @@ void WNavigationBar::setTitle(const WString& title, const WLink& link)
 
 void WNavigationBar::setResponsive(bool responsive)
 {
+  wantResponsive_ = responsive;
+  flags_.set(BIT_RESPONSIVE_CHANGED);
+  scheduleRender();
+}
+
+void WNavigationBar::doSetResponsive()
+{
   NavContainer *contents = resolve<NavContainer *>("contents");
 
   auto app = WApplication::instance();
-  auto bs5Theme = std::dynamic_pointer_cast<WBootstrap5Theme>(app->theme());
+  bool bs5Theme = std::dynamic_pointer_cast<WBootstrap5Theme>(app->theme()) &&
+                  isThemeStyleEnabled();
   if (bs5Theme) {
-    // We ignore responsive set to false, since we don't support that with Bootstrap 5,
+    // We ignore wantResponsive_ set to false, since we don't support that with Bootstrap 5,
     // and we only want to do the changes below once
-    if (!responsive || resolve<WInteractWidget*>("collapse-button")) {
+    if (!wantResponsive_ || resolve<WInteractWidget*>("collapse-button")) {
       return;
     }
   }
@@ -114,8 +124,8 @@ void WNavigationBar::setResponsive(bool responsive)
       collapseButton->clicked().connect(this, &WNavigationBar::toggleContents);
     }
 
-    wApp->theme()->apply(this, contents, NavCollapse);
-  } else if (responsive) {
+    scheduleThemeStyleApply(wApp->theme(), contents, NavCollapse);
+  } else if (wantResponsive_) {
     WInteractWidget *collapseButton
       = resolve<WInteractWidget *>("collapse-button");
     WInteractWidget *expandButton
@@ -137,7 +147,7 @@ void WNavigationBar::setResponsive(bool responsive)
                                       &WNavigationBar::expandContents);
     }
 
-    wApp->theme()->apply(this, contents, NavCollapse);
+    scheduleThemeStyleApply(wApp->theme(), contents, NavCollapse);
 
     contents->hide();
 
@@ -161,7 +171,7 @@ WMenu *WNavigationBar::addMenu(std::unique_ptr<WMenu> menu,
   WMenu *m = menu.get();
   addWidget(std::move(menu), alignment);
   auto app = WApplication::instance();
-  app->theme()->apply(this, m, NavbarMenu);
+  scheduleThemeStyleApply(app->theme(), m, NavbarMenu);
   return m;
 }
 
@@ -192,7 +202,7 @@ void WNavigationBar::addWrapped(std::unique_ptr<WWidget> widget,
   auto wrap = contents->addNew<WContainerWidget>();
 
   auto app = WApplication::instance();
-  app->theme()->apply(this, wrap, role);
+  scheduleThemeStyleApply(app->theme(), wrap, role);
   align(wrap, alignment);
   wrap->addWidget(std::move(widget));
 }
@@ -201,7 +211,7 @@ void WNavigationBar::addSearch(std::unique_ptr<WLineEdit> field,
                                AlignmentFlag alignment)
 {
   auto app = WApplication::instance();
-  app->theme()->apply(this, field.get(), NavbarSearchInput);
+  scheduleThemeStyleApply(app->theme(), field.get(), NavbarSearchInput);
   addWrapped(std::move(field), alignment, NavbarSearchForm);
 }
 
@@ -210,10 +220,10 @@ void WNavigationBar::align(WWidget *widget, AlignmentFlag alignment)
   auto app = WApplication::instance();
   switch (alignment) {
   case AlignmentFlag::Left:
-    app->theme()->apply(this, widget, NavbarAlignLeft);
+    scheduleThemeStyleApply(app->theme(), widget, NavbarAlignLeft);
     break;
   case AlignmentFlag::Right:
-    app->theme()->apply(this, widget, NavbarAlignRight);
+    scheduleThemeStyleApply(app->theme(), widget, NavbarAlignRight);
     break;
   default:
     LOG_ERROR("addWidget(...): unsupported alignment "
@@ -313,13 +323,25 @@ std::unique_ptr<WInteractWidget> WNavigationBar::createExpandButton()
    std::unique_ptr<WPushButton> result(new WPushButton(tr("Wt.WNavigationBar.expand-button")));
    result->setTextFormat(TextFormat::XHTML);
    auto app = Wt::WApplication::instance();
-   app->theme()->apply(this, result.get(), NavbarBtn);
+   scheduleThemeStyleApply(app->theme(), result.get(), NavbarBtn);
    return result;
 }
 
 std::unique_ptr<WInteractWidget> WNavigationBar::createCollapseButton()
 {
   return createExpandButton();
+}
+
+void WNavigationBar::render(WFlags<RenderFlag> flags)
+{
+  if (flags_.test(BIT_RESPONSIVE_CHANGED)) {
+    doSetResponsive();
+    flags_.reset(BIT_RESPONSIVE_CHANGED);
+  }
+  setCondition("if:theme-style-enabled", isThemeStyleEnabled());
+  setCondition("if:theme-style-disabled", !isThemeStyleEnabled());
+
+  WTemplate::render(flags);
 }
 
 bool WNavigationBar::animatedResponsive() const

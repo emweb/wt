@@ -74,6 +74,8 @@ void WMenuItem::create(const std::string& iconPath, const WString& text,
   selectable_ = true;
   selectConnected_ = false;
   menuItemCheckedConnected_ = false;
+  selected_ = false;
+  setThemeStyle_ = false;
 
   text_ = nullptr;
   icon_ = nullptr;
@@ -379,6 +381,10 @@ void WMenuItem::setHidden(bool hidden,
 
 void WMenuItem::render(WFlags<RenderFlag> flags)
 {
+  if (isThemeStyleEnabled() && !signalsConnected_) {
+    setThemeStyle_ = true;
+    renderSelected(selected_);
+  }
   connectSignals();
 
   WContainerWidget::render(flags);
@@ -386,23 +392,27 @@ void WMenuItem::render(WFlags<RenderFlag> flags)
 
 void WMenuItem::renderSelected(bool selected)
 {
-  WApplication *app = WApplication::instance();
+  selected_ = selected;
 
-  std::string active = app->theme()->activeClass();
+  if (setThemeStyle_) {
+    WApplication *app = WApplication::instance();
 
-  auto bs5Theme = std::dynamic_pointer_cast<WBootstrap5Theme>(app->theme());
+    std::string active = app->theme()->activeClass();
 
-  if (active == "Wt-selected"){ // for CSS theme, our styles are messed up
-    removeStyleClass(!selected ? "itemselected" : "item", true);
-    addStyleClass(selected ? "itemselected" : "item", true);
-  } else {
-    if (bs5Theme) {
-      auto a = anchor();
-      if (a) {
-        a->toggleStyleClass(active, selected, true);
+    auto bs5Theme = std::dynamic_pointer_cast<WBootstrap5Theme>(app->theme());
+
+    if (active == "Wt-selected"){ // for CSS theme, our styles are messed up
+      removeStyleClass(!selected ? "itemselected" : "item", true);
+      addStyleClass(selected ? "itemselected" : "item", true);
+    } else {
+      if (bs5Theme) {
+        auto a = anchor();
+        if (a) {
+          a->toggleStyleClass(active, selected, true);
+        }
       }
+      toggleStyleClass(active, selected, true);
     }
-    toggleStyleClass(active, selected, true);
   }
 }
 

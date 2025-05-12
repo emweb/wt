@@ -63,8 +63,6 @@ void WMessageBox::create()
   std::unique_ptr<WText> text(text_ = new WText());
   contents()->addWidget(std::move(text));
 
-  contents()->addStyleClass("Wt-msgbox-body");
-
   rejectWhenEscapePressed();
 
   finished().connect(this, &WMessageBox::onFinished);
@@ -144,8 +142,6 @@ void WMessageBox::setIcon(Icon icon)
 {
   icon_ = icon;
 
-  iconW_->toggleStyleClass("Wt-msgbox-icon", icon_ != Icon::None);
-  text_->toggleStyleClass("Wt-msgbox-text", icon_ != Icon::None);
   iconW_->setSize(icon_ != Icon::None ? 2.5 : 1);
 
   switch (icon_) {
@@ -205,6 +201,17 @@ WPushButton *WMessageBox::button(StandardButton b)
       return buttons_[i].button;
 
   return nullptr;
+}
+
+void WMessageBox::render(WFlags<RenderFlag> flags)
+{
+  if (isThemeStyleEnabled()) {
+    contents()->addStyleClass("Wt-msgbox-body");
+    iconW_->toggleStyleClass("Wt-msgbox-icon", icon_ != Icon::None);
+    text_->toggleStyleClass("Wt-msgbox-text", icon_ != Icon::None);
+  }
+
+  WDialog::render(flags);
 }
 
 void WMessageBox::onButtonClick(StandardButton b)

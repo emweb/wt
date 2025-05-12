@@ -124,12 +124,20 @@ public:
 protected:
   std::unique_ptr<WInteractWidget> createCollapseButton();
   std::unique_ptr<WInteractWidget> createExpandButton();
+  void render(WFlags<RenderFlag> flags) override;
 
 private:
+  static const int BIT_RESPONSIVE_CHANGED = 0;
+
+  std::bitset<1> flags_;
+
+  bool wantResponsive_;
+
   void toggleContents();
   void expandContents();
   void collapseContents();
   void undoExpandContents();
+  void doSetResponsive();
 
   void addWrapped(std::unique_ptr<WWidget> widget, AlignmentFlag alignment, int role);
   void align(WWidget *widget, AlignmentFlag alignment);

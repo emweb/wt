@@ -60,8 +60,7 @@ void WTimeEdit::load()
   popup_->setAnchorWidget(this);
   popup_->setTransient(true);
 
-  WApplication::instance()
-    ->theme()->apply(this, popup_.get(), TimePickerPopup);
+  scheduleThemeStyleApply(WApplication::instance()->theme(), popup_.get(), TimePickerPopup);
 
   escapePressed().connect(popup_.get(), &WPopupWidget::hide);
   escapePressed().connect(this, &WWidget::setFocus);

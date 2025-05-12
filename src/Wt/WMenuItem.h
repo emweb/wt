@@ -381,6 +381,8 @@ private:
   std::string pathComponent_;
   bool customPathComponent_, internalPathEnabled_;
   bool closeable_;
+  bool selected_;
+  bool setThemeStyle_;
 
   void create(const std::string& iconPath, const WString& text,
               std::unique_ptr<WWidget> contents, ContentLoading policy);

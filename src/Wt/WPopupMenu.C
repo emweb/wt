@@ -31,8 +31,8 @@ WPopupMenu::WPopupMenu(WStackedWidget *contentsStack)
     triggered_(),
     cancel_(this, "cancel"),
     recursiveEventLoop_(false),
-    willPopup_(false),
     hideOnSelect_(true),
+    open_(false),
     adjustFlags_(AllOrientations),
     autoHideDelay_(-1)
 {
@@ -72,7 +72,7 @@ void WPopupMenu::setButton(WInteractWidget *button)
 
   if (button_) {
     button_->clicked().connect(this, &WPopupMenu::popupAtButton);
-    button_->addStyleClass("dropdown-toggle");
+    button_->addThemeStyle("dropdown-toggle");
   }
 }
 
@@ -82,11 +82,11 @@ void WPopupMenu::popupAtButton()
     return;
 
   if (!topLevel_ || topLevel_ == this) {
-    button_->addStyleClass("active", true);
-    if (parentItem())
-      parentItem()->addStyleClass("open");
-
+    open_ = true;
+    flags_.set(BIT_OPEN_CHANGED);
     popup(button_);
+
+    scheduleRender();
   }
 }
 
@@ -120,9 +120,9 @@ void WPopupMenu::done(WMenuItem *result)
     return;
 
   if (location_ && location_ == button_) {
-    button_->removeStyleClass("active", true);
-    if (parentItem())
-      parentItem()->removeStyleClass("open");
+    open_ = false;
+    flags_.set(BIT_OPEN_CHANGED);
+    scheduleRender();
   }
 
   location_ = nullptr;
@@ -144,7 +144,7 @@ void WPopupMenu::done(WMenuItem *result)
 
 void WPopupMenu::cancel()
 {
-  if (willPopup_)
+  if (flags_.test(BIT_WILL_POPUP))
     return;
 
   if (!isHidden())
@@ -177,7 +177,7 @@ void WPopupMenu::popupImpl()
 
   show();
 
-  willPopup_ = true;
+  flags_.set(BIT_WILL_POPUP);
   scheduleRender();
 }
 
@@ -321,12 +321,23 @@ void WPopupMenu::renderSelected(WT_MAYBE_UNUSED WMenuItem* item, WT_MAYBE_UNUSED
 void WPopupMenu::getSDomChanges(std::vector<DomElement *> &result, WApplication *app)
 {
   WMenu::getSDomChanges(result, app);
-  willPopup_ = false;
+   flags_.reset(BIT_WILL_POPUP);
 }
 void WPopupMenu::render(WFlags<RenderFlag> flags)
 {
+  if (flags_.test(BIT_OPEN_CHANGED)) {
+    if (button_ && button_->isThemeStyleEnabled()) {
+      button_->toggleStyleClass("active", open_, true);
+    }
+    if (parentItem() && isThemeStyleEnabled()) {
+      parentItem()->toggleStyleClass("open", open_);
+    }
+
+    flags_.reset(BIT_OPEN_CHANGED);
+  }
+
   WMenu::render(flags);
-  willPopup_ = false;
+  flags_.reset(BIT_WILL_POPUP);
 }
 
 std::string WPopupMenu::renderRemoveJs(WT_MAYBE_UNUSED bool recursive)
@@ -345,6 +356,7 @@ void WPopupMenu::setHideOnSelect(bool enabled)
 
 void WPopupMenu::setAdjust(WFlags<Orientation> adjustOrientations)
 {
+
   adjustFlags_ = adjustOrientations;
   refresh();
 }

@@ -362,6 +362,7 @@ public:
   const static std::string noDefault;
 
 protected:
+  void render(WFlags<RenderFlag> flags) override;
   virtual void updateDom(DomElement& element, bool all) override;
   virtual void propagateRenderOk(bool deep) override;
   virtual void propagateSetEnabled(bool enabled) override;
@@ -400,8 +401,13 @@ private:
   static const char *GESTURE_END_SIGNAL;
   static const char *DRAGSTART_SIGNAL;
 
+  std::string themeStyle_;
+
+  void addThemeStyle(const std::string& style);
+
   friend class DomElement;
   friend class WAbstractToggleButton;
+  friend class WPopupMenu;
   friend class WWebWidget;
 
   int mouseOverDelay_;

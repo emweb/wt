@@ -55,6 +55,9 @@ public:
    */
   WPopupMenu *menu() const;
 
+protected:
+  void render(WFlags<RenderFlag> flags) override;
+
 private:
   WToolBar *impl_;
 

@@ -239,4 +239,17 @@
       </div>
     </div>
   </message>
+
+  <message id="Wt.WNavigationBar.template">
+  ${<if:theme-style-enabled>}
+    <div class="navbar-inner">
+      <div class="container">
+        ${block:Wt.WNavigationBar.template.default}
+      </div>
+    </div>
+  ${</if:theme-style-enabled>}
+  ${<if:theme-style-disabled>}
+    ${block:Wt.WNavigationBar.template.default}
+  ${</if:theme-style-disabled>}
+  </message>
 </messages>

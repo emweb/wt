@@ -229,6 +229,9 @@ public:
   virtual void setHidden(bool hidden,
                          const WAnimation& animation = WAnimation()) override;
 
+protected:
+  void render(WFlags<RenderFlag> flags) override;
+
 private:
   struct Button {
     WPushButton *button;

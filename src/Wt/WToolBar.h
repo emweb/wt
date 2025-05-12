@@ -120,10 +120,21 @@ public:
    */
   bool isCompact() const { return compact_; }
 
+protected:
+  void render(WFlags<RenderFlag> flags) override;
+
 private:
+  static const int BIT_COMPACT_CHANGED = 0;
+  static const int BIT_ORIENTATION_CHANGED = 1;
+  static const int BIT_MULTIPLE_GROUPS = 2;
+
+  std::bitset<3> flags_;
+
   bool compact_;
+  Orientation orientation_;
   WContainerWidget *impl_;
   WContainerWidget *lastGroup_;
+  int nextUnrenderedGroup_;
 
   std::vector<WWidget *> widgets_;
 

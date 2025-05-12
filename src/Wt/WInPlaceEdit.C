@@ -38,6 +38,7 @@ WInPlaceEdit::WInPlaceEdit(bool buttons, const WString& text)
 
 void WInPlaceEdit::create()
 {
+  buttons_ = nullptr;
   setImplementation(std::unique_ptr<WWidget>(impl_ = new WContainerWidget()));
   setInline(true);
 
@@ -69,17 +70,6 @@ void WInPlaceEdit::create()
   edit_->escapePressed().connect(text_, &WWidget::show);
   edit_->escapePressed().connect(this, &WInPlaceEdit::cancel);
   edit_->escapePressed().preventPropagation();
-
-  auto app = WApplication::instance();
-  auto bs5Theme = std::dynamic_pointer_cast<WBootstrap5Theme>(app->theme());
-
-  if (!bs5Theme) {
-    editing_->addWidget
-      (std::unique_ptr<WWidget>(buttons_ = new WContainerWidget()));
-    buttons_->setInline(true);
-
-    app->theme()->apply(this, buttons_, InPlaceEditingButtonsContainer);
-  }
 
   setButtonsEnabled();
 }
@@ -144,10 +134,7 @@ void WInPlaceEdit::setButtonsEnabled(bool enabled)
   if (enabled && !save_) {
     c2_.disconnect();
 
-    auto app = WApplication::instance();
-    auto bs5Theme = std::dynamic_pointer_cast<WBootstrap5Theme>(app->theme());
-
-    if (!bs5Theme) {
+    if (buttons_) {
       buttons_->addWidget
         (std::unique_ptr<WWidget>
          (save_ = new WPushButton(tr("Wt.WInPlaceEdit.Save"))));
@@ -160,9 +147,6 @@ void WInPlaceEdit::setButtonsEnabled(bool enabled)
       editing_->addWidget (std::unique_ptr<WWidget>
        (cancel_ = new WPushButton(tr("Wt.WInPlaceEdit.Cancel"))));
     }
-
-    app->theme()->apply(this, save_, InPlaceEditingButton);
-    app->theme()->apply(this, cancel_, InPlaceEditingButton);
 
     save_->clicked().connect(edit_, &WFormWidget::disable);
     save_->clicked().connect(save_, &WFormWidget::disable);
@@ -184,8 +168,29 @@ void WInPlaceEdit::setButtonsEnabled(bool enabled)
 
 void WInPlaceEdit::render(WFlags<RenderFlag> flags)
 {
-  if (save_ && flags.test(RenderFlag::Full))
-    wApp->theme()->apply(this, editing_, InPlaceEditing);
+  auto app = WApplication::instance();
+  auto bs5Theme = std::dynamic_pointer_cast<WBootstrap5Theme>(app->theme());
+
+  if (!buttons_ && (!bs5Theme || !isThemeStyleEnabled())) {
+    editing_->addWidget
+      (std::unique_ptr<WWidget>(buttons_ = new WContainerWidget()));
+    buttons_->setInline(true);
+    buttons_->setThemeStyleEnabled(isThemeStyleEnabled());
+
+    if (save_) {
+      buttons_->addWidget(editing_->removeWidget(save_));
+      buttons_->addWidget(editing_->removeWidget(cancel_));
+    }
+  }
+
+  if (save_ && flags.test(RenderFlag::Full)) {
+    app->theme()->apply(this, editing_, InPlaceEditing);
+    app->theme()->apply(this, save_, InPlaceEditingButton);
+    app->theme()->apply(this, cancel_, InPlaceEditingButton);
+    if (buttons_) {
+      app->theme()->apply(this, buttons_, InPlaceEditingButtonsContainer);
+    }
+  }
 
   WCompositeWidget::render(flags);
 }

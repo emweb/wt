@@ -95,8 +95,8 @@ void WPanel::setTitle(const WString& title)
   }
 
   auto app = WApplication::instance();
-  app->theme()->apply(this, title_, PanelTitle);
-  app->theme()->apply(this, titleBarWidget(), PanelTitleBar);
+  scheduleThemeStyleApply(app->theme(), title_, PanelTitle);
+  scheduleThemeStyleApply(app->theme(), titleBarWidget(), PanelTitleBar);
 }
 
 WString WPanel::title() const
@@ -162,7 +162,7 @@ void WPanel::setCollapsible(bool on)
     collapseIcon_->icon2Clicked().preventPropagation();
     collapseIcon_->setState(isCollapsed() ? 1 : 0);
 
-    app->theme()->apply(this, collapseIcon_, PanelCollapseButton);
+    scheduleThemeStyleApply(app->theme(), collapseIcon_, PanelCollapseButton);
 
     if (app->environment().ajax()) {
       // Prevent the title bar from turning into a <button> when JS is not available.
@@ -287,8 +287,8 @@ void WPanel::setCentralWidget(std::unique_ptr<WWidget> w)
     centralArea()->addWidget(std::move(w));
 
     auto app = WApplication::instance();
-    app->theme()->apply(this, centralArea(), PanelBody);
-    app->theme()->apply(this, centralWidget_, PanelBodyContent);
+    scheduleThemeStyleApply(app->theme(), centralArea(), PanelBody);
+    scheduleThemeStyleApply(app->theme(), centralWidget_, PanelBodyContent);
   }
 }
 

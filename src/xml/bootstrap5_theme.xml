@@ -42,11 +42,16 @@
   </message>
 
   <message id="Wt.WNavigationBar.template">
+  ${<if:theme-style-enabled>}
     <div class="container-fluid">
       ${title-link}
       ${collapse-button}
       ${contents}
     </div>
+  ${</if:theme-style-enabled>}
+  ${<if:theme-style-disabled>}
+    ${block:Wt.WNavigationBar.template.default}
+  ${</if:theme-style-disabled>}
   </message>
 
   <message id="Wt.WNavigationBar.expand-button">
@@ -54,12 +59,22 @@
   </message>
 
   <message id="Wt.WDialog.template">
+  ${<if:theme-style-enabled>}
     <div class="modal-dialog">
       ${layout}
     </div>
+  ${</if:theme-style-enabled>}
+  ${<if:theme-style-disabled>}
+    ${block:Wt.WDialog.template.default}
+  ${</if:theme-style-disabled>}
   </message>
 
   <message id="Wt.WDialog.titlebar">
+  ${<if:theme-style-enabled>}
     <h4 class="modal-title">${title}</h4>
+  ${</if:theme-style-enabled>}
+  ${<if:theme-style-disabled>}
+    ${block:Wt.WDialog.titlebar.default}
+  ${</if:theme-style-disabled>}
   </message>
 </messages>

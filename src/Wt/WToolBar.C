@@ -21,18 +21,20 @@ LOGGER("WToolBar");
 WToolBar::WToolBar()
   : WCompositeWidget(),
     compact_(true),
-    lastGroup_(nullptr)
+    orientation_(Orientation::Horizontal),
+    lastGroup_(nullptr),
+    nextUnrenderedGroup_(0)
 {
   setImplementation(std::unique_ptr<WContainerWidget>(impl_ = new WContainerWidget()));
-  setStyleClass("btn-group");
 }
 
 void WToolBar::setOrientation(Orientation orientation)
 {
-  if (orientation == Orientation::Vertical)
-    addStyleClass("btn-group-vertical");
-  else
-    removeStyleClass("btn-group-vertical");
+  if (orientation_ != orientation) {
+    orientation_ = orientation;
+    flags_.set(BIT_ORIENTATION_CHANGED);
+    scheduleRender();
+  }
 }
 
 WPushButton *WToolBar::addButton(std::unique_ptr<WPushButton> button,
@@ -117,19 +119,54 @@ void WToolBar::setCompact(bool compact)
     if (compact) {
       if (impl_->count() > 0)
         LOG_INFO("setCompact(true): not implemented");
-      setStyleClass("btn-group");
     } else {
-      setStyleClass("btn-toolbar");
       if (impl_->count() > 0) {
         std::unique_ptr<WContainerWidget> group(new WContainerWidget());
-        group->setStyleClass("btn-group me-2");
         while (impl_->count() > 0) {
           auto w = impl_->removeWidget(impl_->widget(0));
           group->addWidget(std::move(w));
         }
         lastGroup_ = group.get();
         impl_->addWidget(std::move(group));
+        flags_.set(BIT_MULTIPLE_GROUPS);
       }
+    }
+
+    flags_.set(BIT_COMPACT_CHANGED);
+    scheduleRender();
+  }
+}
+
+void WToolBar::render(WFlags<RenderFlag> flags)
+{
+  bool all = flags.test(RenderFlag::Full);
+  if (isThemeStyleEnabled()) {
+    if (flags_.test(BIT_COMPACT_CHANGED) || all) {
+      if (compact_) {
+        setStyleClass("btn-group");
+      } else {
+        setStyleClass("btn-toolbar");
+      }
+
+      flags_.reset(BIT_COMPACT_CHANGED);
+    }
+
+    if (flags_.test(BIT_MULTIPLE_GROUPS)) {
+      for (int i = nextUnrenderedGroup_; i < impl_->count(); ++i) {
+        impl_->children()[i]->setStyleClass("btn-group me-2");
+      }
+
+      nextUnrenderedGroup_ = impl_->count();
+    }
+
+    if (flags_.test(BIT_ORIENTATION_CHANGED) || all) {
+      if (orientation_ == Orientation::Vertical) {
+        addStyleClass("btn-group-vertical");
+      } else {
+        removeStyleClass("btn-group-vertical");
+      }
+
+      flags_.reset(BIT_ORIENTATION_CHANGED);
     }
   }
 }
@@ -138,7 +175,7 @@ WContainerWidget *WToolBar::lastGroup()
 {
   if (!lastGroup_) {
     lastGroup_ = impl_->addWidget(std::make_unique<WContainerWidget>());
-    lastGroup_->addStyleClass("btn-group me-2");
+    scheduleRender();
   }
 
   return lastGroup_;

@@ -28,8 +28,6 @@ void WSplitButton::init(const WString& label)
   impl_->setInline(true);
   impl_->addButton(std::unique_ptr<WPushButton>(new WPushButton(label)));
   impl_->addButton(std::unique_ptr<WPushButton>(new WPushButton()));
-
-  dropDownButton()->setStyleClass("dropdown-toggle");
 }
 
 WPushButton *WSplitButton::actionButton() const
@@ -50,6 +48,15 @@ void WSplitButton::setMenu(std::unique_ptr<WPopupMenu> popupMenu)
 WPopupMenu *WSplitButton::menu() const
 {
   return dropDownButton()->menu();
+}
+
+void WSplitButton::render(WFlags<RenderFlag> flags)
+{
+  if (dropDownButton()->isThemeStyleEnabled()) {
+    dropDownButton()->setStyleClass("dropdown-toggle");
+  }
+
+  WCompositeWidget::render(flags);
 }
 
 }

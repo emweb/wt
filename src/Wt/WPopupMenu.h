@@ -240,13 +240,13 @@ public:
    * position in order to be fully visible in the window, potentially
    * hiding the widget (or point) from which it popped up.
    * \sa WWidget::positionAt() for more informations.
-   * 
+   *
    * By default, it can adjust in both orientations.
    */
   void setAdjust(WFlags<Orientation> adjustOrientations);
-  
+
   /*! \brief Returns in which orientations this popup widget can adjust its coordinates on popup.
-   * 
+   *
    * \sa setAdjust()
    */
   WFlags<Orientation> adjust() const { return adjustFlags_; }
@@ -259,6 +259,11 @@ protected:
   virtual std::string renderRemoveJs(bool recursive) override;
 
 private:
+  static const int BIT_WILL_POPUP = 0;
+  static const int BIT_OPEN_CHANGED = 1;
+
+  std::bitset<2> flags_;
+
   WPopupMenu *topLevel_;
   WMenuItem *result_;
   WWidget *location_;
@@ -269,8 +274,8 @@ private:
   JSignal<> cancel_;
 
   bool recursiveEventLoop_;
-  bool willPopup_;
   bool hideOnSelect_;
+  bool open_;
   WFlags<Orientation> adjustFlags_;
   int autoHideDelay_;
 

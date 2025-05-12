@@ -225,6 +225,8 @@ void WDialog::create()
   autoFocus_ = true;
   impl_ = dynamic_cast<WTemplate *>(implementation());
 
+  impl_->addFunction("block", &WTemplate::Functions::block);
+
   const char *CSS_RULES_NAME = "Wt::WDialog";
 
   WApplication *app = WApplication::instance();
@@ -276,7 +278,7 @@ void WDialog::create()
   std::unique_ptr<WContainerWidget> layoutContainer(new WContainerWidget());
   layoutContainer_ = layoutContainer.get();
   layoutContainer->setGlobalUnfocused(true);
-  wApp->theme()->apply(this, layoutContainer.get(), DialogContent);
+  scheduleThemeStyleApply(wApp->theme(), layoutContainer.get(), DialogContent);
   layoutContainer->addStyleClass("dialog-layout");
   std::unique_ptr<WVBoxLayout> layoutPtr(new WVBoxLayout());
   WVBoxLayout *layout = layoutPtr.get();
@@ -286,12 +288,13 @@ void WDialog::create()
   impl_->bindWidget("layout", std::move(layoutContainer));
 
   titleBar_ = new WContainerWidget();
-  app->theme()->apply(this, titleBar_, DialogTitleBar);
+  scheduleThemeStyleApply(app->theme(), titleBar_, DialogTitleBar);
 
   caption_ = titleBar_->addNew<WTemplate>(tr("Wt.WDialog.titlebar"));
+  caption_->addFunction("block", &WTemplate::Functions::block);
 
   contents_ = new WContainerWidget();
-  app->theme()->apply(this, contents_, DialogBody);
+  scheduleThemeStyleApply(app->theme(), contents_, DialogBody);
 
   layout->addWidget(std::unique_ptr<WWidget>(titleBar_));
   layout->addWidget(std::unique_ptr<WWidget>(contents_), 1);
@@ -330,8 +333,9 @@ WContainerWidget *WDialog::footer() const
 {
   if (!footer_) {
     std::unique_ptr<WContainerWidget> footer(footer_ = new WContainerWidget());
-    WApplication::instance()->theme()->apply
-      (const_cast<WDialog *>(this), footer_, DialogFooter);
+    const_cast<WDialog *>(this)->scheduleThemeStyleApply(wApp->theme(),
+                                                         footer_,
+                                                         DialogFooter);
 
     WContainerWidget *layoutContainer
       = impl_->resolve<WContainerWidget *>("layout");
@@ -367,8 +371,6 @@ void WDialog::setResizable(bool resizable)
 void WDialog::setMovable(bool movable)
 {
   movable_ = movable;
-
-  layoutContainer_->toggleStyleClass("movable", movable_);
 }
 
 void WDialog::setMaximumSize(const WLength& width, const WLength& height)
@@ -442,6 +444,14 @@ void WDialog::render(WFlags<RenderFlag> flags)
       impl_->bindString("center-script", "<script>" + js + "</script>", TextFormat::UnsafeXHTML);
     } else
       impl_->bindEmpty("center-script");
+
+    impl_->setCondition("if:theme-style-enabled", isThemeStyleEnabled());
+    impl_->setCondition("if:theme-style-disabled", !isThemeStyleEnabled());
+    if (isThemeStyleEnabled()) {
+      layoutContainer_->toggleStyleClass("movable", movable_);
+    }
+    caption_->setCondition("if:theme-style-enabled", isThemeStyleEnabled());
+    caption_->setCondition("if:theme-style-disabled", !isThemeStyleEnabled());
   }
 
   if (!isModal())

@@ -39,6 +39,7 @@
   </message>
 
   <message id="Wt.WNavigationBar.template">
+  ${<if:theme-style-enabled>}
     <div>
       ${collapse-button}
       <div class="navbar-header">
@@ -47,6 +48,10 @@
       </div>
       ${contents}
     </div>
+  ${</if:theme-style-enabled>}
+  ${<if:theme-style-disabled>}
+    ${block:Wt.WNavigationBar.template.default}
+  ${</if:theme-style-disabled>}
   </message>
 
 </messages>

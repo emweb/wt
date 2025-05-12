@@ -179,6 +179,15 @@ EventSignal<WGestureEvent>& WInteractWidget::gestureEnded()
   return *gestureEventSignal(GESTURE_END_SIGNAL, true);
 }
 
+void WInteractWidget::render(WFlags<RenderFlag> flags)
+{
+  if (!themeStyle_.empty() && isThemeStyleEnabled()) {
+    addStyleClass(themeStyle_);
+  }
+
+  WWebWidget::render(flags);
+}
+
 void WInteractWidget::updateDom(DomElement& element, bool all)
 {
   bool updateKeyDown = false;
@@ -739,6 +748,11 @@ void WInteractWidget::unsetDraggable()
   if (dragStart) {
     dragStart->preventDefaultAction(false);
   }
+}
+
+void WInteractWidget::addThemeStyle(const std::string& style)
+{
+  themeStyle_ = style;
 }
 
 }
