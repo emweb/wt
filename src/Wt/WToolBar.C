@@ -90,8 +90,12 @@ std::unique_ptr<WWidget> WToolBar::removeWidget(WWidget *widget)
     auto parent = static_cast<WContainerWidget*>(widget->parent());
 
     auto retval = parent->removeWidget(widget);
-    if (parent != impl_  && parent->count() == 0)
+    if (parent != impl_  && parent->count() == 0) {
       impl_->removeWidget(parent);
+      if (lastGroup_ == parent) {
+        lastGroup_ = nullptr;
+      }
+    }
     widgets_.erase(widgets_.begin() + idx);
 
     return retval;
