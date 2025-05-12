@@ -29,10 +29,9 @@ SET(BOOST_SUPPORT_LIBRARIES "")
 
 IF(NOT DEFINED Boost_ADDITIONAL_VERSIONS)
   SET(Boost_ADDITIONAL_VERSIONS
-  "1.50" "1.51" "1.52" "1.53" "1.54" "1.55" "1.56" "1.57" "1.58" "1.59"
-  "1.60" "1.61" "1.62" "1.63" "1.64" "1.65" "1.65.1" "1.66" "1.67" "1.68" "1.69"
-  "1.70" "1.71" "1.72" "1.73" "1.74" "1.75" "1.76" "1.77" "1.78" "1.79"
-  "1.80" "1.81" "1.82" "1.83" "1.84" "1.85")
+  "1.66" "1.67" "1.68" "1.69" "1.70" "1.71" "1.72" "1.73" "1.74" "1.75"
+  "1.76" "1.77" "1.78" "1.79" "1.80" "1.81" "1.82" "1.83" "1.84" "1.85"
+  "1.86" "1.87" "1.88")
 ENDIF(NOT DEFINED Boost_ADDITIONAL_VERSIONS)
 
 SET(Boost_USE_MULTITHREADED ON)
@@ -67,7 +66,7 @@ IF(WIN32 AND BOOST_DYNAMIC AND BUILD_TESTS)
 ENDIF()
 
 function(find_boost_system)
-  find_package(Boost 1.50 QUIET
+  find_package(Boost 1.66 QUIET
     COMPONENTS
       system
   )
@@ -95,7 +94,7 @@ set(_BOOST_FOUND)
 set(_BOOST_MAJOR_VERSION)
 set(_BOOST_MINOR_VERSION)
 
-FIND_PACKAGE(Boost 1.50
+FIND_PACKAGE(Boost 1.66
   COMPONENTS
     ${Boost_COMPONENTS}
   REQUIRED
