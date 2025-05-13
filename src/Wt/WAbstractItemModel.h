@@ -826,7 +826,7 @@ protected:
    *
    * \sa WModelIndex::internalPointer()
    */
-  WModelIndex createIndex(int row, int column, void *ptr) const;
+  virtual WModelIndex createIndex(int row, int column, void *ptr) const;
 
   /*! \brief Creates a model index for the given row and column.
    *
@@ -837,7 +837,7 @@ protected:
    *
    * \sa WModelIndex::internalId()
    */
-  WModelIndex createIndex(int row, int column, ::uint64_t id) const;
+  virtual WModelIndex createIndex(int row, int column, ::uint64_t id) const;
 
   /*! \brief Method to be called before inserting columns.
    *

@@ -528,6 +528,26 @@ WModelIndex QueryModel<Result>::fromRawIndex(void *rawIndex) const
   return WModelIndex();
 }
 
+template <class Result>
+WModelIndex QueryModel<Result>::createIndex(int row, int column, void *ptr) const
+{
+  if (row < 0 || column <  0) {
+    return WModelIndex();
+  }
+
+  return WAbstractItemModel::createIndex(row, column, ptr);
+}
+
+template <class Result>
+WModelIndex QueryModel<Result>::createIndex(int row, int column, ::uint64_t id) const
+{
+  if (row < 0 || column <  0) {
+    return WModelIndex();
+  }
+
+  return WAbstractItemModel::createIndex(row, column, id);
+}
+
   }
 }
 

@@ -353,6 +353,25 @@ public:
   virtual WModelIndex fromRawIndex(void *rawIndex) const override;
 
 protected:
+
+  /*! \brief Creates a model index for the given row and column.
+   *
+   * Here it will ensure that the index cannot be out of bounds, in the
+   * negative direction. A positive direction is possible, when items
+   * are being created. Concretely, the \p row or \p column cannot be
+   * less than \p 0.
+   */
+  WModelIndex createIndex(int row, int column, void *ptr) const override;
+
+  /*! \brief Creates a model index for the given row and column.
+   *
+   * Here it will ensure that the index cannot be out of bounds, in the
+   * negative direction. A positive direction is possible, when items
+   * are being created. Concretely, the \p row or \p column cannot be
+   * less than \p 0.
+   */
+  WModelIndex createIndex(int row, int column, ::uint64_t id) const override;
+
   /*! \brief Creates a new row.
    *
    * This method is called from within insertRows() to create a new

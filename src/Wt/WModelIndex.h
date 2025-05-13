@@ -502,6 +502,9 @@ private:
 
   friend class WAbstractItemModel;
 
+  template<class Result>
+  friend class Dbo::QueryModel;
+
   WModelIndex ancestor(int depth) const;
 
   bool isRawIndex() const;
