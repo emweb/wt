@@ -1201,7 +1201,7 @@ std::pair<std::string, std::string> Postgres::getNextNotify()
       timeoutPtr = &timeout;
     } else {
       FD_SET(stopPipe_->fd(), &rfds);
-      nfds = std::max(nfds, stopPipe_->fd() + 1);
+      nfds = std::max<int>(nfds, stopPipe_->fd() + 1);
     }
 
     int fdReady = select(nfds, &rfds, 0, 0, timeoutPtr);
