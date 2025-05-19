@@ -245,9 +245,21 @@ public:
 
   /*! \brief Adds a 'word' to a property.
    *
-   * This adds a word (delimited by a space) to an existing property value.
+   * This adds a word (delimited by a space) to an existing property
+   * value.
+   *
+   * \sa addPropertyWords()
    */
   void addPropertyWord(Wt::Property property, const std::string& value);
+
+  /*! \brief Adds multiple 'words' to a property.
+   *
+   * This adds multiple words (separated by spaces) to an existing
+   * property value.
+   *
+   * \sa addPropertyWord()
+   */
+  void addPropertyWords(Wt::Property property, const std::string& value);
 
   /*! \brief Returns a property value set.
    *

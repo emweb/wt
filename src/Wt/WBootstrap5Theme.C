@@ -169,10 +169,10 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
     auto button = dynamic_cast<WPushButton *>(widget);
 
     if (button) {
-      if (creating && button->isDefault())
-        element.addPropertyWord(Property::Class, "btn btn-primary");
-
-      else if (creating)
+      if (creating && button->isDefault()) {
+        element.addPropertyWord(Property::Class, "btn");
+        element.addPropertyWord(Property::Class, "btn-primary");
+      } else if (creating)
         element.addPropertyWord(Property::Class, classBtn(widget));
 
       if (!button->link().isNull())
@@ -185,13 +185,15 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
   case DomElementType::DIV: {
     auto dialog = dynamic_cast<WDialog *>(widget);
     if (dialog) {
-      element.addPropertyWord(Property::Class, "modal Wt-dialog");
+      element.addPropertyWord(Property::Class, "modal");
+      element.addPropertyWord(Property::Class, "Wt-dialog");
       return;
     }
 
     auto panel = dynamic_cast<WPanel *>(widget);
     if (panel) {
-      element.addPropertyWord(Property::Class, "card Wt-panel");
+      element.addPropertyWord(Property::Class, "card");
+      element.addPropertyWord(Property::Class, "Wt-panel");
       return;
     }
 
@@ -371,7 +373,8 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
 
   case DomElementType::FORM:
     if (elementRole == FileUploadForm) {
-      element.addPropertyWord(Property::Class, "input-group mb-2");
+      element.addPropertyWord(Property::Class, "input-group");
+      element.addPropertyWord(Property::Class, "mb-2");
 
       // WWebWidget will grab the style class from the DOM element and apply it to the widget.
       // If we're using progressive bootstrap that means the form-control class previously applied to

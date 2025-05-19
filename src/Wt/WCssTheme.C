@@ -96,9 +96,10 @@ void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
     break;
 
   case DomElementType::UL:
-    if (dynamic_cast<WPopupMenu *>(widget))
-      element.addPropertyWord(Property::Class, "Wt-popupmenu Wt-outset");
-    else {
+    if (dynamic_cast<WPopupMenu *>(widget)) {
+      element.addPropertyWord(Property::Class, "Wt-popupmenu");
+      element.addPropertyWord(Property::Class, "Wt-outset");
+    } else {
       WTabWidget *tabs
         = dynamic_cast<WTabWidget *>(widget->parent()->parent());
 
@@ -138,7 +139,8 @@ void WCssTheme::apply(WWidget *widget, DomElement& element, int elementRole)
 
       WPanel *panel = dynamic_cast<WPanel *>(widget);
       if (panel) {
-        element.addPropertyWord(Property::Class, "Wt-panel Wt-outset");
+        element.addPropertyWord(Property::Class, "Wt-panel");
+        element.addPropertyWord(Property::Class, "Wt-outset");
         return;
       }
 

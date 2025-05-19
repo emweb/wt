@@ -184,13 +184,15 @@ void WBootstrap3Theme::apply(WWidget *widget, DomElement& element,
     {
       WDialog *dialog = dynamic_cast<WDialog *>(widget);
       if (dialog) {
-        element.addPropertyWord(Property::Class, "modal-dialog Wt-dialog");
+        element.addPropertyWord(Property::Class, "modal-dialog");
+        element.addPropertyWord(Property::Class, "Wt-dialog");
         return;
       }
 
       WPanel *panel = dynamic_cast<WPanel *>(widget);
       if (panel) {
-        element.addPropertyWord(Property::Class, "panel panel-default");
+        element.addPropertyWord(Property::Class, "panel");
+        element.addPropertyWord(Property::Class, "panel-default");
         return;
       }
 
@@ -224,7 +226,8 @@ void WBootstrap3Theme::apply(WWidget *widget, DomElement& element,
 
       WNavigationBar *navBar = dynamic_cast<WNavigationBar *>(widget);
       if (navBar) {
-        element.addPropertyWord(Property::Class, "navbar navbar-default");
+        element.addPropertyWord(Property::Class, "navbar");
+        element.addPropertyWord(Property::Class, "navbar-default");
         return;
       }
     }

@@ -58,10 +58,10 @@ std::string elementNames_[] =
  * manages to add a widget to a page and modify its element name. This
  * will prevent the attacker from being able to set the tag to a
  * dangerous one such as script.
- * 
+ *
  * An element is safe if it only affects the layout of the page and
  * does not perform a download or code execution.
- * 
+ *
  * This list MUST end with an empty string!
  */
 std::string safeElementNames_[] =
@@ -695,6 +695,31 @@ void DomElement::addPropertyWord(Property property, const std::string& value)
   }
 
   setProperty(property, Utils::addWord(getProperty(property), value));
+}
+
+void DomElement::addPropertyWords(Property property, const std::string& value)
+{
+  PropertyMap::const_iterator i = properties_.find(property);
+
+  if (i == properties_.end() || i->second.empty()) {
+    setProperty(property, value);
+    return;
+  }
+
+  Utils::SplitSet currentWords;
+  Utils::SplitSet valueWords;
+  std::string newWords;
+
+  Utils::split(currentWords, i->second, " ", true);
+  Utils::split(valueWords, value, " ", true);
+
+  for (auto word : valueWords) {
+    if (currentWords.find(word) == currentWords.end()) {
+      newWords = Utils::addWord(newWords, Utils::splitEntryToString(word));
+    }
+  }
+
+  setProperty(property, Utils::addWord(i->second, newWords));
 }
 
 std::string DomElement::getProperty(Property property) const
@@ -1476,7 +1501,7 @@ std::string DomElement::asJavaScript(EscapeOStream& out,
         if (removeAllChildren_ == 0)
           out << WT_CLASS << ".setHtml(" << var_ << ", '');\n";
         else {
-          out << "(Array.from(" << var_ << ".querySelectorAll(':scope > *')).slice(" << removeAllChildren_ 
+          out << "(Array.from(" << var_ << ".querySelectorAll(':scope > *')).slice(" << removeAllChildren_
               << ")).forEach( elem => elem.remove());";
 
         }

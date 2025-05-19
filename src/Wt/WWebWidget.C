@@ -1402,12 +1402,13 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       if (layoutImpl_->zIndex_ > 0) {
         element.setProperty(Property::StyleZIndex,
                             std::to_string(layoutImpl_->zIndex_));
-        element.addPropertyWord(Property::Class, "Wt-popup");
         if (!all &&
             !flags_.test(BIT_STYLECLASS_CHANGED) &&
-            lookImpl_ && !lookImpl_->styleClass_.empty())
-          element.addPropertyWord(Property::Class,
-                                  lookImpl_->styleClass_.toUTF8());
+            lookImpl_ && !lookImpl_->styleClass_.empty()) {
+          element.addPropertyWords(Property::Class, lookImpl_->styleClass_.toUTF8());
+        }
+
+        element.addPropertyWord(Property::Class, "Wt-popup");
 
         if (!app) app = WApplication::instance();
         if (all && app->environment().agent() == UserAgent::IE6
@@ -1690,8 +1691,9 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       lookImpl_->decorationStyle_->updateDomElement(element, all);
 
     if (all || flags_.test(BIT_STYLECLASS_CHANGED))
-      if (!all || !lookImpl_->styleClass_.empty())
-        element.addPropertyWord(Property::Class, lookImpl_->styleClass_.toUTF8());
+      if (!all || !lookImpl_->styleClass_.empty()) {
+        element.addPropertyWords(Property::Class, lookImpl_->styleClass_.toUTF8());
+      }
 
     flags_.reset(BIT_STYLECLASS_CHANGED);
   }
