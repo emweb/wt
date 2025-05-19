@@ -1620,8 +1620,8 @@ void WWebWidget::updateDom(DomElement& element, bool all)
                    flags_.test(BIT_TOOLTIP_DEFERRED))) {
         if (!app) app = WApplication::instance();
         if ( (lookImpl_->toolTipTextFormat_ != TextFormat::Plain
-              || flags_.test(BIT_TOOLTIP_DEFERRED) 
-              || flags_.test(BIT_TOOLTIP_FORCE_SHOW) 
+              || flags_.test(BIT_TOOLTIP_DEFERRED)
+              || flags_.test(BIT_TOOLTIP_FORCE_SHOW)
               || flags_.test(BIT_TOOLTIP_CLEAN_FORCE_SHOW))
             && app->environment().ajax()) {
           LOAD_JAVASCRIPT(app, "js/ToolTip.js", "toolTip", wtjs10);
@@ -1663,21 +1663,21 @@ void WWebWidget::updateDom(DomElement& element, bool all)
           if (flags_.test(BIT_TOOLTIP_DEFERRED) &&
               !lookImpl_->loadToolTip_.isConnected())
             lookImpl_->loadToolTip_.connect(this, &WWebWidget::loadToolTip);
-          
+
           if (flags_.test(BIT_TOOLTIP_SHOW_ON_HOVER) &&
               !jsShowOnHover &&
               !flags_.test(BIT_TOOLTIP_FORCE_SHOW))
           {
             element.setAttribute("title", lookImpl_->toolTip_->toUTF8());
-          } 
+          }
           else {
             element.removeAttribute("title");
           }
 
           flags_.reset(BIT_TOOLTIP_CLEAN_FORCE_SHOW);
 
-        } 
-        else if (flags_.test(BIT_TOOLTIP_SHOW_ON_HOVER)) 
+        }
+        else if (flags_.test(BIT_TOOLTIP_SHOW_ON_HOVER))
           element.setAttribute("title", lookImpl_->toolTip_->toUTF8());
 
          else element.removeAttribute("title");
