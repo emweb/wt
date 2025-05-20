@@ -552,10 +552,14 @@ BOOST_AUTO_TEST_CASE(WTemplate_renderTemplateText_bound_text_string_xhtml_resour
   BOOST_REQUIRE(output.str() == "<div><script>Hello</script></div>");
 }
 
+namespace {
+
 void resetStream(std::stringstream& stream)
 {
   stream.str("");
   stream.clear();
+}
+
 }
 
 BOOST_AUTO_TEST_CASE(WTemplate_renderTemplateText_bound_widgets)

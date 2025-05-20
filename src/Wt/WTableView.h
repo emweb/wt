@@ -160,6 +160,11 @@ public:
 
   virtual EventSignal<WScrollEvent>& scrolled() override;
 
+#ifdef WT_TEST_VISIBILITY
+  const WWidget* table() const { return table_; }
+  const WWidget* headerColumnsTable() const { return headerColumnsTable_; }
+#endif
+
  protected:
   virtual void render(WFlags<RenderFlag> flags) override;
 
