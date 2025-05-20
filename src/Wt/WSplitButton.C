@@ -53,7 +53,7 @@ WPopupMenu *WSplitButton::menu() const
 void WSplitButton::render(WFlags<RenderFlag> flags)
 {
   if (dropDownButton()->isThemeStyleEnabled()) {
-    dropDownButton()->setStyleClass("dropdown-toggle");
+    dropDownButton()->addStyleClass("dropdown-toggle");
   }
 
   WCompositeWidget::render(flags);

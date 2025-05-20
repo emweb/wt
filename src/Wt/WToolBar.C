@@ -143,9 +143,11 @@ void WToolBar::render(WFlags<RenderFlag> flags)
   if (isThemeStyleEnabled()) {
     if (flags_.test(BIT_COMPACT_CHANGED) || all) {
       if (compact_) {
-        setStyleClass("btn-group");
+        removeStyleClass("btn-toolbar");
+        addStyleClass("btn-group");
       } else {
-        setStyleClass("btn-toolbar");
+        removeStyleClass("btn-group");
+        addStyleClass("btn-toolbar");
       }
 
       flags_.reset(BIT_COMPACT_CHANGED);
@@ -153,7 +155,7 @@ void WToolBar::render(WFlags<RenderFlag> flags)
 
     if (flags_.test(BIT_MULTIPLE_GROUPS)) {
       for (int i = nextUnrenderedGroup_; i < impl_->count(); ++i) {
-        impl_->children()[i]->setStyleClass("btn-group me-2");
+        impl_->children()[i]->addStyleClass("btn-group me-2");
       }
 
       nextUnrenderedGroup_ = impl_->count();
