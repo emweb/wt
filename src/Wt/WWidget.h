@@ -1154,6 +1154,12 @@ public:
    * Disabling the theme style could be useful to completely customize the style of the widget
    * outside of the theme.
    *
+   * This function does, however, not always completely remove every
+   * style class added by Wt, as some of those are needed in order for
+   * the widget to function correctly. Additionally, Bootstrap 5 makes
+   * some changes to the default style of some widgets in the browser,
+   * like with buttons. These changes are not removed by this function.
+   *
    * \note This should be changed after the construction but before the rendering
    * of the widget or before the call to applyThemeStyles() (depending
    * on what happens first).
