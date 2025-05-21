@@ -51,6 +51,25 @@ behaviour.
     define a styling for the <code>Wt-collapse-button</code> style class.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/12881" target="_blank">Issue #12881</a>:
+    added
+    <a href="classWt_1_1WPasswordEdit.html" target="_blank">WPasswordEdit</a> which ought to replace
+    <a href="classWt_1_1WLineEdit.html#a27c9bc232bea0ab76ee266be3325a10e" target="_blank">WLineEdit::setEchoMode(EchoMode::Password)</a>
+    that is now deprecated. You can find examples on how to use this new class in the
+    <a href="https://www.webtoolkit.eu/forms/password" target="_blank">Widget Gallery</a>.
+
+    It is also now possible to set the input mode of any
+    <a href="classWt_1_1WLineEdit.html" target="_blank">WLineEdit</a> using
+    <a href="classWt_1_1WLineEdit.html#a5d772a843fb12447da0e295e6fae805b" target="_blank">WLineEdit::setInputMode()</a>.
+    This is especially important for mobile devices, where the input mode impacts the
+    keyboard that is shown to the user when the input field is focused.
+
+    In addition, it is now possible to combine multiple
+    <a href="classWt_1_1WValidator.html" target="_blank">WValidator</a>s into a single one,
+    using the new
+    <a href="classWt_1_1WStackedValidator.html" target="_blank">WStackedValidator</a>.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/12817" target="_blank">Issue #12817</a>:
     allows custom implementation of the scope and the authorization endpoint of the
     <a href="classWt_1_1Auth_1_1OAuthProcess.html" target="_blank">Auth::OAuthProcess</a> by overriding
