@@ -248,11 +248,17 @@ public:
  */
 class ViewAction : public Action
 {
+private:
+  struct FieldData {
+    std::shared_ptr<Wt::Form::WAbstractFormDelegate> formDelegate;
+    std::shared_ptr<Wt::WValidator> validator;
+  };
+
 public:
   ViewAction(Wt::Dbo::Session& session, FormModelBase *model,
-             std::map<std::string, std::shared_ptr<Wt::Form::WAbstractFormDelegate>>& formDelegates)
+             std::map<std::string, FieldData>& formDelegates)
     : Action(session, model),
-      formDelegates_(formDelegates)
+      fieldData_(formDelegates)
   {
   }
 
@@ -309,11 +315,11 @@ public:
   bool isSchema() const { return false; }
 
 private:
-  std::map<std::string, std::shared_ptr<Wt::Form::WAbstractFormDelegate>>& formDelegates_;
+  std::map<std::string, FieldData>& fieldData_;
 
   void insertFormDelegate(const std::string& name, std::shared_ptr<Wt::Form::WAbstractFormDelegate> delegate)
   {
-    formDelegates_[name] = delegate;
+    fieldData_[name].formDelegate = delegate;
   }
 
   /*
@@ -322,8 +328,12 @@ private:
    */
   bool hasDelegate(const std::string& name)
   {
-    return formDelegates_.find(name) != formDelegates_.end();
+    auto data = fieldData_.find(name);
+    return data != fieldData_.end() && data->second.formDelegate;
   }
+
+  template <class C>
+  friend class FormView;
 };
 
 /*! \internal
