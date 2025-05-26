@@ -278,7 +278,7 @@ bool WTimePicker::formatMs() const
                              format).msec() == 123;
   }
   if (dateTimeEdit_) {
-    format = dateTimeEdit_->format();
+    format = WDateTime::splitFormat(dateTimeEdit_->format()).timeFormat;
 
     return WTime::fromString(WTime(4, 5, 6, 123).toString(format),
                              format).msec() == 123;
@@ -297,7 +297,7 @@ bool WTimePicker::formatS() const
                              format).second() == 6;
   }
   if (dateTimeEdit_) {
-    format = dateTimeEdit_->format();
+    format = WDateTime::splitFormat(dateTimeEdit_->format()).timeFormat;
 
     return WTime::fromString(WTime(4, 5, 6, 123).toString(format),
                              format).second() == 6;

@@ -265,7 +265,7 @@ public:
     int currentGroup;
   };
 
-  static RegExpInfo formatToRegExp(const WT_USTRING& format);
+  static RegExpInfo formatToRegExp(const WT_USTRING& format, int startingGroup = 1);
 
 #ifndef WT_TARGET_JAVA
   std::chrono::duration<int, std::milli> toTimeDuration() const;

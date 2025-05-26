@@ -14,10 +14,14 @@
 #include "Wt/Date/date.h"
 
 #include "DateTimeRegexFormatter.h"
+#include "WebUtils.h"
+
+#include "Wt/WLogger.h"
 
 #ifndef DOXYGEN_ONLY
 
 namespace Wt {
+  LOGGER("WDateTime");
 
   namespace {
     std::string multiple(int value, std::string s)
@@ -599,6 +603,82 @@ WDateTime::RegExpInfo WDateTime::formatToRegExp(const WT_USTRING& format)
   }
 
   return result;
+}
+
+WDateTime::FormatPair WDateTime::splitFormat(const WT_USTRING& format)
+{
+  std::string fullFormat = format.toUTF8();
+
+  // This ignores timezone information as well
+  Utils::replace(fullFormat, "Z", "");
+
+  std::size_t firstDateFormatCharacter = fullFormat.find_first_of("dMy");
+  // No date format characters found
+  if (firstDateFormatCharacter == std::string::npos) {
+    return FormatPair("", fullFormat);
+  }
+
+  std::size_t firstTimeFormatCharacter = fullFormat.find_first_of("hHmszAaPp");
+  // No date format characters found
+  if (firstTimeFormatCharacter == std::string::npos) {
+    return FormatPair(fullFormat, "");
+  }
+
+  std::string dateCharacters = "dMy";
+  std::string timeCharacters = "hHmszAaPp";
+  std::size_t lastDateFormatCharacter = fullFormat.find_last_of(dateCharacters);
+  std::size_t lastTimeFormatCharacter = fullFormat.find_last_of(timeCharacters);
+
+  // Handle straightforward cases ("date time" / "time date")
+  if ((firstDateFormatCharacter < firstTimeFormatCharacter
+        && lastDateFormatCharacter < firstTimeFormatCharacter)
+      || (firstTimeFormatCharacter < firstDateFormatCharacter
+        && lastTimeFormatCharacter < firstDateFormatCharacter)) {
+    // Ensure matches are including the last character
+    std::string dateFormat = fullFormat.substr(firstDateFormatCharacter, lastDateFormatCharacter - firstDateFormatCharacter + 1);
+    std::string timeFormat = fullFormat.substr(firstTimeFormatCharacter, lastTimeFormatCharacter - firstTimeFormatCharacter + 1);
+    return FormatPair(dateFormat, timeFormat);
+  }
+
+  // More complex case, formatting is interleaved. Naive parsing.
+  // Parsing in parts, according to first match, and appending to either
+  // format string as long as long as the other case is not encountered.
+  std::string dateFormat;
+  std::string timeFormat;
+  bool parsingDate = false;
+  bool parsingTime = false;
+  bool lastWriteWasDate = false;
+
+  if (firstDateFormatCharacter < firstTimeFormatCharacter) {
+    parsingDate = true;
+  }
+
+  for (std::size_t i = 0; i < fullFormat.size(); ++i) {
+    char formatCharacter = fullFormat[i];
+
+    parsingDate = dateCharacters.find(formatCharacter) != std::string::npos;
+    parsingTime = timeCharacters.find(formatCharacter) != std::string::npos;
+
+    if ((parsingDate && !parsingTime) || (!parsingTime && lastWriteWasDate)) {
+      dateFormat += formatCharacter;
+      lastWriteWasDate = true;
+    } else {
+      timeFormat += formatCharacter;
+      lastWriteWasDate = false;
+    }
+  }
+
+  // Ensure no prefixing/trailing non-functional formatters remain.
+  std::size_t dateStart = dateFormat.find_first_of(dateCharacters);
+  std::size_t dateEnd = dateFormat.find_last_of(dateCharacters);
+  dateFormat = dateFormat.substr(dateStart, dateEnd - dateStart + 1);
+
+  std::size_t timeStart = timeFormat.find_first_of(timeCharacters);
+  std::size_t timeEnd = timeFormat.find_last_of(timeCharacters);
+  timeFormat = timeFormat.substr(timeStart, timeEnd - timeStart + 1);
+
+
+  return FormatPair(dateFormat, timeFormat);
 }
 }
 

@@ -511,13 +511,13 @@ WTime::RegExpInfo WTime::processChar(WTime::RegExpInfo &result, const std::strin
   return result;
 }
 
-WTime::RegExpInfo WTime::formatToRegExp(const WT_USTRING& format)
+WTime::RegExpInfo WTime::formatToRegExp(const WT_USTRING& format, int startingGroup)
 {
   RegExpInfo result;
   std::string f = format.toUTF8();
   unsigned& i = result.index;
   int& currentGroup = result.currentGroup;
-  currentGroup = 1;
+  currentGroup = startingGroup;
 
   result.hourGetJS = "return 1";
   result.minuteGetJS = "return 0";

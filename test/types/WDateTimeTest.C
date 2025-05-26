@@ -350,3 +350,77 @@ BOOST_AUTO_TEST_CASE(WDateTime_formatToRegExp_quoted_ap_ignored_by_hours)
 
   BOOST_TEST(dateTimeInfo.regexp == "(0|[1-9]|1[0-9]|2[0-3]):([0-5][0-9]) ap");
 }
+
+BOOST_AUTO_TEST_CASE(WDateTime_splitFormat_only_date)
+{
+  // Splitting the format string with only a date portion
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto format = Wt::WDateTime::splitFormat("yyyy-MM-dd");
+  BOOST_TEST(format.dateFormat == "yyyy-MM-dd");
+  BOOST_TEST(format.timeFormat.empty());
+}
+
+BOOST_AUTO_TEST_CASE(WDateTime_splitFormat_only_time)
+{
+  // Splitting the format string with only a time portion, while ignoring timezone
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto format = Wt::WDateTime::splitFormat("HH:mm:ss.zzzZ");
+  BOOST_TEST(format.dateFormat.empty());
+  BOOST_TEST(format.timeFormat == "HH:mm:ss.zzz");
+}
+
+BOOST_AUTO_TEST_CASE(WDateTime_splitFormat_datetime)
+{
+  // Splitting the format string, while ignoring timezone
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto format = Wt::WDateTime::splitFormat("yyyy-MM-dd HH:mm:ss.zzzZ");
+  BOOST_TEST(format.dateFormat == "yyyy-MM-dd");
+  BOOST_TEST(format.timeFormat == "HH:mm:ss.zzz");
+}
+
+BOOST_AUTO_TEST_CASE(WDateTime_splitFormat_timedate)
+{
+  // Splitting the format string, while ignoring timezone
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto format = Wt::WDateTime::splitFormat("HH:mm:ss.zzzZ yyyy-MM-dd");
+  BOOST_TEST(format.dateFormat == "yyyy-MM-dd");
+  BOOST_TEST(format.timeFormat == "HH:mm:ss.zzz");
+}
+
+BOOST_AUTO_TEST_CASE(WDateTime_splitFormat_datetime_interleaved)
+{
+  // Splitting the format string
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto format = Wt::WDateTime::splitFormat("dd/MM HH:mm:ss yyyy");
+  BOOST_TEST(format.dateFormat == "dd/MM yyyy");
+  BOOST_TEST(format.timeFormat == "HH:mm:ss");
+}
+
+BOOST_AUTO_TEST_CASE(WDateTime_splitFormat_removes_prefixing_and_trailing_literals)
+{
+  // Splitting the format string, while ignoring timezone
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto format = Wt::WDateTime::splitFormat("yyyy-MM-dd HH:mm:ss.zzzZccc");
+  BOOST_TEST(format.dateFormat == "yyyy-MM-dd");
+  BOOST_TEST(format.timeFormat == "HH:mm:ss.zzz");
+
+  format = Wt::WDateTime::splitFormat("cccyyyy-MM-dd HH:mm:ss.zzzZ");
+  BOOST_TEST(format.dateFormat == "yyyy-MM-dd");
+  BOOST_TEST(format.timeFormat == "HH:mm:ss.zzz");
+
+  format = Wt::WDateTime::splitFormat("yyyy-MM-dd ccc HH:mm:ss.zzzZ");
+  BOOST_TEST(format.dateFormat == "yyyy-MM-dd");
+  BOOST_TEST(format.timeFormat == "HH:mm:ss.zzz");
+}

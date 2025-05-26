@@ -11,8 +11,10 @@
 #include <Wt/WException.h>
 #include <Wt/WLocale.h>
 #include <Wt/WString.h>
-#include <exception>
+
 #include <chrono>
+#include <exception>
+#include <utility>
 
 namespace Wt {
 
@@ -370,6 +372,17 @@ public:
   };
 
   static RegExpInfo formatToRegExp(const WT_USTRING& format);
+
+  struct FormatPair {
+    WT_USTRING dateFormat;
+    WT_USTRING timeFormat;
+
+    FormatPair(const WT_USTRING& dateFormat, const WT_USTRING& timeFormat)
+      : dateFormat(dateFormat),
+        timeFormat(timeFormat)
+      { }
+  };
+  static FormatPair splitFormat(const WT_USTRING& format);
 
 private:
   std::chrono::system_clock::time_point datetime_;
