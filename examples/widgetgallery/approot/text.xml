@@ -4580,6 +4580,11 @@
       <code>mapJsRef()</code>.
     </p>
     <p>
+      Another one of these features is the ${doc-link WLeafletMap-Popup}. This is an element that can be
+      shown at any coordinates on the map, or added to a marker. In that second case, the popup can be
+      toggled open, or closed by clicking on the marker.
+    </p>
+    <p>
       Leaflet itself is not bundled with Wt. Use the <code>leafletJSURL</code> and <code>leafletCSSURL</code> properties
       to configure where the JavaScript and CSS of Leaflet should be loaded from.
     </p>

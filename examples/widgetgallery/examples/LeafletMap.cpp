@@ -39,6 +39,7 @@ public:
     map_->panTo(EMWEB_COORDS);
 
     addEmwebLogoMarker();
+    addGroteMarktPopup();
 
     Wt::WPen pen = Wt::WColor(0, 191, 255);
     pen.setCapStyle(Wt::PenCapStyle::Round);
@@ -57,7 +58,25 @@ private:
     emwebLogo->setInline(false);
     emwebLogo->resize(118, 32);
     auto emwebMarker = std::make_unique<Wt::WLeafletMap::WidgetMarker>(EMWEB_COORDS, std::move(emwebLogo));
+    emwebMarker->addPopup(std::make_unique<Wt::WLeafletMap::Popup>("This is where Wt is developed!"));
     map_->addMarker(std::move(emwebMarker));
+  }
+
+  void addGroteMarktPopup()
+  {
+    Wt::Json::Object options;
+#ifndef WT_TARGET_JAVA
+    options["autoClose"] = false;
+    options["closeOnClick"] = false;
+#else // WT_TARGET_JAVA
+    options["autoClose"] = Wt::Json::Value(false);
+    options["closeOnClick"] = Wt::Json::Value(false);
+#endif // WT_TARGET_JAVA
+
+    auto groteMarktPopup = std::make_unique<Wt::WLeafletMap::Popup>(GROTE_MARKT_COORDS);
+    groteMarktPopup->setContent("You should check this place out.");
+    groteMarktPopup->setOptions(options);
+    map_->addPopup(std::move(groteMarktPopup));
   }
 
   std::vector<Wt::WLeafletMap::Coordinate> roadDescription() {
@@ -129,9 +148,11 @@ private:
   }
 
   static const Wt::WLeafletMap::Coordinate EMWEB_COORDS;
+  static const Wt::WLeafletMap::Coordinate GROTE_MARKT_COORDS;
 };
 
 const Wt::WLeafletMap::Coordinate LeafletMapExample::EMWEB_COORDS(50.906901, 4.655973);
+const Wt::WLeafletMap::Coordinate LeafletMapExample::GROTE_MARKT_COORDS(50.879161, 4.700751);
 
 
 SAMPLE_BEGIN(LeafletMap)
