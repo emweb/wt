@@ -430,6 +430,9 @@ public:
   protected:
     void createItemJS(WStringStream& ss, WStringStream& postJS, long long id) override;
 
+  private:
+    std::string addFunctionJs() const override { return "addPopup"; }
+
     friend class WLeafletMap;
   };
 
@@ -479,6 +482,9 @@ public:
 
   protected:
     void createItemJS(WStringStream& ss, WStringStream& postJS, long long id) override;
+
+  private:
+    std::string addFunctionJs() const override { return "addTooltip"; }
 
     friend class WLeafletMap;
   };
@@ -533,6 +539,41 @@ public:
      */
     Popup* popup() { return popup_; }
 
+    /*! \brief Add the tooltip to the Marker
+     *
+     * Add the tooltip to the Marker. This will remove any tooltip
+     * previously added to this Marker.
+     *
+     * A tooltip added to a Marker will have it's coordinate set to the
+     * coordinate of the Marker. If the Marker's option interactive is
+     * true, the tooltip will switch between closed and open when the
+     * mouse hover over the Marker.
+     *
+     * \sa removeTooltip
+     */
+    void addTooltip(std::unique_ptr<Tooltip> tooltip);
+
+#ifndef WT_TARGET_JAVA
+    template<typename T>
+    T* addTooltip(std::unique_ptr<T> tooltip)
+    {
+      T* result = tooltip.get();
+      addTooltip(std::unique_ptr<Tooltip>(std::move(tooltip)));
+      return result;
+    }
+#endif // WT_TARGET_JAVA
+
+    /*! \brief Removes the tooltip from the Marker
+     *
+     * \sa addTooltip
+     */
+    std::unique_ptr<Tooltip> removeTooltip();
+
+    /*! \brief Return the tooltip added to the Marker
+     *
+     * \sa addTooltip
+     */
+    Tooltip *tooltip() { return tooltip_; }
 
   protected:
     explicit Marker(const Coordinate &pos);
@@ -542,6 +583,8 @@ public:
   private:
     Popup* popup_;
     std::unique_ptr<Popup> popupBuffer_;
+    Tooltip *tooltip_;
+    std::unique_ptr<Tooltip> tooltipBuffer_;
 
     friend class WLeafletMap;
 
@@ -844,13 +887,14 @@ private:
   void panToJS(WStringStream &ss, const Coordinate &position) const;
   void zoomJS(WStringStream &ss, int level) const;
   AbstractMapItem* getItem(long long id) const;
-  void addItem(std::unique_ptr<AbstractMapItem> mapItem, Marker* parent = nullptr);
-  std::unique_ptr<AbstractMapItem> removeItem(AbstractMapItem* mapItem, Marker* parent = nullptr);
-  std::unique_ptr<Popup> removePopup(Popup* popup, Marker* parent);
-  void addItemJS(WStringStream& ss, ItemEntry& entry) const;
-  void removeItemJS(WStringStream& ss, long long id) const;
-  void updateItemJS(WStringStream& ss, ItemEntry& entry) const;
-  void updateItemJS(WStringStream& ss, ItemEntry& entry, const std::string& fname) const;
+  void addItem(std::unique_ptr<AbstractMapItem> mapItem, Marker *parent = nullptr);
+  std::unique_ptr<AbstractMapItem> removeItem(AbstractMapItem *mapItem, Marker *parent = nullptr);
+  std::unique_ptr<Popup> removePopup(Popup *popup, Marker *parent);
+  std::unique_ptr<Tooltip> removeTooltip(Tooltip *tooltip, Marker *parent);
+  void addItemJS(WStringStream &ss, ItemEntry &entry) const;
+  void removeItemJS(WStringStream &ss, long long id) const;
+  void updateItemJS(WStringStream &ss, ItemEntry &entry) const;
+  void updateItemJS(WStringStream &ss, ItemEntry &entry, const std::string &fname) const;
   void handlePanChanged(double latitude, double longitude);
   void handleZoomLevelChanged(int zoomLevel);
   void handleOverlayItemToggled(long long id, bool open);

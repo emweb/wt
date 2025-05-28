@@ -481,7 +481,9 @@ void WLeafletMap::AbstractOverlayItem::applyChangeJS(WStringStream& ss, long lon
 WLeafletMap::Marker::Marker(const Coordinate &pos)
   : AbstractMapItem(pos),
     popup_(nullptr),
-    popupBuffer_(nullptr)
+    popupBuffer_(nullptr),
+    tooltip_(nullptr),
+    tooltipBuffer_(nullptr)
 { }
 
 WLeafletMap::Marker::~Marker()
@@ -523,22 +525,73 @@ std::unique_ptr<WLeafletMap::Popup> WLeafletMap::Marker::removePopup()
   return result;
 }
 
+void WLeafletMap::Marker::addTooltip(std::unique_ptr<Tooltip> tooltip)
+{
+  if (tooltip) {
+    if (map_) {
+      if (tooltip_) {
+        map_->removeTooltip(tooltip_, this);
+      }
+      tooltip_ = tooltip.get();
+      map_->addItem(std::move(tooltip), this);
+    } else {
+      tooltip_ = tooltip.get();
+      tooltipBuffer_ = std::move(tooltip);
+    }
+    tooltip_->pos_ = pos_;
+    if (!tooltip_->flags_.test(AbstractOverlayItem::BIT_OPEN_CHANGED)) {
+      tooltip_->close();
+    }
+  }
+}
+
+std::unique_ptr<WLeafletMap::Tooltip> WLeafletMap::Marker::removeTooltip()
+{
+  if (!tooltip_) {
+    return nullptr;
+  }
+  Tooltip* tooltip = tooltip_;
+  tooltip_ = nullptr;
+  if (map_) {
+    return map_->removeTooltip(tooltip, this);
+  }
+  std::unique_ptr<Tooltip> result = std::move(tooltipBuffer_);
+  tooltipBuffer_.reset();
+  return result;
+}
+
 void WLeafletMap::Marker::setMap(WLeafletMap* map)
 {
-  if (map_ && popup_) {
-    std::unique_ptr<AbstractMapItem> popup = map_->removeItem(popup_, this);
-    if (popup) {
+  if (map_) {
+    if (popup_) {
+      std::unique_ptr<AbstractMapItem> popup = map_->removeItem(popup_, this);
+      if (popup) {
 #ifndef WT_TARGET_JAVA
-      popup.release();
+        popup.release();
 #endif
-      popupBuffer_.reset(popup_);
+        popupBuffer_.reset(popup_);
+      }
+    }
+    if (tooltip_) {
+      std::unique_ptr<AbstractMapItem> tooltip = map_->removeItem(tooltip_, this);
+      if (tooltip) {
+#ifndef WT_TARGET_JAVA
+        tooltip.release();
+#endif
+        tooltipBuffer_.reset(tooltip_);
+      }
     }
   }
 
   AbstractMapItem::setMap(map);
 
-  if (map_ && popup_) {
-    map_->addItem(std::move(popupBuffer_), this);
+  if (map_) {
+    if (popup_) {
+      map_->addItem(std::move(popupBuffer_), this);
+    }
+    if (tooltip_) {
+      map_->addItem(std::move(tooltipBuffer_), this);
+    }
   }
 }
 
@@ -834,7 +887,12 @@ void WLeafletMap::addTooltip(std::unique_ptr<Tooltip> tooltip)
 
 std::unique_ptr<WLeafletMap::Tooltip> WLeafletMap::removeTooltip(Tooltip* tooltip)
 {
-  return Utils::dynamic_unique_ptr_cast<Tooltip>(removeItem(tooltip));
+  return removeTooltip(tooltip, nullptr);
+}
+
+std::unique_ptr<WLeafletMap::Tooltip> WLeafletMap::removeTooltip(Tooltip *tooltip, Marker *parent)
+{
+  return Utils::dynamic_unique_ptr_cast<Tooltip>(removeItem(tooltip, parent));
 }
 
 void WLeafletMap::addItem(std::unique_ptr<AbstractMapItem> mapItem, Marker* parent)

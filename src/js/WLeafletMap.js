@@ -9,6 +9,9 @@
 /* Note: this is at the same time valid JavaScript and C++. */
 
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, options_str, lat, lng, zoom) {
+  const TOOLTIP = 0;
+  const POPUP = 1;
+
   if (el.wtObj) {
     // uninit existing WLeafletMap
     el.wtObj.map.remove();
@@ -49,6 +52,16 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
     L.circle(center, options).addTo(self.map);
   };
 
+  this.addPopup = function(popup_id, parent_id, popup) {
+    popup.item_type = POPUP;
+    self.addOverlayItem(popup_id, parent_id, popup);
+  };
+
+  this.addTooltip = function(tooltip_id, parent_id, tooltip) {
+    tooltip.item_type = TOOLTIP;
+    self.addOverlayItem(tooltip_id, parent_id, tooltip);
+  };
+
   this.addOverlayItem = function(overlayItem_id, parent_id, overlayItem) {
     overlayItem.contentHolder = document.createElement("div");
     overlayItem.contentHolder.style.cssText = "visibility: hidden;";
@@ -70,8 +83,12 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
       const parent_id = mapItem.parent_id;
       if ((parent_id || parent_id === 0) && parent_id !== -1) {
         const parent = mapItems[parent_id];
-        if (parent && parent.getPopup().item_id === mapItem_id) {
-          parent.unbindPopup();
+        if (parent) {
+          if (parent.getPopup() && parent.getPopup().item_id === mapItem_id) {
+            parent.unbindPopup();
+          } else if (parent.getTooltip() && parent.getTooltip().item_id === mapItem_id) {
+            parent.unbindTooltip();
+          }
         }
       }
 
@@ -130,7 +147,11 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
         } else {
           const parent = mapItems[parent_id];
           if (parent) {
-            parent.bindPopup(overlayItem).openPopup();
+            if (overlayItem.item_type === POPUP) {
+              parent.bindPopup(overlayItem).openPopup();
+            } else if (overlayItem.item_type === TOOLTIP) {
+              parent.bindTooltip(overlayItem).openTooltip();
+            }
           }
         }
       } else if (!doOpen && overlayItem.isOpen()) {
