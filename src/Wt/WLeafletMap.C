@@ -295,33 +295,49 @@ void WLeafletMap::Popup::createItemJS(WStringStream& ss, WStringStream& postJS, 
   applyChangeJS(postJS, id);
 }
 
-void WLeafletMap::Popup::applyChangeJS(WStringStream& ss, long long id)
+WLeafletMap::Tooltip::Tooltip(const Coordinate& pos)
+  : AbstractOverlayItem(pos)
+{ }
+
+WLeafletMap::Tooltip::Tooltip(std::unique_ptr<WWidget> content)
+  : AbstractOverlayItem(Coordinate(0,0), std::move(content))
+{ }
+
+WLeafletMap::Tooltip::Tooltip(const WString& content)
+  : AbstractOverlayItem(Coordinate(0,0), std::make_unique<WText>(content))
+{ }
+
+WLeafletMap::Tooltip::Tooltip(const Coordinate& pos, std::unique_ptr<WWidget> content)
+  : AbstractOverlayItem(pos, std::move(content))
+{ }
+
+WLeafletMap::Tooltip::Tooltip(const Coordinate& pos, const WString& content)
+  : AbstractOverlayItem(pos, std::make_unique<WText>(content))
+{ }
+
+WLeafletMap::Tooltip::~Tooltip()
+{ }
+
+void WLeafletMap::Tooltip::createItemJS(WStringStream& ss, WStringStream& postJS, long long id)
 {
-  if (flags_.test(BIT_CONTENT_CHANGED)) {
-    std::unique_ptr<DomElement> element(content_->createSDomElement(WApplication::instance()));
+  EscapeOStream es(ss);
 
-    DomElement::TimeoutList timeouts;
+  std::string optionsStr = Json::serialize(options_);
 
-    EscapeOStream delayedJS;
-    EscapeOStream content;
-
-    content << "o.wtObj.setOverlayItemContent(" << std::to_string(id) << ",'";
-    content.pushEscape(EscapeOStream::JsStringLiteralSQuote);
-    element->asHTML(content, delayedJS, timeouts);
-    content.popEscape();
-    content << "','";
-    content.pushEscape(EscapeOStream::JsStringLiteralSQuote);
-    content << element->id();
-    content.popEscape();
-    content << "');";
-
-    ss << "o.wtObj.delayedJS = function() {"<<delayedJS.str() << "};";
-    ss << content.str();
-
-    flags_.reset(BIT_CONTENT_CHANGED);
+  es << "L.tooltip(";
+  if (!options_.empty()) {
+    es << "JSON.parse('";
+    es.pushEscape(EscapeOStream::JsStringLiteralSQuote);
+    es << optionsStr;
+    es.popEscape();
+    es << "')";
   }
+  es << ").setLatLng(L.latLng(";
+  char buf[30];
+  es << Utils::round_js_str(position().latitude(), 16, buf) << ",";
+  es << Utils::round_js_str(position().longitude(), 16, buf) << "))";
 
-  AbstractOverlayItem::applyChangeJS(ss, id);
+  applyChangeJS(postJS, id);
 }
 
 WLeafletMap::AbstractOverlayItem::~AbstractOverlayItem()
@@ -430,6 +446,30 @@ void WLeafletMap::AbstractOverlayItem::setMap(WLeafletMap* map)
 
 void WLeafletMap::AbstractOverlayItem::applyChangeJS(WStringStream& ss, long long id)
 {
+  if (flags_.test(BIT_CONTENT_CHANGED)) {
+    std::unique_ptr<DomElement> element(content_->createSDomElement(WApplication::instance()));
+
+    DomElement::TimeoutList timeouts;
+
+    EscapeOStream delayedJS;
+    EscapeOStream content;
+
+    content << "o.wtObj.setOverlayItemContent(" << std::to_string(id) << ",'";
+    content.pushEscape(EscapeOStream::JsStringLiteralSQuote);
+    element->asHTML(content, delayedJS, timeouts);
+    content.popEscape();
+    content << "','";
+    content.pushEscape(EscapeOStream::JsStringLiteralSQuote);
+    content << element->id();
+    content.popEscape();
+    content << "');";
+
+    ss << "o.wtObj.delayedJS = function() {"<<delayedJS.str() << "};";
+    ss << content.str();
+
+    flags_.reset(BIT_CONTENT_CHANGED);
+  }
+
   if (flags_.test(BIT_OPEN_CHANGED)) {
     ss << "o.wtObj.toggleOverlayItem(" << id << ",";
     ss << open_ << ");";
@@ -785,6 +825,16 @@ std::unique_ptr<WLeafletMap::Popup> WLeafletMap::removePopup(Popup* popup)
 std::unique_ptr<WLeafletMap::Popup> WLeafletMap::removePopup(Popup* popup, Marker* parent)
 {
   return Utils::dynamic_unique_ptr_cast<Popup>(removeItem(popup, parent));
+}
+
+void WLeafletMap::addTooltip(std::unique_ptr<Tooltip> tooltip)
+{
+  addItem(std::move(tooltip));
+}
+
+std::unique_ptr<WLeafletMap::Tooltip> WLeafletMap::removeTooltip(Tooltip* tooltip)
+{
+  return Utils::dynamic_unique_ptr_cast<Tooltip>(removeItem(tooltip));
 }
 
 void WLeafletMap::addItem(std::unique_ptr<AbstractMapItem> mapItem, Marker* parent)

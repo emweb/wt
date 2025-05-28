@@ -214,6 +214,21 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
 
       APP.emit(el, "overlayItemToggled", e.popup.item_id, true);
     });
+    self.map.on("tooltipclose", function(e) {
+      const c = e.tooltip.getContent();
+      c.remove();
+      e.tooltip.contentHolder.appendChild(c);
+
+      APP.emit(el, "overlayItemToggled", e.tooltip.item_id, false);
+    });
+    self.map.on("tooltipopen", function(e) {
+      const c = e.tooltip.contentHolder.firstChild;
+      if (c) {
+        e.tooltip.setContent(e.tooltip.contentHolder.removeChild(c));
+      }
+
+      APP.emit(el, "overlayItemToggled", e.tooltip.item_id, true);
+    });
   };
 
   this.init(options_str, [lat, lng], zoom);

@@ -430,8 +430,55 @@ public:
   protected:
     void createItemJS(WStringStream& ss, WStringStream& postJS, long long id) override;
 
-  private:
-    void applyChangeJS(WStringStream& ss, long long id) override;
+    friend class WLeafletMap;
+  };
+
+  /*! \class Tooltip
+   *  \brief A Tooltip that can be added to the WLeafletMap
+   *
+   * Tooltips are interactive windows that can be opened on the map,
+   * typically linked to a map location or a Marker.
+   *
+   * \note Multiple tooltips can be added to a map (using coordinates),
+   *       but only one tooltip at the time can be linked to each
+   *       Marker.
+   *
+   * \sa WLeafletMap::addTooltip(), Marker::addTooltip()
+   */
+  class WT_API Tooltip : public AbstractOverlayItem {
+  public:
+    //! Create a tooltip with the given coordinates.
+    explicit Tooltip(const Coordinate& pos = Coordinate(0,0));
+
+    //! Create a tooltip with the given content.
+    explicit Tooltip(std::unique_ptr<WWidget> content);
+
+    /*! \brief Create a tooltip with the given content.
+     *
+     * This is a shortcut for creating a tooltip with a WText widget
+     * as content.
+     */
+    explicit Tooltip(const WString& content);
+
+    //! Create a tooltip with the given content and coordinates.
+    Tooltip(const Coordinate& pos, std::unique_ptr<WWidget> content);
+
+    /*! \brief Create a tooltip with the given content and coordinates.
+     *
+     * This is a shortcut for creating a tooltip with a WText widget
+     * as content.
+     */
+    Tooltip(const Coordinate& pos, const WString& content);
+
+    virtual ~Tooltip();
+
+    Tooltip(const Tooltip&) = delete;
+    Tooltip& operator=(const Tooltip&) = delete;
+    Tooltip(Tooltip&&) = delete;
+    Tooltip& operator=(Tooltip&&) = delete;
+
+  protected:
+    void createItemJS(WStringStream& ss, WStringStream& postJS, long long id) override;
 
     friend class WLeafletMap;
   };
@@ -641,6 +688,24 @@ public:
   /*! \brief Remove the given popup
    */
   std::unique_ptr<Popup> removePopup(Popup* popup);
+
+  /*! \brief Add the given tooltip
+   */
+  void addTooltip(std::unique_ptr<Tooltip> tooltip);
+
+#ifndef WT_TARGET_JAVA
+  template<typename T>
+  T* addTooltip(std::unique_ptr<T> tooltip)
+  {
+    T* result = tooltip.get();
+    addTooltip(std::unique_ptr<Tooltip>(std::move(tooltip)));
+    return result;
+  }
+#endif // WT_TARGET_JAVA
+
+  /*! \brief Remove the given tooltip
+   */
+  std::unique_ptr<Tooltip> removeTooltip(Tooltip *tooltip);
 
   /*! \brief Add the given marker
    */
