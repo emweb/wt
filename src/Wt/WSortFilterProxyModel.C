@@ -648,9 +648,14 @@ bool WSortFilterProxyModel::insertRows(int row, int count,
 
   Item *item = itemFromIndex(parent);
 
-  beginInsertRows(parent, row, row);
-  item->proxyRowMap_.push_back(sourceRow);
-  item->sourceRowMap_.insert(item->sourceRowMap_.begin() + sourceRow, row);
+  beginInsertRows(parent, row, row + count - 1);
+  for (int i = 0; i < count; i++) {
+    // item->proxyRowMap_.push_back(sourceRow + i);
+    item->proxyRowMap_.insert(item->proxyRowMap_.begin() + row + i,
+                              sourceRow + i);
+    item->sourceRowMap_.insert(item->sourceRowMap_.begin() + sourceRow + i,
+                               row + i);
+  }
   endInsertRows();
 
   return true;
