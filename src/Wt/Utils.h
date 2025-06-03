@@ -272,6 +272,9 @@ WT_API extern std::string hmac_sha1(const std::string& text, const std::string& 
 WT_API extern std::string hmac_sha1(long text, const std::string& key);
 #endif // WT_TARGET_JAVA
 
+
+WT_API extern std::vector<std::string> getWidgetStyleClasses(WWidget* widget);
+
 }
 
 }

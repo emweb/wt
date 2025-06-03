@@ -10,9 +10,12 @@
 #include "Wt/WEnvironment.h"
 #include "Wt/WException.h"
 #include "Wt/WImage.h"
+#include "Wt/Utils.h"
 
 #include "DomElement.h"
 #include "WebUtils.h"
+
+#include "boost/algorithm/string.hpp"
 
 namespace Wt {
 
@@ -44,7 +47,15 @@ namespace Wt {
           if (!wApp->environment().agentIsGecko()) {
             element.setAttribute("href", "#");
           }
+
           element.addPropertyWord(Property::Class, WInteractWidget::noDefault);
+
+          // Add back all of the style classes to avoid removing them.
+          auto styleClassesVector = Utils::getWidgetStyleClasses(this);
+
+          for (const auto& className : styleClassesVector) {
+            element.addPropertyWord(Property::Class, className);
+          }
         }
 
         if (needsUrlResolution)

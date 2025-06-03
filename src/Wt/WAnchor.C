@@ -12,6 +12,9 @@
 
 #include "DomElement.h"
 #include "WebUtils.h"
+#include "Wt/Utils.h"
+
+#include "boost/algorithm/string.hpp"
 
 namespace Wt {
 
@@ -205,6 +208,13 @@ bool WAnchor::renderHRef(WInteractWidget *widget,
     if (app->environment().javaScript()) {
       element.setAttribute("href", "#");
       element.addPropertyWord(Property::Class, WInteractWidget::noDefault);
+
+      // Add back all of the style classes to avoid removing them.
+      auto styleClassesVector = Utils::getWidgetStyleClasses(widget);
+
+      for (const auto& className : styleClassesVector) {
+        element.addPropertyWord(Property::Class, className);
+      }
     } else {
       element.removeAttribute("href");
     }

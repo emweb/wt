@@ -24,6 +24,8 @@
 #include "base32.h"
 #include "base64.h"
 #include "ImageUtils.h"
+#include "StringUtils.h"
+
 
 #include <cstring>
 
@@ -294,6 +296,21 @@ std::string hmac_sha1(const std::string& text, const std::string& key)
               64,
               20);
 }
+
+std::vector<std::string> getWidgetStyleClasses(WWidget* widget)
+{
+  std::string styleClass = widget->styleClass().toUTF8();
+  std::vector<std::string> styleClassVec;
+  SplitSet styleClassSet;
+
+  split(styleClassSet, styleClass, " ", false);
+
+  for (const auto& entry : styleClassSet) {
+    styleClassVec.push_back(splitEntryToString(entry));
+  }
+  return styleClassVec;
+}
+
 
 }
 
