@@ -323,12 +323,13 @@ void WebRenderer::setPageVars(FileServe& page, const std::string& nonce)
     }
   }
 
-  if (session_.env().agentIsIE())
+  if (session_.env().agentIsIE()) {
     page.setVar("HTMLATTRIBUTES",
-                "xmlns:v=\"urn:schemas-microsoft-com:vml\""
-                " lang=\"en\" dir=\"ltr\"" + htmlAttr);
-  else
-    page.setVar("HTMLATTRIBUTES", "lang=\"en\" dir=\"ltr\"" + htmlAttr);
+        "xmlns:v=\"urn:schemas-microsoft-com:vml\""
+                " lang=\""+(app ? app->locale().name() : "en")+"\" dir=\"ltr\"" + htmlAttr);
+  } else {
+    page.setVar("HTMLATTRIBUTES", "lang=\""+(app ? app->locale().name() : "en")+"\" dir=\"ltr\"" + htmlAttr);
+  }
   page.setVar("METACLOSE", ">");
 
   std::string attr = bodyClassRtl();
