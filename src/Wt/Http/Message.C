@@ -38,8 +38,8 @@ void Message::Header::setValue(const std::string& value)
   value_ = value;
 }
 
-Message::Message(std::vector<Header> headers)
-  : status_(-1),
+Message::Message(std::vector<Header> headers, int status)
+  : status_(status),
     headers_(headers)
 { }
 

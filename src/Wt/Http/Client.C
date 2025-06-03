@@ -1124,7 +1124,11 @@ void Client::emitDone(AsioWrapper::error_code err, const Message& response)
 
 void Client::emitHeadersReceived(const Message& response)
 {
-  headersReceived_.emit(response);
+  /*
+   * The response cannot be completely copied here, because another
+   * thread may be writting its body (see issue #13714).
+   */
+  headersReceived_.emit(Message(response.headers(), response.status()));
 }
 
 void Client::emitBodyReceived(const std::string& data)

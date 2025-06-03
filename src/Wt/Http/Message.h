@@ -85,7 +85,7 @@ public:
    * This creates an empty message, with an invalid status (-1), an empty body
    * and the given headers.
    */
-  Message(std::vector<Header> headers);
+  Message(std::vector<Header> headers, int status = -1);
 
   /*! \brief Copy constructor.
    */
