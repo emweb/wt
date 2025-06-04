@@ -2304,6 +2304,10 @@ window._$_APP_CLASS_$_ = new (function() {
 
   let currentHash = null;
 
+  function removeUrlFragments(loc) {
+    return new URL(loc, window.location.origin).pathname;
+  }
+
   function onHashChange() {
     const newLocation = _$_WT_CLASS_$_.history.getCurrentState();
 
@@ -2315,11 +2319,13 @@ window._$_APP_CLASS_$_ = new (function() {
       return;
     }
 
-    if (currentHash === newLocation) {
+    const newHash = removeUrlFragments(newLocation);
+
+    if (currentHash === newHash) {
       return;
     }
 
-    currentHash = newLocation;
+    currentHash = newHash;
 
     setTimeout(function() {
       update(null, "hash", null, true);
@@ -2332,7 +2338,7 @@ window._$_APP_CLASS_$_ = new (function() {
     }
 
     if (!generateEvent) {
-      currentHash = newLocation;
+      currentHash = removeUrlFragments(newLocation);
     }
 
     WT.history.navigate(newLocation, generateEvent);
@@ -3939,7 +3945,7 @@ window._$_APP_CLASS_$_ = new (function() {
   /////////////////////////////////////////////////////////////////////
 
   function enableInternalPaths(initialHash) {
-    currentHash = initialHash;
+    currentHash = removeUrlFragments(initialHash);
     WT.history.register(initialHash, onHashChange);
   }
 
