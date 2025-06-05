@@ -594,12 +594,13 @@ void WFileDropWidget::updateDom(DomElement& element, bool all)
     if (updateFlags_.test(BIT_HOVERSTYLE_CHANGED) || all)
       doJavaScript(jsRef() + ".configureHoverClass('" + hoverStyleClass_
                    + "');");
-    if (updateFlags_.test(BIT_ACCEPTDROPS_CHANGED) || all)
+    if (updateFlags_.test(BIT_ACCEPTDROPS_CHANGED) || all) {
       doJavaScript(jsRef() + ".setAcceptDrops("
                    + (acceptDrops_ ? "true" : "false") + ");");
       doJavaScript(jsRef() + ".setAcceptDirectories("
                    + (acceptDirectories_ ? "true" : "false") + ", "
                    + (acceptDirectoriesRecursive_ ? "true" : "false") + ");");
+    }
     if (updateFlags_.test(BIT_FILTERS_CHANGED) || all)
       doJavaScript(jsRef() + ".setFilters("
                    + jsStringLiteral(acceptAttributes_) + ");");
