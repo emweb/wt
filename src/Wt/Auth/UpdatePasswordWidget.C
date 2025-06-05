@@ -161,7 +161,6 @@ void UpdatePasswordWidget::doUpdate()
     WT_USTRING password
       = registrationModel_->valueText(RegistrationModel::ChoosePasswordField);
     registrationModel_->passwordAuth()->updatePassword(user_, password);
-    registrationModel_->login().login(user_);
 
     updated_.emit();
   }
