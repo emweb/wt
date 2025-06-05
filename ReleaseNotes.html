@@ -33,6 +33,15 @@ behaviour.
     <a href="https://redmine.emweb.be/issues/13361" target="_blank">Issue #13361</a>:
     correct standalone Asio versioning checks, and Boost included Asio versioning checks.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13768" target="_blank">Issue #13768</a>:
+    <a href="classWt_1_1Auth_1_1UpdatePasswordWidget.html">UpdatePasswordWidget</a>
+    no longer automatically logs a user in after a successful password reset.
+    This would otherwise allow logging in using only a single factor (email),
+    even when MFA is enabled.
+    This follows the
+    <a href="https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html#user-resets-password">OWASP guidelines</a>.
+  </li>
 </ul>
 
 <h2>Release 4.12.0 (July 23, 2025)</h2>
