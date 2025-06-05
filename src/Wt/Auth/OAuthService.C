@@ -82,6 +82,16 @@ public:
 #endif
       response.setMimeType("text/html; charset=UTF-8");
 
+#ifdef WT_THREADED
+      /*
+       * In some rare cases, we can receive two requests at the same
+       * time (see issue #13740). Since this modifies the OAuthProcess,
+       * we need to ensure that it can only be modified by one thread
+       * at the time.
+       */
+      std::unique_lock<std::mutex> l(process_->updateMutex_);
+#endif // WT_THREADED
+
       const std::string *stateE = request.getParameter("state");
       if (!stateE || *stateE != process_->oAuthState_) {
         LOG_ERROR(ERROR_MSG("invalid-state") <<

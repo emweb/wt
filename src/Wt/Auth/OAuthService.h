@@ -19,6 +19,8 @@
 
 #include <Wt/AsioWrapper/system_error.hpp>
 
+#include <mutex>
+
 namespace Wt {
   namespace Auth {
 
@@ -351,6 +353,8 @@ private:
 
   std::unique_ptr<OAuthRedirectEndpoint> redirectEndpoint_;
   std::unique_ptr<Http::Client> httpClient_;
+
+  std::mutex updateMutex_;
 
   // onOAuthDone() gets called from WApplication::unsuspended(), keeping
   // the connection object allows us to disconnect after it's done
