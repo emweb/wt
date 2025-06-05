@@ -547,7 +547,6 @@ void WBootstrap5Theme::applyOptionalStyling(WWidget *widget,
     break;
 
   case PanelCollapseButton: {
-    auto app = WApplication::instance();
     auto iconPair = dynamic_cast<WIconPair *>(child);
     // this sets display: block, which makes sure the icons are aligned properly
     iconPair->uriIcon1()->setInline(false);
