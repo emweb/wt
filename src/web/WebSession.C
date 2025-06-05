@@ -641,17 +641,21 @@ std::string WebSession::appendSessionQuery(const std::string& url) const
   if (boost::starts_with(result, "?"))
     result = applicationUrl_ + result;
 
-  if (WebSession::Handler::instance()->response())
-    return WebSession::Handler::instance()->response()->encodeURL(result);
-  else {
-    /*
-     * This may happen if we are inside a WServer::posted() function.
-     * Unfortunately, then we cannot use Servlet API to URL encode.
-     */
-    questionPos = result.find('?');
-    return result.substr(0, questionPos) + ";jsessionid=" + sessionId()
-      + result.substr(questionPos);
+  if (WebSession::Handler::instance()->response()) {
+    try {
+      return WebSession::Handler::instance()->response()->encodeURL(result);
+    } catch (std::exception& e) {
+      LOG_ERROR("appendSessionQuery(): could not encode URL using response");
+    }
   }
+  /*
+   * This may happen if we are inside a WServer::posted() function,
+   * or if the response is recycled by the servlet container.
+   * Unfortunately, then we cannot use Servlet API to URL encode.
+   */
+  questionPos = result.find('?');
+  return result.substr(0, questionPos) + ";jsessionid=" + sessionId()
+    + result.substr(questionPos);
 #endif // WT_TARGET_JAVA
 }
 
