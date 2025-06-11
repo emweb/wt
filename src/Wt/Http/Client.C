@@ -1078,6 +1078,9 @@ void Client::handleRedirect(Http::Method method,
                             AsioWrapper::error_code err,
                             const Message& response, const Message& request)
 {
+#ifdef WT_THREADED
+  std::unique_lock<std::recursive_mutex> lock(implementationMutex_);
+#endif
   impl_.reset();
   int status = response.status();
   if (!err && (((status == STATUS_MOVED_PERMANENTLY ||
