@@ -886,8 +886,17 @@ Client::Client(asio::io_service& ioService)
 
 Client::~Client()
 {
-  abort();
-  auto impl = impl_.lock();
+  std::shared_ptr<Impl> impl;
+
+  {
+#ifdef WT_THREADED
+    std::lock_guard<std::recursive_mutex> lock(implementationMutex_);
+#endif // WT_THREADED
+
+    impl = impl_.lock();
+    abort();
+  }
+
   if (impl) {
     impl->removeClient();
   }
