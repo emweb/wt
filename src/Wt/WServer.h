@@ -484,6 +484,12 @@ public:
    *
    * \note If the server listens on multiple ports, only the first
    *       port is returned.
+   *
+   * \note When in dedicated process mode, this returns the port used
+   *       for commuinication with the SessionProcessManager, unless
+   *       it is the server hosting the SessionProcessManager. In that
+   *       case this returns the public port (as if it was not in
+   *       dedicated process mode).
    */
   WTCONNECTOR_API int httpPort() const;
 
@@ -495,6 +501,13 @@ public:
    *
    * \note If the server expects the \p protocol on multiple ports it
    *       listens on, only the first one is returned.
+   *
+   * \note When in dedicated process mode, this can only returns the
+   *       port used for commuinication with the SessionProcessManager
+   *       (which is considered HTTP) or -1, unless it is the server
+   *       hosting the SessionProcessManager. In that case this returns
+   *       the public port (as if it was not in dedicated process
+   *       mode).
    */
   WTCONNECTOR_API int httpPort(ListenProtocol protocol) const;
 
