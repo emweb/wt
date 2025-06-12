@@ -122,6 +122,12 @@ public:
     int64_t     processId; //!< The process id of the process the session is running in.
     std::string sessionId; //!< The session id.
   };
+
+  //! \brief Collection of protocols for ports the server listen on.
+  enum class ListenProtocol {
+    Http,
+    Https
+  };
 #endif // WT_TARGET_JAVA
 
   /*! \brief Creates a new server instance.
@@ -480,6 +486,17 @@ public:
    *       port is returned.
    */
   WTCONNECTOR_API int httpPort() const;
+
+  /*! \brief Returns the server HTTP port number expecting a specific protocol.
+   *
+   * Returns -1 if the port is not known (i.e. because the connector is
+   * not aware of how the http server is configured) or if the server
+   * does not expect the \p protocol on any ports it listen on.
+   *
+   * \note If the server expects the \p protocol on multiple ports it
+   *       listens on, only the first one is returned.
+   */
+  WTCONNECTOR_API int httpPort(ListenProtocol protocol) const;
 
   WT_API void setAppRoot(const std::string& path);
 

@@ -167,6 +167,11 @@ int WServer::httpPort() const
   return -1;
 }
 
+int WServer::httpPort(WT_MAYBE_UNUSED ListenProtocol protocol) const
+{
+  return -1;
+}
+
 std::string WServer::docRoot() const
 {
   return "";

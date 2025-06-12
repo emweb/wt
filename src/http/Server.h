@@ -59,9 +59,23 @@ public:
   /// Assumes accept sockets have been closed and reopens them.
   void resume();
 
-  /// Returns the http port number.
-  /// If the server listens on multiple port, only the first port is returned
+  /*! \brief Returns the http/https port number.
+   *
+   * If the server listens on multiple port, only the first port is returned
+   */
   int httpPort() const;
+
+  /*! \brief Returns the http port number (excluding https port).
+   *
+   * If the server listens on multiple http port, only the first port is returned
+   */
+  int httpOnlyPort() const;
+
+  /*! \brief Returns the https port number.
+   *
+   * If the server listens on multiple https port, only the first port is returned
+   */
+  int httpsOnlyPort() const;
 
   Wt::WebController *controller();
 

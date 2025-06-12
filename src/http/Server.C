@@ -481,6 +481,26 @@ int Server::httpPort() const
   return tcp_listeners_.front()->acceptor.local_endpoint().port();
 }
 
+int Server::httpOnlyPort() const
+{
+  if (tcp_listeners_.empty()) {
+    return -1;
+  }
+
+  return tcp_listeners_.front()->acceptor.local_endpoint().port();
+}
+
+int Server::httpsOnlyPort() const
+{
+#ifdef HTTP_WITH_SSL
+  if (!ssl_listeners_.empty()) {
+    return ssl_listeners_.front()->acceptor.local_endpoint().port();
+  }
+#endif // HTTP_WITH_SSL
+
+  return -1;
+}
+
 void Server::startAccept()
 {
   /*

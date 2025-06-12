@@ -295,6 +295,19 @@ int WServer::httpPort() const
   return impl_->server_->httpPort();
 }
 
+int WServer::httpPort(ListenProtocol protocol) const
+{
+  switch (protocol) {
+  case ListenProtocol::Http:
+    return impl_->server_->httpOnlyPort();
+  case ListenProtocol::Https:
+    return impl_->server_->httpsOnlyPort();
+  default:
+    LOG_ERROR("WServer::httpPort(): unknown protocol");
+    return -1;
+  }
+}
+
 std::string WServer::docRoot() const
 {
   auto config = impl_->serverConfiguration_;
