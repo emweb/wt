@@ -577,7 +577,7 @@ BOOST_AUTO_TEST_CASE( resource_invalid_after_changed )
       resource->generateUrl();
     }
 
-    std::string resourceUrl = "http://" + server.address() + "/" + resource->url().substr(1);
+    std::string resourceUrl = "http://" + server.address() + "/" + resource->url();
 
     Client client1;
     client1.get(resourceUrl);
