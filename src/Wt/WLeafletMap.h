@@ -397,7 +397,17 @@ public:
   class WT_API Popup : public AbstractOverlayItem {
   public:
     //! Create a popup with the given coordinates.
-    explicit Popup(const Coordinate& pos);
+    explicit Popup(const Coordinate& pos = Coordinate(0,0));
+
+    //! Create a popup with the given content.
+    explicit Popup(std::unique_ptr<WWidget> content);
+
+    /*! \brief Create a popup with the given content.
+     *
+     * This is a shortcut for creating a popup with a WText widget
+     * as content.
+     */
+    explicit Popup(const WString& content);
 
     //! Create a popup with the given content and coordinates.
     Popup(const Coordinate& pos, std::unique_ptr<WWidget> content);
@@ -439,8 +449,51 @@ public:
     Marker(Marker &&) = delete;
     Marker& operator=(Marker &&) = delete;
 
+    /*! \brief Add the popup to the Marker
+     *
+     * Add the popup to the Marker. This will remove any popup
+     * previously added to this Marker.
+     *
+     * A popup added to a Marker will have it's coordinate set to the
+     * coordinate of the Marker. If the Marker's option interactive is
+     * true, the popup will switch between closed and open when the
+     * Marker is clicked.
+     *
+     * \sa removePopup
+     */
+    void addPopup(std::unique_ptr<Popup> popup);
+
+#ifndef WT_TARGET_JAVA
+    template<typename P>
+    P* addPopup(std::unique_ptr<P> popup)
+    {
+      P* result = popup.get();
+      addPopup(std::unique_ptr<Popup>(std::move(popup)));
+      return result;
+    }
+#endif // WT_TARGET_JAVA
+
+    /*! \brief Removes the popup from the Marker
+     *
+     * \sa addPopup
+     */
+    std::unique_ptr<Popup> removePopup();
+
+    /*! \brief Return the popup added to the Marker
+     *
+     * \sa addPopup
+     */
+    Popup* popup() { return popup_; }
+
+
   protected:
     explicit Marker(const Coordinate &pos);
+
+    void setMap(WLeafletMap* map) override;
+
+  private:
+    Popup* popup_;
+    std::unique_ptr<Popup> popupBuffer_;
 
     friend class WLeafletMap;
 
@@ -712,11 +765,12 @@ private:
 
       std::unique_ptr<AbstractMapItem> uMapItem;
       AbstractMapItem* mapItem;
+      ItemEntry *parent;
       long long id;
       std::bitset<2> flags;
   };
 
-  std::vector<ItemEntry> mapItems_; // goes on the item pane, z-index 600, 650 or 700
+  std::vector<std::unique_ptr<ItemEntry> > mapItems_; // goes on the item pane, z-index 600, 650 or 700
 
   void setup(); // called from constructors to reduce code duplication
   void defineJavaScript();
@@ -724,9 +778,10 @@ private:
   void panToJS(WStringStream &ss, const Coordinate &position) const;
   void zoomJS(WStringStream &ss, int level) const;
   AbstractMapItem* getItem(long long id) const;
-  void addItem(std::unique_ptr<AbstractMapItem> mapItem);
-  std::unique_ptr<AbstractMapItem> removeItem(AbstractMapItem* mapItem);
-  void addItemJS(WStringStream& ss, long long id, AbstractMapItem* marker) const;
+  void addItem(std::unique_ptr<AbstractMapItem> mapItem, Marker* parent = nullptr);
+  std::unique_ptr<AbstractMapItem> removeItem(AbstractMapItem* mapItem, Marker* parent = nullptr);
+  std::unique_ptr<Popup> removePopup(Popup* popup, Marker* parent);
+  void addItemJS(WStringStream& ss, ItemEntry& entry) const;
   void removeItemJS(WStringStream& ss, long long id) const;
   void updateItemJS(WStringStream& ss, ItemEntry& entry) const;
   void updateItemJS(WStringStream& ss, ItemEntry& entry, const std::string& fname) const;

@@ -49,13 +49,14 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
     L.circle(center, options).addTo(self.map);
   };
 
-  this.addOverlayItem = function(overlayItem_id, overlayItem) {
+  this.addOverlayItem = function(overlayItem_id, parent_id, overlayItem) {
     overlayItem.item_id = overlayItem_id;
-    overlayItem.openOn(this.map);
+    overlayItem.parent_id = parent_id;
     mapItems[overlayItem_id] = overlayItem;
+    self.toggleOverlayItem(overlayItem_id, true);
   };
 
-  this.addMapItem = function(mapItem_id, mapItem) {
+  this.addMapItem = function(mapItem_id, parent_id, mapItem) {
     mapItem.addTo(self.map);
     mapItems[mapItem_id] = mapItem;
   };
@@ -63,6 +64,13 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
   this.removeMapItem = function(mapItem_id) {
     const mapItem = mapItems[mapItem_id];
     if (mapItem) {
+      const parent_id = mapItem.parent_id;
+      if ((parent_id || parent_id === 0) && parent_id !== -1) {
+        const parent = mapItems[parent_id];
+        if (parent && parent.getPopup().item_id === mapItem_id) {
+          parent.unbindPopup();
+        }
+      }
       self.map.removeLayer(mapItem);
       delete mapItems[mapItem_id];
     }
@@ -100,6 +108,15 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WLeafletMap", function(APP, el, 
     const overlayItem = mapItems[overlayItem_id];
     if (overlayItem) {
       if (doOpen && !overlayItem.isOpen()) {
+        const parent_id = overlayItem.parent_id;
+        if (parent_id === -1) {
+          overlayItem.openOn(this.map);
+        } else {
+          const parent = mapItems[parent_id];
+          if (parent) {
+            parent.bindPopup(overlayItem).openPopup();
+          }
+        }
         overlayItem.openOn(this.map);
       } else if (!doOpen && overlayItem.isOpen()) {
         overlayItem.close();
