@@ -86,7 +86,7 @@ LOGGER("Auth.OidcService");
         userInfo = (Json::Object)Json::Parser().parse(response.body());
       } catch (Json::ParseError pe) {
       }
-      bool ok = userInfo.isNull();
+      bool ok = userInfo.isValid();
 #endif
 
       if (!ok) {
@@ -130,7 +130,7 @@ Identity OidcProcess::parseIdToken(const std::string& idToken)
         Utils::base64DecodeS(parts[1]));
   } catch (Json::ParseError pe) {
   }
-  bool ok = payloadJson.isNull();
+  bool ok = payloadJson.isValid();
 #endif
   if (!ok) {
     LOG_ERROR("could not parse Json: '" << parts[1] << "'");

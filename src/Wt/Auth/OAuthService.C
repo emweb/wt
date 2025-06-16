@@ -534,7 +534,7 @@ OAuthAccessToken OAuthProcess::parseJsonToken(const Http::Message& response)
   } catch (Json::ParseError error) {
     pe = error;
   }
-  bool ok = root.isNull();
+  bool ok = root.isValid();
 #endif
 
   if (!ok) {

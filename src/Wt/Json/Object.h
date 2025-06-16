@@ -106,7 +106,8 @@ public:
   static Object Empty;
 
 #ifdef WT_TARGET_JAVA
-  bool isNull() const;
+  //! \internal Checks that this object is not null.
+  bool isValid() const;
   bool empty() const;
   Value& operator[](const std::string& name);
 #endif

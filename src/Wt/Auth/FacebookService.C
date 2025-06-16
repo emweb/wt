@@ -76,7 +76,7 @@ private:
         me = (Json::Object)Json::Parser().parse(response.body());
       } catch (Json::ParseError pe) {
       }
-      bool ok = me.isNull();
+      bool ok = me.isValid();
 #endif
 
       if (!ok) {
