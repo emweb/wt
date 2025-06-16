@@ -49,7 +49,8 @@ else()
   FILE_TO_STRING(js/WCartesianChart.min.js WCartesianChart_js.C WCartesianChart_js)
 endif()
 
-FILE_TO_STRING(xml/wt.xml Wt_xml.C Wt_xml)
+FILE_TO_STRING(xml/wt_strings.xml Wt_strings_xml.C Wt_strings_xml)
+FILE_TO_STRING(xml/wt_templates.xml Wt_templates_xml.C Wt_templates_xml)
 FILE_TO_STRING(xml/auth_strings.xml AuthStrings_xml.C AuthStrings_xml)
 FILE_TO_STRING(xml/bootstrap_theme.xml
     BootstrapTheme_xml.C BootstrapTheme_xml)
@@ -425,7 +426,8 @@ Hybrid_html.C
 Boot_js.C
 Wt_js.C
 WCartesianChart_js.C
-Wt_xml.C
+Wt_strings_xml.C
+Wt_templates_xml.C
 AuthStrings_xml.C
 BootstrapTheme_xml.C
 Bootstrap2Theme_xml.C

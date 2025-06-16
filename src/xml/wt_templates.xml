@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages nplurals="2"
+          plural="n == 1 ? 0 : 1">
+
+  <message id="Wt.WDialog.template">
+    ${block:Wt.WDialog.template.default}
+  </message>
+
+  <message id="Wt.WDialog.template.default">
+    ${center-script}
+    ${layout}
+  </message>
+
+  <!-- From WDialog-center.js: -->
+  <message id="Wt.WDialog.CenterJS">
+    /* <![CDATA[ */
+      !function(e,t,n){window.addEventListener("DOMContentLoaded",(function(){const i=document.getElementById(e);if("none"!==i.style.display&&"hidden"!==i.style.visibility){const e=function(){let e,t;if("number"==typeof window.innerWidth){e=window.innerWidth;t=window.innerHeight}else{e=document.documentElement.clientWidth;t=document.documentElement.clientHeight}return{x:e,y:t}}(),o=i.offsetWidth,d=i.offsetHeight;if(t){i.style.left=Math.round((e.x-o)/2)+"px";i.style.marginLeft="0px"}if(n){i.style.top=Math.round((e.y-d)/2)+"px";i.style.marginTop="0px"}i.style.visibility="visible"}}),!1)}($el,$centerX,$centerY);
+    /* ]]> */
+  </message>
+
+  <message id="Wt.WMediaPlayer.template">
+    <div class="jp-type-single">
+      <div class="jp-jplayer"> </div>
+      ${gui}
+    </div>
+  </message>
+
+  <message id="Wt.WMediaPlayer.defaultgui-video">
+    <div class="jp-video-play">
+      ${video-play-btn}
+    </div>
+    <div class="jp-interface">
+      <div class="jp-progress">
+        ${progress-bar}
+      </div>
+      ${current-time}
+      ${duration}
+      <div class="jp-controls-holder">
+        <ul class="jp-controls">
+          <li>${play-btn}</li>
+          <li>${pause-btn}</li>
+          <li>${stop-btn}</li>
+          <li>${mute-btn}</li>
+          <li>${unmute-btn}</li>
+          <li>${volume-max-btn}</li>
+        </ul>
+        ${volume-bar}
+        <ul class="jp-toggles">
+          <li>${full-screen-btn}</li>
+          <li>${restore-screen-btn}</li>
+          <li>${repeat-btn}</li>
+          <li>${repeat-off-btn}</li>
+        </ul>
+      </div>
+      <div class="jp-title" style="display: ${title-display}">
+        <ul>
+          <li>${title}</li>
+        </ul>
+      </div>
+    </div>
+  </message>
+
+  <message id="Wt.WMediaPlayer.defaultgui-audio">
+    <div class="jp-interface">
+      <ul class="jp-controls">
+        <li>${play-btn}</li>
+        <li>${pause-btn}</li>
+        <li>${stop-btn}</li>
+        <li>${mute-btn}</li>
+        <li>${unmute-btn}</li>
+        <li>${volume-max-btn}</li>
+      </ul>
+      <div class="jp-progress">
+        ${progress-bar}
+      </div>
+      ${volume-bar}
+      <div class="jp-time-holder">
+        ${current-time}
+        ${duration}
+        <ul class="jp-toggles">
+          <li>${repeat-btn}</li>
+          <li>${repeat-off-btn}</li>
+        </ul>
+      </div>
+    </div>
+    <div class="jp-title" style="display: ${title-display}">
+      <ul>
+        <li>${title}</li>
+      </ul>
+    </div>
+  </message>
+
+  <message id="Wt.WNavigationBar.template">
+    ${block:Wt.WNavigationBar.template.default}
+  </message>
+
+  <message id="Wt.WNavigationBar.template.default">
+    ${collapse-button}
+    ${expand-button}
+    ${title-link}
+    ${contents}
+  </message>
+
+  <message id="Wt.WNavigationBar.expand-button">
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </message>
+
+  <message id="Wt.WTimePicker.template">
+    ${hour}${minute}${second}${millisecond}${ampm}
+  </message>
+
+  <message id="Wt.WTreeViewNode.template">
+    ${cols-row}${expand}${no-expand}${col0}
+  </message>
+
+  <message id="Wt.WTreeNode.template">
+    <div class="Wt-item ${trunk-class} ${selected}">
+      ${cols-row}${expand}${no-expand}${label-area}
+    </div>
+    <div style="clear: both"></div>
+    ${children}
+  </message>
+
+  <message id="Wt.WDialog.titlebar">
+    ${block:Wt.WDialog.titlebar.default}
+  </message>
+
+  <message id="Wt.WDialog.titlebar.default">
+    <h4>${title}</h4>
+  </message>
+</messages>
