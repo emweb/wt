@@ -587,15 +587,28 @@ bool WebController::handleApplicationEvent(const std::shared_ptr<ApplicationEven
    * Find session (and guard it against deletion)
    */
   std::shared_ptr<WebSession> session;
+
+#ifndef WT_TARGET_JAVA
+  session = event->sessionPtr.lock();
+#endif // WT_TARGET_JAVA
+
   {
 #ifdef WT_THREADED
     std::unique_lock<std::recursive_mutex> lock(mutex_);
 #endif // WT_THREADED
 
-    SessionMap::iterator i = sessions_.find(event->sessionId);
+    if (!session) {
+      SessionMap::iterator i = sessions_.find(event->sessionId);
 
-    if (i != sessions_.end() && !i->session()->dead())
-      session = i->session();
+      if (i != sessions_.end()) {
+        session = i->session();
+      }
+    }
+
+    if (!running_ ||
+        (session && session->dead())) {
+      session.reset();
+    }
   }
 
   if (!session) {

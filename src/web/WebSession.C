@@ -1101,7 +1101,7 @@ void WebSession::processQueuedEvents(WebSession::Handler& handler)
           kill();
 
         if (dead())
-          controller()->removeSession(event->sessionId);
+          controller()->removeSession(sessionId_);
       } else {
         if (event->fallbackFunction)
           WT_CALL_FUNCTION(event->fallbackFunction);

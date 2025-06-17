@@ -27,6 +27,7 @@ class WebController;
 class WIOService;
 #ifndef WT_TARGET_JAVA
 class WMessageResources;
+class WebSession;
 class WWebSocketResource;
 #endif // WT_TARGET_JAVA
 
@@ -527,8 +528,50 @@ public:
    * deleted, if the life-time of that object is not the same as the
    * life-time of the application. It may be useful to protect
    * yourself from this by using WApplication::bind().
+   *
+   * \note Keep in mind that the \p sessionId will change when
+   *       WApplication::changeSessionId() is called, this can lead to
+   *       to the \p fallBackFunction being called instead of the
+   *       \p function even if the session is still alive. Use a
+   *       SessionConstantId instead of a sessionId to avoid this
+   *       issue.
    */
   WT_API void post(const std::string& sessionId,
+                   const std::function<void ()>& function,
+                   const std::function<void ()>& fallBackFunction
+                     = std::function<void ()>());
+
+  /*! \brief Posts a function to a session.
+   *
+   * This is a thread-safe method to post a particular event
+   * (implemented as a function object) to be run within the context
+   * of a session, identified by its WApplication::sessionConstantId().
+   * The method will safely handle the case where the session is being
+   * terminated, and the session lock will be taken to execute the
+   * function in the context of the session (with
+   * WApplication::instance() pointing to the correct application),
+   * just as with a request initiated by the browser. You will
+   * typically also want to push the changes to the client using
+   * server-initiated updates (WApplication::triggerUpdate()).
+   *
+   * The method returns immediately, and the function will be run
+   * within the thread-pool that handles incoming web requests. In
+   * this way, it avoids dead-lock scenarios.
+   *
+   * If a \p fallbackFunction is specified then in case the session
+   * is dead, it is called instead.
+   *
+   * This provides a good alternative to grabbing the update lock of
+   * an application to directly push changes to a session out of its
+   * event loop.
+   *
+   * Note that if you post an event to a method of a widget (or other
+   * object), it may still be that the targeted object has been
+   * deleted, if the life-time of that object is not the same as the
+   * life-time of the application. It may be useful to protect
+   * yourself from this by using WApplication::bind().
+   */
+  WT_API void post(SessionConstantId sessionId,
                    const std::function<void ()>& function,
                    const std::function<void ()>& fallBackFunction
                      = std::function<void ()>());
@@ -545,10 +588,31 @@ public:
    * after \p duration. If the session does not exist anymore,
    * \p fallBackFunction will be executed.
    *
-   * \sa post()
+   * \note Keep in mind that the \p sessionId will change when
+   *       WApplication::changeSessionId() is called, this can lead to
+   *       to the \p fallBackFunction being called instead of the
+   *       \p function even if the session is still alive. Use a
+   *        std::weak_ptr<WebSession> instead of a sessionId to avoid
+   *        this issue.
+   *
+   * \sa post(), WApplication::sessionId()
    */
   WT_API void schedule(std::chrono::steady_clock::duration duration,
                        const std::string& sessionId,
+                       const std::function<void ()>& function,
+                       const std::function<void ()>& fallBackFunction
+                         = std::function<void ()>());
+
+  /*! \brief Schedules a function to be executed in a session.
+   *
+   * The \p function will run in the session specified by \p sessionId,
+   * after \p duration. If the session does not exist anymore,
+   * \p fallBackFunction will be executed.
+   *
+   * \sa post(), WApplication::sessionConstantId()
+   */
+  WT_API void schedule(std::chrono::steady_clock::duration duration,
+                       SessionConstantId sessionId,
                        const std::function<void ()>& function,
                        const std::function<void ()>& fallBackFunction
                          = std::function<void ()>());

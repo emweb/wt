@@ -97,6 +97,38 @@ public:
   WString content;
 };
 
+#ifndef WT_TARGET_JAVA
+/*! \class SessionConstantId Wt/WApplication.h Wt/WApplication.h
+ *  \brief An identifier that always identify the same session.
+ *
+ * A SessionConstantId always identifies the same session, even after
+ * the session has been deleted.
+ */
+class WT_API SessionConstantId {
+public:
+  /*! \brief Default constructor.
+   *
+   * Creates a default SessionConstantId.
+   *
+   * A session will never have a default SessionConstantId. To obtain a
+   * SessionConstantId for a session, use
+   * WApplication::sessionConstantId().
+   */
+  SessionConstantId();
+
+  SessionConstantId(const std::weak_ptr<WebSession>& session);
+
+  operator std::weak_ptr<WebSession>() const { return session_; }
+
+  /*! \brief Comparison operator
+   */
+  bool operator== (const SessionConstantId& other) const;
+
+private:
+  const std::weak_ptr<WebSession> session_;
+};
+#endif // WT_TARGET_JAVA
+
 /*! \class WApplication Wt/WApplication.h Wt/WApplication.h
  *  \brief Represents an application instance for a single session.
  *
@@ -1181,6 +1213,12 @@ public:
   std::string sessionId() const;
 
 #ifndef WT_TARGET_JAVA
+  /*! \brief Returns the constent identifier for the current session.
+   *
+   * \sa WServer::post()
+   */
+  SessionConstantId sessionConstantId() const;
+
   /*! \brief Changes the session id.
    *
    * To mitigate session ID fixation attacks, you should use this

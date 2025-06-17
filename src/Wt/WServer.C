@@ -33,6 +33,7 @@
 
 #include "Configuration.h"
 #include "WebController.h"
+#include "WebSession.h"
 
 namespace Wt {
 
@@ -427,6 +428,13 @@ void WServer::post(const std::string& sessionId,
   schedule(std::chrono::milliseconds{0}, sessionId, function, fallbackFunction);
 }
 
+void WServer::post(SessionConstantId sessionId,
+                   const std::function<void ()>& function,
+                   const std::function<void ()>& fallbackFunction)
+{
+  schedule(std::chrono::milliseconds{0}, sessionId, function, fallbackFunction);
+}
+
 void WServer::postAll(const std::function<void ()>& function)
 {
   if(!webController_) return;
@@ -440,6 +448,18 @@ void WServer::postAll(const std::function<void ()>& function)
 
 void WServer::schedule(std::chrono::steady_clock::duration duration,
                        const std::string& sessionId,
+                       const std::function<void ()>& function,
+                       const std::function<void ()>& fallbackFunction)
+{
+  auto event = std::make_shared<ApplicationEvent>(sessionId, function, fallbackFunction);
+
+  ioService().schedule(duration, [this, event] () {
+          webController_->handleApplicationEvent(event);
+  });
+}
+
+void WServer::schedule(std::chrono::steady_clock::duration duration,
+                       SessionConstantId sessionId,
                        const std::function<void ()>& function,
                        const std::function<void ()>& fallbackFunction)
 {

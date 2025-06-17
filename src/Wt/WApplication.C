@@ -63,6 +63,21 @@ MetaHeader::MetaHeader(MetaHeaderType aType,
     content(aContent)
 { }
 
+#ifndef WT_TARGET_JAVA
+SessionConstantId::SessionConstantId()
+{ }
+
+SessionConstantId::SessionConstantId(const std::weak_ptr<WebSession>& session)
+  : session_(session)
+{ }
+
+bool SessionConstantId::operator== (const SessionConstantId& other) const
+{
+  return !session_.owner_before(other.session_) &&
+         !other.session_.owner_before(session_);
+}
+#endif // WT_TARGET_JAVA
+
 WApplication::ScriptLibrary::ScriptLibrary(const std::string& anUri,
                                            const std::string& aSymbol)
   : uri(anUri), symbol(aSymbol)
@@ -643,6 +658,11 @@ std::string WApplication::sessionId() const
 }
 
 #ifndef WT_TARGET_JAVA
+SessionConstantId WApplication::sessionConstantId() const
+{
+  return weakSession_;
+}
+
 void WApplication::changeSessionId()
 {
   const std::string oldSessionId = sessionId();

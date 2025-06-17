@@ -79,6 +79,18 @@ struct ApplicationEvent {
       fallbackFunction(aFallbackFunction)
   { }
 
+#ifndef WT_TARGET_JAVA
+  ApplicationEvent(std::weak_ptr<WebSession> session,
+                   const Function& aFunction,
+                   const Function& aFallbackFunction = Function())
+    : sessionPtr(session),
+      function(aFunction),
+      fallbackFunction(aFallbackFunction)
+  { }
+
+  std::weak_ptr<WebSession> sessionPtr;
+#endif // WT_TARGET_JAVA
+
   std::string sessionId;
   Function function;
   Function fallbackFunction;
