@@ -203,10 +203,20 @@ pipeline {
                             warnError('st test.wt failed') {
                                 sh "../build-st/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_test_log.xml"
                             }
+                            // No st test.http - this requires multi threading
+                            warnError('st thirdpartytest.wt failed') {
+                                sh "../build-st/test/thirdpartytest.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_thirdparty_test_log.xml"
+                            }
                         }
                         dir('test') {
                             warnError('mt test.wt failed') {
                                 sh "../build-mt/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_test_log.xml"
+                            }
+                            warnError('mt test.http failed') {
+                                sh "../build-mt/test/test.http --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_http_test_log.xml"
+                            }
+                            warnError('mt thirdpartytest.wt failed') {
+                                sh "../build-mt/test/thirdpartytest.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_thirdparty_test_log.xml"
                             }
                         }
                     }
