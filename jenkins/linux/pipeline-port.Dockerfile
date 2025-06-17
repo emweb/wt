@@ -29,10 +29,13 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     ant \
     ant-optional \
     unzip \
- && mkdir -p /opt/tinymce/3 /opt/tinymce/6 \
+ && mkdir -p /opt/tinymce/3 /opt/tinymce/4 /opt/tinymce/6 \
  && wget https://download.tiny.cloud/tinymce/community/tinymce_6.8.4.zip -O /opt/tinymce/6/tinymce.zip \
  && unzip /opt/tinymce/6/tinymce.zip -d /opt/tinymce/6 \
  && rm /opt/tinymce/6/tinymce.zip \
+ && wget http://download.tiny.cloud/tinymce/community/tinymce_4.9.11.zip -O /opt/tinymce/4/tinymce.zip \
+ && unzip /opt/tinymce/4/tinymce.zip -d /opt/tinymce/4 \
+ && rm /opt/tinymce/4/tinymce.zip \
  && wget http://download.tiny.cloud/tinymce/community/tinymce_3.5.12.zip -O /opt/tinymce/3/tinymce.zip \
  && unzip /opt/tinymce/3/tinymce.zip -d /opt/tinymce/3 \
  && rm /opt/tinymce/3/tinymce.zip \

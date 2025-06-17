@@ -409,7 +409,9 @@ EOF"""
                         }
                         updateGitlabCommitStatus name: 'Wt Port - TinyMCE', state: 'running'
                         sh "cp -r /opt/tinymce/3/tinymce/jscripts/tiny_mce ${env.WORKSPACE}/resources/"
-                        sh "cp -r /opt/tinymce/6/tinymce/js/tinymce ${env.WORKSPACE}/resources/"
+                        sh "cp -r /opt/tinymce/4/tinymce/js/tinymce ${env.WORKSPACE}/resources/"
+                        sh "mkdir -p ${env.WORKSPACE}/resources/tinymce6"
+                        sh "cp -r /opt/tinymce/6/tinymce/js/tinymce/* ${env.WORKSPACE}/resources/tinymce6/"
                     }
                     post {
                         failure {
