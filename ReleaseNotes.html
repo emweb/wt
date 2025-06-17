@@ -67,6 +67,12 @@ behaviour.
     exceeded 1024.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13777" target="_blank">Issue #13777</a>:
+    It's now made sure that a change on <a href="classWt_1_1WStandardItemModel.html" target="_blank">WStandardItemModel</a>
+    cannot be performed on invalid indices, with a crash as a result.
+    Nor can this change be (incorrectly) propagated to a <a href="classWt_1_1WTreeView.html" target="_blank">WTreeView</a>.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13786" target="_blank">Issue #13786</a>:
     fixed <a href="classWt_1_1WTableView.html#a093b661f93551c1d6f73c423ae8ef459" target="_blank">WTableView::scrollTo()</a>
     only checking if the top of the row was in the viewport in order to decide whether to scroll or not. It will now scroll if
