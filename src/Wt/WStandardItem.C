@@ -5,6 +5,7 @@
  */
 
 #include "Wt/WLink.h"
+#include "Wt/WLogger.h"
 #include "Wt/WStandardItem.h"
 #include "Wt/WStandardItemModel.h"
 
@@ -81,7 +82,7 @@ namespace {
 }
 
 namespace Wt {
-
+LOGGER("WStandardItem");
 /*
  * As per the contract of a WAbstractItemModel:
  *  rowCount() > 0 => columnCount() > 0
@@ -626,6 +627,12 @@ WStandardItem *WStandardItem::child(int row, int column) const
 
 std::unique_ptr<WStandardItem> WStandardItem::takeChild(int row, int column)
 {
+  // Invalid indices cannot be taken
+  if (row < 0 || column < 0 || row >= rowCount() || column >= columnCount()) {
+    LOG_WARN("Trying to take an invalid item, with index: (" << row << ", " << column << ")");
+    return nullptr;
+  }
+
   WStandardItem *item = child(row, column);
 
   std::unique_ptr<WStandardItem> result;
@@ -650,6 +657,12 @@ std::unique_ptr<WStandardItem> WStandardItem::takeChild(int row, int column)
 std::vector<std::unique_ptr<WStandardItem> > WStandardItem
 ::takeColumn(int column)
 {
+  // Invalid indices cannot be taken
+  if (column < 0 || column >= columnCount()) {
+    LOG_WARN("Trying to take an invalid column, with index: " << column);
+    return std::vector<std::unique_ptr<WStandardItem> >();
+  }
+
   if (model_)
     model_->beginRemoveColumns(index(), column, column);
 
@@ -674,6 +687,12 @@ std::vector<std::unique_ptr<WStandardItem> > WStandardItem
 
 std::vector<std::unique_ptr<WStandardItem> > WStandardItem::takeRow(int row)
 {
+  // Invalid indices cannot be taken
+  if (row < 0 || row >= rowCount()) {
+    LOG_WARN("Trying to take an invalid row, with index: " << row);
+    return std::vector<std::unique_ptr<WStandardItem> >();
+  }
+
   if (model_)
     model_->beginRemoveRows(index(), row, row);
 
