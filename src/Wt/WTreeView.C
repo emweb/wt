@@ -1979,6 +1979,12 @@ void WTreeView::modelColumnsInserted(const WModelIndex& parent,
 void WTreeView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
                                              int start, int end)
 {
+  // Do not allow invalid indices to occur, and cause segfaults due to
+  // non-existing widgets
+  if (start < 0 && end < 0) {
+    return;
+  }
+
   int count = end - start + 1;
   if (!parent.isValid()) {
     WApplication *app = wApp;
@@ -2183,6 +2189,12 @@ void WTreeView::modelRowsInserted(const WModelIndex& parent,
 void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
                                           int start, int end)
 {
+  // Do not allow invalid indices to occur, and cause segfaults due to
+  // non-existing widgets
+  if (start < 0 && end < 0) {
+    return;
+  }
+
   int count = end - start + 1;
 
   bool renderedRowsChange = isExpandedRecursive(parent);
