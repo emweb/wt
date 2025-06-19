@@ -963,6 +963,8 @@ private:
   std::string mfaTokenCookieName_;
   std::string mfaTokenCookieDomain_;
   bool mfaThrottleEnabled_;
+
+  WString emailTokenValidityStr() const;
 };
 
   }

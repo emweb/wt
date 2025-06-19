@@ -7,7 +7,12 @@
 
   <message id="Wt.Auth.error-invalid-token">The operation could not be completed: invalid token.</message>
   <message id="Wt.Auth.error-token-expired">The operation could not be completed: the token has expired.</message>
-  <message id="Wt.Auth.mail-sent">An email has been sent. Follow the instructions to set a new password.</message>
+  <message id="Wt.Auth.mail-sent">
+    An email has been sent. Follow the instructions to set a new
+    password.<br/>
+
+    The email will remain valid for {1}.
+  </message>
   <message id="Wt.Auth.info-email-confirmed">Your email address is now confirmed.</message>
 
   <message id="Wt.Auth.passwdqc.reason-error">
@@ -59,6 +64,18 @@
         response.</p>
     </small>
   </message>
+
+  <message id="Wt.Auth.time.hours-only">
+    <plural case="0">{1} hour</plural>
+    <plural case="1">{1} hours</plural>
+  </message>
+
+  <message id="Wt.Auth.time.minutes-only">
+    <plural case="0">{1} minute</plural>
+    <plural case="1">{1} minutes</plural>
+  </message>
+
+  <message id="Wt.Auth.and">{1} and {2}</message>
 
   <!-- LoginWidget -->
 
@@ -124,8 +141,10 @@
   <message id="Wt.Auth.confirm-email-first">
     <h5>Welcome!</h5>
 
-    You will be able to login after confirming your email address using the
-    email we've just sent you.
+    You will be able to login after confirming your email address using
+    the email we've just sent you.<br/>
+
+    This email will remain valid for {1}.
   </message>
 
   <!-- PasswordPromptDialog -->
@@ -173,6 +192,8 @@ URL, including any part of it which goes onto a second line.)
 
 {3}
 
+This link will remain valid for {4}.
+
 This text is resolved from the "Wt.Auth.confirmmail.subject",
 "Wt.Auth.confirmmail.body", and "Wt.Auth.confirmmail.htmlbody"
 resource keys.
@@ -197,6 +218,8 @@ The Wt team.
     part of it which goes onto a second line.)</i></p>
 
     <b>{3}</b>
+
+    <i>This link will remain valid for {4}.</i>
 
     <p>
       <i>Note to developer:</i>
@@ -231,6 +254,8 @@ a second line.)
 
 {3}
 
+This link will remain valid for {4}.
+
 This text is resolved from the "Wt.Auth.lostpasswordmail.subject",
 "Wt.Auth.lostpasswordmail.body", and "Wt.Auth.lostpasswordmail.htmlbody"
 resource keys.
@@ -258,6 +283,8 @@ The Wt team.
     onto a second line.)</i></p>
 
     <b>{3}</b>
+
+    <i>This link will remain valid for {4}.</i>
 
     <p>
       <i>Note to developer:</i>

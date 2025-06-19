@@ -262,9 +262,23 @@ void RegistrationWidget::doRegister()
       if (!model_->baseAuth()->emailVerificationRequired() || user.unverifiedEmail().empty())
         model_->loginUser(model_->login(), user);
       else {
-        if (authWidget_)
+        if (authWidget_) {
+          int validity = model_->baseAuth()->emailTokenValidity();
+          int hours = validity / 60;
+          int minutes = validity % 60;
+          WString validityStr = hours && minutes ? WString::tr("Wt.Auth.and") : "{1}";
+
+          if (hours) {
+            validityStr.arg(WString::trn("Wt.Auth.time.hours-only", hours).arg(hours));
+          }
+
+          if (minutes) {
+            validityStr.arg(WString::trn("Wt.Auth.time.minutes-only", minutes).arg(minutes));
+          }
+
           authWidget_->displayInfo
-            (WString::tr("Wt.Auth.confirm-email-first"));
+            (WString::tr("Wt.Auth.confirm-email-first").arg(validityStr));
+        }
 
         close();
       }

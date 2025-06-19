@@ -460,15 +460,18 @@ void AuthService::sendConfirmMail(const std::string& address,
   Mail::Message message;
 
   std::string url = createRedirectUrl(token);
+  WString emailValidityStr = emailTokenValidityStr();
 
   message.addRecipient(Mail::RecipientType::To, Mail::Mailbox(address));
   message.setSubject(WString::tr("Wt.Auth.confirmmail.subject"));
   message.setBody(WString::tr("Wt.Auth.confirmmail.body")
                   .arg(user.identity(Identity::LoginName))
-                  .arg(token).arg(url));
+                  .arg(token).arg(url)
+                  .arg(emailValidityStr));
   message.addHtmlBody(WString::tr("Wt.Auth.confirmmail.htmlbody")
                       .arg(user.identity(Identity::LoginName))
-                      .arg(token).arg(url));
+                      .arg(token).arg(url)
+                      .arg(emailValidityStr));
 
   sendMail(message);
 }
@@ -480,15 +483,18 @@ void AuthService::sendLostPasswordMail(const std::string& address,
   Mail::Message message;
 
   std::string url = createRedirectUrl(token);
+  WString emailValidityStr = emailTokenValidityStr();
 
   message.addRecipient(Mail::RecipientType::To, Mail::Mailbox(address));
   message.setSubject(WString::tr("Wt.Auth.lostpasswordmail.subject"));
   message.setBody(WString::tr("Wt.Auth.lostpasswordmail.body")
                   .arg(user.identity(Identity::LoginName))
-                  .arg(token).arg(url));
+                  .arg(token).arg(url)
+                  .arg(emailValidityStr));
   message.addHtmlBody(WString::tr("Wt.Auth.lostpasswordmail.htmlbody")
                       .arg(user.identity(Identity::LoginName))
-                      .arg(token).arg(url));
+                      .arg(token).arg(url)
+                      .arg(emailValidityStr));
 
   sendMail(message);
 }
@@ -565,5 +571,24 @@ void AuthService::setMfaThrottleEnabled(bool enabled)
 {
   mfaThrottleEnabled_ = enabled;
 }
+
+WString AuthService::emailTokenValidityStr() const
+{
+  int hours = emailTokenValidity_/ 60;
+  int minutes = emailTokenValidity_ % 60;
+
+  WString validityStr = hours && minutes ? WString::tr("Wt.Auth.and") : "{1}";
+
+  if (hours) {
+    validityStr.arg(WString::trn("Wt.Auth.time.hours-only", hours).arg(hours));
+  }
+
+  if (minutes) {
+    validityStr.arg(WString::trn("Wt.Auth.time.minutes-only", minutes).arg(minutes));
+  }
+
+  return validityStr;
+}
+
 }
 }

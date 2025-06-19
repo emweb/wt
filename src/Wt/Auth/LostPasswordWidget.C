@@ -50,11 +50,28 @@ void LostPasswordWidget::send()
 
   baseAuth_.lostPassword(email->valueText().toUTF8(), users_);
 
+  int validity = baseAuth_.emailTokenValidity();
+
   cancel();
   // AFTER THIS CANCEL "this" IS DELETED, I.E. NOT VALID ANYMORE!
 
+  int hours = validity / 60;
+  int minutes = validity % 60;
+
+  WString validityStr = hours && minutes ? WString::tr("Wt.Auth.and") : "{1}";
+
+  if (hours) {
+    validityStr.arg(WString::trn("Wt.Auth.time.hours-only", hours).arg(hours));
+  }
+
+  if (minutes) {
+    validityStr.arg(WString::trn("Wt.Auth.time.minutes-only", minutes).arg(minutes));
+  }
+
+
   std::unique_ptr<WMessageBox> box
-    (new WMessageBox(tr("Wt.Auth.lost-password"), tr("Wt.Auth.mail-sent"),
+    (new WMessageBox(tr("Wt.Auth.lost-password"),
+                     tr("Wt.Auth.mail-sent").arg(validityStr),
                      Icon::None, StandardButton::Ok));
   box->show();
 
