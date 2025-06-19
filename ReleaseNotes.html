@@ -111,6 +111,19 @@ behaviour.
     widgets, including charts, render more sharply on high-DPI displays.
     Canvases are automatically repainted when the device pixel ratio changes.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/11049" target="_blank">Issue #11049</a>:
+    added the
+    <a href="classWt_1_1SessionConstantId.html" target="_blank">SessionConstantId</a>, which is a session identifier that is unique to each
+    session, and that does never change. This session constant identifier can be obtained using
+    <a href="classWt_1_1WApplication.html#a5da537fe3008cee2d3c496fcec42c742" target="_blank">WApplication::sessionConstantId()</a>, and can be
+    given as parameter to
+    <a href="classWt_1_1WServer.html#ade44949c1c80a4e748f67e255496b29a" target="_blank">WServer::post()</a> or
+    <a href="WServer.html#a99e63c1ade230d9f8f53c5c10ba45af1" target="_blank">WServer::schedule()</a>,
+    in place of the normal session identifier (obtained using
+    <a href="classWt_1_1WApplication.html#a314a5461dc410f4713ab1b1258fd8ced" target="_blank">WApplication::sessionId()</a>).
+    This allows to use those function without having to worry about the session changing id in another thread.
+  </li>
 </ul>
 
 <h2>Release 4.14.4 (October 1, 2026)</h2>
