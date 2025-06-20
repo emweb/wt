@@ -12,7 +12,7 @@
 #include <memory>
 #include <functional>
 
-namespace Wt { 
+namespace Wt {
 
 /*! \brief Namespace for core utility classes
  */
@@ -25,7 +25,7 @@ namespace Impl {
 
 /*! \class observable Wt/Core/observable Wt/Core/observable
  *  \brief A base class for objects whose life-time can be tracked
- * 
+ *
  * This class provides the ability to be observed by a observing_ptr,
  * which is a smart pointer that is aware of the deletion of this
  * object. It is used by the signal/slot system to automatically
@@ -48,7 +48,7 @@ public:
    * connections.
    */
   virtual ~observable();
-  
+
   observable(const observable&) = delete;
   observable &operator =(const observable &) = delete;
 
@@ -112,7 +112,7 @@ public:
   // qualified functionoids
   template<typename FirstArg, typename... Args, class F>
   auto bindSafe(F&& f) const noexcept
-    -> std::function<decltype(f(std::declval<FirstArg>(), 
+    -> std::function<decltype(f(std::declval<FirstArg>(),
                                 std::declval<Args>()...))(FirstArg, Args...)>;
 
   // unqualified functionoids, should have an unambiguous
