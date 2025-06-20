@@ -525,7 +525,7 @@ void WTreeViewNode::addColumnStyleClass(int column, WWidget *w)
   s << view_->columnStyleClass(column) << " Wt-tv-c rh "
     << w->styleClass().toUTF8();
 
-  w->setStyleClass(WString::fromUTF8(s.c_str()));
+  w->setStyleClass(WString::fromUTF8(s.str()));
 }
 
 void WTreeViewNode::setCellWidget(int column, std::unique_ptr<WWidget> newW)
