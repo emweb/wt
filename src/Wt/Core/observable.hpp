@@ -10,6 +10,7 @@
 #include <Wt/WDllDefs.h>
 
 #include <memory>
+#include <mutex>
 #include <functional>
 
 namespace Wt {
@@ -68,6 +69,11 @@ public:
    *
    * The resulting function object has the same signature as the
    * passed method.
+   *
+   * If this object is guaranteed to stay alive until the end of
+   * bindSafe(), calling bindSafe() can be considered thread-safe.
+   * Keep in mind, however, that this does not make this object or
+   * calling the returned function thread-safe.
    */
   template <typename... Args, typename C>
   auto bindSafe(void(C::*method)(Args...)) noexcept;
@@ -95,6 +101,11 @@ public:
    * passed function.
    *
    * The passed function object can be a std::function or a lambda.
+   *
+   * If this object is guaranteed to stay alive until the end of
+   * bindSafe(), calling bindSafe() can be considered thread-safe.
+   * Keep in mind, however, that this does not make this object or
+   * calling the returned function thread-safe.
    */
   template <typename Function>
   auto bindSafe(const Function& function) noexcept;
@@ -133,6 +144,10 @@ public:
 
 private:
   std::unique_ptr<Impl::observer_info> observerInfo_;
+
+#ifdef WT_THREADED
+  std::mutex infoMutex_;
+#endif
 
   void addObserver(Impl::observing_ptr_base *observer) noexcept;
   void removeObserver(Impl::observing_ptr_base *observer) noexcept;

@@ -58,6 +58,10 @@ observable::~observable()
 
 void observable::addObserver(Impl::observing_ptr_base *observer) noexcept
 {
+#ifdef WT_THREADED
+  std::lock_guard<std::mutex> lock(infoMutex_);
+#endif
+
   if (!observerInfo_)
     observerInfo_.reset(new Impl::observer_info());
 
@@ -66,6 +70,10 @@ void observable::addObserver(Impl::observing_ptr_base *observer) noexcept
 
 void observable::removeObserver(Impl::observing_ptr_base *observer) noexcept
 {
+#ifdef WT_THREADED
+  std::lock_guard<std::mutex> lock(infoMutex_);
+#endif
+
   if (observerInfo_)
     observerInfo_->removeObserver(observer);
 }
@@ -73,6 +81,10 @@ void observable::removeObserver(Impl::observing_ptr_base *observer) noexcept
 void observable::replaceObserver(Impl::observing_ptr_base *original,
                                  Impl::observing_ptr_base *observer) noexcept
 {
+#ifdef WT_THREADED
+  std::lock_guard<std::mutex> lock(infoMutex_);
+#endif
+
   if (!observerInfo_)
     observerInfo_.reset(new Impl::observer_info());
 
