@@ -24,19 +24,23 @@ namespace {
 }
 
 SqlConnection::SqlConnection()
+  : maxSavedStatement_(-1)
 { }
 
 SqlConnection::SqlConnection(const SqlConnection& other)
-  : properties_(other.properties_)
+  : maxSavedStatement_(other.maxSavedStatement_),
+    properties_(other.properties_)
 { }
 
 SqlConnection::~SqlConnection()
 {
   assert(statementCache_.empty());
+  assert(usageFrequencyQueue_.empty());
 }
 
 void SqlConnection::clearStatementCache()
 {
+  usageFrequencyQueue_.clear();
   statementCache_.clear();
 }
 
@@ -54,14 +58,17 @@ void SqlConnection::executeSqlStateful(const std::string& sql)
 
 SqlStatement *SqlConnection::getStatement(const std::string& id) const
 {
+  pruneStatementCache();
   StatementMap::const_iterator start;
   StatementMap::const_iterator end;
   std::tie(start, end) = statementCache_.equal_range(id);
   SqlStatement *result = nullptr;
   for (auto i = start; i != end; ++i) {
     result = i->second.get();
-    if (result->use())
+    if (result->use()) {
+      statementUsed(i);
       return result;
+    }
   }
   if (result) {
     auto count = std::distance(start, end);
@@ -78,7 +85,15 @@ SqlStatement *SqlConnection::getStatement(const std::string& id) const
 void SqlConnection::saveStatement(const std::string& id,
                                   std::unique_ptr<SqlStatement> statement)
 {
-  statementCache_.emplace(id, std::move(statement));
+  StatementMap::const_iterator it = statementCache_.emplace(id, std::move(statement));
+  usageFrequencyQueue_.push_front(it);
+  pruneStatementCache();
+}
+
+void SqlConnection::setMaxSavedStatement(int size)
+{
+  maxSavedStatement_ = size;
+  pruneStatementCache();
 }
 
 std::string SqlConnection::property(const std::string& name) const
@@ -173,6 +188,40 @@ std::vector<SqlStatement *> SqlConnection::getStatements() const
     result.push_back(i->second.get());
 
   return result;
+}
+
+void SqlConnection::statementUsed(StatementMap::const_iterator statement) const
+{
+  for (auto i = usageFrequencyQueue_.begin(); i != usageFrequencyQueue_.end(); ++i) {
+    if (*i == statement) {
+      usageFrequencyQueue_.erase(i);
+      usageFrequencyQueue_.push_front(statement);
+      break;
+    }
+  }
+}
+
+void SqlConnection::pruneStatementCache() const
+{
+  if (maxSavedStatement_ < 0 || maxSavedStatement_ >= statementCache_.size()) {
+    return;
+  }
+
+  for (auto i = usageFrequencyQueue_.rbegin(); i != usageFrequencyQueue_.rend();) {
+    if ((*i)->second->use()) {
+      statementCache_.erase(*i);
+      i = decltype(i)(usageFrequencyQueue_.erase(std::next(i).base()));
+      if (maxSavedStatement_ >= statementCache_.size()) {
+        return;
+      }
+    } else {
+      ++i;
+    }
+  }
+
+  LOG_WARN("There is " << statementCache_.size() << " saved statements in use."
+           << "This exceeds the maximum number of saved statements which is "
+           << maxSavedStatement_ << ".");
 }
 
 void SqlConnection::subscribe(const std::string& channel)

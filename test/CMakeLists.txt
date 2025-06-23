@@ -185,6 +185,7 @@ IF(ENABLE_LIBWTTEST)
       dbo/AuthDboTest.C
       dbo/DboTestCompositeKey.C
       dbo/FixedConnectionPoolTest.C
+      dbo/SqlConnectionTests.C
       auth/PasswordServiceTest.C
       auth/TotpProcessTest.C
       private/DboImplTest.C

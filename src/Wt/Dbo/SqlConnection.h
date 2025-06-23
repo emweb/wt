@@ -7,6 +7,7 @@
 #ifndef WT_DBO_SQL_CONNECTION_H_
 #define WT_DBO_SQL_CONNECTION_H_
 
+#include <list>
 #include <map>
 #include <memory>
 #include <string>
@@ -122,7 +123,14 @@ public:
 
   /*! \brief Saves a statement with the given id.
    *
-   * Saves the statement for future reuse using getStatement()
+   * Saves the statement for future reuse using getStatement().
+   *
+   * If maxSavedStatement() is set to a non-negative value, the
+   * \p statement can be deleted at any time as long as it is not in
+   * use, including during the execution of this method. If you wish to
+   * use this statement just after saving it, you should call
+   * SqlStatement::use() on it before saving it, to ensure that it will
+   * not be deleted.
    */
   virtual void saveStatement(const std::string& id,
                              std::unique_ptr<SqlStatement> statement);
@@ -132,6 +140,26 @@ public:
    * Returns the prepared statement.
    */
   virtual std::unique_ptr<SqlStatement> prepareStatement(const std::string& sql) = 0;
+
+  /*! \brief Sets the maximum number of statement cached.
+   *
+   * Sets number of saved statements above which the cache will
+   * actively remove statements that are not in use. If the value is
+   * negative, no limit is imposed on the number of saved statements.
+   *
+   * By default, the value is -1.
+   *
+   * \note A statement that is in use will not be removed. This means
+   *       that the number of saved statements may temporarily exceed
+   *       this number.
+   */
+  void setMaxSavedStatement(int size);
+
+  /*! \brief Returns the maximum number of saved statements.
+   *
+   * \sa setMaxSavedStatement()
+   */
+  int maxSavedStatement() const { return maxSavedStatement_; }
 
   /*! \brief Sets a property.
    *
@@ -308,7 +336,23 @@ protected:
   SqlConnection(const SqlConnection& other);
   SqlConnection& operator=(const SqlConnection&) = delete;
 
+  /*! \brief Clears the statement cache.
+   *
+   * Delete all saved statements.
+   *
+   * \sa pruneStatementCache(), saveStatement()
+   */
   void clearStatementCache();
+
+  /*! \brief Prunes the statement cache.
+   *
+   * Delete statements saved until no more than maxSavedStatement()
+   * are left, or until all statements are in use. This starts by
+   * deleting statements that were not added or used recently.
+   *
+   * \sa setMaxSavedStatement(), clearStatementCache(), saveStatement()
+   */
+  void pruneStatementCache() const;
 
   /*! \brief Subscibe to a channel for notification
    *
@@ -401,9 +445,15 @@ protected:
 
 private:
   typedef std::multimap<std::string, std::unique_ptr<SqlStatement>> StatementMap;
-  StatementMap statementCache_;
+  typedef std::list<StatementMap::const_iterator> StatementList;
+
+  int maxSavedStatement_;
+  mutable StatementMap statementCache_;
+  mutable StatementList usageFrequencyQueue_;
   std::map<std::string, std::string> properties_;
   std::vector<std::string> statefulSql_;
+
+  void statementUsed(StatementMap::const_iterator statement) const;
 
   friend class NotificationListener;
 };

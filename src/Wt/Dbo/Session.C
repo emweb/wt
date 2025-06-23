@@ -1248,8 +1248,8 @@ SqlStatement *Session::prepareStatement(const std::string& id,
   SqlConnection *conn = connection(false);
   std::unique_ptr<SqlStatement> stmt = conn->prepareStatement(sql);
   SqlStatement *result = stmt.get();
-  conn->saveStatement(id, std::move(stmt));
   result->use();
+  conn->saveStatement(id, std::move(stmt));
 
   return result;
 }
