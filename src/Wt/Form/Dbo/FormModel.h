@@ -11,6 +11,8 @@
 #include <Wt/Form/Dbo/FieldOptions.h>
 #include <Wt/Form/Dbo/FormModelBase.h>
 
+#include <Wt/WSignal.h>
+
 namespace Wt {
   namespace Form {
     namespace Dbo {
