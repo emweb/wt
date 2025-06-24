@@ -322,24 +322,27 @@ pipeline {
                             // Checks out master by default.
                             def output = sh(returnStatus: true, script: "git clone https://git.leuven.emweb.be/gitlab/emweb/wt-port.git");
                             dir ('wt-port') {
-                                def remoteBranches = sh(returnStdout: true, script: "git branch -r");
+                                // Avoid recognizing a remote branch contain "null" as a potential target.
+                                if ("${env.BRANCH_NAME}" != "null") {
+                                    def remoteBranches = sh(returnStdout: true, script: "git branch -r");
 
-                                // Check if the current wt branch has a wt-port counterpart.
-                                // Check out the counterpart if it exists.
-                                if (remoteBranches.contains("${env.BRANCH_NAME}")) {
-                                    sh "git checkout ${env.BRANCH_NAME}"
-                                }
+                                    // Check if the current wt branch has a wt-port counterpart.
+                                    // Check out the counterpart if it exists.
+                                    if (remoteBranches.contains("${env.BRANCH_NAME}")) {
+                                        sh "git checkout ${env.BRANCH_NAME}"
+                                    }
 
-                                // Check based on ticket number.
-                                def currentTicketNumber = "${env.BRANCH_NAME}".split('/')[0].trim();
-                                def branches = remoteBranches.tokenize('\n');
-                                // Find whether a branch exists that starts with a ticket number,
-                                // being the same as the current branch's ticket number.
-                                // `it` being the implicit element
-                                // Branch format: origin/{ticket}/{description}
-                                def foundBranch = branches.find { it.trim().split('/')[1].trim() == currentTicketNumber };
-                                if (foundBranch != null) {
-                                    sh "git checkout ${foundBranch}"
+                                    // Check based on ticket number.
+                                    def currentTicketNumber = "${env.BRANCH_NAME}".split('/')[0].trim();
+                                    def branches = remoteBranches.tokenize('\n');
+                                    // Find whether a branch exists that starts with a ticket number,
+                                    // being the same as the current branch's ticket number.
+                                    // `it` being the implicit element
+                                    // Branch format: origin/{ticket}/{description}
+                                    def foundBranch = branches.find { it.trim().split('/')[1].trim() == currentTicketNumber };
+                                    if (foundBranch != null) {
+                                        sh "git checkout ${foundBranch}"
+                                    }
                                 }
                             }
                         }
