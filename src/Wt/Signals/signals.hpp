@@ -149,7 +149,7 @@ private:
       return link->connect(object);
     }
 
-    bool active() const 
+    bool active() const
     {
       return isConnected() && function != nullptr;
     }
@@ -204,7 +204,7 @@ public:
       return false;
 
     SignalLink *link = callback_ring_;
-   
+
     do {
       if (link->active())
         return true;
