@@ -18,7 +18,11 @@
 #include <cassert>
 #include <cstdint>
 #include <functional>
+#include <utility>
+#include <tuple>
 #include <vector>
+
+#include <iostream>
 
 namespace Wt { namespace Signals { namespace Impl {
 
@@ -319,107 +323,67 @@ struct Signal : Impl::ProtoSignal<Args...>
 namespace Impl
 {
 
-template <int Bcount, class... Args>
+template <class... Args>
 struct ConnectHelper {
-  template <class T, class V, class... B>
+
+  /* Calls func with the arguments in args_tuple based on the provided
+   * index sequence.
+   */
+  template <typename TargetFunc, std::size_t... Is>
+  static void callWithIndices(TargetFunc&& func,
+                                std::tuple<Args&&...>&& args_tuple,
+                                std::index_sequence<Is...>) {
+    std::forward<TargetFunc>(func)(std::get<Is>(std::move(args_tuple))...);
+  }
+
+  /* Calls func with the first N arguments from args... This allows
+   * connecting functions that take fewer arguments than the signal
+   * provides.
+   *
+   * This must call callWithIndices as the index_sequence cannot be
+   * expanded directly.
+   */
+  template <std::size_t N, typename TargetFunc>
+  static void callWithFirstN(TargetFunc&& func, Args&&... args)
+  {
+    callWithIndices(std::forward<TargetFunc>(func),
+                    std::forward_as_tuple(std::forward<Args>(args)...),
+                    std::make_index_sequence<N>{});
+  }
+
+  /* Connects a signal to a function
+   *
+   * This actually connects the signal to a lambda function that calls
+   * the given function f with only the first N arguments of the
+   * signal.
+   */
+  template <typename... An>
+  static connection connect(Signals::Signal<Args...>& signal,
+                            const Core::observable *target,
+                            std::function<void (An...)>&& f)
+  {
+    return signal.connect([f=std::move(f)](Args... args) {
+      callWithFirstN<sizeof...(An)>(f, std::forward<Args>(args)...);
+    }, target);
+  }
+
+  /* Connects a signal to a method
+   *
+   * This actually connects the signal to a lambda function that calls
+   * the given method with only the first N arguments of the signal.
+   */
+  template <class T, class V, class... An>
   static connection connect(Signal<Args...>& signal,
-                            T *target, void (V::*method)(B...))
-  { 
-    return signal.connect
-      ([target, method](Args... a) { (target ->* method) (a...); },
-       target);
-  }
-};
-
-template <class... Args>
-struct ConnectHelper<0, Args...> {
-  static connection connect(Signals::Signal<Args...>& signal,
-                            const Core::observable *target,
-                            std::function<void ()>&& f)
-  {
-    return signal.connect([f=std::move(f)](Args...) { f(); }, target);
-  }
-
-  template <class T, class V>
-  static connection connect(Signals::Signal<Args...>& signal,
-                            T *target, void (V::*method)())
+                            T *target, void (V::*method)(An...))
   {
     return signal.connect
-      ([target, method](Args...) { (target ->* method) (); },
-       target);
-  }
-};
-
-template <class... Args>
-struct ConnectHelper<1, Args...> {
-  template <typename B1, typename... An>
-  static connection connect(Signals::Signal<Args...>& signal,
-                            const Core::observable *target,
-                            std::function<void (B1)>&& f)
-  {
-    return signal.connect([f=std::move(f)](B1 b1, An...) { f(b1); }, target);
-  }
-
-  template <class T, class V,
-            typename B1, typename... An>
-  static connection connect(Signals::Signal<Args...>& signal,
-                            T *target, void (V::*method)(B1))
-  {
-    return signal.connect
-      ([target, method](B1 b1, An...) {
-        (target ->* method) (b1);
+      ([target, method](Args... args) {
+        callWithFirstN<sizeof...(An)>([target, method](An... a){
+          (target ->* method) (a...);
+        }, std::forward<Args>(args)...);
       }, target);
   }
 };
-
-template <class... Args>
-struct ConnectHelper<2, Args...> {
-  template <typename B1, typename B2, typename... An>
-  static connection connect(Signals::Signal<Args...>& signal,
-                            const Core::observable *target,
-                            std::function<void (B1, B2)>&& f)
-  {
-    return signal.connect([f=std::move(f)](B1 b1, B2 b2, An...) { f(b1, b2); }, target);
-  }
-
-  template <class T, class V,
-            typename B1, typename B2, typename... An>
-  static Wt::Signals::connection connect(Signals::Signal<Args...>& signal,
-                                         T *target, void (V::*method)(B1, B2))
-  {
-    return signal.connect
-      ([target, method](B1 b1, B2 b2, An...) {
-       (target ->* method) (b1, b2);
-      }, target);
-  }
-};
-
-template <class... Args>
-struct ConnectHelper<3, Args...> {
-  template <typename B1, typename B2, typename B3, typename... An>
-  static connection connect(Signals::Signal<Args...>& signal,
-                            const Core::observable *target,
-                            std::function<void (B1, B2, B3)>&& f)
-  {
-    return signal.connect([f=std::move(f)](B1 b1, B2 b2, B3 b3, An...) {
-        f(b1, b2, b3);
-      }, target);
-  }
-
-  template <class T, class V,
-            typename B1, typename B2, typename B3, typename... An>
-  static Wt::Signals::connection connect
-     (Signals::Signal<Args...>& signal,
-      T *target, void (V::*method)(B1, B2, B3))
-  {
-    return signal.connect
-      ([target, method](B1 b1, B2 b2, B3 b3, An...) {
-        (target ->* method) (b1, b2, b3);
-      }, target);
-  }
-};
-
-/* TODO: for 4...10 ? */
 
 template <typename F, class... Args>
 connection connectFunction
@@ -427,7 +391,7 @@ connection connectFunction
  typename std::enable_if<!std::is_bind_expression<F>::value, F&&>::type function,
  const Core::observable *target)
 {
-  return ConnectHelper<function_traits<F>::argCount, Args...>
+  return ConnectHelper<Args...>
     ::connect(signal, target, Signals::Impl::toFunction(std::move(function)));
 }
 

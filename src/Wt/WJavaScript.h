@@ -426,7 +426,7 @@ Wt::Signals::connection JSignal<A...>
 {
   exposeSignal();
 
-  return Signals::Impl::ConnectHelper<sizeof...(B), A...>
+  return Signals::Impl::ConnectHelper<A...>
     ::connect(impl_, target, method);
 }
 

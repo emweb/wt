@@ -753,7 +753,7 @@ template <class T, class V, class... B>
 Wt::Signals::connection Signal<A...>
 ::connect(T *target, void (V::*method)(B...))
 {
-  return Signals::Impl::ConnectHelper<sizeof...(B), A...>
+  return Signals::Impl::ConnectHelper<A...>
     ::connect(impl_, target, method);
 }
 
