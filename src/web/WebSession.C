@@ -2988,13 +2988,36 @@ void WebSession::propagateFormValues(const WEvent& e, const std::string& se)
   }
 }
 
+const Http::ParameterValues& WebSession::getFormParamValues(const WebRequest& request,
+                                                            const std::string& name)
+{
+  const Http::ParameterValues* requestParam = &(request.getParameterValues(name));
+
+  if (!Utils::isEmpty(*requestParam)) {
+    if ((*requestParam)[0] == "Wt-null") {
+      requestParam = &WebRequest::emptyValues_;
+    }
+    formDataCache_[name] = *requestParam;
+    return *requestParam;
+  } else {
+    auto it = formDataCache_.find(name);
+    if (it != formDataCache_.end()) {
+      return it->second;
+    } else {
+      return *requestParam;
+    }
+  }
+}
+
 WObject::FormData WebSession::getFormData(const WebRequest& request,
                                           const std::string& name)
 {
   std::vector<Http::UploadedFile> files;
   Utils::find(request.uploadedFiles(), name, files);
 
-  return WObject::FormData(request.getParameterValues(name), files);
+  const Http::ParameterValues& paramValues = getFormParamValues(request, name);
+
+  return WObject::FormData(paramValues, files);
 }
 
 std::vector<unsigned int>

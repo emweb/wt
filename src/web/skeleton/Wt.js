@@ -2639,6 +2639,16 @@ window._$_APP_CLASS_$_ = new (function() {
   }
 
   let formObjects = [];
+  let resendFormData = [];
+
+  function mustResendFormData(id) {
+    for (let i = 0; i < resendFormData.length; ++i) {
+      if (resendFormData[i] === id) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   function encodeEvent(event) {
     const e = event.event;
@@ -2660,16 +2670,29 @@ window._$_APP_CLASS_$_ = new (function() {
         continue;
       }
 
+      let alreadyPushed = false;
       if (el.wtEncodeValue) {
         v = el.wtEncodeValue(el);
       } else if (el.type === "select-multiple") {
+        const selected = [];
         for (let j = 0, jl = el.options.length; j < jl; j++) {
           if (el.options[j].selected) {
-            result.push(
-              formObjects[x] + "=" +
-                encodeURIComponent(el.options[j].value)
-            );
+            selected.push(el.options[j].value);
           }
+        }
+        if (selected.length !== 0) {
+          const encodeVal = selected.join();
+          if (encodeVal !== el.WtLastEncodedValue || mustResendFormData(formObjects[x])) {
+            el.WtLastEncodedValue = encodeVal;
+
+            for (let j = 0; j < selected.length; j++) {
+              result.push(
+                formObjects[x] + "=" +
+                  encodeURIComponent(selected[j])
+              );
+            }
+          }
+          alreadyPushed = true;
         }
       } else if (el.type === "checkbox" || el.type === "radio") {
         if (el.indeterminate || el.style.opacity === "0.5") {
@@ -2694,21 +2717,29 @@ window._$_APP_CLASS_$_ = new (function() {
         }
       }
 
+      if (v === null && !alreadyPushed) {
+        v = "Wt-null";
+      }
+
       if (v !== null) {
-        let component;
-        try {
-          component = encodeURIComponent(v);
-          result.push(formObjects[x] + "=" + component);
-        } catch (e) {
-          // encoding failed, omit this form field
-          // This can happen on Windows when typing a character
-          // with a high and low surrogate pair (like an emoji).
-          // On Chrome and Firefox this is split out into two pairs
-          // of keydown/keyup events instead of one.
-          console.error("Form object " + formObjects[x] + " failed to encode, discarded", e);
+        if (v !== el.WtLastEncodedValue || mustResendFormData(formObjects[x])) {
+          let component;
+          try {
+            component = encodeURIComponent(v);
+            result.push(formObjects[x] + "=" + component);
+            el.WtLastEncodedValue = v;
+          } catch (e) {
+            // encoding failed, omit this form field
+            // This can happen on Windows when typing a character
+            // with a high and low surrogate pair (like an emoji).
+            // On Chrome and Firefox this is split out into two pairs
+            // of keydown/keyup events instead of one.
+            console.error("Form object " + formObjects[x] + " failed to encode, discarded", e);
+          }
         }
       }
     }
+    resendFormData = [];
 
     try {
       if (document.activeElement) {
@@ -4167,6 +4198,9 @@ window._$_APP_CLASS_$_ = new (function() {
     setSessionUrl,
     setFormObjects: function(o) {
       formObjects = o;
+    },
+    setResendFormData: function(o) {
+      resendFormData = o;
     },
     saveDownPos,
     addTimerEvent,

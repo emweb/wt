@@ -624,6 +624,10 @@ void WebRenderer::serveJavaScriptUpdate(WebResponse& response)
                   << ");";
   }
 
+/*  collectedJS1_ << session_.app()->javaScriptClass()
+                << "._p_.resendAllFormData();";*/
+
+
   WStringStream out(response.out());
 
   if (!rendered_) {
@@ -1255,6 +1259,12 @@ void WebRenderer::serveMainAjax(WStringStream& out)
       << "._p_.setFormObjects([" << currentFormObjectsList_ << "]);\n";
   formObjectsChanged_ = false;
 
+  std::string resendFormDataList = createResendFormDataList();
+  if (!resendFormDataList.empty()) {
+    out << app->javaScriptClass()
+        << "._p_.setResendFormData([" << resendFormDataList << "]);\n";
+  }
+
   setRendered(true);
   setJSSynced(true);
 
@@ -1800,6 +1810,12 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
       }
     }
 
+    std::string resendFormDataList = createResendFormDataList();
+    if (!resendFormDataList.empty()) {
+      out << app->javaScriptClass()
+          << "._p_.setResendFormData([" << resendFormDataList << "]);";
+    }
+
     app->streamAfterLoadJavaScript(out);
 
     if (app->hasQuit())
@@ -1853,6 +1869,24 @@ std::string WebRenderer::createFormObjectsList(WApplication *app)
   }
 
   formObjectsChanged_ = false;
+
+  return result;
+}
+
+std::string WebRenderer::createResendFormDataList()
+{
+  std::string result;
+
+  for (FormObjectsMap::const_iterator i = currentFormObjects_.begin();
+       i != currentFormObjects_.end(); ++i) {
+    if (i->second->resendFormData()) {
+      if (!result.empty()) {
+        result += ',';
+      }
+
+      result += "'" + i->first + "'";
+    }
+  }
 
   return result;
 }

@@ -66,6 +66,12 @@ const std::string WObject::id() const
   return uniqueId();
 }
 
+bool WObject::resendFormData()
+{
+  // To avoid bugs, we resend the form data by default.
+  return true;
+}
+
 void WObject::setFormData(WT_MAYBE_UNUSED const FormData& formData)
 { }
 

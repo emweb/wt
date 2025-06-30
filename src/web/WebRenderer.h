@@ -147,6 +147,7 @@ private:
                         WApplication *app);
 
   std::string createFormObjectsList(WApplication *app);
+  std::string createResendFormDataList();
 
   void preLearnStateless(WApplication *app, WStringStream& out);
   WStringStream collectedJS1_, collectedJS2_, invisibleJS_, statelessJS_,

@@ -347,6 +347,8 @@ private:
   WApplication *app_;
   bool debug_;
 
+  std::map<std::string, Http::ParameterValues> formDataCache_;
+
   std::vector<Handler *> handlers_;
 
   Handler *recursiveEventHandler_;
@@ -359,7 +361,10 @@ private:
                                 const std::string& signalName,
                                 bool checkExposed) const;
 
-  static WObject::FormData getFormData(const WebRequest& request,
+  const Http::ParameterValues& getFormParamValues(const WebRequest& request,
+                                                  const std::string& name);
+
+  WObject::FormData getFormData(const WebRequest& request,
                                        const std::string& name);
 
   void render(Handler& handler);

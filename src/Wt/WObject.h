@@ -305,6 +305,8 @@ public:
 
   WStatelessSlot* isStateless(Method method) const;
 
+  virtual bool resendFormData();
+
 protected:
   virtual void signalConnectionsChanged();
 

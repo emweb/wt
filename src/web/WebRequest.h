@@ -334,6 +334,7 @@ private:
   friend class Http::Request;
   friend class WEnvironment;
   friend class WebController;
+  friend class WebSession;
 };
 
 class WebResponse : public WebRequest
