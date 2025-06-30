@@ -367,6 +367,10 @@ private:
   WObject::FormData getFormData(const WebRequest& request,
                                        const std::string& name);
 
+  bool inFormDataCache(const std::string& name) const;
+
+  void pruneFormDataCache();
+
   void render(Handler& handler);
   void serveError(int status, Handler& handler, const std::string& exception);
   void serveResponse(Handler& handler);

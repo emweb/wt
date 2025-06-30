@@ -1869,6 +1869,7 @@ std::string WebRenderer::createFormObjectsList(WApplication *app)
   }
 
   formObjectsChanged_ = false;
+  session_.pruneFormDataCache();
 
   return result;
 }
@@ -1879,7 +1880,7 @@ std::string WebRenderer::createResendFormDataList()
 
   for (FormObjectsMap::const_iterator i = currentFormObjects_.begin();
        i != currentFormObjects_.end(); ++i) {
-    if (i->second->resendFormData()) {
+    if (i->second->resendFormData() || !session_.inFormDataCache(i->first)) {
       if (!result.empty()) {
         result += ',';
       }

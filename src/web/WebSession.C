@@ -3020,6 +3020,24 @@ WObject::FormData WebSession::getFormData(const WebRequest& request,
   return WObject::FormData(paramValues, files);
 }
 
+bool WebSession::inFormDataCache(const std::string& name) const
+{
+  return formDataCache_.find(name) != formDataCache_.end();
+}
+
+void WebSession::pruneFormDataCache()
+{
+  for (auto it = formDataCache_.begin(); it != formDataCache_.end();)
+  {
+    if (renderer_.currentFormObjects_.find(it->first) == renderer_.currentFormObjects_.end())
+    {
+      Utils::eraseAndNext(formDataCache_, it);
+    } else {
+      ++it;
+    }
+  }
+}
+
 std::vector<unsigned int>
 WebSession::getSignalProcessingOrder(const WEvent& e) const
 {
