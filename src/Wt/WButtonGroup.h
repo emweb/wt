@@ -177,6 +177,8 @@ public:
    */
   Signal<WRadioButton *>& checkedChanged();
 
+  bool resendFormData() override;
+
 private:
   struct Button {
     WRadioButton *button;
@@ -186,6 +188,7 @@ private:
   std::vector<Button> buttons_;
   Signal<WRadioButton *> checkedChanged_;
   bool                   checkedChangedConnected_;
+  bool formDataChanged_;
 
   void uncheckOthers(WRadioButton *button);
   int  generateId() const;

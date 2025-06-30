@@ -54,6 +54,7 @@ void WRadioButton::getFormObjects(FormObjectsMap& formObjects)
 void WRadioButton::setGroup(std::shared_ptr<WButtonGroup> group)
 {
   buttonGroup_ = group;
+  formDataChanged();
 }
 
 void WRadioButton::setFormData(const FormData& formData)

@@ -1078,6 +1078,7 @@ void WGLWidget::setJavaScriptMatrix4(JavaScriptMatrix4x4 &jsm,
       jsMatrixList_[i].serverSideCopy = m;
 
   pImpl_->setJavaScriptMatrix4(jsm, m);
+  formDataChanged();
 }
 
 void WGLWidget::setJavaScriptVector(JavaScriptVector &jsv,
@@ -1094,6 +1095,7 @@ void WGLWidget::setJavaScriptVector(JavaScriptVector &jsv,
       jsVectorList_[i].serverSideCopy = v;
 
   pImpl_->setJavaScriptVector(jsv, v);
+  formDataChanged();
 }
 
 void WGLWidget::setClientSideMouseHandler(const std::string& handlerCode)

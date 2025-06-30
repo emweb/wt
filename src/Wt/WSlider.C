@@ -643,6 +643,10 @@ void WSlider::setMinimum(int minimum)
   value_ = std::max(minimum_, value_);
   maximum_ = std::max(minimum_ + 1, maximum_);
 
+  if (value_ == minimum_) {
+    formDataChanged();
+  }
+
   update();
 }
 
@@ -652,6 +656,10 @@ void WSlider::setMaximum(int maximum)
   value_ = std::min(maximum_, value_);
   minimum_ = std::min(maximum_ - 1, minimum_);
 
+  if (value_ == maximum_) {
+    formDataChanged();
+  }
+
   update();
 }
 
@@ -660,6 +668,10 @@ void WSlider::setRange(int minimum, int maximum)
   minimum_ = minimum;
   maximum_ = maximum;
   value_ = std::min(maximum_, std::max(minimum_, value_));
+
+  if (value_ == maximum_ || value_ == minimum_) {
+    formDataChanged();
+  }
 
   update();
 }
@@ -688,6 +700,8 @@ void WSlider::setValue(int value)
     update();
     onChange();
   }
+
+  formDataChanged();
 }
 
 void WSlider::signalConnectionsChanged()
@@ -817,6 +831,7 @@ void WSlider::setValueText(const WT_USTRING& value)
 {
   try {
     value_ = Utils::stoi(value.toUTF8());
+    formDataChanged();
   } catch (std::exception& e) {
   }
 }

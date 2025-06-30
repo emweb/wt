@@ -305,6 +305,20 @@ public:
 
   WStatelessSlot* isStateless(Method method) const;
 
+  /*! \brief Returns whether the form data should be resent.
+   *
+   * This method is called to determine if the form data should be resent
+   * to the server. If not overridden, it always returns true.
+   *
+   * You will probably want to override this method when overriding
+   * setFormData(), to stop the client from resending form data when it
+   * is not needed.
+   *
+   * This method is only called once per update by the WebRenderer.
+   *
+   * \warning You should not call this method directly, as many widgets
+   *          rely on the method being called only once per update.
+   */
   virtual bool resendFormData();
 
 protected:
@@ -356,6 +370,7 @@ private:
   friend class EventSignalBase;
   friend class WApplication;
   friend class WebSession;
+  friend class WebRenderer;
 };
 
 template <class T>

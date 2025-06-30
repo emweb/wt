@@ -100,6 +100,7 @@ void WAbstractToggleButton::setCheckState(CheckState state)
 
   state_ = state;
   flags_.set(BIT_STATE_CHANGED);
+  formDataChanged();
   repaint();
 }
 

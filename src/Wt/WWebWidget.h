@@ -157,25 +157,25 @@ public:
     override;
   virtual WString toolTip() const override;
   /*! \brief Enable/disable whether tooltip is shown on hover
-  
-   * Allow to enable or disable whether the tooltip is shown when the 
+
+   * Allow to enable or disable whether the tooltip is shown when the
    * WWebWidget is hovered over by the mouse.
-   * 
+   *
    * \sa showToolTip(), hideToolTip()
    */
   void showToolTipOnHover(bool enable);
 
   /*! \brief Force tooltip to show.
-   * 
+   *
    * When called, show the tooltip to the user until hideToolTip()
    * is called.
-   * 
+   *
    * \sa hideToolTip()
    */
   void showToolTip();
 
   /*! \brief Hide the tooltip.
-   * 
+   *
    * \sa showToolTip()
    */
   void hideToolTip();
@@ -280,6 +280,7 @@ public:
   static std::string resolveRelativeUrl(const std::string& url);
 
   void setFormObject(bool how);
+  bool resendFormData() override;
   static bool canOptimizeUpdates();
   void setZIndex(int zIndex);
 
@@ -334,6 +335,7 @@ protected:
 
   virtual void iterateChildren(const HandleWidgetMethod& method) const;
   virtual void getFormObjects(FormObjectsMap& formObjects);
+  virtual void formDataChanged();
   virtual void doneRerender();
   virtual void updateDom(DomElement& element, bool all);
   virtual bool domCanBeSaved() const;
@@ -428,6 +430,7 @@ private:
   static const int BIT_TOOLTIP_FORCE_SHOW = 39;
   static const int BIT_TOOLTIP_CLEAN_FORCE_SHOW = 40;
   static const int BIT_TOOLTIP_SHOW_ON_HOVER = 41;
+  static const int BIT_RESEND_FORM_DATA = 42;
 
 
   static const char *FOCUS_SIGNAL;
@@ -439,7 +442,7 @@ private:
   std::string elementTagName_;
 
 #ifndef WT_TARGET_JAVA
-  static const std::bitset<42> AllChangeFlags;
+  static const std::bitset<43> AllChangeFlags;
 #endif // WT_TARGET_JAVA
 
   void loadToolTip();
@@ -447,7 +450,7 @@ private:
   /*
    * Frequently used attributes.
    */
-  std::bitset<42> flags_;
+  std::bitset<43> flags_;
   std::unique_ptr<WLength> width_;
   std::unique_ptr<WLength> height_;
 

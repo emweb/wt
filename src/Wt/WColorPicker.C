@@ -48,6 +48,7 @@ void WColorPicker::setColor(const WColor& value)
   if (value != color_) {
     color_ = value;
     colorChanged_ = true;
+    formDataChanged();
     repaint();
   }
 }

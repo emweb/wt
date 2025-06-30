@@ -11,7 +11,8 @@
 namespace Wt {
 
 WButtonGroup::WButtonGroup()
-  : checkedChangedConnected_(false)
+  : checkedChangedConnected_(false),
+    formDataChanged_(true)
 { }
 
 WButtonGroup::~WButtonGroup()
@@ -43,6 +44,11 @@ void WButtonGroup::removeButton(WRadioButton *button)
     if (buttons_[i].button == button) {
       buttons_.erase(buttons_.begin() + i);
       button->setGroup(nullptr);
+
+      if (i == selectedButtonIndex()) {
+        formDataChanged_ = true;
+      }
+
       return;
     }
 }
@@ -96,6 +102,7 @@ void WButtonGroup::setCheckedButton(WRadioButton *button)
     else if (b != button && b->isChecked())
       b->setChecked(false);
   }
+  formDataChanged_ = true;
 }
 
 WRadioButton *WButtonGroup::checkedButton() const
@@ -142,6 +149,13 @@ void WButtonGroup::setFormData(const FormData& formData)
      * there were actually none checked to start with ?
      */
   }
+}
+
+bool WButtonGroup::resendFormData()
+{
+  bool resend = formDataChanged_;
+  formDataChanged_ = false;
+  return resend;
 }
 
 void WButtonGroup::uncheckOthers(WRadioButton *button)

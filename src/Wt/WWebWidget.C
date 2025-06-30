@@ -59,7 +59,7 @@ const int WWebWidget::DEFAULT_BASE_Z_INDEX = 1100;
 const int WWebWidget::Z_INDEX_INCREMENT = 1100;
 
 #ifndef WT_TARGET_JAVA
-const std::bitset<42> WWebWidget::AllChangeFlags = std::bitset<42>()
+const std::bitset<43> WWebWidget::AllChangeFlags = std::bitset<43>()
   .set(BIT_FLEX_BOX_CHANGED)
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
@@ -153,9 +153,17 @@ WStatelessSlot *WWebWidget::getStateless(Method method)
 void WWebWidget::setFormObject(bool how)
 {
   flags_.set(BIT_FORM_OBJECT, how);
+  flags_.set(BIT_RESEND_FORM_DATA, true);
 
   WApplication::instance()
     ->session()->renderer().updateFormObjects(this, false);
+}
+
+bool WWebWidget::resendFormData()
+{
+  bool resend = flags_.test(BIT_RESEND_FORM_DATA);
+  flags_.reset(BIT_RESEND_FORM_DATA);
+  return resend;
 }
 
 void WWebWidget::setId(const std::string& id)
@@ -2165,6 +2173,11 @@ void WWebWidget::getFormObjects(FormObjectsMap& formObjects)
     ([&](WWidget *c) {
       c->webWidget()->getSFormObjects(formObjects);
     });
+}
+
+void WWebWidget::formDataChanged()
+{
+  flags_.set(BIT_RESEND_FORM_DATA);
 }
 
 void WWebWidget::getDomChanges(std::vector<DomElement *>& result,

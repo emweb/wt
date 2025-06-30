@@ -174,6 +174,7 @@ void WEmailEdit::setValueText(const WT_USTRING &value)
 {
   value_ = sanitize(value, multiple());
   flags_.set(BIT_VALUE_CHANGED);
+  formDataChanged();
   repaint();
 }
 

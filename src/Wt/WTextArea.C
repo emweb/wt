@@ -40,6 +40,7 @@ void WTextArea::setText(const WT_USTRING& text)
 {
   content_ = text;
   contentChanged_ = true;
+  formDataChanged();
   repaint();
 
   validate();

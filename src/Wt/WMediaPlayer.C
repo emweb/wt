@@ -104,8 +104,7 @@ WMediaPlayer::WMediaPlayer(MediaType mediaType)
     videoHeight_(0),
     gui_(this),
     boundSignals_(0),
-    boundSignalsDouble_(0),
-    mediaUpdated_(false)
+    boundSignalsDouble_(0)
 {
   for (unsigned i = 0; i < 11; ++i)
     control_[i] = nullptr;
@@ -159,7 +158,7 @@ void WMediaPlayer::clearSources()
 {
   media_.clear();
 
-  mediaUpdated_ = true;
+  flags_.set(BIT_MEDIA_UPDATED);
   scheduleRender();
 }
 
@@ -169,7 +168,7 @@ void WMediaPlayer::addSource(MediaEncoding encoding, const WLink& link)
   media_.back().link = link;
   media_.back().encoding = encoding;
 
-  mediaUpdated_ = true;
+  flags_.set(BIT_MEDIA_UPDATED);
   scheduleRender();
 }
 
@@ -267,6 +266,7 @@ void WMediaPlayer::setProgressBar(MediaPlayerProgressBarId id, WProgressBar *w)
 
     updateProgressBarState(id);
   }
+  flags_.set(BIT_FORM_DATA_CHANGED);
 }
 
 void WMediaPlayer::updateProgressBarState(MediaPlayerProgressBarId id)
@@ -329,6 +329,7 @@ void WMediaPlayer::setVolume(double volume)
 {
   status_.volume = volume;
   playerDo("volume", std::to_string(volume));
+  flags_.set(BIT_FORM_DATA_CHANGED);
 }
 
 double WMediaPlayer::volume() const
@@ -342,6 +343,7 @@ void WMediaPlayer::setPlaybackRate(double rate)
     status_.playbackRate = rate;
 
     playerDoData("wtPlaybackRate", std::to_string(rate));
+    flags_.set(BIT_FORM_DATA_CHANGED);
   }
 }
 
@@ -446,7 +448,7 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
 
   WApplication *app = WApplication::instance();
 
-  if (mediaUpdated_ ||
+  if (flags_.test(BIT_MEDIA_UPDATED) ||
       (flags.test(RenderFlag::Full) && !media_.empty())) {
     WStringStream ss;
 
@@ -477,7 +479,7 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
       initialJs_ = ".jPlayer('setMedia', " + ss.str() + ')' + initialJs_;
     }
 
-    mediaUpdated_ = false;
+    flags_.reset(BIT_MEDIA_UPDATED);
   }
 
   if (flags.test(RenderFlag::Full)) {
@@ -639,6 +641,13 @@ void WMediaPlayer::render(WFlags<RenderFlag> flags)
   }
 
   WCompositeWidget::render(flags);
+}
+
+bool WMediaPlayer::resendFormData()
+{
+  bool resend = flags_.test(BIT_FORM_DATA_CHANGED);
+  flags_.reset(BIT_FORM_DATA_CHANGED);
+  return resend;
 }
 
 void WMediaPlayer::setFormData(const FormData& formData)

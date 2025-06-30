@@ -453,6 +453,8 @@ public:
 
   virtual void refresh() override;
 
+  bool resendFormData() override;
+
 protected:
   virtual void setFormData(const FormData& formData) override;
   virtual void render(WFlags<RenderFlag> flags) override;
@@ -467,6 +469,11 @@ private:
     JSignal<double> *signal;
     std::string jsExprA1;
   };
+
+  static const int BIT_MEDIA_UPDATED = 0;
+  static const int BIT_FORM_DATA_CHANGED = 1;
+
+  std::bitset<2> flags_;
 
   std::vector<JSignal<> *> signals_;
   std::vector<SignalDouble> signalsDouble_;
@@ -484,8 +491,6 @@ private:
 
   observing_ptr<WWidget> gui_;
   unsigned boundSignals_, boundSignalsDouble_;
-
-  bool mediaUpdated_;
 
   struct State {
     bool playing, ended;

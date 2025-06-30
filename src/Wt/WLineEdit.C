@@ -69,6 +69,7 @@ void WLineEdit::setText(const WT_USTRING& text)
     }
 
     flags_.set(BIT_CONTENT_CHANGED);
+    formDataChanged();
     repaint();
 
     validate();

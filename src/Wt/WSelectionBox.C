@@ -34,6 +34,7 @@ void WSelectionBox::setSelectionMode(SelectionMode mode)
   if (mode != selectionMode_) {
     selectionMode_ = mode;
     configChanged_ = true;
+    formDataChanged();
     repaint();
 
     if (mode == SelectionMode::Extended) {
@@ -58,6 +59,7 @@ void WSelectionBox::setSelectedIndexes(const std::set<int>& selection)
 
   selection_ = selection;
   selectionChanged_ = true;
+  formDataChanged();
   repaint();
 }
 

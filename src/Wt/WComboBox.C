@@ -79,6 +79,7 @@ void WComboBox::rowsRemoved(WT_MAYBE_UNUSED const WModelIndex&, int from, int to
     currentIndex_ = -1;
     makeCurrentIndexValid();
   }
+  formDataChanged();
 }
 
 void WComboBox::rowsInserted(WT_MAYBE_UNUSED const WModelIndex&, int from, int to)
@@ -92,6 +93,8 @@ void WComboBox::rowsInserted(WT_MAYBE_UNUSED const WModelIndex&, int from, int t
     makeCurrentIndexValid();
   else if (currentIndex_ >= from)
     currentIndex_ += count;
+
+  formDataChanged();
 }
 
 void WComboBox::setModelColumn(int index)
@@ -153,6 +156,7 @@ void WComboBox::setCurrentIndex(int index)
     validate();
 
     selectionChanged_ = true;
+    formDataChanged();
     repaint();
   }
 }
@@ -422,6 +426,7 @@ void WComboBox::restoreSelection()
   makeCurrentIndexValid();
 
   currentIndexRaw_ = nullptr;
+  formDataChanged();
 }
 
 void WComboBox::layoutChanged()
