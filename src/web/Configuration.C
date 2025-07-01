@@ -267,6 +267,7 @@ void Configuration::reset()
   valgrindPath_ = "";
   errorReporting_ = ErrorMessage;
   clientSideErrorReportLevel_ = Framework;
+  cacheFormData_ = true;
   if (!runDirectory_.empty()) // disabled by connector
     runDirectory_ = RUNDIR;
   sessionIdLength_ = 16;
@@ -439,6 +440,12 @@ Configuration::ClientSideErrorReportLevel Configuration::clientSideErrorReportin
 {
   READ_LOCK;
   return clientSideErrorReportLevel_;
+}
+
+bool Configuration::cacheFormData() const
+{
+  READ_LOCK;
+  return cacheFormData_;
 }
 
 bool Configuration::debug() const
@@ -958,6 +965,8 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     else
       throw WServer::Exception("<debug-level>: expecting 'framework' or 'all'");
   }
+
+  setBoolean(app, "cache-form-data", cacheFormData_);
 
   setInt(app, "num-threads", numThreads_);
 

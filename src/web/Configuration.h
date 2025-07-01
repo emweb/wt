@@ -203,6 +203,7 @@ public:
   std::string valgrindPath() const;
   ErrorReporting errorReporting() const;
   ClientSideErrorReportLevel clientSideErrorReportingLevel() const;
+  bool cacheFormData() const;
   bool debug() const;
   std::string runDirectory() const;
   int sessionIdLength() const;
@@ -336,6 +337,7 @@ private:
   std::string     valgrindPath_;
   ErrorReporting  errorReporting_;
   ClientSideErrorReportLevel clientSideErrorReportLevel_;
+  bool cacheFormData_;
   std::string     runDirectory_;
   int             sessionIdLength_;
   PropertyMap     properties_;

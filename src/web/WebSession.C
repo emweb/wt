@@ -2992,21 +2992,25 @@ const Http::ParameterValues& WebSession::getFormParamValues(const WebRequest& re
                                                             const std::string& name)
 {
   const Http::ParameterValues* requestParam = &(request.getParameterValues(name));
+  Configuration& conf = controller_->configuration();
 
   if (!Utils::isEmpty(*requestParam)) {
     if ((*requestParam)[0] == "Wt-null") {
       requestParam = &WebRequest::emptyValues_;
     }
-    formDataCache_[name] = *requestParam;
+
+    if (conf.cacheFormData()) {
+      formDataCache_[name] = *requestParam;
+    }
+
     return *requestParam;
-  } else {
+  } else if (conf.cacheFormData()) {
     auto it = formDataCache_.find(name);
     if (it != formDataCache_.end()) {
       return it->second;
-    } else {
-      return *requestParam;
     }
   }
+  return *requestParam;
 }
 
 WObject::FormData WebSession::getFormData(const WebRequest& request,

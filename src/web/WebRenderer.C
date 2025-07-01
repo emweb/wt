@@ -974,6 +974,8 @@ void WebRenderer::serveMainscript(WebResponse& response)
     ("CATCH_ALL_ERROR", conf.clientSideErrorReportingLevel() == Configuration::All &&
                         conf.errorReporting() != Configuration::NoErrors);
   script.setCondition
+    ("FORM_DATA_CACHED", conf.cacheFormData());
+  script.setCondition
     ("SHOW_ERROR", conf.errorReporting() == Configuration::ErrorMessage);
   script.setCondition
     ("UGLY_INTERNAL_PATHS", session_.useUglyInternalPaths());
@@ -1259,10 +1261,12 @@ void WebRenderer::serveMainAjax(WStringStream& out)
       << "._p_.setFormObjects([" << currentFormObjectsList_ << "]);\n";
   formObjectsChanged_ = false;
 
-  std::string resendFormDataList = createResendFormDataList();
-  if (!resendFormDataList.empty()) {
-    out << app->javaScriptClass()
-        << "._p_.setResendFormData([" << resendFormDataList << "]);\n";
+  if (conf.cacheFormData()) {
+    std::string resendFormDataList = createResendFormDataList();
+    if (!resendFormDataList.empty()) {
+      out << app->javaScriptClass()
+          << "._p_.setResendFormData([" << resendFormDataList << "]);";
+    }
   }
 
   setRendered(true);
@@ -1757,6 +1761,7 @@ void WebRenderer::collectChanges(std::vector<DomElement *>& changes)
 void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
 {
   WApplication *app = session_.app();
+  Configuration& conf = session_.controller()->configuration();
 
   try {
     if (session_.sessionIdChanged_) {
@@ -1810,10 +1815,12 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
       }
     }
 
-    std::string resendFormDataList = createResendFormDataList();
-    if (!resendFormDataList.empty()) {
-      out << app->javaScriptClass()
-          << "._p_.setResendFormData([" << resendFormDataList << "]);";
+    if (conf.cacheFormData()) {
+      std::string resendFormDataList = createResendFormDataList();
+      if (!resendFormDataList.empty()) {
+        out << app->javaScriptClass()
+            << "._p_.setResendFormData([" << resendFormDataList << "]);";
+      }
     }
 
     app->streamAfterLoadJavaScript(out);

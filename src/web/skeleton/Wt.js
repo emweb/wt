@@ -24,6 +24,7 @@
   _$_$if_CATCH_ALL_ERROR_$_
   _$_$if_DYNAMIC_JS_$_
   _$_$ifnot_DYNAMIC_JS_$_
+  _$_$if_FORM_DATA_CACHED_$_
   _$_$if_SHOW_ERROR_$_
   _$_$if_STRICTLY_SERIALIZED_EVENTS_$_
   _$_$if_UGLY_INTERNAL_PATHS_$_
@@ -2681,9 +2682,11 @@ window._$_APP_CLASS_$_ = new (function() {
           }
         }
         if (selected.length !== 0) {
+          _$_$if_FORM_DATA_CACHED_$_();
           const encodeVal = selected.join();
           if (encodeVal !== el.WtLastEncodedValue || mustResendFormData(formObjects[x])) {
             el.WtLastEncodedValue = encodeVal;
+            _$_$endif_$_();
 
             for (let j = 0; j < selected.length; j++) {
               result.push(
@@ -2691,7 +2694,9 @@ window._$_APP_CLASS_$_ = new (function() {
                   encodeURIComponent(selected[j])
               );
             }
+            _$_$if_FORM_DATA_CACHED_$_();
           }
+          _$_$endif_$_();
           alreadyPushed = true;
         }
       } else if (el.type === "checkbox" || el.type === "radio") {
@@ -2722,12 +2727,18 @@ window._$_APP_CLASS_$_ = new (function() {
       }
 
       if (v !== null) {
+        _$_$if_FORM_DATA_CACHED_$_();
         if (v !== el.WtLastEncodedValue || mustResendFormData(formObjects[x])) {
+          _$_$endif_$_();
+
           let component;
           try {
             component = encodeURIComponent(v);
             result.push(formObjects[x] + "=" + component);
+
+            _$_$if_FORM_DATA_CACHED_$_();
             el.WtLastEncodedValue = v;
+            _$_$endif_$_();
           } catch (e) {
             // encoding failed, omit this form field
             // This can happen on Windows when typing a character
@@ -2736,7 +2747,10 @@ window._$_APP_CLASS_$_ = new (function() {
             // of keydown/keyup events instead of one.
             console.error("Form object " + formObjects[x] + " failed to encode, discarded", e);
           }
+
+          _$_$if_FORM_DATA_CACHED_$_();
         }
+        _$_$endif_$_();
       }
     }
     resendFormData = [];
