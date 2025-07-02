@@ -51,6 +51,14 @@ behaviour.
     It is now possible to send notifications trough JavaScript notification API using <a href="classWt_1_1WNotification.html" target="_blank">WNotification</a>. You
     can see examples of how to use it in the widget gallery.
   </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/7986" target="_blank">Issue #7986</a>:
+    added caching for form objects data on the server side to reduce the size of the request sent to the server by the client.
+    This can be disabled by setting the <code>form-data-caching</code> option to <code>false</code> in the <code>wt_config.xml</code> file.
+
+    Note that this reduction in request size may come at the cost of an increase response size when updating form objects. It is possible
+    to limit this impact by changing the <code>form-data-resend-ratio-limit</code> option in the <code>wt_config.xml</code> file.
+  </li>
 </ul>
 
 <p>Wt 4.13.0 also fixes the following bugs:</p>
