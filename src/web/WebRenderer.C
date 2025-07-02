@@ -1262,11 +1262,7 @@ void WebRenderer::serveMainAjax(WStringStream& out)
   formObjectsChanged_ = false;
 
   if (conf.cacheFormData()) {
-    std::string resendFormDataList = createResendFormDataList();
-    if (!resendFormDataList.empty()) {
-      out << app->javaScriptClass()
-          << "._p_.setResendFormData([" << resendFormDataList << "]);";
-    }
+    resendFormData(out);
   }
 
   setRendered(true);
@@ -1816,11 +1812,7 @@ void WebRenderer::collectJavaScriptUpdate(WStringStream& out)
     }
 
     if (conf.cacheFormData()) {
-      std::string resendFormDataList = createResendFormDataList();
-      if (!resendFormDataList.empty()) {
-        out << app->javaScriptClass()
-            << "._p_.setResendFormData([" << resendFormDataList << "]);";
-      }
+      resendFormData(out);
     }
 
     app->streamAfterLoadJavaScript(out);
@@ -1881,22 +1873,38 @@ std::string WebRenderer::createFormObjectsList(WApplication *app)
   return result;
 }
 
-std::string WebRenderer::createResendFormDataList()
+void WebRenderer::resendFormData(WStringStream& out)
 {
-  std::string result;
+  const Configuration& conf = session_.controller()->configuration();
+  std::string resendFormDataList;
+  double resendNbr = 0.0;
+  const double maxResend = static_cast<double>(currentFormObjects_.size()) * conf.maxFormDataResendRatio();
 
   for (FormObjectsMap::const_iterator i = currentFormObjects_.begin();
        i != currentFormObjects_.end(); ++i) {
     if (i->second->resendFormData() || !session_.inFormDataCache(i->first)) {
-      if (!result.empty()) {
-        result += ',';
+      if (!resendFormDataList.empty()) {
+        resendFormDataList += ',';
       }
 
-      result += "'" + i->first + "'";
+      resendNbr++;
+
+      if (resendNbr >= maxResend) {
+        LOG_DEBUG("Max form-object to resend reached, resending all form-objects instead.");
+        out << session_.app()->javaScriptClass()
+            << "._p_.resendAllFormData();";
+
+        return;
+      }
+
+      resendFormDataList += "'" + i->first + "'";
     }
   }
 
-  return result;
+  if (!resendFormDataList.empty()) {
+    out << session_.app()->javaScriptClass()
+        << "._p_.setResendFormData([" << resendFormDataList << "]);";
+  }
 }
 
 void WebRenderer::collectJS(WStringStream* js)

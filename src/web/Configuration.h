@@ -204,6 +204,7 @@ public:
   ErrorReporting errorReporting() const;
   ClientSideErrorReportLevel clientSideErrorReportingLevel() const;
   bool cacheFormData() const;
+  float maxFormDataResendRatio() const;
   bool debug() const;
   std::string runDirectory() const;
   int sessionIdLength() const;
@@ -338,6 +339,7 @@ private:
   ErrorReporting  errorReporting_;
   ClientSideErrorReportLevel clientSideErrorReportLevel_;
   bool cacheFormData_;
+  float           maxFormDataResendRatio_;
   std::string     runDirectory_;
   int             sessionIdLength_;
   PropertyMap     properties_;

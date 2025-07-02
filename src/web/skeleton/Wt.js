@@ -2641,8 +2641,13 @@ window._$_APP_CLASS_$_ = new (function() {
 
   let formObjects = [];
   let resendFormData = [];
+  let mustResendAllFormData = false;
 
   function mustResendFormData(id) {
+    if (mustResendAllFormData) {
+      return true;
+    }
+
     for (let i = 0; i < resendFormData.length; ++i) {
       if (resendFormData[i] === id) {
         return true;
@@ -2754,6 +2759,7 @@ window._$_APP_CLASS_$_ = new (function() {
       }
     }
     resendFormData = [];
+    mustResendAllFormData = false;
 
     try {
       if (document.activeElement) {
@@ -4215,6 +4221,9 @@ window._$_APP_CLASS_$_ = new (function() {
     },
     setResendFormData: function(o) {
       resendFormData = o;
+    },
+    resendAllFormData: function() {
+      mustResendAllFormData = true;
     },
     saveDownPos,
     addTimerEvent,
