@@ -768,6 +768,42 @@ appRoot=C:\Program Files\MyApplications\AppRoot
       browsers that indicate support for XHTML. Nowadays, this option
       is rarely useful.</dd>
 
+    <dt><strong>cache-form-data</strong></dt>
+
+    <dd>By default, Wt will cache the data of each form object so
+      that the client only needs to send the data of the form
+      objects that have been changed.
+
+      If this option is disabled, the client will send the data
+      of every form object in each signal sent to the server, but
+      the server will not use any memory to cache those data.</dd>
+
+    <dt><strong>form-data-resend-ratio-limit</strong></dt>
+
+    <dd>When form data caching is enabled, if the data of a form
+      object is updated by the server, the server will notify
+      that this form object needs to be resubmitted in the next
+      signal.
+
+      Since this slightly increases the size of the response sent
+      by the server for every form object updated, you can change
+      this option to limit the amount of form objects the server
+      can ask the client to resubmit. In case this limit is
+      reached, the server will ask the client to resubmit all the
+      form object instead.
+
+      The value is the ratio of the number of form objects that
+      can be asked to be resubmitted compared to the total number
+      of form objects on the client.
+
+      The default value is 0.5, which means that the server can
+      ask the client to resubmit up to 50% of the form objects
+      that are currently on the client.
+
+      The best value for this option as well as its impact highly
+      depends on your application and your infrastructure, so you
+      may want to experiment with different values.</dd>
+
     <dt><strong>web-sockets</strong></dt>
 
     <dd>By default Ajax and long polling are used to communicate
