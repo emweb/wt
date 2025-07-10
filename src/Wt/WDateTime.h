@@ -356,6 +356,21 @@ public:
    */
   static WDateTime fromTimePoint(const std::chrono::system_clock::time_point& datetime);
 
+  struct RegExpInfo {
+    std::string regexp;
+    std::string yearGetJS;
+    std::string monthGetJS;
+    std::string dayGetJS;
+    std::string hourGetJS;
+    std::string minuteGetJS;
+    std::string secGetJS;
+    std::string msecGetJS;
+    unsigned index;
+    int currentGroup;
+  };
+
+  static RegExpInfo formatToRegExp(const WT_USTRING& format);
+
 private:
   std::chrono::system_clock::time_point datetime_;
   bool invalid_date_time_ = true;

@@ -13,6 +13,8 @@
 #include "Wt/WTime.h"
 #include "Wt/Date/date.h"
 
+#include "DateTimeRegexFormatter.h"
+
 #ifndef DOXYGEN_ONLY
 
 namespace Wt {
@@ -520,6 +522,84 @@ WDateTime WDateTime::fromTimePoint(const std::chrono::system_clock::time_point& 
   return WDateTime(t);
 }
 
+WDateTime::RegExpInfo WDateTime::formatToRegExp(const WT_USTRING& format)
+{
+  RegExpInfo result;
+  std::string f = format.toUTF8();
+  unsigned& i = result.index;
+  int& currentGroup = result.currentGroup;
+  currentGroup = 1;
+
+  result.hourGetJS = "return 1;";
+  result.minuteGetJS = "return 0;";
+  result.secGetJS = "return 0;";
+  result.msecGetJS = "return 0;";
+
+  result.dayGetJS = "return 1;";
+  result.monthGetJS = "return 1;";
+  result.yearGetJS = "return 2000;";
+
+  bool inQuote = false;
+  bool gotQuoteInQuote = false;
+
+  for (i = 0; i < f.length(); ++i) {
+    if (inQuote && f[i] != '\'') {
+      if (gotQuoteInQuote) {
+        gotQuoteInQuote = false;
+        inQuote = false;
+      } else {
+        Utils::processChar<RegExpInfo>(result, f);
+        continue;
+      }
+    } else if (inQuote) {
+      if (gotQuoteInQuote) {
+        gotQuoteInQuote = false;
+        Utils::processChar<RegExpInfo>(result, f);
+        continue;
+      } else {
+        gotQuoteInQuote = true;
+      }
+    }
+
+    if (!inQuote) {
+      switch (f[i]) {
+        case 'h':
+        case 'H':
+          Utils::formatHourToRegex<RegExpInfo>(result, f);
+          break;
+        case 'm':
+          Utils::formatMinuteToRegex<RegExpInfo>(result,f);
+          break;
+        case 's':
+          Utils::formatSecondToRegex<RegExpInfo>(result, f);
+          break;
+        case 'z':
+          Utils::formatMSecondToRegex<RegExpInfo>(result, f);
+          break;
+        case 'A':
+        case 'a':
+          Utils::formatAPToRegex<RegExpInfo>(result, f);
+          break;
+        case 'd':
+          Utils::formatDayToRegex<RegExpInfo>(result, f);
+          break;
+        case 'M':
+          Utils::formatMonthToRegex<RegExpInfo>(result, f);
+          break;
+        case 'y':
+          Utils::formatYearToRegex<RegExpInfo>(result, f);
+          break;
+        case '\'':
+          inQuote = true;
+          break;
+        default:
+          Utils::processChar<RegExpInfo>(result, f);
+      }
+    }
+  }
+
+  return result;
+}
 }
 
 #endif // DOXYGEN_ONLY
