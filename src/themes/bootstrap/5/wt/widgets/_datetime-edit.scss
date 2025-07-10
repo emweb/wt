@@ -8,7 +8,7 @@ input[type="text"].Wt-datetimeedit.form-control {
   /*rtl:ignore*/
   padding-right: calc(2em + 1.5rem);
 
-  &.hover {
+  &.hover:not([disabled]) {
     background-image: escape-svg($wt-datetime-edit-icon-hover);
   }
 

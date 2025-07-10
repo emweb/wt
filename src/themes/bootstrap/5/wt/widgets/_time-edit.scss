@@ -6,7 +6,7 @@
   background-position: $wt-time-edit-bg-position;
   background-size: $wt-time-edit-bg-size;
 
-  &.hover {
+  &.hover:not([disabled]) {
     background-image: escape-svg($wt-time-edit-icon-hover);
   }
 

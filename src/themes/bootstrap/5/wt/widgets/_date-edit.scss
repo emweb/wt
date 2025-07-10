@@ -6,7 +6,7 @@
   background-position: $wt-date-edit-bg-position;
   background-size: $wt-date-edit-bg-size;
 
-  &.hover {
+  &.hover:not([disabled]) {
     background-image: escape-svg($wt-date-edit-icon-hover);
   }
 
