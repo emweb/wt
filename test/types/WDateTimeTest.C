@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Emweb bv, Herent, Belgium.
+ * Copyright (C) 2026 Emweb bv, Herent, Belgium.
  *
  * See the LICENSE file for terms of use.
  */
@@ -54,6 +54,7 @@ BOOST_AUTO_TEST_CASE( WDateTime_toString_localized )
   // January 2nd 2022 is a Sunday
   BOOST_TEST(datetime.toString("ddd MMM") == "Dom Ene");
   BOOST_TEST(datetime.toString("dddd MMMM") == "Domigo Enero");
+  BOOST_TEST(datetime.toString("dddd 'MMMM'") == "Domigo MMMM");
 }
 
 BOOST_AUTO_TEST_CASE( WDateTime_fromString_non_localized )

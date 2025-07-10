@@ -99,3 +99,75 @@ BOOST_AUTO_TEST_CASE( WDate_fromString_localized )
   BOOST_TEST((Wt::WDate::fromString("Sun 02 Jan 2022", "ddd dd MMM yyyy") == Wt::WDate()));
   BOOST_TEST((Wt::WDate::fromString("Sunday 02 January 2022", "dddd dd MMMM yyyy") == Wt::WDate()));
 }
+
+BOOST_AUTO_TEST_CASE(WDate_formatToRegExp_short)
+{
+  // Creating the regexp for the validator for short dates
+  std::string format = "d-M-yy";
+  Wt::WDate::RegExpInfo dateInfo = Wt::WDate::formatToRegExp(format);
+
+  BOOST_TEST(dateInfo.regexp == "(\\d{1,2})-(\\d{1,2})-(\\d{2})");
+  BOOST_TEST(dateInfo.yearGetJS == "var y=parseInt(results[3], 10);return y > 38 ? 1900 + y : 2000 + y;");
+  BOOST_TEST(dateInfo.monthGetJS == "return parseInt(results[2], 10);");
+  BOOST_TEST(dateInfo.dayGetJS == "return parseInt(results[1], 10);");
+}
+
+BOOST_AUTO_TEST_CASE(WDate_formatToRegExp_long)
+{
+  // Creating the regexp for the validator for long dates
+  std::string format = "dd-MM-yyyy";
+  Wt::WDate::RegExpInfo dateInfo = Wt::WDate::formatToRegExp(format);
+
+  BOOST_TEST(dateInfo.regexp == "(\\d{2})-(\\d{2})-(\\d{4})");
+  BOOST_TEST(dateInfo.yearGetJS == "return parseInt(results[3], 10)");
+  BOOST_TEST(dateInfo.monthGetJS == "return parseInt(results[2], 10);");
+  BOOST_TEST(dateInfo.dayGetJS == "return parseInt(results[1], 10);");
+}
+
+BOOST_AUTO_TEST_CASE(WDate_formatToRegExp_both)
+{
+  // Creating the regexp for the validator for mixed dates
+  std::string format = "dd-M-yy";
+  Wt::WDate::RegExpInfo dateInfo = Wt::WDate::formatToRegExp(format);
+
+  BOOST_TEST(dateInfo.regexp == "(\\d{2})-(\\d{1,2})-(\\d{2})");
+  BOOST_TEST(dateInfo.yearGetJS == "var y=parseInt(results[3], 10);return y > 38 ? 1900 + y : 2000 + y;");
+  BOOST_TEST(dateInfo.monthGetJS == "return parseInt(results[2], 10);");
+  BOOST_TEST(dateInfo.dayGetJS == "return parseInt(results[1], 10);");
+}
+
+namespace {
+  bool hasMessage(const Wt::WException& exc, const std::string& msg)
+  {
+    std::cout << exc.what() << std::endl;
+    return std::string(exc.what()).find(msg) != std::string::npos;
+  }
+}
+
+BOOST_AUTO_TEST_CASE(WDate_formatToRegExp_bad_formatting_year_not_allowed)
+{
+  // Creating the regexp for the validator with invalid year format
+  std::string format = "dd MM yyy";
+
+  BOOST_REQUIRE_EXCEPTION(Wt::WDate::formatToRegExp(format), Wt::WException, std::bind(&hasMessage, std::placeholders::_1, "3 consecutive y"));
+
+  format = "dd MM yyyyy";
+
+  BOOST_REQUIRE_EXCEPTION(Wt::WDate::formatToRegExp(format), Wt::WException, std::bind(&hasMessage, std::placeholders::_1, "5 consecutive y"));
+}
+
+BOOST_AUTO_TEST_CASE(WDate_formatToRegExp_bad_formatting_month_allowed)
+{
+  // Creating the regexp for the validator with invalid month format
+  std::string format = "dd MMM yyyy";
+
+  BOOST_REQUIRE_EXCEPTION(Wt::WDate::formatToRegExp(format), Wt::WException, std::bind(&hasMessage, std::placeholders::_1, "3 consecutive M"));
+}
+
+BOOST_AUTO_TEST_CASE(WDate_formatToRegExp_bad_formatting_day_allowed)
+{
+  // Creating the regexp for the validator with invalid day format
+  std::string format = "ddddd MM yyyy";
+
+  BOOST_REQUIRE_EXCEPTION(Wt::WDate::formatToRegExp(format), Wt::WException, std::bind(&hasMessage, std::placeholders::_1, "5 consecutive d"));
+}

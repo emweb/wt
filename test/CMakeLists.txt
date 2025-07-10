@@ -54,6 +54,7 @@ IF(ENABLE_LIBWTTEST)
     strings/WStringTest.C
     types/WDateTest.C
     types/WDateTimeTest.C
+    types/WTimeTest.C
     utf8/Utf8Test.C
     utf8/XmlTest.C
     utils/Base32Test.C
