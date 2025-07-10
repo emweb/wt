@@ -476,6 +476,8 @@ public:
     std::string dayGetJS;
     std::string monthGetJS;
     std::string yearGetJS;
+    unsigned index;
+    int currentGroup;
   };
 
   static RegExpInfo formatToRegExp(const WT_USTRING& format);

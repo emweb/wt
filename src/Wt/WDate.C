@@ -12,6 +12,7 @@
 
 #include "Wt/Date/date.h"
 
+#include "DateTimeRegexFormatter.h"
 #include "WebUtils.h"
 
 namespace {
@@ -857,83 +858,13 @@ std::string WDate::extFormat(const WString& format)
   return result;
 }
 
-namespace {
-
-  void fatalFormatRegExpError(const WString& format, int c, const char* cs)
-  {
-    std::stringstream s;
-    s << "WDate to regexp: (for \"" << format.toUTF8()
-      << "\"): cannot handle " << c << " consecutive " << cs;
-    throw WException(s.str());
-  }
-
-  void writeRegExpLast(WDate::RegExpInfo& result, int& d, int& M, int& y,
-                       const WString& format, int& currentGroup) {
-    if (d != 0) {
-      switch (d) {
-      case 1:
-      case 2:
-        if (d == 1)
-          result.regexp += "(\\d{1,2})";
-        else
-          result.regexp += "(\\d{2})";
-
-        result.dayGetJS = "return parseInt(results["
-          + std::to_string(currentGroup++) + "], 10);";
-        break;
-      default:
-        fatalFormatRegExpError(format, d, "d's");
-      }
-
-      d = 0;
-    }
-
-    if (M != 0) {
-      switch (M) {
-      case 1:
-      case 2:
-        if (M == 1)
-          result.regexp += "(\\d{1,2})";
-        else
-          result.regexp += "(\\d{2})";
-
-        result.monthGetJS = "return parseInt(results["
-          + std::to_string(currentGroup++) + "], 10);";
-        break;
-      default:
-        fatalFormatRegExpError(format, M, "M's");
-      }
-
-      M = 0;
-    }
-
-    if (y != 0) {
-      switch (y) {
-      case 2:
-        result.regexp += "(\\d{2})";
-        result.yearGetJS = "var y=parseInt(results["
-          + std::to_string(currentGroup++) + "], 10);"
-          "return y > 38 ? 1900 + y : 2000 + y;";
-        break;
-      case 4:
-        result.regexp += "(\\d{4})";
-        result.yearGetJS = "return parseInt(results["
-          + std::to_string(currentGroup++) + "], 10)";
-        break;
-      default:
-        fatalFormatRegExpError(format, y, "y's");
-      }
-
-      y = 0;
-    }
-  }
-}
-
 WDate::RegExpInfo WDate::formatToRegExp(const WT_USTRING& format)
 {
   RegExpInfo result;
   std::string f = format.toUTF8();
-  int currentGroup = 1;
+  int& currentGroup = result.currentGroup;
+  currentGroup = 1;
+  unsigned& i = result.index;
 
   result.dayGetJS = "return 1";
   result.monthGetJS = "return 1";
@@ -942,11 +873,7 @@ WDate::RegExpInfo WDate::formatToRegExp(const WT_USTRING& format)
   bool inQuote = false;
   bool gotQuoteInQuote = false;
 
-  static const std::string regexSpecial = "/[\\^$.|?*+()";
-
-  int d = 0, M = 0, y = 0;
-
-  for (unsigned i = 0; i < f.length(); ++i) {
+  for (i = 0; i < f.length(); ++i) {
     if (inQuote) {
       if (f[i] != '\'') {
         if (gotQuoteInQuote) {
@@ -966,35 +893,23 @@ WDate::RegExpInfo WDate::formatToRegExp(const WT_USTRING& format)
     if (!inQuote) {
       switch (f[i]) {
       case 'd':
-        if (d == 0)
-          writeRegExpLast(result, d, M, y, format, currentGroup);
-        ++d;
+        Utils::formatDayToRegex<RegExpInfo>(result, f);
         break;
       case 'M':
-        if (M == 0)
-          writeRegExpLast(result, d, M, y, format, currentGroup);
-        ++M;
+        Utils::formatMonthToRegex<RegExpInfo>(result, f);
         break;
       case 'y':
-        if (y == 0)
-          writeRegExpLast(result, d, M, y, format, currentGroup);
-        ++y;
+        Utils::formatYearToRegex<RegExpInfo>(result, f);
         break;
       default:
-        writeRegExpLast(result, d, M, y, format, currentGroup);
+        Utils::processChar<RegExpInfo>(result, f);
         if (f[i] == '\'') {
           inQuote = true;
           gotQuoteInQuote = false;
-        } else if (regexSpecial.find(f[i]) != std::string::npos) {
-          result.regexp += "\\";
-          result.regexp += f[i];
-        } else
-          result.regexp += f[i];
+        }
       }
     }
   }
-
-  writeRegExpLast(result, d, M, y, format, currentGroup);
 
   return result;
 }

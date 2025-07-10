@@ -64,6 +64,7 @@ FILE_TO_STRING(xml/auth_css_theme.xml
     AuthCssTheme_xml.C AuthCssTheme_xml)
 
 SET(libsources
+Wt/DateTimeRegexFormatter.h Wt/DateTimeRegexFormatter.C
 Wt/FlexLayoutImpl.h Wt/FlexLayoutImpl.C
 Wt/FlexItemImpl.h Wt/FlexItemImpl.C
 Wt/FromStringDataInfo.h Wt/FromStringDataInfo.C

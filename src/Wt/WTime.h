@@ -261,6 +261,8 @@ public:
     std::string minuteGetJS;
     std::string secGetJS;
     std::string msecGetJS;
+    unsigned index;
+    int currentGroup;
   };
 
   static RegExpInfo formatToRegExp(const WT_USTRING& format);
@@ -299,11 +301,6 @@ private:
 
   int pmhour() const;
 
-  static RegExpInfo formatHourToRegExp(RegExpInfo &result, const std::string& format, unsigned& i, int& currentGroup);
-  static RegExpInfo formatMinuteToRegExp(RegExpInfo &result, const std::string& format, unsigned& i, int& currentGroup);
-  static RegExpInfo formatSecondToRegExp(RegExpInfo &result, const std::string& format, unsigned& i, int& currentGroup);
-  static RegExpInfo formatMSecondToRegExp(RegExpInfo &result, const std::string& format, unsigned& i, int& currentGroup);
-  static RegExpInfo formatAPToRegExp(RegExpInfo &result, const std::string& format, unsigned& i);
   static RegExpInfo processChar(RegExpInfo &result, const std::string& format, unsigned& i);
   static bool usesAmPm(const WString& format);
 

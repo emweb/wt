@@ -13,7 +13,7 @@ BOOST_AUTO_TEST_CASE(WTime_formatToRegExp_short)
   std::string format = "H:m:s.z";
   Wt::WTime::RegExpInfo timeInfo = Wt::WTime::formatToRegExp(format);
 
-  BOOST_TEST(timeInfo.regexp == "(0|[1-9]|[1][0-9]|2[0-3]):(0|[1-5]?[0-9]):(0|[1-5]?[0-9])\\.(0|[1-9][0-9]{0,2})");
+  BOOST_TEST(timeInfo.regexp == "(0|[1-9]|1[0-9]|2[0-3]):(0|[1-5]?[0-9]):(0|[1-5]?[0-9])\\.(0|[1-9][0-9]{0,2})");
   BOOST_TEST(timeInfo.hourGetJS == "return parseInt(results[1], 10);");
   BOOST_TEST(timeInfo.minuteGetJS == "return parseInt(results[2], 10);");
   BOOST_TEST(timeInfo.secGetJS == "return parseInt(results[3], 10);");
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(WTime_formatToRegExp_long)
   std::string format = "HH:mm:ss.zzz";
   Wt::WTime::RegExpInfo timeInfo = Wt::WTime::formatToRegExp(format);
 
-  BOOST_TEST(timeInfo.regexp == "([0-1][0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9])\\.([0-9]{3})");
+  BOOST_TEST(timeInfo.regexp == "([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])\\.([0-9]{3})");
   BOOST_TEST(timeInfo.hourGetJS == "return parseInt(results[1], 10);");
   BOOST_TEST(timeInfo.minuteGetJS == "return parseInt(results[2], 10);");
   BOOST_TEST(timeInfo.secGetJS == "return parseInt(results[3], 10);");
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(WTime_formatToRegExp_bad_formatting_hour_allowed)
   std::string format = "HHHH mm ss AP";
   Wt::WTime::RegExpInfo timeInfo = Wt::WTime::formatToRegExp(format);
 
-  BOOST_TEST(timeInfo.regexp == "([0-1][0-9]|[2][0-3])([0-1][0-9]|[2][0-3]) ([0-5][0-9]) ([0-5][0-9]) ([AP]M)");
+  BOOST_TEST(timeInfo.regexp == "([0-1][0-9]|2[0-3])([0-1][0-9]|2[0-3]) ([0-5][0-9]) ([0-5][0-9]) ([AP]M)");
 }
 
 BOOST_AUTO_TEST_CASE(WTime_formatToRegExp_bad_formatting_minute_allowed)
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(WTime_formatToRegExp_bad_formatting_minute_allowed)
   std::string format = "HH mmm ss AP";
   Wt::WTime::RegExpInfo timeInfo = Wt::WTime::formatToRegExp(format);
 
-  BOOST_TEST(timeInfo.regexp == "([0-1][0-9]|[2][0-3]) ([0-5][0-9])(0|[1-5]?[0-9]) ([0-5][0-9]) ([AP]M)");
+  BOOST_TEST(timeInfo.regexp == "([0-1][0-9]|2[0-3]) ([0-5][0-9])(0|[1-5]?[0-9]) ([0-5][0-9]) ([AP]M)");
 }
 
 BOOST_AUTO_TEST_CASE(WTime_formatToRegExp_bad_formatting_second_allowed)
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(WTime_formatToRegExp_bad_formatting_second_allowed)
   std::string format = "HH mm sssss AP";
   Wt::WTime::RegExpInfo timeInfo = Wt::WTime::formatToRegExp(format);
 
-  BOOST_TEST(timeInfo.regexp == "([0-1][0-9]|[2][0-3]) ([0-5][0-9]) ([0-5][0-9])([0-5][0-9])(0|[1-5]?[0-9]) ([AP]M)");
+  BOOST_TEST(timeInfo.regexp == "([0-1][0-9]|2[0-3]) ([0-5][0-9]) ([0-5][0-9])([0-5][0-9])(0|[1-5]?[0-9]) ([AP]M)");
 }
 
 BOOST_AUTO_TEST_CASE(WTime_formatToRegExp_bad_formatting_millisecond_allowed)
@@ -83,17 +83,17 @@ BOOST_AUTO_TEST_CASE(WTime_formatToRegExp_bad_formatting_millisecond_allowed)
   std::string format = "HH mm ss.zzzz AP";
   Wt::WTime::RegExpInfo timeInfo = Wt::WTime::formatToRegExp(format);
 
-  BOOST_TEST(timeInfo.regexp == "([0-1][0-9]|[2][0-3]) ([0-5][0-9]) ([0-5][0-9])\\.([0-9]{3})(0|[1-9][0-9]{0,2}) ([AP]M)");
+  BOOST_TEST(timeInfo.regexp == "([0-1][0-9]|2[0-3]) ([0-5][0-9]) ([0-5][0-9])\\.([0-9]{3})(0|[1-9][0-9]{0,2}) ([AP]M)");
 
   format = "HH mm ss.zz AP";
   timeInfo = Wt::WTime::formatToRegExp(format);
 
-  BOOST_TEST(timeInfo.regexp == "([0-1][0-9]|[2][0-3]) ([0-5][0-9]) ([0-5][0-9])\\. ([AP]M)");
+  BOOST_TEST(timeInfo.regexp == "([0-1][0-9]|2[0-3]) ([0-5][0-9]) ([0-5][0-9])\\. ([AP]M)");
 
   format = "HH mm ss.zzzzz AP";
   timeInfo = Wt::WTime::formatToRegExp(format);
 
-  BOOST_TEST(timeInfo.regexp == "([0-1][0-9]|[2][0-3]) ([0-5][0-9]) ([0-5][0-9])\\.([0-9]{3}) ([AP]M)");
+  BOOST_TEST(timeInfo.regexp == "([0-1][0-9]|2[0-3]) ([0-5][0-9]) ([0-5][0-9])\\.([0-9]{3}) ([AP]M)");
 }
 
 BOOST_AUTO_TEST_CASE(WTime_formatToRegExp_bad_formatting_ap_allowed)
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(WTime_formatToRegExp_bad_formatting_ap_allowed)
   std::string format = "HH mm ss APP";
   Wt::WTime::RegExpInfo timeInfo = Wt::WTime::formatToRegExp(format);
 
-  BOOST_TEST(timeInfo.regexp == "([0-1][0-9]|[2][0-3]) ([0-5][0-9]) ([0-5][0-9]) ([AP]M)P");
+  BOOST_TEST(timeInfo.regexp == "([0-1][0-9]|2[0-3]) ([0-5][0-9]) ([0-5][0-9]) ([AP]M)P");
 }
 
 BOOST_AUTO_TEST_CASE(WTime_formatToRegExp_bad_formatting_ap_not_allowed)
@@ -113,5 +113,35 @@ BOOST_AUTO_TEST_CASE(WTime_formatToRegExp_bad_formatting_ap_not_allowed)
   std::string format = "HH mm ss APA";
   Wt::WTime::RegExpInfo timeInfo = Wt::WTime::formatToRegExp(format);
 
-  BOOST_TEST(timeInfo.regexp == "([0-1][0-9]|[2][0-3]) ([0-5][0-9]) ([0-5][0-9]) ([AP]M)A");
+  BOOST_TEST(timeInfo.regexp == "([0-1][0-9]|2[0-3]) ([0-5][0-9]) ([0-5][0-9]) ([AP]M)([AP]M)");
+}
+
+BOOST_AUTO_TEST_CASE(WTime_formatToRegExp_standalone_meridiem)
+{
+  auto timeInfo = Wt::WTime::formatToRegExp("h:mm A");
+
+  BOOST_TEST(timeInfo.regexp == "([1-9]|1[012]):([0-5][0-9]) ([AP]M)");
+
+  timeInfo = Wt::WTime::formatToRegExp("h:mm a");
+
+  BOOST_TEST(timeInfo.regexp == "([1-9]|1[012]):([0-5][0-9]) ([ap]m)");
+}
+
+BOOST_AUTO_TEST_CASE(WTime_formatToRegExp_quoted_ap_ignored_by_hours)
+{
+  auto timeInfo = Wt::WTime::formatToRegExp("h:mm 'A'");
+
+  BOOST_TEST(timeInfo.regexp == "(0|[1-9]|1[0-9]|2[0-3]):([0-5][0-9]) A");
+
+  timeInfo = Wt::WTime::formatToRegExp("h:mm 'a'");
+
+  BOOST_TEST(timeInfo.regexp == "(0|[1-9]|1[0-9]|2[0-3]):([0-5][0-9]) a");
+
+  timeInfo = Wt::WTime::formatToRegExp("h:mm 'AP'");
+
+  BOOST_TEST(timeInfo.regexp == "(0|[1-9]|1[0-9]|2[0-3]):([0-5][0-9]) AP");
+
+  timeInfo = Wt::WTime::formatToRegExp("h:mm 'ap'");
+
+  BOOST_TEST(timeInfo.regexp == "(0|[1-9]|1[0-9]|2[0-3]):([0-5][0-9]) ap");
 }

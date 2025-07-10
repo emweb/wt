@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(WDate_formatToRegExp_short)
   Wt::WDate::RegExpInfo dateInfo = Wt::WDate::formatToRegExp(format);
 
   BOOST_TEST(dateInfo.regexp == "(\\d{1,2})-(\\d{1,2})-(\\d{2})");
-  BOOST_TEST(dateInfo.yearGetJS == "var y=parseInt(results[3], 10);return y > 38 ? 1900 + y : 2000 + y;");
+  BOOST_TEST(dateInfo.yearGetJS == "var y = parseInt(results[3], 10); return y > 38 ? 1900 + y : 2000 + y;");
   BOOST_TEST(dateInfo.monthGetJS == "return parseInt(results[2], 10);");
   BOOST_TEST(dateInfo.dayGetJS == "return parseInt(results[1], 10);");
 }
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(WDate_formatToRegExp_long)
   Wt::WDate::RegExpInfo dateInfo = Wt::WDate::formatToRegExp(format);
 
   BOOST_TEST(dateInfo.regexp == "(\\d{2})-(\\d{2})-(\\d{4})");
-  BOOST_TEST(dateInfo.yearGetJS == "return parseInt(results[3], 10)");
+  BOOST_TEST(dateInfo.yearGetJS == "return parseInt(results[3], 10);");
   BOOST_TEST(dateInfo.monthGetJS == "return parseInt(results[2], 10);");
   BOOST_TEST(dateInfo.dayGetJS == "return parseInt(results[1], 10);");
 }
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(WDate_formatToRegExp_both)
   Wt::WDate::RegExpInfo dateInfo = Wt::WDate::formatToRegExp(format);
 
   BOOST_TEST(dateInfo.regexp == "(\\d{2})-(\\d{1,2})-(\\d{2})");
-  BOOST_TEST(dateInfo.yearGetJS == "var y=parseInt(results[3], 10);return y > 38 ? 1900 + y : 2000 + y;");
+  BOOST_TEST(dateInfo.yearGetJS == "var y = parseInt(results[3], 10); return y > 38 ? 1900 + y : 2000 + y;");
   BOOST_TEST(dateInfo.monthGetJS == "return parseInt(results[2], 10);");
   BOOST_TEST(dateInfo.dayGetJS == "return parseInt(results[1], 10);");
 }
