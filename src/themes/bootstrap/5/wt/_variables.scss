@@ -39,7 +39,7 @@ $wt-datetime-edit-icon-dark: url("data:image/svg+xml,<svg xmlns='http://www.w3.o
 $wt-datetime-edit-icon-hover-dark: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 33 16' fill='#D8DBDF'><path fill-rule='evenodd' d='m3.5,0a0.5,0.5 0 0 1 0.5,0.5l0,0.5l8,0l0,-0.5a0.5,0.5 0 0 1 1,0l0,0.5l1,0a2,2 0 0 1 2,2l0,11a2,2 0 0 1 -2,2l-12,0a2,2 0 0 1 -2,-2l0,-11a2,2 0 0 1 2,-2l1,0l0,-0.5a0.5,0.5 0 0 1 0.5,-0.5zm-2.5,4l0,10a1,1 0 0 0 1,1l12,0a1,1 0 0 0 1,-1l0,-10l-14,0z'/><path d='m11,6.5a0.5,0.5 0 0 1 0.5,-0.5l1,0a0.5,0.5 0 0 1 0.5,0.5l0,1a0.5,0.5 0 0 1 -0.5,0.5l-1,0a0.5,0.5 0 0 1 -0.5,-0.5l0,-1zm-3,0 a0.5,0.5 0 0 1 0.5,-0.5l1,0a0.5,0.5 0 0 1 0.5,0.5l0,1a0.5,0.5 0 0 1 -0.5,0.5l-1,0a0.5,0.5 0 0 1 -0.5,-0.5l0,-1zm-5,3a0.5,0.5 0 0 1.5,-0.5l1,0a0.5,0.5 0 0 1 0.5,0.5l0,1a0.5,0.5 0 0 1 -0.5,0.5l-1,0a0.5,0.5 0 0 1 -0.5,-0.5l0,-1zm3,0a0.5,0.5 0 0 1 0.5,-0.5l1,0a0.5,0.5 0 0 1 0.5,0.5l0,1a0.5,0.5 0 0 1 -0.5,0.5l-1,0a0.5,0.5 0 0 1 -0.5,-0.5l0,-1z'/><path d='m25,16a7,7 0 1 0 0,-14a7,7 0 0 0 0,14zm8,-7a8,8 0 1 1 -16,0a8,8 0 0 1 16,0z'/><path d='m25.5,4a0.5,0.5 0 0 1 0.5,0.5l0,5.21l3.248,1.856a0.5,0.5 0 0 1 -0.496,0.868l-3.5,-2a0.5,0.5 0 0 1 -0.252,-0.434l0, -5.5a0.5,0.5 0 0 1 0.5,-0.5z'/></svg>") !default;
 $wt-datetime-edit-bg-position: right .73em center !default;
 $wt-datetime-edit-bg-size: contain !default;
-$wt-datetime-edit-feedback-icon-position: $form-select-feedback-icon-position !default;
+$wt-datetime-edit-feedback-icon-position: center right calc($form-select-indicator-padding + 1rem) !default;
 $wt-datetime-edit-feedback-icon-size: $form-select-feedback-icon-size !default;
 $wt-datetime-edit-feedback-icon-padding-end: calc($form-select-feedback-icon-padding-end + .75rem) !default;
 
