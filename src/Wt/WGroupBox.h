@@ -119,8 +119,15 @@ protected:
 private:
   WString title_;
   bool titleChanged_;
+  WLayout* logicalLayout_;
 
   void init();
+
+  /* Add the logical layout to a WVBoxLayout. This is needed to fix
+   * #13818 without undoing the fix for #11882.
+   */
+  void setLogicalLayout(std::unique_ptr<WLayout> layout) override;
+  WLayout* logicalLayout() const override { return logicalLayout_; }
 };
 
 }

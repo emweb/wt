@@ -61,6 +61,11 @@ StdLayoutImpl *WContainerWidget::layoutImpl() const
 
 void WContainerWidget::setLayout(std::unique_ptr<WLayout> layout)
 {
+  setLogicalLayout(std::move(layout));
+}
+
+void WContainerWidget::setLogicalLayout(std::unique_ptr<WLayout> layout)
+{
 #ifndef WT_NO_LAYOUT
   // make sure old layout is deleted first, std::unique_ptr assignment
   // changes the value of the pointer and then deletes the old value, but
@@ -516,7 +521,7 @@ void WContainerWidget::propagateRenderOk(bool deep)
 
 #ifndef WT_NO_LAYOUT
   if (layout_ && deep)
-    propagateLayoutItemsOk(layout());
+    propagateLayoutItemsOk(realLayout());
   else
 #endif
     addedChildren_.reset();

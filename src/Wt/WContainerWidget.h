@@ -188,7 +188,7 @@ public:
    *
    * \sa setLayout(WLayout *)
    */
-  WLayout *layout() const { return layout_.get(); }
+  WLayout *layout() const { return logicalLayout(); }
 
   /*! \brief Adds a child widget to this container.
    *
@@ -584,9 +584,20 @@ protected:
   friend class FlexLayoutImpl;
 
 private:
+  /* This can be overriden if we need the custom layout set by the
+   * developer to be inside of another layout (see WGroupBox).
+   */
+  virtual void setLogicalLayout(std::unique_ptr<WLayout> layout);
+
+  // Returns the actual layout of the container
+  WLayout*  realLayout() const { return layout_.get(); }
+
+  // Returns the custom layout set by the developer
+  virtual WLayout* logicalLayout() const { return realLayout(); }
   void propagateLayoutItemsOk(WLayoutItem *item);
   void layoutChanged(bool rerender);
 
+  friend class WGroupBox;
   friend class WImage;
   friend class WTableCell;
 };

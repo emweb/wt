@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 #include "Wt/WGroupBox.h"
+#include "Wt/WVBoxLayout.h"
 
 #include "DomElement.h"
 #include "StdWidgetItemImpl.h"
@@ -24,6 +25,7 @@ WGroupBox::WGroupBox(const WString& title)
 void WGroupBox::init()
 {
   setJavaScriptMember(WT_GETPS_JS, StdWidgetItemImpl::secondGetPSJS());
+  setLogicalLayout(nullptr);
 }
 
 void WGroupBox::setTitle(const WString& title)
@@ -77,6 +79,18 @@ void WGroupBox::refresh()
 int WGroupBox::firstChildIndex() const
 {
   return 1; // Legend is before
+}
+
+void WGroupBox::setLogicalLayout(std::unique_ptr<WLayout> layout)
+{
+  std::unique_ptr<WVBoxLayout> newLayout = std::make_unique<WVBoxLayout>();
+  logicalLayout_ = layout.get();
+
+  if (layout) {
+    newLayout->addLayout(std::move(layout));
+  }
+
+  WContainerWidget::setLogicalLayout(std::move(newLayout));
 }
 
 }

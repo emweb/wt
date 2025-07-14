@@ -1385,10 +1385,6 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
       if (display) {
         element.setProperty(Property::StyleDisplay, display);
-
-        if (element.type() == DomElementType::FIELDSET) {
-          element.setProperty(Property::StyleFlexDirection, "column");
-        }
       }
     } else
       element.setProperty(Property::StyleDisplay, "none");
