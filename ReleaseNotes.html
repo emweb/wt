@@ -71,6 +71,19 @@ behaviour.
     an out-of-bounds index will no longer be checked by default. This will no longer cause a crash.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13818" target="_blank">Issue #13818</a>:
+    fixed <a href="classWt_1_1WGroupBox.html" target="_blank">WGroupBox</a> switching from horizontal to vertical inside a
+    <a href="namespaceWt.html#aeb0e4f49ce4a28d8ce9b0c6005027876" target="_blank">LayoutImplementation::Flex</a> when using
+    <a href="classWt_1_1WGroupBox.html#a369081aa62b840875cac9ee5d24bd64e" target="_blank">WGroupBox::setTitle()</a>.
+
+    Additionally, fixed
+    <a href="classWt_1_1WGroupBox.html" target="_blank">WGroupBox</a> not always respecting the minimum
+    size of its content when having a
+    <a href="namespaceWt.html#aeb0e4f49ce4a28d8ce9b0c6005027876" target="_blank">LayoutImplementation::JavaScript</a>.
+    This could lead to other widget overlapping the content of the
+    <a href="classWt_1_1WGroupBox.html" target="_blank">WGroupBox</a>.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13714" target="_blank">Issue #13714</a>:
     fixed a race condition in
      <a href="classWt_1_1Http_1_1Client.html" target="_blank">Http::Client</a> that could lead to a crash if the
