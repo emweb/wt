@@ -2109,7 +2109,7 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
 
       if (viewportHeight_ != UNKNOWN_VIEWPORT_HEIGHT) {
         if (hint == ScrollHint::EnsureVisible) {
-          if (viewportTop_ + viewportHeight_ < rowY)
+          if (viewportTop_ + viewportHeight_ < rowY + rh)
             hint = ScrollHint::PositionAtTop;
           else if (rowY < viewportTop_)
            hint = ScrollHint::PositionAtBottom;
