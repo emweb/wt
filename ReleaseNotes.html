@@ -34,6 +34,20 @@ behaviour.
     through a <a href="classWt_1_1WStackedWidget.html" target="_blank">WStackedWidget</a>.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13798" target="_blank">Issue #13798</a>:
+    fixed
+    <a href="classWt_1_1WPopupMenu.html" target="_blank">WPopupMenu</a> submenus not taking
+    <a href="classWt_1_1WPopupMenu.html#a47a35b9b9ff72ea1c9daf86897730bd3" target="_blank">WPopupMenu::setAdjust</a>
+    flags into account when opening. Since
+    <a href="classWt_1_1WPopupMenu.html" target="_blank">WPopupMenu</a> submenus can now
+    hide its parent menu, more control over
+    <a href="classWt_1_1WPopupMenu.html#a5f65e7578883ecad37e9b1aae6a6cfe5" target="_blank">WPopupMenu::setAutoHide()</a>
+    was added, by allowing to change it for submenus as well, and by adding different
+    <a href="classWt_1_1WPopupMenu.html#ae7784177e77b54a16ccdb5dc720659fe" target="_blank">WPopupMenu::AutoHideBehaviour</a>
+    options that can be set using
+    <a href="classWt_1_1WPopupMenu.html#a5d52d004e6012067c722ccb9d29c129b" target="_blank">WPopupMenu::setAutoHideBehaviour()</a>.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13674" target="_blank">Issue #13674</a>:
     fixed URL fragments sometimes being considered part of the internal path.
   </li>
