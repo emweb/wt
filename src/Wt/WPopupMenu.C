@@ -342,6 +342,18 @@ void WPopupMenu::render(WFlags<RenderFlag> flags)
     flags_.reset(BIT_OPEN_CHANGED);
   }
 
+  if (adjustFlags_.test(Orientation::Horizontal)) {
+    addStyleClass("Wt-AdjustX");
+  } else {
+    removeStyleClass("Wt-AdjustX");
+  }
+
+  if (adjustFlags_.test(Orientation::Vertical)) {
+    addStyleClass("Wt-AdjustY");
+  } else {
+    removeStyleClass("Wt-AdjustY");
+  }
+
   WMenu::render(flags);
   flags_.reset(BIT_WILL_POPUP);
 }
@@ -365,6 +377,7 @@ void WPopupMenu::setAdjust(WFlags<Orientation> adjustOrientations)
 
   adjustFlags_ = adjustOrientations;
   refresh();
+  scheduleRerender(true);
 }
 
 }

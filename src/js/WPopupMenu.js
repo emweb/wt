@@ -62,7 +62,14 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, a
       * for the menu padding and border
       */
     const margin = WT.px(menu, "paddingTop") + WT.px(menu, "borderTopWidth");
-    WT.positionAtWidget(menu.id, menu.parentItem.id, WT.Horizontal, -margin, false, true);
+    WT.positionAtWidget(
+      menu.id,
+      menu.parentItem.id,
+      WT.Horizontal,
+      -margin,
+      menu.classList.contains("Wt-AdjustX"),
+      menu.classList.contains("Wt-AdjustY")
+    );
     setOthersInactive(menu, null);
 
     if (WT.isIOS) {
