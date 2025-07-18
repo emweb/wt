@@ -629,6 +629,27 @@ appRoot=C:\Program Files\MyApplications\AppRoot
       combination with a fairly short session timeout.</p><p>When omitted,
       or left empty, this feature is disabled</p></dd>
 
+    <dt><strong>bootstrap-timeout</dt></strong>
+
+      <dd>This option configures the time (in seconds) after which a new
+        plain HTML session is timed out if it has not been upgraded to an
+        Ajax session.
+
+        When new sessions are created, and
+        <code>progressive-bootstrap</code> is enabled, a session will
+        first start as a plain HTML session. A subsequent request from the
+        browser will then upgrade it to an Ajax session. When DoS
+        protection is activated (see
+        <code>plain-ajax-sessions-ratio-limit</code>, and
+        <code>sessions-threshold-for-dos-protection</code>), these new
+        sessions will be created only to be upgraded to Ajax or otherwise
+        be killed after the timeout.
+
+        Many bot users are not Ajax capable, and will have their session
+        terminated after this timeout. This is useful for user agents
+        behaving like bots that are not matched by the
+        <strong>user-agents type="bots"</strong> patterns.</dd>
+
     <dt><strong>server-push-timeout</strong></dt>
 
     <dd>When using server-initiated updates, the client uses
