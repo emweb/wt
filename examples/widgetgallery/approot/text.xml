@@ -980,7 +980,7 @@
 
     <fieldset class="example">
       <legend>Example</legend>
-      ${src theme}
+      ${src Theme}
     </fieldset>
 
     <h3>Remark</h3>
