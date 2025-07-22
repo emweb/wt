@@ -15,5 +15,5 @@ public:
          *  Create UI, Set initial values, ...
          */
     }
-}
+};
 
