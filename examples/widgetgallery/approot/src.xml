@@ -5968,7 +5968,7 @@
 <span class="w">                    </span><span class="s">&quot;&lt;p&gt;A warning is printed in the logs.&lt;/p&gt;&quot;</span><span class="p">);</span>
 </pre></div>
   </message>
-  <message id="src-theme">
+  <message id="src-Theme">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WApplication.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WEnvironment.h&gt;</span>
 
@@ -5986,7 +5986,7 @@
 <span class="cm">         *  Create UI, Set initial values, ...</span>
 <span class="cm">         */</span>
 <span class="w">    </span><span class="p">}</span>
-<span class="p">}</span>
+<span class="p">};</span>
 </pre></div>
   </message>
   <message id="src-TimeEdit">
