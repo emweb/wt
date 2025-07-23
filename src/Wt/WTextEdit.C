@@ -359,7 +359,8 @@ void WTextEdit::updateDom(DomElement& element, bool all)
                            """var obj = " + jsRef() + ".wtObj;"
                            """obj.render(" + config.str() + ","
                            + jsStringLiteral(dummy.cssStyle()) + ","
-                           + (changed().isConnected() ? "true" : "false")
+                           + (changed().isConnected() ? "true" : "false") + ","
+                           + (rendered().isConnected() ? "true" : "false")
                            + ");"
                            "})();");
 

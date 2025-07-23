@@ -24,7 +24,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
 
   tinyMCE.init({ mode: "none" });
 
-  this.render = function(config, aCss, connectOnChange) {
+  this.render = function(config, aCss, connectOnChange, connectOnRender) {
     css = aCss;
     el.ed = new tinymce.Editor(el.id, config, tinymce.EditorManager);
     el.ed.render();
@@ -39,9 +39,11 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
         });
       }
     }
-    setTimeout(function() {
-      APP.emit(el, "render");
-    }, 0);
+    if (connectOnRender) {
+      setTimeout(function() {
+        APP.emit(el, "render");
+      }, 0);
+    }
   };
 
   this.init = function() {
