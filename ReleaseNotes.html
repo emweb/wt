@@ -45,6 +45,14 @@ behaviour.
     fixed vertical scrollbar being missplaced in
     <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a>.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13855" target="_blank">Issue #13855</a>:
+    avoided a useless HTTP request being sent when the
+    <a href="classWt_1_1WTextEdit.html#a5952f46d2f8d21e2fd45135e29d5061d" target="_blank">WTextEdit is rendered</a>,
+    if the signal is not connected. The resulting error log, coming from the
+    <a href="classWt_1_1WApplication.html" target="_blank">WApplication</a>
+    trying to interpret the signal, is now avoided.
+  </li>
 </ul>
 
 <h2>Release 4.12.2 (January 28, 2026)</h2>
