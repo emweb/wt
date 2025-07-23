@@ -20,19 +20,38 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.12.0 (TBD)</h2>
+<h2>Release 4.12.0 (July 23, 2025)</h2>
 
 <p>Wt 4.12.0 is a major release that introduces the following new features:</p>
 
 <ul>
   <li>
     <a href="https://redmine.emweb.be/issues/7450" target="_blank">Issue #7450</a>:
-    Added the option to use <code>std::filesystem</code> instead of <code>boost::filesystem</code> by setting the cache variable <code>WT_CPP17_FILESYSTEM_IMPLEMENTATION</code> to <code>std</code> instead of <code>boost</code>.
-    Accessing the last time a file was updated with std::filesystem before C++20 may result in an imprecise time point.
+    added the option to use <code>std::filesystem</code> instead of <code>boost::filesystem</code> by setting the cache variable <code>WT_CPP17_FILESYSTEM_IMPLEMENTATION</code> to <code>std</code> instead of <code>boost</code>.
+    <br><strong>IMPORTANT:</strong> Accessing the last time a file was updated with <code>std::filesystem</code> before <code>C++20</code> may result in an imprecise time point. This can affect the <code>wthttp</code>'s <code>last-modified</code> timestamp.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/12881" target="_blank">Issue #12881</a>:
+    added
+    <a href="classWt_1_1WPasswordEdit.html" target="_blank">WPasswordEdit</a> which ought to replace
+    <a href="classWt_1_1WLineEdit.html#a27c9bc232bea0ab76ee266be3325a10e" target="_blank">WLineEdit::setEchoMode(EchoMode::Password)</a>
+    that is now deprecated. You can find examples on how to use this new class in the
+    <a href="https://www.webtoolkit.eu/widgets/forms/password" target="_blank">Widget Gallery</a>.
+
+    It is also now possible to set the input mode of any
+    <a href="classWt_1_1WLineEdit.html" target="_blank">WLineEdit</a> using
+    <a href="classWt_1_1WLineEdit.html#a5d772a843fb12447da0e295e6fae805b" target="_blank">WLineEdit::setInputMode()</a>.
+    This is especially important for mobile devices, where the input mode impacts the
+    keyboard that is shown to the user when the input field is focused.
+
+    <br><strong>IMPORTANT:</strong> it is now possible to combine multiple
+    <a href="classWt_1_1WValidator.html" target="_blank">WValidator</a>s into a single one,
+    using the new
+    <a href="classWt_1_1WStackedValidator.html" target="_blank">WStackedValidator</a>.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/7228" target="_blank">Issue #7228</a>:
-    Wt now supports native HTML5 input types for <a href="classWt_1_1WDateTime.html" target="_blank">WDateEdit</a> and <a href="classWt_1_1WTimeEdit.html" target="_blank">WTimeEdit</a>.
+    Wt now supports native HTML5 input types for <a href="classWt_1_1WDateEdit.html" target="_blank">WDateEdit</a> and <a href="classWt_1_1WTimeEdit.html" target="_blank">WTimeEdit</a>.
     You can enable it by using <a href="classWt_1_1WDateEdit.html#a388105e077d60a7225564572cae51a93" target="_blank">WDateEdit::setNativeControl(true)</a> or
     <a href="classWt_1_1WTimeEdit.html#a747741116664abc07f820122d05a535f" target="_blank">WTimeEdit::setNativeControl(true)</a>
     for <code>WDateEdit</code> and <code>WTimeEdit</code> respectively. Both are set to false by default.
@@ -49,63 +68,53 @@ behaviour.
     If both options are enabled, the tooltip on hover will not be shown. Rather the forcibly shown tooltip will remain visible throughout.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/12995" target="_blank">Issue #12995</a>:
-    added the ability to add
-    <a href="classWt_1_1WLeafletMap_1_1Popup.html" target="_blank">WLeafletMap::Popup</a>s to the
-    <a href="classWt_1_1WLeafletMap.html" target="_blank">WLeafletMap</a>.
-    These popups can be added to any coordinate on the map, or to specific
-    <a href="classWt_1_1WLeafletMap_1_1Marker.html" target="_blank">WLeafletMap::Marker</a>s.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/12996" target="_blank">Issue #12996</a>:
-    added the ability to add
-    <a href="classWt_1_1WLeafletMap_1_1Tooltip.html" target="_blank">WLeafletMap::Tooltip</a>s to the
-    <a href="classWt_1_1WLeafletMap.html" target="_blank">WLeafletMap</a>.
-    These tooltips can be added to any coordinate on the map, or to specific
-    <a href="classWt_1_1WLeafletMap_1_1Marker.html" target="_blank">WLeafletMap::Marker</a>s.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/12994" target="_blank">Issue #12994</a>:
-    add the possibility to specify configuration for
-    <a href="classWt_1_1WLeafletMap_1_1LeafletMarker.html" target="_blank">WLeafletMap::LeafletMarker</a> by using
-    <a href="classWt_1_1WLeafletMap_1_1LeafletMarker.html#a94c811873bc9b067b75c4002b70fa0f3" target="_blank">WLeafletMap::LeafletMarker::setOptions()</a>.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/12997" target="_blank">Issue #12997</a>:
-    added signals to
-    <a href="classWt_1_1WLeafletMap_1_1AbstractMapItem.html" target="_blank">WLeafletMap::AbstractMapItem</a> that are emitted when a mouse event triggers on the map item.
-  </li>
+    <a href="https://redmine.emweb.be/issues/12993" target="_blank">Parent Issue #12993</a>:
+    <ul>
+      <li>
+        <a href="https://redmine.emweb.be/issues/12995" target="_blank">Issue #12995</a>:
+        added the ability to add
+        <a href="classWt_1_1WLeafletMap_1_1Popup.html" target="_blank">WLeafletMap::Popup</a>s to the
+        <a href="classWt_1_1WLeafletMap.html" target="_blank">WLeafletMap</a>.
+        These popups can be added to any coordinate on the map, or to specific
+        <a href="classWt_1_1WLeafletMap_1_1Marker.html" target="_blank">WLeafletMap::Marker</a>s.
+      </li>
+      <li>
+        <a href="https://redmine.emweb.be/issues/12996" target="_blank">Issue #12996</a>:
+        added the ability to add
+        <a href="classWt_1_1WLeafletMap_1_1Tooltip.html" target="_blank">WLeafletMap::Tooltip</a>s to the
+        <a href="classWt_1_1WLeafletMap.html" target="_blank">WLeafletMap</a>.
+        These tooltips can be added to any coordinate on the map, or to specific
+        <a href="classWt_1_1WLeafletMap_1_1Marker.html" target="_blank">WLeafletMap::Marker</a>s.
+      </li>
+      <li>
+        <a href="https://redmine.emweb.be/issues/12994" target="_blank">Issue #12994</a>:
+        add the possibility to specify configuration for
+        <a href="classWt_1_1WLeafletMap_1_1LeafletMarker.html" target="_blank">WLeafletMap::LeafletMarker</a> by using
+        <a href="classWt_1_1WLeafletMap_1_1LeafletMarker.html#a94c811873bc9b067b75c4002b70fa0f3" target="_blank">WLeafletMap::LeafletMarker::setOptions()</a>.
+      </li>
+      <li>
+        <a href="https://redmine.emweb.be/issues/12997" target="_blank">Issue #12997</a>:
+        added signals to
+        <a href="classWt_1_1WLeafletMap_1_1AbstractMapItem.html" target="_blank">WLeafletMap::AbstractMapItem</a>
+        (this includes
+        <a href="classWt_1_1WLeafletMap_1_1Marker.html" target="_blank">WLeafletMap::Marker</a>s,
+        <a href="classWt_1_1WLeafletMap_1_1Popup.html" target="_blank">WLeafletMap::Popup</a>s,
+        and <a href="classWt_1_1WLeafletMap_1_1Tooltip.html" target="_blank">WLeafletMap::Tooltip</a>s)
+        that are emitted when a mouse event triggers on the map item.
+      </li>
+    </ul>
   <li>
     <a href="https://redmine.emweb.be/issues/4948" target="_blank">Issue #4948</a>:
-    The style of the collapse icon of collapsible <a href="classWt_1_1WPanel.html" target="_blank">WPanel</a>s
+    the style of the collapse icon of collapsible <a href="classWt_1_1WPanel.html" target="_blank">WPanel</a>s
     is now defined in CSS by styling the <code>Wt-collapse-button</code> style class.
-    IMPORTANT: the collapse icon will not be visible when using a custom theme that does not
+    <br><strong>IMPORTANT:</strong> the collapse icon will not be visible when using a custom theme that does not
     define a styling for the <code>Wt-collapse-button</code> style class.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/12881" target="_blank">Issue #12881</a>:
-    added
-    <a href="classWt_1_1WPasswordEdit.html" target="_blank">WPasswordEdit</a> which ought to replace
-    <a href="classWt_1_1WLineEdit.html#a27c9bc232bea0ab76ee266be3325a10e" target="_blank">WLineEdit::setEchoMode(EchoMode::Password)</a>
-    that is now deprecated. You can find examples on how to use this new class in the
-    <a href="https://www.webtoolkit.eu/forms/password" target="_blank">Widget Gallery</a>.
-
-    It is also now possible to set the input mode of any
-    <a href="classWt_1_1WLineEdit.html" target="_blank">WLineEdit</a> using
-    <a href="classWt_1_1WLineEdit.html#a5d772a843fb12447da0e295e6fae805b" target="_blank">WLineEdit::setInputMode()</a>.
-    This is especially important for mobile devices, where the input mode impacts the
-    keyboard that is shown to the user when the input field is focused.
-
-    In addition, it is now possible to combine multiple
-    <a href="classWt_1_1WValidator.html" target="_blank">WValidator</a>s into a single one,
-    using the new
-    <a href="classWt_1_1WStackedValidator.html" target="_blank">WStackedValidator</a>.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/12817" target="_blank">Issue #12817</a>:
     allows custom implementation of the scope and the authorization endpoint of the
     <a href="classWt_1_1Auth_1_1OAuthProcess.html" target="_blank">Auth::OAuthProcess</a> by overriding
-    <a href="classWt_1_1Auth_1_1OAuthProcess.html#a0abac41f14450571445d1c82e9dba4cc" target="_blank">Auth::OAuthProcess::scope()</a> and
+    <a href="classWt_1_1Auth_1_1OAuthProcess.html#a750aa9eaf024b9b50e6a6aeeecb65e68" target="_blank">Auth::OAuthProcess::scope()</a> and
     <a href="classWt_1_1Auth_1_1OAuthProcess.html#a8dc8be6709ce345220a05714a9665dae" target="_blank">Auth::OAuthProcess::authorizationEndpoint()</a>.
     This will allow developers to reuse the <a href="classWt_1_1Auth_1_1OAuthService.html" target="_blank">OAuthService</a> for near-identical authentication calls.
   </li>
@@ -118,7 +127,7 @@ behaviour.
     <a href="https://redmine.emweb.be/issues/13701" target="_blank">Issue #13701</a>:
     checked the index's validity on changing the <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a>, when using a
     <a href="classWt_1_1WStackedWidget.html" target="_blank">WStackedWidget</a> to display content.
-    Unselecting the previous item uses a set <code>-1<code> index, which the <code>WStackedWidget</code> omitted to validate.
+    Unselecting the previous item uses a set <code>-1</code> index, which the <code>WStackedWidget</code> omitted to validate.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13699" target="_blank">Issue #13699</a>:
@@ -131,11 +140,6 @@ behaviour.
     <a href="https://redmine.emweb.be/issues/13553" target="_blank">Issue #13553</a>:
     fixed an incorrect fallback in OpenID Connect claim parsing. A "true/false" string was not correctly converted to a boolean.
   </li>
-</ul>
-
-<p>Wt 4.12.0 also addresses the following issues:</p>
-
-<ul>
   <li>
     <a href="https://redmine.emweb.be/issues/13712" target="_blank">Issue #13712</a>:
     corrected the styling of <a href="classWt_1_1ItemDataRole.html#a4f39ded746ca62ea63ed222f2b852cf6" target="_blank">ItemDataRole::Link</a>
@@ -153,24 +157,29 @@ behaviour.
   </li>
   <li>
     <a href="https://redmine.webtoolkit.eu/issues/13301" target="_blank">Issue #13301</a>:
-    Added the possibility to handle all JavaScript errors inside Wt, also of scripts not directly related to Wt.
+    added the possibility to handle all JavaScript errors inside Wt, also of scripts not directly related to Wt.
     This can be done by setting the new <code>debug-level</code> option in the <code>wt_config.xml</code> file to <code>all</code>.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/11272" target="_blank">Issue #11272</a>:
-    Add support for TinyMCE 5, 6 and 7. Wt now assumes TinyMCE 6 is used by default instead of TinyMCE 3,
-    and the TinyMCE version bundled in Wt's Windows binaries has been updated to TinyMCE 6.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/11249" target="_blank">Issue #11249</a>:
-    It is now possible to set placeholder text in
-    <a href="classWt_1_1WTextEdit.html" target="_blank">WTextEdit</a> when using TinyMCE 5 or higher.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/11267" target="_blank">Issue #11267</a>:
-    It is now possible to change the readonly state of a
-    <a href="classWt_1_1WTextEdit.html" target="_blank">WTextEdit</a> when using TinyMCE 5 or higher.
-  </li>
+    <a href="https://redmine.emweb.be/issues/11272" target="_blank">Parent Issue #11272</a>:
+    <ul>
+      <li>
+        <a href="https://redmine.emweb.be/issues/11272" target="_blank">Issue #11272</a>:
+        add support for TinyMCE 5, 6 and 7. Wt now assumes TinyMCE 6 is used by default instead of TinyMCE 3,
+        and the TinyMCE version bundled in Wt's Windows binaries has been updated to TinyMCE 6.
+        <br><strong>IMORTANT:</strong> TinyMCE 8 should work as well, but may require a license key.
+      </li>
+      <li>
+        <a href="https://redmine.emweb.be/issues/11249" target="_blank">Issue #11249</a>:
+        it is now possible to set placeholder text in
+        <a href="classWt_1_1WTextEdit.html" target="_blank">WTextEdit</a> when using TinyMCE 5 or higher.
+      </li>
+      <li>
+        <a href="https://redmine.emweb.be/issues/11267" target="_blank">Issue #11267</a>:
+        it is now possible to change the readonly state of a
+        <a href="classWt_1_1WTextEdit.html" target="_blank">WTextEdit</a> when using TinyMCE 5 or higher.
+      </li>
+    </ul>
   <li>
     <a href="https://redmine.emweb.be/issues/12801" target="_blank">Issue #12801</a>:
     ensured that calling <a href="classWt_1_1WLeafletMap.html#a9263f7ce85484a91034c39484c68fda5" target="_blank">WLeafletMap::removeMarker()</a>
@@ -179,7 +188,7 @@ behaviour.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13163" target="_blank">Issue #13163</a>:
-    Improve the way touch selection works for
+    improve the way touch selection works for
     <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a>. The selection of a single element will now
     happen only after the user stopped touching the screen, to avoid selection happening while scrolling slowly.
     Also, selection of multiple elements will now be cancel when moving the finger. This will avoid selection of
@@ -187,7 +196,7 @@ behaviour.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13711" target="_blank">Issue #13711</a>:
-    Removed the usage of URLs ending with '.'. These were sometimes (not for all requests) found in case no path
+    removed the usage of URLs ending with '.'. These were sometimes (not for all requests) found in case no path
     information was present, indicating the root.
   </li>
   <li>
