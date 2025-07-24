@@ -12,7 +12,7 @@
 #ifdef WT_ASIO_IS_BOOST_ASIO
 
 #include <boost/asio/version.hpp>
-#if BOOST_ASIO_VERSION >= 103300
+#if BOOST_ASIO_VERSION >= 108700
 #include <boost/asio/io_context.hpp>
 namespace boost {
   namespace asio {
