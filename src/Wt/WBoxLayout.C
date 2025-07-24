@@ -53,7 +53,7 @@ std::unique_ptr<WLayoutItem> WBoxLayout::removeItem(WLayoutItem *item)
   int index = indexOf(item);
 
   if (index != -1) {
-    switch (direction_) {
+    switch (direction()) {
     case LayoutDirection::RightToLeft:
       if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
         index = grid_.columns_.size() - 1 - index;
@@ -107,10 +107,10 @@ int WBoxLayout::count() const
   return grid_.rows_.size() * grid_.columns_.size();
 }
 
-void WBoxLayout::setDirection(LayoutDirection direction)
+void WBoxLayout::setDirection(LayoutDirection dir)
 {
-  if (direction_ != direction) {
-    direction_ = direction;
+  if (direction() != dir) {
+    direction_ = dir;
   }
 }
 
@@ -207,7 +207,7 @@ bool WBoxLayout::setStretchFactor(WLayout *layout, int stretch)
 
 void WBoxLayout::setStretchFactor(int i, int stretch)
 {
-  switch (direction_) {
+  switch (direction()) {
   case LayoutDirection::RightToLeft:
     if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
       i = grid_.columns_.size() - 1 - i;
@@ -229,7 +229,7 @@ void WBoxLayout::insertItem(int index, std::unique_ptr<WLayoutItem> item,
 {
   WLayoutItem *it = item.get();
 
-  switch (direction_) {
+  switch (direction()) {
   case LayoutDirection::RightToLeft:
     if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
       index = grid_.columns_.size() - index;
@@ -270,8 +270,8 @@ std::unique_ptr<WWidget> WBoxLayout::createSpacer(const WLength& size)
   std::unique_ptr<Spacer> spacer(new Spacer());
 
   if (size.toPixels() > 0) {
-    if (direction_ == LayoutDirection::LeftToRight ||
-        direction_ == LayoutDirection::RightToLeft)
+    if (direction() == LayoutDirection::LeftToRight ||
+        direction() == LayoutDirection::RightToLeft)
       spacer->setMinimumSize(size, WLength::Auto);
     else
       spacer->setMinimumSize(WLength::Auto, size);
@@ -289,7 +289,7 @@ void WBoxLayout::setResizable(int index, bool enabled,
     setPreferredImplementation(LayoutImplementation::JavaScript);
   }
 
-  switch (direction_) {
+  switch (direction()) {
   case LayoutDirection::RightToLeft:
     if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
       index = grid_.columns_.size() - 1 - index;
