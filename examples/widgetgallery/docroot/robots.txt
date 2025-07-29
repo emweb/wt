@@ -2,10 +2,10 @@
 # Working at "deployment path": widgets
 # Note: deployment is not automatic for this file
 User-agent: *
-Disallow: /widgets/widgets/
+Disallow: /widgets/widgets
 
 User-agent: *
-Disallow: /widgets/forms/widgets/
+Disallow: /widgets/forms/widgets
 
 User-agent: *
-Disallow: /widgets/graphics-charts/widgets/
+Disallow: /widgets/graphics-charts/widgets
