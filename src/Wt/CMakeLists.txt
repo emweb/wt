@@ -20,6 +20,10 @@ if(ASCIIDOCTOR_FOUND)
   ASCIIDOC_FILE(localization-tutorial
     ${WT_SOURCE_DIR}/doc/tutorial/localization.adoc
     ${WT_SOURCE_DIR}/doc/tutorial/localization.html)
+
+  ASCIIDOC_FILE(extjs-tutorial
+    ${WT_SOURCE_DIR}/doc/tutorial/extjs.adoc
+    ${WT_SOURCE_DIR}/doc/tutorial/extjs.html)
 endif()
 
 IF (WT_DATE_TZ_USE_DATE)

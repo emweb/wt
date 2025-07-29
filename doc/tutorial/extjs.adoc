@@ -1,0 +1,801 @@
+= Tutorial on using external JavaScript libraries with Wt
+
+For Wt 4.15.0
+
+:doc: link:../reference/html/
+:tutorials: link:./
+:wt-src: link:https://github.com/emweb/wt/tree/master/
+:cpp: pass:[C++]
+
+== Prerequisites
+
+This introduction assumes that you have a reasonable understanding of
+Wt itself, in particular its stateful session model and the widget
+concept. If you haven't done so yet, you may want to go through the
+{tutorials}wt.html[Wt tutorial] first.
+
+== Introduction
+
+Since Wt abstracts away the JavaScript layer, it can be difficult to
+figure out how to use existing JavaScript libraries with Wt. This
+tutorial will show you some of the tools Wt provides to make this
+easier, as well as giving you a concrete example.
+
+The example we will use shows a way to use the selection module from
+D3.js directly in Wt in order to create SVG images.
+
+This example is included in the Wt distribution, in
+{wt-src}examples/d3-selection[`+examples/d3-selection+`].
+
+== Loading the library
+
+Before being able to use the library, we need to load it. In Wt, this
+can be done using the
+{doc}classWt_1_1WApplication.html#ae88546224ed32cade783da188b145138[WApplication::require()]
+method, which will make the client load the script at the given URL.
+
+In our case, we will load the D3.js library that is stored in the
+docroot of the application, in the `d3.v7.min.js` file.
+
+.loading library (WD3Widget.C)
+[source,cpp]
+----
+WApplication* app = WApplication::instance();
+
+// Load D3.js and WD3Widget.js scripts if not already loaded
+std::string d3Filename = "d3.v7.min.js";
+app->require(d3Filename);
+----
+
+{doc}classWt_1_1WApplication.html#ae88546224ed32cade783da188b145138[WApplication::require()]
+will only load the script once per client session, so you can call this
+method multiple times without worrying about loading the script again.
+This allows to call this method during the first rendering of a widget,
+allowing you to load the library only when a widget that uses it is
+rendered.
+
+== Using JavaScript on widgets
+
+=== Executing JavaScript code
+
+Now that we know how to load the library, we need a way to execute
+JavaScript code from Wt. To do so, you can either use the
+{doc}classWt_1_1WApplication.html#a2a92457b9212cef4057cb54e56183967[WApplication::doJavaScript()]
+method, which will execute the given JavaScript code on the client, or
+the
+{doc}classWt_1_1WWidget.html#a2a8afe6d6f85af864df5cbd49ff6a0c5[WWidget::doJavaScript()]
+method, which will execute the given JavaScript code the next time the
+widget is rendered or updated. This prevents the JavaScript code from
+being executed before the widget is actually rendered, or after it has
+been removed from the client side, which would cause errors in case the
+JavaScript code expects the widget to still be present.
+
+In your JavaScript code, you will likely want to access the DOM
+element of the widget. This is possible by using the
+{doc}classWt_1_1WWidget.html#a83a186d2feacfbfbdb5b54f4cefc6735[WWidget::jsRef()]
+method, which returns a JavaScript expression that evaluates to the DOM
+element of the widget.
+
+=== JavaScript members
+
+Most of the time, you will want to have a JavaScript object that
+handles the interaction between the library and the widget, as it makes
+it easier to manage multiple instances of the widget class. In Wt, you
+can set such a JavaScript object using the
+{doc}classWt_1_1WWidget.html#ab876fc1b7d2e4e5dfc631e380d406ae2[WWidget::setJavaScriptMember()]
+method. This method takes 2 arguments: the name of the member, and the
+JavaScript expression that evaluates to the object you want to set.
+
+[WARNING]
+====
+You should not use names that start with `+wt+` for your JavaScript
+members, as these are reserved for the Wt framework.
+====
+
+You can then call functions of the JavaScript member, using the
+{doc}classWt_1_1WWidget.html#ac9839a243ba5f98e7962d1c0dfc20813[WWidget::callJavaScriptMember()]
+method, or access it directly in JavaScript since it is now a member
+of the DOM element of the widget (which is itself accessible using
+{doc}classWt_1_1WWidget.html#a83a186d2feacfbfbdb5b54f4cefc6735[WWidget::jsRef()]).
+
+In our case, we set a `d3WidgetObj` member of the widget during its
+first rendering, in the `+defineJavaScript()+` method (which is also
+where we load the JavaScript library).
+
+.Setting JavaScript member (WD3Widget.C)
+[source,cpp]
+----
+void WD3Widget::defineJavaScript()
+{
+  // Only define JS once
+  if (jsDefined_) {
+    return;
+  }
+  WApplication* app = WApplication::instance();
+
+  // Load D3.js and WD3Widget.js scripts if not already loaded
+  std::string d3Filename = "d3.v7.min.js";
+  app->require(d3Filename);
+  app->require("WD3Widget.js", "WD3Widget");
+
+  // Instantiate the WD3Widget JS object for this widget
+  WStringStream ss;
+  ss << "new WD3Widget("
+     << app->javaScriptClass() << ","
+     << jsRef() << ","
+     << width().toPixels() << ","
+     << height().toPixels() << ");";
+
+  setJavaScriptMember("d3WidgetObj", ss.str());
+
+  jsDefined_ = true;
+}
+----
+
+As you can see, we do also load the `WD3Widget.js` file. This file
+contains the definition of the `WD3Widget` class that we assign to the
+JavaScript member. This allows to avoid having to write all of the
+JavaScript code in a string, which is cumbersome and error-prone.
+
+=== Sending signals in JavaScript
+
+Note that we pass the
+{doc}classWt_1_1WApplication.html#a6e0963307eb9367a3a4a3f4e35ae3abe[WApplication::javaScriptClass()]
+to the `+WD3Widget+` constructor. This is the name of the main
+JavaScript class that Wt uses, and its `+emit()+` methods can be used
+to send signals from the client side to the server side.
+
+To do so, you first need to have {doc}classWt_1_1JSignal.html[JSignal].
+This class allows you to define a signal that can be emitted from the
+client side, and that can be connected to a slot on the server side.
+
+The signal is tied to a widget and has a name that is used to identify
+it. It also supports up to 6 arguments that can be passed to the slot
+when the signal is emitted.
+
+Once we have a JSignal, we can generate the JavaScript code that will
+emit the signal with the method
+{doc}classWt_1_1JSignal.html#ac7b6d3575d8443d4ae4ac85f5ed869e1()[JSignal::createCall()],
+or the method
+{doc}classWt_1_1JSignal.html#a40e4e42f64060345e26ba85e612f217d[JSignal::createEventCall()]
+if you also want to receive the event that triggered it in the
+parameters.
+
+[NOTE]
+====
+A widget cannot have multiple signals with the same name.
+====
+
+== Interfacing with the library
+
+You should now have all of the tools necessary to use JavaScript in Wt.
+However, you will still need to write the JavaScript code that
+interfaces with the library you want to use. How you do so will highly
+depend on the library itself, and what you want to do with it. We will
+however, give you a few tips on how to do so while explaining the
+example with the D3 library.
+
+=== Choosing the widget type
+
+First, we should extend {doc}classWt_1_1WWidget.html[WWidget] or one of
+its subclasses. While this is not strictly necessary, it is a good idea
+to do so since it is an object-oriented design.
+
+In our case, we will extend the
+{doc}classWt_1_1WInteractWidget.html[WInteractWidget] class as nothing
+we do not want to use any functionality from another widget, but this
+will depend on what you want to do with the library. For instance, the
+{doc}classWt_1_1WTextEdit.html[WTextEdit], that uses the TinyMCE
+library to provide a rich text editor, extends the
+{doc}classWt_1_1WTextArea.html[WTextArea] class, and the
+{doc}classWt_1_1WLeafletMap.html[WLeafletMap] class, that uses the
+Leaflet library to create an interactive map, extends the
+{doc}classWt_1_1WCompositeWidget.html[WCompositeWidget] class.
+
+=== Interface logic
+
+The widget class is the interface between Wt and the library. It should
+provide the necessary methods to interact with the library.
+
+In our example, we want to be able to draw an SVG image using D3
+selections. For this reason, we are going to design the widget like a
+{doc}classWt_1_1WPaintedWidget.html[WPaintedWidget]. The idea is to
+be able to create and manipulate D3 selections inside of an update
+function, which is called when the widget is rendered or updated.
+
+.WD3Widget class (WD3Widget.h)
+[source,cpp]
+----
+// WD3Widget: A widget for embedding D3.js visualizations in Wt
+class WD3Widget: public WInteractWidget
+{
+  // Constructor
+  WD3Widget();
+  // Returns the root SVG selection
+  Selection body() { return Selection(svgRef(), this); }
+
+protected:
+  // D3 initialization and update hooks
+  virtual void initializeD3();
+  virtual void updateD3();
+
+  // Returns the DOM element type (DIV)
+  DomElementType domElementType() const override { return DomElementType::DIV; }
+  // Renders the widget and applies JS updates
+  void render(WFlags<RenderFlag> flags) override;
+
+private:
+  long long lastObjectId_; // Last used D3 object id
+  bool jsDefined_;         // Whether JS is defined
+  JSignal<long long> selectionSignal_; // Selection signal
+
+  WStringStream jsUpdates_; // JS update stream
+
+  // Defines the required JavaScript for the widget
+  void defineJavaScript();
+
+  // Returns the SVG JS reference
+  std::string svgRef() const { return jsRef() + ".d3WidgetObj.body()"; }
+
+  // Returns a JS string literal or empty string
+  static std::string jsStringLiteralOrEmpty(const std::string& str);
+};
+----
+
+.WD3Widget class (WD3Widget.C)
+[source,cpp]
+----
+WD3Widget::WD3Widget()
+  : lastObjectId_(0),
+    jsDefined_(false),
+    selectionSignal_(this, "selectionSignal")
+{ }
+
+void WD3Widget::initializeD3()
+{ }
+
+void WD3Widget::updateD3()
+{ }
+
+void WD3Widget::render(WFlags<RenderFlag> flags)
+{
+  // Ensure the required JavaScript is defined
+  defineJavaScript();
+
+  // Call initializeD3() on full render
+  if (flags.test(RenderFlag::Full)) {
+    initializeD3();
+  }
+
+  updateD3();
+
+  // Execute the JS updates if any
+  if (!jsUpdates_.empty()) {
+    doJavaScript(jsUpdates_.str());
+    jsUpdates_.clear();
+  }
+
+  WInteractWidget::render(flags);
+}
+
+void WD3Widget::defineJavaScript()
+{
+  // Only define JS once
+  if (jsDefined_) {
+    return;
+  }
+  WApplication* app = WApplication::instance();
+
+  // Load D3.js and WD3Widget.js scripts if not already loaded
+  std::string d3Filename = "d3.v7.min.js";
+  app->require(d3Filename);
+  app->require("WD3Widget.js", "WD3Widget");
+
+  // Instantiate the WD3Widget JS object for this widget
+  WStringStream ss;
+  ss << "new WD3Widget("
+     << app->javaScriptClass() << ","
+     << jsRef() << ","
+     << width().toPixels() << ","
+     << height().toPixels() << ");";
+
+  setJavaScriptMember("d3WidgetObj", ss.str());
+
+  jsDefined_ = true;
+}
+
+std::string WD3Widget::jsStringLiteralOrEmpty(const std::string& str)
+{
+  return str.empty() ? "" : jsStringLiteral(str);
+}
+----
+
+We want to be able to create and manipulate D3 selections inside of
+the `+updateD3()+` and `+initializeD3()+` methods, similarly to how
+you would do it JavaScript. For this, we create a class that represents
+a D3 selection, and add the necessary methods to it and to the widget
+class to manipulate those selections.
+
+First, we create a `+D3Object+` class that represents a D3 object and
+its state in JavaScript. This class is a generic class that would be
+used to represent any D3 object, and handle how those are added or
+removed from the JavaScript state. Since we will only use selections in
+this example, this could have been directly implemented in the
+`+Selection+` class, but this allows for a clearer explanation in this
+tutorial.
+
+.D3Object class (WD3Widget.h)
+[source,cpp]
+----
+// D3Object: Represents a D3 object and its JS state
+  struct D3Object
+  {
+  public:
+    // Constructor
+    D3Object(const std::string& js = "", WD3Widget* widget = nullptr);
+
+    // Copy/move constructors and assignment
+    D3Object(const D3Object& other);
+    D3Object& operator=(const D3Object& other);
+    D3Object(D3Object&& other);
+    D3Object& operator=(D3Object&& other);
+
+    // Destructor
+    ~D3Object();
+
+    // Returns true if the object is valid
+    bool isValid() const { return widget_; }
+
+    operator bool() const { return isValid(); }
+
+    // Persists the D3 object in JS
+    void persist() const;
+    // Pushes JS updates to the widget
+    void pushUpdates() const;
+
+    WD3Widget* widget_; // Parent widget
+    mutable std::shared_ptr<D3ObjectRef> savedRef_; // Saved JS ref
+
+    mutable std::string js_; // JS code
+    mutable WStringStream jsUpdates_; // JS updates
+  };
+----
+
+.D3Object class (WD3Widget.C)
+[source,cpp]
+----
+WD3Widget::D3Object::D3Object(const std::string& js, WD3Widget* widget)
+  : widget_(widget),
+    savedRef_(nullptr),
+    js_(js)
+{ }
+
+WD3Widget::D3Object::D3Object(const D3Object& other)
+  : widget_(other.widget_),
+    savedRef_(other.savedRef_)
+{
+  // Ensure the other object is persisted before copying its JS reference
+  other.persist();
+  js_ = other.js_;
+}
+
+WD3Widget::D3Object& WD3Widget::D3Object::operator=(const D3Object& other)
+{
+  widget_ = other.widget_;
+  savedRef_ = other.savedRef_;
+
+  // Ensure the other object is persisted before copying its JS reference
+  other.persist();
+  js_ = other.js_;
+  return *this;
+}
+
+WD3Widget::D3Object::D3Object(D3Object&& other)
+  : widget_(std::move(other.widget_)),
+    savedRef_(std::move(other.savedRef_)),
+    js_(std::move(other.js_))
+{
+  jsUpdates_ = std::move(other.jsUpdates_);
+
+  // Reset other's jsUpdates_ to avoid pushing updates at deletion
+  other.jsUpdates_ = WStringStream();
+}
+
+WD3Widget::D3Object& WD3Widget::D3Object::operator=(D3Object&& other)
+{
+  widget_ = std::move(other.widget_);
+  savedRef_ = std::move(other.savedRef_);
+  js_ = std::move(other.js_);
+  jsUpdates_ = std::move(other.jsUpdates_);
+
+  // Reset other's jsUpdates_ to avoid pushing updates at deletion
+  other.jsUpdates_ = WStringStream();
+
+  return *this;
+}
+
+WD3Widget::D3Object::~D3Object()
+{
+  pushUpdates();
+}
+
+void WD3Widget::D3Object::persist() const
+{
+  // Push any pending JS updates
+  pushUpdates();
+  // If the object is valid and not already persisted, create a new
+  // D3ObjectRef and update js_ to the new JS reference
+  if (isValid() && (!savedRef_ || savedRef_->jsRef() != js_)) {
+    savedRef_ = std::make_shared<D3ObjectRef>(js_, widget_);
+    js_ = savedRef_->jsRef();
+  }
+}
+
+void WD3Widget::D3Object::pushUpdates() const
+{
+  // If there are pending JS updates, append them to the widget's
+  // jsUpdates_ stream
+  if (isValid() && !jsUpdates_.empty()) {
+    widget_->jsUpdates_ << js_ << jsUpdates_.str() << ";";
+    jsUpdates_.clear();
+  }
+}
+----
+
+How this class works is quite simple. It has a `+js_+` member that
+contains the JavaScript code that allows to access the D3 object (or
+create it if it does not exist yet), and it has a `+jsUpdates_+` member
+that collects the code for the updates that needs to be executed on the
+client side to this object.
+
+The updates are pushed to the `+WD3Widget+`'s `+jsUpdates_+` member
+when the changes need to be executed, with the `+pushUpdates()+`
+method. This method is called when the object is destroyed, copied, or
+when the `+persist()+` method is called, in order to ensure that the
+updates are pushed in the right order.
+
+Since we want to be able to use the same selection across multiple
+updates of the widget, we need a way to store them on the JavaScript
+side (as a `+Selection+` is different depending on the state the SVG
+element was in when it was created). For this reason, we added the
+possibility to store the selection using the `+persist()+` method.
+
+To manage the selections that are saved on the JavaScript side, we
+decided to manage it via its own class, `+D3ObjectRef+`, which saves
+the D3 object on the JavaScript side and automatically deletes it when
+it is not needed anymore. The D3 object does therefore create a new
+`+D3ObjectRef+` when persist is called for the first time, and stores
+it in a shared pointer so that it can be shared with its copies, only
+deleting the reference when the last copy is destroyed.
+
+[TIP]
+====
+This way of managing the objects is used here to make the use of
+Selections look like it does in D3.js. This makes sense here because a
+Selection is not meant to be added to the image, and `+WD3Widget+`
+is more akin to a {doc}classWt_1_1WPaintedWidget.html[WPaintedWidget]
+than a {doc}classWt_1_1WContainerWidget.html[WContainerWidget]. If it
+was not the case, storing the D3 object references in a map on the
+server side and handling the changes through the `+WD3Widget+` could
+have been a simpler approach.
+====
+
+.D3ObjectRef class (WD3Widget.h)
+[source,cpp]
+----
+// D3ObjectRef: Reference to a D3 object managed in JS
+class D3ObjectRef: public WObject
+{
+public:
+  // Constructor: saves a D3 object reference
+  D3ObjectRef(const std::string& obj, WD3Widget* widget);
+  // Destructor: removes the D3 object reference
+  ~D3ObjectRef();
+
+  D3ObjectRef(const D3ObjectRef&) = delete;
+  D3ObjectRef& operator=(const D3ObjectRef&) = delete;
+  D3ObjectRef(D3ObjectRef&&) = delete;
+  D3ObjectRef& operator=(D3ObjectRef&&) = delete;
+
+  // Returns the JavaScript reference string
+  std::string jsRef() const { return jsRef_; }
+  // Returns the D3 object id
+  long long d3Id() const { return id_; }
+
+  // Signal emitted when this object is clicked
+  Signal<>& clicked();
+
+private:
+  WD3Widget* widget_; // Parent widget
+  bool connected_;    // Whether signal is connected
+  std::string jsRef_; // JavaScript reference
+  long long id_;      // D3 object id
+  Signal<> clicked_;  // Clicked signal
+
+  // Emits clicked_ if the id matches
+  void emitIfTargeted(long long id);
+};
+----
+
+.D3ObjectRef class (WD3Widget.C)
+[source,cpp]
+----
+WD3Widget::D3ObjectRef::D3ObjectRef(const std::string& obj, WD3Widget* widget)
+  : widget_(widget),
+    connected_(false)
+{
+  // Assign a unique id to the D3 object
+  id_ = widget->lastObjectId_++;
+  // Instruct the JS side to save the D3 object reference
+  widget_->jsUpdates_ << widget_->jsRef() << ".d3WidgetObj.saveD3Obj(" << id_ << "," << obj <<");";
+  // Build a JS reference string for later use
+  jsRef_ = widget_->jsRef() + ".d3WidgetObj.getD3Obj(" + std::to_string(id_) + ")";
+}
+
+WD3Widget::D3ObjectRef::~D3ObjectRef()
+{
+  // Instruct the JS side to remove the D3 object reference
+  widget_->jsUpdates_ << widget_->jsRef() << ".d3WidgetObj.removeD3Obj(" << id_ << ");";
+}
+
+Signal<>& WD3Widget::D3ObjectRef::clicked()
+{
+  // Connect the selectionSignal_ to this object's emitIfTargeted if not
+  // already connected
+  if (!connected_) {
+    widget_->selectionSignal_.connect(this, &D3ObjectRef::emitIfTargeted);
+    connected_ = true;
+  }
+  // Return the clicked_ signal, which can be used to listen for click
+  // events on this D3 object
+  return clicked_;
+}
+
+void WD3Widget::D3ObjectRef::emitIfTargeted(long long id)
+{
+  // Emit the clicked_ signal if the provided id matches this object's id
+  if (id == id_) {
+    clicked_.emit();
+  }
+}
+----
+
+You can see that the `+D3ObjectRef+` uses an id to be able to uniquely
+identify each D3 object on the JavaScript side. Those are stored in an
+object saved in "d3WidgetObj" JavaScript member of the `+WD3Widget+`.
+In the JavaScript code, the object is called `+D3Objs+`.
+
+.Javascript member (WD3Widget.js)
+[source,js]
+----
+class WD3Widget {
+  constructor(APP, widget, width, height) {
+    this.svgWidth = width;
+    this.svgHeight = height;
+    this.D3Objs = {};
+    this.svg = d3.create("svg")
+      .attr("width", this.svgWidth)
+      .attr("height", this.svgHeight)
+      .attr("overflow", "hidden");
+
+    widget.appendChild(this.svg.node());
+
+    this.saveD3Obj = function(id, obj) {
+      this.D3Objs[id] = obj;
+    };
+
+    this.getD3Obj = function(id) {
+      return this.D3Objs[id];
+    };
+
+    this.removeD3Obj = function(id) {
+      delete this.D3Objs[id];
+    };
+
+    this.body = function() {
+      return this.svg;
+    };
+  }
+}
+----
+
+We can now finally talk about the `+Selection+` class in itself.
+
+.Selection class (WD3Widget.h)
+[source,cpp]
+----
+class Selection
+{
+public:
+  // Constructors
+  Selection();
+  Selection(const std::string& js, WD3Widget* widget);
+
+  // Returns true if the selection is valid
+  bool isValid() const { return obj_.isValid(); }
+
+  operator bool() const { return obj_; }
+
+  // D3 selection API methods
+  Selection& attr(const std::string& name, const std::string& value); // Set attribute
+  Selection& attr(const std::string& name, const JsObject& value);
+
+  Selection& classed(const std::string& name, bool value); // Set class
+  Selection& classed(const std::string& name, const JsObject& value = JsObject());
+
+  Selection& style(const std::string& name, const std::string& value, const std::string& priority = ""); // Set style
+  Selection& style(const std::string& name, const JsObject& value, const std::string& priority = "");
+
+  Selection& property(const std::string& name, const std::string& value); // Set property
+  Selection& property(const std::string& name, const JsObject& value);
+
+  Selection& text(const std::string& value); // Set text
+  Selection& text(const JsObject& value);
+
+  Selection append(const std::string& type); // Append element
+  Selection append(const JsObject& type);
+
+  Selection insert(const std::string& type, const std::string& before); // Insert element
+  Selection insert(const JsObject& type, const std::string& before);
+  Selection insert(const std::string& type, const JsObject& before = JsObject());
+  Selection insert(const JsObject& type, const JsObject& before = JsObject());
+
+  Selection remove(); // Remove element
+
+  Selection clone(bool deep); // Clone selection
+
+  Selection sort(const JsObject& compare = JsObject()); // Sort selection
+
+  Selection& order(); // Order selection
+  Selection& raise(); // Raise selection
+  Selection& lower(); // Lower selection
+
+  Selection data(const JsObject& data, const JsObject& key = JsObject()) const; // Bind data
+
+  Selection join(const JsObject& enter,
+                  const JsObject& update = JsObject(),
+                  const JsObject& exit = JsObject()); // Join selections
+
+  Selection join(const std::string& enter,
+                  const JsObject& update = JsObject(),
+                  const JsObject& exit = JsObject());
+
+  Selection enter() const; // Enter selection
+  Selection exit() const;  // Exit selection
+
+  Selection& datum(const std::string& value); // Set datum
+  Selection& datum(const JsObject& value);
+
+  Selection merge(const Selection& other); // Merge selections
+
+  // D3 selection traversal
+  Selection select(const std::string& selector = "") const;
+  Selection selectAll(const std::string& selector = "") const;
+  Selection selectChild(const std::string& selector = "") const;
+  Selection selectChildren(const std::string& selector = "") const;
+  Selection filter(const std::string& filter) const;
+
+  Selection& selection() { return *this; } // Return self
+
+  Selection& each(const JsObject& callback); // For each
+
+  Selection& on(const std::string& event, const JsObject& callback, const JsObject& options = JsObject()); // Event handler
+
+  // Call a JS function with arguments on the selection
+  template<typename... Args>
+  Selection& call(const JsObject& callback, const Args&... args);
+
+  Selection& persist(); // Persist selection
+
+  void pushUpdates() const; // Push JS updates
+
+  Signal<>& clicked(); // Clicked signal
+
+private:
+  D3Object obj_; // Underlying D3 object
+
+  void throwIfInvalid() const; // Throws if invalid
+  Selection getModified(const std::string& modification); // Returns modified selection
+
+  // Helper to push JS arguments
+  template <typename T>
+  void pushArgs(const T& t) { obj_.jsUpdates_ << "," << t; }
+
+  void pushArgs(const std::string& s);
+  void pushArgs(const JsObject& obj);
+  void pushArgs(const bool& b);
+  void pushArgs(const Selection& selection);
+
+  template<typename T, typename... Args>
+  void pushArgs(const T& t, Args... args) {
+      pushArgs(t);
+      pushArgs(args...);
+  }
+};
+----
+
+Most of what this class does is mirroring the way D3 selections work.
+We won't go into too much detail about most of the methods, which are,
+for the most part, only adding the necessary JavaScript code to the
+`+jsUpdates_+` stream and saving the D3 object reference if needed.
+
+Those functions are quite straightforward, and you can find them in the
+example code. We will therefore not show the full code of those
+functions here, but only show the one linked to the event handling.
+
+.Selection class (WD3Widget.C)
+[source,cpp]
+----
+WD3Widget::Selection& WD3Widget::Selection::on(const std::string& event, const JsObject& callback, const JsObject& options)
+{
+  throwIfInvalid();
+
+  obj_.jsUpdates_ << ".on(" << jsStringLiteral(event) << "," << callback.js_;
+  if (!options.js_.empty()) {
+    obj_.jsUpdates_ << "," << options.js_;
+  }
+  obj_.jsUpdates_ << ")";
+  return *this;
+}
+
+Signal<>& WD3Widget::Selection::clicked()
+{
+  throwIfInvalid();
+  // Persist the selection and retrieve the clicked signal from the
+  // saved D3ObjectRef
+  persist();
+  Signal<>& res = obj_.savedRef_->clicked();
+
+  // Make the click handler emit the selectionSignal_
+  WStringStream ss;
+  ss << "function(e) {"
+     << obj_.widget_->selectionSignal_.createCall({"" + std::to_string(obj_.savedRef_->d3Id())})
+     << "}";
+
+  on("click", JsObject(ss.str()));
+  return res;
+}
+----
+
+We can see here that the clicked signal of a `+Selection+` is actually
+triggered by the selectionSignal_ of the `+WD3Widget+` widget. Here,
+only 1 {doc}classWt_1_1JSignal.html[JSignal] is used to handle all the
+clicks on all the selections, and we only emit the clicked signal if
+the id of the selection matches the id passed as argument by the
+{doc}classWt_1_1JSignal.html[JSignal]. This is done to avoid having to
+create a {doc}classWt_1_1JSignal.html[JSignal] for each selection,
+which would have to be managed by the `+WD3Widget+`. This also avoids
+potential warnings due to {doc}classWt_1_1JSignal.html[JSignal] being
+emitted after having been deleted from the server side.
+
+
+I would also like to point out the use of
+{doc}classWt_1_1WWebWidget.html#ac16a45afe8380daa57e5600aadf53a52[WWebWidget::jsStringLiteral()].
+This method ensures that the string is properly escaped for use in
+JavaScript, furthermore, it will escape any single quotes in the
+string, which is both useful and helps preventing JavaScript
+injection attacks. When using strings in JavaScript, you should
+therefore always use this method or one of its counterparts:
+{doc}classWt_1_1DomElement.html#a0403f7fdbe8c91cd82f31ffe003f1520[DomElement::jsStringLiteral()]
+or
+{doc}classWt_1_1WString.html#a32d60b4189af93f09c776072bb0d4435[WString::jsStringLiteral()]
+to avoid security issues.
+
+== Summary
+This tutorial focused on integrating external JavaScript libraries into
+Wt applications, abstracting away the JavaScript layer.
+
+We began by showing how to load external JavaScript. We then explained
+how to execute JavaScript code from Wt, and how to give it access to
+DOM elements. We also covered utilizing JavaScript members to manage
+library interactions directly on widgets. Additionally, we detailed how
+to send signals from JavaScript to C++.
+
+The tutorial used a D3.js example to illustrate interfacing with a
+library. We demonstrated how to create a new widget that acts as an
+interface to D3's selection API, efficiently managing JavaScript object
+lifetimes and updates.
+
+We hope this tutorial gave you ideas on how to integrate any JavaScript
+functionalities you wish to use into your Wt applications.
+

@@ -28,6 +28,9 @@ namespace Wt {
       client-side event handling in C++ (a paradox!).
    - <a href="../../tutorial/localization.html">Tutorial for localization</a> - How
      to support multiple languages in %Wt.
+   - <a href="../../tutorial/extjs.html">Tutorial to use external
+     JavaScript</a> - How to use external JavaScript libraries
+     in %Wt.
    - <a href="../../tutorial/dbo.html">Tutorial for Dbo</a> - %Wt's C++ ORM
      library.
    - <a href="../../tutorial/auth.html">Tutorial for Auth</a> - %Wt's
