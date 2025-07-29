@@ -8,3 +8,6 @@ Disallow: /widgets/forms/widgets
 
 User-agent: *
 Disallow: /widgets/graphics-charts/widgets
+
+User-agent: *
+Disallow: /widgets/graphics-charts/icons/widgets
