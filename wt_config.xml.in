@@ -217,7 +217,7 @@
              of all JavaScript running in the browser's tab where the Wt
              application is active.
           -->
-        <debug-level>script</debug-level>
+        <debug-level>framework</debug-level>
 
         <!-- Log file
 

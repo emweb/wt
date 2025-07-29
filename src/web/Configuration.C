@@ -1111,7 +1111,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
     else if (debugLvlStr == "all")
       clientSideErrorReportLevel_ = All;
     else
-      throw WServer::Exception("<debug-level>: expecting 'script' or 'all'");
+      throw WServer::Exception("<debug-level>: expecting 'framework' or 'all'");
   }
 
   setInt(app, "num-threads", numThreads_);
