@@ -1,6 +1,5 @@
 # Do not allow bots to crawl resources in the widget gallery
 # Working at "deployment path": widgets
-# Note: deployment is not automatic for this file
 User-agent: *
 Disallow: /widgets/widgets
 
