@@ -250,6 +250,7 @@ SUBDIRS(
   codeview
   composer
   custom-bs-theme
+  d3-selection
   dbo-form
   dialog
   dragdrop

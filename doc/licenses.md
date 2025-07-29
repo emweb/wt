@@ -81,6 +81,7 @@ The `wtwithqt` example is licensed under the [MIT License](https://spdx.org/lice
 | Library | Use in Wt | License | Authors |
 | ------- | --------- | ------- | ------- |
 | prettify.js | Used for syntax highlighting in the `codeview` example | [Apache License 2.0](https://spdx.org/licenses/Apache-2.0.html) | Copyright &copy; 2006 Google Inc. |
+| d3.v7.min.js | Used to demonstrate how to intergrate a JavaScript library in Wt | [ISC License](https://spdx.org/licenses/ISC.html) | https://d3js.org v7.9.0 Copyright 2010-2023 Mike Bostock |
 
 ## External dependencies
 
