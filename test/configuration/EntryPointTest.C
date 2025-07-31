@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_CASE( test_entrypoint_empty )
   Wt::Configuration configuration("", "", "", nullptr);
 
   configuration.addEntryPoint(
-    Wt::EntryPoint(
+    std::make_shared<Wt::EntryPoint>(
       Wt::EntryPointType::Application, // type
       [](const Wt::WEnvironment&) { return nullptr; }, // ApplicationCreator
       "", // path
@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE( test_entrypoint_slash )
   Wt::Configuration configuration("", "", "", nullptr);
 
   configuration.addEntryPoint(
-    Wt::EntryPoint(
+    std::make_shared<Wt::EntryPoint>(
       Wt::EntryPointType::Application, // type
       [](const Wt::WEnvironment&) { return nullptr; }, // ApplicationCreator
       "/", // path
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( test_entrypoint_with_urlparams )
   Wt::Configuration configuration("", "", "", nullptr);
 
   configuration.addEntryPoint(
-    Wt::EntryPoint(
+    std::make_shared<Wt::EntryPoint>(
       Wt::EntryPointType::Application, // type
       [](const Wt::WEnvironment&) { return nullptr; }, // ApplicationCreator
       "/users", // path
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( test_entrypoint_with_urlparams )
   );
 
   configuration.addEntryPoint(
-    Wt::EntryPoint(
+    std::make_shared<Wt::EntryPoint>(
       Wt::EntryPointType::Application, // type
       [](const Wt::WEnvironment&) { return nullptr; }, // ApplicationCreator
       "/users/${user}", // path
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE( test_entrypoint_with_urlparams )
   BOOST_REQUIRE(entryPointMatch.depth() == 2);
 
   configuration.addEntryPoint(
-    Wt::EntryPoint(
+    std::make_shared<Wt::EntryPoint>(
       Wt::EntryPointType::Application, // type
       [](const Wt::WEnvironment&) { return nullptr; }, // ApplicationCreator
       "/", // path
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE( test_entrypoint_with_urlparams )
 
   // Add an entrypoint that will require backtracking
   configuration.addEntryPoint(
-    Wt::EntryPoint(
+    std::make_shared<Wt::EntryPoint>(
       Wt::EntryPointType::Application, // type
       [](const Wt::WEnvironment&) { return nullptr; }, // ApplicationCreator
       "/users/${user}/posts/all", // path
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE( test_entrypoint_prefer_deepest )
   Wt::Configuration configuration("", "", "", nullptr);
 
   configuration.addEntryPoint(
-    Wt::EntryPoint(
+    std::make_shared<Wt::EntryPoint>(
       Wt::EntryPointType::Application, // type
       [](const Wt::WEnvironment&) { return nullptr; }, // ApplicationCreator
       "/a", // path
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE( test_entrypoint_prefer_deepest )
   );
 
   configuration.addEntryPoint(
-    Wt::EntryPoint(
+    std::make_shared<Wt::EntryPoint>(
       Wt::EntryPointType::Application, // type
       [](const Wt::WEnvironment&) { return nullptr; }, // ApplicationCreator
       "/a/a", // path
@@ -258,7 +258,7 @@ BOOST_AUTO_TEST_CASE( test_entrypoint_prefer_least_dynamic1 )
   Wt::Configuration configuration("", "", "", nullptr);
 
   configuration.addEntryPoint(
-    Wt::EntryPoint(
+    std::make_shared<Wt::EntryPoint>(
       Wt::EntryPointType::Application, // type
       [](const Wt::WEnvironment&) { return nullptr; }, // ApplicationCreator
       "/foo/bar", // path
@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE( test_entrypoint_prefer_least_dynamic1 )
   );
 
   configuration.addEntryPoint(
-    Wt::EntryPoint(
+    std::make_shared<Wt::EntryPoint>(
       Wt::EntryPointType::Application, // type
       [](const Wt::WEnvironment&) { return nullptr; }, // ApplicationCreator
       "/${arg}/foo/bar", // path
@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE( test_entrypoint_prefer_least_dynamic2 )
   Wt::Configuration configuration("", "", "", nullptr);
 
   configuration.addEntryPoint(
-    Wt::EntryPoint(
+    std::make_shared<Wt::EntryPoint>(
       Wt::EntryPointType::Application, // type
       [](const Wt::WEnvironment&) { return nullptr; }, // ApplicationCreator
       "/${var1}/${var2}/${var3}", // path
@@ -297,7 +297,7 @@ BOOST_AUTO_TEST_CASE( test_entrypoint_prefer_least_dynamic2 )
   );
 
   configuration.addEntryPoint(
-    Wt::EntryPoint(
+    std::make_shared<Wt::EntryPoint>(
       Wt::EntryPointType::Application, // type
       [](const Wt::WEnvironment&) { return nullptr; }, // ApplicationCreator
       "/b/c", // path

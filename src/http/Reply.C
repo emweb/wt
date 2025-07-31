@@ -174,7 +174,7 @@ Reply::~Reply()
 void Reply::writeDone(WT_MAYBE_UNUSED bool success)
 { }
 
-void Reply::reset(WT_MAYBE_UNUSED const Wt::EntryPoint* ep)
+void Reply::reset(WT_MAYBE_UNUSED const std::shared_ptr<const Wt::EntryPoint>& ep)
 {
 #ifdef WTHTTP_WITH_ZLIB
   if (gzipBusy_) {

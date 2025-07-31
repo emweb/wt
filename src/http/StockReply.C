@@ -292,7 +292,7 @@ StockReply::StockReply(Request& request,
   setStatus(status);
 }
 
-void StockReply::reset(WT_MAYBE_UNUSED const Wt::EntryPoint* ep)
+void StockReply::reset(WT_MAYBE_UNUSED const std::shared_ptr<const Wt::EntryPoint>& ep)
 {
   assert(false);
 }

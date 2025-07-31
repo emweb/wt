@@ -36,7 +36,7 @@ public:
               const Configuration& config,
               const Wt::Configuration* wtConfig = nullptr);
 
-  virtual void reset(const Wt::EntryPoint *ep) override;
+  virtual void reset(const std::shared_ptr<const Wt::EntryPoint>& ep) override;
   virtual void writeDone(bool success) override;
 
   virtual bool consumeData(const char *begin,

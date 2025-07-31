@@ -66,7 +66,7 @@ void ProxyReply::closeClientSocket()
   }
 }
 
-void ProxyReply::reset(const Wt::EntryPoint *ep)
+void ProxyReply::reset(const std::shared_ptr<const Wt::EntryPoint>& ep)
 {
   if (sessionProcess_ && sessionProcess_->sessionId().empty()) {
     sessionProcess_->requestStop();

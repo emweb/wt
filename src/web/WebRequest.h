@@ -295,7 +295,7 @@ public:
 
   const std::string& nonce() const { return nonce_; }
 protected:
-  const EntryPoint *entryPoint_;
+  std::shared_ptr<const EntryPoint> entryPoint_;
   std::size_t extraStartIndex_;
 
   virtual ~WebRequest();

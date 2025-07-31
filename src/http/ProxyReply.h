@@ -24,7 +24,7 @@ public:
 
   virtual ~ProxyReply();
 
-  virtual void reset(const Wt::EntryPoint *ep) override;
+  virtual void reset(const std::shared_ptr<const Wt::EntryPoint>& ep) override;
 
   virtual void writeDone(bool success) override;
 

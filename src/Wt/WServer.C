@@ -264,13 +264,13 @@ void WServer::addEntryPoint(EntryPointType type, ApplicationCreator callback,
                             const std::string& path, const std::string& favicon)
 {
   configuration().addEntryPoint(
-        EntryPoint(type, callback, prependDefaultPath(path), favicon));
+        std::make_shared<EntryPoint>(type, callback, prependDefaultPath(path), favicon));
 }
 
 void WServer::addResource(WResource *resource, const std::string& path)
 {
   bool success = configuration().tryAddResource(
-        EntryPoint(resource, prependDefaultPath(path)));
+        std::make_shared<EntryPoint>(resource, prependDefaultPath(path)));
   if (!success) {
     WString error(Wt::utf8("WServer::addResource() error: "
                            "a static resource was already deployed on path '{1}'"));
@@ -281,7 +281,7 @@ void WServer::addResource(WResource *resource, const std::string& path)
 void WServer::addResource(const std::shared_ptr<WResource> &resource,
                           const std::string &path)
 {
-  bool success = configuration().tryAddResource(EntryPoint(resource, prependDefaultPath(path)));
+  bool success = configuration().tryAddResource(std::make_shared<EntryPoint>(resource, prependDefaultPath(path)));
   if (success) {
     resource->setInternalPath(path);
   } else {
@@ -295,7 +295,7 @@ void WServer::addResource(const std::shared_ptr<WWebSocketResource>& resource,
                           const std::string& path)
 {
   if (configuration_->webSockets()) {
-    bool success = configuration().tryAddResource(EntryPoint(resource->handleResource(), prependDefaultPath(path)));
+    bool success = configuration().tryAddResource(std::make_shared<EntryPoint>(resource->handleResource(), prependDefaultPath(path)));
     if (success) {
       webSocketResources_.push_back(resource);
       resource->setInternalPath(path);

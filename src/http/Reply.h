@@ -51,12 +51,12 @@ typedef std::shared_ptr<Reply> ReplyPtr;
 class WTHTTP_API Reply : public std::enable_shared_from_this<Reply>
 {
 public:
-  Reply(Request& request, 
+  Reply(Request& request,
         const Configuration& config,
         const Wt::Configuration* wtConfig = nullptr);
   virtual ~Reply();
 
-  virtual void reset(const Wt::EntryPoint *ep);
+  virtual void reset(const std::shared_ptr<const Wt::EntryPoint>& ep);
 
   enum status_type
   {

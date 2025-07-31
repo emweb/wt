@@ -34,11 +34,11 @@ typedef std::shared_ptr<WtReply> WtReplyPtr;
 class WtReply final : public Reply
 {
 public:
-  WtReply(Request& request, const Wt::EntryPoint& ep,
+  WtReply(Request& request, const std::shared_ptr<const Wt::EntryPoint>& ep,
           const Configuration &config,
           const Wt::Configuration* wtConfig = nullptr);
 
-  virtual void reset(const Wt::EntryPoint *ep) override;
+  virtual void reset(const std::shared_ptr<const Wt::EntryPoint>& ep) override;
   virtual void writeDone(bool success) override;
   virtual void logReply(Wt::WLogger& logger) override;
 
@@ -67,7 +67,7 @@ public:
   std::string urlScheme() const { return urlScheme_; }
 
 protected:
-  const Wt::EntryPoint *entryPoint_;
+  std::shared_ptr<const Wt::EntryPoint> entryPoint_;
   std::stringstream in_mem_;
   std::iostream *in_;
   std::string requestFileName_;

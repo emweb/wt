@@ -40,7 +40,7 @@ private:
   std::string favicon_;
 };
 
-typedef std::deque<EntryPoint> EntryPointList;
+typedef std::deque<std::shared_ptr<const EntryPoint> > EntryPointList;
 
 struct WT_API EntryPointMatch {
   EntryPointMatch() noexcept
@@ -49,7 +49,7 @@ struct WT_API EntryPointMatch {
   { }
 
   EntryPointMatch(
-      const EntryPoint *ep,
+      const std::shared_ptr<const EntryPoint> &ep,
       std::size_t extraStartIndex) noexcept
     : entryPoint(ep),
       extraStartIndex(extraStartIndex)
@@ -59,7 +59,7 @@ struct WT_API EntryPointMatch {
 
   std::size_t depth() const noexcept;
 
-  const EntryPoint *entryPoint;
+  std::shared_ptr<const EntryPoint> entryPoint;
   std::vector<std::pair<std::string, std::string> > urlParams;
   std::size_t extraStartIndex;
 };

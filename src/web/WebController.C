@@ -896,7 +896,7 @@ void WebController::handleRedirect(Wt::WebRequest *request)
 std::unique_ptr<WApplication> WebController
 ::doCreateApplication(WebSession *session)
 {
-  const EntryPoint *ep
+  std::shared_ptr<const EntryPoint> ep
     = WebSession::Handler::instance()->request()->entryPoint_;
 
   return ep->appCallback()(session->env());

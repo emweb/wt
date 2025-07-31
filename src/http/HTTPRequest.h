@@ -19,8 +19,8 @@ namespace server {
 class HTTPRequest final : public Wt::WebResponse
 {
 public:
-  HTTPRequest(WtReplyPtr wtReply, const Wt::EntryPoint *entryPoint);
-  void reset(WtReplyPtr reply, const Wt::EntryPoint *entryPoint);
+  HTTPRequest(WtReplyPtr wtReply, const std::shared_ptr<const Wt::EntryPoint>& entryPoint);
+  void reset(WtReplyPtr reply, const std::shared_ptr<const Wt::EntryPoint>& entryPoint);
   bool done() const;
 
   void flush(ResponseState state, const WriteCallback& callback) override;

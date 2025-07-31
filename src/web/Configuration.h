@@ -84,7 +84,7 @@ struct WT_API PathSegment {
   { }
 
   PathSegment *parent;
-  const EntryPoint *entryPoint;
+  std::shared_ptr<const EntryPoint> entryPoint;
   std::vector<std::unique_ptr<PathSegment>> children; // Static path segments
   std::unique_ptr<PathSegment> dynamicChild; // Dynamic path segment, lowest priority
   std::string segment;
@@ -188,8 +188,8 @@ public:
   void setSessionIdPrefix(const std::string& prefix);
 
 #ifndef WT_TARGET_JAVA
-  void addEntryPoint(const EntryPoint& entryPoint);
-  bool tryAddResource(const EntryPoint& entryPoint); // Returns bool indicating success:
+  void addEntryPoint(const std::shared_ptr<const EntryPoint>& entryPoint);
+  bool tryAddResource(const std::shared_ptr<const EntryPoint>& entryPoint); // Returns bool indicating success:
                                                      // false if entry point existed already
   void removeEntryPoint(const std::string& path);
   void setDefaultEntryPoint(const std::string& path);
@@ -410,7 +410,7 @@ private:
   // be grabbed before registerEntryPoint is invoked.
   // This is to be used by the other entry point functions
   // (addEntryPoint, tryAddResource, removeEntryPoint,...)
-  void registerEntryPoint(const EntryPoint &entryPoint);
+  void registerEntryPoint(const std::shared_ptr<const EntryPoint>& entryPoint);
 };
 
 }

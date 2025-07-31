@@ -701,9 +701,9 @@ std::string Configuration::locateConfigFile(const std::string& appRoot)
   }
 }
 
-void Configuration::registerEntryPoint(const EntryPoint &ep)
+void Configuration::registerEntryPoint(const std::shared_ptr<const EntryPoint>& ep)
 {
-  const std::string &path = ep.path();
+  const std::string &path = ep->path();
 
   assert(path.empty() || path[0] == '/');
 
@@ -711,7 +711,7 @@ void Configuration::registerEntryPoint(const EntryPoint &ep)
   PathSegment *pathSegment = &rootPathSegment_;
 
   if (path.empty()) {
-    pathSegment->entryPoint = &ep;
+    pathSegment->entryPoint = ep;
     return;
   }
 
@@ -751,13 +751,13 @@ void Configuration::registerEntryPoint(const EntryPoint &ep)
     pathSegment = childSegment;
   }
 
-  pathSegment->entryPoint = &ep;
+  pathSegment->entryPoint = ep;
 }
 
-void Configuration::addEntryPoint(const EntryPoint& ep)
+void Configuration::addEntryPoint(const std::shared_ptr<const EntryPoint>& ep)
 {
-  if (ep.type() == EntryPointType::StaticResource)
-    ep.resource()->currentUrl_ = ep.path();
+  if (ep->type() == EntryPointType::StaticResource)
+    ep->resource()->currentUrl_ = ep->path();
 
   WRITE_LOCK;
   entryPoints_.push_back(ep);
@@ -765,17 +765,17 @@ void Configuration::addEntryPoint(const EntryPoint& ep)
   registerEntryPoint(entryPoints_.back());
 }
 
-bool Configuration::tryAddResource(const EntryPoint& ep)
+bool Configuration::tryAddResource(const std::shared_ptr<const EntryPoint>& ep)
 {
   WRITE_LOCK;
   for (std::size_t i = 0; i < entryPoints_.size(); ++i) {
-    if (entryPoints_[i].path() == ep.path()) {
+    if (entryPoints_[i]->path() == ep->path()) {
       return false;
     }
   }
 
-  if (ep.type() == EntryPointType::StaticResource)
-    ep.resource()->currentUrl_ = ep.path();
+  if (ep->type() == EntryPointType::StaticResource)
+    ep->resource()->currentUrl_ = ep->path();
 
   entryPoints_.push_back(ep);
 
@@ -787,8 +787,8 @@ bool Configuration::tryAddResource(const EntryPoint& ep)
 void Configuration::removeEntryPoint(const std::string& path)
 {
   for (unsigned i = 0; i < entryPoints_.size(); ++i) {
-    const EntryPoint &ep = entryPoints_[i];
-    if (ep.path() == path) {
+    const std::shared_ptr<const EntryPoint>& ep = entryPoints_[i];
+    if (ep->path() == path) {
       rootPathSegment_.children.clear();
       entryPoints_.erase(entryPoints_.begin() + i);
       for (std::size_t j = 0; j < entryPoints_.size(); ++j) {
@@ -887,7 +887,7 @@ EntryPointMatch Configuration::matchEntryPoint(const std::string &scriptName,
   }
 
   // Move up from the found segment, until we find one that corresponds to an entrypoint
-  const EntryPoint *match = nullptr;
+  std::shared_ptr<const EntryPoint> match = nullptr;
   for (; pathSegment != nullptr; pathSegment = pathSegment->parent) {
     // If matchAfterSlash is true,
     // then the path /head/tail

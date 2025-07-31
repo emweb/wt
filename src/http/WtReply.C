@@ -78,11 +78,11 @@ namespace {
 static int SERVER_MAX_WINDOW_BITS = 15;
 #endif
 
-WtReply::WtReply(Request& request, const Wt::EntryPoint& entryPoint,
+WtReply::WtReply(Request& request, const std::shared_ptr<const Wt::EntryPoint>& entryPoint,
                  const Configuration &config,
                  const Wt::Configuration* wtConfig)
   : Reply(request, config, wtConfig),
-    entryPoint_(&entryPoint),
+    entryPoint_(entryPoint),
     in_(&in_mem_),
     out_(&out_buf_),
     urlScheme_(request.urlScheme),
@@ -95,7 +95,7 @@ WtReply::WtReply(Request& request, const Wt::EntryPoint& entryPoint,
     ,deflateInitialized_(false)
 #endif
 {
-  reset(&entryPoint);
+  reset(entryPoint);
 }
 
 WtReply::~WtReply()
@@ -116,7 +116,7 @@ WtReply::~WtReply()
 #endif
 }
 
-void WtReply::reset(const Wt::EntryPoint *ep)
+void WtReply::reset(const std::shared_ptr<const Wt::EntryPoint>& ep)
 {
   Reply::reset(ep);
 

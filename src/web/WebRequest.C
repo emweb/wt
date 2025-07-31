@@ -114,7 +114,7 @@ void WebRequest::reset()
   start_ = std::chrono::high_resolution_clock::now();
 #endif
 
-  entryPoint_ = 0;
+  entryPoint_ = nullptr;
   delete async_;
   async_ = 0;
   webSocketRequest_ = false;

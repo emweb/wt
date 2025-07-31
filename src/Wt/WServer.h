@@ -346,9 +346,6 @@ public:
    *
    * Use this method to remove an entry point or static resource.
    *
-   * In a multi-threaded environment, this may only be done when the
-   * server is not running.
-   *
    * \note If the entry point is a resource, the resource will not be deleted
    *
    * \sa addEntryPoint(), addResource()

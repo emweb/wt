@@ -58,7 +58,7 @@ StaticReply::StaticReply(Request& request,
   reset(0);
 }
 
-void StaticReply::reset(const Wt::EntryPoint *ep)
+void StaticReply::reset(const std::shared_ptr<const Wt::EntryPoint>& ep)
 {
   Reply::reset(ep);
 

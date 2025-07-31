@@ -34,7 +34,7 @@ namespace server {
 
 const std::string HTTPRequest::empty_;
 
-HTTPRequest::HTTPRequest(WtReplyPtr reply, const Wt::EntryPoint *entryPoint)
+HTTPRequest::HTTPRequest(WtReplyPtr reply, const std::shared_ptr<const Wt::EntryPoint>& entryPoint)
   : reply_(reply),
     status_(0)
 {
@@ -42,7 +42,7 @@ HTTPRequest::HTTPRequest(WtReplyPtr reply, const Wt::EntryPoint *entryPoint)
   extraStartIndex_ = reply->request().extra_start_index;
 }
 
-void HTTPRequest::reset(WtReplyPtr reply, const Wt::EntryPoint *entryPoint)
+void HTTPRequest::reset(WtReplyPtr reply, const std::shared_ptr<const Wt::EntryPoint>& entryPoint)
 {
   WebRequest::reset();
 
