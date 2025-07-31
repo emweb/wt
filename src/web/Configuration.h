@@ -50,6 +50,7 @@
 
 #ifndef WT_TARGET_JAVA
 #include "EntryPoint.h"
+#include "EntryPointManager.h"
 #endif // WT_TARGET_JAVA
 
 namespace boost {
@@ -65,32 +66,6 @@ namespace Wt {
 
   class WLogger;
   class WServer;
-
-#ifndef WT_TARGET_JAVA
-
-/// A segment in the deployment path of an entry point,
-/// used for routing.
-struct WT_API PathSegment {
-  PathSegment()
-    : parent(nullptr),
-      entryPoint(nullptr)
-  { }
-
-  PathSegment(const std::string &s,
-              PathSegment *p)
-    : parent(p),
-      entryPoint(nullptr),
-      segment(s)
-  { }
-
-  PathSegment *parent;
-  std::shared_ptr<const EntryPoint> entryPoint;
-  std::vector<std::unique_ptr<PathSegment>> children; // Static path segments
-  std::unique_ptr<PathSegment> dynamicChild; // Dynamic path segment, lowest priority
-  std::string segment;
-};
-
-#endif // WT_TARGET_JAVA
 
 class WT_API HeadMatter {
 public:
@@ -335,9 +310,7 @@ private:
   std::string uaCompatible_;
 
 #ifndef WT_TARGET_JAVA
-  EntryPointList entryPoints_;
-  PathSegment rootPathSegment_; /// The toplevel path segment ('/') for routing,
-                                /// root of the rounting tree.
+  EntryPointManager entryPointManager_;
 #endif // WT_TARGET_JAVA
 
   SessionPolicy   sessionPolicy_;
@@ -404,13 +377,6 @@ private:
   void readApplicationSettings(Wt::rapidxml::xml_node<char> *app);
   void readConfiguration(bool silent);
   WLogEntry log(const std::string& type) const;
-
-  // Add the given entryPoint to the routing tree
-  // NOTE: Server may not be running, or WRITE_LOCK should
-  // be grabbed before registerEntryPoint is invoked.
-  // This is to be used by the other entry point functions
-  // (addEntryPoint, tryAddResource, removeEntryPoint,...)
-  void registerEntryPoint(const std::shared_ptr<const EntryPoint>& entryPoint);
 };
 
 }

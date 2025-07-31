@@ -395,6 +395,7 @@ web/Configuration.h web/Configuration.C
 web/DateUtils.h web/DateUtils.C
 web/DomElement.h web/DomElement.C
 web/EntryPoint.h web/EntryPoint.C
+web/EntryPointManager.h web/EntryPointManager.C
 web/EscapeOStream.h web/EscapeOStream.C
 web/FileServe.h web/FileServe.C
 web/ColorUtils.h web/ColorUtils.C
