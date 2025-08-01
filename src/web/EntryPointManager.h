@@ -12,6 +12,9 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include <list>
+#include <vector>
+
 namespace Wt {
 
 /// A segment in the deployment path of an entry point,
@@ -29,6 +32,10 @@ struct WT_API PathSegment {
       segment(s)
   { }
 
+  // A path segment can be removed if it is a leaf, is not the root,
+  // and has no entry point.
+  bool canBeRemoved() const;
+
   PathSegment* parent;
   std::shared_ptr<const EntryPoint> entryPoint;
   std::vector<std::unique_ptr<PathSegment>> children; // Static path segments
@@ -43,16 +50,17 @@ public:
   bool tryAddResource(const std::shared_ptr<const EntryPoint>& entryPoint); // Returns bool indicating success:
                                                      // false if entry point existed already
   void removeEntryPoint(const std::string& path);
+  void tryRemovePathSegment(PathSegment* segment);
   // Returns matching entry point and match length
   EntryPointMatch matchEntryPoint(const std::string& scriptName,
                                   const std::string& path,
                                   bool matchAfterSlash) const;
 
-  const EntryPointList& entryPoints() const { return entryPoints_; }
+  const std::vector<PathSegment*>& entryPointSegments() const { return entryPointSegments_; }
   const PathSegment& rootPathSegment() const { return rootPathSegment_; }
 
 private:
-  EntryPointList entryPoints_;
+  std::vector<PathSegment*> entryPointSegments_;
   PathSegment rootPathSegment_; /// The toplevel path segment ('/') for routing,
                                 /// root of the routing tree.
 

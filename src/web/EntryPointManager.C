@@ -17,46 +17,69 @@ namespace Wt {
 
 LOGGER("EntryPointManager");
 
+bool PathSegment::canBeRemoved() const
+{
+  return parent && children.empty() && !dynamicChild && !entryPoint;
+}
+
 void EntryPointManager::addEntryPoint(const std::shared_ptr<const EntryPoint>& ep)
 {
-  entryPoints_.push_back(ep);
-
-  registerEntryPoint(entryPoints_.back());
+  registerEntryPoint(ep);
 }
 
 bool EntryPointManager::tryAddResource(const std::shared_ptr<const EntryPoint>& ep)
 {
-  for (std::size_t i = 0; i < entryPoints_.size(); ++i) {
-    if (entryPoints_[i]->path() == ep->path()) {
+  for (auto it = entryPointSegments_.begin(); it != entryPointSegments_.end(); ++it) {
+    if ((*it)->entryPoint->path() == ep->path()) {
       return false;
     }
   }
 
-  entryPoints_.push_back(ep);
-
-  registerEntryPoint(entryPoints_.back());
+  registerEntryPoint(ep);
 
   return true;
 }
 
 void EntryPointManager::removeEntryPoint(const std::string& path)
 {
-  for (unsigned i = 0; i < entryPoints_.size(); ++i) {
-    const std::shared_ptr<EntryPoint>& ep = entryPoints_[i];
-    if (ep->path() == path) {
-      rootPathSegment_.children.clear();
-      entryPoints_.erase(entryPoints_.begin() + i);
-      for (std::size_t j = 0; j < entryPoints_.size(); ++j) {
-        registerEntryPoint(entryPoints_[j]);
-      }
+  PathSegment* currentSegment = nullptr;
+  for (auto it = entryPointSegments_.begin(); it != entryPointSegments_.end(); ++it) {
+    currentSegment = *it;
+    if (currentSegment->entryPoint->path() == path) {
+      entryPointSegments_.erase(it);
+      currentSegment->entryPoint.reset();
       break;
     }
   }
+
+  tryRemovePathSegment(currentSegment);
 }
 
+void EntryPointManager::tryRemovePathSegment(PathSegment* current)
+{
+  while (current && current->canBeRemoved()) {
+    PathSegment* parent = current->parent;
+
+    if (parent->dynamicChild.get() == current) {
+      parent->dynamicChild.reset();
+    } else {
+      auto& children = parent->children;
+      for (auto it = children.begin(); it != children.end(); ++it) {
+        if (it->get() == current) {
+          children.erase(it);
+          break;
+        }
+      }
+    }
+
+    current = parent;
+  }
+}
+
+
 EntryPointMatch EntryPointManager::matchEntryPoint(const std::string& scriptName,
-                                               const std::string& path,
-                                               bool matchAfterSlash) const
+                                                   const std::string& path,
+                                                   bool matchAfterSlash) const
 {
   if (!scriptName.empty()) {
     LOG_DEBUG("matchEntryPoint: matching entry point, scriptName: '" << scriptName << "', path: '" << path << '\'');
@@ -186,6 +209,7 @@ void EntryPointManager::registerEntryPoint(const std::shared_ptr<const EntryPoin
 
   if (path.empty()) {
     pathSegment->entryPoint = ep;
+    entryPointSegments_.push_back(pathSegment);
     return;
   }
 
@@ -226,6 +250,7 @@ void EntryPointManager::registerEntryPoint(const std::shared_ptr<const EntryPoin
   }
 
   pathSegment->entryPoint = ep;
+  entryPointSegments_.push_back(pathSegment);
 }
 
 } // namespace Wt
