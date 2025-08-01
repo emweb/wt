@@ -386,7 +386,8 @@ void WebSession::setState(State state, int timeout)
 
 std::string WebSession::sessionQuery() const
 {
-  std::string result ="?wtd=" + DomElement::urlEncodeS(sessionId_);
+  std::string wtd = env_->agentIsSpiderBot() ? "bot" : sessionId_;
+  std::string result ="?wtd=" + DomElement::urlEncodeS(wtd);
   if (type() == EntryPointType::WidgetSet)
     result += "&wtt=widgetset";
   return result;
@@ -613,16 +614,17 @@ std::string WebSession::makeAbsoluteUrl(const std::string& url) const
   }
 }
 
-std::string WebSession::mostRelativeUrl(const std::string& internalPath) const
+std::string WebSession::mostRelativeUrl(const std::string& internalPath,
+                                        bool excludeBot) const
 {
-  return appendSessionQuery(bookmarkUrl(internalPath));
+  return appendSessionQuery(bookmarkUrl(internalPath), excludeBot);
 }
 
-std::string WebSession::appendSessionQuery(const std::string& url) const
+std::string WebSession::appendSessionQuery(const std::string& url, bool force) const
 {
   std::string result = url;
 
-  if (env_->treatLikeBot()) {
+  if (env_->treatLikeBot() && !force) {
     return result;
   }
 
@@ -2819,7 +2821,7 @@ EventType WebSession::getEventType(const WEvent& event) const
       } else
         return EventType::Other;
     }
-    /* 
+    /*
      * If we don't recognise the event type it is defaulted to Other
      */
     WT_FALLTHROUGH

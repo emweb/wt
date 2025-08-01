@@ -149,13 +149,14 @@ public:
 
   //    (http://www.bigapp.com/myapp/app.wt) ?wtd=ABCD
   // or (http://www.bigapp.com/myapp/) app.wt/path?wtd=ABCD
-  std::string mostRelativeUrl(const std::string& internalPath = std::string())
-    const;
+  std::string mostRelativeUrl(const std::string& internalPath = std::string(),
+                              bool excludeBot = false) const;
 
   std::string appendInternalPath(const std::string& url,
                                  const std::string& internalPath) const;
 
-  std::string appendSessionQuery(const std::string& url) const;
+  std::string appendSessionQuery(const std::string& url,
+                                 bool force = false) const;
 
   std::string ajaxCanonicalUrl(const WebResponse& request) const;
 

@@ -897,14 +897,14 @@ std::string WApplication::addExposedResource(WResource *resource)
     fn = '/' + fn;
 
   if (resource->internalPath().empty())
-    return session_->mostRelativeUrl(fn)
+    return session_->mostRelativeUrl(fn, true)
       + "&request=resource&resource=" + Utils::urlEncode(resource->id())
       + "&ver=" + std::to_string(resource->version());
   else {
     fn = resource->internalPath() + fn;
     if (!session_->applicationName().empty() && fn[0] != '/')
       fn = '/' + fn;
-    return session_->mostRelativeUrl(fn);
+    return session_->mostRelativeUrl(fn, true);
   }
 }
 
