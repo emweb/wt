@@ -14,6 +14,7 @@
 #include "WebRequest.h"
 #include "WebSession.h"
 #include "WebUtils.h"
+#include "Configuration.h"
 
 #include <memory>
 
@@ -102,6 +103,11 @@ void WResource::beingDeleted()
 
   for (unsigned i = 0; i < cs.size(); ++i)
     cs[i]->cancel(true);
+}
+
+std::shared_ptr<WResource> WResource::botResource()
+{
+  return nullptr;
 }
 
 WResource::~WResource()
@@ -319,7 +325,7 @@ const std::string& WResource::generateUrl()
   WApplication *app = WApplication::instance();
 
   if (app) {
-    if (app->environment().agentIsSpiderBot()) {
+    if (app->environment().treatLikeBot() && !alternativeBotUrl().empty()) {
       currentUrl_ = app->resolveRelativeUrl(alternativeBotUrl());
     } else {
       WebController *c = nullptr;

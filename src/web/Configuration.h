@@ -267,6 +267,8 @@ public:
   bool useScriptNonce() const;
   bool delayLoadAtBoot() const;
   bool useXFrameSameOrigin() const;
+  bool servePrivateResourcesToBots() const;
+  std::string botResourcesPath() const;
 
   bool agentIsBot(const std::string& agent) const;
   bool agentSupportsAjax(const std::string& agent) const;
@@ -337,6 +339,8 @@ private:
   PropertyMap     properties_;
   bool            xhtmlMimeType_;
   bool            behindReverseProxy_;
+  bool            servePrivateResourcesToBots_;
+  std::string     botResourcesPath_;
 
   // trusted-proxy-config
   std::string     originalIPHeader_;

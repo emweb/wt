@@ -2484,6 +2484,7 @@ private:
   std::string resourceMapKey(WResource *resource);
   std::string addExposedResource(WResource *resource);
   bool removeExposedResource(WResource *resource);
+  void exposeBotResources();
   WResource *decodeExposedResource(const std::string& resourceMapKey) const;
   WResource *decodeExposedResource(const std::string& resourceMapKey,
                                    unsigned long rand) const;

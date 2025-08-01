@@ -392,6 +392,10 @@ std::string WApplication::onePixelGifUrl()
 WApplication::~WApplication()
 {
 #ifndef WT_TARGET_JAVA
+  Configuration& conf = env().server()->configuration();
+  if (conf.servePrivateResourcesToBots() && env().agentIsSpiderBot()) {
+    exposeBotResources();
+  }
   // Fix issue #5331: if WTimer is a child of WApplication,
   // it will outlive timerRoot_. Delete it now already.
   for (std::size_t i = 0; i < children_.size(); ++i) {
@@ -896,11 +900,24 @@ std::string WApplication::addExposedResource(WResource *resource)
   if (!fn.empty() && fn[0] != '/')
     fn = '/' + fn;
 
-  if (resource->internalPath().empty())
+  Configuration& conf = env().server()->configuration();
+
+  if (conf.servePrivateResourcesToBots() && env().agentIsSpiderBot()) {
+    std::string appUrl = session_->applicationUrl();
+    if (appUrl == "/") {
+      appUrl.clear();
+    } else if (!appUrl.empty() && appUrl[appUrl.length() - 1] != '/') {
+      appUrl += '/';
+    }
+    return appUrl
+           + conf.botResourcesPath() + "/"
+           + Utils::urlEncode(resource->id())
+           + fn;
+  } else if (resource->internalPath().empty()) {
     return session_->mostRelativeUrl(fn, true)
       + "&request=resource&resource=" + Utils::urlEncode(resource->id())
       + "&ver=" + std::to_string(resource->version());
-  else {
+  } else {
     fn = resource->internalPath() + fn;
     if (!session_->applicationName().empty() && fn[0] != '/')
       fn = '/' + fn;
@@ -933,6 +950,23 @@ bool WApplication::removeExposedResource(WResource *resource)
     return true;
   } else
     return false;
+}
+
+void WApplication::exposeBotResources()
+{
+  for (auto it = exposedResources_.begin(); it != exposedResources_.end(); ++it) {
+    WResource *resource = it->second;
+    if (resource) {
+      std::shared_ptr<WResource> botResource = resource->botResource();
+      if (botResource) {
+        try {
+          WServer::instance()->addResource(botResource, resource->url());
+        } catch (std::exception& e) {
+          LOG_DEBUG("Failed to add private resource for bot at url: " << resource->url());
+        }
+      }
+    }
+  }
 }
 
 #ifndef WT_TARGET_JAVA

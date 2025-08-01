@@ -295,6 +295,8 @@ void Configuration::reset()
   httpHeaders_.clear();
   useScriptNonce_ = false;
   useXFrameSameOrigin_ = true;
+  servePrivateResourcesToBots_ = false;
+  botResourcesPath_ = "/wt-temp";
 
   if (!appRoot_.empty())
     setAppRoot(appRoot_);
@@ -631,6 +633,20 @@ bool Configuration::isAllowedOrigin(const std::string &origin) const
     }
     return false;
   }
+}
+
+bool Configuration::servePrivateResourcesToBots() const
+{
+  READ_LOCK;
+
+  return servePrivateResourcesToBots_;
+}
+
+std::string Configuration::botResourcesPath() const
+{
+  READ_LOCK;
+
+  return botResourcesPath_;
 }
 
 bool Configuration::agentIsBot(const std::string& agent) const
@@ -1192,6 +1208,13 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 
   setBoolean(app, "use-script-nonce", useScriptNonce_);
   setBoolean(app, "x-frame-same-origin", useXFrameSameOrigin_);
+  setBoolean(app, "serve-private-resources-to-bots", servePrivateResourcesToBots_);
+
+  std::string botResourcesPathVal
+    = singleChildElementValue(app, "bot-resources-path", "");
+  if (!botResourcesPathVal.empty()) {
+    botResourcesPath_ = botResourcesPathVal;
+  }
 
   std::string allowedOrigins
     = singleChildElementValue(app, "allowed-origins", "");

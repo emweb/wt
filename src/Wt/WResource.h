@@ -476,6 +476,27 @@ public:
 
   void incrementVersion();
 
+  /*! \brief Resource made public for bot sessions.
+   *
+   * When the <code>serve-private-resources-to-bots</code>
+   * configuration option is set to true, this function is called
+   * before the destruction of the WApplication if the resource was
+   * exposed as a private resource for a bot session. The returned
+   * resource will be added to the server's public resources, unless
+   * the returned value is a nullptr.
+   *
+   * By default, this returns nullptr.
+   *
+   * \note Changing the internal path of the returned resource will
+   *       have no effect. It will be added with every other bot
+   *       resources to the <code>bot-resources-path</code> specified
+   *       in the configuration.
+   *
+   * \warning You are responsible for removing the resource once it is
+   *          no longer needed.
+   */
+  virtual std::shared_ptr<WResource> botResource();
+
 protected:
   /*! \brief Prepares the resource for deletion.
    *
