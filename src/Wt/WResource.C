@@ -382,6 +382,22 @@ void WResource::write(WT_BOSTREAM& out,
   }
 }
 
+std::vector<unsigned char> WResource::writeToMemory()
+{
+  std::stringstream s;
+  write(s);
+
+  auto bof = s.tellg();
+  s.seekg(0, std::ios::end);
+  auto stream_size = std::size_t(s.tellg() - bof);
+  s.seekg(0, std::ios::beg);
+
+  std::vector<unsigned char> v(stream_size);
+  s.read((char*)v.data(), std::streamsize(v.size()));
+
+  return v;
+}
+
 void WResource::setTakesUpdateLock(bool enabled)
 {
   takesUpdateLock_ = enabled;

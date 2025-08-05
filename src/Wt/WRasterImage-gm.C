@@ -10,6 +10,7 @@
 #include "Wt/WException.h"
 #include "Wt/WFontMetrics.h"
 #include "Wt/WLogger.h"
+#include "Wt/WMemoryResource.h"
 #include "Wt/WPainter.h"
 #include "Wt/WPen.h"
 #include "Wt/WRasterImage.h"
@@ -1171,6 +1172,18 @@ WFontMetrics WRasterImage::fontMetrics()
     throw WException("WRasterImage::fontMetrics() not supported");
   else
     return impl_->fontSupport_->fontMetrics(painter_->font());
+}
+
+std::shared_ptr<WResource> WRasterImage::botResource()
+{
+  auto res = std::make_shared<WMemoryResource>("image/" + impl_->type_);
+  try {
+    res->setData(writeToMemory());
+  } catch (std::exception& e) {
+    LOG_ERROR("Failed to generate bot resource for raster image: " << e.what());
+    return nullptr;
+  }
+  return res;
 }
 
 }

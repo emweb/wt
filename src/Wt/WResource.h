@@ -397,6 +397,15 @@ public:
              const Http::ParameterMap& parameters = Http::ParameterMap(),
              const Http::UploadedFileMap& files = Http::UploadedFileMap());
 
+  /*! \brief Writes the resource into a unsigned char vector.
+   *
+   *  This is a convenience method to serialize the resource into a
+   *  vector of unsigned char. This is especially useful if you want
+   *  to convert the resource into a WMemoryResource (when overriding
+   *  botResource() for instance).
+   */
+  std::vector<unsigned char> writeToMemory();
+
   /*! \brief Handles a request.
    *
    * Reimplement this method so that a proper response is generated

@@ -7,6 +7,8 @@
 #include "Wt/WApplication.h"
 #include "Wt/WDataInfo.h"
 #include "Wt/WFontMetrics.h"
+#include "Wt/WLogger.h"
+#include "Wt/WMemoryResource.h"
 #include "Wt/WPainter.h"
 #include "Wt/WPainterPath.h"
 #include "Wt/WRectF.h"
@@ -19,6 +21,7 @@
 #include "ServerSideFontMetrics.h"
 
 #include <cmath>
+#include <iostream>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -43,6 +46,8 @@ namespace {
 }
 
 namespace Wt {
+
+  LOGGER("WSvgImage");
 
 int WSvgImage::nextClipId_ = 0;
 int WSvgImage::nextGradientId_ = 0;
@@ -931,6 +936,23 @@ void WSvgImage::handleRequest(WT_MAYBE_UNUSED const Http::Request& request,
 #endif // WT_TARGET_JAVA
 
   streamResourceData(o);
+}
+
+std::shared_ptr<WResource> WSvgImage::botResource()
+{
+  auto res = std::make_shared<WMemoryResource>("image/svg+xml");
+  try {
+    res->setData(writeToMemory());
+#ifndef WT_TARGET_JAVA
+  } catch (std::exception& e) {
+    LOG_ERROR("Failed to generate bot resource for SVG image: " << e.what());
+#else
+  } catch (std::io_exception& e) {
+    LOG_ERROR("Failed to generate bot resource for SVG image: " << e.message());
+#endif // WT_TARGET_JAVA
+    return nullptr;
+  }
+  return res;
 }
 
 void WSvgImage::streamResourceData(std::ostream& stream)

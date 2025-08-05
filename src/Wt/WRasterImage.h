@@ -174,6 +174,8 @@ public:
    */
   void clear();
 
+  std::shared_ptr<WResource> botResource() override;
+
 protected:
   virtual WPainter *painter() const override { return painter_; }
   virtual void setPainter(WPainter *painter) override { painter_ = painter; }

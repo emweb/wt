@@ -14,6 +14,7 @@
 #include "Wt/WFontMetrics.h"
 #include "Wt/WGradient.h"
 #include "Wt/WLogger.h"
+#include "Wt/WMemoryResource.h"
 #include "Wt/WPainter.h"
 #include "Wt/WPen.h"
 #include "Wt/WString.h"
@@ -23,6 +24,7 @@
 #include "Wt/Http/Response.h"
 
 #include "UriUtils.h"
+#include "WebUtils.h"
 
 #include <cmath>
 
@@ -1219,6 +1221,18 @@ void WRasterImage::handleRequest(const Http::Request& request,
   SafeRelease(frameEncode);
   SafeRelease(encoder);
   SafeRelease(istream);
+}
+
+std::shared_ptr<WResource> WRasterImage::botResource()
+{
+  auto res = std::make_shared<WMemoryResource>("image/" + impl_->type_);
+  try {
+    res->setData(writeToMemory());
+  } catch (std::exception& e) {
+    LOG_ERROR("Failed to generate bot resource for raster image: " << e.what());
+    return nullptr;
+  }
+  return res;
 }
 
 }
