@@ -745,6 +745,12 @@ void Configuration::removeEntryPoint(const std::string& path)
   entryPointManager_.removeEntryPoint(path);
 }
 
+void Configuration::removeResource(const WResource* resource)
+{
+  WRITE_LOCK;
+  entryPointManager_.removeResource(resource);
+}
+
 void Configuration::setDefaultEntryPoint(const std::string& path)
 {
   defaultEntryPoint_ = path;

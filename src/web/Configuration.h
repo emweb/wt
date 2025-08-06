@@ -167,6 +167,7 @@ public:
   bool tryAddResource(const std::shared_ptr<const EntryPoint>& entryPoint); // Returns bool indicating success:
                                                      // false if entry point existed already
   void removeEntryPoint(const std::string& path);
+  void removeResource(const WResource* resource);
   void setDefaultEntryPoint(const std::string& path);
   // Returns matching entry point and match length
   EntryPointMatch matchEntryPoint(const std::string &scriptName,

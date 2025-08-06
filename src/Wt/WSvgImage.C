@@ -8,10 +8,10 @@
 #include "Wt/WDataInfo.h"
 #include "Wt/WFontMetrics.h"
 #include "Wt/WLogger.h"
-#include "Wt/WMemoryResource.h"
 #include "Wt/WPainter.h"
 #include "Wt/WPainterPath.h"
 #include "Wt/WRectF.h"
+#include "Wt/WSelfDeletingResource.h"
 #include "Wt/WSvgImage.h"
 #include "Wt/WStringStream.h"
 #include "Wt/WWebWidget.h"
@@ -940,7 +940,7 @@ void WSvgImage::handleRequest(WT_MAYBE_UNUSED const Http::Request& request,
 
 std::shared_ptr<WResource> WSvgImage::botResource()
 {
-  auto res = std::make_shared<WMemoryResource>("image/svg+xml");
+  auto res = std::make_shared<WSelfDeletingResource>("image/svg+xml");
   try {
     res->setData(writeToMemory());
 #ifndef WT_TARGET_JAVA

@@ -14,9 +14,9 @@
 #include "Wt/WFontMetrics.h"
 #include "Wt/WGradient.h"
 #include "Wt/WLogger.h"
-#include "Wt/WMemoryResource.h"
 #include "Wt/WPainter.h"
 #include "Wt/WPen.h"
+#include "Wt/WSelfDeletingResource.h"
 #include "Wt/WString.h"
 #include "Wt/WTransform.h"
 
@@ -1225,7 +1225,7 @@ void WRasterImage::handleRequest(const Http::Request& request,
 
 std::shared_ptr<WResource> WRasterImage::botResource()
 {
-  auto res = std::make_shared<WMemoryResource>("image/" + impl_->type_);
+  auto res = std::make_shared<WSelfDeletingResource>("image/" + impl_->type_);
   try {
     res->setData(writeToMemory());
   } catch (std::exception& e) {

@@ -2569,6 +2569,7 @@ private:
   friend class WLineEdit;
   friend class WMenu;
   friend class WResource;
+  friend class WSelfDeletingResource;
   friend class WSound;
   friend class WString;
   friend class WTextArea;

@@ -221,6 +221,7 @@ Wt/WRectF.h Wt/WRectF.C
 Wt/WRegExpValidator.h Wt/WRegExpValidator.C
 Wt/WResource.h Wt/WResource.C
 Wt/WSelectionBox.h Wt/WSelectionBox.C
+Wt/WSelfDeletingResource.h Wt/WSelfDeletingResource.C
 Wt/WServer.h Wt/WServer.C
 Wt/WShadow.h Wt/WShadow.C
 Wt/WSignal.h Wt/WSignal.C

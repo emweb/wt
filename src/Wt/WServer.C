@@ -313,6 +313,13 @@ void WServer::removeEntryPoint(const std::string& path){
   configuration().removeEntryPoint(path);
 }
 
+void WServer::removeResource(const WResource* resource)
+{
+  if (resource) {
+    configuration().removeResource(resource);
+  }
+}
+
 void WServer::restart(WT_MAYBE_UNUSED int argc, char **argv, char **envp)
 {
 #ifndef WT_WIN32

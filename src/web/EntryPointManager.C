@@ -55,6 +55,21 @@ void EntryPointManager::removeEntryPoint(const std::string& path)
   tryRemovePathSegment(currentSegment);
 }
 
+void EntryPointManager::removeResource(const WResource* resource)
+{
+  auto it = entryPointSegments_.begin();
+  while (it != entryPointSegments_.end()) {
+    PathSegment* currentSegment = *it;
+    if (currentSegment->entryPoint->resource() == resource) {
+      it = entryPointSegments_.erase(it);
+      currentSegment->entryPoint.reset();
+      tryRemovePathSegment(currentSegment);
+    } else {
+      ++it;
+    }
+  }
+}
+
 void EntryPointManager::tryRemovePathSegment(PathSegment* current)
 {
   while (current && current->canBeRemoved()) {

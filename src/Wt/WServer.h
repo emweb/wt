@@ -352,6 +352,19 @@ public:
    */
   WT_API void removeEntryPoint(const std::string& path);
 
+  /*! \brief Unbinds a resource from a fixed path.
+   *
+   * Use this method to remove a static resource.
+   *
+   * \note The resource object itself will not be destructed, and can
+           still be in use in other threads. However, any new requests
+           to its path will no longer be handled by the removed
+           resource.
+   *
+   * \sa addResource()
+   */
+  WT_API void removeResource(const WResource* resource);
+
 #ifndef WT_TARGET_JAVA
   /*! \brief Starts the server in the background.
    *

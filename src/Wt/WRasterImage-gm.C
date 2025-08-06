@@ -10,10 +10,10 @@
 #include "Wt/WException.h"
 #include "Wt/WFontMetrics.h"
 #include "Wt/WLogger.h"
-#include "Wt/WMemoryResource.h"
 #include "Wt/WPainter.h"
 #include "Wt/WPen.h"
 #include "Wt/WRasterImage.h"
+#include "Wt/WSelfDeletingResource.h"
 #include "Wt/WTransform.h"
 
 #include "Wt/cpp17/filesystem.hpp"
@@ -1176,7 +1176,7 @@ WFontMetrics WRasterImage::fontMetrics()
 
 std::shared_ptr<WResource> WRasterImage::botResource()
 {
-  auto res = std::make_shared<WMemoryResource>("image/" + impl_->type_);
+  auto res = std::make_shared<WSelfDeletingResource>("image/" + impl_->type_);
   try {
     res->setData(writeToMemory());
   } catch (std::exception& e) {
