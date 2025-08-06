@@ -254,6 +254,21 @@ public:
    */
   const std::vector<WAbstractArea *> areas() const;
 
+  /*! \brief Sets the potential bot resource ID.
+   *
+   * In case the WPaintDevice of this WPaintedWidget paints a
+   * WResource, this allows to set the bot resource ID that WResource.
+   *
+   * \sa WResource::botResourceId()
+   */
+  void setBotResourceId(const std::string& id);
+
+  /*! \brief Returns the potential bot resource ID.
+   *
+   * \sa setBotResourceId()
+   */
+  std::string botResourceId() const { return botResourceId_; }
+
   /*! \brief A JavaScript slot that repaints the widget when triggered.
    *
    * This is useful for client-side initiated repaints. You may want to use this
@@ -362,6 +377,7 @@ private:
   WFlags<PaintFlag> repaintFlags_;
   std::unique_ptr<WImage> areaImage_;
   int renderWidth_, renderHeight_;
+  std::string botResourceId_;
 
   JSlot repaintSlot_;
   WJavaScriptObjectStorage jsObjects_;

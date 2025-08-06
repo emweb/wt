@@ -485,6 +485,31 @@ public:
 
   void incrementVersion();
 
+  /*! \brief Sets the bot resource ID.
+   *
+   * This id will be appended to the resource path of the bot resource.
+   *
+   * This is useful to avoid storing the same resources multiple times
+   * in memory since only one resource can be served at any given path.
+   *
+   * By default, returns WResource::id().
+   *
+   * \warning This means that every time the resource is exposed in a
+   *          bot session, the bot resource created will be added to
+   *          the server's  public resources. In that case, you should
+   *          ensure that the resource is removed from the public
+   *          resources once it is no longer needed.
+   *
+   * \sa botResource(), WSelfDeletingResource
+   */
+  void setBotResourceId(const std::string& id);
+
+  /*! \brief Returns the bot resource ID.
+   *
+   * \sa setBotResourceId()
+   */
+  std::string botResourceId() const { return botResourceId_; }
+
   /*! \brief Resource made public for bot sessions.
    *
    * When the <code>serve-private-resources-to-bots</code>
@@ -494,15 +519,24 @@ public:
    * resource will be added to the server's public resources, unless
    * the returned value is a nullptr.
    *
+   * The path at which the resource will be made available will be
+   * the value of the <code>bot-resources-path</code> option (specified
+   * in the configuration), followed by the botResourceId() (separated
+   * from the path by a slash).
+   *
    * By default, this returns nullptr.
    *
-   * \note Changing the internal path of the returned resource will
-   *       have no effect. It will be added with every other bot
-   *       resources to the <code>bot-resources-path</code> specified
-   *       in the configuration.
+   * \note If the session is a bot session, the url of this resource
+   *       will be the same as the url of the bot resource when this
+   *       function is called.
    *
    * \warning You are responsible for removing the resource once it is
-   *          no longer needed.
+   *          no longer needed using WServer::removeResource() or
+   *          WServer::removeEntryPoint().
+   *
+   * \sa setBotResourceId(),
+   *     customBotResourceId(),
+   *     WSelfDeletingResource
    */
   virtual std::shared_ptr<WResource> botResource();
 
@@ -514,6 +548,14 @@ protected:
    * requests to the resource.
    */
   void beingDeleted();
+
+  /*! \brief Returns whether this resource has a custom bot resource ID.
+   *
+   * Returns whether the bot resource ID value was changed or not.
+   *
+   * \sa setBotResourceId(), botResourceId()
+   */
+  bool customBotResourceId() const { return customBotResourceId_; }
 
 private:
   struct UseLock {
@@ -540,6 +582,7 @@ private:
   bool trackUploadProgress_;
   bool takesUpdateLock_;
   bool invalidAfterChanged_;
+  bool customBotResourceId_;
 
   std::vector<Http::ResponseContinuationPtr> continuations_;
 
@@ -555,6 +598,7 @@ private:
   std::string currentUrl_;
   std::string internalPath_;
   std::string botUrl_;
+  std::string botResourceId_;
   unsigned long version_;
 
   WApplication *app_; // associated app (for non-static resources)

@@ -70,6 +70,7 @@ WResource::WResource()
   : trackUploadProgress_(false),
     takesUpdateLock_(false),
     invalidAfterChanged_(false),
+    customBotResourceId_(false),
     dispositionType_(ContentDisposition::None),
     version_(0),
     app_(nullptr)
@@ -79,6 +80,8 @@ WResource::WResource()
   beingDeleted_ = false;
   useCount_ = 0;
 #endif // WT_THREADED
+
+  botResourceId_ = id();
 }
 
 void WResource::beingDeleted()
@@ -412,5 +415,20 @@ void WResource::incrementVersion()
 {
   version_++;
 }
+
+void WResource::setBotResourceId(const std::string& id)
+{
+  WApplication *app = WApplication::instance();
+
+  bool wasExposed = app && app->removeExposedResource(this);
+  currentUrl_.clear();
+  botResourceId_ = id;
+  customBotResourceId_ = true;
+
+  if (wasExposed) {
+    app->addExposedResource(this);
+  }
+}
+
 
 }

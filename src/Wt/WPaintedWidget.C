@@ -194,7 +194,7 @@ void WPaintedWidget::update(WFlags<PaintFlag> flags)
 }
 
 void WPaintedWidget::refresh()
-{ 
+{
   update();
   WInteractWidget::refresh();
 }
@@ -531,6 +531,11 @@ const std::vector<WAbstractArea *> WPaintedWidget::areas() const
     (std::vector<WAbstractArea *>());
 }
 
+void WPaintedWidget::setBotResourceId(const std::string& id)
+{
+  botResourceId_ = id;
+}
+
 void WPaintedWidget::createAreaImage()
 {
   if (!areaImage_) {
@@ -771,8 +776,14 @@ std::unique_ptr<WPaintDevice> WWidgetRasterPainter
 ::createPaintDevice(WT_MAYBE_UNUSED bool paintUpdate)
 {
 #ifdef WT_HAS_WRASTERIMAGE
-  return std::unique_ptr<WPaintDevice>
+  std::unique_ptr<WPaintDevice> res
     (new WRasterImage("png", widget_->renderWidth_, widget_->renderHeight_));
+
+  std::string botResourceId = widget_->botResourceId();
+  if (!botResourceId.empty()) {
+    dynamic_cast<WRasterImage*>(res.get())->setBotResourceId(botResourceId);
+  }
+  return res;
 #else
   throw WException("Wt was built without WRasterImage (graphicsmagick or Direct2D)");
 #endif

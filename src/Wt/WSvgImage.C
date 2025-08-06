@@ -940,7 +940,13 @@ void WSvgImage::handleRequest(WT_MAYBE_UNUSED const Http::Request& request,
 
 std::shared_ptr<WResource> WSvgImage::botResource()
 {
-  auto res = std::make_shared<WSelfDeletingResource>("image/svg+xml");
+  std::shared_ptr<WMemoryResource> res;
+  if (customBotResourceId()) {
+    res = std::make_shared<WMemoryResource>("image/svg+xml");
+  } else {
+    res = std::make_shared<WSelfDeletingResource>("image/svg+xml");
+  }
+
   try {
     res->setData(writeToMemory());
 #ifndef WT_TARGET_JAVA
@@ -952,6 +958,7 @@ std::shared_ptr<WResource> WSvgImage::botResource()
 #endif // WT_TARGET_JAVA
     return nullptr;
   }
+
   return res;
 }
 

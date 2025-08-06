@@ -99,6 +99,22 @@ public:
   virtual void handleRequest(const Http::Request& request,
                              Http::Response& response) override;
 
+  /*! \brief Creates a new bot resource.
+   *
+   * By default, this returns a WMemoryResource, if the
+   * botResourceId() was set, or a WSelfDeletingResource
+   * otherwise.
+   *
+   * In both cases, the resource will serve the image data as if it was
+   * served just before the destruction of the WApplication
+   * \if cpp
+   *  (still after the execution of WApplication::finalize()).
+   * \elseif java
+   * (still after the execution of WApplication::destroy()).
+   * \endif
+   *
+   * \sa setBotResourceId()
+   */
   std::shared_ptr<WResource> botResource() override;
 
 protected:

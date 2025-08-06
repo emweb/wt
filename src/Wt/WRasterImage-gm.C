@@ -1176,13 +1176,20 @@ WFontMetrics WRasterImage::fontMetrics()
 
 std::shared_ptr<WResource> WRasterImage::botResource()
 {
-  auto res = std::make_shared<WSelfDeletingResource>("image/" + impl_->type_);
+  std::shared_ptr<WMemoryResource> res;
+  if (customBotResourceId()) {
+    res = std::make_shared<WMemoryResource>("image/" + impl_->type_);
+  } else {
+    res = std::make_shared<WSelfDeletingResource>("image/" + impl_->type_);
+  }
+
   try {
     res->setData(writeToMemory());
   } catch (std::exception& e) {
     LOG_ERROR("Failed to generate bot resource for raster image: " << e.what());
     return nullptr;
   }
+
   return res;
 }
 

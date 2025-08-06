@@ -911,7 +911,7 @@ std::string WApplication::addExposedResource(WResource *resource)
     }
     return appUrl
            + conf.botResourcesPath() + "/"
-           + Utils::urlEncode(resource->id())
+           + Utils::urlEncode(resource->botResourceId())
            + fn;
   } else if (resource->internalPath().empty()) {
     return session_->mostRelativeUrl(fn, true)
