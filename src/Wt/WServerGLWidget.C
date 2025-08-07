@@ -47,7 +47,6 @@ typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXC
 #include <OpenGL/CGLCurrent.h>
 #include <OpenGL/CGLRenderers.h>
 #include <OpenGL/CGLTypes.h>
-#include <OpenGL/OpenGL.h>
 #include <AvailabilityMacros.h>
 #endif
 
