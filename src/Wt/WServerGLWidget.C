@@ -48,6 +48,7 @@ typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXC
 #include <OpenGL/CGLRenderers.h>
 #include <OpenGL/CGLTypes.h>
 #include <OpenGL/OpenGL.h>
+#include <AvailabilityMacros.h>
 #endif
 
 namespace {
@@ -254,9 +255,11 @@ WServerGLWidgetImpl::WServerGLWidgetImpl(bool antialiasingEnabled):
 {
   CGLPixelFormatAttribute attributes[4] = {
     kCGLPFAAccelerated,   // no software rendering
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
     kCGLPFAOpenGLProfile, // core profile with the version stated below
     (CGLPixelFormatAttribute) kCGLOGLPVersion_Legacy,
     //    (CGLPixelFormatAttribute) kCGLOGLPVersion_3_2_Core,
+#endif
     (CGLPixelFormatAttribute) 0
   };
   CGLPixelFormatObj pix;
