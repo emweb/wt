@@ -231,12 +231,18 @@ IF(ENABLE_LIBWTTEST)
     SET(HTTP_TEST_SOURCES
       test.C
       http/HttpClientServerTest.C
+      http/BotTest.C
     )
     if (NOT (WT_CPP17_FILESYSTEM_IMPLEMENTATION STREQUAL "std" OR BOOST_FS_LIB))
       message(STATUS "** Not building test.http: requires std::filesystem or boost_filesystem library.")
     else()
 
       ADD_EXECUTABLE(test.http ${HTTP_TEST_SOURCES})
+
+      if(DEBUG_JS)
+        target_compile_definitions(test.http PRIVATE "WT_DEBUG_JS=${CMAKE_CURRENT_SOURCE_DIR}")
+      endif()
+
       TARGET_LINK_LIBRARIES(test.http PRIVATE wt wthttp ${WT_THREAD_LIB} ${BOOST_TEST_LIBRARIES} ${BOOST_FS_LIB})
       IF(MSVC)
         SET_TARGET_PROPERTIES(test.http PROPERTIES FOLDER "test")
