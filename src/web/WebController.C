@@ -819,6 +819,9 @@ void WebController::handleRequest(WebRequest *request)
 
         sessions_[sessionId] = session;
         ++plainHtmlSessions_;
+#ifdef WT_TEST_VISIBILITY
+        addedSessionId_.emit(sessionId);
+#endif // WT_TEST_VISIBILITY
 
         if (server_.dedicatedSessionProcess()) {
           server_.updateProcessSessionId(sessionId);

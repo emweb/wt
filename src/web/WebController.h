@@ -154,6 +154,10 @@ public:
 
   std::string generateNewSessionId(const std::shared_ptr<WebSession>& session);
 
+#ifdef WT_TEST_VISIBILITY
+  Signal<std::string> addedSessionId_;
+#endif // WT_TEST_VISIBILITY
+
 private:
   Configuration& conf_;
   std::string singleSessionId_;
