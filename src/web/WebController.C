@@ -709,10 +709,22 @@ void WebController::handleRequest(WebRequest *request)
 
   std::string sessionId;
 
-  /*
-   * Get session from request.
-   */
   const std::string *wtdE = request->getParameter("wtd");
+
+  const char* userAgent = request->headerValue("User-Agent");
+
+  // Block bot agents that request "follow-up" requests
+  // These are requests from the framework, with session tracking or session signals.
+  if (userAgent && conf_.agentIsBot(userAgent)) {
+    const std::string *signalE = request->getParameter("signal");
+    if (wtdE || signalE) {
+      LOG_INFO_S(&server_, "A request from a bot agent with a wtd or signal attached, was blocked. "
+                           "Bots are not allowed to do subsequent requests since their session has been killed.");
+      request->setStatus(403);
+      request->flush(WebResponse::ResponseState::ResponseDone);
+      return;
+    }
+  }
 
   if (conf_.sessionTracking() == Configuration::CookiesURL
       && !conf_.reloadIsNewSession())
@@ -726,8 +738,9 @@ void WebController::handleRequest(WebRequest *request)
                                            "ms" + request->scriptName(),
                                            conf_.sessionIdLength());
 
-  if (sessionId.empty() && wtdE)
+  if (sessionId.empty() && wtdE) {
     sessionId = *wtdE;
+  }
 
   std::shared_ptr<WebSession> session;
   {

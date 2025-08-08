@@ -167,14 +167,17 @@ BOOST_AUTO_TEST_CASE( non_bot_access_delayed_boot )
 {
   Server server;
 
+  bool hasApplicationStarted = false;
   bool isBotUser = false;
   server.addEntryPoint(EntryPointType::Application,
-                       [&isBotUser] (const WEnvironment& env) {
+                       [&hasApplicationStarted, &isBotUser] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
                          isBotUser = env.agentIsSpiderBot();
                          return std::make_unique<WApplication>(env);
                        });
   BOOST_REQUIRE(server.start());
 
+  // Using delayed boot, so WebSession isn't linked to WApp
   Client client;
   client.get("http://" + server.address());
   client.waitDone();
@@ -184,6 +187,7 @@ BOOST_AUTO_TEST_CASE( non_bot_access_delayed_boot )
 
   // Not detected as bot
   BOOST_TEST(!isBotUser);
+  BOOST_TEST(!hasApplicationStarted);
 
   // Non-bot, so session is alive (but missing WApp)
   std::string sessionId = server.sessions()[0].sessionId;
@@ -198,13 +202,16 @@ BOOST_AUTO_TEST_CASE( non_bot_access_delayed_boot )
   // No form
   BOOST_TEST(client.message().body().find("<form method='post' action=") == std::string::npos);
 
-  // Using delayed boot, so WebSession isn't linked to WApp
   // We now force the WApp creation
   client.post("http://" + server.address() + "/?wtd=" + sessionId + "&js=no&signal=load", Http::Message());
   client.waitDone();
 
   BOOST_TEST(!client.err());
   BOOST_TEST(client.message().status() == 200);
+
+  // Not detected as bot, inside application
+  BOOST_TEST(!isBotUser);
+  BOOST_TEST(hasApplicationStarted);
 
   BOOST_TEST(client.message().body().find(doctype) != std::string::npos);
   // Now we have the Plain.html form
@@ -216,9 +223,11 @@ BOOST_AUTO_TEST_CASE( non_bot_access_progressive_boot )
   Server server;
   server.configuration().setBootstrapMethod(Configuration::Progressive);
 
+  bool hasApplicationStarted = false;
   bool isBotUser = false;
   server.addEntryPoint(EntryPointType::Application,
-                       [&isBotUser] (const WEnvironment& env) {
+                       [&hasApplicationStarted, &isBotUser] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
                          isBotUser = env.agentIsSpiderBot();
                          return std::make_unique<WApplication>(env);
                        });
@@ -231,8 +240,9 @@ BOOST_AUTO_TEST_CASE( non_bot_access_progressive_boot )
   BOOST_TEST(!client.err());
   BOOST_TEST(client.message().status() == 200);
 
-  // Not detected as bot
+  // Not detected as bot, inside application
   BOOST_TEST(!isBotUser);
+  BOOST_TEST(hasApplicationStarted);
 
   // A request body should contain the opening basic HTML tags, and then the Boot.js script segment.
   // After that a form from the Hybrid.html
@@ -250,9 +260,11 @@ BOOST_AUTO_TEST_CASE( bot_access_delayed_boot_no_session_info )
 {
   Server server;
 
+  bool hasApplicationStarted = false;
   bool isBotUser = false;
   server.addEntryPoint(EntryPointType::Application,
-                       [&isBotUser] (const WEnvironment& env) {
+                       [&hasApplicationStarted, &isBotUser] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
                          isBotUser = env.agentIsSpiderBot();
                          return std::make_unique<WApplication>(env);
                        });
@@ -266,8 +278,9 @@ BOOST_AUTO_TEST_CASE( bot_access_delayed_boot_no_session_info )
   BOOST_TEST(!client.err());
   BOOST_TEST(client.message().status() == 200);
 
-  // Detected as bot
+  // Detected as bot, inside application
   BOOST_TEST(isBotUser);
+  BOOST_TEST(hasApplicationStarted);
 
   detectPlainHTML(client.message().body());
   // No form is present
@@ -279,9 +292,11 @@ BOOST_AUTO_TEST_CASE( bot_access_progressive_boot_no_session_info )
   Server server;
   server.configuration().setBootstrapMethod(Configuration::Progressive);
 
+  bool hasApplicationStarted = false;
   bool isBotUser = false;
   server.addEntryPoint(EntryPointType::Application,
-                       [&isBotUser] (const WEnvironment& env) {
+                       [&hasApplicationStarted, &isBotUser] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
                          isBotUser = env.agentIsSpiderBot();
                          return std::make_unique<WApplication>(env);
                        });
@@ -295,8 +310,9 @@ BOOST_AUTO_TEST_CASE( bot_access_progressive_boot_no_session_info )
   BOOST_TEST(!client.err());
   BOOST_TEST(client.message().status() == 200);
 
-  // Detected as bot
+  // Detected as bot, inside application
   BOOST_TEST(isBotUser);
+  BOOST_TEST(hasApplicationStarted);
 
   detectPlainHTML(client.message().body());
   // The form is removed from Plain.html
@@ -307,9 +323,11 @@ BOOST_AUTO_TEST_CASE( bot_access_delayed_boot_disallowed_followup )
 {
   Server server;
 
+  bool hasApplicationStarted = false;
   bool isBotUser = false;
   server.addEntryPoint(EntryPointType::Application,
-                       [&isBotUser] (const WEnvironment& env) {
+                       [&hasApplicationStarted, &isBotUser] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
                          isBotUser = env.agentIsSpiderBot();
                          return std::make_unique<WApplication>(env);
                        });
@@ -328,8 +346,13 @@ BOOST_AUTO_TEST_CASE( bot_access_delayed_boot_disallowed_followup )
   BOOST_TEST(!client.err());
   BOOST_TEST(client.message().status() == 200);
 
-  // Detected as bot
+  // Detected as bot, inside application
   BOOST_TEST(isBotUser);
+  BOOST_TEST(hasApplicationStarted);
+
+  // Reset
+  hasApplicationStarted = false;
+  isBotUser = false;
 
   detectPlainHTML(client.message().body());
 
@@ -340,12 +363,15 @@ BOOST_AUTO_TEST_CASE( bot_access_delayed_boot_disallowed_followup )
   client.waitDone();
 
   BOOST_TEST(!client.err());
-  BOOST_TEST(client.message().status() == 200);
+  BOOST_TEST(client.message().status() == 403);
 
-  // Detected as bot
-  BOOST_TEST(isBotUser);
+  // Not detected as bot, but no application was launched
+  BOOST_TEST(!isBotUser);
+  BOOST_TEST(!hasApplicationStarted);
+  BOOST_TEST(server.configuration().agentIsBot("somebot"));
 
-  detectPlainHTML(client.message().body());
+  // This does not contain a body
+  BOOST_TEST(client.message().body().empty());
 }
 
 BOOST_AUTO_TEST_CASE( bot_access_progressive_boot_disallowed_followup )
@@ -353,9 +379,11 @@ BOOST_AUTO_TEST_CASE( bot_access_progressive_boot_disallowed_followup )
   Server server;
   server.configuration().setBootstrapMethod(Configuration::Progressive);
 
+  bool hasApplicationStarted = false;
   bool isBotUser = false;
   server.addEntryPoint(EntryPointType::Application,
-                       [&isBotUser] (const WEnvironment& env) {
+                       [&hasApplicationStarted, &isBotUser] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
                          isBotUser = env.agentIsSpiderBot();
                          return std::make_unique<WApplication>(env);
                        });
@@ -374,10 +402,15 @@ BOOST_AUTO_TEST_CASE( bot_access_progressive_boot_disallowed_followup )
   BOOST_TEST(!client.err());
   BOOST_TEST(client.message().status() == 200);
 
-  // Detected as bot
+  // Detected as bot, inside application
   BOOST_TEST(isBotUser);
+  BOOST_TEST(hasApplicationStarted);
 
   detectPlainHTML(client.message().body());
+
+  // Reset
+  hasApplicationStarted = false;
+  isBotUser = false;
 
   // Using delayed boot, so WebSession isn't linked to WApp
   // Since this is a bot agent, this POST should not result in a "valid" request (like above).
@@ -386,21 +419,26 @@ BOOST_AUTO_TEST_CASE( bot_access_progressive_boot_disallowed_followup )
   client.waitDone();
 
   BOOST_TEST(!client.err());
-  BOOST_TEST(client.message().status() == 200);
+  BOOST_TEST(client.message().status() == 403);
 
-  // Detected as bot
-  BOOST_TEST(isBotUser);
+  // Not detected as bot, but no application was launched
+  BOOST_TEST(!isBotUser);
+  BOOST_TEST(!hasApplicationStarted);
+  BOOST_TEST(server.configuration().agentIsBot("somebot"));
 
-  detectPlainHTML(client.message().body());
+  // This does not contain a body
+  BOOST_TEST(client.message().body().empty());
 }
 
 BOOST_AUTO_TEST_CASE( bot_access_delayed_boot_with_wtd_disallowed_get )
 {
   Server server;
 
+  bool hasApplicationStarted = false;
   bool isBotUser = false;
   server.addEntryPoint(EntryPointType::Application,
-                       [&isBotUser] (const WEnvironment& env) {
+                       [&hasApplicationStarted, &isBotUser] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
                          isBotUser = env.agentIsSpiderBot();
                          return std::make_unique<WApplication>(env);
                        });
@@ -412,12 +450,15 @@ BOOST_AUTO_TEST_CASE( bot_access_delayed_boot_with_wtd_disallowed_get )
   client.waitDone();
 
   BOOST_TEST(!client.err());
-  BOOST_TEST(client.message().status() == 200);
+  BOOST_TEST(client.message().status() == 403);
 
-  // Detected as bot
-  BOOST_TEST(isBotUser);
+  // Not detected as bot, but no application was launched
+  BOOST_TEST(!isBotUser);
+  BOOST_TEST(!hasApplicationStarted);
+  BOOST_TEST(server.configuration().agentIsBot("somebot"));
 
-  detectPlainHTML(client.message().body());
+  // This does not contain a body
+  BOOST_TEST(client.message().body().empty());
 }
 
 BOOST_AUTO_TEST_CASE( bot_access_progressive_boot_with_wtd_disallowed_get )
@@ -425,9 +466,11 @@ BOOST_AUTO_TEST_CASE( bot_access_progressive_boot_with_wtd_disallowed_get )
   Server server;
   server.configuration().setBootstrapMethod(Configuration::Progressive);
 
+  bool hasApplicationStarted = false;
   bool isBotUser = false;
   server.addEntryPoint(EntryPointType::Application,
-                       [&isBotUser] (const WEnvironment& env) {
+                       [&hasApplicationStarted, &isBotUser] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
                          isBotUser = env.agentIsSpiderBot();
                          return std::make_unique<WApplication>(env);
                        });
@@ -439,21 +482,26 @@ BOOST_AUTO_TEST_CASE( bot_access_progressive_boot_with_wtd_disallowed_get )
   client.waitDone();
 
   BOOST_TEST(!client.err());
-  BOOST_TEST(client.message().status() == 200);
+  BOOST_TEST(client.message().status() == 403);
 
-  // Detected as bot
-  BOOST_TEST(isBotUser);
+  // Not detected as bot, but no application was launched
+  BOOST_TEST(!isBotUser);
+  BOOST_TEST(!hasApplicationStarted);
+  BOOST_TEST(server.configuration().agentIsBot("somebot"));
 
-  detectPlainHTML(client.message().body());
+  // This does not contain a body
+  BOOST_TEST(client.message().body().empty());
 }
 
 BOOST_AUTO_TEST_CASE( bot_access_delayed_boot_with_wtd_disallowed_post )
 {
   Server server;
 
+  bool hasApplicationStarted = false;
   bool isBotUser = false;
   server.addEntryPoint(EntryPointType::Application,
-                       [&isBotUser] (const WEnvironment& env) {
+                       [&hasApplicationStarted, &isBotUser] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
                          isBotUser = env.agentIsSpiderBot();
                          return std::make_unique<WApplication>(env);
                        });
@@ -466,12 +514,15 @@ BOOST_AUTO_TEST_CASE( bot_access_delayed_boot_with_wtd_disallowed_post )
   client.waitDone();
 
   BOOST_TEST(!client.err());
-  BOOST_TEST(client.message().status() == 200);
+  BOOST_TEST(client.message().status() == 403);
 
-  // Detected as bot
-  BOOST_TEST(isBotUser);
+  // Not detected as bot, but no application was launched
+  BOOST_TEST(!isBotUser);
+  BOOST_TEST(!hasApplicationStarted);
+  BOOST_TEST(server.configuration().agentIsBot("somebot"));
 
-  detectPlainHTML(client.message().body());
+  // This does not contain a body
+  BOOST_TEST(client.message().body().empty());
 }
 
 BOOST_AUTO_TEST_CASE( bot_access_progressive_boot_with_wtd_disallowed_post )
@@ -479,9 +530,11 @@ BOOST_AUTO_TEST_CASE( bot_access_progressive_boot_with_wtd_disallowed_post )
   Server server;
   server.configuration().setBootstrapMethod(Configuration::Progressive);
 
+  bool hasApplicationStarted = false;
   bool isBotUser = false;
   server.addEntryPoint(EntryPointType::Application,
-                       [&isBotUser] (const WEnvironment& env) {
+                       [&hasApplicationStarted, &isBotUser] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
                          isBotUser = env.agentIsSpiderBot();
                          return std::make_unique<WApplication>(env);
                        });
@@ -494,21 +547,26 @@ BOOST_AUTO_TEST_CASE( bot_access_progressive_boot_with_wtd_disallowed_post )
   client.waitDone();
 
   BOOST_TEST(!client.err());
-  BOOST_TEST(client.message().status() == 200);
+  BOOST_TEST(client.message().status() == 403);
 
-  // Detected as bot
-  BOOST_TEST(isBotUser);
+  // Not detected as bot, but no application was launched
+  BOOST_TEST(!isBotUser);
+  BOOST_TEST(!hasApplicationStarted);
+  BOOST_TEST(server.configuration().agentIsBot("somebot"));
 
-  detectPlainHTML(client.message().body());
+  // This does not contain a body
+  BOOST_TEST(client.message().body().empty());
 }
 
 BOOST_AUTO_TEST_CASE( bot_access_delayed_boot_with_wtd_and_signal_disallowed_get )
 {
   Server server;
 
+  bool hasApplicationStarted = false;
   bool isBotUser = false;
   server.addEntryPoint(EntryPointType::Application,
-                       [&isBotUser] (const WEnvironment& env) {
+                       [&hasApplicationStarted, &isBotUser] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
                          isBotUser = env.agentIsSpiderBot();
                          return std::make_unique<WApplication>(env);
                        });
@@ -520,12 +578,15 @@ BOOST_AUTO_TEST_CASE( bot_access_delayed_boot_with_wtd_and_signal_disallowed_get
   client.waitDone();
 
   BOOST_TEST(!client.err());
-  BOOST_TEST(client.message().status() == 200);
+  BOOST_TEST(client.message().status() == 403);
 
-  // Detected as bot
-  BOOST_TEST(isBotUser);
+  // Not detected as bot, but no application was launched
+  BOOST_TEST(!isBotUser);
+  BOOST_TEST(!hasApplicationStarted);
+  BOOST_TEST(server.configuration().agentIsBot("somebot"));
 
-  detectPlainHTML(client.message().body());
+  // This does not contain a body
+  BOOST_TEST(client.message().body().empty());
 }
 
 BOOST_AUTO_TEST_CASE( bot_access_progressive_boot_with_wtd_and_signal_disallowed_get )
@@ -533,9 +594,11 @@ BOOST_AUTO_TEST_CASE( bot_access_progressive_boot_with_wtd_and_signal_disallowed
   Server server;
   server.configuration().setBootstrapMethod(Configuration::Progressive);
 
+  bool hasApplicationStarted = false;
   bool isBotUser = false;
   server.addEntryPoint(EntryPointType::Application,
-                       [&isBotUser] (const WEnvironment& env) {
+                       [&hasApplicationStarted, &isBotUser] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
                          isBotUser = env.agentIsSpiderBot();
                          return std::make_unique<WApplication>(env);
                        });
@@ -547,21 +610,26 @@ BOOST_AUTO_TEST_CASE( bot_access_progressive_boot_with_wtd_and_signal_disallowed
   client.waitDone();
 
   BOOST_TEST(!client.err());
-  BOOST_TEST(client.message().status() == 200);
+  BOOST_TEST(client.message().status() == 403);
 
-  // Detected as bot
-  BOOST_TEST(isBotUser);
+  // Not detected as bot, but no application was launched
+  BOOST_TEST(!isBotUser);
+  BOOST_TEST(!hasApplicationStarted);
+  BOOST_TEST(server.configuration().agentIsBot("somebot"));
 
-  detectPlainHTML(client.message().body());
+  // This does not contain a body
+  BOOST_TEST(client.message().body().empty());
 }
 
 BOOST_AUTO_TEST_CASE( bot_access_delayed_boot_with_wtd_and_signal_disallowed_post )
 {
   Server server;
 
+  bool hasApplicationStarted = false;
   bool isBotUser = false;
   server.addEntryPoint(EntryPointType::Application,
-                       [&isBotUser] (const WEnvironment& env) {
+                       [&hasApplicationStarted, &isBotUser] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
                          isBotUser = env.agentIsSpiderBot();
                          return std::make_unique<WApplication>(env);
                        });
@@ -574,12 +642,15 @@ BOOST_AUTO_TEST_CASE( bot_access_delayed_boot_with_wtd_and_signal_disallowed_pos
   client.waitDone();
 
   BOOST_TEST(!client.err());
-  BOOST_TEST(client.message().status() == 200);
+  BOOST_TEST(client.message().status() == 403);
 
-  // Detected as bot
-  BOOST_TEST(isBotUser);
+  // Not detected as bot, but no application was launched
+  BOOST_TEST(!isBotUser);
+  BOOST_TEST(!hasApplicationStarted);
+  BOOST_TEST(server.configuration().agentIsBot("somebot"));
 
-  detectPlainHTML(client.message().body());
+  // This does not contain a body
+  BOOST_TEST(client.message().body().empty());
 }
 
 BOOST_AUTO_TEST_CASE( bot_access_progressive_boot_with_wtd_and_signal_disallowed_post )
@@ -587,9 +658,11 @@ BOOST_AUTO_TEST_CASE( bot_access_progressive_boot_with_wtd_and_signal_disallowed
   Server server;
   server.configuration().setBootstrapMethod(Configuration::Progressive);
 
+  bool hasApplicationStarted = false;
   bool isBotUser = false;
   server.addEntryPoint(EntryPointType::Application,
-                       [&isBotUser] (const WEnvironment& env) {
+                       [&hasApplicationStarted, &isBotUser] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
                          isBotUser = env.agentIsSpiderBot();
                          return std::make_unique<WApplication>(env);
                        });
@@ -602,12 +675,15 @@ BOOST_AUTO_TEST_CASE( bot_access_progressive_boot_with_wtd_and_signal_disallowed
   client.waitDone();
 
   BOOST_TEST(!client.err());
-  BOOST_TEST(client.message().status() == 200);
+  BOOST_TEST(client.message().status() == 403);
 
-  // Detected as bot
-  BOOST_TEST(isBotUser);
+  // Not detected as bot, but no application was launched
+  BOOST_TEST(!isBotUser);
+  BOOST_TEST(!hasApplicationStarted);
+  BOOST_TEST(server.configuration().agentIsBot("somebot"));
 
-  detectPlainHTML(client.message().body());
+  // This does not contain a body
+  BOOST_TEST(client.message().body().empty());
 }
 
 #endif // WT_THREADED
