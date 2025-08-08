@@ -46,6 +46,14 @@ behaviour.
     corrected the default value of the <code>&lt;debug-level&gt;</code> configuration. Due to a previous rename this still carried the name <code>script</code>, instead of <code>framework</code>.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13878" target="_blank">Issue #13878</a>:
+    made the access of bot user-agents more restricted. In case the incoming requests carry session-related information, the request is not processed, and a preemptive <code>403</code> status is returned.
+    Bot agents have their <a href="classWt_1_1WApplication.html" target="_blank">WApplication</a>
+    killed immediately after the response is served. Therefore a session does not carry meaning over multiple requests.
+    This resulted in bots being served the page on the path they requested, as a whole again.
+    While it was previously fixed that bots did not receive session-related parameters, older indexes may still contain them, which should be discouraged.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13508" target="_blank">Issue #13508</a>:
     fixed validation style being applied to a
     <a href="classWt_1_1WFormWidget.html" target="_blank">WFormWidget</a> on its first
