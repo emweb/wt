@@ -240,6 +240,31 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.emweb.be/issues/13880" target="_blank">Issue #13880</a>:
+    fixed bot potentially being redirected to another page when trying to load a private
+    resource.
+
+    Additionally, it is now possible to configure whether private resources are served
+    to bots by setting the <code>serve-private-resources-to-bots</code> option to true.
+    In that case, the private resources that have overridden the
+    <a href="classWt_1_1WResource.html#ae2d1f6fe25f575297ed3bd315f72a667" target="_blank">WResource::botResource()</a>
+    method will be added as public resources so that it can be served to bots. That
+    function is already overridden by
+    <a href="classWt_1_1WRasterImage.html" target="_blank">WRasterImage</a> and
+    <a href="classWt_1_1WSvgImage.html" target="_blank">WSvgImage</a>.
+
+    The path under which these bot resources are exposed can be configured using the
+    <code>bot-resources-path</code> option in the <code>wt_config.xml</code> file and the
+    <a href="classWt_1_1WResource.html#af7b9c1cec14007140a55bfc6fbb69cea" target="_blank">WResource::setBotResourceId()</a>
+    method.
+
+    Finally, in order to help managing those bot resources, it is now possible to remove
+    entrypoints while the server is running, and the new
+    <a href="classWt_1_1WSelfDeletingResource.html" target="_blank">WSelfDeletingResource</a>
+    class was added, which is a WResource that will automatically unexposed itself after
+    being served once.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13867" target="_blank">Issue #13867</a>:
     corrected a breaking default <code>script</code> value of the <code>&lt;debug-level&gt;</code> configuration. This has been corrected to <code>framework</code>.
   </li>
