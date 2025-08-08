@@ -983,6 +983,46 @@ appRoot=C:\Program Files\MyApplications\AppRoot
       browser.
   </dd>
 
+  <dt><strong>serve-private-resources-to-bots</strong></dt>
+  <dd>Configure whether private resources are served to bots.
+
+      Private resources are resources that are tied to a session in
+      which it was usually created. Such a resource is deleted when the
+      session ends.
+
+      Since bots do not keep an active session, they cannot access
+      private resources by default. This setting allows you to enable
+      serving private resources to bots by adding them to the public
+      resources.
+
+      Not all private resources will be served to bots if you set this
+      to true. Only the WResources that have overridden
+      WResource::botResource() to return something other than nullptr
+      will be served to bots, which is only the case for WSvgImage and
+      WRasterImage (and the WResource for which you decide to override
+      that method).
+
+      Note that this setting will also change the url of all of your
+      private resources created in a bot session, see the
+      <strong>bot-resources-path</strong> option for more informations.
+  </dd>
+
+  <dt><strong>bot-resources-path</strong></dt>
+  <dd>Configure the path where bot resources are exposed.
+
+      This is the path under which all bot resources are exposed. It is
+      only used when <strong>serve-private-resources-to-bots</strong>
+      is set to true and has no effect otherwise.
+
+      The default value is <code>wt-temp</code>, which means that every
+      bot resource will be served under a subpath of
+      <code>/wt-temp</code>.
+
+      You can change this to any other path, but it should not conflict
+      with other resources or entrypoints, and the value cannot start
+      or end with a slash.
+  </dd>
+
   \subsection config_wthttpd 10.3 Wt httpd (command-line or configuration file) options
 
 These options are not specified in the wt_config.xml configuration

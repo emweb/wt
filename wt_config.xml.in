@@ -743,8 +743,46 @@
         -->
         <use-script-nonce>false</use-script-nonce>
 
+        <!-- Configure whether private resources are served to bots
+
+         Private resources are resources that are tied to a session in
+         which it was usually created. Such a resource is deleted when
+         the session ends.
+
+         Since bots do not keep an active session, they cannot access
+         private resources by default. This setting allows you to
+         enable serving private resources to bots by adding them to the
+         public resources.
+
+         Not all private resources will be served to bots if you set
+         this to true. Only the WResources that have overridden
+         WResource::botResource() to return something other than
+         nullptr will be served to bots, which is only the case for
+         WSvgImage and WRasterImage (and the WResource for which you
+         decide to override that method).
+
+         Note that this setting will also change the url of all of your
+         private resources created in a bot session, see the
+         <bot-resources-path> option for more informations.
+
+        -->
         <serve-private-resources-to-bots>false</serve-private-resources-to-bots>
 
+        <!-- Configure the path where bot resources are exposed
+
+         This is the path under which all bot resources are exposed.
+         It only used when <serve-private-resources-to-bots> is set to
+         true and has no effect otherwise.
+
+         The default value is <code>wt-temp</code>, which means that
+         every bot resource will be served under a subpath of
+         <code>/wt-temp</code>.
+
+         You can change this to any other path, but it should not
+         conflict with other resources or entrypoints, and the value
+         cannot start or end with a slash.
+
+        -->
         <bot-resources-path>wt-temp</bot-resources-path>
 
         <!-- Configure allowed origins for CORS (only for WidgetSet entry points)
