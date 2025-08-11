@@ -290,6 +290,7 @@ public:
      * Create an image which is located at the <i>uri</i>, and which has
      * dimensions <i>width</i> x <i>height</i>.
      */
+    WT_DEPRECATED("Use WAbstractDataInfo* instead of a string")
     Image(const std::string& url, int width, int height);
 
     /*! \brief Creates an image.
@@ -307,6 +308,7 @@ public:
      * the local filesystem as <i>file</i>. The image dimensions are
      * retrieved from the file.
      */
+    WT_DEPRECATED("Use WAbstractDataInfo* instead of a string")
     Image(const std::string& url, const std::string& file);
 
     /*! \brief Creates an image.

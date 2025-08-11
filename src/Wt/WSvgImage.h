@@ -69,6 +69,7 @@ public:
   virtual void setChanged(WFlags<PainterChangeFlag> flags) override;
   virtual void drawArc(const WRectF& rect, double startAngle, double spanAngle)
     override;
+  WT_DEPRECATED("Use drawImage() with WAbstractDataInfo* instead of a string")
   virtual void drawImage(const WRectF& rect, const std::string& imgUri,
                          int imgWidth, int imgHeight, const WRectF& sourceRect)
     override;

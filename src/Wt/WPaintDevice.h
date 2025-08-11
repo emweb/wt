@@ -163,6 +163,7 @@ public:
    *
    * The image is transformed using the current painter settings.
    */
+  WT_DEPRECATED("Use drawImage() with WAbstractDataInfo* instead of a string")
   virtual void drawImage(const WRectF& rect, const std::string& imageUri,
                          int imgWidth, int imgHeight,
                          const WRectF& sourceRect);
