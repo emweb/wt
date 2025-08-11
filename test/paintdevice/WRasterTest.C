@@ -29,15 +29,15 @@ namespace {
       : painter_(painter),
         rect_(rect)
     { }
-    
+
     virtual double pageWidth(WT_MAYBE_UNUSED int page) const override {
       return rect_.right();
     }
-    
+
     virtual double pageHeight(WT_MAYBE_UNUSED int page) const override {
       return 1E9;
     }
-    
+
     virtual double margin(Side side) const override {
       switch (side) {
       case Side::Top: return rect_.top(); break;
@@ -50,17 +50,17 @@ namespace {
     virtual WPaintDevice *startPage(int page) override {
       if (page > 0)
         assert(false);
-      
+
       return painter_.device();
     }
-    
+
     virtual void endPage(WT_MAYBE_UNUSED WPaintDevice* device) override {
     }
 
     virtual WPainter *getPainter(WT_MAYBE_UNUSED WPaintDevice* device) override {
       return &painter_;
     }
-    
+
   private:
     WPainter& painter_;
     WRectF    rect_;
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( raster_test_textRenderer )
   Wt::WRasterImage rasterImage("png", 357, 193);
   {
     Wt::WPainter p(&rasterImage);
-    std::string text = 
+    std::string text =
       "<table style=\"width:357px;\"><tr><td style=\"padding:0px;height:"
       "193px;color:rgb(247,17,117);text-align:left;vertical-align:top;"
       "font-family: Arial;font-size: 60.0pt;font-weight: normal;\">"
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE( raster_test_dataUriImage )
   Wt::WPainter p(&rasterImage);
 
   {
-    std::string uri 
+    std::string uri
       = "data:image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw"
       "AAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFz"
       "ByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSp"
@@ -129,30 +129,16 @@ BOOST_AUTO_TEST_CASE( raster_test_dataUriImage )
       "ZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uis"
       "F81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PH"
       "hhx4dbgYKAAA7";
-    
+
     Wt::WPainter::Image image(uri, 48, 48);
     p.drawImage(Wt::WPointF(0,0), image);
   }
-  
+
   {
     bool error = false;
     try {
       std::string uri = "data:image/gif;,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
-    
-      Wt::WPainter::Image image(uri, 48, 48);
-      p.drawImage(Wt::WPointF(0,0), image);
-    } catch (...) {
-      error = true;
-    }
-    BOOST_REQUIRE(error);
-  }
-  
-  {
-    bool error = false;
-    try {
-      std::string uri 
-        = "data:image/tiff;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
-    
+
       Wt::WPainter::Image image(uri, 48, 48);
       p.drawImage(Wt::WPointF(0,0), image);
     } catch (...) {
@@ -164,9 +150,23 @@ BOOST_AUTO_TEST_CASE( raster_test_dataUriImage )
   {
     bool error = false;
     try {
-      std::string uri 
+      std::string uri
+        = "data:image/tiff;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
+
+      Wt::WPainter::Image image(uri, 48, 48);
+      p.drawImage(Wt::WPointF(0,0), image);
+    } catch (...) {
+      error = true;
+    }
+    BOOST_REQUIRE(error);
+  }
+
+  {
+    bool error = false;
+    try {
+      std::string uri
         = "data:;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
-    
+
       Wt::WPainter::Image image(uri, 48, 48);
       p.drawImage(Wt::WPointF(0,0), image);
     } catch (...) {
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( raster_test_dataUriImage )
     bool error = false;
     try {
       std::string uri = "data:;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
-    
+
       Wt::WPainter::Image image(uri, 48, 48);
       p.drawImage(Wt::WPointF(0,0), image);
     } catch (...) {
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE( raster_test_dataUriImage )
     bool error = false;
     try {
       std::string uri = "data:image/gif;base64,";
-    
+
       Wt::WPainter::Image image(uri, 48, 48);
       p.drawImage(Wt::WPointF(0,0), image);
     } catch (...) {
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE( raster_test_dataUriImage )
     }
     BOOST_REQUIRE(error);
   }
-  
+
   p.end();
   std::ofstream f("out/data_uri_image.png");
   rasterImage.write(f);
