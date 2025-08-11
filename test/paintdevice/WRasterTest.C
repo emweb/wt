@@ -13,6 +13,7 @@
 #include <iostream>
 #include <fstream>
 
+#include <Wt/WDataInfo.h>
 #include <Wt/WRasterImage.h>
 #include <Wt/WPainter.h>
 #include <Wt/WPointF.h>
@@ -130,75 +131,53 @@ BOOST_AUTO_TEST_CASE( raster_test_dataUriImage )
       "F81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PH"
       "hhx4dbgYKAAA7";
 
-    Wt::WPainter::Image image(uri, 48, 48);
+    Wt::WPainter::Image image(std::make_shared<Wt::WDataInfo>(uri,""), 48, 48);
     p.drawImage(Wt::WPointF(0,0), image);
   }
 
   {
-    bool error = false;
-    try {
-      std::string uri = "data:image/gif;,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
+    std::string uri = "data:image/gif;,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
 
-      Wt::WPainter::Image image(uri, 48, 48);
-      p.drawImage(Wt::WPointF(0,0), image);
-    } catch (...) {
-      error = true;
-    }
-    BOOST_REQUIRE(error);
+    Wt::WPainter::Image image(std::make_shared<Wt::WDataInfo>(uri,""), 48, 48);
+    BOOST_REQUIRE_THROW(p.drawImage(Wt::WPointF(0,0), image), Wt::WException);
   }
 
   {
-    bool error = false;
-    try {
-      std::string uri
-        = "data:image/tiff;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
+    std::string uri
+      = "data:image/tiff;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
 
-      Wt::WPainter::Image image(uri, 48, 48);
-      p.drawImage(Wt::WPointF(0,0), image);
-    } catch (...) {
-      error = true;
-    }
-    BOOST_REQUIRE(error);
+    Wt::WPainter::Image image(std::make_shared<Wt::WDataInfo>(uri,""), 48, 48);
+    BOOST_REQUIRE_THROW(p.drawImage(Wt::WPointF(0,0), image), Wt::WException);
   }
 
   {
-    bool error = false;
-    try {
-      std::string uri
-        = "data:;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
+    std::string uri
+      = "data:image/tiff;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
 
-      Wt::WPainter::Image image(uri, 48, 48);
-      p.drawImage(Wt::WPointF(0,0), image);
-    } catch (...) {
-      error = true;
-    }
-    BOOST_REQUIRE(error);
+    Wt::WPainter::Image image(uri, 48, 48);
+    BOOST_REQUIRE_THROW(p.drawImage(Wt::WPointF(0,0), image), Wt::WException);
   }
 
   {
-    bool error = false;
-    try {
-      std::string uri = "data:;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
+    std::string uri
+      = "data:;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
 
-      Wt::WPainter::Image image(uri, 48, 48);
-      p.drawImage(Wt::WPointF(0,0), image);
-    } catch (...) {
-      error = true;
-    }
-    BOOST_REQUIRE(error);
+    Wt::WPainter::Image image(std::make_shared<Wt::WDataInfo>(uri,""), 48, 48);
+    BOOST_REQUIRE_THROW(p.drawImage(Wt::WPointF(0,0), image), Wt::WException);
   }
 
   {
-    bool error = false;
-    try {
-      std::string uri = "data:image/gif;base64,";
+    std::string uri = "data:;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
 
-      Wt::WPainter::Image image(uri, 48, 48);
-      p.drawImage(Wt::WPointF(0,0), image);
-    } catch (...) {
-      error = true;
-    }
-    BOOST_REQUIRE(error);
+    Wt::WPainter::Image image(std::make_shared<Wt::WDataInfo>(uri,""), 48, 48);
+    BOOST_REQUIRE_THROW(p.drawImage(Wt::WPointF(0,0), image), Wt::WException);
+  }
+
+  {
+    std::string uri = "data:image/gif;base64,";
+
+    Wt::WPainter::Image image(std::make_shared<Wt::WDataInfo>(uri,""), 48, 48);
+    BOOST_REQUIRE_THROW(p.drawImage(Wt::WPointF(0,0), image), Wt::WException);
   }
 
   p.end();

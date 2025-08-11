@@ -1,6 +1,7 @@
 #include <Wt/WBrush.h>
 #include <Wt/WColor.h>
 #include <Wt/WContainerWidget.h>
+#include <Wt/WDocRootDataInfo.h>
 #include <Wt/WPaintDevice.h>
 #include <Wt/WPaintedWidget.h>
 #include <Wt/WPainter.h>
@@ -18,7 +19,7 @@ protected:
     void paintEvent(Wt::WPaintDevice *paintDevice) {
         Wt::WPainter painter(paintDevice);
 
-        Wt::WPainter::Image image("pics/sintel_trailer.jpg", 639, 354);
+        Wt::WPainter::Image image(std::make_shared<Wt::WDocRootDataInfo>("pics/sintel_trailer.jpg"), 639, 354);
         painter.drawImage(0.0, 0.0, image);
         // Draw a part of the same image starting at (110, 75) and put it at
         // (0, 364).

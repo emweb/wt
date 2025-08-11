@@ -6,6 +6,7 @@
 
 // #define DEBUG_LAYOUT
 
+#include "Wt/WDataInfo.h"
 #include "Wt/WException.h"
 #include "Wt/WFontMetrics.h"
 #include "Wt/WLogger.h"
@@ -3055,7 +3056,8 @@ void Block::actualRender(WTextRenderer& renderer, WPainter& painter,
     painter.drawRect(rect);
 #endif // DEBUG_LAYOUT
 
-    painter.drawImage(rect, WPainter::Image(attributeValue("src"),
+    std::string src = attributeValue("src");
+    painter.drawImage(rect, WPainter::Image(std::make_shared<WDataInfo>(src, src),
                                             (int)width, (int)height));
   } else {
     LayoutBox bb = toBorderBox(lb, renderer.fontScale());

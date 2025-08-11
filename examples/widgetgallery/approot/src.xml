@@ -3321,6 +3321,7 @@
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WBrush.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WColor.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WContainerWidget.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WDocRootDataInfo.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPaintDevice.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPaintedWidget.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Wt/WPainter.h&gt;</span>
@@ -3338,7 +3339,7 @@
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">paintEvent</span><span class="p">(</span><span class="n">Wt</span><span class="o">::</span><span class="n">WPaintDevice</span><span class="w"> </span><span class="o">*</span><span class="n">paintDevice</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">Wt</span><span class="o">::</span><span class="n">WPainter</span><span class="w"> </span><span class="nf">painter</span><span class="p">(</span><span class="n">paintDevice</span><span class="p">);</span>
 
-<span class="w">        </span><span class="n">Wt</span><span class="o">::</span><span class="n">WPainter</span><span class="o">::</span><span class="n">Image</span><span class="w"> </span><span class="n">image</span><span class="p">(</span><span class="s">&quot;pics/sintel_trailer.jpg&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">639</span><span class="p">,</span><span class="w"> </span><span class="mi">354</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Wt</span><span class="o">::</span><span class="n">WPainter</span><span class="o">::</span><span class="n">Image</span><span class="w"> </span><span class="n">image</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Wt</span><span class="o">::</span><span class="n">WDocRootDataInfo</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;pics/sintel_trailer.jpg&quot;</span><span class="p">),</span><span class="w"> </span><span class="mi">639</span><span class="p">,</span><span class="w"> </span><span class="mi">354</span><span class="p">);</span>
 <span class="w">        </span><span class="n">painter</span><span class="p">.</span><span class="n">drawImage</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="n">image</span><span class="p">);</span>
 <span class="w">        </span><span class="c1">// Draw a part of the same image starting at (110, 75) and put it at</span>
 <span class="w">        </span><span class="c1">// (0, 364).</span>
