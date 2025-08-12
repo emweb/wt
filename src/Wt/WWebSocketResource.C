@@ -86,7 +86,7 @@ WWebSocketConnection* WWebSocketResource::registerConnection(std::unique_ptr<WWe
 
   {
     std::unique_lock<std::recursive_mutex> lock(clientsMutex_);
-    LOG_INFO("A new connection was made.");
+    LOG_DEBUG("A new WWebSocketConnection " << connection->id() << " (to the resource: " << id() << ") was opened.");
     clients_.push_back(std::move(connection));
   }
   return clients_.back().get();
@@ -138,6 +138,7 @@ void WWebSocketResource::removeConnection(WWebSocketConnection* connection)
   for (auto it = clients_.begin(); it != clients_.end(); ++it) {
     if (it->get() == connection) {
       clients_.erase(it);
+      LOG_DEBUG("The WWebSocketConnection " << connection->id() << " (to the resource: " << id() << ") was closed.");
       return;
     }
   }
