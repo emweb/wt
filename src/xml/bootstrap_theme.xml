@@ -116,6 +116,8 @@
 
   <message id="Wt.Auth.template.registration">
     <div class="Wt-auth-registration">
+      <p>${tr:Wt.Auth.registration-form-info}</p>
+
       <p class="lead">
         ${password-description}
       </p>
@@ -175,6 +177,8 @@
 
   <message id="Wt.Auth.template.lost-password">
     <div class="Wt-form Wt-auth-lost-password">
+      <p>${tr:Wt.Auth.lost-password-form-info}</p>
+
       <div class="form-horizontal">
         ${block:Wt.Auth.field.active email}
 
