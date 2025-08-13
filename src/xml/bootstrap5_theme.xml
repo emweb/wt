@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <messages xmlns:if="Wt.WTemplate.conditions">
+
+  <message id="Wt.Auth.form-group">row mb-3</message>
+  <message id="Wt.Auth.form-label">col-sm-2 col-form-label text-sm-end</message>
+  <message id="Wt.Auth.form-element">col-sm-8</message>
+  <message id="Wt.Auth.form-help">form-text</message>
+  <message id="Wt.Auth.form-horizontal"></message> <!--No specific class needed-->
+
+  <message id="Wt.Auth.form-action.class">offset-sm-2</message>
+
   <message id="Wt.Auth.field-check">
     <![CDATA[
     ${block:Wt.Auth.field {1}}

@@ -53,6 +53,8 @@ FILE_TO_STRING(xml/wt.xml Wt_xml.C Wt_xml)
 FILE_TO_STRING(xml/auth_strings.xml AuthStrings_xml.C AuthStrings_xml)
 FILE_TO_STRING(xml/bootstrap_theme.xml
     BootstrapTheme_xml.C BootstrapTheme_xml)
+FILE_TO_STRING(xml/bootstrap2_theme.xml
+    Bootstrap2Theme_xml.C Bootstrap2Theme_xml)
 FILE_TO_STRING(xml/bootstrap3_theme.xml
     Bootstrap3Theme_xml.C Bootstrap3Theme_xml)
 FILE_TO_STRING(xml/bootstrap5_theme.xml
@@ -426,6 +428,7 @@ WCartesianChart_js.C
 Wt_xml.C
 AuthStrings_xml.C
 BootstrapTheme_xml.C
+Bootstrap2Theme_xml.C
 Bootstrap3Theme_xml.C
 Bootstrap5Theme_xml.C
 AuthCssTheme_xml.C

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages xmlns:if="Wt.WTemplate.conditions">
+
+  <message id="Wt.Auth.form-group">control-group</message>
+  <message id="Wt.Auth.form-label">control-label</message>
+  <message id="Wt.Auth.form-element">controls</message>
+  <message id="Wt.Auth.form-help">help-block</message>
+  <message id="Wt.Auth.form-horizontal">form-horizontal</message>
+
+  <message id="Wt.Auth.form-action.class">form-actions</message>
+
+  <message id="Wt.Auth.field.specialized">
+    <![CDATA[
+    ${block:Wt.Auth.field.base '{1}' '{2}' '{3}' 'control-group' 'control-label' 'controls' 'help-block  Wt-auth-help'}
+    ]]>
+  </message>
+
+  <message id="Wt.Auth.checkbox.field">
+    <![CDATA[
+    ${<if:{1}>}
+    <div class="control-group">
+      <div class="controls">
+        <label class="checkbox">
+          ${tr:Wt.Auth.{1}} ${{1}} <br/>
+          <span class="help-block Wt-auth-help">${{1}-info}</span>
+        </label>
+      </div>
+    </div>
+    ${</if:{1}>}
+    ]]>
+  </message>
+
+</messages>

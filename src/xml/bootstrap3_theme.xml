@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <messages xmlns:if="Wt.WTemplate.conditions">
 
+  <message id="Wt.Auth.form-group">form-group</message>
+  <message id="Wt.Auth.form-label">control-label col-sm-2</message>
+  <message id="Wt.Auth.form-element">col-sm-8</message>
+  <message id="Wt.Auth.form-help">help-block</message>
+  <message id="Wt.Auth.form-horizontal">form-horizontal</message>
+
+  <message id="Wt.Auth.form-action.class">form-group</message>
+
+  <message id="Wt.Auth.form-action.in">
+    <div class="col-sm-offset-2 col-sm-8">
+      ${block:{1}}
+    </div>
+  </message>
+
   <message id="Wt.Auth.field.specialized">
     <![CDATA[
     ${block:Wt.Auth.field.base '{1}' '{2}' '{3}' 'form-group' 'control-label col-sm-2' 'col-sm-8' 'help-block'}
@@ -22,39 +36,6 @@
     </div>
     ${</if:{1}>}
     ]]>
-  </message>
-
-  <message id="Wt.Auth.template.totp">
-    <div class="span8 offset2 Wt-auth-login">
-      <legend>${tr:Wt.Auth.totp-title}</legend>
-      <p>${tr:Wt.Auth.totp-info}</p>
-
-      <div class="form-horizontal">
-        ${<if:no-secret-key>}
-          ${qr-code}
-          ${tr:Wt.Auth.totp-qr-code-explanation}
-          <p> Secret key: ${secret-key}</p>
-        ${</if:no-secret-key>}
-        <div class="form-group ${label}">
-          <label for="${id:totp-code}" class="control-label col-sm-2">
-            ${tr:Wt.Auth.totp-code}
-          </label>
-          <div class="col-sm-8">
-            ${totp-code}
-            <span class="help-block">
-              ${totp-code-info}
-            </span>
-          </div>
-        </div>
-        ${block:Wt.Auth.checkbox.field remember-me}
-
-        <div class="form-group">
-          <div class="col-sm-offset-2 col-sm-8">
-            <p>${login class="btn-primary"} ${logout class="btn-default"}</p>
-          </div>
-        </div>
-      </div>
-    </div>
   </message>
 
   <message id="Wt.WNavigationBar.template">

@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <messages xmlns:if="Wt.WTemplate.conditions">
+
+  <message id="Wt.Auth.form-action.in">
+    ${block:{1}}
+  </message>
+
+  <message id="Wt.Auth.form-action">
+    <div class="${tr:Wt.Auth.form-action.class}">
+      ${block:Wt.Auth.form-action.in '{1}'}
+    </div>
+  </message>
+
   <message id="Wt.Auth.field">
     <![CDATA[
     ${<if:{1}>}
@@ -42,12 +53,6 @@
     ]]>
   </message>
 
-  <message id="Wt.Auth.field.specialized">
-    <![CDATA[
-    ${block:Wt.Auth.field.base '{1}' '{2}' '{3}' 'control-group' 'control-label' 'controls' 'help-block  Wt-auth-help'}
-    ]]>
-  </message>
-
   <message id="Wt.Auth.field.base">
     <![CDATA[
     <div class="{4}">
@@ -76,19 +81,10 @@
     ]]>
   </message>
 
-  <message id="Wt.Auth.checkbox.field">
-    <![CDATA[
-    ${<if:{1}>}
-    <div class="control-group">
-      <div class="controls">
-        <label class="checkbox">
-          ${tr:Wt.Auth.{1}} ${{1}} <br/>
-          <span class="help-block Wt-auth-help">${{1}-info}</span>
-        </label>
-      </div>
-    </div>
-    ${</if:{1}>}
-    ]]>
+  <message id="Wt.Auth.template.login.actions">
+    <p>${login class="btn-primary"}</p>
+    <p>${lost-password class="btn-link"} ${sep}
+    ${register class="btn-link"}</p>
   </message>
 
   <message id="Wt.Auth.template.login">
@@ -96,7 +92,7 @@
       <legend>${tr:Wt.Auth.login-form-title}</legend>
       <p>${tr:Wt.Auth.login-form-info}</p>
 
-      <div class="form-horizontal">
+      <div class="${tr:Wt.Auth.form-horizontal}">
 	${<if:passwords>}
 	  ${block:Wt.Auth.field3 user-name user-name-label user-confirm-email}
 	  ${block:Wt.Auth.field password}
@@ -112,13 +108,7 @@
           </div>
         ${</if:oauth>}
 
-        <div class="form-actions form-group">
-          <div class="col-sm-offset-2 offset-sm-2 col-sm-10">
-            <p>${login class="btn-primary"}</p>
-            <p>${lost-password class="btn-link"} ${sep}
-            ${register class="btn-link"}</p>
-          </div>
-        </div>
+        ${block:Wt.Auth.form-action 'Wt.Auth.template.login.actions'}
       </div>
     </div>
   </message>
@@ -131,7 +121,7 @@
         ${password-description}
       </p>
 
-      <div class="form-horizontal">
+      <div class="${tr:Wt.Auth.form-horizontal}">
         ${block:Wt.Auth.field3 user-name user-name-label confirm-is-you}
         ${block:Wt.Auth.field choose-password}
         ${block:Wt.Auth.field repeat-password}
@@ -158,7 +148,7 @@
 
   <message id="Wt.Auth.template.update-password">
     <div class="Wt-auth-update-password">
-      <div class="form-horizontal">
+      <div class="${tr:Wt.Auth.form-horizontal}">
         ${block:Wt.Auth.field2 user-name user-name-label}
         ${block:Wt.Auth.field password}
         ${block:Wt.Auth.field choose-password}
@@ -174,7 +164,7 @@
   <message id="Wt.Auth.template.resend-email-verification">
     <p>${tr:Wt.Auth.resend-verification-msg}</p>
     <div class="Wt-form">
-      <div class="form-horizontal">
+      <div class="${tr:Wt.Auth.form-horizontal}">
         ${block:Wt.Auth.field.active email}
 
         <div class="modal-footer"> <!-- assuming here we're in a dialog -->
@@ -188,7 +178,7 @@
     <div class="Wt-form Wt-auth-lost-password">
       <p>${tr:Wt.Auth.lost-password-form-info}</p>
 
-      <div class="form-horizontal">
+      <div class="${tr:Wt.Auth.form-horizontal}">
         ${block:Wt.Auth.field.active email}
 
         <div class="modal-footer"> <!-- assuming here we're in a dialog -->
@@ -200,7 +190,7 @@
 
   <message id="Wt.Auth.template.password-prompt">
     <div class="Wt-form Wt-auth-password-prompt">
-      <div class="form-horizontal">
+      <div class="${tr:Wt.Auth.form-horizontal}">
         ${block:Wt.Auth.field2 user-name user-name-label}
         ${block:Wt.Auth.field password}
       </div>
@@ -217,33 +207,35 @@
     </div>
   </message>
 
+  <message id="Wt.Auth.template.totp.actions">
+    <p>${login class="btn-primary"} ${logout class="btn-secondary"}</p>
+  </message>
+
   <message id="Wt.Auth.template.totp">
     <div class="span8 offset2 Wt-auth-login">
       <legend>${tr:Wt.Auth.totp-title}</legend>
       <p>${tr:Wt.Auth.totp-info}</p>
 
-      <div class="form-horizontal">
+      <div class="${tr:Wt.Auth.form-horizontal}">
         ${<if:no-secret-key>}
           ${qr-code}
           ${tr:Wt.Auth.totp-qr-code-explanation}
           <p> Secret key: ${secret-key}</p>
         ${</if:no-secret-key>}
-        <div class="control-group ${label} row mb-3">
-          <label for="${id:totp-code}" class="col-sm-2 control-label text-sm-end">
+        <div class="${tr:Wt.Auth.form-group} ${label}">
+          <label for="${id:totp-code}" class="${tr:Wt.Auth.form-label}">
             ${tr:Wt.Auth.totp-code}
           </label>
-          <div class="controls col-sm-8">
+          <div class="${tr:Wt.Auth.form-element}">
             ${totp-code}
-            <span class="form-text help-block Wt-auth-help">
+            <span class="${tr:Wt.Auth.form-help} Wt-auth-help">
               <span>${totp-code-info}</span>
             </span>
           </div>
         </div>
         ${block:Wt.Auth.checkbox.field remember-me}
 
-        <div class="form-actions offset-sm-2">
-          <p>${login class="btn-primary"} ${logout class="btn-secondary"}</p>
-        </div>
+        ${block:Wt.Auth.form-action 'Wt.Auth.template.totp.actions'}
       </div>
     </div>
   </message>

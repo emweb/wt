@@ -44,6 +44,7 @@
 
 namespace skeletons {
   extern const char* BootstrapTheme_xml;
+  extern const char* Bootstrap2Theme_xml;
 }
 
 namespace Wt {
@@ -90,6 +91,7 @@ std::vector<WLinkedCssStyleSheet> WBootstrap2Theme::styleSheets() const
 void WBootstrap2Theme::init(WApplication *app) const
 {
   app->builtinLocalizedStrings().useBuiltin(skeletons::BootstrapTheme_xml);
+  app->builtinLocalizedStrings().useBuiltin(skeletons::Bootstrap2Theme_xml);
 }
 
 void WBootstrap2Theme::apply(WWidget *widget,
