@@ -1,68 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <messages xmlns:if="Wt.WTemplate.conditions">
-  <message id="Wt.Auth.field.active">
-    <![CDATA[
-    <div class="row mb-3">
-      <label for="${id:{1}}" class="col-sm-2 col-form-label text-sm-end" style="min-width: 100px;">
-        ${tr:Wt.Auth.{1}}
-      </label>
-      <div class="col-sm-8">
-        ${{1}}
-        <div class="form-text">
-          ${{1}-info}
-        </div>
-      </div>
-    </div>
-    ]]>
-  </message>
-
   <message id="Wt.Auth.field-check">
     <![CDATA[
-    ${<if:{1}>}
-    <div class="row mb-3">
-      <label for="${id:{1}}" class="col-sm-2 col-form-label text-sm-end" style="min-width: 100px;">
-        ${tr:Wt.Auth.{1}}
-      </label>
-      <div class="col-sm-8">
-        ${{1}}
-        <span class="form-text">
-          ${{1}-info}
-        </span>
-      </div>
-    </div>
-    ${</if:{1}>}
+    ${block:Wt.Auth.field {1}}
     ]]>
   </message>
 
-  <message id="Wt.Auth.field2.active">
+  <message id="Wt.Auth.field.specialized">
     <![CDATA[
-    <div class="row mb-3">
-      <label for="${id:{1}}" class="col-sm-2 col-form-label text-sm-end" style="min-width: 100px;">
-        ${{2}}
-      </label>
-      <div class="col-sm-8">
-        ${{1}}
-        <span class="form-text">
-          ${{1}-info}
-        </span>
-      </div>
-    </div>
-    ]]>
-  </message>
-
-  <message id="Wt.Auth.field3.active">
-    <![CDATA[
-    <div class="row mb-3">
-      <label for="${id:{1}}" class="col-sm-2 col-form-label text-sm-end" style="min-width: 100px;">
-        ${{2}}
-      </label>
-      <div class="col-sm-8">
-        ${{1}}
-        <span class="form-text">
-          ${{1}-info} ${{3} class="btn-link"}
-        </span>
-      </div>
-    </div>
+    ${block:Wt.Auth.field.base '{1}' '{2}' '{3}' 'row mb-3' 'col-sm-2 col-form-label text-sm-end" style="min-width: 100px;' 'col-sm-8' 'form-text'}
     ]]>
   </message>
 
