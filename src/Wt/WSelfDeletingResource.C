@@ -13,13 +13,17 @@ namespace Wt {
 
 WSelfDeletingResource::WSelfDeletingResource(const std::string& mimeType)
   : WMemoryResource(mimeType)
-{ }
+{
+  setAllowAutoRemoval(true);
+}
 
 #ifndef WT_TARGET_JAVA
 WSelfDeletingResource::WSelfDeletingResource(const std::string& mimeType,
                                              const std::vector<unsigned char>& data)
   : WMemoryResource(mimeType, data)
-{ }
+{
+  setAllowAutoRemoval(true);
+}
 #endif // WT_TARGET_JAVA
 
 WSelfDeletingResource::~WSelfDeletingResource()

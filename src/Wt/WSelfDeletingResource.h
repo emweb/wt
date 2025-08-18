@@ -22,6 +22,10 @@ namespace Wt {
  * This resource is mainly intended to be used as output for the
  * WResource::botResource() in order to free memory once the bot has
  * fetched the resource.
+ *
+ * This resource has auto removal allowed by default.
+ *
+ * \sa setAllowAutoRemoval()
  */
 class WT_API WSelfDeletingResource : public WMemoryResource
 {
