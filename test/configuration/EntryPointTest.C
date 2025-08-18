@@ -137,6 +137,14 @@ std::pair<Wt::EntryPointManager, Wt::EntryPointManager>
 buildManagersWithRemoved(const std::vector<std::string>& paths, const std::string& toRemove) {
   return buildManagersWithRemoved(paths, std::vector<std::string>{toRemove});
 }
+// Helper to create a removable entry point (returns pair<EntryPoint, WResource>)
+std::pair<std::shared_ptr<Wt::EntryPoint>, std::shared_ptr<Wt::WResource>>
+make_removable(const std::string& path) {
+  auto res = std::make_shared<Wt::WMemoryResource>();
+  res->setAllowAutoRemoval(true);
+  auto ep = std::make_shared<Wt::EntryPoint>(res, path);
+  return std::make_pair(ep, res);
+}
 
 } // namespace
 
@@ -1004,4 +1012,120 @@ BOOST_AUTO_TEST_CASE( test_entry_point_removal_by_resource_only_remove_if_resour
   }
 
   BOOST_TEST(found);
+}
+
+BOOST_AUTO_TEST_CASE( test_removable_entry_points_add_remove )
+{
+  Wt::EntryPointManager mgr;
+  mgr.setMaxRemovableEntryPoints(1000);
+
+  std::vector<std::pair<std::shared_ptr<Wt::EntryPoint>, std::shared_ptr<Wt::WResource>>> eps;
+  for (auto&& path : {"/a", "/b", "/c"}) {
+    eps.push_back(make_removable(path));
+    mgr.addEntryPoint(eps.back().first);
+  }
+
+  // All should be in removableEntryPoints
+  BOOST_REQUIRE(mgr.removableEntryPoints().size() == 3);
+
+  // Remove "/b"
+  mgr.removeEntryPoint("/b");
+  BOOST_REQUIRE(mgr.removableEntryPoints().size() == 2);
+  // Only "/a" and "/c" should remain
+  std::set<std::string> remaining;
+  for (auto* ep : mgr.removableEntryPoints()) {
+    remaining.insert(ep->path());
+  }
+  BOOST_REQUIRE(remaining.count("/a") == 1);
+  BOOST_REQUIRE(remaining.count("/c") == 1);
+  BOOST_REQUIRE(remaining.count("/b") == 0);
+
+  // Remove "/a"
+  mgr.removeEntryPoint("/a");
+  BOOST_REQUIRE(mgr.removableEntryPoints().size() == 1);
+  BOOST_REQUIRE((*mgr.removableEntryPoints().begin())->path() == "/c");
+
+  // Remove "/c"
+  mgr.removeEntryPoint("/c");
+  BOOST_REQUIRE(mgr.removableEntryPoints().size() == 0);
+}
+
+BOOST_AUTO_TEST_CASE( test_removable_entry_points_limit_positive )
+{
+  Wt::EntryPointManager mgr;
+  mgr.setMaxRemovableEntryPoints(2);
+
+  std::vector<std::pair<std::shared_ptr<Wt::EntryPoint>, std::shared_ptr<Wt::WResource>>> eps;
+  for (auto&& path : {"/a", "/b", "/c", "/d"}) {
+    eps.push_back(make_removable(path));
+    mgr.addEntryPoint(eps.back().first);
+
+    // The number of removable entry points should never exceed 2
+    BOOST_REQUIRE(mgr.removableEntryPoints().size() <= 2);
+  }
+
+  // Only the last two added should remain
+  std::vector<std::string> expected = {"/c", "/d"};
+  std::vector<std::string> actual;
+  for (auto* ep : mgr.removableEntryPoints()) {
+    actual.push_back(ep->path());
+  }
+  BOOST_REQUIRE_EQUAL_COLLECTIONS(
+    expected.begin(), expected.end(),
+    actual.begin(), actual.end()
+  );
+}
+
+BOOST_AUTO_TEST_CASE( test_removable_entry_points_limit_zero )
+{
+  Wt::EntryPointManager mgr;
+  mgr.setMaxRemovableEntryPoints(0);
+
+  std::vector<std::pair<std::shared_ptr<Wt::EntryPoint>, std::shared_ptr<Wt::WResource>>> eps;
+  for (auto&& path : {"/a", "/b", "/c"}) {
+    eps.push_back(make_removable(path));
+    mgr.addEntryPoint(eps.back().first);
+  }
+
+  // No removable entry points should be tracked
+  BOOST_REQUIRE(mgr.removableEntryPoints().empty());
+
+  // Also, none should be present in the path segments (routing tree)
+  for (const auto& path : {"/a", "/b", "/c"}) {
+    bool found = false;
+    for (auto* seg : mgr.entryPointSegments()) {
+      if (seg->entryPoint && seg->entryPoint->path() == path) {
+        found = true;
+        break;
+      }
+    }
+    BOOST_REQUIRE(!found);
+  }
+}
+
+BOOST_AUTO_TEST_CASE( test_removable_entry_points_limit_negative )
+{
+  Wt::EntryPointManager mgr;
+  mgr.setMaxRemovableEntryPoints(-1);
+
+  std::vector<std::pair<std::shared_ptr<Wt::EntryPoint>, std::shared_ptr<Wt::WResource>>> eps;
+  std::vector<std::string> paths = {"/a", "/b", "/c", "/d"};
+  for (const auto& path : paths) {
+    eps.push_back(make_removable(path));
+    mgr.addEntryPoint(eps.back().first);
+  }
+
+  // All removable entry points should be present in the path segments
+  Wt::EntryPointManager mgr_expected;
+  for (const auto& path : paths) {
+    // Create a non-removable resource
+    auto res = std::make_shared<Wt::WMemoryResource>();
+    res->setAllowAutoRemoval(false);
+    auto ep = std::make_shared<Wt::EntryPoint>(res, path);
+    mgr_expected.addEntryPoint(ep);
+  }
+  BOOST_REQUIRE(compareSegments(&mgr.rootPathSegment(), &mgr_expected.rootPathSegment()));
+
+  // But removableEntryPoints should be empty
+  BOOST_REQUIRE(mgr.removableEntryPoints().empty());
 }
