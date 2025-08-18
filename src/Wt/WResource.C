@@ -71,6 +71,7 @@ WResource::WResource()
     takesUpdateLock_(false),
     invalidAfterChanged_(false),
     customBotResourceId_(false),
+    allowAutoRemoval_(false),
     dispositionType_(ContentDisposition::None),
     version_(0),
     app_(nullptr)
@@ -404,6 +405,11 @@ std::vector<unsigned char> WResource::writeToMemory()
 void WResource::setTakesUpdateLock(bool enabled)
 {
   takesUpdateLock_ = enabled;
+}
+
+void WResource::setAllowAutoRemoval(bool allow)
+{
+  allowAutoRemoval_ = allow;
 }
 
 unsigned long WResource::version() const

@@ -481,6 +481,30 @@ public:
    */
   bool takesUpdateLock() const { return takesUpdateLock_; }
 
+  /*! \brief Sets whether this resource can be automatically removed.
+   *
+   * If enabled on a public resource, the resource will be counted as
+   * an auto-removable resource.
+   *
+   * The total number of auto-removable resources is limited by the
+   * configuration option
+   * <code>max-auto-removable-public-resources</code>. If the number of
+   * auto-removable resources exceeds this limit, the oldest
+   * auto-removable resource will be removed from the public resources.
+   *
+   * By default, this is set to false. Except for
+   * WSelfDeletingResource for which it is true.
+   *
+   * \sa botResource()
+   */
+  void setAllowAutoRemoval(bool allow);
+
+  /*! \brief Returns whether this resource can be automatically removed.
+   *
+   * \sa setAllowAutoRemoval()
+   */
+  bool allowAutoRemoval() const { return allowAutoRemoval_; }
+
   unsigned long version() const;
 
   void incrementVersion();
@@ -583,6 +607,7 @@ private:
   bool takesUpdateLock_;
   bool invalidAfterChanged_;
   bool customBotResourceId_;
+  bool allowAutoRemoval_;
 
   std::vector<Http::ResponseContinuationPtr> continuations_;
 

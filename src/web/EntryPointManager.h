@@ -46,6 +46,11 @@ struct WT_API PathSegment {
 class WT_API EntryPointManager
 {
 public:
+  EntryPointManager();
+
+  void setMaxRemovableEntryPoints(int max);
+  int maxRemovableEntryPoints() const { return maxRemovableEntryPoints_; }
+
   void addEntryPoint(const std::shared_ptr<const EntryPoint>& entryPoint);
   bool tryAddResource(const std::shared_ptr<const EntryPoint>& entryPoint); // Returns bool indicating success:
                                                      // false if entry point existed already
@@ -57,10 +62,14 @@ public:
                                   const std::string& path,
                                   bool matchAfterSlash) const;
 
+  const std::list<const EntryPoint*>& removableEntryPoints() const { return removableEntryPoints_; }
   const std::vector<PathSegment*>& entryPointSegments() const { return entryPointSegments_; }
   const PathSegment& rootPathSegment() const { return rootPathSegment_; }
 
 private:
+  int maxRemovableEntryPoints_;
+
+  std::list<const EntryPoint*> removableEntryPoints_;
   std::vector<PathSegment*> entryPointSegments_;
   PathSegment rootPathSegment_; /// The toplevel path segment ('/') for routing,
                                 /// root of the routing tree.

@@ -30,6 +30,7 @@ public:
   ApplicationCreator appCallback() const { return appCallback_; }
   const std::string& path() const { return path_; }
   const std::string& favicon() const { return favicon_; }
+  bool removable() const;
 
 private:
   EntryPointType type_;
@@ -37,7 +38,15 @@ private:
   std::shared_ptr<WResource> ownedResource_;
   ApplicationCreator appCallback_;
   std::string path_;
+
+#ifndef WT_CNOR
+  typedef std::list<const EntryPoint*>::const_iterator ListEntry;
+  mutable std::unique_ptr<ListEntry> removableListIt_;
+#endif
+
   std::string favicon_;
+
+  friend class EntryPointManager;
 };
 
 typedef std::deque<std::shared_ptr<const EntryPoint> > EntryPointList;

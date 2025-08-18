@@ -1,5 +1,7 @@
 #include "EntryPoint.h"
 
+#include "Wt/WResource.h"
+
 #include <algorithm>
 
 namespace Wt {
@@ -12,6 +14,7 @@ EntryPoint::EntryPoint(EntryPointType type,
     resource_(nullptr),
     appCallback_(std::move(appCallback)),
     path_(path),
+    removableListIt_(nullptr),
     favicon_(favicon)
 { }
 
@@ -20,7 +23,8 @@ EntryPoint::EntryPoint(WResource *resource,
   : type_(EntryPointType::StaticResource),
     resource_(resource),
     appCallback_(nullptr),
-    path_(path)
+    path_(path),
+    removableListIt_(nullptr)
 { }
 
 EntryPoint::EntryPoint(const std::shared_ptr<WResource>& resource, const std::string& path)
@@ -28,7 +32,8 @@ EntryPoint::EntryPoint(const std::shared_ptr<WResource>& resource, const std::st
     resource_(resource.get()),
     ownedResource_(resource),
     appCallback_(nullptr),
-    path_(path)
+    path_(path),
+    removableListIt_(nullptr)
 { }
 
 EntryPoint::~EntryPoint() = default;
@@ -36,6 +41,11 @@ EntryPoint::~EntryPoint() = default;
 void EntryPoint::setPath(const std::string& path)
 {
   path_ = path;
+}
+
+bool EntryPoint::removable() const
+{
+  return resource_ ? resource_->allowAutoRemoval() : false;
 }
 
 bool EntryPointMatch::operator<(const EntryPointMatch &other) const noexcept

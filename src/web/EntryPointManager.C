@@ -22,9 +22,36 @@ bool PathSegment::canBeRemoved() const
   return parent && children.empty() && !dynamicChild && !entryPoint;
 }
 
+EntryPointManager::EntryPointManager()
+  : maxRemovableEntryPoints_(0)
+{ }
+
+void EntryPointManager::setMaxRemovableEntryPoints(int max)
+{
+  maxRemovableEntryPoints_ = max;
+}
+
 void EntryPointManager::addEntryPoint(const std::shared_ptr<const EntryPoint>& ep)
 {
-  registerEntryPoint(ep);
+  if (ep && ep->removable()) {
+    if (maxRemovableEntryPoints_ > 0) {
+      const int& count = removableEntryPoints_.size();
+      if (count && count >= maxRemovableEntryPoints_) {
+        LOG_DEBUG("EntryPointManager: maximum number of removable entry points reached, removing oldest: " << ep->path());
+        removeEntryPoint(removableEntryPoints_.front()->path());
+      }
+
+      removableEntryPoints_.push_back(ep.get());
+      ep->removableListIt_ = std::make_unique<EntryPoint::ListEntry>(--removableEntryPoints_.end());
+    }
+
+    if (maxRemovableEntryPoints_ != 0) {
+      registerEntryPoint(ep);
+    }
+  } else {
+    registerEntryPoint(ep);
+  }
+
 }
 
 bool EntryPointManager::tryAddResource(const std::shared_ptr<const EntryPoint>& ep)
@@ -35,7 +62,7 @@ bool EntryPointManager::tryAddResource(const std::shared_ptr<const EntryPoint>& 
     }
   }
 
-  registerEntryPoint(ep);
+  addEntryPoint(ep);
 
   return true;
 }
@@ -45,7 +72,11 @@ void EntryPointManager::removeEntryPoint(const std::string& path)
   PathSegment* currentSegment = nullptr;
   for (auto it = entryPointSegments_.begin(); it != entryPointSegments_.end(); ++it) {
     currentSegment = *it;
-    if (currentSegment->entryPoint->path() == path) {
+    const EntryPoint* ep = currentSegment->entryPoint.get();
+    if (ep->path() == path) {
+      if (ep->removable() && ep->removableListIt_) {
+        removableEntryPoints_.erase(*(ep->removableListIt_));
+      }
       entryPointSegments_.erase(it);
       currentSegment->entryPoint.reset();
       break;
