@@ -270,6 +270,7 @@ public:
   bool useXFrameSameOrigin() const;
   bool servePrivateResourcesToBots() const;
   std::string botResourcesPath() const;
+  int maxAutoRemovablePublicResources() const;
 
   bool agentIsBot(const std::string& agent) const;
   bool agentSupportsAjax(const std::string& agent) const;

@@ -51,6 +51,7 @@ using namespace Wt::rapidxml;
 
 namespace {
 
+constexpr int DEFAULT_MAX_REMOVABLE_ENTRY_POINTS = 1000;
 static const std::string EMPTY_STR;
 
 using namespace Wt;
@@ -297,6 +298,7 @@ void Configuration::reset()
   useXFrameSameOrigin_ = true;
   servePrivateResourcesToBots_ = false;
   botResourcesPath_ = "/wt-temp";
+  entryPointManager_.setMaxRemovableEntryPoints(DEFAULT_MAX_REMOVABLE_ENTRY_POINTS);
 
   if (!appRoot_.empty())
     setAppRoot(appRoot_);
@@ -647,6 +649,13 @@ std::string Configuration::botResourcesPath() const
   READ_LOCK;
 
   return botResourcesPath_;
+}
+
+int Configuration::maxAutoRemovablePublicResources() const
+{
+  READ_LOCK;
+
+  return entryPointManager_.maxRemovableEntryPoints();
 }
 
 bool Configuration::agentIsBot(const std::string& agent) const
@@ -1221,6 +1230,10 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   if (!botResourcesPathVal.empty()) {
     botResourcesPath_ = botResourcesPathVal;
   }
+
+  int maxRemovableResources = DEFAULT_MAX_REMOVABLE_ENTRY_POINTS;
+  setInt(app, "max-auto-removable-public-resources", maxRemovableResources);
+  entryPointManager_.setMaxRemovableEntryPoints(maxRemovableResources);
 
   std::string allowedOrigins
     = singleChildElementValue(app, "allowed-origins", "");

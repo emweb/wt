@@ -785,6 +785,8 @@
         -->
         <bot-resources-path>wt-temp</bot-resources-path>
 
+        <max-auto-removable-public-resources>1000</max-auto-removable-public-resources>
+
         <!-- Configure allowed origins for CORS (only for WidgetSet entry points)
 
          Since Wt 3.3.8, cross-origin requests are disallowed by default.
