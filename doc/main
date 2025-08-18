@@ -1023,6 +1023,21 @@ appRoot=C:\Program Files\MyApplications\AppRoot
       or end with a slash.
   </dd>
 
+  <dt><strong>max-auto-removable-public-resources</strong></dt>
+  <dd>Configure the maximum number of auto-removable resources.
+
+      This setting configures the maximum number of auto-removable
+      resources that can be public at the same time. When a new
+      auto-removable resource is made public and the limit is
+      reached, the oldest auto-removable resource will be
+      automatically removed.
+
+      If this is set to a negative value, no limit will be enforced.
+
+      By default, the number of auto-removable resources is limited
+      to 1000.
+  </dd>
+
   \subsection config_wthttpd 10.3 Wt httpd (command-line or configuration file) options
 
 These options are not specified in the wt_config.xml configuration

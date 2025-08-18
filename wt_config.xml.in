@@ -785,6 +785,19 @@
         -->
         <bot-resources-path>wt-temp</bot-resources-path>
 
+        <!-- Configure the maximum number of auto-removable resources.
+
+         This setting configures the maximum number of auto-removable
+         resources that can be public at the same time. When a new
+         auto-removable resource is made public and the limit is
+         reached, the oldest auto-removable resource will be
+         automatically removed.
+
+         If this is set to a negative value, no limit will be enforced.
+
+         By default, the number of auto-removable resources is limited
+         to 1000.
+        -->
         <max-auto-removable-public-resources>1000</max-auto-removable-public-resources>
 
         <!-- Configure allowed origins for CORS (only for WidgetSet entry points)
