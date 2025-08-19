@@ -2017,6 +2017,28 @@ public:
    */
   void setFocus(const std::string& id, int selectionStart, int selectionEnd);
 
+  void setFocus(WWidget* widget, int selectionStart, int selectionEnd);
+
+  /*! \brief Returns the id of the widget that has focus.
+   *
+   * This returns the id of the widget that has focus, or an empty
+   * string if no widget has focus.
+   *
+   * \sa focusedWidget(),
+   *     WWebWidget::focussed(),
+   *     WWebWidget::setFocus()
+   */
+  std::string focus() const { return focusId_; }
+
+  /*! \brief Returns the widget that has focus.
+   *
+   * This returns the widget that has focus, or \c nullptr if no
+   * widget has focus.
+   *
+   * \sa focus(), WWebWidget::focussed(), WWebWidget::setFocus()
+   */
+  WWidget* focusedWidget() const;
+
 #ifdef WT_DEBUG_JS
   void loadJavaScript(const char *jsFile);
 #else
@@ -2410,6 +2432,7 @@ private:
 #endif // WT_TARGET_JAVA
   bool beingDeleted_;
   std::string focusId_;
+  mutable observing_ptr<WWidget> focusedWidget_;
   int selectionStart_, selectionEnd_;
   LayoutDirection layoutDirection_;
   std::unordered_map<std::string, std::string> htmlAttributes_;
@@ -2537,9 +2560,9 @@ private:
 #endif // WT_TARGET_JAVA
 
   void setAsFocus(const std::string& id);
-  std::string focus() const { return focusId_; }
   int selectionStart() const { return selectionStart_; }
   int selectionEnd() const { return selectionEnd_; }
+  void setFocusedWidget(WWidget *widget);
 
   WLocalizedStrings *localizedStringsPack();
 

@@ -587,6 +587,7 @@ private:
                                const std::string& value);
   WString storedToolTip() const;
   void undoSetFocus();
+  void onFocus();
 
   void jsScrollVisibilityChanged(bool visible);
 

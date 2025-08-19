@@ -132,6 +132,8 @@ WWebWidget::WWebWidget()
   flags_.set(BIT_INLINE);
   flags_.set(BIT_ENABLED);
   flags_.set(BIT_TOOLTIP_SHOW_ON_HOVER);
+
+  focussed().connect(this, &WWebWidget::onFocus);
 }
 
 
@@ -2144,13 +2146,18 @@ void WWebWidget::setFocus(bool focus)
 
   WApplication *app = WApplication::instance();
   if (focus)
-    app->setFocus(id(), -1, -1);
+    app->setFocus(this, -1, -1);
   else if (app->focus() == id())
-    app->setFocus(std::string(), -1, -1);
+    app->setFocus(nullptr, -1, -1);
 }
 
 void WWebWidget::undoSetFocus()
 { }
+
+void WWebWidget::onFocus()
+{
+  WApplication::instance()->setFocusedWidget(this);
+}
 
 bool WWebWidget::hasFocus() const
 {

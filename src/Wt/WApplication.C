@@ -1943,6 +1943,28 @@ void WApplication::setFocus(const std::string& id,
   focusChanged_.emit();
 }
 
+void WApplication::setFocus(WWidget* widget,
+                            int selectionStart, int selectionEnd)
+{
+  setFocusedWidget(widget);
+  std::string widgetId = widget ? widget->id() : "";
+  setFocus(widgetId, selectionStart, selectionEnd);
+}
+
+void WApplication::setFocusedWidget(WWidget *widget)
+{
+  focusedWidget_.reset(widget);
+}
+
+WWidget* WApplication::focusedWidget() const
+{
+  if (!focusedWidget_|| focusedWidget_->id() != focusId_) {
+    focusedWidget_.reset(focusId_.empty() ? nullptr : root()->findById(focusId_));
+  }
+
+  return focusedWidget_.get();
+}
+
 #ifndef WT_TARGET_JAVA
 void WApplication::deferRendering()
 {

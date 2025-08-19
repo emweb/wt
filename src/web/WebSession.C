@@ -2970,7 +2970,7 @@ void WebSession::propagateFormValues(const WEvent& e, const std::string& se)
 
     app_->setFocus(*focus, selectionStart, selectionEnd);
   } else
-    app_->setFocus(std::string(), -1, -1);
+    app_->setFocus(nullptr, -1, -1);
 
   for (WebRenderer::FormObjectsMap::const_iterator i = formObjects.begin();
        i != formObjects.end(); ++i) {
