@@ -124,6 +124,12 @@ void WImage::setImageLink(const WLink& link)
   repaint(RepaintFlag::SizeAffected);
 }
 
+void WImage::setAlternativeBotUrl(const std::string& url)
+{
+  botUrl_ = url;
+  // No repaint needed. Only impacts bots, and bots have no session.
+}
+
 void WImage::resourceChanged()
 {
   flags_.set(BIT_IMAGE_LINK_CHANGED);
@@ -205,7 +211,9 @@ void WImage::updateDom(DomElement& element, bool all)
   if (flags_.test(BIT_IMAGE_LINK_CHANGED) || all) {
     std::string url;
     WApplication *app = WApplication::instance();
-    if (!imageLink_.isNull()) {
+    if (!alternativeBotUrl().empty() && app->environment().agentIsSpiderBot()) {
+      url = resolveRelativeUrl(alternativeBotUrl());
+    } else if (!imageLink_.isNull()) {
       url = resolveRelativeUrl(imageLink_.url());
       url = app->encodeUntrustedUrl(url);
     } else {

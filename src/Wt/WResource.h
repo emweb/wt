@@ -310,6 +310,34 @@ public:
    */
   const std::string& url() const;
 
+  /*! \brief Sets an alternative URL, given to bots, for this resource.
+   *
+   * If \p url is not empty, this URL will be used instead of the
+   * regular URL when the request comes from a bot (e.g., a web
+   * crawler).
+   *
+   * As bots have their session terminated after sending a reply,
+   * the WApplication linked to it, and thus also its resources
+   * are removed. This means functionality such as continuations,
+   * handling resource or application changes are not available.
+   *
+   * Only public resources can be accessed by bots (see
+   * WServer::addResource()). Private resources (linked to the
+   * WApplication) cannot be accessed by bots.
+   *
+   * By default, this is empty.
+   *
+   * \note If this is not empty, the resource will not be accessible
+   *       to bots.
+   */
+  void setAlternativeBotUrl(const std::string& url);
+
+  /*! \brief Returns the alternative URL, given to bots, for this resource.
+   *
+   * \sa setAlternativeBotUrl()
+   */
+  const std::string& alternativeBotUrl() const { return botUrl_; }
+
   /*! \brief %Signal emitted when the data presented in this resource
    *         has changed.
    *
@@ -496,6 +524,7 @@ private:
   ContentDisposition dispositionType_;
   std::string currentUrl_;
   std::string internalPath_;
+  std::string botUrl_;
   unsigned long version_;
 
   WApplication *app_; // associated app (for non-static resources)

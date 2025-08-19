@@ -319,20 +319,43 @@ const std::string& WResource::generateUrl()
   WApplication *app = WApplication::instance();
 
   if (app) {
-    WebController *c = nullptr;
-    if (trackUploadProgress_)
-      c = WebSession::instance()->controller();
+    if (app->environment().agentIsSpiderBot()) {
+      currentUrl_ = app->resolveRelativeUrl(alternativeBotUrl());
+    } else {
+      WebController *c = nullptr;
+      if (trackUploadProgress_) {
+        c = WebSession::instance()->controller();
+      }
 
-    if (c && !currentUrl_.empty())
-      c->removeUploadProgressUrl(currentUrl_);
-    currentUrl_ = app->addExposedResource(this);
-    app_ = app;
-    if (c)
-      c->addUploadProgressUrl(currentUrl_);
+      if (c && !currentUrl_.empty()) {
+        c->removeUploadProgressUrl(currentUrl_);
+      }
+      currentUrl_ = app->addExposedResource(this);
+      app_ = app;
+      if (c) {
+        c->addUploadProgressUrl(currentUrl_);
+      }
+    }
   } else
     currentUrl_ = internalPath_;
 
   return currentUrl_;
+}
+
+void WResource::setAlternativeBotUrl(const std::string& url)
+{
+  if (botUrl_ != url) {
+    bool wasEmpty = botUrl_.empty();
+    botUrl_ = url;
+
+    WApplication *app = WApplication::instance();
+    if (app && app->environment().agentIsSpiderBot()) {
+      if (wasEmpty) {
+        app->removeExposedResource(this);
+      }
+      currentUrl_.clear();
+    }
+  }
 }
 
 void WResource::write(WT_BOSTREAM& out,

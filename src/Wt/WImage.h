@@ -107,6 +107,22 @@ public:
    */
   const WLink& imageLink() const { return imageLink_; }
 
+  /*! \brief Sets an alternative URL, given to bots, for this image.
+   *
+   * If \p url is not empty, this URL will be used instead of the
+   * regular URL when the request comes from a bot (e.g., a web
+   * crawler).
+   *
+   * By default, this is empty.
+   */
+  void setAlternativeBotUrl(const std::string& url);
+
+  /*! \brief Returns the alternative URL, given to bots, for this image.
+   *
+   * \sa setAlternativeBotUrl()
+   */
+  const std::string& alternativeBotUrl() const { return botUrl_; }
+
   /*! \brief Adds an interactive area.
    *
    * Adds the \p area which listens to events in a specific region
@@ -227,6 +243,7 @@ private:
   std::unique_ptr<Impl::MapWidget> map_;
   std::bitset<3> flags_;
   std::string targetJS_;
+  std::string botUrl_;
 
   void resourceChanged();
 
