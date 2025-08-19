@@ -611,9 +611,9 @@ public:
    * By passing an empty \p locale, the default locale is
    * chosen.
    *
-   * By default, when the locale is changed, refresh() is called, 
+   * By default, when the locale is changed, refresh() is called,
    * which will resolve the strings of the current user-interface
-   * in the new locale. This can be changed by having the 
+   * in the new locale. This can be changed by having the
    * \p doRefresh parameter set to \p false.
    *
    * At construction, the locale is copied from the environment
