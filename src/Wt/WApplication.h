@@ -2528,6 +2528,7 @@ private:
   void endWaitingAtLock(int id);
 #endif // WT_TARGET_JAVA
 
+  void setAsFocus(const std::string& id);
   std::string focus() const { return focusId_; }
   int selectionStart() const { return selectionStart_; }
   int selectionEnd() const { return selectionEnd_; }
@@ -2559,6 +2560,7 @@ private:
   friend class EventSignalBase;
   friend class JavaScriptEvent;
   friend class UpdateLockImpl;
+  friend class WCompositeWidget;
   friend class WContainerWidget;
   friend class WDialog;
   friend class WFileUpload;

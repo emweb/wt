@@ -106,6 +106,12 @@ void WPopupMenu::setMinimumSize(const WLength& width,
 
 void WPopupMenu::setHidden(bool hidden, const WAnimation& animation)
 {
+  WApplication *app = WApplication::instance();
+
+  if (hidden != isHidden()) {
+    handleFocusOnHide(hidden);
+  }
+
   WCompositeWidget::setHidden(hidden, animation);
 
   if (cancel_.isConnected() ||

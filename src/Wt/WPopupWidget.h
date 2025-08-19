@@ -8,6 +8,7 @@
 #define WPOPUP_WIDGET_H_
 
 #include <Wt/WCompositeWidget.h>
+#include "Wt/WSignal.h"
 
 namespace Wt {
 
@@ -104,13 +105,13 @@ public:
    * position in order to be fully visible in the window, potentially
    * hiding the widget (or point) from which it popped up.
    * \sa WWidget::positionAt() for more informations.
-   * 
+   *
    * By default, it ca adjust in both orientations.
    */
   virtual void setAdjust(WFlags<Orientation> adjustOrientations);
-  
+
   /*! \brief Returns in which orientations this popup widget can adjust it's coordinates on popup.
-   * 
+   *
    * \sa setAdjust()
    */
   WFlags<Orientation> adjust() const { return adjustFlags_; }
@@ -139,6 +140,7 @@ private:
   bool transient_;
   WFlags<Orientation> adjustFlags_;
   int autoHideDelay_;
+
   Signal<> hidden_, shown_;
   JSignal<> jsHidden_, jsShown_;
 

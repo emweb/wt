@@ -1111,6 +1111,14 @@ EventSignal<>& WApplication::globalEscapePressed()
   return domRoot_->escapePressed();
 }
 
+void WApplication::setAsFocus(const std::string& id)
+{
+  WWidget* w = root()->findById(id);
+  if (w) {
+    w->setFocus();
+  }
+}
+
 std::shared_ptr<WLocalizedStrings> WApplication::localizedStrings()
 {
   if (localizedStrings_->items().size() > 1)

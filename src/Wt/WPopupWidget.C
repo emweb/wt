@@ -68,8 +68,15 @@ void WPopupWidget::onPathChange()
 
 void WPopupWidget::setHidden(bool hidden, const WAnimation& animation)
 {
-  if (WWebWidget::canOptimizeUpdates() && hidden == isHidden())
+  bool hiddenChanged = hidden != isHidden();
+  if (WWebWidget::canOptimizeUpdates() && !hiddenChanged)
     return;
+
+  WApplication *app = WApplication::instance();
+
+  if (hiddenChanged) {
+    handleFocusOnHide(hidden);
+  }
 
   WCompositeWidget::setHidden(hidden, animation);
 
