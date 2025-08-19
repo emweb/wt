@@ -2454,6 +2454,7 @@ private:
   EventSignal<> showLoadingIndicator_, hideLoadingIndicator_;
   JSignal<> unloaded_;
   JSignal<> idleTimeout_;
+  Signal<> focusChanged_;
 
   // Track cookies added over application lifetime.
   // WEnvironment does not update itself, so `setCookie` is not reflected by it.

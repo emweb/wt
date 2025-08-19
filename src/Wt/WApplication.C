@@ -1884,6 +1884,7 @@ void WApplication::setFocus(const std::string& id,
   focusId_ = id;
   selectionStart_ = selectionStart;
   selectionEnd_ = selectionEnd;
+  focusChanged_.emit();
 }
 
 #ifndef WT_TARGET_JAVA
