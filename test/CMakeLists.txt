@@ -68,6 +68,7 @@ IF(ENABLE_LIBWTTEST)
     validators/WEmailValidator.C
     validators/WStackedValidator.C
     widgets/DisabledTest.C
+    widgets/GlobalOptionTest.C
     widgets/StylingTest.C
     widgets/WAnchorTest.C
     widgets/WCompositeWidgetTest.C
