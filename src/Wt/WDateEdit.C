@@ -38,6 +38,9 @@ WDateEdit::WDateEdit()
   changed().connect(this, &WDateEdit::setFromLineEdit);
 
   init();
+
+  // cannot be done in init() as this may call init().
+  setNativeControl(WWebWidget::defaultNativeControl());
 }
 
 WDateEdit::~WDateEdit()
@@ -98,6 +101,10 @@ std::shared_ptr<WDateValidator> WDateEdit::dateValidator() const
 
 void WDateEdit::setNativeControl(bool nativeControl)
 {
+  if (nativeControl_ == nativeControl) {
+    return;
+  }
+
   // Specific set format normalized by the browser:
   // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date
   setFormat(YMD_FORMAT);

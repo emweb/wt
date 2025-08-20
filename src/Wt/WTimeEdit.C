@@ -34,6 +34,9 @@ WTimeEdit::WTimeEdit()
   changed().connect(this, &WTimeEdit::setFromLineEdit);
 
   init();
+
+  // cannot be done in init() as this may call init().
+  setNativeControl(WWebWidget::defaultNativeControl());
 }
 
 WTimeEdit::~WTimeEdit()
@@ -71,6 +74,10 @@ void WTimeEdit::load()
 
 void WTimeEdit::setNativeControl(bool nativeControl)
 {
+  if (nativeControl == nativeControl_) {
+    return;
+  }
+
   auto tv = timeValidator();
 
   // Specific set format normalized by the browser:

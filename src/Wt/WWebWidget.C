@@ -58,6 +58,8 @@ const char *WWebWidget::BLUR_SIGNAL = "blur";
 const int WWebWidget::DEFAULT_BASE_Z_INDEX = 1100;
 const int WWebWidget::Z_INDEX_INCREMENT = 1100;
 
+bool WWebWidget::defaultNativeControl_ = false;
+
 #ifndef WT_TARGET_JAVA
 const std::bitset<46> WWebWidget::AllChangeFlags = std::bitset<46>()
   .set(BIT_FLEX_BOX_CHANGED)
@@ -3052,6 +3054,11 @@ void WWebWidget::setBaseZIndex(int zIndex)
     layoutImpl_.reset(new LayoutImpl());
 
   layoutImpl_->baseZIndex_ = zIndex;
+}
+
+void WWebWidget::setDefaultNativeControl(bool enabled)
+{
+  defaultNativeControl_ = enabled;
 }
 
 void WWebWidget::emitChildrenChanged()

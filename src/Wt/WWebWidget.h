@@ -332,6 +332,23 @@ public:
   virtual int baseZIndex() const final override;
   void setBaseZIndex(int zIndex);
 
+
+  /*! \brief Sets the default native control setting.
+   *
+   * This sets whether new widgets use native controls by default.
+   *
+   * This does not affect existing widgets.
+   *
+   * By default, this is set to false.
+   */
+  static void setDefaultNativeControl(bool enabled);
+
+  /*! \brief Returns whether new widgets use native controls by default.
+   *
+   * \sa setDefaultNativeControl()
+   */
+  static bool defaultNativeControl() { return defaultNativeControl_; }
+
 protected:
   typedef std::map<std::string, WObject *> FormObjectsMap;
 #ifndef WT_TARGET_JAVA
@@ -572,6 +589,8 @@ private:
   };
 
   std::unique_ptr<OtherImpl> otherImpl_;
+
+  static bool defaultNativeControl_;
 
   void renderOk();
   void calcZIndex();

@@ -38,8 +38,10 @@ public:
    * When enabled the browser's native attribute for password input
    * (<input type="password">) will be used instead of a validator.
    *
-   * This option is set to false by default.
-   * \sa nativeControl()
+   * By default, this option is set to defaultNativeControl(), which is
+   * \c false by default.
+   *
+   * \sa nativeControl() ,setDefaultNativeControl()
    */
   void setNativeControl(bool nativeControl);
 

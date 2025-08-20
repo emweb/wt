@@ -43,7 +43,6 @@ public:
    * When enabled the browser's native date input
    * (<input type="date">) will be used, if available. This should
    * provide a better experience on mobile browsers.
-   * This option is set to false by default.
    *
    * Setting native control to true limits the format to "yyyy-MM-dd".
    * Note that this is the format that the widget returns, not the
@@ -53,7 +52,10 @@ public:
    * There is no support for changing whether a native control is
    * used after the widget is rendered.
    *
-   * \sa nativeControl()
+   * By default, this option is set to defaultNativeControl(), which is
+   * \c false by default.
+   *
+   * \sa nativeControl(), setDefaultNativeControl()
    */
   void setNativeControl(bool nativeControl);
 

@@ -98,9 +98,15 @@ public:
    * chosen. Settings like tick interval and tick position are
    * ignored.
    *
+   * By default, this option is set to defaultNativeControl(), which is
+   * \c false by default.
+   *
+   *
    * \note Vertically oriented sliders are in theory supported by the HTML5
    *       input element, but in practice are usually not rendered correctly
    *       by the browser.
+   *
+   * \sa setDefaultNativeControl()
    */
   void setNativeControl(bool nativeControl);
 

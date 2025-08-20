@@ -508,6 +508,7 @@ WSlider::WSlider()
     sliderMoved_(this, "moved", true)
 {
   resize(150, 50);
+  setNativeControl(WWebWidget::defaultNativeControl());
 }
 
 WSlider::WSlider(Orientation orientation)
@@ -529,6 +530,8 @@ WSlider::WSlider(Orientation orientation)
     resize(150, 50);
   else
     resize(50, 150);
+
+  setNativeControl(WWebWidget::defaultNativeControl());
 }
 
 WSlider::~WSlider()

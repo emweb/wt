@@ -30,7 +30,10 @@ public:
    * (usually in sync with the OS) rather than through the theme
    * chosen.
    *
-   * The default is \p false (as native support is now well implemented).
+   * By default, this option is set to defaultNativeControl(), which is
+   * \c false by default.
+   *
+   * \sa setDefaultNativeControl()
    */
   void setNativeControl(bool nativeControl);
 

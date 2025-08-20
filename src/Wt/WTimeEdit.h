@@ -78,7 +78,6 @@ public:
      * When enabled the browser's native time input
      * (<tt><input type="time"></tt>) will be used if available.
      * This should provide a better experience on mobile browsers.
-     * This option is set to false by default.
      *
      * Calling native control after the widget is rendered is
      * not supported.
@@ -94,7 +93,11 @@ public:
      * When setting native control to true the setters for the steps
      * will no longer do anything.
      *
+     * By default, this option is set to defaultNativeControl(), which is
+     * \c false by default.
+     *
      * \sa nativeControl()
+     * \sa setDefaultNativeControl()
      * \sa setFormat()
      * \sa setHourStep()
      * \sa setMinuteStep()

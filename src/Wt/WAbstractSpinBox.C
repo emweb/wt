@@ -53,7 +53,9 @@ WAbstractSpinBox::WAbstractSpinBox()
     preferNative_(false),
     setup_(false),
     jsValueChanged_(this, "spinboxValueChanged", true)
-{ }
+{
+  setNativeControl(WWebWidget::defaultNativeControl());
+}
 
 void WAbstractSpinBox::setNativeControl(bool nativeControl)
 {

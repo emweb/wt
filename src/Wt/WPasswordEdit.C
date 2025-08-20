@@ -30,6 +30,7 @@ void WPasswordEdit::init()
   pwdValidator_ = std::make_shared<WPasswordValidator>();
   WLineEdit::setValidator(std::make_shared<WStackedValidator>());
   stackedValidator()->addValidator(pwdValidator_);
+  setNativeControl(WWebWidget::defaultNativeControl());
 }
 
 void WPasswordEdit::setNativeControl(bool nativeControl)
