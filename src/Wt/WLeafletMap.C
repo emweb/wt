@@ -278,16 +278,8 @@ void WLeafletMap::Popup::createItemJS(WStringStream& ss, WStringStream& postJS, 
 {
   EscapeOStream es(ss);
 
-  std::string optionsStr = Json::serialize(options_);
-
   es << "L.popup(";
-  if (!options_.empty()) {
-    es << "JSON.parse('";
-    es.pushEscape(EscapeOStream::JsStringLiteralSQuote);
-    es << optionsStr;
-    es.popEscape();
-    es << "')";
-  }
+  addJsonJs(ss, options_);
   es << ").setLatLng(L.latLng(";
   char buf[30];
   es << Utils::round_js_str(position().latitude(), 16, buf) << ",";
@@ -323,16 +315,8 @@ void WLeafletMap::Tooltip::createItemJS(WStringStream& ss, WStringStream& postJS
 {
   EscapeOStream es(ss);
 
-  std::string optionsStr = Json::serialize(options_);
-
   es << "L.tooltip(";
-  if (!options_.empty()) {
-    es << "JSON.parse('";
-    es.pushEscape(EscapeOStream::JsStringLiteralSQuote);
-    es << optionsStr;
-    es.popEscape();
-    es << "')";
-  }
+  addJsonJs(ss, options_);
   es << ").setLatLng(L.latLng(";
   char buf[30];
   es << Utils::round_js_str(position().latitude(), 16, buf) << ",";
@@ -758,20 +742,12 @@ void WLeafletMap::LeafletMarker::createItemJS(WStringStream &ss,
                                               WT_MAYBE_UNUSED WStringStream &postJS,
                                               WT_MAYBE_UNUSED long long id)
 {
-  std::string optionsStr = Json::serialize(options_);
-
   EscapeOStream es(ss);
   es << "L.marker([";
   char buf[30];
   es << Utils::round_js_str(position().latitude(), 16, buf) << ",";
   es << Utils::round_js_str(position().longitude(), 16, buf) << "],";
-  if (!options_.empty()) {
-    es << "JSON.parse('";
-    es.pushEscape(EscapeOStream::JsStringLiteralSQuote);
-    es << optionsStr;
-    es.popEscape();
-    es << "')";
-  }
+  addJsonJs(ss, options_);
   ss << ")";
 }
 
@@ -1161,6 +1137,18 @@ void WLeafletMap::addPathOptions(Json::Object &options,
     options["fillOpacity"] = Json::Value(fill.color().alpha() / 255.0);
   } else {
     options["fill"] = Json::Value(false);
+  }
+}
+
+void WLeafletMap::addJsonJs(WStringStream &ss, const Json::Object &obj)
+{
+  if (!obj.empty()) {
+    EscapeOStream es(ss);
+    es << "JSON.parse('";
+    es.pushEscape(EscapeOStream::JsStringLiteralSQuote);
+    es << Json::serialize(obj);
+    es.popEscape();
+    es << "')";
   }
 }
 

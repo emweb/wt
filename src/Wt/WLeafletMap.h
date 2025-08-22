@@ -998,7 +998,7 @@ private:
   void handleItemMouseout(long long id);
 
   static void addPathOptions(Json::Object &options, const WPen &stroke, const WBrush &fill);
-
+  static void addJsonJs(WStringStream &ss, const Json::Object &obj);
 };
 
 }
