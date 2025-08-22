@@ -72,19 +72,6 @@ protected:
   Overlay();
 };
 
-struct WLeafletMap::Polyline : WLeafletMap::Overlay {
-  std::vector<Coordinate> points;
-  WPen pen;
-
-  Polyline(const std::vector<Coordinate> &points, const WPen &pen);
-  virtual ~Polyline() override;
-  Polyline(const Polyline &) = delete;
-  Polyline& operator=(const Polyline &) = delete;
-  Polyline(Polyline &&) = delete;
-  Polyline& operator=(Polyline &&) = delete;
-  virtual void addJS(WStringStream &ss, WLeafletMap *map) const override;
-};
-
 struct WLeafletMap::Circle : WLeafletMap::Overlay {
   Coordinate center;
   double radius;
@@ -107,45 +94,6 @@ WLeafletMap::Overlay::Overlay()
 
 WLeafletMap::Overlay::~Overlay()
 { }
-
-WLeafletMap::Polyline::Polyline(const std::vector<WLeafletMap::Coordinate> &points,
-                                const WPen &pen)
-  : points(points),
-    pen(pen)
-{ }
-
-WLeafletMap::Polyline::~Polyline()
-{ }
-
-void WLeafletMap::Polyline::addJS(WStringStream &ss,
-                                  WLeafletMap *map) const
-{
-  if (pen.style() == PenStyle::None)
-    return;
-
-  Json::Object options;
-  addPathOptions(options, pen, BrushStyle::None);
-  std::string optionsStr = Json::serialize(options);
-
-  EscapeOStream es(ss);
-  es << "var o=" << map->jsRef() << ";if(o && o.wtObj){"
-        "o.wtObj.addPolyline(";
-  es << "[";
-  for (std::size_t i = 0; i < points.size(); ++i) {
-    if (i != 0)
-      es << ',';
-    es << "[";
-    char buf[30];
-    es << Utils::round_js_str(points[i].latitude(), 16, buf) << ",";
-    es << Utils::round_js_str(points[i].longitude(), 16, buf);
-    es << "]";
-  }
-  es << "],'";
-  es.pushEscape(EscapeOStream::JsStringLiteralSQuote);
-  es << optionsStr;
-  es.popEscape();
-  es << "');}";
-}
 
 WLeafletMap::Circle::Circle(const Coordinate &center,
                             double radius,
@@ -231,13 +179,19 @@ void WLeafletMap::AbstractMapItem::resetOrderedAction()
 void WLeafletMap::AbstractMapItem::applyChangeJS(WStringStream& ss, long long id)
 {
   if (flags_.test(BIT_MOVED)) {
-    ss << "o.wtObj.moveMapItem(" << id << ",[";
-    char buf[30];
-    ss << Utils::round_js_str(position().latitude(), 16, buf) << ",";
-    ss << Utils::round_js_str(position().longitude(), 16, buf) << "]);";
+    applyMoveJs(ss, id);
 
     flags_.reset(BIT_MOVED);
   }
+}
+
+void WLeafletMap::AbstractMapItem::applyMoveJs(WStringStream& ss, long long id)
+{
+  ss << "o.wtObj.moveMapItem(" << id << ",[";
+  char buf[30];
+  ss << Utils::round_js_str(position().latitude(), 16, buf) << ",";
+  ss << Utils::round_js_str(position().longitude(), 16, buf);
+  ss << "]);";
 }
 
 void WLeafletMap::AbstractMapItem::unrender()
@@ -751,6 +705,140 @@ void WLeafletMap::LeafletMarker::createItemJS(WStringStream &ss,
   ss << ")";
 }
 
+WLeafletMap::AbstractDrawnItem::AbstractDrawnItem(const Coordinate &pos,
+                                                  const WPen &pen,
+                                                  const WBrush &brush)
+  : AbstractMapItem(pos),
+    brush_(brush),
+    pen_(pen)
+{ }
+
+WLeafletMap::AbstractDrawnItem::~AbstractDrawnItem()
+{ }
+
+void WLeafletMap::AbstractDrawnItem::setPen(const WPen& pen)
+{
+  pen_ = pen;
+  flags_.set(BIT_STYLE_CHANGED);
+
+  if (map()) {
+    map()->scheduleRender();
+  }
+}
+
+void WLeafletMap::AbstractDrawnItem::setBrush(const WBrush& brush)
+{
+  brush_ = brush;
+  flags_.set(BIT_STYLE_CHANGED);
+
+  if (map()) {
+    map()->scheduleRender();
+  }
+}
+
+void WLeafletMap::AbstractDrawnItem::addStyleOptions(Json::Object& options) const
+{
+  addPathOptions(options, pen_, brush_);
+}
+
+void WLeafletMap::AbstractDrawnItem::applyChangeJS(WStringStream& ss, long long id)
+{
+  if (flags_.test(BIT_STYLE_CHANGED)) {
+    Json::Object options;
+    addStyleOptions(options);
+
+    if (!options.empty()) {
+      ss << "o.wtObj.setDrawnItemStyle(" << id << ",";
+      addJsonJs(ss, options);
+      ss << ");";
+    }
+
+    flags_.reset(BIT_STYLE_CHANGED);
+  }
+
+  AbstractMapItem::applyChangeJS(ss, id);
+
+  ss << "o.wtObj.redrawItem(" << id << ");";
+}
+
+WLeafletMap::Polyline::Polyline(const std::vector<Coordinate>& points,
+                                const WPen& pen,
+                                const WBrush& brush)
+  : AbstractDrawnItem(Coordinate(0, 0), pen, brush)
+{
+  setPoints(points);
+}
+
+WLeafletMap::Polyline::Polyline(const std::vector<Coordinate>& points,
+                                const WBrush& brush)
+  : AbstractDrawnItem(Coordinate(0, 0), WPen(), brush)
+{
+  setPoints(points);
+}
+
+WLeafletMap::Polyline::~Polyline()
+{ }
+
+void WLeafletMap::Polyline::setPoints(const std::vector<Coordinate>& points)
+{
+  points_ = points;
+  Coordinate pos = points_.empty() ? Coordinate(0, 0) : points_[0];
+  AbstractDrawnItem::move(pos);
+}
+
+void WLeafletMap::Polyline::move(const Coordinate& pos)
+{
+  if (points_.empty()) {
+    return;
+  }
+
+  double deltaLat = pos.latitude() - position().latitude();
+  double deltaLng = pos.longitude() - position().longitude();
+  for (auto& point : points_) {
+    point.setLatitude(point.latitude() + deltaLat);
+    point.setLongitude(point.longitude() + deltaLng);
+  }
+
+  AbstractDrawnItem::move(points_[0]);
+}
+
+void WLeafletMap::Polyline::createItemJS(WStringStream& ss,
+                                         WStringStream& postJS,
+                                         long long id)
+{
+  Json::Object options;
+  addStyleOptions(options);
+
+  ss << "L.polyline(";
+  addJsCoordinates(ss);
+  ss << ",";
+  addJsonJs(ss, options);
+  ss << ")";
+}
+
+void WLeafletMap::Polyline::applyMoveJs(WStringStream& ss, long long id)
+{
+  ss << "o.wtObj.movePolyline(" << id << ",";
+  addJsCoordinates(ss);
+  ss << ");";
+}
+
+void WLeafletMap::Polyline::addJsCoordinates(WStringStream& ss) const
+{
+  char buf[30];
+  ss << "[";
+  for (std::size_t i = 0; i < points_.size(); ++i) {
+    if (i != 0) {
+      ss << ",";
+    }
+    ss << "[";
+    ss << Utils::round_js_str(points_[i].latitude(), 16, buf) << ",";
+    ss << Utils::round_js_str(points_[i].longitude(), 16, buf) << ",";
+    ss << "]";
+  }
+  ss << "]";
+}
+
 WLeafletMap::WLeafletMap()
   : impl_(nullptr),
     options_(),
@@ -1037,8 +1125,17 @@ void WLeafletMap::updateItemJS(WStringStream& ss,
 void WLeafletMap::addPolyline(const std::vector<Coordinate> &points,
                               const WPen &pen)
 {
-  overlays_.push_back(std::make_unique<Polyline>(points, pen));
-  scheduleRender();
+  addPolyline(std::make_unique<Polyline>(points, pen));
+}
+
+void WLeafletMap::addPolyline(std::unique_ptr<Polyline> polyline)
+{
+  addItem(std::move(polyline));
+}
+
+std::unique_ptr<WLeafletMap::Polyline> WLeafletMap::removePolyline(Polyline* polyline)
+{
+  return Utils::dynamic_unique_ptr_cast<Polyline>(removeItem(polyline));
 }
 
 void WLeafletMap::addCircle(const Coordinate &center,

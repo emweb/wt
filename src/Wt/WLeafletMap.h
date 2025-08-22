@@ -133,7 +133,7 @@ public:
      * of the WLeafletMap to move the map item. If it doesn't belong to
      * a map, the position is merely updated.
      */
-    void move(const Coordinate& pos);
+    virtual void move(const Coordinate& pos);
 
     /*! \brief Get the current position
      *
@@ -290,6 +290,8 @@ public:
 
     /// The name of the JS function that adds the item to the map.
     virtual std::string addFunctionJs() const { return "addMapItem"; };
+
+    virtual void applyMoveJs(WStringStream& ss, long long id);
 
     OrderedAction& getOrderedAction() { return orderedAction_ ; }
     void resetOrderedAction();
@@ -752,6 +754,141 @@ public:
     Json::Object options_;
   };
 
+  /*! \class AbstractDrawnItem
+   *  \brief An abstract map item drawn the map.
+   *
+   * This is the base class for all AbstractMapItems that are drawn on
+   * the map. This is an abstract class, so it should not be used
+   * directly.
+   */
+  class WT_API AbstractDrawnItem : public AbstractMapItem {
+  public:
+    virtual ~AbstractDrawnItem();
+
+    /*! \brief Set the pen used to draw the outline of the item.
+     *
+     * This sets the pen used to draw the outline of the item.
+     *
+     * By default, the default WPen() is used.
+     *
+     * \sa setBrush()
+     */
+    void setPen(const WPen& pen);
+
+    /*! \brief Return the pen used to draw the outline of the item.
+     *
+     * \sa setPen()
+     */
+    const WPen& pen() const { return pen_; }
+
+    /*! \brief Set the brush used to fill the item.
+     *
+     * This sets the brush used to fill the item.
+     *
+     * By default, the default WBrush() is used, which means no fill.
+     *
+     * \sa setPen()
+     */
+    void setBrush(const WBrush& brush);
+
+    /*! \brief Return the brush used to fill the item.
+     *
+     * \sa setBrush()
+     */
+    const WBrush& brush() const { return brush_; }
+
+  protected:
+    /*! \brief Constructor
+     *
+     * Creates a new AbstractDrawnItem that is at the give \p pos, that
+     * is drawn with the given \p pen and filled with the given
+     * \p brush.
+     *
+     * Since this is an abstract class, this should not be used
+     * directly.
+     */
+    explicit AbstractDrawnItem(const Coordinate &pos,
+                               const WPen &pen = WPen(),
+                               const WBrush &brush = WBrush());
+
+    /*! \brief Adds the style options to the given JSON object.
+     *
+     * This adds the style options (from the pen and brush) to the
+     * given JSON object. This should be called on the options that
+     * you are adding to the drawn item at creation (in
+     * createItemJS()).
+     */
+    void addStyleOptions(Json::Object& options) const;
+
+  private:
+    static const int BIT_STYLE_CHANGED = 0;
+
+    std::bitset<1> flags_;
+    WBrush brush_;
+    WPen pen_;
+
+    void applyChangeJS(WStringStream& ss, long long id) override;
+    bool changed() const override { return flags_.any() || AbstractMapItem::changed(); }
+
+    friend class WLeafletMap;
+  };
+
+  /*! \class Polyline
+   *  \brief A polyline that will be drawn on the map.
+   *
+   * A polyline is a series of connected line segments going through a
+   * series of points.
+   *
+   * See https://leafletjs.com/reference.html#polyline
+   */
+  class WT_API Polyline : public AbstractDrawnItem {
+  public:
+    /*! \brief Create a new polyline going trough the given points.
+     *
+     * Creates a new polyline going through the given \p points, drawn
+     * with the given \p pen and filled with the given \p brush.
+     */
+    explicit Polyline(const std::vector<Coordinate> &points, const WPen &pen = WPen(), const WBrush &brush = WBrush());
+
+    /*! \brief Create a new polyline going trough the given points.
+     *
+     * Creates a new polyline going through the given \p points and
+     * filled with the given \p brush.
+     */
+    explicit Polyline(const std::vector<Coordinate> &points, const WBrush &brush);
+
+    virtual ~Polyline();
+
+    /*! \brief Set the points the polyline go trough.
+     *
+     * This sets the points the polyline goes trough to the given list
+     * of \p points.
+     */
+    void setPoints(const std::vector<Coordinate> &points);
+
+    /*! \brief Return the points the polyline goes trough.
+     *
+     * \sa setPoints()
+     */
+    const std::vector<Coordinate>& points() const { return points_; }
+
+    /*! \brief Move the polyline
+     *
+     * This moves the polyline so that its first point is at the
+     * given position. The other points are moved by the same offset.
+     */
+    void move(const Coordinate &pos) override;
+
+  protected:
+    void createItemJS(WStringStream& ss, WStringStream& postJS, long long id) override;
+
+  private:
+    std::vector<Coordinate> points_;
+
+    void applyMoveJs(WStringStream& ss, long long id) override;
+    void addJsCoordinates(WStringStream& ss) const;
+  };
+
   /*! \brief Create a new WLeafletMap
    */
   WLeafletMap();
@@ -869,6 +1006,31 @@ public:
   void addPolyline(const std::vector<Coordinate> &points,
                    const WPen &pen);
 
+  //! Add the given polyline.
+  void addPolyline(std::unique_ptr<Polyline> polyline);
+
+#ifndef WT_TARGET_JAVA
+  template<typename P>
+  P* addPolyline(std::unique_ptr<P> polyline)
+  {
+    P* result = polyline.get();
+    addPolyline(std::unique_ptr<Polyline>(std::move(polyline)));
+    return result;
+  }
+#endif // WT_TARGET_JAVA
+
+  //! Remove the given polyline.
+  std::unique_ptr<Polyline> removePolyline(Polyline *polyline);
+
+#ifndef WT_TARGET_JAVA
+  template<typename P>
+  std::unique_ptr<P> removePolyline(P *polyline)
+  {
+    auto result = removePolyline(static_cast<Polyline*>(polyline));
+    return std::unique_ptr<P>(static_cast<P*>(result.release()));
+  }
+#endif // WT_TARGET_JAVA
+
   /*! \brief Add a circle
    *
    * This will draw a circle on the map centered at \p center,
@@ -947,7 +1109,6 @@ private:
   };
 
   struct Overlay;
-  struct Polyline;
   struct Circle;
 
   std::vector<TileLayer> tileLayers_; // goes on the tilePane, z-index 200

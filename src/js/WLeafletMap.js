@@ -46,11 +46,6 @@ WT_DECLARE_WT_MEMBER(
       self.map.panTo([lat, lng]);
     };
 
-    this.addPolyline = function(points, options_str) {
-      const options = JSON.parse(options_str);
-      L.polyline(points, options).addTo(self.map);
-    };
-
     this.addCircle = function(center, options_str) {
       const options = JSON.parse(options_str);
       L.circle(center, options).addTo(self.map);
@@ -146,6 +141,13 @@ WT_DECLARE_WT_MEMBER(
       }
     };
 
+    this.movePolyline = function(polyline_id, positions) {
+      const polyline = mapItems[polyline_id];
+      if (polyline) {
+        polyline.setLatLngs(positions);
+      }
+    };
+
     this.setOverlayItemContent = function(overlayItem_id, content, content_id) {
       const overlayItem = mapItems[overlayItem_id];
       if (overlayItem) {
@@ -195,6 +197,20 @@ WT_DECLARE_WT_MEMBER(
         } else if (!doOpen && overlayItem.isOpen()) {
           overlayItem.close();
         }
+      }
+    };
+
+    this.setDrawnItemStyle = function(drawnItem_id, style) {
+      const drawnItem = mapItems[drawnItem_id];
+      if (drawnItem) {
+        drawnItem.setStyle(style);
+      }
+    };
+
+    this.redrawItem = function(drawnItem_id) {
+      const drawnItem = mapItems[drawnItem_id];
+      if (drawnItem) {
+        drawnItem.redraw();
       }
     };
 
