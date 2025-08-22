@@ -237,6 +237,23 @@ behaviour.
     sent to the server.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13825" target="_blank">Issue #13825</a>:
+    it is now possible to remove or update polylines and circles on a
+    <a href="classWt_1_1WLeafletMap.html">WLeafletMap</a>.
+    To make this possible, those elements are now represented by the classes
+    <a href="classWt_1_1WLeafletMap_1_1Polyline.html" target="_blank">WLeafletMap::Polyline</a>
+    and
+    <a href="classWt_1_1WLeafletMap_1_1Circle.html" target="_blank">WLeafletMap::Circle</a>
+    respectively, which are map items, like
+    <a href="classWt_1_1WLeafletMap_1_1Marker.html" target="_blank">WLeafletMap::Marker</a>
+    for instance.
+    These new classes can be added or removed from the map using
+    <a href="classWt_1_1WLeafletMap.html#a0b855e1d88046ad195b6d02b7123f1f2" target="_blank">WLeafletMap::addPolyline()</a>,
+    <a href="classWt_1_1WLeafletMap.html#a86e144d405ae4861529875bf5c19271a" target="_blank">WLeafletMap::removePolyline()</a>,
+    <a href="classWt_1_1WLeafletMap.html#a0e04c48a32a4e6b50cc47537d744fff6" target="_blank">WLeafletMap::addCircle()</a> and,
+    <a href="classWt_1_1WLeafletMap.html#abf1195588199c9cb0d429b3e95934fb8" target="_blank">WLeafletMap::removeCircle()</a>.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/14593" target="_blank">Issue #14593</a>:
     added the possibility to configure whether a request with an invalid session ID should be treated
     like a bot request or not. This can be configured using the <code>is-invalid-wtd-suspicious</code>
