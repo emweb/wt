@@ -889,6 +889,53 @@ public:
     void addJsCoordinates(WStringStream& ss) const;
   };
 
+  /*! \class Circle
+   *  \brief A circle that will be drawn on the map.
+   */
+  class WT_API Circle : public AbstractDrawnItem {
+  public:
+
+    /*! \brief Create a new circle at the given position.
+     *
+     * Creates a new circle at the given \p center with the given
+     * \p radius (in meters), drawn with the given \p pen and filled
+     * with the given \p brush.
+     */
+    Circle(const Coordinate &center, double radius,
+           const WPen &pen = WPen(), const WBrush &brush = WBrush());
+
+    /*! \brief Create a new circle at the given position.
+     *
+     * Creates a new circle at the given \p center with the given
+     * \p radius (in meters) and filled with the given \p brush.
+     */
+    Circle(const Coordinate &center, double radius, const WBrush &brush);
+
+    virtual ~Circle();
+
+    //! Set the radius (in meters).
+    void setRadius(double radius);
+
+    /*! \brief Return the radius (in meters).
+     *
+     * \sa setRadius()
+     */
+    double radius() const { return radius_; }
+
+  protected:
+    void createItemJS(WStringStream& ss, WStringStream& postJS, long long id) override;
+
+  private:
+    static const int BIT_RADIUS_CHANGED = 0;
+
+    std::bitset<1> flags_;
+
+    double radius_;
+
+    void applyChangeJS(WStringStream& ss, long long id) override;
+    bool changed() const override { return flags_.any() || AbstractDrawnItem::changed(); }
+  };
+
   /*! \brief Create a new WLeafletMap
    */
   WLeafletMap();
@@ -1042,6 +1089,31 @@ public:
                  const WPen &stroke,
                  const WBrush &fill);
 
+  //! Add the given circle.
+  void addCircle(std::unique_ptr<Circle> circle);
+
+#ifndef WT_TARGET_JAVA
+  template<typename C>
+  C* addCircle(std::unique_ptr<C> circle)
+  {
+    C* result = circle.get();
+    addCircle(std::unique_ptr<Circle>(std::move(circle)));
+    return result;
+  }
+#endif // WT_TARGET_JAVA
+
+  //! Remove the given circle.
+  std::unique_ptr<Circle> removeCircle(Circle *circle);
+
+#ifndef WT_TARGET_JAVA
+  template<typename C>
+  std::unique_ptr<C> removeCircle(C *circle)
+  {
+    auto result = removeCircle(static_cast<Circle*>(circle));
+    return std::unique_ptr<C>(static_cast<C*>(result.release()));
+  }
+#endif // WT_TARGET_JAVA
+
   /*! \brief Set the current zoom level.
    */
   void setZoomLevel(int level);
@@ -1109,7 +1181,6 @@ private:
   };
 
   struct Overlay;
-  struct Circle;
 
   std::vector<TileLayer> tileLayers_; // goes on the tilePane, z-index 200
   std::size_t renderedTileLayersSize_;

@@ -72,61 +72,11 @@ protected:
   Overlay();
 };
 
-struct WLeafletMap::Circle : WLeafletMap::Overlay {
-  Coordinate center;
-  double radius;
-  WPen stroke;
-  WBrush fill;
-
-  Circle(const Coordinate &center, double radius, const WPen &stroke, const WBrush &fill);
-  virtual ~Circle() override;
-
-  Circle(const Circle &) = delete;
-  Circle& operator=(const Circle &) = delete;
-  Circle(Circle &&) = delete;
-  Circle& operator=(Circle &&) = delete;
-
-  virtual void addJS(WStringStream &ss, WLeafletMap *map) const override;
-};
-
 WLeafletMap::Overlay::Overlay()
 { }
 
 WLeafletMap::Overlay::~Overlay()
 { }
-
-WLeafletMap::Circle::Circle(const Coordinate &center,
-                            double radius,
-                            const WPen &stroke,
-                            const WBrush &fill)
-  : center(center),
-    radius(radius),
-    stroke(stroke),
-    fill(fill)
-{ }
-
-WLeafletMap::Circle::~Circle()
-{ }
-
-void WLeafletMap::Circle::addJS(WStringStream &ss,
-                                WLeafletMap *map) const
-{
-  Json::Object options;
-  options["radius"] = Json::Value(radius);
-  addPathOptions(options, stroke, fill);
-  std::string optionsStr = Json::serialize(options);
-
-  EscapeOStream es(ss);
-  es << "var o=" << map->jsRef() << ";if(o && o.wtObj){"
-     << "" "o.wtObj.addCircle([";
-  char buf[30];
-  es << Utils::round_js_str(center.latitude(), 16, buf) << ",";
-  es << Utils::round_js_str(center.longitude(), 16, buf) << "],'";
-  es.pushEscape(EscapeOStream::JsStringLiteralSQuote);
-  es << optionsStr;
-  es.popEscape();
-  es << "');}";
-}
 
 WLeafletMap::Coordinate::Coordinate()
   : lat_(0.0),
@@ -839,6 +789,60 @@ void WLeafletMap::Polyline::addJsCoordinates(WStringStream& ss) const
   ss << "]";
 }
 
+WLeafletMap::Circle::Circle(const Coordinate& center, double radius,
+                            const WPen& pen, const WBrush& brush)
+  : AbstractDrawnItem(center, pen, brush),
+    radius_(radius)
+{ }
+
+WLeafletMap::Circle::Circle(const Coordinate& center, double radius,
+                            const WBrush& brush)
+  : AbstractDrawnItem(center, WPen(), brush),
+    radius_(radius)
+{ }
+
+WLeafletMap::Circle::~Circle()
+{ }
+
+void WLeafletMap::Circle::setRadius(double radius)
+{
+  radius_ = radius;
+  flags_.set(BIT_RADIUS_CHANGED);
+
+  if (map()) {
+    map()->scheduleRender();
+  }
+}
+
+void WLeafletMap::Circle::createItemJS(WStringStream& ss,
+                                       WStringStream& postJS,
+                                       long long id)
+{
+  Json::Object options;
+  options["radius"] = Json::Value(radius_);
+  addStyleOptions(options);
+
+  ss << "L.circle([";
+  char buf[30];
+  ss << Utils::round_js_str(position().latitude(), 16, buf) << ",";
+  ss << Utils::round_js_str(position().longitude(), 16, buf) << "],";
+  addJsonJs(ss, options);
+  ss << ")";
+}
+
+void WLeafletMap::Circle::applyChangeJS(WStringStream& ss, long long id)
+{
+  if (flags_.test(BIT_RADIUS_CHANGED)) {
+    ss << "o.wtObj.setCircleRadius(" << id << ",";
+    char buf[30];
+    ss << Utils::round_js_str(radius_, 16, buf) << ");";
+
+    flags_.reset(BIT_RADIUS_CHANGED);
+  }
+
+  AbstractDrawnItem::applyChangeJS(ss, id);
+}
+
 WLeafletMap::WLeafletMap()
   : impl_(nullptr),
     options_(),
@@ -1143,8 +1147,17 @@ void WLeafletMap::addCircle(const Coordinate &center,
                             const WPen &stroke,
                             const WBrush &fill)
 {
-  overlays_.push_back(std::make_unique<Circle>(center, radius, stroke, fill));
-  scheduleRender();
+  addCircle(std::make_unique<Circle>(center, radius, stroke, fill));
+}
+
+void WLeafletMap::addCircle(std::unique_ptr<Circle> circle)
+{
+  addItem(std::move(circle));
+}
+
+std::unique_ptr<WLeafletMap::Circle> WLeafletMap::removeCircle(Circle* circle)
+{
+  return Utils::dynamic_unique_ptr_cast<Circle>(removeItem(circle));
 }
 
 void WLeafletMap::setZoomLevel(int level)

@@ -46,11 +46,6 @@ WT_DECLARE_WT_MEMBER(
       self.map.panTo([lat, lng]);
     };
 
-    this.addCircle = function(center, options_str) {
-      const options = JSON.parse(options_str);
-      L.circle(center, options).addTo(self.map);
-    };
-
     function onMapItemClick(mapItem_id, mapItem) {
       if (mapItem.doubleClickTimeout) {
         clearTimeout(mapItem.doubleClickTimeout);
@@ -204,6 +199,13 @@ WT_DECLARE_WT_MEMBER(
       const drawnItem = mapItems[drawnItem_id];
       if (drawnItem) {
         drawnItem.setStyle(style);
+      }
+    };
+
+    this.setCircleRadius = function(circle_id, radius) {
+      const circle = mapItems[circle_id];
+      if (circle) {
+        circle.setRadius(radius);
       }
     };
 
