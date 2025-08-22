@@ -1180,12 +1180,8 @@ private:
     Json::Object options;
   };
 
-  struct Overlay;
-
   std::vector<TileLayer> tileLayers_; // goes on the tilePane, z-index 200
   std::size_t renderedTileLayersSize_;
-  std::vector<std::unique_ptr<Overlay> > overlays_; // goes on the overlayPane, z-index 400
-  std::size_t renderedOverlaysSize_;
 
   struct WT_API ItemEntry {
       static const int BIT_ADDED = 0;

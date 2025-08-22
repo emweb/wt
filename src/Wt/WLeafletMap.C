@@ -58,26 +58,6 @@ DomElementType WLeafletMap::Impl::domElementType() const
   return DomElementType::DIV;
 }
 
-struct WLeafletMap::Overlay {
-  virtual ~Overlay();
-  virtual void addJS(WStringStream &ss,
-                     WLeafletMap *map) const = 0;
-
-  Overlay(const Overlay &) = delete;
-  Overlay& operator=(const Overlay &) = delete;
-  Overlay(Overlay &&) = delete;
-  Overlay& operator=(Overlay &&) = delete;
-
-protected:
-  Overlay();
-};
-
-WLeafletMap::Overlay::Overlay()
-{ }
-
-WLeafletMap::Overlay::~Overlay()
-{ }
-
 WLeafletMap::Coordinate::Coordinate()
   : lat_(0.0),
     lng_(0.0)
@@ -858,8 +838,7 @@ WLeafletMap::WLeafletMap()
     itemMouseup_(this,"itemMouseup"),
     itemMouseover_(this,"itemMouseover"),
     itemMouseout_(this,"itemMouseout"),
-    renderedTileLayersSize_(0),
-    renderedOverlaysSize_(0)
+    renderedTileLayersSize_(0)
 {
   setup();
 }
@@ -878,8 +857,7 @@ WLeafletMap::WLeafletMap(const Json::Object &options)
     itemMouseup_(this,"itemMouseup"),
     itemMouseover_(this,"itemMouseover"),
     itemMouseout_(this,"itemMouseout"),
-    renderedTileLayersSize_(0),
-    renderedOverlaysSize_(0)
+    renderedTileLayersSize_(0)
 {
   setup();
 }
@@ -1381,7 +1359,6 @@ void WLeafletMap::render(WFlags<RenderFlag> flags)
 
     // Just created, no tile layers or overlays have been rendered yet
     renderedTileLayersSize_ = 0;
-    renderedOverlaysSize_ = 0;
 
     // pan and zoom were already set when creating new WLeafletMap
     flags_.reset(BIT_PAN_CHANGED);
@@ -1404,11 +1381,6 @@ void WLeafletMap::render(WFlags<RenderFlag> flags)
     addTileLayerJS(ss, tileLayers_[i]);
   }
   renderedTileLayersSize_ = tileLayers_.size();
-
-  for (std::size_t i = renderedOverlaysSize_; i < overlays_.size(); ++i) {
-    overlays_[i]->addJS(ss, this);
-  }
-  renderedOverlaysSize_ = overlays_.size();
 
   for (std::size_t i = 0; i < mapItems_.size();) {
     if (mapItems_[i]->flags.test(ItemEntry::BIT_REMOVED)) {
