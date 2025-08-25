@@ -23,7 +23,12 @@ namespace Wt {
  * data type used in the database. For example: a `WString` object will by default be represented
  * by a `WLineEdit` in the UI.
  *
- * \sa FormModel
+ * \note You will need to define new form delegates for custom data
+ *       types. Default form delegate for a data type can be defined by
+ *       specializing the template class WFormDelegate for that
+ *       specific data type.
+ *
+ * \sa FormModel, WAbstractFormDelegate
  *
  * \ingroup form
  */
@@ -45,7 +50,20 @@ public:
    * This method will automatically generate the form delegates
    * and set the form widgets and model validators.
    *
-   * \sa customizeFormWidget, customizeValidator
+   * If no custom form delegates was given for a field, the default
+   * form delegate for that data type will be used, and if no default
+   * form delegate is defined for that data type, a WException will be
+   * thrown.
+   *
+   * \note It is possible to define a default form delegate by
+   *       specializing the template class WFormDelegate for that data
+   *       type.
+   *
+   * \note After calling this method, it will not be possible to define
+   *       custom form delegates for a given field using
+   *       setFormDelegate().
+   *
+   * \sa customizeFormWidget, customizeValidator, WAbstractFormDelegate
    */
   void setFormModel(std::shared_ptr<FormModel<C>> model)
   {
@@ -129,13 +147,23 @@ public:
 
   /*! \brief Creates a form widget
    *
-   * This method is to ensure that the correct widget is used in the form for the given
-   * field, i.e. the widget defined by the form delegate.
+   * The default implementation creates a form widget for the given
+   * field using the form delegate. In case no form delegate is defined
+   * for the field, nullptr is returned instead.
+   *
+   * It is unlikely that you will need to call this method from outside
+   * this class. In case you want to call this method to customize the
+   * form widget for a specific field, consider overriding
+   * customizeFormWidget() instead.
    *
    * \sa WAbstractFormDelegate::createFormWidget
    */
   std::unique_ptr<Wt::WWidget> createFormWidget(Wt::WFormModel::Field field) override
   {
+    /* This method is to ensure that the correct widget is used in the
+     * form for the given field, i.e. the widget defined by the form
+     * delegate.
+     */
     return formWidget(field);
   }
 
@@ -266,6 +294,8 @@ protected:
   }
 
   /*! \brief %Signal emitted when form is saved
+   *
+   * \sa validationFailed(), save()
    */
   Wt::Signal<>& saved() { return saved_; }
 
@@ -273,6 +303,8 @@ protected:
    *
    * This can be emitted when saving the form. The save action
    * will have failed because some fields are invalid.
+   *
+   * \sa saved(), save()
    */
   Wt::Signal<>& validationFailed() { return validationFailed_; }
 

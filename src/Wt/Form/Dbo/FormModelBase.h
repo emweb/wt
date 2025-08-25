@@ -39,6 +39,9 @@ protected:
   std::vector<std::string> dboFields_;
 
   /*! \brief Adds a %Dbo column as a field
+   *
+   * Adds the given \p field to the model. This field will hold the
+   * value of the %Dbo column that has the same name.
    */
   void insertDboField(Wt::WFormModel::Field field)
   {

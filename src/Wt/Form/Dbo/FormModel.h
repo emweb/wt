@@ -25,6 +25,14 @@ namespace Wt {
  * in the view before initializing the model. During initialization the model will
  * read the information from the database.
  *
+ * Initialization is performed by calling either
+ * initDboValues(), or setItem().
+ *
+ * The model is a wrapper around the %Dbo object,
+ * allowing it to be accessed, and edited. Destructing
+ * this model will "close" the connection to the database,
+ * no data will be removed.
+ *
  * \sa FormView
  *
  * \ingroup form
@@ -46,7 +54,12 @@ public:
 
   /*! \brief Adds a %Dbo column as a field
    *
-   * \throws WException when the method is called after initDboValues
+   * Adds the given \p field to the model. This field will hold the
+   * value of the %Dbo column that has the same name.
+   *
+   * \throws WException when the method is called after initDboValues()
+   *
+   * \sa addDboFields(), addAllDboColumnsAsFields()
    */
   void addDboField(Wt::WFormModel::Field field)
   {
@@ -59,7 +72,12 @@ public:
 
   /*! \brief Adds a list of %Dbo columns to the model
    *
-   * \throws WException when the method is called after initDboValues
+   * Adds the fields in the given list to the form. Each field will
+   * hold the value of the %Dbo column that has the same name.
+   *
+   * \throws WException when the method is called after initDboValues()
+   *
+   * \sa addDboField(), addAllDboColumnsAsFields()
    */
   void addDboFields(std::vector<Wt::WFormModel::Field> fields)
   {
@@ -74,7 +92,16 @@ public:
 
   /*! \brief Adds all %Dbo columns to the model
    *
-   * \throws WException when the method is called after initDboValues
+   * Automatically adds all of the %Dbo columns of the table as fields.
+   * Each field will have the same name as the %Dbo column it holds the
+   * value for.
+   *
+   * The \p options argument can be used to exclude foreign keys from
+   * being added as fields.
+   *
+   * \throws WException when the method is called after initDboValues()
+   *
+   * \sa FieldOptions, addDboField(), addDboFields()
    */
   void addAllDboColumnsAsFields(Wt::WFlags<FieldOptions> options = Wt::WFlags<FieldOptions>())
   {
@@ -94,6 +121,19 @@ public:
   }
 
   /*! \brief Initializes the model with values from the database
+   *
+   * If an item is set, that item will be loaded into the model. This
+   * means that each field in the model will be populated with the
+   * corresponding value from the item. If no item is set, a new item
+   * with default values will be created and loaded into the model
+   * instead.
+   *
+   * This method will not modify or lead to any modifications of the
+   * database. To save any modifications made to the item, or to save
+   * the newly created item, the saveDboValues() method must be called.
+   *
+   * \note After calling this method, it will not be possible to add or
+   *       remove fields from the model.
    */
   void initDboValues()
   {
@@ -113,6 +153,11 @@ public:
   }
 
   /*! \brief Saves the changes made in the model to the database
+   *
+   * This method will save the changes made on the object in the
+   * database, creating a new entry if the object is new.
+   *
+   * \sa initDboValues()
    */
   void saveDboValues()
   {
@@ -146,10 +191,10 @@ public:
   Wt::Dbo::Session& session() const { return session_; }
 
   /*! \brief Sets the item of the model
-   * 
+   *
    * Changes the item of the model. This will emit the itemChanged() signal,
    * making the FormView update.
-   * 
+   *
    * Setting the item to \p nullptr will result in a new item being
    * constructed. This will load the default values of the item. The
    * item remains transient (ptr::isTransient()), until it is saved,
@@ -169,9 +214,9 @@ public:
   const Wt::Dbo::ptr<C>& item() const { return item_; }
 
   /*! \brief Signal emited when the item is changed
-   * 
+   *
    * Signal emitted when setItem() is called.
-   * 
+   *
    * If this model is used as the model of a FormView, (using
    * FormView::setModel()), the FormView will listen to this signal and
    * update when it is emitted.
