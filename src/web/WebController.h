@@ -13,10 +13,12 @@
 #include <map>
 #include <atomic>
 
+#ifndef WT_CNOR
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/member.hpp>
+#endif // WT_CNOR
 
 #include <Wt/WDllDefs.h>
 #include <Wt/WServer.h>
@@ -181,6 +183,7 @@ private:
 #endif // WT_THREADED
   std::set<std::string> uploadProgressUrls_;
 
+#ifndef WT_CNOR
   class SessionMap;
   class SessionEntry {
   public:
@@ -216,6 +219,7 @@ private:
   >{ };
 
   SessionMap sessions_;
+#endif // WT_CNOR
 
 #ifdef WT_THREADED
   // mutex to protect access to the sessions map and plain/ajax session

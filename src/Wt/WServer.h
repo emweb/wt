@@ -717,8 +717,9 @@ public:
    */
   WT_API bool dedicatedSessionProcess() const;
 
-  WT_API bool weakSessionIdEnabled() const;
 #endif // WT_TARGET_JAVA
+
+  WT_API bool weakSessionIdEnabled() const;
 
   WT_API bool expireSessions();
 
