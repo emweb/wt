@@ -272,6 +272,7 @@ void Configuration::reset()
   if (!runDirectory_.empty()) // disabled by connector
     runDirectory_ = RUNDIR;
   sessionIdLength_ = 16;
+  useWeakSessionId_ = true;
   properties_.clear();
   xhtmlMimeType_ = false;
   behindReverseProxy_ = false;
@@ -474,6 +475,12 @@ int Configuration::sessionIdLength() const
 {
   READ_LOCK;
   return sessionIdLength_;
+}
+
+bool Configuration::useWeakSessionId() const
+{
+  READ_LOCK;
+  return useWeakSessionId_;
 }
 
 std::string Configuration::sessionIdPrefix() const
@@ -1031,6 +1038,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   }
 
   setInt(app, "session-id-length", sessionIdLength_);
+  setBoolean(app, "use-weak-session-id", useWeakSessionId_);
 
   /*
    * If a session-id-prefix is defined in the configuration file, then

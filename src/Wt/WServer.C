@@ -376,8 +376,8 @@ bool WServer::dedicatedSessionProcess() const {
   return dedicatedProcessEnabled_;
 }
 
-bool WServer::weakSessionIdEnabled() const {
-  return weakSessionIdEnabled_;
+bool WServer::weakSessionIdEnabled() {
+  return weakSessionIdEnabled_ && configuration().useWeakSessionId();
 }
 
 void WServer::initLogger(const std::string& logFile,

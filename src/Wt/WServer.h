@@ -719,7 +719,7 @@ public:
 
 #endif // WT_TARGET_JAVA
 
-  WT_API bool weakSessionIdEnabled() const;
+  WT_API bool weakSessionIdEnabled();
 
   WT_API bool expireSessions();
 

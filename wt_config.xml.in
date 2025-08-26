@@ -352,6 +352,8 @@
         <!-- Session id length (number of characters) -->
         <session-id-length>16</session-id-length>
 
+        <use-weak-session-id>true</use-weak-session-id>
+
         <!-- DoS prevention: limit plain HTML sessions
 
            This is a simple measure which avoids Denial-of-Service

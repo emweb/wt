@@ -208,6 +208,7 @@ public:
   bool debug() const;
   std::string runDirectory() const;
   int sessionIdLength() const;
+  bool useWeakSessionId() const;
   std::string sessionIdPrefix() const;
   int fullSessionIdLength() const; // length of prefix + session id
   int numSessionThreads() const;
@@ -346,6 +347,7 @@ private:
   float           maxFormDataResendRatio_;
   std::string     runDirectory_;
   int             sessionIdLength_;
+  bool            useWeakSessionId_;
   PropertyMap     properties_;
   bool            xhtmlMimeType_;
   bool            behindReverseProxy_;
