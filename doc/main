@@ -731,6 +731,16 @@ appRoot=C:\Program Files\MyApplications\AppRoot
       aid a load-balancer to figure out the destination for a particular
       request.</dd>
 
+    <dt><strong>use-weak-session-id</strong></dt>
+
+    <dd>When enabled, private resource's URLs will use a weak
+      session id instead of the normal session id to identify
+      the session. A request made with a weak session id will
+      only be able to access private resources of the session,
+      other requests will be denied. This helps prevent leaking
+      the session id in case the URL of the resource is leaked.
+    </dd>
+
     <dt><strong>plain-ajax-sessions-ratio-limit</strong></dt>
 
     <dd>DoS prevention: limit plain HTML sessions. This is a simple

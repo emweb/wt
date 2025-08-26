@@ -352,6 +352,17 @@
         <!-- Session id length (number of characters) -->
         <session-id-length>16</session-id-length>
 
+        <!-- Configure if private resources uses weak session id
+
+            When enabled, private resource's URLs will use a weak
+            session id instead of the normal session id to identify
+            the session. A request made with a weak session id will
+            only be able to access private resources of the session,
+            other requests will be denied.
+
+            This helps prevent leaking the session id in case the URL
+            of the resource is leaked.
+        -->
         <use-weak-session-id>true</use-weak-session-id>
 
         <!-- DoS prevention: limit plain HTML sessions
