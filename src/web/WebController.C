@@ -521,12 +521,12 @@ bool WebController::requestDataReceived(WebRequest *request,
     {
 #ifdef WT_THREADED
       std::unique_lock<std::recursive_mutex> lock(mutex_);
+#endif // WT_THREADED
       SessionMap::index<WeakSessionIdTag>::type::iterator iw =
         sessions_.get<WeakSessionIdTag>().find(sessionId);
       if (iw != sessions_.get<WeakSessionIdTag>().end()) {
         sessionId = iw->sessionId();
       }
-#endif // WT_THREADED
     }
 
     UpdateResourceProgressParams params {
