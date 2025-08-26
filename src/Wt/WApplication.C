@@ -991,7 +991,7 @@ std::string WApplication::addExposedResource(WResource *resource)
            + conf.botResourcesPath() + "/"
            + Utils::urlEncode(resource->botResourceId())
            + fn;
-  } else if (resource->internalPath().empty()) {
+  } else {
     // We generally want to use a weak session id for resources...
     WebSession::SessionOption sessionOption =
       WebSession::SessionOption::UseWeakSessionId;
@@ -1001,14 +1001,16 @@ std::string WApplication::addExposedResource(WResource *resource)
       sessionOption = WebSession::SessionOption::UseSessionId;
     }
 
-    return session_->mostRelativeUrl(fn, true, sessionOption)
-      + "&request=resource&resource=" + Utils::urlEncode(resource->id())
-      + "&ver=" + std::to_string(resource->version());
-  } else {
-    fn = resource->internalPath() + fn;
-    if (!session_->applicationName().empty() && fn[0] != '/')
-      fn = '/' + fn;
-    return session_->mostRelativeUrl(fn, true);
+    if (resource->internalPath().empty()) {
+      return session_->mostRelativeUrl(fn, true, sessionOption)
+        + "&request=resource&resource=" + Utils::urlEncode(resource->id())
+        + "&ver=" + std::to_string(resource->version());
+    } else {
+      fn = resource->internalPath() + fn;
+      if (!session_->applicationName().empty() && fn[0] != '/')
+        fn = '/' + fn;
+      return session_->mostRelativeUrl(fn, true, sessionOption);
+    }
   }
 }
 
