@@ -43,6 +43,16 @@ behaviour.
     <a href="classWt_1_1Dbo_1_1SqlConnection.html#af59dd2d5874b658eb7d919fa88088085">setMaxSavedStatement()</a>.
     In case the statement cache is full, statement that were not used for the longest time are removed.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/7598" target="_blank">Issue #7598</a>:
+    When using Wt with an http server, private
+    <a href="classWt_1_1WResource.html" target="_blank">WResource</a>'s url will not have the
+    session id embedded anymore. Instead, a weak session id that can only be used to fetch
+    resources will be embedded. This adds another layer of protection in case the url of a
+    private resource is leaked.
+    You can disable this feature by setting the <code>use-weak-session-id</code> configuration
+    option to <code>false</code>.
+  </li>
 </ul>
 
 <p>Wt 4.15.0 also fixes the following bugs:</p>
