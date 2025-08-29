@@ -10,12 +10,15 @@
 #include <iostream>
 #include <string>
 #include <signal.h>
+#include <vector>
 
 #include "Configuration.h"
 #include "FCGIStream.h"
 #include "Server.h"
 #include "WebController.h"
 #include "WebMain.h"
+
+#include <boost/algorithm/string.hpp>
 
 namespace {
   Wt::WebMain *webMainInstance = nullptr;
@@ -111,6 +114,7 @@ struct WServer::Impl
   WServer& server_;
   bool running_;
   std::string sessionId_;
+  std::string weakSessionId_;
   WebMain *webMain_;
 };
 
@@ -197,7 +201,15 @@ void WServer::setServerConfiguration(const std::string &applicationPath,
     Server relayServer(*this, applicationPath, args);
     exit(relayServer.run());
   } else if (args.size() >= 2) {
-    impl_->sessionId_ = args[1];
+    std::vector<std::string> id_v;
+    boost::split(id_v, args[1], boost::is_any_of(","));
+    if (id_v.size() != 2) {
+      impl_->sessionId_ = args[1];
+    } else {
+      impl_->sessionId_ = id_v[0];
+      impl_->weakSessionId_ = id_v[1];
+    }
+
     dedicatedProcessEnabled_ = true;
   }
 }
@@ -218,6 +230,9 @@ bool WServer::start()
     configuration().setWebSockets(false);
   }
 
+  // Support weakSessionIds in resource urls
+  weakSessionIdEnabled_ = true;
+
   configuration().setNeedReadBodyBeforeResponse(true);
 
   if (signal(SIGTERM, Wt::handleSigTerm) == SIG_ERR)
@@ -230,7 +245,7 @@ bool WServer::start()
     LOG_ERROR_S(this, "cannot catch SIGHUP: signal(): "
                 << (const char *)strerror(errno));
 
-  webController_ = new Wt::WebController(*this, impl_->sessionId_, false);
+  webController_ = new Wt::WebController(*this, impl_->sessionId_, impl_->weakSessionId_, false);
 
   impl_->run();
 

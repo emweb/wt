@@ -81,6 +81,8 @@ private:
   std::vector<int> sessionProcessPids_;
 
   const std::string socketPath(const std::string& sessionId);
+  const std::string sessionPath(const std::string& sessionId);
+  const std::string weakSessionPath(const std::string& weakSessionId);
 };
 
 }

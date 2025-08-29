@@ -128,8 +128,10 @@ bool WServer::start()
     configuration().setWebSockets(false);
   }
 
+  // Support weakSessionIds in resource urls
+  weakSessionIdEnabled_ = true;
   impl_->running_ = true;
-  webController_ = new Wt::WebController(*this, "", false);
+  webController_ = new Wt::WebController(*this, "", "", false);
 
   try {
     isapi::IsapiStream isapiStream(isapi::IsapiServer::instance());

@@ -57,9 +57,11 @@ LOGGER("WebController");
 
 WebController::WebController(WServer& server,
                              const std::string& singleSessionId,
+                             const std::string& singleWeakSessionId,
                              bool autoExpire)
   : conf_(server.configuration()),
     singleSessionId_(singleSessionId),
+    singleWeakSessionId_(singleWeakSessionId),
     autoExpire_(autoExpire),
     plainHtmlSessions_(0),
     ajaxSessions_(0),
@@ -808,10 +810,14 @@ void WebController::handleRequest(WebRequest *request)
                    "persistent session requested Id: " << sessionId << ", "
                    << "persistent Id: " << singleSessionId_);
 
-        if (sessions_.empty() || strcmp(request->requestMethod(), "GET") == 0)
+        if (sessions_.empty() || strcmp(request->requestMethod(), "GET") == 0) {
           sessionId = singleSessionId_;
-      } else
+          weakSessionId = singleWeakSessionId_;
+        }
+      } else {
         sessionId = singleSessionId_;
+        weakSessionId = singleWeakSessionId_;
+      }
     }
 
     SessionMap::iterator i = sessions_.find(sessionId);
@@ -857,7 +863,7 @@ void WebController::handleRequest(WebRequest *request)
           sessionId.clear();
           weakSessionId.clear();
 
-          if (!findAvailableSessionIds("", sessionId, weakSessionId)) {
+          if (!findAvailableSessionIds("", "", sessionId, weakSessionId)) {
             LOG_ERROR_S(&server_, "Could not allocate session ids. Consider increasing session-id-length");
             request->setStatus(500);
             request->flush(WebResponse::ResponseState::ResponseDone);
@@ -983,27 +989,13 @@ EntryPointMatch WebController::getEntryPoint(WebRequest *request)
  * NOTE: The WebController mutex_ must be held when calling this method
  */
 bool WebController::findAvailableSessionIds(std::string registrationOldId,
+                                            std::string registrationOldWeakId,
                                             std::string& sessionId,
                                             std::string& weakSessionId)
 {
   // With default length session ids, the likelihood of any retries is very small
-  for (int retry = 0; weakSessionId.empty() && retry < 10; ++retry) {
-    weakSessionId = conf_.generateSessionId();
-    if (sessions_.get<WeakSessionIdTag>().find(weakSessionId) !=
-        sessions_.get<WeakSessionIdTag>().end()) {
-      weakSessionId.clear();
-      continue;
-    }
-    if (sessions_.find(weakSessionId) != sessions_.end())
-      weakSessionId.clear();
-  }
-
   for (int retry = 0; sessionId.empty() && retry < 10; ++retry) {
     sessionId = conf_.generateSessionId();
-    if (sessionId == weakSessionId) {
-      sessionId.clear();
-      continue;
-    }
     if (sessions_.get<WeakSessionIdTag>().find(sessionId) !=
         sessions_.get<WeakSessionIdTag>().end()) {
       sessionId.clear();
@@ -1013,14 +1005,35 @@ bool WebController::findAvailableSessionIds(std::string registrationOldId,
       sessionId.clear();
       continue;
     }
-    if (!conf_.registerSessionId(registrationOldId, sessionId))
+    if (!conf_.registerSessionId(registrationOldId, sessionId, registrationOldWeakId)) {
       sessionId.clear();
+    }
+  }
+
+  for (int retry = 0; weakSessionId.empty() && retry < 10; ++retry) {
+    weakSessionId = conf_.generateSessionId();
+    if (weakSessionId == sessionId) {
+      weakSessionId.clear();
+      continue;
+    }
+    if (sessions_.get<WeakSessionIdTag>().find(weakSessionId) !=
+        sessions_.get<WeakSessionIdTag>().end()) {
+      weakSessionId.clear();
+      continue;
+    }
+    if (sessions_.find(weakSessionId) != sessions_.end()) {
+      weakSessionId.clear();
+      continue;
+    }
+    if (!conf_.registerWeakSessionId(registrationOldWeakId, weakSessionId, sessionId)) {
+      weakSessionId.clear();
+    }
   }
 
   return !sessionId.empty() && !weakSessionId.empty();
 }
 
-std::string
+std::tuple<std::string, std::string>
 WebController::generateNewSessionId(const std::shared_ptr<WebSession>& session)
 {
 #ifdef WT_THREADED
@@ -1028,7 +1041,7 @@ WebController::generateNewSessionId(const std::shared_ptr<WebSession>& session)
 #endif // WT_THREADED
 
   std::string newSessionId, newWeakSessionId;
-  if (!findAvailableSessionIds(session->sessionId(), newSessionId, newWeakSessionId)) {
+  if (!findAvailableSessionIds(session->sessionId(), session->weakSessionId(), newSessionId, newWeakSessionId)) {
     throw WException(
       "generateNewSessionId: out of session ids. Consider increasing session-id-length");
   }
@@ -1038,10 +1051,12 @@ WebController::generateNewSessionId(const std::shared_ptr<WebSession>& session)
   SessionMap::iterator i = sessions_.find(session->sessionId());
   sessions_.erase(i);
 
-  if (!singleSessionId_.empty())
+  if (!singleSessionId_.empty()) {
     singleSessionId_ = newSessionId;
+    singleWeakSessionId_ = newWeakSessionId;
+  }
 
-  return newSessionId;
+  return std::make_tuple(newSessionId, newWeakSessionId);
 }
 
 void WebController::newAjaxSession()

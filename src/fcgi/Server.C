@@ -180,10 +180,23 @@ const std::string Server::socketPath(const std::string& sessionId)
 {
   Configuration& conf = wt_.configuration();
 
-  std::string sessionPath = conf.runDirectory() + "/" + sessionId;
+  std::string path = sessionPath(sessionId);
+
+  cpp17::fs_error_code ignored;
+  if (!cpp17::filesystem::exists(path, ignored)) {
+    std::string weakPath = weakSessionPath(sessionId);
+    std::ifstream f(weakPath.c_str());
+    if (f) {
+      std::string realSessionId;
+      f >> realSessionId;
+      if (!realSessionId.empty()) {
+        path = sessionPath(realSessionId);
+      }
+    }
+  }
 
   if (conf.sessionPolicy() == Configuration::SharedProcess) {
-    std::ifstream f(sessionPath.c_str());
+    std::ifstream f(path.c_str());
 
     if (f) {
       std::string pid;
@@ -197,7 +210,17 @@ const std::string Server::socketPath(const std::string& sessionId)
       return std::string();
 
   } else
-    return sessionPath;
+    return path;
+}
+
+const std::string Server::sessionPath(const std::string& sessionId)
+{
+  return wt_.configuration().sessionSocketPath(sessionId);
+}
+
+const std::string Server::weakSessionPath(const std::string& weakSessionId)
+{
+  return wt_.configuration().weakSessionPath(weakSessionId);
 }
 
 void handleSigChld(int)
@@ -566,11 +589,18 @@ void Server::handleRequest(int serverSocket)
          */
         do {
           sessionId = conf.generateSessionId();
-          if (!conf.registerSessionId(std::string(), sessionId))
+          if (!conf.registerSessionId(std::string(), sessionId, ""))
             sessionId.clear();
         } while (sessionId.empty());
 
-        std::string path = socketPath(sessionId);
+        std::string weakSessionId;
+        do {
+          weakSessionId = conf.generateSessionId();
+          if (!conf.registerWeakSessionId(std::string(), weakSessionId, sessionId))
+            weakSessionId.clear();
+        } while (weakSessionId.empty());
+
+        std::string path = sessionPath(sessionId);
 
         /*
          * Create and fork a new session.
@@ -589,7 +619,7 @@ void Server::handleRequest(int serverSocket)
           exit(1);
         } else if (pid == 0) {
           /* the child process */
-          execChild(true, sessionId);
+          execChild(true, sessionId + "," + weakSessionId);
           exit(1);
         } else {
           LOG_INFO_S(&wt_, "spawned dedicated process for " << sessionId

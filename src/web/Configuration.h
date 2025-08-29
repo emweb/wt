@@ -296,9 +296,16 @@ public:
   void setBootstrapMethod(BootstrapMethod method);
 
   std::string generateSessionId();
-  bool registerSessionId(const std::string& oldId, const std::string& newId);
+  bool registerSessionId(const std::string& oldId,
+                         const std::string& newId,
+                         const std::string& weakId);
+
+  bool registerWeakSessionId(const std::string& oldWeakId,
+                             const std::string& newWeakId,
+                             const std::string& sessionId);
 
   std::string sessionSocketPath(const std::string& sessionId);
+  std::string weakSessionPath(const std::string& weakSessionId);
   const std::string &defaultEntryPoint() const { return defaultEntryPoint_; }
 private:
   struct BootstrapEntry {

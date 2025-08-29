@@ -32,6 +32,11 @@
 #include "WebUtils.h"
 
 #include <boost/algorithm/string.hpp>
+
+#ifndef WT_TARGET_JAVA
+#include <tuple>
+#endif
+
 #ifndef _MSC_VER
 #include <unistd.h>
 #endif
@@ -296,7 +301,8 @@ WebSession::~WebSession()
 
   flushBootStyleResponse();
 
-  controller_->configuration().registerSessionId(sessionId_, std::string());
+  controller_->configuration().registerSessionId(sessionId_, std::string(), weakSessionId_);
+  controller_->configuration().registerWeakSessionId(weakSessionId_, std::string(), "");
   controller_->sessionDeleted();
 
 #ifndef WT_TARGET_JAVA
@@ -3315,7 +3321,7 @@ void WebSession::generateNewSessionId()
     return;
 
   std::string oldId = sessionId_;
-  sessionId_ = controller_->generateNewSessionId(shared_from_this());
+  std::tie(sessionId_, weakSessionId_) = controller_->generateNewSessionId(shared_from_this());
   sessionIdChanged_ = true;
 
   LOG_INFO("new session id for " << oldId);

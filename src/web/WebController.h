@@ -30,6 +30,7 @@
 #if defined(WT_THREADED) && !defined(WT_TARGET_JAVA)
 #include <thread>
 #include <mutex>
+#include <tuple>
 #endif
 
 namespace http {
@@ -124,6 +125,7 @@ public:
 #else // WT_TARGET_JAVA
   WebController(WServer& server,
                 const std::string& singleSessionId = std::string(),
+                const std::string& singleWeakSessionId = std::string(),
                 bool autoExpire = true);
   ~WebController();
 
@@ -160,10 +162,11 @@ public:
   void socketSelected(int descriptor, WSocketNotifier::Type type);
 
   bool findAvailableSessionIds (std::string registrationOldId,
+                                std::string registrationOldWeakId,
                                 std::string& sessionId,
                                 std::string& weakSessionId);
 
-  std::string generateNewSessionId(const std::shared_ptr<WebSession>& session);
+  std::tuple<std::string, std::string> generateNewSessionId(const std::shared_ptr<WebSession>& session);
 
 #ifdef WT_TEST_VISIBILITY
   Signal<std::string> addedSessionId_;
@@ -172,6 +175,7 @@ public:
 private:
   Configuration& conf_;
   std::string singleSessionId_;
+  std::string singleWeakSessionId_;
   bool autoExpire_;
   int plainHtmlSessions_, ajaxSessions_;
   volatile int zombieSessions_;

@@ -1408,16 +1408,19 @@ void Configuration::readConfiguration(bool silent)
 }
 
 bool Configuration::registerSessionId(const std::string& oldId,
-                                      const std::string& newId)
+                                      const std::string& newId,
+                                      const std::string& weakId)
 {
   if (!runDirectory_.empty()) {
+
+    namespace fs = cpp17::filesystem;
+    cpp17::fs_error_code ignored;
 
     if (!newId.empty()) {
       std::string socketPath = sessionSocketPath(newId);
 
-      namespace fs = cpp17::filesystem;
-      cpp17::fs_error_code ignored;
-      if (fs::exists(socketPath, ignored)) {
+      if (fs::exists(socketPath, ignored) ||
+          fs::exists(weakSessionPath(newId), ignored)) {
         return false;
       }
 
@@ -1433,9 +1436,55 @@ bool Configuration::registerSessionId(const std::string& oldId,
     if (!oldId.empty()) {
       if (newId.empty())
         unlink(sessionSocketPath(oldId).c_str());
-      else
+      else {
         std::rename(sessionSocketPath(oldId).c_str(),
                     sessionSocketPath(newId).c_str());
+
+        // Update weak session id file contents to the new session id
+        if (!weakId.empty()) {
+          std::string weakPath = weakSessionPath(weakId);
+          if (fs::exists(weakPath, ignored)) {
+            std::ofstream f(weakPath.c_str());
+            f << newId << std::endl;
+            f.flush();
+          }
+        }
+      }
+    }
+  }
+
+  return true;
+}
+
+bool Configuration::registerWeakSessionId(const std::string& oldWeakId,
+                                          const std::string& newWeakId,
+                                          const std::string& sessionId)
+{
+  if (!runDirectory_.empty()) {
+    std::string weakPath = weakSessionPath(newWeakId);
+
+    if (!newWeakId.empty()) {
+      namespace fs = cpp17::filesystem;
+      cpp17::fs_error_code ignored;
+      if (fs::exists(weakPath, ignored) ||
+          fs::exists(sessionSocketPath(newWeakId), ignored)) {
+        return false;
+      }
+    }
+
+    if (oldWeakId.empty()) {
+      if (!sessionId.empty()) {
+        std::ofstream f(weakPath.c_str());
+        f << sessionId << std::endl;
+        f.flush();
+      }
+    } else {
+      if (newWeakId.empty()) {
+        remove(weakSessionPath(oldWeakId).c_str());
+      } else {
+        std::rename(weakSessionPath(oldWeakId).c_str(),
+                    weakPath.c_str());
+      }
     }
   }
 
@@ -1452,6 +1501,11 @@ std::string Configuration::generateSessionId()
 std::string Configuration::sessionSocketPath(const std::string& sessionId)
 {
   return runDirectory_ + "/" + sessionId;
+}
+
+std::string Configuration::weakSessionPath(const std::string& weakSessionId)
+{
+  return runDirectory_ + "/weak-" + weakSessionId;
 }
 
 bool Configuration::readConfigurationProperty(const std::string& name,
