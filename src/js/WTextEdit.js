@@ -86,10 +86,15 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
         return t.indexOf("image/") === 0;
       }
 
+      function isFiles(t) {
+        return t === "Files";
+      }
+
       if (clipboardData && clipboardData.types) {
         for (let i = 0, il = clipboardData.types.length; i < il; ++i) {
-          const t = clipboardData.types[i];
-          if (isImage(t) || isImage(t.type)) {
+          const type = clipboardData.types[i];
+          const item = clipboardData.items[i];
+          if (!isFiles(item.type) && (isImage(type) || isImage(item.type))) {
             const file = clipboardData.items[i].getAsFile();
             const reader = new FileReader();
             reader.onload = function(_evt) {
