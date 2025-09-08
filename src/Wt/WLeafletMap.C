@@ -1265,7 +1265,13 @@ void WLeafletMap::defineJavaScript()
   es << Utils::round_js_str(zoomLevel_, 16, buf) << ",";
   es << app->environment().server()->configuration().doubleClickTimeout() << ");";
 
+  auto oldMap = javaScriptMember(" WLeafletMap");
   setJavaScriptMember(" WLeafletMap", ss.str());
+  if (!oldMap.empty() && oldMap != ss.str()) {
+    // WT-12393: WLeafletMap constructor has options that might have changed
+    // on rerender. In that case members must be forced to recreate
+    setJavaScriptMember(WT_RESIZE_JS, "");
+  };
   setJavaScriptMember(WT_RESIZE_JS,
                       jsRef() + ".wtObj.wtResize");
 }
