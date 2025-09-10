@@ -249,7 +249,22 @@ void WebRenderer::letReloadJS(WebResponse& response, WT_MAYBE_UNUSED bool newSes
 
   // FIXME: we should foresee something independent of app->javaScriptClass()
   response.out() <<
-    "if (window.Wt) window.Wt._p_.quit(null); window.location.reload(true);";
+    // Filter out any suspicious parameters to avoid issues around #13970,
+    // where the session kill could keep iteratively reloading session.
+    "const pathReplaceRegex = /wtd=[a-zA-Z0-9]*/g;"
+    "let filteredLocation = window.location.href.replace(pathReplaceRegex, '');"
+    "let url = new URL(filteredLocation);"
+    "if (url.search.length === 0) {"
+    "  filteredLocation = filteredLocation.replace('?', '');"
+    "}"
+    "filteredLocation = filteredLocation.replace('&&', '&');"
+    "if (filteredLocation.endsWith('&')) {"
+    "  filteredLocation = filteredLocation.substr(0, filteredLocation.length - 1);"
+    "}"
+    "if (window.Wt) {"
+    "  window.Wt._p_.quit(null);"
+    "}"
+    "window.location.replace(filteredLocation);";
 }
 
 void WebRenderer::letReloadHTML(WebResponse& response, bool newSession)
