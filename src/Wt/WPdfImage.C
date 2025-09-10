@@ -446,7 +446,13 @@ void WPdfImage::drawImage(const WRectF& rect, const std::string& imgUrl,
                           int imgWidth, int imgHeight,
                           const WRectF& srect)
 {
-  WDataInfo imgInfo(imgUrl, imgUrl);
+  WDataInfo imgInfo;
+  if (DataUri::isDataUri(imgUrl)) {
+    imgInfo.setDataUri(imgUrl);
+  } else {
+    imgInfo.setFilePath(imgUrl);
+    imgInfo.setUrl(imgUrl);
+  }
   WPdfImage::drawImage(rect, &imgInfo, imgWidth, imgHeight, srect);
 }
 
@@ -455,7 +461,7 @@ void WPdfImage::drawImage(const WRectF& rect, const WAbstractDataInfo* info,
                           const WRectF& srect)
 {
   HPDF_Image img = nullptr;
-  std::string imgUri = info->hasUri() ? info->uri() : "";
+  std::string imgUri = info->hasDataUri() ? info->dataUri() : "";
 
   drawImageFromDataUri(img, imgUri);
 

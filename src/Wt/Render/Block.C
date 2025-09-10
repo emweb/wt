@@ -21,6 +21,7 @@
 #include "StringUtils.h"
 #include "RenderUtils.h"
 #include "DomElement.h"
+#include "UriUtils.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -3057,8 +3058,14 @@ void Block::actualRender(WTextRenderer& renderer, WPainter& painter,
 #endif // DEBUG_LAYOUT
 
     std::string src = attributeValue("src");
-    painter.drawImage(rect, WPainter::Image(std::make_shared<WDataInfo>(src, src),
-                                            (int)width, (int)height));
+    std::shared_ptr<WDataInfo> imgInfo;
+    if (DataUri::isDataUri(src)) {
+      imgInfo->setDataUri(src);
+    } else {
+      imgInfo->setUrl(src);
+      imgInfo->setFilePath(src);
+    }
+    painter.drawImage(rect, WPainter::Image(imgInfo, (int)width, (int)height));
   } else {
     LayoutBox bb = toBorderBox(lb, renderer.fontScale());
 

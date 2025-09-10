@@ -32,12 +32,12 @@ std::string WDocRootDataInfo::filePath() const
   return WAbstractDataInfo::filePath();
 }
 
-std::string WDocRootDataInfo::uri() const
+std::string WDocRootDataInfo::url() const
 {
-  if (hasUri()) {
+  if (hasUrl()) {
     return relPath_;
   }
-  return WAbstractDataInfo::uri();
+  return WAbstractDataInfo::url();
 }
 
 }

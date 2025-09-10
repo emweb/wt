@@ -10,8 +10,11 @@
 
 namespace Wt {
 
-WDataInfo::WDataInfo(const std::string& uri, const std::string& filePath)
-  : uri_(uri),
+WDataInfo::WDataInfo()
+{ }
+
+WDataInfo::WDataInfo(const std::string& url, const std::string& filePath)
+  : url_(url),
     filePath_(filePath)
 { }
 
@@ -28,17 +31,30 @@ std::string WDataInfo::filePath() const
   return WAbstractDataInfo::filePath();
 }
 
-void WDataInfo::setUri(const std::string& uri)
+void WDataInfo::setUrl(const std::string& url)
 {
-  uri_ = uri;
+  url_ = url;
 }
 
-std::string WDataInfo::uri() const
+std::string WDataInfo::url() const
 {
-  if (hasUri()) {
-    return uri_;
+  if (hasUrl()) {
+    return url_;
   }
-  return WAbstractDataInfo::uri();
+  return WAbstractDataInfo::url();
+}
+
+void WDataInfo::setDataUri(const std::string& dataUri)
+{
+  dataUri_ = dataUri;
+}
+
+std::string WDataInfo::dataUri() const
+{
+  if (hasDataUri()) {
+    return dataUri_;
+  }
+  return WAbstractDataInfo::dataUri();
 }
 
 }

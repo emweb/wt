@@ -22,11 +22,14 @@ namespace Wt {
 class WT_API WDataInfo : public WAbstractDataInfo
 {
 public:
+  //! Creates an empty WDataInfo.
+  WDataInfo();
+
   /*! \brief Creates a WDataInfo.
    *
-   * Creates a WDataInfo with the given \p uri and \p filePath.
+   * Creates a WDataInfo with the given \p url and \p filePath.
    */
-  WDataInfo(const std::string& uri, const std::string& filePath);
+  WDataInfo(const std::string& url, const std::string& filePath);
 
   //! Sets the file path.
   void setFilePath(const std::string& filePath);
@@ -39,16 +42,28 @@ public:
    */
   std::string filePath() const override;
 
-  //! Sets the URI.
-  void setUri(const std::string& uri);
+  //! Sets the URL.
+  void setUrl(const std::string& url);
 
-  /*! \brief Returns the URI of the data.
+  /*! \brief Returns the URL of the data.
    *
-   * Throws if the URI is set to an empty string.
+   * Throws if the URL is set to an empty string.
    *
-   * \sa hasUri()
+   * \sa hasUrl()
    */
-  std::string uri() const override;
+  std::string url() const override;
+
+
+  //! Sets the data formated as data URI.
+  void setDataUri(const std::string& dataUri);
+
+  /*! \brief Returns the data in data URI format.
+   *
+   * Throws if the data URI is set to an empty string.
+   *
+   * \sa hasDataUri()
+   */
+  std::string dataUri() const override;
 
   /*! \brief Returns whether this contains a file path.
    *
@@ -58,16 +73,24 @@ public:
    */
   bool hasFilePath() const override { return !filePath_.empty(); }
 
-  /*! \brief Returns whether this contains a uri.
+  /*! \brief Returns whether this contains a url.
    *
-   * This returns whether uri() returns a non-empty string.
+   * This returns whether url() returns a non-empty string.
    *
-   * \sa uri()
+   * \sa url()
    */
-  bool hasUri() const override { return !uri_.empty(); }
+  bool hasUrl() const override { return !url_.empty(); }
+
+  /*! \brief Returns whether this can return the data in data URI format.
+   *
+   * This returns whether dataUri() returns a non-empty string.
+   *
+   * \sa dataUri()
+   */
+  virtual bool hasDataUri() const { return !dataUri_.empty(); }
 
 private:
-  std::string uri_, filePath_;
+  std::string url_, filePath_, dataUri_;
 };
 
 }

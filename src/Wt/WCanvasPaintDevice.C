@@ -325,6 +325,7 @@ void WCanvasPaintDevice::drawImage(const WRectF& rect,
                                    int imgWidth, int imgHeight,
                                    const WRectF& sourceRect)
 {
+  // No need to check for data URI, since it is handled like a URL.
   WDataInfo dataInfo(imageUri, "");
   doDrawImage(rect, &dataInfo, imgWidth, imgHeight, sourceRect);
 }
@@ -347,8 +348,10 @@ void WCanvasPaintDevice::doDrawImage(const WRectF& rect,
 
   WApplication *app = WApplication::instance();
   std::string imgUri;
-  if (app && info->hasUri()) {
-    imgUri = app->resolveRelativeUrl(info->uri());
+  if (app && info->hasUrl()) {
+    imgUri = app->resolveRelativeUrl(info->url());
+  } else if (info->hasDataUri()) {
+    imgUri = info->dataUri();
   }
 
   int imageIndex = createImage(imgUri);

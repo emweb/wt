@@ -41,7 +41,14 @@ void WPaintDevice::drawImage(const WRectF& rect,
    * Render::Block calls drawImage on a custom WPaintDevice that does
    * not implement drawImage with WAbstractDataInfo.
    */
-  drawImage(rect, imageInfo->uri(), imgWidth, imgHeight, sourceRect);
+  std::string uri;
+  if (imageInfo->hasUrl()) {
+    uri = imageInfo->url();
+  } else if (imageInfo->hasDataUri()) {
+    uri = imageInfo->dataUri();
+  }
+
+  drawImage(rect, uri, imgWidth, imgHeight, sourceRect);
 }
 
 }

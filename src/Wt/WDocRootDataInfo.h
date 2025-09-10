@@ -14,8 +14,15 @@ namespace Wt {
 /*! \class WDocRootDataInfo Wt/WDocRootDataInfo Wt/WDocRootDataInfo
  *  \brief A class that stores information of a file in the docroot
  *
- *  This class stores the uri and the file path of a file inside of the
- *  document root.
+ *  This class stores the URL and the file path of a file inside of the
+ *  docroot.
+ *
+ *  When providing a path to the constructor, the path ought to be
+ *  relative to the \p docroot of the WApplication.
+ *
+ *  The URL will contain the URL relative to the application's base
+ *  URL, and the file path will contain the absolute path to the file
+ *  in the docroot.
  *
  *  \sa WDocRootDataInfo
  */
@@ -41,14 +48,14 @@ public:
    */
   std::string filePath() const override;
 
-  /*! \brief Returns the URI of the data.
+  /*! \brief Returns the URL of the data.
    *
    * Throws if the \p path provided to the constructor or set with
    * setRelativePath() was an empty string.
    *
-   * \sa hasUri()
+   * \sa hasUrl()
    */
-  std::string uri() const override;
+  std::string url() const override;
 
   /*! \brief Returns whether this contains a file path.
    *
@@ -59,14 +66,14 @@ public:
    */
   bool hasFilePath() const override { return !relPath_.empty(); }
 
-  /*! \brief Returns whether this contains a uri.
+  /*! \brief Returns whether this contains a url.
    *
    * This returns whether the \p path provided to the constructor
    * or set with setRelativePath() was a non-empty string.
    *
-   * \sa uri()
+   * \sa url()
    */
-  bool hasUri() const override { return !relPath_.empty(); }
+  bool hasUrl() const override { return !relPath_.empty(); }
 
 private:
   std::string relPath_;

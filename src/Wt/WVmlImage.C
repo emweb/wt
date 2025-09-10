@@ -137,6 +137,7 @@ void WVmlImage::drawArc(const WRectF& rect, double startAngle, double spanAngle)
 void WVmlImage::drawImage(const WRectF& rect, const std::string& imageUri,
                           int imgWidth, int imgHeight, const WRectF& sourceRect)
 {
+  // No need to check for data URI, since it is handled like a URL.
   WDataInfo dataInfo(imageUri, imageUri);
   doDrawImage(rect, &dataInfo, imgWidth, imgHeight, sourceRect);
 }
@@ -155,8 +156,10 @@ void WVmlImage::doDrawImage(const WRectF& rect, const WAbstractDataInfo* info,
 
   WApplication *app = WApplication::instance();
   std::string imgUri;
-  if (app && info->hasUri()) {
-    imgUri = app->resolveRelativeUrl(info->uri());
+  if (app && info->hasUrl()) {
+    imgUri = app->resolveRelativeUrl(info->url());
+  } else if (info->hasDataUri()) {
+    imgUri = info->dataUri();
   }
 
   WTransform t = painter()->combinedTransform();

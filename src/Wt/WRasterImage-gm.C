@@ -669,7 +669,14 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
                              WT_MAYBE_UNUSED int imgWidth, WT_MAYBE_UNUSED int imgHeight,
                              const WRectF& srect)
 {
-  WDataInfo dataInfo(imgUri, imgUri);
+
+  WDataInfo dataInfo;
+  if (DataUri::isDataUri(imgUri)) {
+    dataInfo.setDataUri(imgUri);
+  } else {
+    dataInfo.setFilePath(imgUri);
+    dataInfo.setUrl(imgUri);
+  }
   doDrawImage(rect, &dataInfo, imgWidth, imgHeight, srect, true);
 }
 
@@ -690,8 +697,8 @@ void WRasterImage::doDrawImage(const WRectF& rect, const WAbstractDataInfo* data
   GetExceptionInfo(&exception);
 
   Image *cImage;
-  std::string imgUri = dataInfo->hasUri() ? dataInfo->uri() : "";
-  if (DataUri::isDataUri(imgUri)) {
+  if (dataInfo->hasDataUri()) {
+    std::string imgUri = dataInfo->dataUri();
     DataUri uri(imgUri);
 
     if (boost::istarts_with(uri.mimeType, "image/png")) {

@@ -175,15 +175,26 @@ WPainter::Image::Image(std::shared_ptr<const WAbstractDataInfo> info)
   evaluateSize();
 }
 
+std::string WPainter::Image::uri() const
+{
+  std::string uri;
+  if (info_->hasUrl()) {
+    uri = info_->url();
+  } else if (info_->hasDataUri()) {
+    uri = info_->dataUri();
+  }
+  return uri;
+}
+
 void WPainter::Image::evaluateSize()
 {
-  if (info_->hasUri() && DataUri::isDataUri(info_->uri())) {
+  if (info_->hasDataUri()) {
 
-    DataUri uri(info_->uri());
+    DataUri uri(info_->dataUri());
 
     WPoint size = Wt::ImageUtils::getSize(uri.data);
     if (size.x() == 0 || size.y() == 0)
-      throw WException("data url: (" + uri.mimeType
+      throw WException("data uri: (" + uri.mimeType
                        + "): could not determine image size");
 
     width_ = size.x();
@@ -199,7 +210,7 @@ void WPainter::Image::evaluateSize()
     width_ = size.x();
     height_ = size.y();
   } else {
-    throw WException("'" + info_->name() + "': could not determine image size due to missing filePath. Add a filePath or use a data uri.");
+    throw WException("'" + info_->name() + "': could not determine image size. Add a filePath or a data uri.");
   }
 }
 
@@ -385,7 +396,7 @@ void WPainter::drawImage(const WRectF& rect, const Image& image,
                          const WRectF& sourceRect)
 {
   if (image.useOld_) {
-    device_->drawImage(rect.normalized(), image.info()->uri(),
+    device_->drawImage(rect.normalized(), image.info()->url(),
                      image.width(), image.height(),
                      sourceRect.normalized());
     return;
@@ -405,7 +416,7 @@ void WPainter::drawImage(double x, double y, const Image& image,
 
   if (image.useOld_) {
     device_->drawImage(WRectF(x, y, sw, sh),
-                       image.info()->uri(),
+                       image.info()->url(),
                        image.width(), image.height(),
                        WRectF(sx, sy, sw, sh));
     return;

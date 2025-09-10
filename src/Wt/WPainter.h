@@ -321,7 +321,7 @@ public:
 
     /*! \brief Returns the url.
      */
-    std::string uri() const { return info_->hasUri() ? info_->uri() : ""; }
+    std::string uri() const;
 
     //! Returns the data info of the image.
     const WAbstractDataInfo* info() const { return info_.get(); }

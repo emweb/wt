@@ -18,17 +18,24 @@ std::string WAbstractDataInfo::filePath() const
   throw WException("WAbstractDataInfo::filePath(): missing file path.");
 }
 
-std::string WAbstractDataInfo::uri() const
+std::string WAbstractDataInfo::url() const
 {
-  throw WException("WAbstractDataInfo::uri(): missing URI.");
+  throw WException("WAbstractDataInfo::url(): missing URL.");
+}
+
+std::string WAbstractDataInfo::dataUri() const
+{
+  throw WException("WAbstractDataInfo::dataUri(): missing data URI.");
 }
 
 std::string WAbstractDataInfo::name() const
 {
-  if (hasUri()) {
-    return uri();
+  if (hasUrl()) {
+    return url();
   } else if (hasFilePath()) {
     return filePath();
+  } else if (hasDataUri()) {
+    return dataUri();
   }
   return "";
 }

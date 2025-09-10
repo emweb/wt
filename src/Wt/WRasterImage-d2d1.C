@@ -684,7 +684,13 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
                              int imgWidth, int imgHeight,
                              const WRectF& srect)
 {
-  WDataInfo dataInfo(imgUri, imgUri);
+  WDataInfo dataInfo;
+  if (DataUri::isDataUri(imgUri)) {
+    dataInfo.setDataUri(imgUri);
+  } else {
+    dataInfo.setFilePath(imgUri);
+    dataInfo.setUrl(imgUri);
+  }
   doDrawImage(rect, &dataInfo, imgWidth, imgHeight, srect, true);
 }
 
@@ -705,9 +711,8 @@ void WRasterImage::doDrawImage(const WRectF& rect, const WAbstractDataInfo* info
   IWICBitmapFrameDecode *source = NULL;
   IWICFormatConverter *converter = NULL;
   HRESULT hr = S_OK;
-  std::string imgUri = info->hasUri() ? info->uri(), "";
-  if (DataUri::isDataUri(imgUri)) {
-    DataUri uri(imgUri);
+  if (info->hasDataUri()) {
+    DataUri uri(info->dataUri(););
     IStream *istream = SHCreateMemStream(&uri.data[0], uri.data.size());
     hr = impl_->wicFactory_->CreateDecoderFromStream(
       istream,
@@ -719,6 +724,7 @@ void WRasterImage::doDrawImage(const WRectF& rect, const WAbstractDataInfo* info
       throw WException("drawImage failed to read data: HRESULT " + boost::lexical_cast<std::string>(hr) + ", mime type: " + uri.mimeType);
     }
   } else {
+    std::string imgUrl = info->hasUrl() ? info->url(), "";
     std::string filePath = info->hasFilePath() ? info->filePath() : "";
     std::wstring wUri = WString::fromUTF8(filePath);
     hr = impl_->wicFactory_->CreateDecoderFromFilename(
@@ -751,12 +757,12 @@ void WRasterImage::doDrawImage(const WRectF& rect, const WAbstractDataInfo* info
         );
 
         if (hr == HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND)) {
-          throw WException("drawImage (and its fallback) failed - original: " + imgUri
+          throw WException("drawImage (and its fallback) failed - original: " + imgUrl
                            + " - fallback: " + imagePath.string());
         }
       }
     } else if (!SUCCEEDED(hr)) {
-      throw WException("drawImage failed: HRESULT " + boost::lexical_cast<std::string>(hr) + ", uri: " + imgUri);
+      throw WException("drawImage failed: HRESULT " + boost::lexical_cast<std::string>(hr) + ", uri: " + imgUrl);
     }
   }
   hr = decoder->GetFrame(0, &source);

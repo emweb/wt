@@ -531,6 +531,7 @@ void WSvgImage::drawImage(const WRectF& rect, const std::string& imgUri,
                           int imgWidth, int imgHeight,
                           const WRectF& srect)
 {
+  // No need to check for data URI, since it is handled like a URL.
   WDataInfo dataInfo(imgUri, imgUri);
   doDrawImage(rect, &dataInfo, imgWidth, imgHeight, srect);
 }
@@ -550,9 +551,14 @@ void WSvgImage::doDrawImage(const WRectF& rect, const WAbstractDataInfo* info,
   makeNewGroup();
 
   WApplication *app = WApplication::instance();
-  std::string imageUri = info->hasUri() ? info->uri() : "";
-  if (app) {
-    imageUri = app->resolveRelativeUrl(imageUri);
+  std::string imageUri;
+  if (info->hasUrl()) {
+    imageUri = info->url();
+    if (app) {
+      imageUri = app->resolveRelativeUrl(imageUri);
+    }
+  } else if (info->hasDataUri()) {
+    imageUri = info->dataUri();
   }
 
   WRectF drect = rect;

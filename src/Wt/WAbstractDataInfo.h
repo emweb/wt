@@ -38,25 +38,40 @@ public:
    */
   virtual std::string filePath() const;
 
-  /*! \brief Returns the uri of the data.
+  /*! \brief Returns the URL of the data.
    *
-   * This returns the uri of the data.
+   * This returns the URL of the data. This can be both an absolute URL
+   * or a URL relative to the application's base URL.
    *
    * By default this will throw an exception.
    *
    * \warning If you reimplement this function, you must also
-   *          reimplement hasUri()
+   *          reimplement hasUrl()
    *
-   * \sa hasUri()
+   * \sa hasUrl()
    */
-  virtual std::string uri() const;
+  virtual std::string url() const;
+
+  /*! \brief Returns the data in data URI format.
+   *
+   * This returns the data in data URI format (see:
+   * https://developer.mozilla.org/en-US/docs/Web/URI/Reference/Schemes/data).
+   *
+   * By default this will throw an exception.
+   *
+   * \warning If you reimplement this function, you must also
+   *          reimplement hasDataUri()
+   *
+   * \sa hasDataUri()
+   */
+  virtual std::string dataUri() const;
 
   /*! \brief Returns the name of the Data.
    *
    * This returns the name of the data. This is mainly use for error
    * reporting.
    *
-   * By default this will return uri() if hasUri() is \p true. In case
+   * By default this will return url() if hasUrl() is \p true. In case
    * it is \p false, it will return filePath() if hasFilePath() is \p
    * true, and it will return an empty string otherwise.
    */
@@ -73,15 +88,26 @@ public:
    */
   virtual bool hasFilePath() const { return false; }
 
-  /*! \brief Returns whether this contains a URI.
+  /*! \brief Returns whether this contains a URL.
    *
-   * This returns whether uri() returns a URI of the data.
+   * This returns whether url() returns a URL of the data.
    *
    * By default this returns \p false.
    *
-   * \sa uri()
+   * \sa url()
    */
-  virtual bool hasUri() const { return false; }
+  virtual bool hasUrl() const { return false; }
+
+  /*! \brief Returns whether this can return the data in data URI format.
+   *
+   * This returns whether dataUri() returns the data in data URI
+   * format.
+   *
+   * By default this returns \p false.
+   *
+   * \sa dataUri()
+   */
+  virtual bool hasDataUri() const { return false; }
 };
 
 }
