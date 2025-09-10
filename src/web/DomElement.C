@@ -925,7 +925,7 @@ void DomElement::asHTML(EscapeOStream& out,
     = (!app->environment().ajax()
        && (clickEvent != eventHandlers_.end())
        && (!clickEvent->second.signalName.empty())
-       && (!app->environment().agentIsSpiderBot()));
+       && (!app->environment().treatLikeBot()));
 
   bool isSubmit = needButtonWrap;
   DomElementType renderedType = type_;
@@ -1089,7 +1089,7 @@ void DomElement::asHTML(EscapeOStream& out,
 
   for (AttributeMap::const_iterator i = attributes_.begin();
        i != attributes_.end(); ++i)
-    if (!app->environment().agentIsSpiderBot() || i->first != "name") {
+    if (!app->environment().treatLikeBot() || i->first != "name") {
       out << ' ' << i->first << '=';
       fastHtmlAttributeValue(out, attributeValues, i->second);
     }

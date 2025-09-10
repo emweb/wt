@@ -392,6 +392,40 @@ public:
    */
   bool agentIsSpiderBot() const { return agent_ == UserAgent::BotAgent; }
 
+  /*! \brief Returns whether the incoming request is treated like a bot.
+   *
+   * This can be used to check whether an incoming request is likely to
+   * originate from a bot client. The request will be treated the same
+   * way as a normal bot.
+   *
+   * Currently, this verifies whether a newly incoming GET request
+   * carries a <code>wtd</code> parameter. For a new request this should
+   * never be the case, unless this page was scraped before. The session
+   * would be expired by now, and this request should then not be valid.
+   *
+   * \note If a user were to get here, they would be served the same
+   * page a bot would see. This does not contain anything
+   * session-related. Once they would navigate on the page, they would
+   * be granted a new session, which will be tracked for subsequent
+   * requests.
+   *
+   * \sa agentIsSpiderBot()
+   */
+  bool isLikelyBotGetRequest() const { return isLikelyBotGetRequest_; }
+
+  /*! \brief Returns whether the request should be treated like a bot.
+   *
+   * If the agent matches any of the agents configured as bots agents,
+   * or if the request is suspicious, the application will handle them
+   * as a bot.
+   *
+   * These responses will not contain session related content, and their
+   * session will be quickly closed server-side.
+   *
+   * \sa agentIsSpiderBot(), isLikelyBotGetRequest()
+   */
+  bool treatLikeBot() const { return agentIsSpiderBot() || isLikelyBotGetRequest(); }
+
   /*! \brief Returns the web server signature.
    *
    * The value of the CGI variable <tt>SERVER_SIGNATURE</tt>.
@@ -687,6 +721,7 @@ protected:
   double      dpiScale_;
   std::string queryString_;
   bool        webGLsupported_;
+  bool        isLikelyBotGetRequest_;
 
   Http::ParameterMap parameters_;
   CookieMap   cookies_;
@@ -720,7 +755,7 @@ protected:
 private:
   WEnvironment(WebSession *session);
 
-  void init(const WebRequest& request);
+  void init(const WebRequest& request, const std::string& sessionId);
   void updateHostName(const WebRequest& request);
   void updateUrlScheme(const WebRequest& request);
   void enableAjax(const WebRequest& request);

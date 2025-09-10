@@ -242,7 +242,7 @@ DomElementType WTable::domElementType() const
 
 DomElement *WTable::createDomElement(WApplication *app)
 {
-  bool withIds = !app->environment().agentIsSpiderBot();
+  bool withIds = !app->environment().treatLikeBot();
 
   DomElement *table = DomElement::createNew(domElementType());
   setId(table, app);

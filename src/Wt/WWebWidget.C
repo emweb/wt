@@ -2300,8 +2300,7 @@ std::string WWebWidget::htmlTagName() const
 
 void WWebWidget::setId(DomElement *element, WApplication *app)
 {
-  if (!app->environment().agentIsSpiderBot()
-      || id_) {
+  if (!app->environment().treatLikeBot() || id_) {
     if (!flags_.test(BIT_FORM_OBJECT))
       element->setId(id());
     else
@@ -2399,9 +2398,9 @@ DomElement *WWebWidget::createStubElement(WApplication *app)
   if (app->environment().javaScript())
     stub->setProperty(Property::InnerHTML, "...");
 
-  if (!app->environment().agentIsSpiderBot()
-      || id_)
+  if (!app->environment().treatLikeBot() || id_) {
     stub->setId(id());
+  }
 
   return stub;
 }

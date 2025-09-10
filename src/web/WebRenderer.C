@@ -349,7 +349,7 @@ void WebRenderer::setPageVars(FileServe& page, const std::string& nonce)
 
   page.setVar("HEADDECLARATIONS", headDeclarations());
 
-  page.setCondition("FORM", !session_.env().agentIsSpiderBot()
+  page.setCondition("FORM", !session_.env().treatLikeBot()
                     && !session_.env().ajax());
   page.setCondition("BOOT_STYLE", true);
 
@@ -1516,7 +1516,8 @@ void WebRenderer::serveMainpage(WebResponse& response)
   page.setVar("SESSION_ID", session_.sessionId());
 
   std::string url
-    = (app->environment().agentIsSpiderBot() || !session_.useUrlRewriting())
+    = (app->environment().treatLikeBot()
+        || !session_.useUrlRewriting())
     ? session_.bookmarkUrl(app->newInternalPath_)
     : session_.mostRelativeUrl(app->newInternalPath_);
 

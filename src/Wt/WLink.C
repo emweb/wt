@@ -144,7 +144,7 @@ std::string WLink::resolveUrl(WApplication *app) const
   case LinkType::InternalPath: {
     if (app->environment().ajax())
       relativeUrl = app->bookmarkUrl(internalPath().toUTF8());
-    else if (app->environment().agentIsSpiderBot())
+    else if (app->environment().treatLikeBot())
       relativeUrl = app->bookmarkUrl(internalPath().toUTF8());
     else
       // If no JavaScript is available, then we still add the session

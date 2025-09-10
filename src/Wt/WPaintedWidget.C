@@ -407,8 +407,9 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
 
   DomElement *canvas = DomElement::createNew(DomElementType::DIV);
 
-  if (!app->environment().agentIsSpiderBot())
+  if (!app->environment().treatLikeBot()) {
     canvas->setId('p' + id());
+  }
 
   std::unique_ptr<WPaintDevice> device = painter_->getPaintDevice(false);
 

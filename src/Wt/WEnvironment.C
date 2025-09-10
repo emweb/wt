@@ -49,6 +49,7 @@ WEnvironment::WEnvironment()
     screenHeight_(-1),
     dpiScale_(1),
     webGLsupported_(false),
+    isLikelyBotGetRequest_(false),
     timeZoneOffset_(0)
 { }
 
@@ -61,6 +62,7 @@ WEnvironment::WEnvironment(WebSession *session)
     screenHeight_(-1),
     dpiScale_(1),
     webGLsupported_(false),
+    isLikelyBotGetRequest_(false),
     timeZoneOffset_(0)
 { }
 
@@ -101,7 +103,7 @@ void WEnvironment::updateUrlScheme(const WebRequest& request)
 }
 
 
-void WEnvironment::init(const WebRequest& request)
+void WEnvironment::init(const WebRequest& request, const std::string& sessionId)
 {
   Configuration& conf = session_->controller()->configuration();
 
@@ -161,6 +163,17 @@ void WEnvironment::init(const WebRequest& request)
     parseCookies(cookie, cookies_);
 
   locale_ = request.parseLocale();
+
+  // Incoming GET requests with `wtd` shouldn't exist in a new
+  // application: see #13970
+  // Note: this can come from a reload, which would then initially
+  // kill its session, but after navigation be handled correctly.
+  const std::string* wtdE = request.getParameter("wtd");
+  const char* method = request.requestMethod();
+
+  isLikelyBotGetRequest_ = wtdE && *wtdE != sessionId &&
+                           method && std::string(method) == "GET" &&
+                           agentSupportsAjax();
 }
 
 

@@ -93,10 +93,11 @@ void EncodeRefs(xml_node<> *x_node, WApplication *app,
                   << "};";
           app->doJavaScript(clickJS.str());
         } else {
-          if (app->environment().agentIsSpiderBot())
+          if (app->environment().treatLikeBot()) {
             url = app->bookmarkUrl(path);
-          else
+          } else {
             url = app->session()->mostRelativeUrl(path);
+          }
 
           addClass = "Wt-ip";
         }

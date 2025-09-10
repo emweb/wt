@@ -394,7 +394,7 @@ std::string WebSession::sessionQuery() const
 
 void WebSession::init(const WebRequest& request)
 {
-  env_->init(request);
+  env_->init(request, sessionId_);
 
   const std::string *hashE = request.getParameter("_");
 
@@ -622,8 +622,9 @@ std::string WebSession::appendSessionQuery(const std::string& url) const
 {
   std::string result = url;
 
-  if (env_->agentIsSpiderBot())
+  if (env_->treatLikeBot()) {
     return result;
+  }
 
   std::size_t questionPos = result.find('?');
 
@@ -1519,11 +1520,11 @@ void WebSession::handleRequest(Handler& handler)
               env_->setInternalPath(*internalPath);
           }
 
-          bool forcePlain
-            = env_->agentIsSpiderBot() || !env_->agentSupportsAjax();
+          bool forcePlain = env_->treatLikeBot()
+                            || !env_->agentSupportsAjax();
 
-          progressiveBoot_ =
-            !forcePlain && conf.progressiveBoot(env_->internalPath());
+          progressiveBoot_ = !forcePlain
+                             && conf.progressiveBoot(env_->internalPath());
 
           if (forcePlain || progressiveBoot_) {
             /*
@@ -1534,17 +1535,22 @@ void WebSession::handleRequest(Handler& handler)
 
             app_->notify(WEvent(WEvent::Impl(&handler)));
 
-            if (env_->agentIsSpiderBot())
+            if (env_->agentIsSpiderBot()) { // Configured as bot (in wt_config.xml)
               kill();
-            else if (controller_->limitPlainHtmlSessions()) {
+            } else if (env_->isLikelyBotGetRequest()) { // Detected as bad (potential) bot request
+              LOG_SECURE("terminating session for suspicious initial GET request (containing session ID)");
+              kill();
+            } else if (controller_->limitPlainHtmlSessions()) {
               LOG_SECURE("DoS: plain HTML sessions being limited");
 
-              if (forcePlain)
+              if (forcePlain) {
                 kill();
-              else // progressiveBoot_
+              } else {// progressiveBoot_
                 setState(State::Loaded, conf.bootstrapTimeout());
-            } else
+              }
+            } else {
               setLoaded();
+            }
           } else {
             /*
              * Delay application start
