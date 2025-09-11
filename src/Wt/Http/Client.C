@@ -1102,11 +1102,17 @@ void Client::handleRedirect(Http::Method method,
 void Client::emitDone(AsioWrapper::error_code err, const Message& response)
 {
 #ifdef WT_THREADED
+  {
   std::unique_lock<std::recursive_mutex> lock(implementationMutex_);
 #endif
 
   impl_.reset();
   redirectCount_ = 0;
+
+#ifdef WT_THREADED
+  }
+#endif
+  
   done_.emit(err, response);
 }
 
