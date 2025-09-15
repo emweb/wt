@@ -2317,6 +2317,7 @@ window._$_APP_CLASS_$_ = new (function() {
 
     if (
       newLocation !== null &&
+      typeof newLocation !== UNDEFINED &&
       newLocation.length > 0 &&
       !newLocation.startsWith("/")
     ) {
