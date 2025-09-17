@@ -582,10 +582,16 @@ std::string WebSession::fixRelativeUrl(const std::string& url) const
             rel += "../";
         }
 
-        if (url.empty())
-          return rel + applicationName_;
-        else
+        if (url.empty()) {
+          if (applicationName_.empty() && rel.empty()) {
+            // This is basically a link to the current url
+            return "#";
+          } else {
+            return rel + applicationName_;
+          }
+        } else {
           return rel + url;
+        }
       }
     }
   } else
