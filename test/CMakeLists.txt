@@ -5,6 +5,7 @@ IF(ENABLE_LIBWTTEST)
     auth/BCryptTest.C
     auth/SHA1Test.C
     auth/TotpTest.C
+    configuration/DefaultConfigTest.C
     configuration/EntryPointTest.C
     core/BindTest.C
     core/ObservingPtrTest.C
@@ -111,6 +112,8 @@ IF(ENABLE_LIBWTTEST)
   ENDIF(MSVC)
 
   TARGET_LINK_LIBRARIES(test.wt PRIVATE wt wttest ${BOOST_TEST_LIBRARIES} ${BOOST_FS_LIB} ${WT_THREAD_LIB})
+  target_compile_definitions(test.wt PRIVATE "WT_TEST_CONFIG_XML=\"${WT_BINARY_DIR}/wt_config.xml\"")
+
 
   IF(TARGET Boost::headers)
     TARGET_LINK_LIBRARIES(test.wt PRIVATE Boost::headers)
