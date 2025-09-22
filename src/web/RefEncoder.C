@@ -25,8 +25,9 @@
 using namespace Wt::rapidxml;
 
 namespace Wt {
-
+#ifndef WT_RETHROW
 LOGGER("RefEncoder");
+#endif
 
 static std::string replaceUrlInStyle(std::string& style, WApplication *app)
 {
@@ -190,8 +191,12 @@ WString EncodeRefs(const WString& text, WFlags<RefEncoderOption> options)
 
     result = out.str();
   } catch (parse_error& e) {
+#ifdef WT_RETHROW
+    throw;
+#else
     LOG_ERROR("Error reading XHTML string: " << e.what());
     return text;
+#endif
   }
 
   if (result.length() < 13)

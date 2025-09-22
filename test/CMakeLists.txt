@@ -74,6 +74,9 @@ IF(ENABLE_LIBWTTEST)
     signals/SignalTest.C
     wdatetime/WDateTimeTest.C
     web/DomElementTest.C
+    web/RefEncoderTest.C
+    ../src/web/RefEncoder.C
+    ../src/web/WebUtils.C
   )
 
   set(thirdpartysources
@@ -112,8 +115,7 @@ IF(ENABLE_LIBWTTEST)
   ENDIF(MSVC)
 
   TARGET_LINK_LIBRARIES(test.wt PRIVATE wt wttest ${BOOST_TEST_LIBRARIES} ${BOOST_FS_LIB} ${WT_THREAD_LIB})
-  target_compile_definitions(test.wt PRIVATE "WT_TEST_CONFIG_XML=\"${WT_BINARY_DIR}/wt_config.xml\"")
-
+  target_compile_definitions(test.wt PRIVATE WT_TEST_CONFIG_XML=\"${WT_BINARY_DIR}/wt_config.xml\" WT_RETHROW=ON)
 
   IF(TARGET Boost::headers)
     TARGET_LINK_LIBRARIES(test.wt PRIVATE Boost::headers)

@@ -20,6 +20,9 @@ enum RefEncoderOption {
 
 W_DECLARE_OPERATORS_FOR_FLAGS(RefEncoderOption)
 
+#ifdef WT_RETHROW
+WT_API
+#endif
 extern WString EncodeRefs(const WString& text,
                           WFlags<RefEncoderOption> options);
 
