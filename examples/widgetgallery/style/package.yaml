@@ -15,7 +15,7 @@ devDependencies:
   sass: ^1.57.1
 dependencies:
   '@popperjs/core': ^2.11.6
-  bootstrap: ^5.2.3
+  bootstrap: ^5.3.8
 browserslist:
   - '>= 0.5%'
   - last 2 major versions
