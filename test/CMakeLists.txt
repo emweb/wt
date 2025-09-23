@@ -55,6 +55,7 @@ IF(ENABLE_LIBWTTEST)
     validators/WStackedValidator.C
     widgets/DisabledTest.C
     widgets/StylingTest.C
+    widgets/WAnchorTest.C
     widgets/WCompositeWidgetTest.C
     widgets/WContainerWidgetTest.C
     widgets/WDateEditTest.C
