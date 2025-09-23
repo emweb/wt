@@ -420,6 +420,11 @@ public:
    * as for a WText. The default (TextFormat::XHTML) filters "active" content, to avoid
    * XSS-based security risks.
    *
+   * \note When binding to attributes of HTML elements (like
+   * <code>href</code>, it is possible that the \p value will need to be
+   * properly encoded (e.g. via Utils::htmlEncode()). Otherwise an error
+   * may be show in the logs from the <code>RefEncoder</code>.
+   *
    * \sa bindWidget(), bindInt()
    * \sa resolveString(const std::string&)
    */
