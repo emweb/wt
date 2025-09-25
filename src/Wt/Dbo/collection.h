@@ -136,6 +136,10 @@ namespace Wt {
        */
       iterator(const iterator& other);
 
+      /*! \brief Default constructor.
+       */
+      iterator();
+
       /*! \brief Destructor.
        */
       ~iterator();
@@ -190,7 +194,6 @@ namespace Wt {
     private:
       shared_impl *impl_;
 
-      iterator();
       iterator(const collection<C>& collection, SqlStatement *statement);
 
       void takeImpl();
@@ -215,6 +218,10 @@ namespace Wt {
       /*! \brief Copy constructor.
        */
       const_iterator(const const_iterator& other);
+
+      /*! \brief Default constructor.
+       */
+      const_iterator();
 
       /*! \brief Copy constructor.
        */
@@ -258,7 +265,6 @@ namespace Wt {
     private:
       typename collection<C>::iterator impl_;
 
-      const_iterator();
       const_iterator(const collection<C>& collection, SqlStatement *statement);
 
       friend class collection<C>;
