@@ -132,6 +132,20 @@ behaviour.
     correct standalone Asio versioning checks, and Boost included Asio versioning checks.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13569" target="_blank">Issue #13569</a>:
+    most of the automatic application of the theme style are now delayed until the rendering of the widget.
+    This allows
+    <a href="classWt_1_1WWidget.html#ae1e28bff803905ca8625c1fb722f3d21" target="_blank">WWidget::setThemeStyleEnabled(false)</a>
+    to correctly disable the theme style for the widgets. Furthermore, if the theme changes
+    the DOM structure of the widget,
+    <a href="classWt_1_1WWidget.html#ae1e28bff803905ca8625c1fb722f3d21" target="_blank">WWidget::setThemeStyleEnabled(false)</a>
+    will now also stop that change from happening. The description of the function has
+    also been updated to describe more presisely what it does and what it does not do.
+
+    Additionally some cases of style classes being present several times in the same
+    widget are now fixed.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13768" target="_blank">Issue #13768</a>:
     <a href="classWt_1_1Auth_1_1UpdatePasswordWidget.html">UpdatePasswordWidget</a>
     no longer automatically logs a user in after a successful password reset.
