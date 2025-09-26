@@ -425,6 +425,7 @@ public:
    */
   virtual bool canStyleAnchorAsButton() const override;
 
+  void loadValidationStyling(WApplication* app) const override;
   virtual void applyValidationStyle(WWidget *widget,
                                     const Wt::WValidator::Result& validation,
                                     WFlags<ValidationStyleFlag> styles) const override;

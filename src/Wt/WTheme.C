@@ -7,8 +7,10 @@
 #include "Wt/WApplication.h"
 #include "Wt/WCssTheme.h"
 #include "Wt/WLinkedCssStyleSheet.h"
+#include "Wt/WLogger.h"
 
 namespace Wt {
+LOGGER("WTheme");
 
 WTheme::WTheme()
 { }
@@ -37,4 +39,8 @@ Side WTheme::panelCollapseIconSide() const
   return Side::Left;
 }
 
+void WTheme::loadValidationStyling(WT_MAYBE_UNUSED WApplication* app) const
+{
+  LOG_WARN("loadValidationStyling(): Using the default (empty) call. Override it if you make use of custom validation (using DOM.validate() or DOM.wtValdiate()).");
+}
 }

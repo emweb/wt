@@ -188,6 +188,9 @@ void WFormWidget::validatorChanged()
   flags_.set(BIT_VALIDATOR_CHANGED);
   std::string validateJS = validator_->javaScriptValidate();
   if (!validateJS.empty()) {
+    auto app = WApplication::instance();
+    app->theme()->loadValidationStyling(app);
+
     setJavaScriptMember("wtValidate", validateJS);
 
     if (!validateJs_) {

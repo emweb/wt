@@ -75,7 +75,9 @@ void WBootstrap5Theme::init(WApplication *app) const
   app->builtinLocalizedStrings().useBuiltin(skeletons::BootstrapTheme_xml);
   app->builtinLocalizedStrings().useBuiltin(skeletons::Bootstrap5Theme_xml);
   app->require(resourcesUrl() + "bootstrap.bundle.min.js");
+
   LOAD_JAVASCRIPT(app, "js/Bootstrap5Theme.js", "theme", wtjs3);
+
   WString v = app->metaHeader(MetaHeaderType::Meta, "viewport");
   if (v.empty()) {
     app->addMetaHeader("viewport", "width=device-width, initial-scale=1");
@@ -539,14 +541,18 @@ bool WBootstrap5Theme::canStyleAnchorAsButton() const
   return true;
 }
 
+void WBootstrap5Theme::loadValidationStyling(WApplication* app) const
+{
+  LOAD_JAVASCRIPT(app, "js/BootstrapValidate.js", "validate", wtjs1);
+  LOAD_JAVASCRIPT(app, "js/BootstrapValidate.js", "setValidationState", wtjs2);
+}
+
 void WBootstrap5Theme::applyValidationStyle(WWidget *widget,
                                             const Wt::WValidator::Result& validation,
                                             WFlags<ValidationStyleFlag> styles) const
 {
   WApplication *app = WApplication::instance();
-
-  LOAD_JAVASCRIPT(app, "js/BootstrapValidate.js", "validate", wtjs1);
-  LOAD_JAVASCRIPT(app, "js/BootstrapValidate.js", "setValidationState", wtjs2);
+  loadValidationStyling(app);
 
   if (app->environment().ajax()) {
     WStringStream js;

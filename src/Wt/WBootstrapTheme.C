@@ -76,6 +76,11 @@ bool WBootstrapTheme::canStyleAnchorAsButton() const
   return impl_->canStyleAnchorAsButton();
 }
 
+void WBootstrapTheme::loadValidationStyling(WApplication* app) const
+{
+  impl_->loadValidationStyling(app);
+}
+
 void WBootstrapTheme
 ::applyValidationStyle(WWidget *widget,
                        const Wt::WValidator::Result& validation,

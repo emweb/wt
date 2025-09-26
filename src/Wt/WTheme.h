@@ -199,6 +199,13 @@ public:
    */
   virtual bool canStyleAnchorAsButton() const = 0;
 
+  /*! \brief Load the required content for validation.
+   *
+   * The styling, and scripts used for validation are separated. Loading
+   * these is not done on theme initialization.
+   */
+  virtual void loadValidationStyling(WApplication* app) const;
+
   /*! \brief Applies a style that indicates the result of validation.
    */
   virtual void applyValidationStyle(WWidget *widget,

@@ -300,14 +300,18 @@ bool WCssTheme::canStyleAnchorAsButton() const
   return false;
 }
 
+void WCssTheme::loadValidationStyling(WApplication* app) const
+{
+  LOAD_JAVASCRIPT(app, "js/CssThemeValidate.js", "validate", wtjs1);
+  LOAD_JAVASCRIPT(app, "js/CssThemeValidate.js", "setValidationState", wtjs2);
+}
+
 void WCssTheme::applyValidationStyle(WWidget *widget,
                                      const Wt::WValidator::Result& validation,
                                      WFlags<ValidationStyleFlag> styles) const
 {
   WApplication *app = WApplication::instance();
-
-  LOAD_JAVASCRIPT(app, "js/CssThemeValidate.js", "validate", wtjs1);
-  LOAD_JAVASCRIPT(app, "js/CssThemeValidate.js", "setValidationState", wtjs2);
+  loadValidationStyling(app);
 
   if (app->environment().ajax()) {
     WStringStream js;

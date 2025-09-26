@@ -510,14 +510,18 @@ bool WBootstrap3Theme::canStyleAnchorAsButton() const
   return true;
 }
 
+void WBootstrap3Theme::loadValidationStyling(WApplication* app) const
+{
+  LOAD_JAVASCRIPT(app, "js/BootstrapValidate.js", "validate", wtjs1);
+  LOAD_JAVASCRIPT(app, "js/BootstrapValidate.js", "setValidationState", wtjs2);
+}
+
 void WBootstrap3Theme::applyValidationStyle(WWidget *widget,
                                             const Wt::WValidator::Result& validation,
                                             WFlags<ValidationStyleFlag> styles) const
 {
   WApplication *app = WApplication::instance();
-
-  LOAD_JAVASCRIPT(app, "js/BootstrapValidate.js", "validate", wtjs1);
-  LOAD_JAVASCRIPT(app, "js/BootstrapValidate.js", "setValidationState", wtjs2);
+  loadValidationStyling(app);
 
   if (app->environment().ajax()) {
     WStringStream js;

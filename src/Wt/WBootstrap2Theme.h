@@ -72,6 +72,7 @@ public:
   virtual std::string activeClass() const override;
   virtual std::string utilityCssClass(int utilityCssClassRole) const override;
   virtual bool canStyleAnchorAsButton() const override;
+  void loadValidationStyling(WApplication* app) const override;
   virtual void applyValidationStyle(WWidget *widget,
                                     const WValidator::Result &validation,
                                     WFlags<ValidationStyleFlag> styles) const override;
