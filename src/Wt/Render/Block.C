@@ -1140,7 +1140,15 @@ double Block::layoutInline(Line& line, BlockList& floats,
         std::string src = attributeValue("src");
 
         if (w <= 0 || h <= 0) {
-          WPainter::Image image(src, src);
+          std::shared_ptr<WDataInfo> imgInfo = std::make_shared<WDataInfo>();
+          if (DataUri::isDataUri(src)) {
+            imgInfo->setDataUri(src);
+          } else {
+            imgInfo->setUrl(src);
+            imgInfo->setFilePath(src);
+          }
+
+          WPainter::Image image(imgInfo);
 
           if (w <= 0)
             w = image.width();
@@ -2105,7 +2113,15 @@ double Block::layoutBlock(PageState &ps,
       std::string src = attributeValue("src");
 
       if (width <= 0 || height <= 0) {
-        WPainter::Image image(src, src);
+        std::shared_ptr<WDataInfo> imgInfo = std::make_shared<WDataInfo>();
+        if (DataUri::isDataUri(src)) {
+          imgInfo->setDataUri(src);
+        } else {
+          imgInfo->setUrl(src);
+          imgInfo->setFilePath(src);
+        }
+
+        WPainter::Image image(imgInfo);
 
         if (height <= 0)
           height = image.height();
@@ -3058,7 +3074,7 @@ void Block::actualRender(WTextRenderer& renderer, WPainter& painter,
 #endif // DEBUG_LAYOUT
 
     std::string src = attributeValue("src");
-    std::shared_ptr<WDataInfo> imgInfo;
+    std::shared_ptr<WDataInfo> imgInfo = std::make_shared<WDataInfo>();
     if (DataUri::isDataUri(src)) {
       imgInfo->setDataUri(src);
     } else {
