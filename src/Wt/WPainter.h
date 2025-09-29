@@ -300,7 +300,7 @@ public:
      *
      * \note The information required depends on the WPaintDevice used.
      */
-    Image(std::shared_ptr<const WAbstractDataInfo> info, int width, int height);
+    Image(std::shared_ptr<WAbstractDataInfo> info, int width, int height);
 
     /*! \brief Creates an image.
      *
@@ -319,7 +319,7 @@ public:
      *
      * \note The information required depends on the WPaintDevice used.
      */
-    Image(std::shared_ptr<const WAbstractDataInfo> info);
+    Image(std::shared_ptr<WAbstractDataInfo> info);
 
     /*! \brief Returns the url.
      */
@@ -339,7 +339,7 @@ public:
   private:
     int width_, height_;
     bool useOld_;
-    std::shared_ptr<const WAbstractDataInfo> info_;
+    std::shared_ptr<WAbstractDataInfo> info_;
 
     void evaluateSize();
 

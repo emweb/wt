@@ -151,10 +151,19 @@ WPainter::Image::Image(const std::string& url, int width, int height)
   : width_(width),
     height_(height),
     useOld_(true),
-    info_(std::make_shared<WDataInfo>(url, ""))
-{ }
+    info_(nullptr)
+{
+  std::shared_ptr<WDataInfo> info = std::make_shared<WDataInfo>();
+  if (DataUri::isDataUri(url)) {
+    info->setDataUri(url);
+  } else {
+    info->setUrl(url);
+  }
 
-WPainter::Image::Image(std::shared_ptr<const WAbstractDataInfo> info, int width, int height)
+  info_ = info;
+}
+
+WPainter::Image::Image(std::shared_ptr<WAbstractDataInfo> info, int width, int height)
   : width_(width),
     height_(height),
     useOld_(false),
@@ -163,12 +172,21 @@ WPainter::Image::Image(std::shared_ptr<const WAbstractDataInfo> info, int width,
 
 WPainter::Image::Image(const std::string& url, const std::string& fileName)
   : useOld_(true),
-    info_(std::make_shared<WDataInfo>(url, fileName))
+    info_(nullptr)
 {
+  std::shared_ptr<WDataInfo> info = std::make_shared<WDataInfo>();
+  info->setFilePath(fileName);
+  if (DataUri::isDataUri(url)) {
+    info->setDataUri(url);
+  } else {
+    info->setUrl(url);
+  }
+
+  info_ = info;
   evaluateSize();
 }
 
-WPainter::Image::Image(std::shared_ptr<const WAbstractDataInfo> info)
+WPainter::Image::Image(std::shared_ptr<WAbstractDataInfo> info)
   : useOld_(false),
     info_(info)
 {
