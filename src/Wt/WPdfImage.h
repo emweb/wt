@@ -212,8 +212,8 @@ private:
   void setStrokeColor(WColor color);
   void setFillColor(WColor color);
 
-  void drawImageFromDataUri(HPDF_Image img, const std::string& imgUri);
-  void drawImageFromFilePath(HPDF_Image img, const std::string& filePath);
+  void drawImageFromDataUri(HPDF_Image& img, const std::string& imgUri);
+  void drawImageFromFilePath(HPDF_Image& img, const std::string& filePath);
   void renderOutLoadedImage(const WRectF& rect, HPDF_Image img,
                             int imgWidth, int imgHeight,
                             const WRectF& srect);

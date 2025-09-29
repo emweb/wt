@@ -464,7 +464,6 @@ void WPdfImage::drawImage(const WRectF& rect, const WAbstractDataInfo* info,
   std::string imgUri = info->hasDataUri() ? info->dataUri() : "";
 
   drawImageFromDataUri(img, imgUri);
-
   if (!img) {
     std::string imgPath = info->hasFilePath() ? info->filePath() : "";
     drawImageFromFilePath(img, imgPath);
@@ -477,7 +476,7 @@ void WPdfImage::drawImage(const WRectF& rect, const WAbstractDataInfo* info,
   renderOutLoadedImage(rect, img, imgWidth, imgHeight, srect);
 }
 
-void WPdfImage::drawImageFromDataUri(HPDF_Image img, const std::string& imgUri)
+void WPdfImage::drawImageFromDataUri(HPDF_Image& img, const std::string& imgUri)
 {
   if (DataUri::isDataUri(imgUri)) {
 #define HAVE_LOAD_FROM_MEM HPDF_MAJOR_VERSION > 2 || (HPDF_MAJOR_VERSION == 2 && (HPDF_MINOR_VERSION >= 2))
@@ -499,7 +498,7 @@ void WPdfImage::drawImageFromDataUri(HPDF_Image img, const std::string& imgUri)
   }
 }
 
-void WPdfImage::drawImageFromFilePath(HPDF_Image img, const std::string& imgPath)
+void WPdfImage::drawImageFromFilePath(HPDF_Image& img, const std::string& imgPath)
 {
   std::string mimeType = ImageUtils::identifyMimeType(imgPath);
   if ("image/png" == mimeType) {
