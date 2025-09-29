@@ -66,6 +66,10 @@ behaviour.
     <a href="classWt_1_1WFormWidget.html" target="_blank">WFormWidget</a> on its first
     rendering. Now, the validation is only applied once the user selects the widget, or when validation is called, using
     <a href="classWt_1_1WFormWidget.html#a1bf85706ce6af9324706457bf2f9ca83" target="_blank">WFormWidget::validate()</a>.
+
+    Additionally, this introduces <a href="classWt_1_1WTheme.html#a93fb4b6d3e0e31498eded37fe4d77f8f" target="_blank">WTheme::loadValidationStyling()</a>.
+    This needs to be called for client-side validation to be available if extra JavaScript is necessary for it.
+    It is an optimization, that ensures not all JavaScript is immediately loaded for the theme.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13536" target="_blank">Issue #13536</a>:
