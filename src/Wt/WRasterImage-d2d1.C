@@ -712,7 +712,7 @@ void WRasterImage::doDrawImage(const WRectF& rect, const WAbstractDataInfo* info
   IWICFormatConverter *converter = NULL;
   HRESULT hr = S_OK;
   if (info->hasDataUri()) {
-    DataUri uri(info->dataUri(););
+    DataUri uri(info->dataUri());
     IStream *istream = SHCreateMemStream(&uri.data[0], uri.data.size());
     hr = impl_->wicFactory_->CreateDecoderFromStream(
       istream,
