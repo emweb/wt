@@ -589,6 +589,13 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
       el->setProperty(Property::StyleFlex, "1 1 auto");
       el = wrap(el, styleFlex());
       el->setProperty(Property::StyleFlex, "1 1 auto");
+      /*
+       * Use the height of the Wt-fill-height and not of the element if
+       * the element is not sized explicitly. This allows to avoid
+       * scrollbars inside the element being moved up in the Dom tree
+       * due to the element being oversized.
+       */
+      el->setProperty(Property::StyleHeight, "100%");
       el = wrap(el, otherStyleFlex());
       el->addPropertyWord(Property::Class, "Wt-fill-height");
       break;
