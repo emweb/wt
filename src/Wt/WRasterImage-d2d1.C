@@ -724,7 +724,7 @@ void WRasterImage::doDrawImage(const WRectF& rect, const WAbstractDataInfo* info
       throw WException("drawImage failed to read data: HRESULT " + boost::lexical_cast<std::string>(hr) + ", mime type: " + uri.mimeType);
     }
   } else {
-    std::string imgUrl = info->hasUrl() ? info->url(), "";
+    std::string imgUrl = info->hasUrl() ? info->url() : "";
     std::string filePath = info->hasFilePath() ? info->filePath() : "";
     std::wstring wUri = WString::fromUTF8(filePath);
     hr = impl_->wicFactory_->CreateDecoderFromFilename(
