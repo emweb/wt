@@ -446,7 +446,17 @@ WT_DECLARE_WT_MEMBER(
       let tw = WT.pxself(el, "width");
 
       if (tw === 0) {
-        tw = el.clientWidth;
+        const parent = el.parentElement;
+        const grandparent = parent ? parent.parentElement : null;
+        if (
+          (parent && parent.classList.contains("Wt-fill-width")) ||
+          (grandparent && grandparent.classList.contains("Wt-fill-height"))
+        ) {
+          // If inside a flex layout, use the layout width.
+          tw = parent.clientWidth;
+        } else {
+          tw = el.clientWidth;
+        }
       } else if (WT.boxSizing(el)) {
         tw -= WT.pxComputedStyle(el, "borderLeftWidth");
         tw -= WT.pxComputedStyle(el, "borderRightWidth");
