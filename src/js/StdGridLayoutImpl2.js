@@ -1938,6 +1938,10 @@ WT_DECLARE_APP_MEMBER(
       return el ? el.wtLayout : null;
     };
 
+    this.isAdjusting = function() {
+      return adjusting;
+    };
+
     this.updateSizeSet = function(id, widthSet, heightSet) {
       const layout = this.find(id);
       if (layout) {

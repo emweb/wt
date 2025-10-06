@@ -8,6 +8,11 @@
 
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, topLayout) {
   const WT = APP.WT;
+  if (!WT.LayoutUninitialized) {
+    WT.LayoutUninitialized = 1;
+  } else {
+    WT.LayoutUninitialized += 1;
+  }
 
   function copySizeLimits(from, to) {
     to.style.maxHeight = from.style.maxHeight;
@@ -19,6 +24,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
   function init() {
     const el = WT.getElement(id);
     if (!el) {
+      WT.LayoutUninitialized -= 1;
       return;
     }
 
@@ -82,6 +88,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
         }, 0);
       }
     }
+
+    WT.LayoutUninitialized -= 1;
   }
 
   setTimeout(init, 0);

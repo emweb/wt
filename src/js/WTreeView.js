@@ -15,9 +15,20 @@ WT_DECLARE_WT_MEMBER(
 
     const contents = contentsContainer.firstChild;
     const headers = headerContainer.firstChild;
+    let clientWidthSaved = false,
+      justFixed = false;
+
+    let trueMaxWidth = null,
+      trueMinWidth = null,
+      lockedElem = null;
 
     const self = this;
     const WT = APP.WT;
+
+    if (!APP.treeViewRegistered) {
+      APP.treeViewRegistered = [];
+    }
+    APP.treeViewRegistered.push(self);
 
     let sizeSet = false;
 
@@ -225,6 +236,60 @@ WT_DECLARE_WT_MEMBER(
       }
     };
 
+    this.FixComputedSize = function() {
+      let width;
+      const parent = el.parentElement;
+      const grandparent = parent ? parent.parentElement : null;
+      if (parent && parent.classList.contains("Wt-fill-width")) {
+        // If inside a flex layout, use the layout width.
+        lockedElem = parent;
+        width = parent.clientWidth;
+      } else if (grandparent && grandparent.classList.contains("Wt-fill-height")) {
+        lockedElem = grandparent;
+        width = grandparent.clientWidth;
+      } else {
+        lockedElem = el;
+        width = el.clientWidth;
+      }
+      width = width + "px";
+
+      if (trueMaxWidth === null) {
+        trueMaxWidth = lockedElem.style.maxWidth;
+        lockedElem.style.maxWidth = width;
+      }
+
+      if (trueMinWidth === null) {
+        trueMinWidth = lockedElem.style.minWidth;
+        lockedElem.style.minWidth = width;
+      }
+
+      clientWidthSaved = true;
+      justFixed = true;
+
+      setTimeout(function() {
+        if (justFixed) {
+          self.wtResize();
+        }
+      }, 0);
+    };
+
+    this.unfixComputedSize = function() {
+      if (trueMaxWidth !== null) {
+        lockedElem.style.maxWidth = trueMaxWidth;
+        trueMaxWidth = null;
+      }
+
+      if (trueMinWidth !== null) {
+        lockedElem.style.minWidth = trueMinWidth;
+        trueMinWidth = null;
+      }
+
+      lockedElem = null;
+
+      clientWidthSaved = false;
+      justFixed = false;
+    };
+
     /*
     * this adjusts invariants that take into account column resizes
     *
@@ -241,11 +306,11 @@ WT_DECLARE_WT_MEMBER(
 
     function doAdjustColumns() {
       if (!adjustScheduled || !sizeSet) {
-        return;
+        return false;
       }
 
       if (WT.isHidden(el)) {
-        return;
+        return false;
       }
 
       adjustScheduled = false;
@@ -285,13 +350,13 @@ WT_DECLARE_WT_MEMBER(
           }
         } else {
           el.querySelectorAll(`.Wt-headerdiv .${c0id}`).forEach(function(descendant) {
-            descendant.style.width = c0r.style.width;
+            descendant.style.width = (c0r.style.width) + "px";
           });
         }
       }
 
       if (c0r.style["width"] === "auto") {
-        return;
+        return true;
       }
 
       allw = allw_1 + WT.pxself(c0r, "width") + 7;
@@ -312,16 +377,22 @@ WT_DECLARE_WT_MEMBER(
         }
         el.changed = true;
       }
+      return true;
     }
 
-    this.adjustColumns = function() {
+    this.adjustColumns = function(unfixComputedSize = false) {
       if (adjustScheduled) {
         return;
       }
 
       adjustScheduled = true;
 
-      setTimeout(doAdjustColumns, 0);
+      setTimeout(function() {
+        doAdjustColumns();
+        if (unfixComputedSize) {
+          self.unfixComputedSize();
+        }
+      }, 0);
     };
 
     this.setItemDropsEnabled = function(itemDrop) {
@@ -424,6 +495,48 @@ WT_DECLARE_WT_MEMBER(
       }
     };
 
+    let savedCWidth = null;
+    let savedContentsContainerWidth = null;
+    this.resetCWidth = function() {
+      if (!clientWidthSaved) {
+        const r = WT.getCssRule("#" + el.id + " .cwidth");
+        savedCWidth = r.style.width;
+        r.style.width = "auto";
+
+        savedContentsContainerWidth = contentsContainer.style.width;
+        contentsContainer.style.width = "auto";
+      }
+    };
+
+    this.restoreCWidth = function() {
+      if (clientWidthSaved) {
+        const r = WT.getCssRule("#" + el.id + " .cwidth");
+        r.style.width = savedCWidth;
+        savedCWidth = null;
+
+        contentsContainer.style.width = savedContentsContainerWidth;
+        savedContentsContainerWidth = null;
+      }
+    };
+
+    function startWtResize() {
+      for (let i = 0; i < APP.treeViewRegistered.length; i++) {
+        /*
+         * Ensures that the current width does not affect the
+         * stretching calculations.
+         */
+        APP.treeViewRegistered[i].resetCWidth();
+      }
+
+      for (let i = 0; i < APP.treeViewRegistered.length; i++) {
+        APP.treeViewRegistered[i].FixComputedSize();
+      }
+
+      for (let i = 0; i < APP.treeViewRegistered.length; i++) {
+        APP.treeViewRegistered[i].restoreCWidth();
+      }
+    }
+
     /*
    * This adjusts invariants that depend on the size of the whole
    * treeview:
@@ -435,8 +548,22 @@ WT_DECLARE_WT_MEMBER(
    */
 
     this.wtResize = function() {
-      sizeSet = true;
+      if (APP.WT.LayoutUninitialized && APP.WT.LayoutUninitialized !== 0) {
+        // We delay until all flex layouts are initialized.
+        setTimeout(self.wtResize, 0);
+        return;
+      }
 
+      sizeSet = true;
+      if (
+        !clientWidthSaved &&
+        (!APP.layouts2 || !APP.layouts2.isAdjusting())
+      ) {
+        startWtResize();
+      }
+
+      let unfix = justFixed;
+      justFixed = false;
       doAdjustColumns();
 
       let c0id;
@@ -483,10 +610,9 @@ WT_DECLARE_WT_MEMBER(
 
       // XXX: IE's incremental rendering foobars completely
       if (
-        tw > 100 &&
-        (tw !== contentsContainer.tw ||
-          c0w !== contentsContainer.c0w ||
-          el.changed)
+        tw !== contentsContainer.tw ||
+        c0w !== contentsContainer.c0w ||
+        el.changed
       ) {
         const adjustColumns = !el.changed;
 
@@ -543,8 +669,13 @@ WT_DECLARE_WT_MEMBER(
         el.changed = false;
 
         if (adjustColumns) {
-          self.adjustColumns();
+          self.adjustColumns(unfix);
+          unfix = false;
         }
+      }
+
+      if (unfix) {
+        self.unfixComputedSize();
       }
     };
 
