@@ -154,7 +154,7 @@ WPainter::Image::Image(const std::string& url, int width, int height)
     info_(std::make_shared<FromStringDataInfo>(url))
 { }
 
-WPainter::Image::Image(std::shared_ptr<WAbstractDataInfo> info, int width, int height)
+WPainter::Image::Image(std::shared_ptr<const WAbstractDataInfo> info, int width, int height)
   : width_(width),
     height_(height),
     useOld_(false),
@@ -168,7 +168,7 @@ WPainter::Image::Image(const std::string& url, const std::string& fileName)
   evaluateSize();
 }
 
-WPainter::Image::Image(std::shared_ptr<WAbstractDataInfo> info)
+WPainter::Image::Image(std::shared_ptr<const WAbstractDataInfo> info)
   : useOld_(false),
     info_(info)
 {
