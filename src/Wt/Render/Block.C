@@ -6,7 +6,7 @@
 
 // #define DEBUG_LAYOUT
 
-#include "Wt/WDataInfo.h"
+#include "Wt/FromStringDataInfo.h"
 #include "Wt/WException.h"
 #include "Wt/WFontMetrics.h"
 #include "Wt/WLogger.h"
@@ -1140,14 +1140,7 @@ double Block::layoutInline(Line& line, BlockList& floats,
         std::string src = attributeValue("src");
 
         if (w <= 0 || h <= 0) {
-          std::shared_ptr<WDataInfo> imgInfo = std::make_shared<WDataInfo>();
-          if (DataUri::isDataUri(src)) {
-            imgInfo->setDataUri(src);
-          } else {
-            imgInfo->setUrl(src);
-            imgInfo->setFilePath(src);
-          }
-
+          std::shared_ptr<FromStringDataInfo> imgInfo = std::make_shared<FromStringDataInfo>(src);
           WPainter::Image image(imgInfo);
 
           if (w <= 0)
@@ -2113,13 +2106,7 @@ double Block::layoutBlock(PageState &ps,
       std::string src = attributeValue("src");
 
       if (width <= 0 || height <= 0) {
-        std::shared_ptr<WDataInfo> imgInfo = std::make_shared<WDataInfo>();
-        if (DataUri::isDataUri(src)) {
-          imgInfo->setDataUri(src);
-        } else {
-          imgInfo->setUrl(src);
-          imgInfo->setFilePath(src);
-        }
+        std::shared_ptr<FromStringDataInfo> imgInfo = std::make_shared<FromStringDataInfo>(src);
 
         WPainter::Image image(imgInfo);
 
@@ -3074,13 +3061,7 @@ void Block::actualRender(WTextRenderer& renderer, WPainter& painter,
 #endif // DEBUG_LAYOUT
 
     std::string src = attributeValue("src");
-    std::shared_ptr<WDataInfo> imgInfo = std::make_shared<WDataInfo>();
-    if (DataUri::isDataUri(src)) {
-      imgInfo->setDataUri(src);
-    } else {
-      imgInfo->setUrl(src);
-      imgInfo->setFilePath(src);
-    }
+    std::shared_ptr<FromStringDataInfo> imgInfo = std::make_shared<FromStringDataInfo>(src);
     painter.drawImage(rect, WPainter::Image(imgInfo, (int)width, (int)height));
   } else {
     LayoutBox bb = toBorderBox(lb, renderer.fontScale());

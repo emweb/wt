@@ -66,6 +66,7 @@ FILE_TO_STRING(xml/auth_css_theme.xml
 SET(libsources
 Wt/FlexLayoutImpl.h Wt/FlexLayoutImpl.C
 Wt/FlexItemImpl.h Wt/FlexItemImpl.C
+Wt/FromStringDataInfo.h Wt/FromStringDataInfo.C
 Wt/PopupWindow.h Wt/PopupWindow.C
 Wt/Resizable.h Wt/Resizable.C
 Wt/ResizeSensor.h Wt/ResizeSensor.C

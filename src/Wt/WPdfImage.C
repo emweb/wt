@@ -4,8 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/FromStringDataInfo.h"
 #include "Wt/WBrush.h"
-#include "Wt/WDataInfo.h"
 #include "Wt/WException.h"
 #include "Wt/WFontMetrics.h"
 #include "Wt/WLogger.h"
@@ -446,13 +446,7 @@ void WPdfImage::drawImage(const WRectF& rect, const std::string& imgUrl,
                           int imgWidth, int imgHeight,
                           const WRectF& srect)
 {
-  WDataInfo imgInfo;
-  if (DataUri::isDataUri(imgUrl)) {
-    imgInfo.setDataUri(imgUrl);
-  } else {
-    imgInfo.setFilePath(imgUrl);
-    imgInfo.setUrl(imgUrl);
-  }
+  FromStringDataInfo imgInfo(imgUrl);
   WPdfImage::drawImage(rect, &imgInfo, imgWidth, imgHeight, srect);
 }
 

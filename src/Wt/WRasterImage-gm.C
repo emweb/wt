@@ -4,9 +4,9 @@
  * See the LICENSE file for terms of use.
  */
 
+#include "Wt/FromStringDataInfo.h"
 #include "Wt/WApplication.h"
 #include "Wt/WBrush.h"
-#include "Wt/WDataInfo.h"
 #include "Wt/WException.h"
 #include "Wt/WFontMetrics.h"
 #include "Wt/WLogger.h"
@@ -671,13 +671,7 @@ void WRasterImage::drawImage(const WRectF& rect, const std::string& imgUri,
                              const WRectF& srect)
 {
 
-  WDataInfo dataInfo;
-  if (DataUri::isDataUri(imgUri)) {
-    dataInfo.setDataUri(imgUri);
-  } else {
-    dataInfo.setFilePath(imgUri);
-    dataInfo.setUrl(imgUri);
-  }
+  FromStringDataInfo dataInfo(imgUri);
   doDrawImage(rect, &dataInfo, imgWidth, imgHeight, srect, true);
 }
 
