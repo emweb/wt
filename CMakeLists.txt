@@ -394,8 +394,10 @@ SET_PROPERTY(CACHE WT_CPP17_ANY_IMPLEMENTATION PROPERTY STRINGS thelink2012 expe
 
 IF (${WT_CPP17_ANY_IMPLEMENTATION} STREQUAL "thelink2012")
   SET(WT_ANY_IS_THELINK2012_ANY ON)
+  MESSAGE(WARNING "Using deprecated thelink2012's implementation of any which will be removed from Wt in a future version. This is not needed anymore since Wt required C++17 which supports std::any. To switch, set the CMake variable WT_CPP17_ANY_IMPLEMENTATION to \"std\".")
 ELSEIF (${WT_CPP17_ANY_IMPLEMENTATION} STREQUAL "experimental")
   SET(WT_ANY_IS_EXPERIMENTAL_ANY ON)
+  MESSAGE(WARNING "Using deprecated experimental's implementation of any which will be removed from Wt in a future version. This is not needed anymore since Wt required C++17 which supports std::any. To switch, set the CMake variable WT_CPP17_ANY_IMPLEMENTATION to \"std\".")
 ELSEIF (${WT_CPP17_ANY_IMPLEMENTATION} STREQUAL "std")
   SET(WT_ANY_IS_STD_ANY ON)
 ELSE (${WT_CPP17_ANY_IMPLEMENTATION} STREQUAL "thelink2012")
