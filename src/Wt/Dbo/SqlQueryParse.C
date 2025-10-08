@@ -13,7 +13,7 @@
 #include <boost/version.hpp>
 
 #if !defined(WT_NO_SPIRIT) && \
-    ((BOOST_VERSION >= 108100 && defined(WT_CXX17)) || \
+    (BOOST_VERSION >= 108100 || \
      (BOOST_VERSION >= 106900 && BOOST_VERSION < 108100)) && \
     (!defined(_MSC_VER) || _MSC_VER >= 1910)
 #  define BOOST_SPIRIT_X3_HIDE_CXX17_WARNING

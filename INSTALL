@@ -29,10 +29,10 @@ Requirements
 
   1 Wt requirements
 
-     * Compiler: Any compiler with sufficient support for C++14, like GCC
-       5.1 or higher, or Clang 3.3 or higher.
+     * Compiler: Any compiler with sufficient support for C++17, like GCC
+       9.1 or higher, or Clang 7 or higher.
      * [4]CMake 3.1 or higher
-     * [5]C++ boost library 1.50.0 or higher
+     * [5]C++ boost library 1.66.0 or higher
      * Optionally, [6]OpenSSL, which is used to support the HTTPS protocol
        in the web client, and the HTTPS protocol in the built-in wthttpd
        connector.

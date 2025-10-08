@@ -25,11 +25,9 @@
 
 #include <boost/optional.hpp>
 
-#ifdef WT_CXX17
 #if __has_include(<optional>)
 #include <optional>
 #endif // __has_include(<optional>)
-#endif // WT_CXX17
 
 //#define SCHEMA "test."
 #define SCHEMA ""
@@ -225,11 +223,9 @@ public:
   std::string string;
   std::string string2;
   boost::optional<std::string> string3;
-#ifdef WT_CXX17
 #if __has_include(<optional>)
   std::optional<std::string> string4;
 #endif // __has_include(<optional>)
-#endif // WT_CXX17
   std::chrono::system_clock::time_point timepoint;
   std::chrono::duration<int, std::milli> timeduration;
   bool checked;
@@ -297,14 +293,12 @@ public:
       DEBUG(std::cerr << "ERROR: string3 = " << (string3 ? *string3 : "<optional empty>") << " | "
         << (other.string3 ? *other.string3 : "<optional empty>") << std::endl);
     }
-#ifdef WT_CXX17
 #if __has_include(<optional>)
     if (string4 != other.string4) {
       DEBUG(std::cerr << "ERROR: string4 = " << (string4 ? *string4 : "<optional empty>") << " | "
         << (other.string4 ? *other.string4 : "<optional empty>") << std::endl);
     }
 #endif // __has_include(<optional>)
-#endif // WT_CXX17
     if (timepoint  != other.timepoint) {
 #ifdef WT_DATE_TZ_USE_DATE
       using ::date::operator<<;
@@ -376,11 +370,9 @@ public:
       && string == other.string
       && string2 == other.string2
       && string3 == other.string3
-#ifdef WT_CXX17
 #if __has_include(<optional>)
       && string4 == other.string4
 #endif // __has_include(<optional>)
-#endif // WT_CXX17
       && timepoint == other.timepoint
       && timeduration == other.timeduration
       && i == other.i
@@ -409,11 +401,9 @@ public:
     dbo::field(a, string, "string");
     dbo::field(a, string2, "string2", 50);
     dbo::field(a, string3, "string3");
-#ifdef WT_CXX17
 #if __has_include(<optional>)
     dbo::field(a, string4, "string4");
 #endif // __has_include(<optional>)
-#endif // WT_CXX17
     dbo::field(a, timepoint, "timepoint");
     dbo::field(a, timeduration, "timeduration");
     dbo::field(a, i, "i");
@@ -3039,18 +3029,15 @@ BOOST_AUTO_TEST_CASE( dbo_test37 )
     dbo::Transaction t(*session_);
     dbo::ptr<A> a = session_->find<A>();
     BOOST_REQUIRE(a->string3 == std::string("String 3"));
-#ifdef WT_CXX17
 #if __has_include(<optional>)
     BOOST_REQUIRE(a->string4 == std::nullopt);
 #endif // __has_include(<optional>)
-#endif // WT_CXX17
   }
 }
 
 // Test std::optional
 BOOST_AUTO_TEST_CASE( dbo_test38 )
 {
-#ifdef WT_CXX17
 #if __has_include(<optional>)
   DboFixture f;
   dbo::Session *session_ = f.session_;
@@ -3069,7 +3056,6 @@ BOOST_AUTO_TEST_CASE( dbo_test38 )
     BOOST_REQUIRE(a->string4 == std::string("String 4"));
   }
 #endif // __has_include(<optional>)
-#endif // WT_CXX17
 }
 
 namespace {

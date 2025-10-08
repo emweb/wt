@@ -79,18 +79,10 @@ typedef unsigned __int32 uint32_t;  /* 32 bit unsigned */
 #define WT_CXX14ONLY(x) x
 #endif
 
+// Since Wt 4.14.0 we require C++17, so these are always defined
 #ifndef WT_CXX17
-
-#if (__cplusplus >= 201703L) || (defined(_MSVC_LANG) && (_MSVC_LANG >= 201703L) && (_MSC_VER >= 1913))
 #define WT_CXX17
-#endif
-
-#ifdef WT_CXX17
 #define WT_CXX17ONLY(x) x
-#else
-#define WT_CXX17ONLY(x)
-#endif
-
 #endif // end outer ifndef WT_CXX17
 
 #ifndef WT_DEPRECATED
@@ -103,40 +95,25 @@ typedef unsigned __int32 uint32_t;  /* 32 bit unsigned */
 #endif
 
 #ifndef WT_FALLTHROUGH
-#  ifndef WT_CNOR
-#    if defined(WT_CXX17)
-#      define WT_FALLTHROUGH [[fallthrough]];
-#    elif defined(__GNUC__)
-#      define WT_FALLTHROUGH __attribute__((fallthrough));
-#    endif
-#  endif
-#  ifndef WT_FALLTHROUGH
+#  if  !defined(WT_CNOR) && defined(__cplusplus)
+#   define WT_FALLTHROUGH [[fallthrough]];
+#  else
 #    define WT_FALLTHROUGH
 #  endif
 #endif
 
 #ifndef WT_MAYBE_UNUSED
-#  ifndef WT_CNOR
-#    if defined(WT_CXX17)
-#      define WT_MAYBE_UNUSED [[maybe_unused]]
-#    elif defined(__GNUC__)
-#      define WT_MAYBE_UNUSED __attribute__((unused))
-#    endif
-#  endif
-#  ifndef WT_MAYBE_UNUSED
+#  if  !defined(WT_CNOR) && defined(__cplusplus)
+#    define WT_MAYBE_UNUSED [[maybe_unused]]
+#  else
 #    define WT_MAYBE_UNUSED
 #  endif
 #endif
 
 #ifndef WT_NODISCARD
-#  ifndef WT_CNOR
-#    if defined(WT_CXX17)
-#      define WT_NODISCARD [[nodiscard]]
-#    elif defined(__GNUC__)
-#      define WT_NODISCARD __attribute__((warn_unused_result))
-#    endif
-#  endif
-#  ifndef WT_NODISCARD
+#  if  !defined(WT_CNOR) && defined(__cplusplus)
+#    define WT_NODISCARD [[nodiscard]]
+#  else
 #    define WT_NODISCARD
 #  endif
 #endif // WT_NODISCARD

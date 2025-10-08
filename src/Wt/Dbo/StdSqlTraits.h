@@ -18,11 +18,9 @@ namespace boost {
   template<typename T> class optional;
 }
 
-#ifdef WT_CXX17
 #if __has_include(<optional>)
 #include <optional>
 #endif // __has_include(<optional>)
-#endif // WT_CXX17
 
 namespace Wt {
   namespace Dbo {
@@ -195,7 +193,6 @@ struct sql_value_traits<boost::optional<T>, void>
   }
 };
 
-#ifdef WT_CXX17
 #if __has_include(<optional>)
 template<typename T>
 struct sql_value_traits<std::optional<T>, void>
@@ -232,7 +229,6 @@ struct sql_value_traits<std::optional<T>, void>
   }
 };
 #endif // __has_include(<optional>)
-#endif // WT_CXX17
 
   }
 }
