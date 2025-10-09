@@ -158,6 +158,15 @@ behaviour.
     With those changes also comes several bug fixes and improvements related to RTL support.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13666" target="_blank">Issue #13666</a>:
+    bumped the minimum required C++ standard to build Wt to C++17. This means that all uses of <code>WT_CXX17</code> and
+    <code>WT_CXX17ONLY</code> were removed in Wt's source code. <code>WT_CXX17</code> is now always defined, since Wt requires
+    C++17.
+
+    Additionnaly <code>Wt::cpp17::any</code> is now marked as deprecated, since this only existed because C++14
+    lacked <code>std::any</code>.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/12464" target="_blank">Issue #12464</a>:
     added the possibility to specify the MIME type when calling
     <a href="classWt_1_1WStreamResource.html#a6397570c842aa542bb195b6b31c2dab6" target="_blank">WStreamResource::handleRequestPiecewise()</a>,
