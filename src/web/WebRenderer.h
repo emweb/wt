@@ -157,6 +157,7 @@ private:
   void setPageVars(FileServe& page, const std::string& nonce);
   void streamBootContent(WebResponse& response,
                          FileServe& boot, bool hybrid);
+  void streamBootJS(WebResponse& response, bool hybrid, WStringStream& out);
   void addResponseAckPuzzle(WStringStream& out);
   void addContainerWidgets(WWebWidget *w,
                            std::vector<WContainerWidget *>& v);

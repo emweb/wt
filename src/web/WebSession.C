@@ -1589,16 +1589,19 @@ void WebSession::handleRequest(Handler& handler)
             kill();
           } else {
             handler.response()->setResponseType(WebResponse::ResponseType::Script);
+            const std::string* wtt = request.getParameter("wtt");
+            if (wtt && *wtt == "widgetset") {
+              env_->enableAjax(request);
+              if (!start(handler.response())) {
+                throw WException("Could not start application.");
+              }
 
-            init(request); // env, url/internalpath, initial query parameters
-            env_->enableAjax(request);
-
-            if (!start(handler.response()))
-              throw WException("Could not start application.");
-
-            app_->notify(WEvent(WEvent::Impl(&handler)));
-
-            setExpectLoad();
+              app_->notify(WEvent(WEvent::Impl(&handler)));
+              setExpectLoad();
+            } else {
+              init(request); // env, url/internalpath, initial query parameters
+              serveResponse(handler);
+            }
           }
 
           break;
