@@ -313,8 +313,11 @@ void WebRenderer::serveResponse(WebResponse& response)
     break;
   case WebResponse::ResponseType::Script:
     if (session_.type() == EntryPointType::WidgetSet && !session_.env().ajax()) {
+      addTestCookie(response);
+      setHeaders(response, "text/javascript; charset=UTF-8");
       WStringStream out(response.out());
       streamBootJS(response, false, out);
+      out.spool(response.out());
     } else {
       bool hybridPage = session_.progressiveBoot() || session_.env().ajax();
       if (!hybridPage) {
@@ -431,7 +434,10 @@ void WebRenderer::streamBootJS(WebResponse& response, bool hybrid, WStringStream
                 (session_.pagePathInfo_));
   bootJs.setVar("DELAY_LOAD_AT_BOOT", conf.delayLoadAtBoot());
 
-  bootJs.setCondition("COOKIE_CHECKS", conf.cookieChecks());
+  bool testCookieSupport = conf.cookieChecks() &&
+                           session_.type() != EntryPointType::WidgetSet;
+
+  bootJs.setCondition("COOKIE_CHECKS", testCookieSupport);
   bootJs.setCondition("HYBRID", hybrid);
   bootJs.setCondition("PROGRESS", hybrid && !session_.env().ajax());
   bootJs.setCondition("DEFER_SCRIPT", true);
@@ -583,14 +589,37 @@ void WebRenderer::addNoCacheHeaders(WebResponse& response)
   response.addHeader("Expires", "0");
 }
 
-void WebRenderer::setHeaders(WebResponse& response, const std::string mimeType)
+void WebRenderer::addCookie(WebResponse& response, const Http::Cookie& cookie)
+{
+#ifndef WT_TARGET_JAVA
+  response.addHeader("Set-Cookie", renderCookieHttpHeader(cookie, session_));
+#else
+  response.addCookie(cookie);
+#endif
+}
+
+void WebRenderer::addTestCookie(WebResponse& response)
+{
+#ifndef WT_TARGET_JAVA
+  addCookie(response, createTestCookie());
+#else
+  WStringStream cookie;
+  cookie << "WtTestCookie=ok;"
+         << " Version=1;"
+         << " Max-Age=60;"
+         << " Path=/;"
+         << "httponly;"
+         << "secure;"
+         << "SameSite=None";
+
+  response.addHeader("Set-Cookie", cookie.str());
+#endif
+}
+
+void WebRenderer::setHeaders(WebResponse& response, const std::string& mimeType)
 {
   for (const auto& cookie : cookiesToSet_) {
-#ifndef WT_TARGET_JAVA
-    response.addHeader("Set-Cookie", renderCookieHttpHeader(cookie, session_));
-#else
-    response.addCookie(cookie);
-#endif
+    addCookie(response, cookie);
   }
   cookiesToSet_.clear();
 
@@ -2237,5 +2266,17 @@ void WebRenderer::preCollectInvisibleChanges()
     visibleOnly_ = true;
   }
 }
+
+#ifndef WT_TARGET_JAVA
+Http::Cookie WebRenderer::createTestCookie()
+{
+  Http::Cookie testCookie("WtTestCookie", "ok");
+  testCookie.setPath("/");
+  testCookie.setSameSite(Http::Cookie::SameSite::None);
+  testCookie.setSecure(true);
+  testCookie.setMaxAge(std::chrono::seconds(60));
+  return testCookie;
+}
+#endif
 
 }

@@ -121,8 +121,10 @@ private:
   std::vector<int> wsRequestsToHandle_;
   bool cookieUpdateNeeded_;
 
-  void setHeaders(WebResponse& request, const std::string mimeType);
+  void setHeaders(WebResponse& request, const std::string& mimeType);
   void addNoCacheHeaders(WebResponse& response);
+  void addCookie(WebResponse& response, const Http::Cookie& cookie);
+  void addTestCookie(WebResponse& response);
 
   void serveJavaScriptUpdate(WebResponse& response);
   void serveMainscript(WebResponse& response);
@@ -183,6 +185,10 @@ private:
    * send them along in the first request.
    */
   void preCollectInvisibleChanges();
+
+#ifndef WT_TARGET_JAVA
+  static Http::Cookie createTestCookie();
+#endif
 
 public:
   virtual std::string learn(WStatelessSlot* slot) final override;
