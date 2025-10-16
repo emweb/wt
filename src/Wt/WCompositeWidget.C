@@ -591,7 +591,7 @@ std::string WCompositeWidget::renderRemoveJs(bool recursive)
 
 void WCompositeWidget::setParentWidget(WWidget* parent)
 {
-  if (parent && !isDisabled()) {
+  if (parent && impl_ && !isDisabled()) {
     propagateSetEnabled(parent->isEnabled());
   }
 
