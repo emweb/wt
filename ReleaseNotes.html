@@ -20,11 +20,32 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.12.1 (TBD)</h2>
+<h2>Release 4.12.1 (October 16, 2025)</h2>
 
 <p>Wt 4.12.1 is a patch release that addresses the following issues:</p>
 
 <ul>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13867" target="_blank">Issue #13867</a>:
+    corrected a breaking default <code>script</code> value of the <code>&lt;debug-level&gt;</code> configuration. This has been corrected to <code>framework</code>.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13878" target="_blank">Issue #13878</a>:
+    made the access of bot user-agents more restricted. In case the incoming requests carry session-related information, the request is not processed, and a preemptive <code>403</code> status is returned.
+    Bot agents have their <a href="classWt_1_1WApplication.html" target="_blank">WApplication</a>
+    killed immediately after the response is served. Therefore a session does not carry meaning over multiple requests.
+    This resulted in bots being served the page on the path they requested, as a whole again.
+    While it was previously fixed that bots did not receive session-related parameters, older indexes may still contain them, which should be discouraged.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13768" target="_blank">Issue #13768</a>:
+    <a href="classWt_1_1Auth_1_1UpdatePasswordWidget.html">UpdatePasswordWidget</a>
+    no longer automatically logs a user in after a successful password reset.
+    This would otherwise allow logging in using only a single factor (email),
+    even when MFA is enabled.
+    This follows the
+    <a href="https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html#user-resets-password" target="_blank">OWASP guidelines</a>.
+  </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13669" target="_blank">Issue #13669</a>:
     <a href="classWt_1_1WObject.html#a64ce31cadb378c4eba81224f43bf493d" target="_blank">setObjectName()</a> should now correctly set the
@@ -42,26 +63,7 @@ behaviour.
     <a href="classWt_1_1WAbstractArea.html" target="_blank">WAbstractArea</a> with no link losing their style classes.
   </li>
   <li>
-    <a href="classWt_1_1Dbo_1_1QueryModel.html">QueryModel</a> sometimes not completely filling its row cache when loading rows at the end
-    of the table.
-
-    Additionally, fixed WTableView scrolling sometimes not being syncronised with the server, leading to the wrong data being sent to the
-    client. This was more likely to occur when the connection with the server was slow.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13867" target="_blank">Issue #13867</a>:
-    corrected the default value of the <code>&lt;debug-level&gt;</code> configuration. Due to a previous rename this still carried the name <code>script</code>, instead of <code>framework</code>.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13878" target="_blank">Issue #13878</a>:
-    made the access of bot user-agents more restricted. In case the incoming requests carry session-related information, the request is not processed, and a preemptive <code>403</code> status is returned.
-    Bot agents have their <a href="classWt_1_1WApplication.html" target="_blank">WApplication</a>
-    killed immediately after the response is served. Therefore a session does not carry meaning over multiple requests.
-    This resulted in bots being served the page on the path they requested, as a whole again.
-    While it was previously fixed that bots did not receive session-related parameters, older indexes may still contain them, which should be discouraged.
-  </li>
-  <li>
-    <a href="https://redmine.webtoolkit.eu/issues/13676" target="_blank">Issue #13676</a>
+    <a href="https://redmine.webtoolkit.eu/issues/13676" target="_blank">Issue #13676</a>:
     fixed a potential race condition at the destruction of an
     <a href="classWt_1_1Http_1_1Client.html">Http::Client</a>.
   </li>
@@ -92,6 +94,7 @@ behaviour.
     <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a> if the load policy of the
     <a href="classWt_1_1WMenuItem.html" target="_blank">WMenuItem</a> was set to
     <a href="namespaceWt.html#af25a7f0bb1d50c5b8bc98c4db9080313" target="_blank">LoadPolicy::Lazy</a>.
+
     Additionally,
     <a href="classWt_1_1WMenu.html#afad580a15fd6ed88630c03068cce696b" target="_blank">WMenu::moveItem(int fromIndex, int toIndex)</a>
     and
@@ -102,8 +105,8 @@ behaviour.
   <li>
     <a href="https://redmine.emweb.be/issues/12424" target="_blank">Issue #12424</a>:
     fixed a crash that could happen when a
-    <a href="classWt_1_1WAbstractMedia.html" target="_blank">WAbstractMedia</a> was
-    added in the same page as a large
+    <a href="classWt_1_1WAbstractMedia.html" target="_blank">WAbstractMedia</a> widget was
+    added on the same page as a large
     <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a>.
 
     Additionally, the rendering of the event handlers is now the same regardless
@@ -140,19 +143,10 @@ behaviour.
     the DOM structure of the widget,
     <a href="classWt_1_1WWidget.html#ae1e28bff803905ca8625c1fb722f3d21" target="_blank">WWidget::setThemeStyleEnabled(false)</a>
     will now also stop that change from happening. The description of the function has
-    also been updated to describe more presisely what it does and what it does not do.
+    also been updated to describe more precisely what it does and what it does not do.
 
     Additionally some cases of style classes being present several times in the same
     widget are now fixed.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13768" target="_blank">Issue #13768</a>:
-    <a href="classWt_1_1Auth_1_1UpdatePasswordWidget.html">UpdatePasswordWidget</a>
-    no longer automatically logs a user in after a successful password reset.
-    This would otherwise allow logging in using only a single factor (email),
-    even when MFA is enabled.
-    This follows the
-    <a href="https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html#user-resets-password">OWASP guidelines</a>.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13683" target="_blank">Issue #13683</a>:
@@ -164,7 +158,8 @@ behaviour.
     <a href="https://redmine.emweb.be/issues/13067" target="_blank">Issue #13067</a>:
     fixed <a href="classWt_1_1WWebSocketRessource.html" target="_blank">WWebSocketRessource</a> never removing the closed
     <a href="classWt_1_1WWebSocketConnection.html" target="_blank">WWebSocketConnection</a> from its memory.
-    Additionnaly, the <a href="classWt_1_1WWebSocketConnection.html" target="_blank">WWebSocketConnection</a> will now correctly
+
+    Additionally, the <a href="classWt_1_1WWebSocketConnection.html" target="_blank">WWebSocketConnection</a> will now correctly
     close when the request to close the connection is made by the client.
   </li>
   <li>
@@ -244,33 +239,21 @@ behaviour.
       are now deprecated in favor of versions that use <code>WAbstractDataInfo</code> in place of <code>std::string</code>.
     </p>
   </li>
-</ul>
-
-<p>
-  Wt 4.12.1 also comes with the following improvements:
-</p>
-
-<ul>
-  <il>
+  <li>
     <a href="https://redmine.emweb.be/issues/13435" target="_blank">Issue #13435</a>:
-    allows to configure the minimum number of session require to enforce the ratio of plain HTML session
-    vesus Ajax sessions, that is used to prevent DoS. This can be configure via the
+    allows to configure the minimum number of sessions required to enforce the ratio of plain HTML session
+    versus Ajax sessions, that is used to prevent DoS. This can be configure via the
     <code>min-session-for-dos</code> tag in the <code>wt_config.xml</code> file. The default minimum was
     also raised from 20 to 100.
-  </il>
+  </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13478" target="_blank">Issue #13478</a>:
     the login views in
     <a href="namespaceWt_1_1Auth.html" target="_blank">Wt::Auth</a> are now more consistent.
     Additionally, the <code>resend-email-verification</code> view is not missing anymore for default, or polished CSS themes.
   </li>
-</ul>
-
-<p>Wt 4.12.1 also comes with the following improvements:</p>
-
-<ul>
   <li>
-    <a href="https://redmine.emweb.be/issues/13381" target="_blank">Issue #13381</a>:
+    <a href="https://redmine.emweb.be/issues/13881" target="_blank">Issue #13881</a>:
     added
     <a href="classWt_1_1WResource.html#ae88f496ddf481a6a68301ca6059bdc15" target="_blank">WResource::setAlternativeBotUrl()</a> and
     <a href="classWt_1_1WImage.html#ae774907487e84463f48acbbafb4235f8" target="_blank">WImage::setAlternativeBotUrl()</a> that allow
