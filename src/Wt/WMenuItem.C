@@ -381,7 +381,7 @@ void WMenuItem::setHidden(bool hidden,
 
 void WMenuItem::render(WFlags<RenderFlag> flags)
 {
-  if (isThemeStyleEnabled() && !signalsConnected_) {
+  if (isThemeStyleEnabled()) {
     setThemeStyle_ = true;
     renderSelected(selected_);
   }
