@@ -65,7 +65,7 @@
 
 class TemplateLocalizedStrings final : public Wt::WLocalizedStrings {
 public:
-  Wt::LocalizedString resolveKey(const Wt::WLocale &locale, const std::string &key) override
+  Wt::LocalizedString resolveKey(WT_MAYBE_UNUSED const Wt::WLocale &locale, const std::string &key) override
   {
     if (key == "value") {
       return { "<div>Hello</div>", Wt::TextFormat::XHTML };

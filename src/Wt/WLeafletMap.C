@@ -638,7 +638,9 @@ void WLeafletMap::WidgetMarker::setMap(WLeafletMap *map)
   }
 }
 
-void WLeafletMap::WidgetMarker::createItemJS(WStringStream& ss, WStringStream& postJS, long long id)
+void WLeafletMap::WidgetMarker::createItemJS(WStringStream& ss,
+                                             WStringStream& postJS,
+                                             WT_MAYBE_UNUSED long long id)
 {
   std::unique_ptr<DomElement> element(container_->createSDomElement(WApplication::instance()));
 
@@ -752,7 +754,9 @@ void WLeafletMap::LeafletMarker::setOptions(const Json::Object &options)
   options_ = options;
 }
 
-void WLeafletMap::LeafletMarker::createItemJS(WStringStream &ss, WStringStream &, long long id)
+void WLeafletMap::LeafletMarker::createItemJS(WStringStream &ss,
+                                              WT_MAYBE_UNUSED WStringStream &postJS,
+                                              WT_MAYBE_UNUSED long long id)
 {
   std::string optionsStr = Json::serialize(options_);
 

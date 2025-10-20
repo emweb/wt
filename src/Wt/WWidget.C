@@ -68,7 +68,8 @@ std::unique_ptr<WWidget> WWidget::removeFromParent()
 void WWidget::refresh()
 { }
 
-void WWidget::resize(WT_MAYBE_UNUSED const WLength& width, const WLength& height)
+void WWidget::resize(WT_MAYBE_UNUSED const WLength& width,
+                     WT_MAYBE_UNUSED const WLength& height)
 {
   setJsSize();
 }
@@ -485,7 +486,8 @@ bool WWidget::layoutSizeAware() const
   return flags_.test(BIT_RESIZE_AWARE);
 }
 
-void WWidget::layoutSizeChanged(WT_MAYBE_UNUSED int width, int height)
+void WWidget::layoutSizeChanged(WT_MAYBE_UNUSED int width,
+                                WT_MAYBE_UNUSED int height)
 { }
 
 bool WWidget::isInLayout() const

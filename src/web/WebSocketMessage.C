@@ -92,8 +92,8 @@ void WebSocketMessage::addHeader(WT_MAYBE_UNUSED const std::string& name,
   error("addHeader(): not supported");
 }
 
-void WebSocketMessage::insertHeader(const std::string& name,
-                                    const std::string& value)
+void WebSocketMessage::insertHeader(WT_MAYBE_UNUSED const std::string& name,
+                                    WT_MAYBE_UNUSED const std::string& value)
 {
   error("insertHeader(): not supported");
 }

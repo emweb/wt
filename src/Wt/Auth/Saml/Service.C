@@ -168,7 +168,7 @@ Service::MetadataResource::~MetadataResource()
   beingDeleted();
 }
 
-void Service::MetadataResource::handleRequest(const Http::Request &request,
+void Service::MetadataResource::handleRequest(WT_MAYBE_UNUSED const Http::Request &request,
                                               Http::Response &response)
 {
   response.setMimeType("text/xml");

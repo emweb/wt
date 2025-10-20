@@ -24,7 +24,7 @@ WebSocketHandlerResource::~WebSocketHandlerResource()
   beingDeleted();
 }
 
-void WebSocketHandlerResource::handleRequest(const Http::Request& request, Http::Response& response)
+void WebSocketHandlerResource::handleRequest(WT_MAYBE_UNUSED const Http::Request& request, Http::Response& response)
 {
   response.setStatus(101);
 

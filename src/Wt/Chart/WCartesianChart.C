@@ -1278,8 +1278,10 @@ public:
       matchedYColumn_(-1)
   { }
 
-  bool startSeries(WT_MAYBE_UNUSED const WDataSeries &series, double groupWidth,
-                   WT_MAYBE_UNUSED int numBarGroups, WT_MAYBE_UNUSED int currentBarGroup) override
+  bool startSeries(WT_MAYBE_UNUSED const WDataSeries &series,
+                   WT_MAYBE_UNUSED double groupWidth,
+                   WT_MAYBE_UNUSED int numBarGroups,
+                   WT_MAYBE_UNUSED int currentBarGroup) override
   {
     return matchedSeries_ == nullptr &&
         (series.type() == SeriesType::Point || series.type() == SeriesType::Point || series.type() == SeriesType::Curve);

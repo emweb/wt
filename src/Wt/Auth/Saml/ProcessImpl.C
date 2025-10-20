@@ -209,7 +209,7 @@ public:
   { }
 
   // NOTE: there is not normally any input to send
-  long sendResponse(std::istream &inputStream, long status) override
+  long sendResponse(WT_MAYBE_UNUSED std::istream &inputStream, long status) override
   {
     response_.setStatus(static_cast<int>(status));
     return status;

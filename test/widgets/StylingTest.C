@@ -292,7 +292,7 @@ void testCssThemeRequiredClass(const Wt::WApplication& testApp, const TestedWidg
   BOOST_TEST(headerColumnsTable->decorationStyle().backgroundImage() == backgroundImage);
 }
 
-void testBootstrap2ThemeRequiredClass(const Wt::WApplication& testApp, const TestedWidgets& tw)
+void testBootstrap2ThemeRequiredClass(WT_MAYBE_UNUSED const Wt::WApplication& testApp, const TestedWidgets& tw)
 {
   //WDialog
   auto titleBarChilds = tw.dialog->titleBar()->children();
@@ -339,7 +339,7 @@ void testBootstrap3ThemeRequiredClass(const Wt::WApplication& testApp, const Tes
   testBootstrap2ThemeRequiredClass(testApp, tw);
 }
 
-void testBootstrap5ThemeRequiredClass(const Wt::WApplication& testApp, const TestedWidgets& tw)
+void testBootstrap5ThemeRequiredClass(WT_MAYBE_UNUSED const Wt::WApplication& testApp, const TestedWidgets& tw)
 {
   //WDialog
   auto titleBarChilds = tw.dialog->titleBar()->children();

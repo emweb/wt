@@ -493,7 +493,7 @@ void WBootstrap5Theme::applyFunctionalStyling(WWidget *widget,
   }
 }
 
-void WBootstrap5Theme::applyOptionalStyling(WWidget *widget,
+void WBootstrap5Theme::applyOptionalStyling(WT_MAYBE_UNUSED WWidget *widget,
                                             WWidget *child,
                                             int widgetRole) const
 {

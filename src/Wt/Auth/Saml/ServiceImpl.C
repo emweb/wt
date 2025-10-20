@@ -105,7 +105,7 @@ public:
     return false;
   }
 
-  void setLayout(logging::Layout *layout) override { }
+  void setLayout(WT_MAYBE_UNUSED logging::Layout *layout) override { }
 
 protected:
   void _append(const logging::LoggingEvent &event) override {

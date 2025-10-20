@@ -25,9 +25,11 @@ WPaintDevice::~WPaintDevice()
 { }
 
 #ifndef WT_TARGET_JAVA
-void WPaintDevice::drawImage(const WRectF& rect, const std::string& imageUri,
-                             int imgWidth, int imgHeight,
-                             const WRectF& sourceRect)
+void WPaintDevice::drawImage(WT_MAYBE_UNUSED const WRectF& rect,
+                             WT_MAYBE_UNUSED const std::string& imageUri,
+                             WT_MAYBE_UNUSED int imgWidth,
+                             WT_MAYBE_UNUSED int imgHeight,
+                             WT_MAYBE_UNUSED const WRectF& sourceRect)
 {
   throw WException("DrawImage not implemented.");
 }

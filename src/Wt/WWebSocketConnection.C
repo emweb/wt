@@ -727,7 +727,7 @@ bool WWebSocketConnection::sendMessage(const std::vector<char>& buffer)
   return sendDataFrame(buffer, OpCode::Binary);
 }
 
-bool WWebSocketConnection::close(CloseCode code, const std::string& reason)
+bool WWebSocketConnection::close(WT_MAYBE_UNUSED CloseCode code, const std::string& reason)
 {
   wantsToClose_ = true;
 

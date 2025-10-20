@@ -300,7 +300,7 @@ void WCssTheme::applyFunctionalStyling(WWidget *widget,
   }
 }
 
-void WCssTheme::applyOptionalStyling(WWidget *widget,
+void WCssTheme::applyOptionalStyling(WT_MAYBE_UNUSED WWidget *widget,
                                      WWidget *child,
                                      int widgetRole) const
 {

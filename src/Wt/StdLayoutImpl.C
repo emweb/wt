@@ -33,7 +33,7 @@ void StdLayoutImpl::update()
   }
 }
 
-void StdLayoutImpl::setObjectName(const std::string& name)
+void StdLayoutImpl::setObjectName(WT_MAYBE_UNUSED const std::string& name)
 { }
 
 StdLayoutItemImpl *StdLayoutImpl::getImpl(WLayoutItem *item)
