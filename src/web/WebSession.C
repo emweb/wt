@@ -605,7 +605,7 @@ std::string WebSession::makeAbsoluteUrl(const std::string& url) const
   else {
     if (!url.empty() && url[0] == '.' &&
         (url.length() == 1 || url[1] != '.'))
-      return absoluteBaseUrl_ + (url.c_str() + 1);
+      return absoluteBaseUrl_ + url.substr(1);
     else if (url.empty() || url[0] != '/')
       return absoluteBaseUrl_ + url;
     else
