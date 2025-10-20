@@ -330,16 +330,18 @@ void WMenu::select(int index, bool changePath)
   if (index != -1) {
     WMenuItem *item = itemAt(index);
     item->show();
-    if (loaded())
+    if (loaded()) {
       item->loadContents();
+    }
 
     observing_ptr<WMenu> self = this;
 
     if (changePath && emitPathChange_) {
       WApplication *app = wApp;
       app->internalPathChanged().emit(app->internalPath());
-      if (!self)
+      if (!self) {
         return;
+      }
       emitPathChange_ = false;
     }
 
@@ -347,10 +349,11 @@ void WMenu::select(int index, bool changePath)
       item->triggered().emit(item);
       if (self) {
         // item may have been deleted too
-        if (ul()->indexOf(item) != -1)
+        if (ul()->indexOf(item) != -1) {
           itemSelected_.emit(item);
-        else
+        } else {
           select(-1);
+        }
       }
     }
   }
