@@ -148,14 +148,14 @@ namespace {
         = { "test",
             "--http-address", "127.0.0.1",
             "--http-port", "0",
-            "--docroot", "." 
+            "--docroot", "."
           };
       setServerConfiguration(argc, (char **)argv);
       resource_ = std::make_shared<TestResource>();
       addResource(resource_, "/test");
     }
 
-    std::string address() 
+    std::string address()
     {
       return "127.0.0.1:" + std::to_string(httpPort());
     }
@@ -322,8 +322,6 @@ BOOST_AUTO_TEST_CASE( http_client_server_test4 )
   server.resource().delaySendingBody();
   server.resource().haveRandomMoreData();
 
-  int abortedCount = 0;
-
   if (server.start()) {
     std::vector<Client *> clients;
 
@@ -336,11 +334,10 @@ BOOST_AUTO_TEST_CASE( http_client_server_test4 )
     for (;;) {
       bool alldone = true;
 
-      for (unsigned i = 0; i < clients.size(); ++i) {        
+      for (unsigned i = 0; i < clients.size(); ++i) {
         if (!clients[i]->isDone()) {
           if (i % 100 == 0) {
             clients[i]->abort();
-            ++abortedCount;
           }
           alldone = false;
           break;

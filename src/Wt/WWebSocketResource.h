@@ -48,7 +48,6 @@ protected:
 
 private:
   WWebSocketResource* resource_ = nullptr;
-  WWebSocketConnection* moveTo_;
 };
 
 /*! \class WWebSocketResource Wt/WWebSocketResource.h

@@ -287,14 +287,12 @@ void WGridData::surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) 
   for (int k=0; k < nbXaxisBuffers-1; k++) {
     for (int l=0; l < nbYaxisBuffers-1; l++) {
       bufferIndex = k*nbYaxisBuffers + l;
-      int cnt1 = 0;
       int i = k*SURFACE_SIDE_LIMIT;
       rowOffset = 0;
       for (; i < (k+1)*SURFACE_SIDE_LIMIT + 1; i++) {
         if (i >= YAbscisRow_) {
           rowOffset = 1;
         }
-        int cnt2 = 0;
         int j = l*SURFACE_SIDE_LIMIT;
         colOffset = 0;
         for (; j < (l+1)*SURFACE_SIDE_LIMIT + 1; j++) {
@@ -304,13 +302,10 @@ void WGridData::surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) 
           simplePtsArrays[bufferIndex].push_back(scaledXAxis[i]);
           simplePtsArrays[bufferIndex].push_back(scaledYAxis[j]);
           simplePtsArrays[bufferIndex].push_back((float)((Wt::asNumber(model_->data(i+rowOffset,j+colOffset))-zMin)/(zMax-zMin)));
-          cnt2++;
         }
-        cnt1++;
       }
     }
     bufferIndex = k*nbYaxisBuffers + nbYaxisBuffers - 1;
-    int cnt1 = 0;
     int i = k*SURFACE_SIDE_LIMIT;
     rowOffset = 0;
     for (; i < (k+1)*SURFACE_SIDE_LIMIT + 1; i++) {
@@ -327,7 +322,6 @@ void WGridData::surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) 
         simplePtsArrays[bufferIndex].push_back(scaledYAxis[j]);
         simplePtsArrays[bufferIndex].push_back((float)((Wt::asNumber(model_->data(i+rowOffset,j+colOffset))-zMin)/(zMax-zMin)));
       }
-      cnt1++;
     }
   }
   for (int l=0; l < nbYaxisBuffers-1; l++) {
@@ -338,7 +332,6 @@ void WGridData::surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) 
       if (i >= YAbscisRow_) {
         rowOffset = 1;
       }
-      int cnt2 = 0;
       int j = l*SURFACE_SIDE_LIMIT;
       colOffset = 0;
       for (; j < (l+1)*SURFACE_SIDE_LIMIT + 1; j++) {
@@ -348,7 +341,6 @@ void WGridData::surfaceDataFromModel(std::vector<FloatBuffer>& simplePtsArrays) 
         simplePtsArrays[bufferIndex].push_back(scaledXAxis[i]);
         simplePtsArrays[bufferIndex].push_back(scaledYAxis[j]);
         simplePtsArrays[bufferIndex].push_back((float)((Wt::asNumber(model_->data(i+rowOffset,j+colOffset))-zMin)/(zMax-zMin)));
-        cnt2++;
       }
     }
   }

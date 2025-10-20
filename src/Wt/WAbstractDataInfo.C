@@ -7,11 +7,7 @@
 #include "Wt/WAbstractDataInfo.h"
 #include "Wt/WException.h"
 
-#include "Wt/WLogger.h"
-
 namespace Wt {
-
-LOGGER("WAbstractDataInfo");
 
 std::string WAbstractDataInfo::filePath() const
 {

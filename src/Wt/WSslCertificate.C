@@ -162,12 +162,10 @@ std::string WSslCertificate::pemToDer(const std::string &pem)
 
   std::string cert_base64;
   cert_base64.reserve(cert.size());
-  int x=0;
   for (unsigned i = 0; i < cert.size(); ++i) {
     char c = cert[i];
     if (std::isalnum(c) || c == '+' || c == '/' || c == '=') {
       cert_base64 += c;
-      ++x;
     }
   }
 
