@@ -136,9 +136,18 @@ void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
       if (!canOptimizeUpdates() || (widget(i)->isHidden() != (currentIndex_ != i)))
         widget(i)->setHidden(currentIndex_ != i);
 
-    if (currentIndex_ >= 0 && isRendered() && javaScriptDefined_)
-      doJavaScript(jsRef() + ".wtObj.setCurrent("
-                   + widget(currentIndex_)->jsRef() + ");");
+    if (currentIndex_ >= 0 && isRendered() && javaScriptDefined_) {
+      // Do in timeout to counteract prelearned slot effect.
+      // This selection can happen on a prelearned slot, which is
+      // handled by the WebRenderer before other effects.
+      // This causes the actual DOM changes to occur after the slot.
+      // Due to changes in the layout handling (which took up too much
+      // time, and recalculated too often), this delay is now necessary.
+      // See: #13861
+      doJavaScript("setTimeout(function() { "
+                   + jsRef() + ".wtObj.setCurrent("
+                   + widget(currentIndex_)->jsRef() + ");}, 0);");
+    }
   }
 
   // Only emit if the item has changed, or if emitting has not yet happened.
