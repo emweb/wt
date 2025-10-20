@@ -79,7 +79,7 @@ public:
    */
   void update() override;
 
-  virtual void setObjectName(const std::string& name);
+  void setObjectName(const std::string& name) override;
 
 protected:
 

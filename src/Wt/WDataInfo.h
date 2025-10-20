@@ -87,7 +87,7 @@ public:
    *
    * \sa dataUri()
    */
-  virtual bool hasDataUri() const { return !dataUri_.empty(); }
+  bool hasDataUri() const override { return !dataUri_.empty(); }
 
 private:
   std::string url_, filePath_, dataUri_;

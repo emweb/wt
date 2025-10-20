@@ -144,7 +144,7 @@ public:
 protected:
   void updateDom(DomElement& element, bool all) override;
   WT_NODISCARD std::string type() const noexcept override { return "password"; }
-  virtual std::shared_ptr<WValidator> realValidator() const { return WLineEdit::validator(); }
+  std::shared_ptr<WValidator> realValidator() const override { return WLineEdit::validator(); }
 
 private:
   bool nativeControl_;
