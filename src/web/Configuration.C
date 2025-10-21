@@ -210,8 +210,7 @@ Configuration::Network Configuration::Network::fromString(const std::string &s)
       throw std::invalid_argument("'" + s + "' is not a valid IP address");
     }
     const unsigned int prefixLength = Utils::stoi(s.substr(slashPos + 1));
-    if (prefixLength < 0 ||
-        (address.is_v4() && prefixLength > 32) ||
+    if ((address.is_v4() && prefixLength > 32) ||
         (address.is_v6() && prefixLength > 128)) {
       throw std::invalid_argument("Invalid prefix length " + s.substr(slashPos + 1) + " for IPv" +
                                   std::string(address.is_v4() ? "4" : "6") + " address");
