@@ -160,7 +160,22 @@ BOOST_AUTO_TEST_CASE( raster_test_dataUriImage )
     std::string uri
       = "data:image/tiff;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw";
 
+#if defined(__clang__)
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#elif defined(__GNUC__)
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
     Wt::WPainter::Image image(uri, 48, 48);
+
+#if defined(__clang__)
+  #pragma clang diagnostic pop
+#elif defined(__GNUC__)
+  #pragma GCC diagnostic pop
+#endif
+
     BOOST_REQUIRE_THROW(p.drawImage(Wt::WPointF(0,0), image), Wt::WException);
   }
 

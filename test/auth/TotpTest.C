@@ -10,6 +10,11 @@
 
 using namespace Wt;
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-result"
+#endif
+
 BOOST_AUTO_TEST_CASE( totp_test_generate_key_too_short )
 {
   BOOST_CHECK_THROW(Wt::Auth::Mfa::generateSecretKey(15), Wt::WException);
@@ -20,11 +25,6 @@ BOOST_AUTO_TEST_CASE( totp_test_generate_key_too_long )
   BOOST_CHECK_THROW(Wt::Auth::Mfa::generateSecretKey(257), Wt::WException);
 }
 
-BOOST_AUTO_TEST_CASE( totp_test_generate_key_between_bounds )
-{
-  BOOST_TEST(Wt::Auth::Mfa::generateSecretKey(167).size() == 167);
-}
-
 BOOST_AUTO_TEST_CASE( totp_test_generate_code_too_short )
 {
   BOOST_CHECK_THROW(Wt::Auth::Mfa::generateCode("", 5, std::chrono::seconds(0)), Wt::WException);
@@ -33,6 +33,15 @@ BOOST_AUTO_TEST_CASE( totp_test_generate_code_too_short )
 BOOST_AUTO_TEST_CASE( totp_test_generate_code_too_long )
 {
   BOOST_CHECK_THROW(Wt::Auth::Mfa::generateCode("", 17, std::chrono::seconds(0)), Wt::WException);
+}
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
+BOOST_AUTO_TEST_CASE( totp_test_generate_key_between_bounds )
+{
+  BOOST_TEST(Wt::Auth::Mfa::generateSecretKey(167).size() == 167);
 }
 
 BOOST_AUTO_TEST_CASE( totp_test_no_key_return_6_idempotent )

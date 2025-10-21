@@ -309,8 +309,20 @@ BOOST_AUTO_TEST_CASE( test_signals12 )
   BOOST_REQUIRE(conn.isConnected());
   signal();
   BOOST_REQUIRE_EQUAL(i, 1);
+
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-assign-overloaded"
+#endif
+
   conn = conn;
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
   BOOST_REQUIRE(conn.isConnected());
+
   signal();
   BOOST_REQUIRE_EQUAL(i, 2);
 }
