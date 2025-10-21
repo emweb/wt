@@ -18,6 +18,9 @@ WDataInfo::WDataInfo(const std::string& url, const std::string& filePath)
     filePath_(filePath)
 { }
 
+WDataInfo::~WDataInfo()
+{ }
+
 void WDataInfo::setFilePath(const std::string& filePath)
 {
   filePath_ = filePath;

@@ -31,6 +31,8 @@ public:
    */
   WDataInfo(const std::string& url, const std::string& filePath);
 
+  virtual ~WDataInfo();
+
   //! Sets the file path.
   void setFilePath(const std::string& filePath);
 
