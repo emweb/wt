@@ -91,14 +91,14 @@ void WTableColumn::updateDom(DomElement& element, bool all)
   if (!all || !styleClass_.empty())
     element.setProperty(Property::Class, styleClass_.toUTF8());
 
-    if (all || flags_.test(BIT_OBJECT_NAME_CHANGED)) {
-      if (!objectName().empty()) {
-        element.setAttribute("data-object-name", objectName());
-      } else if (!all) {
-        element.removeAttribute("data-object-name");
-      }
-      flags_.reset(BIT_OBJECT_NAME_CHANGED);
+  if (all || flags_.test(BIT_OBJECT_NAME_CHANGED)) {
+    if (!objectName().empty()) {
+      element.setAttribute("data-object-name", objectName());
+    } else if (!all) {
+      element.removeAttribute("data-object-name");
     }
+    flags_.reset(BIT_OBJECT_NAME_CHANGED);
+  }
 }
 
 void WTableColumn::setTable(WTable *table)
