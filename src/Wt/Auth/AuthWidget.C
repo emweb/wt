@@ -280,7 +280,7 @@ std::unique_ptr<Mfa::AbstractMfaProcess> AuthWidget::createMfaProcess()
     mfaProcess->setMfaThrottle(std::make_unique<AuthThrottle>());
   }
 
-  return std::move(mfaProcess);
+  return mfaProcess;
 }
 
 void AuthWidget::createMfaView()
