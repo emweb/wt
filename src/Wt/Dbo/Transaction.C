@@ -86,8 +86,12 @@ void Transaction::release()
 {
   --impl_->transactionCount_;
 
-  if (impl_->transactionCount_ == 0)
+  if (impl_->transactionCount_ == 0) {
     delete impl_;
+  } else {
+    LOG_DEBUG("Closing nested transaction, " << impl_->transactionCount_
+              << " transactions are still open for the session.");
+  }
 }
 
 bool Transaction::isActive() const
@@ -153,6 +157,7 @@ void Transaction::Impl::open()
 
 void Transaction::Impl::commit()
 {
+  LOG_DEBUG("Committing transaction(s)");
   needsRollback_ = true;
   if (session_.flushMode() == FlushMode::Auto)
     session_.flush();
@@ -175,6 +180,7 @@ void Transaction::Impl::commit()
 
 void Transaction::Impl::rollback()
 {
+  LOG_DEBUG("Rolling back transaction(s)");
   needsRollback_ = false;
 
   try {
