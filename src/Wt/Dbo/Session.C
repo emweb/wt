@@ -1297,5 +1297,10 @@ void Session::setAllowNestedTransaction(bool enable)
   }
 }
 
+int Session::transactionCount() const
+{
+  return transaction_ ? transaction_->transactionCount_ : 0;
+}
+
   }
 }

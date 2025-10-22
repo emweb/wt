@@ -538,6 +538,9 @@ public:
    */
   bool nestedTransaction() const { return allowNestedTransaction_; };
 
+  //! Returns the number of open transactions for this session.
+  int transactionCount() const;
+
 private:
   mutable std::string longlongType_;
   mutable std::string intType_;
