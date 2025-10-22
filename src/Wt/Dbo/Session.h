@@ -508,12 +508,12 @@ public:
   void setFlushMode(FlushMode mode) { flush(); flushMode_ = mode; }
 
   /*! \brief Enables or disables nested transactions
-   * 
+   *
    * This enables or disables nested transactions. If nested transactions
    * are disabled, creating a nested transaction will throw an Exception.
-   * 
+   *
    * By default nested transactions are enabled.
-   * 
+   *
    * \note Nested transactions can result in unexpected behavior due to
    *       their side-effects. Generally, a transaction is scoped in a
    *       certain way, and anything that changes the database in that
@@ -533,7 +533,7 @@ public:
   void setAllowNestedTransaction(bool enable);
 
   /*! \brief Returns whether nested transaction are enabled
-   * 
+   *
    * \sa setAllowNestedTransaction()
    */
   bool nestedTransaction() const { return allowNestedTransaction_; };
