@@ -116,6 +116,7 @@ Wt/WCombinedLocalizedStrings.h Wt/WCombinedLocalizedStrings.C
 Wt/WComboBox.h Wt/WComboBox.C
 Wt/WCompositeWidget.h Wt/WCompositeWidget.C
 Wt/WContainerWidget.h Wt/WContainerWidget.C
+Wt/WCspErrorLogger.h Wt/WCspErrorLogger.C
 Wt/WCssDecorationStyle.h Wt/WCssDecorationStyle.C
 Wt/WCssStyleSheet.h Wt/WCssStyleSheet.C
 Wt/WCssTheme.h Wt/WCssTheme.C

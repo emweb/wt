@@ -17,6 +17,10 @@ class EscapeOStream;
 class Object;
 class Array;
 
+#ifdef WT_TARGET_JAVA
+class Value;
+#endif // WT_TARGET_JAVA
+
 /*! \brief Serialization function for an Object.
  *
  * Serializes a Object into a string. All unicode in the object is
@@ -45,6 +49,9 @@ void serialize(const Object& obj, int indentation, EscapeOStream& result);
 std::string WT_API serialize(const Array& arr, int indentation = 1);
 void serialize(const Array& arr, int indentation, EscapeOStream& result);
 
+#ifdef WT_TARGET_JAVA
+std::string serialize(const Value& arr, int indentation = 1);
+#endif // WT_TARGET_JAVA
   }
 }
 

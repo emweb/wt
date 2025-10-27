@@ -39,6 +39,7 @@
 #include "Wt/WException.h"
 #include "Wt/WLogger.h"
 #include "Wt/Http/Request.h"
+#include "Wt/Json/Parser.h"
 
 using std::memmove;
 using std::strcpy;
