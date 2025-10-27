@@ -186,12 +186,6 @@ namespace Wt {
 
 LOGGER("config");
 
-HeadMatter::HeadMatter(std::string contents,
-                       std::string userAgent)
-  : contents_(contents),
-    userAgent_(userAgent)
-{ }
-
 Configuration::Network Configuration::Network::fromString(const std::string &s)
 {
   const auto slashPos = s.find('/');

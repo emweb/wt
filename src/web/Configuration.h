@@ -95,7 +95,10 @@ struct WT_API PathSegment {
 class WT_API HeadMatter {
 public:
   HeadMatter(std::string contents,
-             std::string userAgent);
+             std::string userAgent)
+    : contents_(contents),
+      userAgent_(userAgent)
+  { }
 
   const std::string& contents() const { return contents_; }
   const std::string& userAgent() const { return userAgent_; }
