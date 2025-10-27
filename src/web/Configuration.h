@@ -114,10 +114,15 @@ public:
              std::string contents)
     : name_(name),
       contents_(contents)
-{ }
+  { }
 
   const std::string& contents() const { return contents_; }
   const std::string& name() const { return name_; }
+
+  bool operator==(const HttpHeader& other) const
+  {
+    return contents_ == other.contents() && name_ == other.name();
+  }
 
 private:
   std::string name_;
