@@ -52,6 +52,22 @@ behaviour.
     in the direction of the given corner.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/14047" target="_blank">Issue #14047</a>:
+    added the possibility to define an endpoint to which Content Security Policy (CSP) violation reports are sent by the browser.
+    This can be configured using the <code>debug-csp</code> and <code>csp-debug-endpoint</code> configuration options in the
+    <code>wt_config.xml</code> file. Note that this does not requires <code>use-script-nonce</code> to be set to <code>true</code>,
+    allowing you to debug CSP issues without breaking your application by enforcing it.
+
+    Additionally,
+    <a href="classWt_1_1WCspErrorLogger.html" target="_blank">WCspErrorLogger</a> was added to facilitate logging of CSP
+    violation reports. This new
+    <a href="classWt_1_1WResource.html" target="_blank">WResource</a> can be used to log CSP violations
+    reported by the browser. You can also create your own
+    <a href="classWt_1_1WResource.html" target="_blank">WResource</a> to handle the reports, as it is possible to obtain those
+    CSP violation reports using
+    <a href="classWt_1_1Http_1_1Request.html#a79d14f9abe02bdbf1106bb73973f0565" target="_blank">Http::Request::cspErrors()</a>.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/14493" target="_blank">Issue #14493</a>:
     allowed to ignore bubbling
     <a href="classWt_1_1WEventSignal.html" target="_blank">WEventSignal</a> using
