@@ -377,9 +377,9 @@ void WebRenderer::setPageVars(FileServe& page, const std::string& nonce)
                     && !session_.env().ajax());
   page.setCondition("BOOT_STYLE", true);
 
-  page.setCondition("USE_NONCE", conf.useScriptNonce());
+  page.setCondition("USE_NONCE", conf.mustAddScriptNonce());
   page.setVar("NONCE", nonce);
-  if (conf.useScriptNonce() && nonce.empty()) {
+  if (conf.mustAddScriptNonce() && nonce.empty()) {
     LOG_WARN("An empty nonce has been defined. This may result in the CSP header not being correctly defined and used.");
   }
 }
@@ -1556,7 +1556,7 @@ void WebRenderer::serveMainpage(WebResponse& response)
   for (unsigned i = 0; i < app->scriptLibraries_.size(); ++i) {
     std::string url = app->scriptLibraries_[i].uri;
     std::string nonce;
-    if (conf.useScriptNonce()) {
+    if (conf.mustAddScriptNonce()) {
       nonce = " nonce=\"" + response.nonce() + "\"";
     }
 

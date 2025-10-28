@@ -16,7 +16,12 @@ namespace Wt {
  *  \brief A resource that logs Content Security Policy (CSP) errors.
  *
  * This resource can be used to log CSP violations reported by the
- * browser.
+ * browser. You will likely want the WCspErrorLogger to be added as
+ * a public resource at the path configured with the csp-debug-endpoint
+ * option in wt_config.xml.
+ *
+ * For more information, see the debug-csp configuration option in
+ * wt_config.xml.
  */
 class WT_API WCspErrorLogger : public WResource
 {

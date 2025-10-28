@@ -312,7 +312,7 @@ protected:
 
 private:
   std::string parsePreferredAcceptValue(const char *value) const;
-  void addNonce();
+  void addNonce(const Configuration &conf);
 
   ::int64_t postDataExceeded_;
   Http::ParameterMap parameters_;

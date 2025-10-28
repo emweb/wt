@@ -297,6 +297,8 @@ void Configuration::reset()
   allowedOrigins_.clear();
   httpHeaders_.clear();
   useScriptNonce_ = false;
+  debugCsp_ = false;
+  cspDebugEndpoint_ = "csp-report";
   useXFrameSameOrigin_ = true;
   servePrivateResourcesToBots_ = false;
   botResourcesPath_ = "/wt-temp";
@@ -616,6 +618,24 @@ bool Configuration::useScriptNonce() const
 {
   READ_LOCK;
   return useScriptNonce_;
+}
+
+bool Configuration::debugCsp() const
+{
+  READ_LOCK;
+  return debugCsp_;
+}
+
+bool Configuration::mustAddScriptNonce() const
+{
+  READ_LOCK;
+  return useScriptNonce_ || debugCsp_;
+}
+
+std::string Configuration::cspDebugEndpoint() const
+{
+  READ_LOCK;
+  return cspDebugEndpoint_;
 }
 
 bool Configuration::delayLoadAtBoot() const
@@ -1244,6 +1264,9 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   }
 
   setBoolean(app, "use-script-nonce", useScriptNonce_);
+  setBoolean(app, "debug-csp", debugCsp_);
+  cspDebugEndpoint_ = singleChildElementValue(app, "csp-debug-endpoint", cspDebugEndpoint_);
+
   setBoolean(app, "x-frame-same-origin", useXFrameSameOrigin_);
   setBoolean(app, "serve-private-resources-to-bots", servePrivateResourcesToBots_);
 

@@ -1020,6 +1020,39 @@ appRoot=C:\Program Files\MyApplications\AppRoot
       browser.
   </dd>
 
+  <dt><strong>debug-csp</strong></dt>
+  <dd>Configure whether Content Security Policy debugging is enabled
+
+      When debug-csp is set to true, Wt will ask the browser to send
+      CSP violation reports to the endpoint configured in
+      csp-debug-endpoint.
+
+      Note that for chromium based browsers, the reporting is only sent
+      over secure connections (HTTPS).
+
+      If <strong>use-script-nonce</strong> is set to true, Wt will only
+      add the <code>'report-to'</code> directive to the CSP header.
+      Otherwise, Wt will send the
+      <code>'Content-Security-Policy-Report-Only'</code> header with
+      the same directive as it would if
+      <strong>use-script-nonce</strong> was true. This allows you to
+      test and debug your application without breaking it before
+      enabling CSP.
+  </dd>
+
+  <dt><strong>csp-debug-endpoint</strong></dt>
+  <dd>Configure the endpoint for Content Security Policy violation reports
+
+      When <strong>debug-csp</strong> is set to <code>true</code>, Wt
+      will ask the browser to send CSP violation reports to this
+      endpoint. You can use a WCspErrorLogger to log these reports
+      server-side, or create your own WResource to handle them however
+      you want.
+
+      Note: you can obtain the CSP reports using
+      Http::Request::cspErrors().
+  </dd>
+
   <dt><strong>serve-private-resources-to-bots</strong></dt>
   <dd>Configure whether private resources are served to bots.
 

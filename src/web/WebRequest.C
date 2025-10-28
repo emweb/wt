@@ -495,10 +495,28 @@ std::string WebRequest::urlScheme(const Configuration &conf) const
   return urlScheme();
 }
 
-void WebRequest::addNonce()
+void WebRequest::addNonce(const Configuration &conf)
 {
   nonce_ = Utils::base64Encode(Auth::Utils::createSalt(18), false);
-  addHeader("Content-Security-Policy", "script-src 'nonce-"+nonce()+"' 'strict-dynamic' 'unsafe-eval'");
+
+  std::string header = "Content-Security-Policy";
+  if (!conf.useScriptNonce()) {
+    header += "-Report-Only";
+  }
+
+  std::string policies = "script-src 'nonce-"+nonce()+"' 'strict-dynamic' 'unsafe-eval'";
+  if (conf.debugCsp()) {
+    policies += "; report-to csp-error-logger; report-uri " + conf.cspDebugEndpoint();
+
+    std::string defaultEntryPoint = conf.defaultEntryPoint();
+    if (defaultEntryPoint.empty() || defaultEntryPoint.back() != '/') {
+      defaultEntryPoint += "/";
+    }
+    addHeader("Reporting-Endpoints",
+              "csp-error-logger=\"" + urlScheme(conf) + "://" + hostName(conf) + defaultEntryPoint + conf.cspDebugEndpoint() + "\"");
+  }
+
+  addHeader(header, policies);
 }
 
 }

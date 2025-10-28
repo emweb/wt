@@ -783,6 +783,36 @@
         -->
         <use-script-nonce>false</use-script-nonce>
 
+        <!-- Configure whether Content Security Policy debugging is enabled
+
+         When debug-csp is set to true, Wt will ask the browser to send
+         CSP violation reports to the endpoint configured in
+         csp-debug-endpoint.
+
+         Note that for chromium based browsers, the reporting is only
+         sent over secure connections (HTTPS).
+
+         If use-script-nonce is set to true, Wt will only add the
+         'report-to' directive to the CSP header. Otherwise, Wt will
+         send the Content-Security-Policy-Report-Only header with the
+         same directive as it would if use-script-nonce was true. This
+         allows you to test and debug your application without breaking
+         it before enabling CSP.
+         -->
+        <debug-csp>false</debug-csp>
+
+        <!-- Configure the endpoint for Content Security Policy violation reports
+
+         When debug-csp is set to true, Wt will ask the browser to send
+         CSP violation reports to this endpoint. You can use a
+         WCspErrorLogger to log these reports server-side, or create
+         your own WResource to handle them however you want.
+
+         Note: you can obtain the CSP reports using
+               Http::Request::cspErrors().
+         -->
+        <csp-debug-endpoint>csp-report</csp-debug-endpoint>
+
         <!-- Configure whether private resources are served to bots
 
          Private resources are resources that are tied to a session in

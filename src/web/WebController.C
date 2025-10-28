@@ -619,8 +619,8 @@ void WebController::handleRequest(WebRequest *request)
     return;
   }
 
-  if (configuration().useScriptNonce()) {
-    request->addNonce();
+  if (configuration().mustAddScriptNonce()) {
+    request->addNonce(conf_);
   }
 
   if (!request->entryPoint_) {

@@ -268,6 +268,9 @@ public:
   bool needReadBodyBeforeResponse() const;
   bool webglDetect() const;
   bool useScriptNonce() const;
+  bool debugCsp() const;
+  bool mustAddScriptNonce() const;
+  std::string cspDebugEndpoint() const;
   bool delayLoadAtBoot() const;
   bool useXFrameSameOrigin() const;
   bool servePrivateResourcesToBots() const;
@@ -376,6 +379,8 @@ private:
   bool useXFrameSameOrigin_;
   std::vector<HttpHeader> httpHeaders_;
   bool useScriptNonce_;
+  bool debugCsp_;
+  std::string cspDebugEndpoint_;
 
   bool connectorSlashException_;
   bool connectorNeedReadBody_;
