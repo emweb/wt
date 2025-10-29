@@ -323,23 +323,30 @@ WString WDateTime::defaultFormat()
   return WString::fromUTF8("ddd MMM d HH:mm:ss yyyy");
 }
 
-WDateTime WDateTime::fromString(const WString& s)
+WDateTime WDateTime::fromString(const WString& s, bool localizedString)
 {
-  return fromString(s, defaultFormat());
+  return fromString(s, defaultFormat(), localizedString);
 }
 
-WDateTime WDateTime::fromString(const WString& s, const WString& format)
+WDateTime WDateTime::fromString(const WString& s, const char* format,
+                                bool localizedString)
+{
+  return fromString(s, WString(format), localizedString);
+}
+
+WDateTime WDateTime::fromString(const WString& s, const WString& format,
+                                bool localizedString)
 {
   WDate date;
   WTime time;
 
-  fromString(&date, &time, s, format);
+  fromString(&date, &time, s, format, localizedString);
 
   return WDateTime(date, time);
 }
 
 void WDateTime::fromString(WDate *date, WTime *time, const WString& s,
-                           const WString& format)
+                           const WString& format, bool localizedString)
 {
   std::string v = s.toUTF8();
   std::string f = format.toUTF8();
@@ -382,7 +389,7 @@ void WDateTime::fromString(WDate *date, WTime *time, const WString& s,
       CharState state = CharState::CharUnhandled;
 
       if (date) {
-        CharState dateState = WDate::handleSpecial(c, v, vi, dateParse, format);
+        CharState dateState = WDate::handleSpecial(c, v, vi, dateParse, format, localizedString);
         if (dateState == CharState::CharInvalid)
           return;
         else if (dateState == CharState::CharHandled)

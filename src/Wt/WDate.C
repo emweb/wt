@@ -240,7 +240,7 @@ WString WDate::shortDayName(int weekday, bool localizedString)
     return WString::fromUTF8(v[weekday - 1]);
 }
 
-int WDate::parseShortDayName(const std::string& v, unsigned& pos)
+int WDate::parseShortDayName(const std::string& v, unsigned& pos, bool localizedString)
 {
   if (pos + 2 >= v.length())
     return -1;
@@ -248,7 +248,7 @@ int WDate::parseShortDayName(const std::string& v, unsigned& pos)
   std::string d = v.substr(pos, 3);
 
   for (int i = 1; i <= 7; ++i) {
-    if (d == shortDayName(i).toUTF8()) {
+    if (d == shortDayName(i, localizedString).toUTF8()) {
       pos += 3;
       return i;
     }
@@ -269,12 +269,12 @@ WString WDate::longDayName(int weekday, bool localizedString)
     return WString::fromUTF8(v[weekday - 1]);
 }
 
-int WDate::parseLongDayName(const std::string& v, unsigned& pos)
+int WDate::parseLongDayName(const std::string& v, unsigned& pos, bool localizedString)
 {
   std::string remainder = v.substr(pos);
 
   for (int i = 1; i <= 7; ++i) {
-    std::string m = longDayName(i).toUTF8();
+    std::string m = longDayName(i, localizedString).toUTF8();
 
     if (remainder.length() >= m.length())
       if (remainder.substr(0, m.length()) == m) {
@@ -297,7 +297,7 @@ WString WDate::shortMonthName(int month, bool localizedString)
     return WString::fromUTF8(v[month - 1]);
 }
 
-int WDate::parseShortMonthName(const std::string& v, unsigned& pos)
+int WDate::parseShortMonthName(const std::string& v, unsigned& pos, bool localizedString)
 {
   if (pos + 2 >= v.length())
     return -1;
@@ -305,7 +305,7 @@ int WDate::parseShortMonthName(const std::string& v, unsigned& pos)
   std::string m = v.substr(pos, 3);
 
   for (int i = 1; i <= 12; ++i) {
-    if (m == shortMonthName(i).toUTF8()) {
+    if (m == shortMonthName(i, localizedString).toUTF8()) {
       pos += 3;
       return i;
     }
@@ -326,12 +326,12 @@ WString WDate::longMonthName(int month, bool localizedString)
     return WString::fromUTF8(v[month - 1]);
 }
 
-int WDate::parseLongMonthName(const std::string& v, unsigned& pos)
+int WDate::parseLongMonthName(const std::string& v, unsigned& pos, bool localizedString)
 {
   std::string remainder = v.substr(pos);
 
   for (int i = 1; i <= 12; ++i) {
-    std::string m = longMonthName(i).toUTF8();
+    std::string m = longMonthName(i, localizedString).toUTF8();
 
     if (remainder.length() >= m.length())
       if (remainder.substr(0, m.length()) == m) {
@@ -348,9 +348,9 @@ WString WDate::defaultFormat()
   return WString::fromUTF8("ddd MMM d yyyy");
 }
 
-WDate WDate::fromString(const WString& s)
+WDate WDate::fromString(const WString& s, bool localizedString)
 {
-  return fromString(s, defaultFormat());
+  return fromString(s, defaultFormat(), localizedString);
 }
 
 WDate::ParseState::ParseState()
@@ -359,23 +359,31 @@ WDate::ParseState::ParseState()
   day = month = year = -1;
 }
 
-WDate WDate::fromString(const WString& s, const WString& format)
+WDate WDate::fromString(const WString& s, const char* format,
+                        bool localizedString)
+{
+  return fromString(s, WString(format), localizedString);
+}
+
+WDate WDate::fromString(const WString& s, const WString& format,
+                        bool localizedString)
 {
   WDate result;
 
-  WDateTime::fromString(&result, nullptr, s, format);
+  WDateTime::fromString(&result, nullptr, s, format, localizedString);
 
   return result;
 }
 
 WDateTime::CharState WDate::handleSpecial(char c, const std::string& v,
                                           unsigned& vi, ParseState& parse,
-                                          const WString& format)
+                                          const WString& format,
+                                          bool localizedString)
 {
   switch (c) {
   case 'd':
     if (parse.d == 0)
-      if (!parseLast(v, vi, parse, format))
+      if (!parseLast(v, vi, parse, format, localizedString))
         return WDateTime::CharState::CharInvalid;
 
     ++parse.d;
@@ -384,7 +392,7 @@ WDateTime::CharState WDate::handleSpecial(char c, const std::string& v,
 
   case 'M':
     if (parse.M == 0)
-      if (!parseLast(v, vi, parse, format))
+      if (!parseLast(v, vi, parse, format, localizedString))
         return WDateTime::CharState::CharInvalid;
 
     ++parse.M;
@@ -393,7 +401,7 @@ WDateTime::CharState WDate::handleSpecial(char c, const std::string& v,
 
   case 'y':
     if (parse.y == 0)
-      if (!parseLast(v, vi, parse, format))
+      if (!parseLast(v, vi, parse, format, localizedString))
         return WDateTime::CharState::CharInvalid;
 
     ++parse.y;
@@ -401,7 +409,7 @@ WDateTime::CharState WDate::handleSpecial(char c, const std::string& v,
     return WDateTime::CharState::CharHandled;
 
   default:
-    if (!parseLast(v, vi, parse, format))
+    if (!parseLast(v, vi, parse, format, localizedString))
       return WDateTime::CharState::CharInvalid;
 
     return WDateTime::CharState::CharUnhandled;
@@ -425,7 +433,8 @@ static void fatalFormatError(const WString& format, int c, const char* cs)
 
 bool WDate::parseLast(const std::string& v, unsigned& vi,
                       ParseState& parse,
-                      const WString& format)
+                      const WString& format,
+                      bool localizedString)
 {
   if (parse.d != 0) {
     switch (parse.d) {
@@ -464,11 +473,11 @@ bool WDate::parseLast(const std::string& v, unsigned& vi,
       break;
     }
     case 3:
-      if (parseShortDayName(v, vi) == -1)
+      if (parseShortDayName(v, vi, localizedString) == -1)
         return false;
       break;
     case 4:
-      if (parseLongDayName(v, vi) == -1)
+      if (parseLongDayName(v, vi, localizedString) == -1)
         return false;
       break;
     default:
@@ -515,12 +524,12 @@ bool WDate::parseLast(const std::string& v, unsigned& vi,
       break;
     }
     case 3:
-      parse.month = parseShortMonthName(v, vi);
+      parse.month = parseShortMonthName(v, vi, localizedString);
       if (parse.month == -1)
         return false;
       break;
     case 4:
-      parse.month = parseLongMonthName(v, vi);
+      parse.month = parseLongMonthName(v, vi, localizedString);
       if (parse.month == -1)
         return false;
       break;

@@ -315,7 +315,7 @@ public:
    *
    * \sa WDate::fromString(), WTime::fromString().
    */
-  static WDateTime fromString(const WT_USTRING& s);
+  static WDateTime fromString(const WT_USTRING& s, bool localizedString = true);
 
   /*! \brief Parses a string to a time using a specified format.
    *
@@ -324,7 +324,18 @@ public:
    *
    * \sa WDate::fromString(), WTime::toString().
    */
-  static WDateTime fromString(const WT_USTRING& s, const WT_USTRING& format);
+  static WDateTime fromString(const WT_USTRING& s, const WT_USTRING& format,
+                              bool localizedString = true);
+
+  /*! \brief Parses a string to a time using a specified format.
+   *
+   * The \p format is a string which mixes the format for WDate and
+   * WTime.
+   *
+   * \sa WDate::fromString(), WTime::toString().
+   */
+  static WDateTime fromString(const WT_USTRING& s, const char* format,
+                              bool localizedString = true);
 
   /*! \brief Reports the current datetime (UTC clock).
    *
@@ -353,7 +364,7 @@ private:
   enum class CharState { CharUnhandled, CharHandled, CharInvalid };
 
   static void fromString(WDate *date, WTime *time, const WString& s,
-                         const WString& format);
+                         const WString& format, bool localizedString);
   static WString toString(const WDate *date, const WTime *time,
                           const WString& format, bool localizedString,
                           int zoneOffset);

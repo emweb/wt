@@ -176,7 +176,7 @@ WTime::ParseState::ParseState()
 WTime WTime::fromString(const WString& s, const WString& format)
 {
   WTime result;
-  WDateTime::fromString(nullptr, &result, s, format);
+  WDateTime::fromString(nullptr, &result, s, format, true);
   return result;
 }
 

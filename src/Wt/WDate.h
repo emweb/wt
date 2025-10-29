@@ -328,7 +328,7 @@ public:
    *
    * \sa fromString(const WString& s, const WString& format), isValid()
    */
-  static WDate fromString(const WT_USTRING& s);
+  static WDate fromString(const WT_USTRING& s, bool localizedString = true);
 
   /*! \brief Parses a string to a date using a specified format.
    *
@@ -340,7 +340,19 @@ public:
    *
    * \sa toString(const WString&) const
    */
-  static WDate fromString(const WT_USTRING& s, const WT_USTRING& format);
+  static WDate fromString(const WT_USTRING& s, const WT_USTRING& format, bool localizedString = true);
+
+  /*! \brief Parses a string to a date using a specified format.
+   *
+   * The \p format follows the same syntax as used by
+   * \link toString(const WString& format) const toString(const WString& format)\endlink.
+   *
+   * When the date could not be parsed or is not valid, an invalid
+   * date is returned (for which isValid() returns false).
+   *
+   * \sa toString(const WString&) const
+   */
+  static WDate fromString(const WT_USTRING& s, const char* format, bool localizedString = true);
 
   /*! \brief Converts a Julian Day <i>jd</i> to a \link Wt::WDate WDate \endlink.
    *
@@ -459,20 +471,22 @@ private:
   };
 
   static bool parseLast(const std::string& v, unsigned& vi,
-                        ParseState& state, const WString& format);
+                        ParseState& state, const WString& format,
+                        bool localizedString);
 
   static WDateTime::CharState handleSpecial(char c, const std::string& v,
                                             unsigned& vi, ParseState& parse,
-                                            const WString& format);
+                                            const WString& format,
+                                            bool localizedString);
 
   bool writeSpecial(const std::string& f, unsigned& i, WStringStream& result,
                     bool localizedString = true)
     const;
 
-  static int parseShortMonthName(const std::string& v, unsigned& pos);
-  static int parseLongMonthName(const std::string& v, unsigned& pos);
-  static int parseShortDayName(const std::string& v, unsigned& pos);
-  static int parseLongDayName(const std::string& v, unsigned& pos);
+  static int parseShortMonthName(const std::string& v, unsigned& pos, bool localizedString);
+  static int parseLongMonthName(const std::string& v, unsigned& pos, bool localizedString);
+  static int parseShortDayName(const std::string& v, unsigned& pos, bool localizedString);
+  static int parseLongDayName(const std::string& v, unsigned& pos, bool localizedString);
 
   friend class WDateTime;
 };
