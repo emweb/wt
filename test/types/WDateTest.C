@@ -17,6 +17,10 @@ BOOST_AUTO_TEST_CASE( WDate_toString_non_localized )
   // This produces a string that disregards the locale
   Wt::Test::WTestEnvironment environment;
   Wt::WApplication app(environment);
+  std::string file = app.appRoot() + "types/days_months_names";
+  BOOST_REQUIRE(Wt::FileUtils::exists(file + ".xml"));
+
+  app.messageResourceBundle().use(file);
 
   Wt::WDate date(2022, 1, 2);
   BOOST_TEST(date.toString("dd/MM/yyyy", false) == "02/01/2022");
@@ -28,7 +32,7 @@ BOOST_AUTO_TEST_CASE( WDate_toString_non_localized )
 BOOST_AUTO_TEST_CASE( WDate_toString_localized )
 {
   // Regression test for issue #11852
-  // This produces a string that disregards the locale
+  // This produces a string that takes the locale into account
   Wt::Test::WTestEnvironment environment;
   Wt::WApplication app(environment);
   std::string file = app.appRoot() + "types/days_months_names";

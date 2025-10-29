@@ -19,6 +19,10 @@ BOOST_AUTO_TEST_CASE( WDateTime_toString_non_localized )
   // This produces a string that disregards the locale
   Wt::Test::WTestEnvironment environment;
   Wt::WApplication app(environment);
+  std::string file = app.appRoot() + "types/days_months_names";
+  BOOST_REQUIRE(Wt::FileUtils::exists(file + ".xml"));
+
+  app.messageResourceBundle().use(file);
 
   Wt::WDateTime datetime(Wt::WDate(2022, 1, 2), Wt::WTime(10, 8, 9));
   BOOST_TEST(datetime.toString("hh:mm:ss dd/MM/yyyy", false) == "10:08:09 02/01/2022");
