@@ -31,6 +31,14 @@ behaviour.
     or not being updated for events where it should. This was mainly causing issues with
     Firefox.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/12407" target="_blank">Issue #12407</a>:
+    fixed submenus wrongly selecting themselves when clearing their selection using
+    <a href="classWt_1_1WMenu.html#aec1801d047dc0f150d1cc12b801aa6c2" target="_blank">WMenu::select(-1)</a>. This meant that
+    instead of clearing the selection of a submenu, calling
+    <a href="classWt_1_1WMenu.html#aec1801d047dc0f150d1cc12b801aa6c2" target="_blank">WMenu::select(-1)</a> would actually
+    select the first item of the submenu.
+  </li>
 </ul>
 
 <h2>Release 4.13.2 (May 7, 2026)</h2>
