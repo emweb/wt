@@ -55,6 +55,12 @@ behaviour.
     either the top or the bottom of the row are not in the viewport.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13388" target="_blank">Issue #13388</a>:
+    fixed segmentation fault happening when authenticating a user with
+    <a href="classWt_1_1Auth_1_1Mfa_1_1TotpProcess.html" target="_blank">Auth::Mfa::TotpProcess</a>
+    while using a database not supporting transactions.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13740" target="_blank">Issue #13740</a>:
     fixed a race condition in
     <a href="classWt_1_1Auth_1_1OAuthProcess.html" target="_blank">Auth::OAuthProcess</a> that could in some
