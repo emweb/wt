@@ -280,6 +280,7 @@ IF(ENABLE_LIBWTTEST)
       set(HTTP_TEST_SOURCES ${HTTP_TEST_SOURCES}
         http/HttpClientServerTest.C
         http/BotTest.C
+        resource/WStreamResourceTest.C
       )
 
       SUBDIRS(
