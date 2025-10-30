@@ -107,7 +107,6 @@ protected:
 private:
   std::string mimeType_;
   int bufferSize_;
-  std::streamsize beyondLastByte_;
 };
 
 }

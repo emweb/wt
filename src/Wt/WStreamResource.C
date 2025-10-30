@@ -43,9 +43,17 @@ void WStreamResource::handleRequestPiecewise(const Http::Request& request,
                                              Http::Response& response,
                                              std::istream& input)
 {
+  typedef std::pair<::uint64_t, std::streamsize> State;
+
+  ::uint64_t startByte = 0;
+  std::streamsize beyondLastByte;
   Http::ResponseContinuation *continuation = request.continuation();
-  ::uint64_t startByte
-      = continuation ? cpp17::any_cast<::uint64_t>(continuation->data()) : 0;
+
+  if (continuation) {
+    State state = cpp17::any_cast<State>(continuation->data());
+    startByte = state.first;
+    beyondLastByte = state.second;
+  }
 
   if (startByte == 0) {
     /*
@@ -77,16 +85,16 @@ void WStreamResource::handleRequestPiecewise(const Http::Request& request,
     if (ranges.size() == 1) {
       response.setStatus(206);
       startByte = ranges[0].firstByte();
-      beyondLastByte_ = std::streamsize(ranges[0].lastByte() + 1);
+      beyondLastByte = std::streamsize(ranges[0].lastByte() + 1);
 
       std::ostringstream contentRange;
       contentRange << "bytes " << startByte << "-"
-                   << beyondLastByte_ - 1 << "/" << isize;
+                   << beyondLastByte - 1 << "/" << isize;
       response.addHeader("Content-Range", contentRange.str());
-      response.setContentLength(::uint64_t(beyondLastByte_) - startByte);
+      response.setContentLength(::uint64_t(beyondLastByte) - startByte);
     } else {
-      beyondLastByte_ = std::streamsize(isize);
-      response.setContentLength(::uint64_t(beyondLastByte_));
+      beyondLastByte = std::streamsize(isize);
+      response.setContentLength(::uint64_t(beyondLastByte));
     }
 
     response.setMimeType(mimeType_);
@@ -99,7 +107,7 @@ void WStreamResource::handleRequestPiecewise(const Http::Request& request,
   boost::scoped_array<char> buf(new char[bufferSize_]);
   std::streamsize sbufferSize = std::streamsize(bufferSize_);
 
-  std::streamsize restSize = beyondLastByte_ - std::streamsize(startByte);
+  std::streamsize restSize = beyondLastByte - std::streamsize(startByte);
   std::streamsize pieceSize =  sbufferSize > restSize ? restSize : sbufferSize;
 
   input.read(buf.get(), pieceSize);
@@ -108,7 +116,7 @@ void WStreamResource::handleRequestPiecewise(const Http::Request& request,
 
   if (input.good() && actualPieceSize < restSize) {
     continuation = response.createContinuation();
-    continuation->setData(startByte + ::uint64_t(actualPieceSize));
+    continuation->setData(State(startByte + ::uint64_t(actualPieceSize), beyondLastByte));
   }
 }
 
