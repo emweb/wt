@@ -154,7 +154,10 @@ namespace Wt {
 
     std::unique_ptr<AbstractUserDatabase::Transaction> t(users().startTransaction());
     login().user().setAuthenticated(validation);
-    t->commit();
+
+    if (t) {
+      t->commit();
+    }
 
     if (!validation) {
       if (throttlingDelay_ > 0) {
