@@ -1,10 +1,15 @@
+#include <Wt/cpp17/any.hpp>
+
+#include <Wt/WString.h>
+
+#include <boost/test/unit_test.hpp>
+
 #include <memory>
 
 namespace Wt {
   class WAbstractItemModel;
   class WStandardItemModel;
   class WStringListModel;
-  class WString;
 }
 
 using namespace Wt;
@@ -27,6 +32,24 @@ public:
 
   WString get(int i, int j);
   WString createValue(int i, int j);
+
+  template<class Model>
+  void testUnchanged(int i, int j, Model* model)
+  {
+    WString value = createValue(i, j);
+    BOOST_TEST(get(i, j) == value);
+    BOOST_TEST(cpp17::any_cast<WString>(model->data(model->index(i, j))) == value);
+  }
+
+  template<class Model>
+  void testUnchangedRange(int toRow, int toCol, Model* model)
+  {
+    for (int i = 0; i < toRow; ++i) {
+      for (int j = 0; j < toCol; ++j) {
+        testUnchanged(i, j, model);
+      }
+    }
+  }
 
 private:
   std::shared_ptr<WStandardItemModel> standardItemModel_;

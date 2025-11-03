@@ -1,7 +1,5 @@
 #include "utilities.h"
 
-#include <boost/test/unit_test.hpp>
-
 #include <Wt/WStandardItemModel.h>
 #include <Wt/WStandardItem.h>
 #include <Wt/WStringListModel.h>

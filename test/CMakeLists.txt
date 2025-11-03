@@ -23,6 +23,7 @@ IF(ENABLE_LIBWTTEST)
     models/utilities.h models/utilities.C
     models/WAggregateProxyModelTest.C
     models/WBatchEditProxyModelTest.C
+    models/WIdentityProxyModelTest.C
     models/WFormModelTest.C
     models/WModelIndexTest.C
     models/WStandardItemModelTest.C
