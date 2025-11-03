@@ -410,6 +410,12 @@ void WSortFilterProxyModel::sourceColumnsAboutToBeInserted
 void WSortFilterProxyModel::sourceColumnsInserted(WT_MAYBE_UNUSED const WModelIndex& parent,
                                                   WT_MAYBE_UNUSED int start, WT_MAYBE_UNUSED int end)
 {
+  if (dynamic_) {
+    if (filterKeyColumn_ >= start && filterKeyColumn_ <= end) {
+      invalidate();
+    }
+  }
+
   endInsertColumns();
 }
 
