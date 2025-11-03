@@ -106,6 +106,15 @@ int WStringListModel::rowCount(const WModelIndex& parent) const
   return parent.isValid() ? 0 : displayData_.size();
 }
 
+WModelIndex WStringListModel::index(int row, int column, const WModelIndex& parent) const
+{
+  if (row >= rowCount()) {
+    return WModelIndex();
+  }
+
+  return createIndex(row, 0, (void*)nullptr);
+}
+
 cpp17::any WStringListModel::data(const WModelIndex& index, ItemDataRole role) const
 {
   if (role == ItemDataRole::Display)

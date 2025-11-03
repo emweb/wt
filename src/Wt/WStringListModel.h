@@ -88,6 +88,17 @@ public:
   virtual WFlags<ItemFlag> flags(const WModelIndex& index) const override;
 
   using WAbstractListModel::setData;
+
+  /* \brief Returns the model index.
+   *
+   * Since the model only contains a single row, the \p column will
+   * always be changed to \p 0.
+   *
+   * An invalid WModelIndex is returned when the \p row is out of
+   * bounds.
+   */
+  WModelIndex index(int row, int column = 0, const WModelIndex& parent = WModelIndex()) const override;
+
   virtual bool setData(const WModelIndex& index, const cpp17::any& value,
                        ItemDataRole role = ItemDataRole::Edit) override;
 

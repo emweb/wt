@@ -42,10 +42,10 @@ BOOST_AUTO_TEST_CASE( WStringListModel_index_test )
   BOOST_TEST(i1.row() == 0);
   BOOST_TEST(i1.column() == 0);
   BOOST_TEST(i2.row() == 1);
-  BOOST_TEST(i1.column() == 0);
+  BOOST_TEST(i2.column() == 0);
   BOOST_TEST(i3.row() == 0);
   BOOST_TEST(i3.column() == 0);
-  BOOST_TEST(i4.row() == 2);
+  BOOST_TEST(i4.row() == 0);
   BOOST_TEST(i4.column() == 0);
 }
 
