@@ -697,6 +697,14 @@ void WStandardItem::removeColumn(int column)
 
 void WStandardItem::removeColumns(int column, int count)
 {
+  if (column >= columnCount()) {
+    return;
+  }
+
+  if (column + count > columnCount()) {
+    count = columnCount() - column;
+  }
+
   if (model_)
     model_->beginRemoveColumns(index(), column, column + count - 1);
 
@@ -719,6 +727,15 @@ void WStandardItem::removeRow(int row)
 
 void WStandardItem::removeRows(int row, int count)
 {
+  if (row >= rowCount()) {
+    return;
+  }
+
+  if (row + count > rowCount()) {
+    count = rowCount() - row;
+  }
+
+
   if (model_)
     model_->beginRemoveRows(index(), row, row + count - 1);
 

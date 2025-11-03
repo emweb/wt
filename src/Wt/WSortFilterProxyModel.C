@@ -664,6 +664,14 @@ bool WSortFilterProxyModel::insertRows(int row, int count,
 bool WSortFilterProxyModel::removeRows(int row, int count,
                                        const WModelIndex& parent)
 {
+  if (row >= rowCount()) {
+    return false;
+  }
+
+  if (row + count > rowCount()) {
+    count = rowCount() - row;
+  }
+
   for (int i = 0; i < count; ++i) {
     int sourceRow = mapToSource(index(row, 0, parent)).row();
     if (!sourceModel()->removeRows(sourceRow, 1, mapToSource(parent)))

@@ -178,6 +178,14 @@ bool WStringListModel::insertRows(int row, int count, const WModelIndex& parent)
 
 bool WStringListModel::removeRows(int row, int count, const WModelIndex& parent)
 {
+  if (row >= rowCount()) {
+    return false;
+  }
+
+  if (row + count > rowCount()) {
+    count = rowCount() - row;
+  }
+
   if (!parent.isValid()) {
     beginRemoveRows(parent, row, row + count - 1);
     displayData_.erase(displayData_.begin() + row,
