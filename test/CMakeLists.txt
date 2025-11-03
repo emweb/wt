@@ -21,6 +21,7 @@ IF(ENABLE_LIBWTTEST)
     mail/MailMessageTest.C
     matrix/MatrixTest.C
     models/utilities.h models/utilities.C
+    models/WAggregateProxyModelTest.C
     models/WBatchEditProxyModelTest.C
     models/WFormModelTest.C
     models/WModelIndexTest.C
