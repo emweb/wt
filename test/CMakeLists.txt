@@ -26,6 +26,7 @@ IF(ENABLE_LIBWTTEST)
     models/WIdentityProxyModelTest.C
     models/WFormModelTest.C
     models/WModelIndexTest.C
+    models/WReadOnlyProxyModelTest.C
     models/WStandardItemModelTest.C
     models/WStringListModelTest.C
     private/EscapeTest.C

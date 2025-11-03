@@ -95,13 +95,13 @@ public:
   /*! \brief Always returns \c false and has no effect.
    *
    */
-  virtual bool insertColumns(int column, int count, const WModelIndex& parent)
+  virtual bool insertColumns(int column, int count, const WModelIndex& parent = WModelIndex())
     override;
 
   /*! \brief Always returns \c false and has no effect.
    *
    */
-  virtual bool removeColumns(int column, int count, const WModelIndex& parent)
+  virtual bool removeColumns(int column, int count, const WModelIndex& parent = WModelIndex())
     override;
 
   /*! \brief Has no effect.
