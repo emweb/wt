@@ -103,6 +103,12 @@ public:
   virtual bool removeRows(int row, int count,
                           const WModelIndex& parent = WModelIndex()) override;
 
+  /*! \brief Sorts the model.
+   *
+   * The \p column is ignored, as this model only holds a singular list.
+   * It will always result in the first (and only) column of the model
+   * being sorted.
+   */
   virtual void sort(int column,
                     SortOrder order = SortOrder::Ascending) override;
 
