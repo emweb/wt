@@ -462,8 +462,8 @@ void WVmlImage::drawText(const WRectF& rect,
    * HTML tricks to center things vertically in IE
    */
   e->setProperty(Property::StylePosition, "absolute");
-  e->setProperty(Property::StyleTop, std::to_string(pos.y()) + "px");
-  e->setProperty(Property::StyleLeft, std::to_string(pos.x()) + "px");
+  e->setProperty(Property::StyleInsetBlockStart, std::to_string(pos.y()) + "px");
+  e->setProperty(Property::StyleInsetInlineStart, std::to_string(pos.x()) + "px");
   e->setProperty(Property::StyleWidth, std::to_string(rect.width()) + "px");
   e->setProperty(Property::StyleHeight, std::to_string(rect.height()) + "px");
 
@@ -476,14 +476,14 @@ void WVmlImage::drawText(const WRectF& rect,
     if (verticalAlign == AlignmentFlag::Middle) {
       i = DomElement::createNew(DomElement::DIV);
       i->setProperty(Property::StylePosition, "absolute");
-      i->setProperty(Property::StyleTop, "50%");
+      i->setProperty(Property::StyleInsetBlockStart, "50%");
 
       t->setProperty(Property::StylePosition, "relative");
-      t->setProperty(Property::StyleTop, "-50%");
+      t->setProperty(Property::StyleInsetBlockStart, "-50%");
     } else if (verticalAlign == AlignmentFlag::Bottom) {
       t->setProperty(Property::StylePosition, "absolute");
       t->setProperty(Property::StyleWidth, "100%");
-      t->setProperty(Property::StyleBottom, "0px");
+      t->setProperty(Property::StyleInsetBlockEnd, "0px");
     }
   }
 
@@ -498,7 +498,7 @@ void WVmlImage::drawText(const WRectF& rect,
   if (horizontalAlign == AlignmentFlag::Right) {
     t->setProperty(Property::StyleTextAlign, "right");
     if (i)
-      i->setProperty(Property::StyleRight, "0px");
+      i->setProperty(Property::StyleInsetInlineEnd, "0px");
   } else if (horizontalAlign == AlignmentFlag::Center)
     t->setProperty(Property::StyleTextAlign, "center");
 

@@ -1577,10 +1577,10 @@ void WWebWidget::updateDom(DomElement& element, bool all)
        * set offsets
        */
       if (layoutImpl_->positionScheme_ != PositionScheme::Static) {
-        static const Property properties[] = { Property::StyleTop,
-                                               Property::StyleRight,
-                                               Property::StyleBottom,
-                                               Property::StyleLeft };
+        static const Property properties[] = { Property::StyleInsetBlockStart,
+                                               Property::StyleInsetInlineEnd,
+                                               Property::StyleInsetBlockEnd,
+                                               Property::StyleInsetInlineStart };
 
         if (!layoutImpl_->offsets_[0].isAuto()
             || !layoutImpl_->offsets_[1].isAuto()
@@ -1590,11 +1590,6 @@ void WWebWidget::updateDom(DomElement& element, bool all)
             Property property = properties[i];
 
             if (!app) app = WApplication::instance();
-
-            if (app->layoutDirection() == LayoutDirection::RightToLeft) {
-              if (i == 1) property = properties[3];
-              else if (i == 3) property = properties[1];
-            }
 
             if ((app->environment().ajax()
                  && !app->environment().agentIsIElt(9))
@@ -1687,16 +1682,16 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     bool changed = flags_.test(BIT_MARGINS_CHANGED);
     if (changed || all) {
       if (changed || (layoutImpl_->margin_[0].value() != 0))
-        element.setProperty(Property::StyleMarginTop,
+        element.setProperty(Property::StyleMarginBlockStart,
                             layoutImpl_->margin_[0].cssText());
       if (changed || (layoutImpl_->margin_[1].value() != 0))
-        element.setProperty(Property::StyleMarginRight,
+        element.setProperty(Property::StyleMarginInlineEnd,
                             layoutImpl_->margin_[1].cssText());
       if (changed || (layoutImpl_->margin_[2].value() != 0))
-        element.setProperty(Property::StyleMarginBottom,
+        element.setProperty(Property::StyleMarginBlockEnd,
                             layoutImpl_->margin_[2].cssText());
       if (changed || (layoutImpl_->margin_[3].value() != 0))
-        element.setProperty(Property::StyleMarginLeft,
+        element.setProperty(Property::StyleMarginInlineStart,
                             layoutImpl_->margin_[3].cssText());
 
       flags_.reset(BIT_MARGINS_CHANGED);
@@ -1927,8 +1922,8 @@ void WWebWidget::updateDom(DomElement& element, bool all)
         element.setProperty(Property::StyleVisibility, "hidden");
         if (flags_.test(BIT_HIDE_WITH_OFFSETS)) {
           element.setProperty(Property::StylePosition, "absolute");
-          element.setProperty(Property::StyleTop, "-10000px");
-          element.setProperty(Property::StyleLeft, "-10000px");
+          element.setProperty(Property::StyleInsetBlockStart, "-10000px");
+          element.setProperty(Property::StyleInsetInlineStart, "-10000px");
         }
       } else {
         if (flags_.test(BIT_HIDE_WITH_OFFSETS)) {
@@ -1945,20 +1940,20 @@ void WWebWidget::updateDom(DomElement& element, bool all)
             }
 
             if (!layoutImpl_->offsets_[0].isAuto())
-              element.setProperty(Property::StyleTop,
+              element.setProperty(Property::StyleInsetBlockStart,
                                   layoutImpl_->offsets_[0].cssText());
             else
-              element.setProperty(Property::StyleTop, "");
+              element.setProperty(Property::StyleInsetBlockStart, "");
 
             if (!layoutImpl_->offsets_[3].isAuto())
-              element.setProperty(Property::StyleLeft,
+              element.setProperty(Property::StyleInsetInlineStart,
                                   layoutImpl_->offsets_[3].cssText());
             else
-              element.setProperty(Property::StyleTop, "");
+              element.setProperty(Property::StyleInsetBlockStart, "");
           } else {
             element.setProperty(Property::StylePosition, "static");
-            element.setProperty(Property::StyleTop, "");
-            element.setProperty(Property::StyleLeft, "");
+            element.setProperty(Property::StyleInsetBlockStart, "");
+            element.setProperty(Property::StyleInsetInlineStart, "");
           }
         }
         element.callJavaScript(WT_CLASS ".$('" + id() + "').classList.remove('Wt-hidden');");
@@ -2007,21 +2002,21 @@ void WWebWidget::updateDom(DomElement& element, bool all)
            << "," << transientImpl_->animation_.duration()
            << ",'" << element.getProperty(Property::StyleVisibility)
            << "','" << element.getProperty(Property::StylePosition)
-           << "','" << element.getProperty(Property::StyleTop)
-           << "','" << element.getProperty(Property::StyleLeft)
+           << "','" << element.getProperty(Property::StyleInsetBlockStart)
+           << "','" << element.getProperty(Property::StyleInsetInlineStart)
            << "');";
         element.callJavaScript(ss.str());
 
         if (all) {
           element.setProperty(Property::StyleVisibility, "hidden");
           element.setProperty(Property::StylePosition, "absolute");
-          element.setProperty(Property::StyleTop, "-10000px");
-          element.setProperty(Property::StyleLeft, "-10000px");
+          element.setProperty(Property::StyleInsetBlockStart, "-10000px");
+          element.setProperty(Property::StyleInsetInlineStart, "-10000px");
         } else {
           element.removeProperty(Property::StyleVisibility);
           element.removeProperty(Property::StylePosition);
-          element.removeProperty(Property::StyleTop);
-          element.removeProperty(Property::StyleLeft);
+          element.removeProperty(Property::StyleInsetBlockStart);
+          element.removeProperty(Property::StyleInsetInlineStart);
         }
       }
     }
@@ -2535,8 +2530,8 @@ DomElement *WWebWidget::createStubElement(WApplication *app)
     stub->setProperty(Property::StyleDisplay, "none");
   } else {
     stub->setProperty(Property::StylePosition, "absolute");
-    stub->setProperty(Property::StyleLeft, "-10000px");
-    stub->setProperty(Property::StyleTop, "-10000px");
+    stub->setProperty(Property::StyleInsetInlineStart, "-10000px");
+    stub->setProperty(Property::StyleInsetBlockStart, "-10000px");
     stub->setProperty(Property::StyleVisibility, "hidden");
   }
   if (app->environment().javaScript())

@@ -640,7 +640,7 @@ BOOST_AUTO_TEST_CASE(WTemplate_renderTemplateText_bound_widgets)
   t.bindWidget("widget", std::make_unique<Wt::WSlider>());
   resetStream(output);
   t.renderTemplateText(output, t.templateText());
-  BOOST_REQUIRE(filterOutIds(output.str()) == "<div><div tabindex=\"0\" class=\"Wt-slider-h\" style=\"position:relative;width:150.0px;height:50.0px;left:0.0px;right:auto;top:0.0px;bottom:auto;display:inline-block;\"><div class=\"Wt-w\"/><div class=\"Wt-e\"/><div class=\"Wt-slider-bg\" style=\"width:140.0px;height:50.0px;\"><div style=\"position:relative;overflow-x:hidden;overflow-y:hidden;\"><canvas height=\"50\" width=\"140\" style=\"display:block;\"/></div></div><div class=\"fill\" style=\"position:absolute;width:10.0px;\"/><div tabindex=\"0\" class=\"handle\" style=\"position:absolute;width:20.0px;height:50.0px;left:0.0px;right:auto;top:0.0px;bottom:auto;\"/></div></div>");
+  BOOST_REQUIRE(filterOutIds(output.str()) == "<div><div tabindex=\"0\" class=\"Wt-slider-h\" style=\"position:relative;width:150.0px;height:50.0px;inset-inline-start:0.0px;inset-inline-end:auto;inset-block-start:0.0px;inset-block-end:auto;display:inline-block;\"><div class=\"Wt-w\"/><div class=\"Wt-e\"/><div class=\"Wt-slider-bg\" style=\"width:140.0px;height:50.0px;\"><div style=\"position:relative;overflow-x:hidden;overflow-y:hidden;\"><canvas height=\"50\" width=\"140\" style=\"display:block;\"/></div></div><div class=\"fill\" style=\"position:absolute;width:10.0px;\"/><div tabindex=\"0\" class=\"handle\" style=\"position:absolute;width:20.0px;height:50.0px;inset-inline-start:0.0px;inset-inline-end:auto;inset-block-start:0.0px;inset-block-end:auto;\"/></div></div>");
   t.bindWidget("widget", std::make_unique<Wt::WTextArea>());
   resetStream(output);
   t.renderTemplateText(output, t.templateText());
@@ -665,7 +665,7 @@ BOOST_AUTO_TEST_CASE(WTemplate_renderTemplateText_bound_widgets)
   t.bindWidget("widget", std::make_unique<Wt::WTableView>());
   resetStream(output);
   t.renderTemplateText(output, t.templateText());
-  BOOST_REQUIRE(filterOutIds(output.str()) == "<div><div unselectable=\"on\" class=\"Wt-itemview Wt-tableview unselectable\" style=\"position:relative;\"><div style=\"position:absolute;left:0;right:0;\"><div class=\"Wt-header Wt-headerdiv headerrh tcontainer\" style=\"visibility:hidden;display:none;box-sizing:border-box;-moz-box-sizing:border-box;\"/><div class=\"Wt-hide-scrollbar Wt-header headerrh tcontainer\" style=\"overflow-x:visible;overflow-y:hidden;visibility:hidden;box-sizing:border-box;-moz-box-sizing:border-box;\"><div class=\"Wt-headerdiv headerrh\"/></div><span style=\"visibility:hidden;display:none;box-sizing:border-box;-moz-box-sizing:border-box;\">...</span><div class=\"tcontainer\" style=\"position:absolute;overflow-x:auto;overflow-y:auto;visibility:hidden;box-sizing:border-box;-moz-box-sizing:border-box;\"><div class=\"Wt-spacer\" style=\"position:relative;line-height:20.0px;\"><div class=\"Wt-tv-contents\" style='position:absolute;width:100.0%;background-image:url(\"resources/themes/default/no-stripes/no-stripe-20px.gif\");'/></div></div></div></div></div>");
+  BOOST_REQUIRE(filterOutIds(output.str()) == "<div><div unselectable=\"on\" class=\"Wt-itemview Wt-tableview unselectable\" style=\"position:relative;\"><div style=\"position:absolute;inset-inline-start:0;inset-inline-end:0;\"><div class=\"Wt-header Wt-headerdiv headerrh tcontainer\" style=\"visibility:hidden;display:none;box-sizing:border-box;-moz-box-sizing:border-box;\"/><div class=\"Wt-hide-scrollbar Wt-header headerrh tcontainer\" style=\"overflow-x:visible;overflow-y:hidden;visibility:hidden;box-sizing:border-box;-moz-box-sizing:border-box;\"><div class=\"Wt-headerdiv headerrh\"/></div><span style=\"visibility:hidden;display:none;box-sizing:border-box;-moz-box-sizing:border-box;\">...</span><div class=\"tcontainer\" style=\"position:absolute;overflow-x:auto;overflow-y:auto;visibility:hidden;box-sizing:border-box;-moz-box-sizing:border-box;\"><div class=\"Wt-spacer\" style=\"position:relative;line-height:20.0px;\"><div class=\"Wt-tv-contents\" style='position:absolute;width:100.0%;background-image:url(\"resources/themes/default/no-stripes/no-stripe-20px.gif\");'/></div></div></div></div></div>");
   t.bindWidget("widget", std::make_unique<Wt::WTreeView>());
   resetStream(output);
   t.renderTemplateText(output, t.templateText());
@@ -735,7 +735,7 @@ BOOST_AUTO_TEST_CASE(WTemplate_renderTemplateText_bound_widgets)
   t.bindWidget("widget", std::make_unique<Wt::WTreeTable>());
   resetStream(output);
   t.renderTemplateText(output, t.templateText());
-  BOOST_REQUIRE(filterOutIds(output.str()) == "<div><div class=\"Wt-treetable\" style=\"position:relative;\"><div class=\"Wt-header header\"><div class=\"Wt-sbspacer\"/><div style=\"float:right;\"/><span/></div><div class=\"Wt-content\" style=\"overflow-x:auto;overflow-y:auto;\"><div unselectable=\"on\" class=\"Wt-tree Wt-sentinel unselectable\" style=\"width:100.0%;margin-top:3.0px;margin-right:0.0px;margin-bottom:0.0px;margin-left:0.0px;\"><div class=\"Wt-item Wt-end Wt-root\"><span class=\"Wt-ctrl Wt-expand\" style=\"cursor:pointer;display:none;\"><img alt=\"\" src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" style=\"display:none;\"/><img alt=\"\" src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"/></span><span class=\"Wt-ctrl Wt-noexpand\"/><div><span class=\"Wt-label\"/></div></div><div style=\"clear: both\"/><ul class=\"Wt-root\"/></div></div></div></div>");
+  BOOST_REQUIRE(filterOutIds(output.str()) == "<div><div class=\"Wt-treetable\" style=\"position:relative;\"><div class=\"Wt-header header\"><div class=\"Wt-sbspacer\"/><div style=\"float:right;\"/><span/></div><div class=\"Wt-content\" style=\"overflow-x:auto;overflow-y:auto;\"><div unselectable=\"on\" class=\"Wt-tree Wt-sentinel unselectable\" style=\"width:100.0%;margin-inline-start:0.0px;margin-inline-end:0.0px;margin-block-start:3.0px;margin-block-end:0.0px;\"><div class=\"Wt-item Wt-end Wt-root\"><span class=\"Wt-ctrl Wt-expand\" style=\"cursor:pointer;display:none;\"><img alt=\"\" src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" style=\"display:none;\"/><img alt=\"\" src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"/></span><span class=\"Wt-ctrl Wt-noexpand\"/><div><span class=\"Wt-label\"/></div></div><div style=\"clear: both\"/><ul class=\"Wt-root\"/></div></div></div></div>");
   t.bindWidget("widget", std::make_unique<Wt::WVirtualImage>(1, 1, 1, 1));
   resetStream(output);
   t.renderTemplateText(output, t.templateText());
@@ -745,15 +745,15 @@ BOOST_AUTO_TEST_CASE(WTemplate_renderTemplateText_bound_widgets)
   t.bindWidget("widget", std::make_unique<Wt::Chart::WAxisSliderWidget>());
   resetStream(output);
   t.renderTemplateText(output, t.templateText());
-  BOOST_REQUIRE(filterOutIds(output.str()) == "<div><div style=\"position:relative;\"><div style=\"position:absolute;left:0;right:0;\"><div style=\"position:relative;overflow-x:hidden;overflow-y:hidden;\"><canvas height=\"0\" width=\"0\" style=\"display:block;\"/></div></div></div></div>");
+  BOOST_REQUIRE(filterOutIds(output.str()) == "<div><div style=\"position:relative;\"><div style=\"position:absolute;inset-inline-start:0;inset-inline-end:0;\"><div style=\"position:relative;overflow-x:hidden;overflow-y:hidden;\"><canvas height=\"0\" width=\"0\" style=\"display:block;\"/></div></div></div></div>");
   t.bindWidget("widget", std::make_unique<Wt::Chart::WCartesianChart>());
   resetStream(output);
   t.renderTemplateText(output, t.templateText());
-  BOOST_REQUIRE(filterOutIds(output.str()) == "<div><div style=\"position:relative;\"><div style=\"position:absolute;left:0;right:0;\"><div style=\"position:relative;overflow-x:hidden;overflow-y:hidden;\"><canvas height=\"0\" width=\"0\" style=\"display:block;\"/></div></div></div></div>");
+  BOOST_REQUIRE(filterOutIds(output.str()) == "<div><div style=\"position:relative;\"><div style=\"position:absolute;inset-inline-start:0;inset-inline-end:0;\"><div style=\"position:relative;overflow-x:hidden;overflow-y:hidden;\"><canvas height=\"0\" width=\"0\" style=\"display:block;\"/></div></div></div></div>");
   t.bindWidget("widget", std::make_unique<Wt::Chart::WPieChart>());
   resetStream(output);
   t.renderTemplateText(output, t.templateText());
-  BOOST_REQUIRE(filterOutIds(output.str()) == "<div><div style=\"position:relative;\"><div style=\"position:absolute;left:0;right:0;\"><div style=\"position:relative;overflow-x:hidden;overflow-y:hidden;\"><canvas height=\"0\" width=\"0\" style=\"display:block;\"/></div></div></div></div>");
+  BOOST_REQUIRE(filterOutIds(output.str()) == "<div><div style=\"position:relative;\"><div style=\"position:absolute;inset-inline-start:0;inset-inline-end:0;\"><div style=\"position:relative;overflow-x:hidden;overflow-y:hidden;\"><canvas height=\"0\" width=\"0\" style=\"display:block;\"/></div></div></div></div>");
 }
 
 BOOST_AUTO_TEST_CASE(WTemplate_renderTemplateText_condition_true)

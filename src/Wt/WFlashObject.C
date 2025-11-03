@@ -75,8 +75,8 @@ void WFlashObject::updateDom(DomElement& element, bool all)
       // Layout-manager managed sizes need some CSS magic to display
       // correctly
       obj->setProperty(Property::StylePosition, "absolute");
-      obj->setProperty(Property::StyleLeft, "0");
-      obj->setProperty(Property::StyleRight, "0");
+      obj->setProperty(Property::StyleInsetInlineStart, "0");
+      obj->setProperty(Property::StyleInsetInlineEnd, "0");
       element.setProperty(Property::StylePosition, "relative");
       std::stringstream ss;
       // Client-side auto-resize function

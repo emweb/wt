@@ -278,10 +278,10 @@ void WCssDecorationStyle::updateDomElement(DomElement& element, bool all)
    * set border
    */
   Property properties[4]
-    = { Property::StyleBorderTop,
-        Property::StyleBorderRight,
-        Property::StyleBorderBottom,
-        Property::StyleBorderLeft };
+    = { Property::StyleBorderBlockStart,
+        Property::StyleBorderInlineEnd,
+        Property::StyleBorderBlockEnd,
+        Property::StyleBorderInlineStart };
 
   if (borderChanged_ || all) {
     for (unsigned i = 0; i < 4; ++i) {

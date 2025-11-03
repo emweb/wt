@@ -722,17 +722,23 @@ DomElement *StdGridLayoutImpl2::createDomElement(DomElement *parent,
 
             WStringStream style;
 
-            if (app->layoutDirection() == LayoutDirection::RightToLeft)
-              std::swap(padding[1], padding[3]);
+            if (padding[0] == padding[2]) {
+              if (padding[0] != 0) {
+                style << "padding-block:" << padding[0] << "px;";
+              }
+            } else {
+              style << "padding-block-start:" << padding[0] << "px;";
+              style << "padding-block-end:" << padding[2] << "px;";
+            }
 
-            if (padding[0] == padding[1] && padding[0] == padding[2]
-                && padding[0] == padding[3]) {
-              if (padding[0] != 0)
-                style << "padding:" << padding[0] << "px;";
-            } else
-              style << "padding:"
-                    << padding[0] << "px " << padding[1] << "px "
-                    << padding[2] << "px " << padding[3] << "px;";
+            if (padding[1] == padding[3]) {
+              if (padding[1] != 0) {
+                style << "padding-inline:" << padding[1] << "px;";
+              }
+            } else {
+              style << "padding-inline-start:" << padding[3] << "px;";
+              style << "padding-inline-end:" << padding[1] << "px;";
+            }
 
             if (static_cast<unsigned int>(vAlign) != 0)
               switch (vAlign) {
@@ -886,8 +892,8 @@ DomElement *StdGridLayoutImpl2::createDomElement(DomElement *parent,
     if (c->positionScheme() == PositionScheme::Relative ||
         c->positionScheme() == PositionScheme::Absolute) {
       div->setProperty(Property::StylePosition, "absolute");
-      div->setProperty(Property::StyleLeft, "0");
-      div->setProperty(Property::StyleRight, "0");
+      div->setProperty(Property::StyleInsetInlineStart, "0");
+      div->setProperty(Property::StyleInsetInlineEnd, "0");
     } else if (app->environment().agentIsIE()) {
       /*
        * position: relative element needs to be in a position: relative

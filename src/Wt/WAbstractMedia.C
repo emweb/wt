@@ -275,8 +275,8 @@ DomElement *WAbstractMedia::createDomElement(WApplication *app)
     DomElement *wrap = nullptr;
     if (isInLayout()) {
       media->setProperty(Property::StylePosition, "absolute");
-      media->setProperty(Property::StyleLeft, "0");
-      media->setProperty(Property::StyleRight, "0");
+      media->setProperty(Property::StyleInsetInlineStart, "0");
+      media->setProperty(Property::StyleInsetInlineEnd, "0");
       wrap = DomElement::createNew(DomElementType::DIV);
       wrap->setProperty(Property::StylePosition, "relative");
     }

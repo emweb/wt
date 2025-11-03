@@ -435,17 +435,24 @@ void WContainerWidget::updateDom(DomElement& element, bool all)
           !(   padding_[0].isAuto() && padding_[1].isAuto()
             && padding_[2].isAuto() && padding_[3].isAuto()))) {
 
-    if ((padding_[0] == padding_[1]) && (padding_[0] == padding_[2])
-        && (padding_[0] == padding_[3]))
-      element.setProperty(Property::StylePadding, padding_[0].cssText());
-    else {
+    if (padding_[0] == padding_[2]) {
+      element.setProperty(Property::StylePaddingBlock,
+                          padding_[0].cssText());
+    } else {
       WStringStream s;
-      for (unsigned i = 0; i < 4; ++i) {
-        if (i != 0)
-          s << ' ';
-        s << (padding_[i].isAuto() ? "0" : padding_[i].cssText());
-      }
-      element.setProperty(Property::StylePadding, s.str());
+      s << (padding_[0].isAuto() ? "0" : padding_[0].cssText()) << ' '
+        << (padding_[2].isAuto() ? "0" : padding_[2].cssText());
+      element.setProperty(Property::StylePaddingBlock, s.str());
+    }
+
+    if (padding_[1] == padding_[3]) {
+      element.setProperty(Property::StylePaddingInline,
+                          padding_[1].cssText());
+    } else {
+      WStringStream s;
+      s << (padding_[3].isAuto() ? "0" : padding_[3].cssText()) << ' '
+        << (padding_[1].isAuto() ? "0" : padding_[1].cssText());
+      element.setProperty(Property::StylePaddingInline, s.str());
     }
 
     flags_.reset(BIT_PADDINGS_CHANGED);

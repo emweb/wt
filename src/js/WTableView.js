@@ -270,8 +270,8 @@ WT_DECLARE_WT_MEMBER(
       if (headerColumn) {
         headerColumnsContainerEl.style.width = cwidth;
         headerColumnsContainerEl.firstChild.style.width = cwidth;
-        contentsContainer.style.left = cwidth;
-        headerContainer.style.left = cwidth;
+        contentsContainer.style.insetInlineStart = cwidth;
+        headerContainer.style.insetInlineStart = cwidth;
       }
 
       header.style.width = (newWidth + 1) + "px";
@@ -280,11 +280,7 @@ WT_DECLARE_WT_MEMBER(
 
       for (; h; h = h.nextSibling) {
         if (c) {
-          if (!rtl) {
-            c.style.left = (WT.pxself(c, "left") + delta) + "px";
-          } else {
-            c.style.right = (WT.pxself(c, "right") + delta) + "px";
-          }
+          c.style.insetInlineStart = (WT.pxself(c, "insetInlineStart") + delta) + "px";
           c = c.nextSibling;
         }
       }
@@ -771,8 +767,8 @@ WT_DECLARE_WT_MEMBER(
             scrollTop;
       }
 
-      let tw = el.offsetWidth - WT.pxComputedStyle(el, "borderLeftWidth") -
-        WT.pxComputedStyle(el, "borderRightWidth");
+      let tw = el.offsetWidth - WT.pxComputedStyle(el, "borderInlineStartWidth") -
+        WT.pxComputedStyle(el, "borderInlineEndWidth");
 
       const scrollwidth = contentsContainer.offsetWidth -
         contentsContainer.clientWidth;
@@ -788,19 +784,14 @@ WT_DECLARE_WT_MEMBER(
         headerContainer.style.width = (tw - scrollwidth) + "px";
       }
 
-      const rtl = document.body.classList.contains("Wt-rtl");
-      if (!rtl) {
-        headerContainer.style.marginRight = scrollwidth + "px";
-      } else {
-        headerContainer.style.marginLeft = scrollwidth + "px";
-      }
+      headerContainer.style.marginInlineEnd = scrollwidth + "px";
 
       const scrollheight = contentsContainer.offsetHeight -
         contentsContainer.clientHeight;
 
       const pns = headerColumnsContainerEl.style;
-      if (pns && (pns.marginBottom !== scrollheight + "px")) {
-        pns.marginBottom = scrollheight + "px";
+      if (pns && (pns.marginBlockEnd !== scrollheight + "px")) {
+        pns.marginBlockEnd = scrollheight + "px";
         APP.layouts2.adjust(el.childNodes[0].id, [[1, 0]]);
       }
     };

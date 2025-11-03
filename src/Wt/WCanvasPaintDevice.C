@@ -597,9 +597,9 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
 
       DomElement *e = DomElement::createNew(DomElementType::DIV);
       e->setProperty(Property::StylePosition, "absolute");
-      e->setProperty(Property::StyleTop,
+      e->setProperty(Property::StyleInsetBlockStart,
                      std::to_string(pos.y()) + "px");
-      e->setProperty(Property::StyleLeft,
+      e->setProperty(Property::StyleInsetInlineStart,
                      std::to_string(pos.x()) + "px");
       e->setProperty(Property::StyleWidth,
                      std::to_string(rect.width()) + "px");
@@ -622,7 +622,7 @@ void WCanvasPaintDevice::drawText(const WRectF& rect,
         } else if (verticalAlign == AlignmentFlag::Bottom) {
           t->setProperty(Property::StylePosition, "absolute");
           t->setProperty(Property::StyleWidth, "100%");
-          t->setProperty(Property::StyleBottom, "0px");
+          t->setProperty(Property::StyleInsetBlockEnd, "0px");
         }
       }
 

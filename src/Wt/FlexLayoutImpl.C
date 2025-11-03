@@ -422,10 +422,12 @@ DomElement *FlexLayoutImpl::createDomElement(DomElement *parent,
   }
 
   if (margin[0] != 0 || margin[1] != 0 || margin[2] != 0 || margin[3] != 0) {
-    WStringStream paddingProperty;
-    paddingProperty << margin[0] << "px " << margin[1] << "px "
-                    << margin[2] << "px " << margin[3] << "px";
-    result->setProperty(Property::StylePadding, paddingProperty.str());
+    WStringStream paddingInline;
+    WStringStream paddingBlock;
+    paddingInline << margin[3] << "px " << margin[1] << "px";
+    paddingBlock << margin[0] << "px " << margin[2] << "px";
+    result->setProperty(Property::StylePaddingInline, paddingInline.str());
+    result->setProperty(Property::StylePaddingBlock, paddingBlock.str());
   }
 
   // FIXME minsize/maxsize
@@ -755,10 +757,12 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
   }
 
   if (m[0] != 0 || m[1] != 0 || m[2] != 0 || m[3] != 0) {
-    WStringStream marginProperty;
-    marginProperty << m[0] << "px " << m[1] << "px "
-                   << m[2] << "px " << m[3] << "px";
-    el->setProperty(Property::StyleMargin, marginProperty.str());
+    WStringStream marginBlock;
+    WStringStream marginInline;
+    marginInline << m[3] << "px " << m[1] << "px";
+    marginBlock << m[0] << "px " << m[2] << "px";
+    el->setProperty(Property::StyleMarginInline, marginInline.str());
+    el->setProperty(Property::StyleMarginBlock, marginBlock.str());
   }
 
   return el;

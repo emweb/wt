@@ -402,8 +402,8 @@ DomElement *WPaintedWidget::createDomElement(WApplication *app)
 
     wrap = DomElement::createNew(DomElementType::DIV);
     wrap->setProperty(Property::StylePosition, "absolute");
-    wrap->setProperty(Property::StyleLeft, "0");
-    wrap->setProperty(Property::StyleRight, "0");
+    wrap->setProperty(Property::StyleInsetInlineStart, "0");
+    wrap->setProperty(Property::StyleInsetInlineEnd, "0");
   }
 
   DomElement *canvas = DomElement::createNew(DomElementType::DIV);
@@ -684,8 +684,8 @@ void WWidgetCanvasPainter
     text->setId('t' + widget_->id());
     text->setProperty(Property::StylePosition, "absolute");
     text->setProperty(Property::StyleZIndex, "1");
-    text->setProperty(Property::StyleTop, "0px");
-    text->setProperty(Property::StyleLeft, "0px");
+    text->setProperty(Property::StyleInsetBlockStart, "0px");
+    text->setProperty(Property::StyleInsetInlineStart, "0px");
   }
 
   DomElement *el = text ? text : result;
