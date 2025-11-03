@@ -24,6 +24,7 @@ IF(ENABLE_LIBWTTEST)
     models/WFormModelTest.C
     models/WModelIndexTest.C
     models/WStandardItemModelTest.C
+    models/WStringListModelTest.C
     private/EscapeTest.C
     private/EventDecodeTest.C
     private/HttpTest.C
