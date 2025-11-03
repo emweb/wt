@@ -767,10 +767,16 @@ void WStandardItem::removeRows(int row, int count)
   if (model_)
     model_->beginRemoveRows(index(), row, row + count - 1);
 
-  for (int i = 0; i < columnCount(); ++i) {
+  std::vector<int> columnsToRemove;
+  for (int i = columnCount() - 1; i >= 0; --i) {
     Column& c = (*columns_)[i];
 
     c.erase(c.begin() + row, c.begin() + row + count);
+
+    if (c.empty()) {
+      columnsToRemove.push_back(i);
+      columns_->erase(columns_->begin() + i);
+    }
   }
 
   renumberRows(row);

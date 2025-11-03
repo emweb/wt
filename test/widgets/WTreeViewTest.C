@@ -347,7 +347,7 @@ BOOST_AUTO_TEST_CASE( treeview_modelRowsRemoved_multi )
   model->removeRows(0, 2);
 
   BOOST_TEST(model->rowCount() == 0);
-  BOOST_TEST(model->columnCount() == 2);
+  BOOST_TEST(model->columnCount() == 0);
 }
 
 BOOST_AUTO_TEST_CASE( treeview_modelRowsRemoved_multi_partially_out_of_range )
