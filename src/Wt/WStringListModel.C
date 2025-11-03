@@ -128,6 +128,10 @@ cpp17::any WStringListModel::data(const WModelIndex& index, ItemDataRole role) c
 bool WStringListModel::setData(const WModelIndex& index,
                                const cpp17::any& value, ItemDataRole role)
 {
+  if (index.column() > 0) {
+    return false;
+  }
+
   if (role == ItemDataRole::Edit)
     role = ItemDataRole::Display;
 
