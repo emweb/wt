@@ -27,6 +27,7 @@ IF(ENABLE_LIBWTTEST)
     models/WFormModelTest.C
     models/WModelIndexTest.C
     models/WReadOnlyProxyModelTest.C
+    models/WSortFilterProxyModelTest.C
     models/WStandardItemModelTest.C
     models/WStringListModelTest.C
     private/EscapeTest.C
