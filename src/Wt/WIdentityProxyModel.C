@@ -5,7 +5,6 @@
  */
 
 #include <Wt/WIdentityProxyModel.h>
-#include <Wt/WReadOnlyProxyModel.h>
 #include <Wt/WStandardItemModel.h>
 
 namespace Wt {
