@@ -483,7 +483,10 @@ void WStandardItem::insertColumns(int column, int count)
 
     for (int i = 0; i < count; ++i) {
       Column c;
-      c.resize(rc);
+      for (int j = 0; j < rc; ++j) {
+        c.push_back(std::make_unique<WStandardItem>());
+        adoptChild(j, column, c[j].get());
+      }
       columns_->insert(columns_->begin() + column + i, std::move(c));
     }
 
@@ -507,8 +510,14 @@ void WStandardItem::insertRows(int row, int count)
 
     for (unsigned i = 0; i < cc; ++i) {
       Column& c = (*columns_)[i];
-      for (int j = 0; j < count; ++j)
-        c.insert(c.begin() + row + j, std::unique_ptr<WStandardItem>());
+      for (int j = 0; j < count; ++j) {
+        c.insert(c.begin() + row + j, std::make_unique<WStandardItem>());
+        adoptChild(row, i, c[row + j].get());
+
+        if (model_) {
+          c[row + j]->setModel(model_);
+        }
+      }
     }
 
     renumberRows(row + count);
