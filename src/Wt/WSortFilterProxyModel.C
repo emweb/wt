@@ -209,6 +209,10 @@ WModelIndex WSortFilterProxyModel::mapToSource(const WModelIndex& proxyIndex)
 {
   if (proxyIndex.isValid()) {
     Item *parentItem = parentItemFromIndex(proxyIndex);
+    if (static_cast<int>(parentItem->proxyRowMap_.size()) <= proxyIndex.row()) {
+      return WModelIndex();
+    }
+
     return sourceModel()->index(parentItem->proxyRowMap_[proxyIndex.row()],
                                 proxyIndex.column(),
                                 parentItem->sourceIndex_);
@@ -650,11 +654,16 @@ bool WSortFilterProxyModel::insertRows(int row, int count,
 
   beginInsertRows(parent, row, row + count - 1);
   for (int i = 0; i < count; i++) {
-    // item->proxyRowMap_.push_back(sourceRow + i);
     item->proxyRowMap_.insert(item->proxyRowMap_.begin() + row + i,
                               sourceRow + i);
     item->sourceRowMap_.insert(item->sourceRowMap_.begin() + sourceRow + i,
                                row + i);
+  }
+
+  // Update map for all following items
+  for (int i = row + count; i < rowCount(); ++i) {
+    item->proxyRowMap_[i] += count;
+    item->sourceRowMap_[i] += count;
   }
   endInsertRows();
 
