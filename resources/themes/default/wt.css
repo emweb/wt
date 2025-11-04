@@ -625,7 +625,11 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
   background-image: url('spin-buttons.png');
   background-repeat: no-repeat;
   background-position: right center;
-  padding-right: 16px;
+  padding-inline-end: 16px;
+}
+
+.Wt-spinbox:dir(rtl) {
+    background-position: left center;
 }
 
 .Wt-spinbox::-ms-clear {

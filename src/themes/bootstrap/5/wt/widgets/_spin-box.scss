@@ -4,6 +4,10 @@
   background-position: $wt-spinbox-bg-position;
   background-size: $wt-spinbox-bg-size;
 
+  &:dir(rtl) {
+    background-position: $wt-spinbox-bg-position-rtl;
+  }
+
   &.up {
     background-image: escape-svg($wt-spinbox-icon-up);
   }
@@ -16,10 +20,14 @@
     &.form-control {
       @each $state, $data in $form-validation-states {
         @include form-validation-state-selector($state) {
-          padding-right: $wt-spinbox-feedback-icon-padding-end;
+          padding-inline-end: $wt-spinbox-feedback-icon-padding-end;
           background-image: escape-svg($wt-spinbox-icon), escape-svg(map-get($data, "icon"));
           background-position: $wt-spinbox-bg-position, $wt-spinbox-feedback-icon-position;
           background-size: $wt-spinbox-bg-size, $wt-spinbox-feedback-icon-size;
+
+          &:dir(rtl) {
+            background-position: $wt-spinbox-bg-position-rtl, $wt-spinbox-feedback-icon-position;
+          }
 
           &.up {
             background-image: escape-svg($wt-spinbox-icon-up), escape-svg(map-get($data, "icon"));

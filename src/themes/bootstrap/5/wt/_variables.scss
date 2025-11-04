@@ -41,7 +41,9 @@ $wt-spinbox-icon-dark: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/200
 $wt-spinbox-icon-up-dark: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1.2em' height='1.2em' viewBox='-5 0 30 16'><path transform='translate(0, -10)' stroke='#D8DBDF' stroke-width='2'  fill-rule='evenodd' d='M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z'/><path transform='translate(0, 10)' fill-rule='evenodd' stroke='#8F979E' stroke-width='2'  d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>") !default;
 $wt-spinbox-icon-down-dark: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1.2em' height='1.2em' viewBox='-5 0 30 16'><path transform='translate(0, -10)' stroke='#8F979E' stroke-width='2'  fill-rule='evenodd' d='M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z'/><path transform='translate(0, 10)' fill-rule='evenodd' stroke='#D8DBDF' stroke-width='2'  d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>") !default;
 
-$wt-spinbox-bg-position: right .73em center !default;
+$wt-spinbox-bg-position-common: .73em center !default;
+$wt-spinbox-bg-position: right $wt-spinbox-bg-position-common !default;
+$wt-spinbox-bg-position-rtl: left $wt-spinbox-bg-position-common !default;
 $wt-spinbox-bg-size: 1.125em 1.125em !default;
 $wt-spinbox-feedback-icon-position: $form-select-feedback-icon-position !default;
 $wt-spinbox-feedback-icon-size: $form-select-feedback-icon-size !default;

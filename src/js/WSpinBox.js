@@ -18,6 +18,7 @@ WT_DECLARE_WT_MEMBER(
     const CLASS_DOWN = "dn";
     const CLASS_UP = "up";
     const CLASS_UNSELECTABLE = "unselectable";
+    const rtl = document.body.classList.contains("Wt-rtl");
 
     edit.wtObj = this;
 
@@ -119,6 +120,14 @@ WT_DECLARE_WT_MEMBER(
       }
     }
 
+    function isWithin(edit, low, high, xy) {
+      if (rtl) {
+        return (xy.x > low && xy.x < high);
+      } else {
+        return (xy.x > edit.offsetWidth - high && xy.x < edit.offsetWidth - low);
+      }
+    }
+
     this.setIsDoubleSpinBox = function(isDouble) {
       isDoubleSpinBox = isDouble;
 
@@ -191,8 +200,7 @@ WT_DECLARE_WT_MEMBER(
         }
         if (
           bootstrapVersion >= 4 &&
-          xy.x > edit.offsetWidth - 30 &&
-          xy.x < edit.offsetWidth - 10
+          isWithin(edit, 10, 30, xy)
         ) {
           const mid = edit.offsetHeight / 2;
           if (xy.y >= mid - 3 && xy.y <= mid + 3) {
@@ -205,7 +213,7 @@ WT_DECLARE_WT_MEMBER(
               edit.classList.add(CLASS_DOWN);
             }
           }
-        } else if (bootstrapVersion < 4 && xy.x > edit.offsetWidth - 22) {
+        } else if (bootstrapVersion < 4 && isWithin(edit, 0, 22, xy)) {
           const mid = edit.offsetHeight / 2;
           if (xy.y >= mid - 3 && xy.y <= mid + 3) {
             edit.style.cursor = CH;
@@ -254,7 +262,7 @@ WT_DECLARE_WT_MEMBER(
         ) {
           bootstrapVersion = WT.theme.version;
         }
-        if (bootstrapVersion >= 5 && xy.x > edit.offsetWidth - 30 && xy.x < edit.offsetWidth - 10) {
+        if (bootstrapVersion >= 5 && isWithin(edit, 10, 30, xy)) {
           // suppress selection, focus
           WT.cancelEvent(event);
           WT.capture(edit);
@@ -270,7 +278,7 @@ WT_DECLARE_WT_MEMBER(
               dec();
             });
           }
-        } else if (bootstrapVersion < 4 && xy.x > edit.offsetWidth - 22) {
+        } else if (bootstrapVersion < 4 && isWithin(edit, 0, 22, xy)) {
           // suppress selection, focus
           WT.cancelEvent(event);
           WT.capture(edit);

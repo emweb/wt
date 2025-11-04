@@ -390,14 +390,18 @@
   background-image: url('spin-buttons.png');
   background-repeat: no-repeat;
   background-position: right top;
-  padding-right: 16px;
+  padding-inline-end: 16px;
+
+  &:dir(rtl) {
+    background-position-x: left;
+  }
 
   &.up {
-    background-position: right -30px;
+    background-position-y: -30px;
   }
 
   &.dn {
-    background-position: right -60px;
+    background-position-y: -60px;
   }
 }
 

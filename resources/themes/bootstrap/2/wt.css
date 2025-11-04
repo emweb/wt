@@ -394,13 +394,17 @@
   background-image: url('spin-buttons.png');
   background-repeat: no-repeat;
   background-position: right top;
-  padding-right: 16px;
+  padding-inline-end: 16px;
+}
+
+.Wt-spinbox:dir(rtl) {
+  background-position-x: left;
 }
 .Wt-spinbox.up {
-  background-position: right -30px;
+  background-position-y: -30px;
 }
 .Wt-spinbox.dn {
-  background-position: right -60px;
+  background-position-y: -60px;
 }
 .Wt-spinbox::-ms-clear {
   display: none;
