@@ -37,11 +37,7 @@ WT_DECLARE_WT_MEMBER(
 
     function rtlScrollLeft(o) {
       if (rtl) {
-        if (WT.isGecko) {
-          return -o.scrollLeft;
-        } else {
-          return o.scrollWidth - o.clientWidth - o.scrollLeft;
-        }
+        return -o.scrollLeft;
       } else {
         return o.scrollLeft;
       }
