@@ -225,6 +225,8 @@ void WTimeEdit::updateDom(DomElement& element, bool all)
     } else {
       element.removeAttribute("max");
     }
+  } else if (all) {
+    element.setProperty(Property::StyleTextAlign, "left");
   }
 
   WLineEdit::updateDom(element, all);

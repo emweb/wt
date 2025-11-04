@@ -363,6 +363,8 @@ void WDateEdit::updateDom(DomElement& element, const bool all)
         element.removeAttribute("max");
       }
     }
+  } else if (all) {
+    element.setProperty(Property::StyleTextAlign, "left");
   }
   WLineEdit::updateDom(element, all);
 }
