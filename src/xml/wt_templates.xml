@@ -108,7 +108,8 @@
   </message>
 
   <message id="Wt.WTimePicker.template">
-    ${hour}${minute}${second}${millisecond}${ampm}
+    ${<if:rtl>}${millisecond}${second}${minute}${hour}${ampm}${</if:rtl>}
+    ${<if:ltr>}${hour}${minute}${second}${millisecond}${ampm}${</if:ltr>}
   </message>
 
   <message id="Wt.WTreeViewNode.template">

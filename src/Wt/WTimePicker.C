@@ -192,6 +192,10 @@ void WTimePicker::configure()
     } else {
       toggleAmPm_.setJavaScript("function(){}");
     }
+
+  bool rtl = wApp->layoutDirection() == LayoutDirection::RightToLeft;
+  container->setCondition("if:rtl", rtl);
+  container->setCondition("if:ltr", !rtl);
 }
 
 void WTimePicker::setWrapAroundEnabled(bool enabled)
