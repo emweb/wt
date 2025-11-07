@@ -1212,6 +1212,7 @@ public:
 
 protected:
   static const char *WT_GETPS_JS;
+  static const char *WT_GETEXTRAMS_JS;
 
   /*! \brief Sets the widget to be aware of its size set by a layout manager.
    *

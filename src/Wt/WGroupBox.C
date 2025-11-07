@@ -25,6 +25,11 @@ WGroupBox::WGroupBox(const WString& title)
 void WGroupBox::init()
 {
   setJavaScriptMember(WT_GETPS_JS, StdWidgetItemImpl::secondGetPSJS());
+
+  /* This makes the JS layout take the legend into account when
+   * computing the minimum size of the fieldset.
+   */
+  setJavaScriptMember(WT_GETEXTRAMS_JS, StdWidgetItemImpl::secondGetPSJS());
   setLogicalLayout(nullptr);
 }
 
@@ -46,6 +51,14 @@ void WGroupBox::updateDom(DomElement& element, bool all)
       legend = DomElement::getForUpdate(id() + "l", DomElementType::LEGEND);
 
     legend->setProperty(Wt::Property::InnerHTML, escapeText(title_).toUTF8());
+
+    /* Set size to fit-content to ensure it does not depends on the
+     * fieldset size. Otherwise, it will stop the fieldset shrinking
+     * when using JS layout.
+     */
+    legend->setProperty(Property::StyleWidth, "fit-content");
+    legend->setProperty(Property::StyleHeight, "fit-content");
+
     element.addChild(legend);
 
     titleChanged_ = false;

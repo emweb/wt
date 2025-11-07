@@ -797,6 +797,16 @@ WT_DECLARE_WT_MEMBER(
         totalPreferredSize += totalMargin;
         totalMinSize += totalMargin;
 
+        // If the container needs extra min size, we add it here.
+        if (
+          container &&
+          container === widget.parentNode &&
+          container.wtGetExtraMS
+        ) {
+          const extraSize = container.wtGetExtraMS(container, widget, dir, 0);
+          totalMinSize += extraSize;
+        }
+
         if (debug) {
           console.log("measured " + id + ": " + dir + " ps " + preferredSize + " ms " + minimumSize);
         }
