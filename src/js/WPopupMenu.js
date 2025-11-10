@@ -6,11 +6,12 @@
 
 /* Note: this is at the same time valid JavaScript and C++. */
 
-WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, autoHideDelay) {
+WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, globalAutoHideDelay) {
   el.wtObj = this;
 
   const WT = APP.WT;
-  let hideTimeout = null,
+  const AUTO_HIDE_PREFIX = "Wt-AutoHideDelay-";
+  let globalHideTimeout = null,
     current = null,
     touch = null;
 
@@ -42,7 +43,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, a
 
         u.addEventListener("mousemove", handleSubMenus);
 
-        bindOverEvents(u);
+        bindOverEvents(u, item);
 
         return u;
       } else {
@@ -149,20 +150,72 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, a
     }
   }
 
-  function mouseLeave() {
-    clearTimeout(hideTimeout);
-    if (autoHideDelay >= 0) {
-      hideTimeout = setTimeout(doHide, autoHideDelay);
+  function globalMouseLeave() {
+    clearTimeout(globalHideTimeout);
+    if (globalAutoHideDelay >= 0) {
+      globalHideTimeout = setTimeout(doHide, globalAutoHideDelay);
     }
   }
 
-  function mouseEnter() {
-    clearTimeout(hideTimeout);
+  function globalMouseEnter() {
+    clearTimeout(globalHideTimeout);
   }
 
-  function bindOverEvents(popup) {
-    popup.addEventListener("mouseleave", mouseLeave);
-    popup.addEventListener("mouseenter", mouseEnter);
+  function getAutoHideDelay(popup) {
+    let autoHideDelay = -1;
+    for (const className of popup.classList) {
+      if (className.startsWith(AUTO_HIDE_PREFIX)) {
+        const delayStr = className.substring(AUTO_HIDE_PREFIX.length);
+        const delay = parseInt(delayStr);
+        if (!isNaN(delay)) {
+          autoHideDelay = delay;
+        }
+      }
+    }
+
+    return autoHideDelay;
+  }
+
+  function bindOverEvents(popup, parent = null) {
+    let hideTimeout;
+
+    if (!popup.wtObj) {
+      popup.wtObj = {};
+    }
+
+    popup.wtObj.mouseEnter = function() {
+      clearTimeout(hideTimeout);
+      if (parent) {
+        parent.parentNode.wtObj.mouseEnter();
+      }
+    };
+
+    popup.wtObj.mouseLeave = function() {
+      const autoHideDelay = getAutoHideDelay(popup);
+      if (parent) {
+        if (autoHideDelay >= 0) {
+          function onMouseLeave() {
+            current = popup;
+            setOthersInactive(parent.parentNode, null);
+          }
+
+          clearTimeout(hideTimeout);
+          hideTimeout = setTimeout(onMouseLeave, autoHideDelay);
+        }
+
+        parent.parentNode.wtObj.mouseLeave();
+      }
+    };
+
+    if (parent) {
+      parent.parentNode.addEventListener("mouseleave", popup.wtObj.mouseLeave);
+      parent.parentNode.addEventListener("mouseenter", popup.wtObj.mouseEnter);
+      popup.addEventListener("mouseleave", popup.wtObj.mouseLeave);
+      popup.addEventListener("mouseenter", popup.wtObj.mouseEnter);
+    }
+
+    popup.addEventListener("mouseleave", globalMouseLeave);
+    popup.addEventListener("mouseenter", globalMouseEnter);
   }
 
   function stillExist() {
@@ -188,9 +241,9 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, a
   }
 
   this.setHidden = function(hidden) {
-    if (hideTimeout) {
-      clearTimeout(hideTimeout);
-      hideTimeout = null;
+    if (globalHideTimeout) {
+      clearTimeout(globalHideTimeout);
+      globalHideTimeout = null;
     }
 
     current = null;

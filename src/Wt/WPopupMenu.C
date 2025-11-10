@@ -34,7 +34,8 @@ WPopupMenu::WPopupMenu(WStackedWidget *contentsStack)
     hideOnSelect_(true),
     open_(false),
     adjustFlags_(AllOrientations),
-    autoHideDelay_(-1)
+    autoHideDelay_(-1),
+    renderedAutoHideDelay_(-1)
 {
   const char *CSS_RULES_NAME = "Wt::WPopupMenu";
 
@@ -319,6 +320,8 @@ void WPopupMenu::setAutoHide(bool enabled, int autoHideDelay)
     autoHideDelay_ = autoHideDelay;
   else
     autoHideDelay_ = -1;
+
+  flags_.set(BIT_AUTO_HIDE_CHANGED);
 }
 
 void WPopupMenu::renderSelected(WT_MAYBE_UNUSED WMenuItem* item, WT_MAYBE_UNUSED bool selected)
@@ -340,6 +343,18 @@ void WPopupMenu::render(WFlags<RenderFlag> flags)
     }
 
     flags_.reset(BIT_OPEN_CHANGED);
+  }
+
+  if (flags_.test(BIT_AUTO_HIDE_CHANGED)) {
+    const std::string styleClassBase = "Wt-AutoHideDelay-";
+    if (renderedAutoHideDelay_ != -1) {
+      removeStyleClass(styleClassBase + std::to_string(renderedAutoHideDelay_));
+    }
+    if (autoHideDelay_ != -1) {
+      addStyleClass(styleClassBase + std::to_string(autoHideDelay_));
+    }
+    renderedAutoHideDelay_ = autoHideDelay_;
+    flags_.reset(BIT_AUTO_HIDE_CHANGED);
   }
 
   if (adjustFlags_.test(Orientation::Horizontal)) {

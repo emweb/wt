@@ -261,8 +261,9 @@ protected:
 private:
   static const int BIT_WILL_POPUP = 0;
   static const int BIT_OPEN_CHANGED = 1;
+  static const int BIT_AUTO_HIDE_CHANGED = 2;
 
-  std::bitset<2> flags_;
+  std::bitset<3> flags_;
 
   WPopupMenu *topLevel_;
   WMenuItem *result_;
@@ -278,6 +279,7 @@ private:
   bool open_;
   WFlags<Orientation> adjustFlags_;
   int autoHideDelay_;
+  int renderedAutoHideDelay_;
 
   void exec();
   void cancel();
