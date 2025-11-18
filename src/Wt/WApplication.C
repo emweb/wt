@@ -1123,6 +1123,9 @@ void WApplication::setLayoutDirection(LayoutDirection direction)
     layoutDirection_ = direction;
     bodyHtmlClassChanged_ = true;
   }
+
+  const std::string dir = direction == LayoutDirection::RightToLeft ? "rtl": "ltr";
+  setHtmlAttribute("dir", dir);
 }
 
 void WApplication::setHtmlClass(const std::string& styleClass)
