@@ -233,6 +233,12 @@ public:
   Coordinates dragDelta() const
   { return Coordinates(jsEvent_.dragDX, jsEvent_.dragDY); }
 
+  int viewportWidth() const
+  { return jsEvent_.viewportWidth; }
+
+  int viewportHeight() const
+  { return jsEvent_.viewportHeight; }
+
   /*! \brief Returns the scroll wheel delta.
    *
    * This is 1 when wheel was scrolled up or -1 when wheel was scrolled down.

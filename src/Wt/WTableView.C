@@ -2013,14 +2013,17 @@ WModelIndex WTableView::translateModelIndex(bool headerColumns,
   int row = (int)(event.widget().y / rowHeight().toPixels());
   int column = -1;
 
-  int total = 0;
+  const bool rtl = wApp->layoutDirection() == LayoutDirection::RightToLeft;
+
+  int total = rtl ? event.viewportWidth() : 0;
+  const int sign = rtl ? -1 : 1;
 
   if (headerColumns) {
     for (int i = 0; i < rowHeaderCount(); ++i) {
       if (!columnInfo(i).hidden)
-        total += columnWidthWithPadding(i);
+        total += columnWidthWithPadding(i) * sign;
 
-      if (event.widget().x < total) {
+      if (event.widget().x * sign < total * sign) {
         column = i;
         break;
       }
@@ -2028,9 +2031,9 @@ WModelIndex WTableView::translateModelIndex(bool headerColumns,
   } else {
     for (int i = rowHeaderCount(); i < columnCount(); i++) {
       if (!columnInfo(i).hidden)
-        total += columnWidthWithPadding(i);
+        total += columnWidthWithPadding(i) * sign;
 
-      if (event.widget().x < total) {
+      if (event.widget().x * sign < total * sign) {
         column = i;
         break;
       }
