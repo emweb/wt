@@ -8,17 +8,10 @@
   }
 }
 
-/*rtl:begin:ignore*/
 .Wt-sbspacer {
   display: none;
-  float: right;
+  float: inline-end;
   width: 16px;
   height: 1px;
   border: 0;
 }
-
-body.Wt-rtl .Wt-sbspacer {
-  float: left;
-}
-
-/*rtl:end:ignore*/

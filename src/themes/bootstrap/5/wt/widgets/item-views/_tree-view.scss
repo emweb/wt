@@ -1,19 +1,18 @@
-/*rtl:begin:ignore*/
-
 .Wt-treeview {
   ul {
-    padding-left: 20px;
+    padding-inline-start: 20px;
     margin: 0;
     list-style: none;
 
     &.Wt-tv-root {
-      padding-left: 0;
+      padding-inline-start: 0;
     }
   }
 
   img.icon,
   input.icon {
-    margin: 0 3px 2px 0;
+    margin-top: 2px;
+    margin-inline: 0 3px;
   }
 
   .Wt-header {
@@ -21,18 +20,18 @@
 
     .Wt-tv-c {
       padding: 0;
-      margin-left: 7px;
+      margin-inline-start: 7px;
     }
   }
 
   .Wt-tv-br,
   ul .Wt-tv-c {
-    margin-right: 0;
-    border-right: 1px solid #dddddd;
+    margin-inline-end: 0;
+    border-inline-end: 1px solid #dddddd;
   }
 
   button.Wt-tv-c {
-    border-right-color: transparent;
+    border-inline-end-color: transparent;
   }
 
   .Wt-tv-c {
@@ -43,12 +42,12 @@
   }
 
   .Wt-tv-row {
-    float: right;
+    float: inline-end;
     overflow: hidden;
 
     .Wt-tv-c {
       display: block;
-      float: left;
+      float: inline-start;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -73,6 +72,8 @@
     *zoom: 1;
   }
 
+/*rtl:begin:ignore*/
+
   .Wt-trunk {
     background-image: url(#{$wt-resources-prefix}line-trunk.gif);
     background-repeat: repeat-y;
@@ -85,7 +86,7 @@
   }
 
   .Wt-ctrl {
-    float: left;
+    float: inline-start;
     width: 19px;
 
     &.expand {
@@ -105,39 +106,6 @@
 
 body.Wt-rtl {
   .Wt-treeview {
-    ul {
-      padding-right: 20px;
-      padding-left: 0;
-
-      &.Wt-tv-root {
-        padding-right: 0;
-      }
-    }
-
-    img.icon,
-    input.icon {
-      margin: 0 0 2px 3px;
-    }
-
-    .Wt-header .Wt-tv-c {
-      margin-right: 7px;
-      margin-left: 0;
-    }
-
-    .Wt-tv-br,
-    ul .Wt-tv-c {
-      margin-left: 0;
-      border-right: 0;
-      border-left: 1px solid #dddddd;
-    }
-
-    .Wt-tv-row {
-      float: left;
-
-      .Wt-tv-c {
-        float: right;
-      }
-    }
 
     .Wt-trunk {
       background-position: top right;
@@ -149,7 +117,6 @@ body.Wt-rtl {
     }
 
     .Wt-ctrl {
-      float: right;
 
       &.expand {
         background-image: url(#{$wt-theme-prefix}nav-plus-rtl.gif);

@@ -9,16 +9,15 @@
   }
 
   .Wt-chkbox {
-    margin-right: 6px;
-    margin-left: 1px;
+    margin-inline: 1px 6px;
   }
 
   label.checkbox-inline {
-    padding-left: 0;
+    padding-inline-start: 0;
   }
 
   .Wt-padded {
-    padding-left: 39px;
+    padding-inline-start: 39px;
   }
 
   li label {

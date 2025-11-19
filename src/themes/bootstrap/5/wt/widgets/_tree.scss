@@ -1,10 +1,8 @@
-/*rtl:begin:ignore*/
-
 .Wt-tree {
   cursor: default;
 
   ul {
-    padding-left: 20px;
+    padding-inline-start: 20px;
     margin: 0;
     list-style: none;
   }
@@ -14,7 +12,7 @@
   }
 
   ul.Wt-root {
-    padding-left: 0;
+    padding-inline-start: 0;
   }
 
   &.Wt-trunk,
@@ -43,7 +41,7 @@
 
   .Wt-ctrl {
     display: block;
-    float: left;
+    float: inline-start;
     width: 19px;
     height: 19px;
 
@@ -68,7 +66,7 @@
   }
 
   .cols-row {
-    float: right;
+    float: inline-end;
   }
 
   .Wt-label {
@@ -77,17 +75,10 @@
   }
 }
 
+
+/*rtl:begin:ignore*/
 body.Wt-rtl {
   .Wt-tree {
-    ul {
-      padding-right: 20px;
-      padding-left: 0;
-      margin: 0;
-    }
-
-    &.Wt-root {
-      padding-right: 0;
-    }
 
     &.Wt-trunk,
     .Wt-item.Wt-trunk {
@@ -100,8 +91,6 @@ body.Wt-rtl {
     }
 
     .Wt-ctrl {
-      float: right;
-
       &.Wt-expand {
       background: url(#{$wt-theme-prefix}nav-minus-rtl.gif) no-repeat 0 center;
 
@@ -114,10 +103,6 @@ body.Wt-rtl {
         background-image: url(#{$wt-resources-prefix}line-middle-rtl.gif);
         background-position: top right;
       }
-    }
-
-    .cols-row {
-      float: left;
     }
   }
 }

@@ -25,7 +25,7 @@
 
   .handle {
     top: calc(50% - 0.55rem) !important;
-    margin-left: 2px;
+    margin-inline-start: 2px;
     width: 1rem !important;
     height: 1rem !important;
     background-color: $primary;
@@ -66,10 +66,10 @@ fieldset[disabled] .Wt-slider-h .handle:active {
 
   .Wt-w {
     position: absolute;
-    left: 50%;
+    inset-inline-start: 50%;
     width: .5em;
     height: 100%;
-    margin-left: -5px;
+    margin-inline-start: -5px;
     background-color: #dee2e6;
     border-color: transparent;
     border-radius: 1rem;
@@ -77,16 +77,16 @@ fieldset[disabled] .Wt-slider-h .handle:active {
 
   .fill {
     bottom: 0;
-    left: 50%;
+    inset-inline-start: 50%;
     width: 8px;
-    margin-left: -5px;
+    margin-inline-start: -5px;
     background: $primary;
     border: 1px solid $primary;
     border-radius: 4px;
   }
 
   .handle {
-    left: calc(50% - 0.55rem) !important;
+    inset-inline-start: calc(50% - 0.55rem) !important;
     width: 1rem !important;
     height: 1rem !important;
     background-color: $primary;

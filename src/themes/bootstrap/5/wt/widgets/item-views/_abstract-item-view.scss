@@ -1,5 +1,3 @@
-/*rtl:begin:ignore*/
-
 .Wt-itemview {
   white-space: nowrap;
   cursor: default;
@@ -47,7 +45,7 @@
   }
 
   .Wt-tv-rh {
-    float: right;
+    float: inline-end;
     width: 4px;
     cursor: col-resize;
 
@@ -58,12 +56,12 @@
 
   .Wt-tv-no-rh {
     width: 0;
-    margin-left: 4px;
+    margin-inline-start: 4px;
     cursor: default;
   }
 
   .Wt-tv-sh {
-    float: right;
+    float: inline-end;
     width: 16px;
     height: 16px;
     padding-bottom: 6px;
@@ -92,18 +90,6 @@
   .Wt-drop-site {
     background-color: #EEEEEE;
     outline: 1px dotted black;
-  }
-}
-
-body.Wt-rtl .Wt-itemview {
-  .Wt-tv-rh,
-  .Wt-tv-sh {
-    float: left;
-  }
-
-  .Wt-tv-no-rh {
-    margin-right: 4px;
-    margin-left: 0;
   }
 }
 
@@ -143,5 +129,3 @@ body.Wt-rtl .Wt-itemview {
     }
   }
 }
-
-/*rtl:end:ignore*/

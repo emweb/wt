@@ -9,7 +9,7 @@
   // Extend menu support to include sub menus
   > li > .nav {
     display: none;
-    margin-left: 2ex;
+    margin-inline-start: 2ex;
   }
 
   > li.active .nav {

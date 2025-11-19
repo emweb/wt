@@ -25,10 +25,12 @@
     .modal-content > .modal-body.Wt-msgbox-body {
       > .Wt-msgbox-icon {
         display: block;
-        float: left;
+        float: inline-start;
         width: 25px;
         height: 35px;
-        margin: -5px 15px 0 0;
+        margin-top: -5px;
+        margin-bottom: 0;
+        margin-inline: 0 15px;
       }
 
       > .Wt-msgbox-text {
@@ -46,6 +48,7 @@
   &.Wt-resizable > .modal-dialog > .modal-content {
     background-attachment: scroll;
     background-image: url(#{$wt-resources-prefix}resizable.png);
+    /*rtl:ignore*/
     background-position: right bottom;
     background-repeat: no-repeat;
   }
