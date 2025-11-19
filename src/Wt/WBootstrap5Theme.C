@@ -177,11 +177,18 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
     auto button = dynamic_cast<WPushButton *>(widget);
 
     if (button) {
-      if (creating && button->isDefault()) {
-        element.addPropertyWord(Property::Class, "btn");
-        element.addPropertyWord(Property::Class, "btn-primary");
-      } else if (creating)
-        element.addPropertyWord(Property::Class, classBtn(widget));
+      if (creating) {
+        if (button->isDefault()) {
+          element.addPropertyWord(Property::Class, "btn");
+          element.addPropertyWord(Property::Class, "btn-primary");
+        } else {
+          element.addPropertyWord(Property::Class, classBtn(widget));
+        }
+
+        if (!button->text().empty()) {
+          element.addPropertyWord(Property::Class, "with-label");
+        }
+      }
 
       if (!button->link().isNull())
         LOG_ERROR("Cannot use WPushButton::setLink() after the button has "
