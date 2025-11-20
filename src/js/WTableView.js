@@ -116,7 +116,12 @@ WT_DECLARE_WT_MEMBER(
       const parentHeight = headerContainer.closest(".Wt-tableview").offsetHeight - avoidBorderOverlapOffset;
 
       contentsContainer.style.height = parentHeight - height + "px";
-      contentsContainer.style.width = headerContainer.style.width;
+
+      // Set the width of the contentscontainer to fit the size of the wrapping table.
+      const width = headerColumnsContainer.offsetWidth;
+      const parentWidth = headerContainer.closest(".Wt-tableview").offsetWidth - avoidBorderOverlapOffset;
+
+      contentsContainer.style.width = parentWidth - width + "px";
     };
 
     function isSelected(item) {
