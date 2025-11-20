@@ -145,6 +145,19 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.emweb.be/issues/14078" target="_blank">Issue #14078</a>:
+    Wt now uses uses the <code>inline-start</code>, <code>inline-end</code>, <code>block-start</code>, and <code>block-end</code>
+    variants of CSS margin, padding, and border properties. This is mainly an internal change, but it should help decrease
+    bug related to right-to-left support.
+
+    Additionally,
+    <a href="classWt_1_1WBootstrap5Theme.html" target="_blank">WBootstrap5Theme</a> will now use the RTL version of Bootstrap 5 CSS when
+    <a href="classWt_1_1WApplication.html#a44c5f0398b5539269be3961b26e95b08">WApplication::setLayoutDirection()</a> is used to set the
+    layout direction to <code>LayoutDirection::RightToLeft</code>.
+
+    With those changes also comes several bug fixes and improvements related to RTL support.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/12464" target="_blank">Issue #12464</a>:
     added the possibility to specify the MIME type when calling
     <a href="classWt_1_1WStreamResource.html#a6397570c842aa542bb195b6b31c2dab6" target="_blank">WStreamResource::handleRequestPiecewise()</a>,
