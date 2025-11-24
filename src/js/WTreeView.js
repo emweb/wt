@@ -679,7 +679,7 @@ WT_DECLARE_WT_MEMBER(
       }
     };
 
-    this.scrollTo = function(_x, y, rowHeight, hint) {
+    this.scrollTo = function(colStart, y, rowHeight, hint, scrollBarC) {
       if (y !== -1) {
         y *= rowHeight;
         const top = contentsContainer.scrollTop,
@@ -703,6 +703,9 @@ WT_DECLARE_WT_MEMBER(
             contentsContainer.scrollTop = y - (height - rowHeight) / 2;
             break;
         }
+
+        const toScroll = scrollBarC ? scrollBarC : contentsContainer;
+        toScroll.scrollLeft = colStart;
 
         window.fakeEvent = { object: contentsContainer };
         contentsContainer.onscroll(window.fakeEvent);

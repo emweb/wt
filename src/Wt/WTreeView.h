@@ -383,6 +383,8 @@ private:
 
   virtual WWidget *headerWidget(int column, bool contentsOnly = true) override;
 
+  int sumColumnWidthsBefore(int column) const;
+
   friend class WTreeViewNode;
   friend class ContentsContainer;
 };

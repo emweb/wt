@@ -3073,6 +3073,8 @@ void WTreeView::scrollTo(const WModelIndex& index, ScrollHint hint)
   const int row = getIndexRow(index, rootIndex(), 0,
                               std::numeric_limits<int>::max());
 
+  const int colStart = sumColumnWidthsBefore(index.column());
+
   WApplication *app = WApplication::instance();
 
   if (app->environment().ajax()) {
@@ -3103,13 +3105,32 @@ void WTreeView::scrollTo(const WModelIndex& index, ScrollHint hint)
     WStringStream s;
 
     s << "setTimeout(function() { " << jsRef()
-      << ".wtObj.scrollTo(-1, "
+      << ".wtObj.scrollTo("
+      << colStart << ","
       << row << "," << static_cast<int>(rowHeight().toPixels())
-      << "," << (int)hint << ");});";
+      << "," << (int)hint;
+
+    if (scrollBarC_) {
+      s << "," << scrollBarC_->jsRef();
+    }
+
+    s << ");});";
+
 
     doJavaScript(s.str());
   } else
     setCurrentPage(row / pageSize());
+}
+
+int WTreeView::sumColumnWidthsBefore(int column) const
+{
+  int total = 0;
+  for (int i = rowHeaderCount(); i < column; ++i) {
+    if (!columnInfo(i).hidden) {
+      total += static_cast<int>(columnWidth(i).toPixels()) + 7;
+    }
+  }
+  return total;
 }
 
 EventSignal<WScrollEvent>& WTreeView::scrolled(){
