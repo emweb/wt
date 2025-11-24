@@ -232,6 +232,7 @@ private:
 
   /* Scroll to to process after viewport height is known */
   int scrollToRow_;
+  int scrollToCol_;
   ScrollHint scrollToHint_;
   bool columnResizeConnected_;
 
@@ -330,6 +331,8 @@ private:
   bool ajaxMode() const { return table_ != nullptr; }
   double canvasHeight() const;
   void setRenderedHeight(double th);
+
+  int sumColumnWidthsBefore(int column) const;
 };
 
 }

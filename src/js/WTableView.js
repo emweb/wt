@@ -10,7 +10,16 @@ WT_DECLARE_WT_MEMBER(
   1,
   JavaScriptConstructor,
   "WTableView",
-  function(APP, el, contentsContainer, initialScrollTop, headerContainer, headerColumnsContainer, selectedClass) {
+  function(
+    APP,
+    el,
+    contentsContainer,
+    initialScrollTop,
+    initialScrollLeft,
+    headerContainer,
+    headerColumnsContainer,
+    selectedClass
+  ) {
     el.wtObj = this;
 
     const self = this;
@@ -38,6 +47,7 @@ WT_DECLARE_WT_MEMBER(
     let scrollX1 = 0, scrollX2 = 0, scrollY1 = 0, scrollY2 = 0;
     let scrollToPendingCount = 0;
     let initialScrollTopSet = initialScrollTop === 0;
+    let initialScrollLeftSet = initialScrollLeft === 0;
 
     let itemDropsEnabled = false, betweenRowsDropsEnabled = false;
     let waitingForContent = true;
@@ -89,10 +99,22 @@ WT_DECLARE_WT_MEMBER(
     };
 
     contentsContainer.wtResize = function(o, _w, _h, _setSize) {
+      let callOnscroll = false;
+
       if (!initialScrollTopSet) {
         o.scrollTop = initialScrollTop;
-        o.onscroll();
+        callOnscroll = true;
         initialScrollTopSet = true;
+      }
+
+      if (!initialScrollLeftSet) {
+        o.scrollLeft = initialScrollLeft;
+        callOnscroll = true;
+        initialScrollLeftSet = true;
+      }
+
+      if (callOnscroll) {
+        o.onscroll();
       }
 
       const headerColumnsContainerEl = WT.getElement(headerColumnsContainerId);
@@ -383,7 +405,9 @@ WT_DECLARE_WT_MEMBER(
       }
       if (y !== -1) {
         const top = contentsContainer.scrollTop,
-          height = contentsContainer.clientHeight;
+          height = contentsContainer.clientHeight,
+          left = contentsContainer.scrollLeft,
+          width = contentsContainer.clientWidth;
         if (hint === EnsureVisible) {
           if (top + height < y + rowHeight()) {
             hint = PositionAtBottom;
@@ -403,6 +427,8 @@ WT_DECLARE_WT_MEMBER(
             contentsContainer.scrollTop = y - (height - rowHeight()) / 2;
             break;
         }
+
+        contentsContainer.scrollLeft = x;
 
         contentsContainer.onscroll();
       }

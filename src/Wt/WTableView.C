@@ -68,6 +68,7 @@ WTableView::WTableView()
     viewportTop_(0),
     viewportHeight_(UNKNOWN_VIEWPORT_HEIGHT),
     scrollToRow_(-1),
+    scrollToCol_(-1),
     scrollToHint_(ScrollHint::EnsureVisible),
     columnResizeConnected_(false)
 {
@@ -249,8 +250,9 @@ void WTableView::resize(const WLength& width, const WLength& height)
         = static_cast<int>(std::ceil((height.toPixels()
                                       - headerHeight().toPixels())));
       if (scrollToRow_ != -1) {
-        WModelIndex index = model()->index(scrollToRow_, 0, rootIndex());
+        WModelIndex index = model()->index(scrollToRow_, scrollToCol_, rootIndex());
         scrollToRow_ = -1;
+        scrollToCol_ = -1;
         scrollTo(index, scrollToHint_);
       }
     } else
@@ -797,6 +799,7 @@ void WTableView::defineJavaScript()
     << app->javaScriptClass() << ',' << jsRef() << ','
     << contentsContainer_->jsRef() << ','
     << viewportTop_ << ','
+    << viewportLeft_ << ','
     << headerContainer_->jsRef() << ','
     << headerColumnsContainer_->jsRef() << ",'"
     << WApplication::instance()->theme()->activeClass()
@@ -1653,8 +1656,9 @@ void WTableView::onViewportChange(int left, int top, int width, int height)
   viewportHeight_ = height;
 
   if (scrollToRow_ != -1) {
-    WModelIndex index = model()->index(scrollToRow_, 0, rootIndex());
+    WModelIndex index = model()->index(scrollToRow_, scrollToCol_, rootIndex());
     scrollToRow_ = -1;
+    scrollToCol_ = -1;
     scrollTo(index, scrollToHint_);
   }
 
@@ -2111,6 +2115,8 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
     if (ajaxMode()) {
       int rh = static_cast<int>(rowHeight().toPixels());
       int rowY = index.row() * rh;
+      int cw = static_cast<int>(columnWidth(index.column()).toPixels());
+      int colX = sumColumnWidthsBefore(index.column());
 
       if (viewportHeight_ != UNKNOWN_VIEWPORT_HEIGHT) {
         if (hint == ScrollHint::EnsureVisible) {
@@ -2131,7 +2137,10 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
           break;
         }
 
+        viewportLeft_ = colX;
+
         viewportTop_ = std::max(0, viewportTop_);
+        viewportLeft_ = std::max(0, viewportLeft_);
 
         if (hint != ScrollHint::EnsureVisible) {
           computeRenderedArea();
@@ -2140,6 +2149,7 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
         }
       } else {
         scrollToRow_ = index.row();
+        scrollToCol_ = index.column();
         scrollToHint_ = hint;
       }
 
@@ -2148,8 +2158,8 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
 
         s << jsRef() << ".wtObj.setScrollToPending();"
           << "setTimeout(function() {"
-          << jsRef() << ".wtObj.scrollTo(-1, "
-          << rowY << "," << (int)hint << "); }, 0);";
+          << jsRef() << ".wtObj.scrollTo("
+          << colX << "," << rowY << "," << (int)hint << "); }, 0);";
 
         doJavaScript(s.str());
       }
@@ -2220,6 +2230,17 @@ void WTableView::setRowHeaderCount(int count)
   WAbstractItemView::setRowHeaderCount(count);
 
   scheduleRerender(RenderState::NeedRerender);
+}
+
+int WTableView::sumColumnWidthsBefore(int column) const
+{
+  int total = 0;
+  for (int i = rowHeaderCount(); i < column; ++i) {
+    if (!columnInfo(i).hidden) {
+      total += static_cast<int>(columnWidth(i).toPixels()) + 7;
+    }
+  }
+  return total;
 }
 
 EventSignal<WScrollEvent>& WTableView::scrolled(){
