@@ -372,7 +372,7 @@ WT_DECLARE_WT_MEMBER(
         const top = contentsContainer.scrollTop,
           height = contentsContainer.clientHeight;
         if (hint === EnsureVisible) {
-          if (top + height < y) {
+          if (top + height < y + rowHeight()) {
             hint = PositionAtBottom;
           } else if (y < top) {
             hint = PositionAtTop;
