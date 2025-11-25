@@ -363,10 +363,10 @@ public:
   bool isColumnResizeEnabled() const { return columnResize_; }
 
   /*! \brief Returns whether column resizing is enabled for a single column.
-   * 
+   *
    * The \p column that is passed indicated the column index in the
    * view. The indices start from 0.
-   * 
+   *
    * \sa setColumnResizeEnabled()
    */
   bool isColumnResizeEnabled(int column) const { return columnInfo(column).resizable; }
