@@ -373,9 +373,9 @@ WT_DECLARE_WT_MEMBER(
           height = contentsContainer.clientHeight;
         if (hint === EnsureVisible) {
           if (top + height < y) {
-            hint = PositionAtTop;
-          } else if (y < top) {
             hint = PositionAtBottom;
+          } else if (y < top) {
+            hint = PositionAtTop;
           }
         }
 
