@@ -108,6 +108,32 @@ namespace Wt {
 class WT_API WPopupMenu : public WMenu
 {
 public:
+
+  /*! \brief Enumeration of auto-hide options.
+   *
+   * This enumeration is used to configure how auto-hide affects other
+   * submenus of the same menu.
+   *
+   * \sa setAutoHideBehaviour(), setAutoHide()
+   */
+  enum class AutoHideBehaviour {
+    /*! \brief When the mouse leaves the menu, hides the top-most
+     * submenu with auto-hide enabled.
+     */
+    HideAllEnabled = 0,
+
+    /*! \brief As long as a submenu with auto-hide disabled is visible,
+     * keeps all of its parent menus visible as well.
+     */
+    HideAfterLastDisabled = 1,
+
+    /*! \brief Prevents hiding (due to auto-hide) to propagate to the
+     * parent menu. This means that only the submenu left by the mouse
+     * (and its submenus) could be hidden.
+     */
+    KeepParents = 2
+  };
+
   /*! \brief Creates a new popup menu.
    *
    * The menu is hidden, by default, and must be shown using popup()
@@ -212,13 +238,38 @@ public:
   /*! \brief Configure auto-hide when the mouse leaves the menu.
    *
    * If \p enabled, The popup menu will be hidden when the mouse
-   * leaves the menu for longer than \p autoHideDelay
-   * (milliseconds). The popup menu result will be 0, as if the user
-   * cancelled.
+   * leaves the menu, its submenus or its parent menu, for longer than
+   * \p autoHideDelay (milliseconds).
+   *
+   * It is possible to configure how this affects its submenus and
+   * parents menus using setAutoHideBehaviour().
+   *
+   * If the top-level menu is automatically hidden, its result() will be
+   * a \p nullptr, as if the user cancelled.
    *
    * By default, this option is disabled.
    */
   void setAutoHide(bool enabled, int autoHideDelay = 0);
+
+  /*! \brief Configures auto-hide behaviour.
+   *
+   * Defines how auto-hide behaves in this popup menu.
+   *
+   * This setting can only be set on the top-level popup menu. Setting
+   * it on a submenu has no effect.
+   *
+   * By default, the behaviour is
+   * AutoHideBehaviour::HideAllEnabled.
+   *
+   * \sa setAutoHide()
+   */
+  void setAutoHideBehaviour(AutoHideBehaviour behaviour);
+
+  /*! \brief Returns the auto-hide behaviour.
+   *
+   * \sa setAutoHideBehaviour()
+   */
+  AutoHideBehaviour autoHideBehaviour() { return autoHideBehaviour_; }
 
   /*! \brief Set whether this popup menu should hide when an item is selected.
    *
@@ -262,8 +313,9 @@ private:
   static const int BIT_WILL_POPUP = 0;
   static const int BIT_OPEN_CHANGED = 1;
   static const int BIT_AUTO_HIDE_CHANGED = 2;
+  static const int BIT_AUTO_HIDE_BEHAVIOR_CHANGED = 3;
 
-  std::bitset<3> flags_;
+  std::bitset<4> flags_;
 
   WPopupMenu *topLevel_;
   WMenuItem *result_;
@@ -280,6 +332,7 @@ private:
   WFlags<Orientation> adjustFlags_;
   int autoHideDelay_;
   int renderedAutoHideDelay_;
+  AutoHideBehaviour autoHideBehaviour_;
 
   void exec();
   void cancel();

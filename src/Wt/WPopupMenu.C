@@ -35,7 +35,8 @@ WPopupMenu::WPopupMenu(WStackedWidget *contentsStack)
     open_(false),
     adjustFlags_(AllOrientations),
     autoHideDelay_(-1),
-    renderedAutoHideDelay_(-1)
+    renderedAutoHideDelay_(-1),
+    autoHideBehaviour_(AutoHideBehaviour::HideAllEnabled)
 {
   const char *CSS_RULES_NAME = "Wt::WPopupMenu";
 
@@ -215,7 +216,8 @@ void WPopupMenu::prepareRender(WApplication *app)
 
     s << "new " WT_CLASS ".WPopupMenu("
       << app->javaScriptClass() << ',' << jsRef() << ','
-      << autoHideDelay_ << ");";
+      << autoHideDelay_ << ','
+      << static_cast<int>(autoHideBehaviour_) << ");";
 
     setJavaScriptMember(" WPopupMenu", s.str());
 
@@ -322,6 +324,14 @@ void WPopupMenu::setAutoHide(bool enabled, int autoHideDelay)
     autoHideDelay_ = -1;
 
   flags_.set(BIT_AUTO_HIDE_CHANGED);
+  scheduleRender();
+}
+
+void WPopupMenu::setAutoHideBehaviour(AutoHideBehaviour behaviour)
+{
+  autoHideBehaviour_ = behaviour;
+  flags_.set(BIT_AUTO_HIDE_BEHAVIOR_CHANGED);
+  scheduleRender();
 }
 
 void WPopupMenu::renderSelected(WT_MAYBE_UNUSED WMenuItem* item, WT_MAYBE_UNUSED bool selected)
@@ -343,6 +353,17 @@ void WPopupMenu::render(WFlags<RenderFlag> flags)
     }
 
     flags_.reset(BIT_OPEN_CHANGED);
+  }
+
+  if (cancel_.isConnected() && flags_.test(BIT_AUTO_HIDE_BEHAVIOR_CHANGED)) {
+    WStringStream s;
+
+    s << jsRef() << ".wtObj.setAutoHideBehaviour("
+      << static_cast<int>(autoHideBehaviour_) << ");";
+
+    doJavaScript(s.str());
+
+    flags_.reset(BIT_AUTO_HIDE_BEHAVIOR_CHANGED);
   }
 
   if (flags_.test(BIT_AUTO_HIDE_CHANGED)) {

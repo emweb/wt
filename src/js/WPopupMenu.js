@@ -6,13 +6,21 @@
 
 /* Note: this is at the same time valid JavaScript and C++. */
 
-WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, globalAutoHideDelay) {
+WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, globalAutoHideDelay, autoHideBehaviour) {
   el.wtObj = this;
 
   const WT = APP.WT;
   const AUTO_HIDE_PREFIX = "Wt-AutoHideDelay-";
+
+  const HideAllEnabled = 0;
+  const HideAfterLastDisabled = 1;
+  const KeepParents = 2;
+
+  let globalAutoHideBehaviour = autoHideBehaviour;
+
   let globalHideTimeout = null,
     current = null,
+    lastOpenedSubmenu = null,
     touch = null;
 
   if (WT.isIOS) {
@@ -72,6 +80,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, g
       menu.classList.contains("Wt-AdjustY")
     );
     setOthersInactive(menu, null);
+    lastOpenedSubmenu = menu;
 
     if (WT.isIOS) {
       menu.removeEventListener("touchstart", startElTouch);
@@ -150,10 +159,30 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, g
     }
   }
 
+  function subMostOpenedMenu() {
+    while (lastOpenedSubmenu && lastOpenedSubmenu.style.display === "none") {
+      lastOpenedSubmenu = lastOpenedSubmenu.parentItem ?
+        lastOpenedSubmenu.parentItem.parentNode :
+        null;
+    }
+
+    return lastOpenedSubmenu;
+  }
+
   function globalMouseLeave() {
     clearTimeout(globalHideTimeout);
     if (globalAutoHideDelay >= 0) {
-      globalHideTimeout = setTimeout(doHide, globalAutoHideDelay);
+      globalHideTimeout = setTimeout(function() {
+        const submost = subMostOpenedMenu();
+
+        if (
+          globalAutoHideBehaviour !== HideAfterLastDisabled ||
+          !submost ||
+          getAutoHideDelay(submost) >= 0
+        ) {
+          doHide();
+        }
+      }, globalAutoHideDelay);
     }
   }
 
@@ -195,15 +224,28 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, g
       if (parent) {
         if (autoHideDelay >= 0) {
           function onMouseLeave() {
-            current = popup;
-            setOthersInactive(parent.parentNode, null);
+            const submost = subMostOpenedMenu();
+            if (
+              popup.style.display !== "none" &&
+              (globalAutoHideBehaviour !== HideAfterLastDisabled ||
+                !submost ||
+                getAutoHideDelay(submost) >= 0)
+            ) {
+              current = null;
+              setOthersInactive(parent.parentNode, null);
+            }
           }
 
           clearTimeout(hideTimeout);
           hideTimeout = setTimeout(onMouseLeave, autoHideDelay);
         }
 
-        parent.parentNode.wtObj.mouseLeave();
+        if (
+          globalAutoHideBehaviour === HideAllEnabled ||
+          (globalAutoHideBehaviour === HideAfterLastDisabled && autoHideDelay >= 0)
+        ) {
+          parent.parentNode.wtObj.mouseLeave();
+        }
       }
     };
 
@@ -214,7 +256,11 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, g
       popup.addEventListener("mouseenter", popup.wtObj.mouseEnter);
     }
 
-    popup.addEventListener("mouseleave", globalMouseLeave);
+    popup.addEventListener("mouseleave", function() {
+      if (globalAutoHideBehaviour !== KeepParents || !parent) {
+        globalMouseLeave();
+      }
+    });
     popup.addEventListener("mouseenter", globalMouseEnter);
   }
 
@@ -239,6 +285,10 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, g
       doHide();
     }
   }
+
+  this.setAutoHideBehaviour = function(behaviour) {
+    globalAutoHideBehaviour = behaviour;
+  };
 
   this.setHidden = function(hidden) {
     if (globalHideTimeout) {
