@@ -38,6 +38,9 @@ WT_DECLARE_WT_MEMBER(
     const PositionAtTop = 1;
     const PositionAtBottom = 2;
     const PositionAtCenter = 3;
+    const PositionAtLeft = 4;
+    const PositionAtRight = 5;
+    const _NoScroll = 6;
 
     function getItem(event) {
       let columnId = -1, nodeId = null, selected = false, drop = false, ele = null;
@@ -679,20 +682,41 @@ WT_DECLARE_WT_MEMBER(
       }
     };
 
-    this.scrollTo = function(colStart, y, rowHeight, hint, scrollBarC) {
+    this.scrollTo = function(x, colWidth, y, rowHeight, colHint, rowHint, scrollBarC) {
       if (y !== -1) {
         y *= rowHeight;
+        const toScroll = scrollBarC ? scrollBarC : contentsContainer;
+
         const top = contentsContainer.scrollTop,
-          height = contentsContainer.clientHeight;
-        if (hint === EnsureVisible) {
+          height = contentsContainer.clientHeight,
+          left = toScroll.scrollLeft,
+          width = toScroll.clientWidth;
+
+        if (
+          rowHint === EnsureVisible ||
+          rowHint === PositionAtLeft ||
+          rowHint === PositionAtRight
+        ) {
           if (top + height < y) {
-            hint = PositionAtTop;
+            rowHint = PositionAtBottom;
           } else if (y < top) {
-            hint = PositionAtBottom;
+            rowHint = PositionAtTop;
           }
         }
 
-        switch (hint) {
+        if (
+          colHint === EnsureVisible ||
+          colHint === PositionAtTop ||
+          colHint === PositionAtBottom
+        ) {
+          if (left + width < x + colWidth) {
+            colHint = PositionAtRight;
+          } else if (x < left) {
+            colHint = PositionAtLeft;
+          }
+        }
+
+        switch (rowHint) {
           case PositionAtTop:
             contentsContainer.scrollTop = y;
             break;
@@ -704,8 +728,17 @@ WT_DECLARE_WT_MEMBER(
             break;
         }
 
-        const toScroll = scrollBarC ? scrollBarC : contentsContainer;
-        toScroll.scrollLeft = colStart;
+        switch (colHint) {
+          case PositionAtLeft:
+            toScroll.scrollLeft = x;
+            break;
+          case PositionAtRight:
+            toScroll.scrollLeft = x - (width - colWidth);
+            break;
+          case PositionAtCenter:
+            toScroll.scrollLeft = x - (width - colWidth) / 2;
+            break;
+        }
 
         window.fakeEvent = { object: contentsContainer };
         contentsContainer.onscroll(window.fakeEvent);

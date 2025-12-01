@@ -42,10 +42,13 @@ enum class EditOption {
  * \sa scrollTo()
  */
 enum class ScrollHint {
-  EnsureVisible,         //!< Scrolls minimally to make it visible
-  PositionAtTop,         //!< Positions the item at the top of the viewport
-  PositionAtBottom,      //!< Positions the item at the bottom of the viewport
-  PositionAtCenter       //!< Positions the item at the center of the viewport
+  EnsureVisible = 0,                //!< Scrolls minimally to make it visible
+  PositionAtTop = 1,                //!< Positions the item at the top of the viewport
+  PositionAtBottom = 2,             //!< Positions the item at the bottom of the viewport
+  PositionAtCenter = 3,             //!< Positions the item at the center of the viewport
+  PositionAtLeft = 4,               //!< Positions the item at the left of the viewport
+  PositionAtRight = 5,              //!< Positions the item at the right of the viewport
+  NoScroll = 6                      //!< Do not scroll
 };
 
 /*! \brief Enumeration that specifies the possible drop locations for drag/drop.
@@ -647,11 +650,27 @@ public:
    * provided \p index is visible. A \p hint may indicate how the item
    * should appear in the viewport (if possible).
    *
-   * \note Currently only implemented to scroll to the correct row, not
-   *       taking into account the column.
+   * The hint will be considered for both row and column. In case the
+   * hint is not applicable in one direction (for instance,
+   * ScrollHint::PositionAtTop for columns), the hint for that
+   * direction will default to ScrollHint::EnsureVisible.
    */
   virtual void scrollTo(const WModelIndex& index,
-                        ScrollHint hint = ScrollHint::EnsureVisible) = 0;
+                        ScrollHint hint = ScrollHint::EnsureVisible);
+
+  /*! \brief Scrolls the view to an item.
+   *
+   * Scrolls the view to ensure that the item which represents the
+   * provided \p index is visible. The \p rowHint and \p columnHint
+   * indicates how the item should appear in the viewport.
+   *
+   * In case a hint is not applicable in one direction (for instance,
+   * ScrollHint::PositionAtTop for columns), the hint for that
+   * direction will default to ScrollHint::EnsureVisible.
+   */
+  virtual void scrollTo(const WModelIndex& index,
+                        ScrollHint rowHint,
+                        ScrollHint columnHint);
 
   /*! \brief Configures what actions should trigger editing.
    *

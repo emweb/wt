@@ -11,6 +11,7 @@
 #include "Wt/WContainerWidget.h"
 #include "Wt/WEnvironment.h"
 #include "Wt/WEvent.h"
+#include "Wt/WException.h"
 #include "Wt/WImage.h"
 #include "Wt/WItemSelectionModel.h"
 #include "Wt/WItemDelegate.h"
@@ -377,6 +378,31 @@ void WAbstractItemView::showColumn(int column)
   setColumnHidden(column, false);
 }
 
+void WAbstractItemView::scrollTo(const WModelIndex& index,
+                                 ScrollHint hint)
+{
+  switch (hint) {
+  case ScrollHint::PositionAtTop:
+  case ScrollHint::PositionAtBottom:
+    scrollTo(index, hint, ScrollHint::EnsureVisible);
+    break;
+  case ScrollHint::PositionAtLeft:
+  case ScrollHint::PositionAtRight:
+    scrollTo(index, ScrollHint::EnsureVisible, hint);
+    break;
+  default:
+    scrollTo(index, hint, hint);
+    break;
+  }
+}
+
+void WAbstractItemView::scrollTo(const WModelIndex& index,
+                                 ScrollHint rowHint,
+                                 ScrollHint columnHint)
+{
+  throw WException("WAbstractItemView::scrollTo() with row and column hint is not implemented");
+}
+
 void WAbstractItemView::initDragDrop()
 {
   /* item drag & drop */
@@ -395,7 +421,7 @@ void WAbstractItemView::initDragDrop()
 
 void WAbstractItemView::setColumnResizeEnabled(bool enabled)
 {
- 
+
   columnResize_ = enabled;
   for (unsigned int i = 0; i < static_cast<unsigned int>(columns_.size()); i++){
     columnInfo(i).resizable = enabled;

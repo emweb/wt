@@ -113,6 +113,10 @@ public:
   virtual void scrollTo(const WModelIndex& index,
                         ScrollHint hint = ScrollHint::EnsureVisible) override;
 
+  void scrollTo(const WModelIndex& index,
+                ScrollHint rowHint,
+                ScrollHint columnHint) override;
+
   /*! \brief Scrolls the view x px left and y px top.
    */
   void scrollTo(int x, int y);
@@ -233,7 +237,7 @@ private:
   /* Scroll to to process after viewport height is known */
   int scrollToRow_;
   int scrollToCol_;
-  ScrollHint scrollToHint_;
+  ScrollHint scrollToRowHint_, scrollToColHint_;
   bool columnResizeConnected_;
 
   void updateTableBackground();

@@ -31,6 +31,9 @@ WT_DECLARE_WT_MEMBER(
     const PositionAtTop = 1;
     const PositionAtBottom = 2;
     const PositionAtCenter = 3;
+    const PositionAtLeft = 4;
+    const PositionAtRight = 5;
+    const _NoScroll = 6;
 
     function rtlScrollLeft(o) {
       if (rtl) {
@@ -399,7 +402,7 @@ WT_DECLARE_WT_MEMBER(
       this.resetScroll();
     };
 
-    this.scrollTo = function(x, y, hint) {
+    this.scrollTo = function(x, y, colHint, rowHint, colWidth) {
       if (scrollToPendingCount > 0) {
         scrollToPendingCount -= 1;
       }
@@ -408,15 +411,32 @@ WT_DECLARE_WT_MEMBER(
           height = contentsContainer.clientHeight,
           left = contentsContainer.scrollLeft,
           width = contentsContainer.clientWidth;
-        if (hint === EnsureVisible) {
+
+        if (
+          rowHint === EnsureVisible ||
+          rowHint === PositionAtLeft ||
+          rowHint === PositionAtRight
+        ) {
           if (top + height < y + rowHeight()) {
-            hint = PositionAtBottom;
+            rowHint = PositionAtBottom;
           } else if (y < top) {
-            hint = PositionAtTop;
+            rowHint = PositionAtTop;
           }
         }
 
-        switch (hint) {
+        if (
+          colHint === EnsureVisible ||
+          colHint === PositionAtTop ||
+          colHint === PositionAtBottom
+        ) {
+          if (left + width < x + colWidth) {
+            colHint = PositionAtRight;
+          } else if (x < left) {
+            colHint = PositionAtLeft;
+          }
+        }
+
+        switch (rowHint) {
           case PositionAtTop:
             contentsContainer.scrollTop = y;
             break;
@@ -428,7 +448,17 @@ WT_DECLARE_WT_MEMBER(
             break;
         }
 
-        contentsContainer.scrollLeft = x;
+        switch (colHint) {
+          case PositionAtLeft:
+            contentsContainer.scrollLeft = x;
+            break;
+          case PositionAtRight:
+            contentsContainer.scrollLeft = x - (width - colWidth);
+            break;
+          case PositionAtCenter:
+            contentsContainer.scrollLeft = x - (width - colWidth) / 2;
+            break;
+        }
 
         contentsContainer.onscroll();
       }

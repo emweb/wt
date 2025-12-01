@@ -69,7 +69,8 @@ WTableView::WTableView()
     viewportHeight_(UNKNOWN_VIEWPORT_HEIGHT),
     scrollToRow_(-1),
     scrollToCol_(-1),
-    scrollToHint_(ScrollHint::EnsureVisible),
+    scrollToRowHint_(ScrollHint::EnsureVisible),
+    scrollToColHint_(ScrollHint::EnsureVisible),
     columnResizeConnected_(false)
 {
   preloadMargin_[0] = preloadMargin_[1] = preloadMargin_[2] = preloadMargin_[3] = WLength();
@@ -253,7 +254,7 @@ void WTableView::resize(const WLength& width, const WLength& height)
         WModelIndex index = model()->index(scrollToRow_, scrollToCol_, rootIndex());
         scrollToRow_ = -1;
         scrollToCol_ = -1;
-        scrollTo(index, scrollToHint_);
+        scrollTo(index, scrollToRowHint_, scrollToColHint_);
       }
     } else
       viewportHeight_ = UNKNOWN_VIEWPORT_HEIGHT;
@@ -1659,7 +1660,7 @@ void WTableView::onViewportChange(int left, int top, int width, int height)
     WModelIndex index = model()->index(scrollToRow_, scrollToCol_, rootIndex());
     scrollToRow_ = -1;
     scrollToCol_ = -1;
-    scrollTo(index, scrollToHint_);
+    scrollTo(index, scrollToRowHint_, scrollToColHint_);
   }
 
   computeRenderedArea();
@@ -2111,6 +2112,13 @@ int WTableView::pageSize() const
 
 void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
 {
+  WAbstractItemView::scrollTo(index, hint);
+}
+
+void WTableView::scrollTo(const WModelIndex& index,
+                          ScrollHint rowHint,
+                          ScrollHint columnHint)
+{
   if (index.parent() == rootIndex()) {
     if (ajaxMode()) {
       int rh = static_cast<int>(rowHeight().toPixels());
@@ -2119,14 +2127,27 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
       int colX = sumColumnWidthsBefore(index.column());
 
       if (viewportHeight_ != UNKNOWN_VIEWPORT_HEIGHT) {
-        if (hint == ScrollHint::EnsureVisible) {
-          if (viewportTop_ + viewportHeight_ < rowY + rh)
-            hint = ScrollHint::PositionAtBottom;
-          else if (rowY < viewportTop_)
-           hint = ScrollHint::PositionAtTop;
+        if (rowHint == ScrollHint::EnsureVisible ||
+            rowHint == ScrollHint::PositionAtLeft ||
+            rowHint == ScrollHint::PositionAtRight) {
+          if (viewportTop_ + viewportHeight_ < rowY + rh) {
+            rowHint = ScrollHint::PositionAtBottom;
+          } else if (rowY < viewportTop_) {
+           rowHint = ScrollHint::PositionAtTop;
+          }
         }
 
-        switch (hint) {
+        if (columnHint == ScrollHint::EnsureVisible ||
+            columnHint == ScrollHint::PositionAtTop ||
+            columnHint == ScrollHint::PositionAtBottom) {
+          if (viewportLeft_ + viewportWidth_ < colX + cw) {
+            columnHint = ScrollHint::PositionAtRight;
+          } else if (colX < viewportLeft_) {
+            columnHint = ScrollHint::PositionAtLeft;
+          }
+        }
+
+        switch (rowHint) {
         case ScrollHint::PositionAtTop:
           viewportTop_ = rowY; break;
         case ScrollHint::PositionAtBottom:
@@ -2137,12 +2158,25 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
           break;
         }
 
-        viewportLeft_ = colX;
+        switch (columnHint) {
+        case ScrollHint::PositionAtLeft:
+          viewportLeft_ = colX;
+          break;
+        case ScrollHint::PositionAtRight:
+          viewportLeft_ = colX - viewportWidth_ + cw;
+          break;
+        case ScrollHint::PositionAtCenter:
+          viewportLeft_ = colX - (viewportWidth_ - cw) / 2;
+          break;
+        default:
+          break;
+        }
 
         viewportTop_ = std::max(0, viewportTop_);
         viewportLeft_ = std::max(0, viewportLeft_);
 
-        if (hint != ScrollHint::EnsureVisible) {
+        if (rowHint != ScrollHint::EnsureVisible &&
+            columnHint != ScrollHint::EnsureVisible) {
           computeRenderedArea();
 
           scheduleRerender(RenderState::NeedAdjustViewPort);
@@ -2150,7 +2184,8 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
       } else {
         scrollToRow_ = index.row();
         scrollToCol_ = index.column();
-        scrollToHint_ = hint;
+        scrollToRowHint_ = rowHint;
+        scrollToColHint_ = columnHint;
       }
 
       if (isRendered()) {
@@ -2159,7 +2194,10 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
         s << jsRef() << ".wtObj.setScrollToPending();"
           << "setTimeout(function() {"
           << jsRef() << ".wtObj.scrollTo("
-          << colX << "," << rowY << "," << (int)hint << "); }, 0);";
+          << colX << "," << rowY << ","
+          << static_cast<int>(columnHint) << ","
+          << static_cast<int>(rowHint) << ","
+          << cw << "); }, 0);";
 
         doJavaScript(s.str());
       }

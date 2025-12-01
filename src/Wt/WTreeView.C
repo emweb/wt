@@ -988,6 +988,8 @@ WTreeView::WTreeView()
     rootIsDecorated_(true),
     viewportTop_(0),
     viewportHeight_(UNKNOWN_VIEWPORT_HEIGHT),
+    viewportLeft_(0),
+    viewportWidth_(1000),
     firstRenderedRow_(0),
     validRowCount_(0),
     nodeLoad_(0),
@@ -1628,13 +1630,17 @@ void WTreeView::onViewportChange(WScrollEvent e)
   viewportTop_ = static_cast<int>
     (std::floor(e.scrollY() / rowHeight().toPixels()));
 
-  contentsSizeChanged(0, e.viewportHeight());
+  viewportLeft_ = e.scrollX();
+
+  contentsSizeChanged(e.viewportWidth(), e.viewportHeight());
 }
 
-void WTreeView::contentsSizeChanged(WT_MAYBE_UNUSED int width, int height)
+void WTreeView::contentsSizeChanged(int width, int height)
 {
   viewportHeight_
     = static_cast<int>(std::ceil(height / rowHeight().toPixels()));
+
+  viewportWidth_ = width;
 
   scheduleRerender(RenderState::NeedAdjustViewPort);
 }
@@ -3070,23 +3076,44 @@ int WTreeView::pageSize() const
 
 void WTreeView::scrollTo(const WModelIndex& index, ScrollHint hint)
 {
+  WAbstractItemView::scrollTo(index, hint);
+}
+
+void WTreeView::scrollTo(const WModelIndex& index,
+                         ScrollHint rowHint,
+                         ScrollHint columnHint)
+{
   const int row = getIndexRow(index, rootIndex(), 0,
                               std::numeric_limits<int>::max());
+  const int col = index.column();
 
-  const int colStart = sumColumnWidthsBefore(index.column());
+  const int cw = static_cast<int>(columnWidth(col).toPixels());
+  const int colStart = sumColumnWidthsBefore(col);
 
   WApplication *app = WApplication::instance();
 
   if (app->environment().ajax()) {
     if (viewportHeight_ != UNKNOWN_VIEWPORT_HEIGHT) {
-      if (hint == ScrollHint::EnsureVisible) {
+      if (rowHint == ScrollHint::EnsureVisible ||
+          rowHint == ScrollHint::PositionAtLeft ||
+          rowHint == ScrollHint::PositionAtRight) {
         if (viewportTop_ + viewportHeight_ <= row)
-          hint = ScrollHint::PositionAtBottom;
+          rowHint = ScrollHint::PositionAtBottom;
         else if (row < viewportTop_)
-          hint = ScrollHint::PositionAtTop;
+          rowHint = ScrollHint::PositionAtTop;
       }
 
-      switch (hint) {
+      if (columnHint == ScrollHint::EnsureVisible ||
+          columnHint == ScrollHint::PositionAtTop ||
+          columnHint == ScrollHint::PositionAtBottom) {
+        if (viewportLeft_ + viewportWidth_ < colStart + cw) {
+          columnHint = ScrollHint::PositionAtRight;
+        } else if (colStart < viewportLeft_) {
+          columnHint = ScrollHint::PositionAtLeft;
+        }
+      }
+
+      switch (rowHint) {
       case ScrollHint::PositionAtTop:
         viewportTop_ = row; break;
       case ScrollHint::PositionAtBottom:
@@ -3097,7 +3124,23 @@ void WTreeView::scrollTo(const WModelIndex& index, ScrollHint hint)
         break;
       }
 
-      if (hint != ScrollHint::EnsureVisible) {
+      switch (columnHint) {
+      case ScrollHint::PositionAtLeft:
+        viewportLeft_ = colStart;
+        break;
+      case ScrollHint::PositionAtRight:
+        viewportLeft_ = colStart - viewportWidth_ + cw;
+        break;
+      case ScrollHint::PositionAtCenter:
+          viewportLeft_ = colStart - (viewportWidth_ - cw) / 2;
+        break;
+      default:
+        break;
+      }
+
+      viewportLeft_ = std::max(0, viewportLeft_);
+
+      if (rowHint != ScrollHint::EnsureVisible) {
         scheduleRerender(RenderState::NeedAdjustViewPort);
       }
     }
@@ -3106,9 +3149,10 @@ void WTreeView::scrollTo(const WModelIndex& index, ScrollHint hint)
 
     s << "setTimeout(function() { " << jsRef()
       << ".wtObj.scrollTo("
-      << colStart << ","
+      << colStart << "," << cw << ","
       << row << "," << static_cast<int>(rowHeight().toPixels())
-      << "," << (int)hint;
+      << "," << static_cast<int>(columnHint)
+      << "," << static_cast<int>(rowHint);
 
     if (scrollBarC_) {
       s << "," << scrollBarC_->jsRef();

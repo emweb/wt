@@ -228,6 +228,11 @@ public:
 
   virtual void scrollTo(const WModelIndex& index,
                         ScrollHint hint = ScrollHint::EnsureVisible) override;
+
+  void scrollTo(const WModelIndex& index,
+                ScrollHint rowHint,
+                ScrollHint columnHint) override;
+
   virtual EventSignal<WScrollEvent>& scrolled() override;
 
   virtual void setId(const std::string &id) override;
@@ -254,6 +259,9 @@ private:
 
   // in rows, as indicated by the current position of the viewport:
   int viewportTop_, viewportHeight_;
+
+  // in pixels
+  int viewportLeft_, viewportWidth_;
 
   // the firstRenderedRow may differ from viewportTop_, because the user
   // adjusted the view port slightly, but not enough to trigger a correction
