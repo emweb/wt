@@ -31,6 +31,7 @@ WT_DECLARE_WT_MEMBER(
     APP.treeViewRegistered.push(self);
 
     let sizeSet = false;
+    let scrollBarColumn = null;
 
     let itemDropsEnabled = false, betweenRowsDropsEnabled = false;
 
@@ -682,10 +683,10 @@ WT_DECLARE_WT_MEMBER(
       }
     };
 
-    this.scrollTo = function(x, colWidth, y, rowHeight, colHint, rowHint, scrollBarC) {
+    this.scrollTo = function(x, colWidth, y, rowHeight, colHint, rowHint) {
       if (y !== -1) {
         y *= rowHeight;
-        const toScroll = scrollBarC ? scrollBarC : contentsContainer;
+        const toScroll = scrollBarColumn ? scrollBarColumn : contentsContainer;
 
         const top = contentsContainer.scrollTop,
           height = contentsContainer.clientHeight,
@@ -746,6 +747,28 @@ WT_DECLARE_WT_MEMBER(
       }
     };
 
+    function modifyContentScrollEventInfo(info) {
+      if (scrollBarColumn) {
+        info.scrollX = scrollBarColumn.scrollLeft;
+        info.scrollY = contentsContainer.scrollTop;
+        info.width = contentsContainer.clientWidth;
+        info.height = contentsContainer.clientHeight;
+      }
+    }
+
+    this.setScrollBarColumn = function(sbC) {
+      scrollBarColumn = sbC;
+      if (!scrollBarColumn) {
+        return;
+      }
+
+      if (!scrollBarColumn.wtObj) {
+        scrollBarColumn.wtObj = {};
+      }
+
+      scrollBarColumn.wtObj.modifyScrollEventInfo = modifyContentScrollEventInfo;
+    };
+
     /** @type {number} */
     let rowHeight = 0;
     this.setRowHeight = function(height) {
@@ -770,6 +793,11 @@ WT_DECLARE_WT_MEMBER(
     } else if (contentsContainer.attachEvent) {
       contentsContainer.attachEvent("onscroll", offsetRowColorImg);
     }
+
+    if (!contentsContainer.wtObj) {
+      contentsContainer.wtObj = {};
+    }
+    contentsContainer.wtObj.modifyScrollEventInfo = modifyContentScrollEventInfo;
 
     self.adjustColumns();
   }

@@ -979,7 +979,6 @@ void WTreeViewNode::updateDom(DomElement& element, bool all)
 
 WTreeView::WTreeView()
   : skipNextMouseEvent_(false),
-    renderedNodesAdded_(false),
     rootNode_(nullptr),
     rowHeightRule_(nullptr),
     rowWidthRule_(nullptr),
@@ -1183,6 +1182,7 @@ void WTreeView::setRowHeaderCount(int count)
       = scrollBarContainer->addWidget(std::make_unique<WContainerWidget>());
     scrollBarC_->setStyleClass("Wt-tv-row Wt-scroll");
     scrollBarC_->scrolled().connect(tieRowsScrollJS_);
+    scrollBarC_->scrolled().connect(this, &WTreeView::onScrollBarColumnScroll);
 
     if (app->environment().agentIsIE()) {
       scrollBarContainer->setPositionScheme(PositionScheme::Relative);
@@ -1199,6 +1199,8 @@ void WTreeView::setRowHeaderCount(int count)
     if (useStyleLeft)
       scrollBar->setAttributeValue("style", "left: 0px;");
     impl_->layout()->addWidget(std::unique_ptr<WWidget>(scrollBarContainer));
+
+    flags_.set(BIT_SCROLLBAR_CONTAINER_ADDED);
   }
 }
 
@@ -1502,12 +1504,24 @@ void WTreeView::render(WFlags<RenderFlag> flags)
   // set contents height to retain scroll-position (issue #7998)
   contents_->setHeight(subTreeHeight(rootIndex()) * rowHeight().toPixels());
 
-  if (app->environment().ajax() && rowHeaderCount() && renderedNodesAdded_) {
+  if (app->environment().ajax() && rowHeaderCount() && flags_.test(BIT_RENDERED_NODES_ADDED)) {
+
     doJavaScript("{var s=" + scrollBarC_->jsRef() + ";"
                  """if (s) {" + tieRowsScrollJS_.execJs("s") + "}"
                  "}");
-    renderedNodesAdded_ = false;
+    flags_.reset(BIT_RENDERED_NODES_ADDED);
   }
+
+  if (app->environment().ajax() && flags_.test(BIT_SCROLLBAR_CONTAINER_ADDED)) {
+    WStringStream s;
+
+    s << jsRef() << ".wtObj.setScrollBarColumn("
+      << scrollBarC_->jsRef() << ");";
+
+    doJavaScript(s.str());
+    flags_.reset(BIT_SCROLLBAR_CONTAINER_ADDED);
+  }
+
 
   WStringStream s;
   // update the rowHeight (needed for scrolling fix)
@@ -2954,7 +2968,7 @@ void WTreeView::addRenderedNode(WTreeViewNode *node)
 {
   renderedNodes_[node->modelIndex()] = node;
   ++nodeLoad_;
-  renderedNodesAdded_ = true;
+  flags_.set(BIT_RENDERED_NODES_ADDED);
 }
 
 void WTreeView::removeRenderedNode(WTreeViewNode *node)
@@ -3152,13 +3166,8 @@ void WTreeView::scrollTo(const WModelIndex& index,
       << colStart << "," << cw << ","
       << row << "," << static_cast<int>(rowHeight().toPixels())
       << "," << static_cast<int>(columnHint)
-      << "," << static_cast<int>(rowHint);
-
-    if (scrollBarC_) {
-      s << "," << scrollBarC_->jsRef();
-    }
-
-    s << ");});";
+      << "," << static_cast<int>(rowHint)
+      << ");});";
 
 
     doJavaScript(s.str());
@@ -3175,6 +3184,11 @@ int WTreeView::sumColumnWidthsBefore(int column) const
     }
   }
   return total;
+}
+
+void WTreeView::onScrollBarColumnScroll(WScrollEvent event)
+{
+  scrolled().emit(event);
 }
 
 EventSignal<WScrollEvent>& WTreeView::scrolled(){

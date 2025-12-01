@@ -244,6 +244,11 @@ protected:
 private:
   typedef std::unordered_map<WModelIndex, WTreeViewNode *> NodeMap;
 
+  static const int BIT_RENDERED_NODES_ADDED = 0;
+  static const int BIT_SCROLLBAR_CONTAINER_ADDED = 1;
+
+  std::bitset<2> flags_;
+
   bool skipNextMouseEvent_;
 
   std::unordered_set<WModelIndex> expandedSet_;
@@ -392,6 +397,8 @@ private:
   virtual WWidget *headerWidget(int column, bool contentsOnly = true) override;
 
   int sumColumnWidthsBefore(int column) const;
+
+  void onScrollBarColumnScroll(WScrollEvent event);
 
   friend class WTreeViewNode;
   friend class ContentsContainer;

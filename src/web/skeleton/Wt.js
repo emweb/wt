@@ -2775,11 +2775,22 @@ window._$_APP_CLASS_$_ = new (function() {
       const objY = widgetCoords.y;
 
       if (typeof event.object.scrollLeft !== UNDEFINED) {
+        const scrollInfo = {
+          scrollX: Math.round(event.object.scrollLeft),
+          scrollY: Math.round(event.object.scrollTop),
+          width: Math.round(event.object.clientWidth),
+          height: Math.round(event.object.clientHeight),
+        };
+
+        if (event.object.wtObj && event.object.wtObj.modifyScrollEventInfo) {
+          event.object.wtObj.modifyScrollEventInfo(scrollInfo);
+        }
+
         result.push(
-          "scrollX=" + Math.round(event.object.scrollLeft),
-          "scrollY=" + Math.round(event.object.scrollTop),
-          "width=" + Math.round(event.object.clientWidth),
-          "height=" + Math.round(event.object.clientHeight)
+          "scrollX=" + scrollInfo.scrollX,
+          "scrollY=" + scrollInfo.scrollY,
+          "width=" + scrollInfo.width,
+          "height=" + scrollInfo.height
         );
       }
 
