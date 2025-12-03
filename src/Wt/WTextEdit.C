@@ -23,6 +23,10 @@
 #include "js/WTextEdit.min.js"
 #endif
 
+#ifdef WT_TARGET_JAVA
+#include "boost/lexical_cast.hpp"
+#endif // WT_TARGET_JAVA
+
 namespace Wt {
 
 LOGGER("WTextEdit");
@@ -169,9 +173,24 @@ std::string WTextEdit::renderRemoveJs(bool recursive)
 
 int WTextEdit::getTinyMCEVersion()
 {
-  std::string version = "6";
+  int res = 6;
+  std::string version = std::to_string(res);
   WApplication::readConfigurationProperty("tinyMCEVersion", version);
-  return Utils::stoi(version);
+
+  try {
+    res = Utils::stoi(version);
+
+#ifndef WT_TARGET_JAVA
+  } catch (const std::invalid_argument& e) {
+#else
+  } catch (const boost::bad_lexical_cast& e) {
+#endif // WT_TARGET_JAVA
+
+    LOG_WARN("Invalid tinyMCEVersion configuration property: " << version
+            << ", defaulting to version " << res);
+  }
+
+  return res;
 }
 
 void WTextEdit::onBadVersion(int version)
