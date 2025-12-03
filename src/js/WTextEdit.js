@@ -8,7 +8,7 @@
 
 /* Note: this is at the same time valid JavaScript and C++. */
 
-WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
+WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el, expectedVersion) {
   el.wtObj = this;
 
   let lastW, lastH;
@@ -48,6 +48,10 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el) {
 
   this.init = function() {
     const iframe = WT.getElement(el.id + "_ifr");
+
+    if (parseInt(tinymce.EditorManager.majorVersion) !== expectedVersion) {
+      APP.emit(el, "badVersion", tinymce.EditorManager.majorVersion);
+    }
 
     let topLevel, other;
 

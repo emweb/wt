@@ -267,6 +267,8 @@ protected:
 private:
   JSignal<> onChange_;
   JSignal<> onRender_;
+  JSignal<int> badVersion_;
+
   int version_;
   bool initialised_;
 
@@ -280,12 +282,9 @@ private:
 
   void init();
   void propagateOnChange();
+  void onBadVersion(int version);
   static void initTinyMCE();
   static int getTinyMCEVersion();
-
-#ifndef WT_TARGET_JAVA
-  static bool verifyTinyMCEVersion(int version);
-#endif
 
   static std::string getTinyMCEPath();
 };
