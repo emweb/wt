@@ -1985,7 +1985,21 @@ void WTreeView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
     return;
   }
 
+  if (start >= model()->columnCount(parent)) {
+    return;
+  }
+
+  // Correct the maximum column to be removed.
+  if (end > columns_.size()) {
+    end = columns_.size();
+  }
+
   int count = end - start + 1;
+  // Early return if no items were removed
+  if (count < 1) {
+    return;
+  }
+
   if (!parent.isValid()) {
     WApplication *app = wApp;
 
@@ -2195,7 +2209,16 @@ void WTreeView::modelRowsAboutToBeRemoved(const WModelIndex& parent,
     return;
   }
 
+  // Correct the maximum row to be removed.
+  if (end > model()->rowCount(parent)) {
+    end = model()->rowCount(parent);
+  }
+
   int count = end - start + 1;
+  // Early return if no items were removed
+  if (count < 1) {
+    return;
+  }
 
   bool renderedRowsChange = isExpandedRecursive(parent);
 
