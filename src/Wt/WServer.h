@@ -603,7 +603,7 @@ public:
   WT_API void setLocalizedStrings(const std::shared_ptr<WLocalizedStrings>&
                                   stringResolver);
 
-  /*! \brief Sets the resource object that provides localized strings.
+  /*! \brief Returns the resource object that provides localized strings.
    *
    * \sa setLocalizedStrings()
    */
