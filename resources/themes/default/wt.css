@@ -983,13 +983,6 @@ body.Wt-rtl .Wt-itemview .Wt-tv-sh {
 /*
  * WTableView
  */
-body.Wt-ltr .Wt-tableview .Wt-header .Wt-tv-c {
-  padding-left: 6px;
-}
-
-body.Wt-rtl .Wt-tableview .Wt-header .Wt-tv-c {
-  padding-right: 6px;
-}
 
 .Wt-tableview .Wt-tv-contents .Wt-tv-c,
 .Wt-plaintable .Wt-tv-c {
@@ -1019,6 +1012,14 @@ body.Wt-rtl .Wt-tableview .Wt-header .Wt-tv-c {
 
 .Wt-tableview th {
   padding: 0px;
+}
+
+.Wt-tableview .Wt-header .Wt-label {
+  padding-inline: 3px;
+}
+
+.Wt-tableview .Wt-header div[style*="text-align:center;"] .Wt-tv-sh ~ .Wt-label {
+  padding-inline: 16px 0px;
 }
 
 .Wt-tableview table {

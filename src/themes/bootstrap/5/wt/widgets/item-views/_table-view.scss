@@ -2,9 +2,12 @@
   white-space: nowrap;
 
   .Wt-header {
-    .Wt-tv-c {
-      padding-left: 6px;
-      margin-left: 6px;
+    .Wt-label {
+      padding-inline: 3px;
+    }
+
+    div[style*="text-align:center;"] .Wt-tv-sh ~ .Wt-label {
+      padding-inline: 16px 0px;
     }
   }
 
