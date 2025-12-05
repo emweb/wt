@@ -57,12 +57,17 @@ WT_DECLARE_WT_MEMBER(
       if (wxy.x > 0 && wxy.x < wsize.x && wxy.y > 0 && wxy.y < wsize.y) {
         centerX = centerY = false;
 
-        if (el.style.right === "auto" || el.style.right === "") {
+        const rtl = document.body.classList.contains("Wt-rtl");
+        const useRight = rtl ?
+          !(el.style.left === "auto" || el.style.left === "") :
+          el.style.right === "auto" || el.style.right === "";
+
+        if (useRight) {
           el.style.left = (WT.px(el, "left") + nowxy.x - dsx) + "px";
-          el.style.right = "";
+          el.style.right = rtl ? "auto" : "";
         } else {
           el.style.right = (WT.px(el, "right") + dsx - nowxy.x) + "px";
-          el.style.left = "auto";
+          el.style.left = rtl ? "" : "auto";
         }
 
         if (el.style.bottom === "auto" || el.style.bottom === "") {
@@ -131,14 +136,14 @@ WT_DECLARE_WT_MEMBER(
         }
 
         if (centerX) {
-          el.style.left = Math.max(
+          el.style.insetInlineStart = Math.max(
             0,
             Math.round(
               (ws.x - w) / 2 +
                 (WT.isIE6 ? document.documentElement.scrollLeft : 0)
             )
           ) + "px";
-          el.style.marginLeft = "0px";
+          el.style.marginInlineStart = "0px";
         }
 
         if (centerY) {

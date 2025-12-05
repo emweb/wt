@@ -248,9 +248,9 @@ void WDialog::create()
     app->styleSheet().addRule("div.Wt-dialog", std::string()
                               //"position: " + position + ';'
                               + (!app->environment().ajax() ?
-                                 "left: 50%; top: 50%;"
-                                 "margin-left: -100px; margin-top: -50px;" :
-                                 "left: 0px; top: 0px;"),
+                                 "inset-inline-start: 50%; top: 50%;"
+                                 "margin-inline-start: -100px; margin-top: -50px;" :
+                                 "inset-inline-start: 0px; top: 0px;"),
                               CSS_RULES_NAME);
 
     if (app->environment().agent() == UserAgent::IE6) {
