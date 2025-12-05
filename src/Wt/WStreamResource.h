@@ -100,9 +100,19 @@ protected:
   /*! \brief Handles a request and streams the data from a std::istream.
    *
    * You can call this method from a custom handleRequest() implementations.
+   *
+   * \note the mime type used is the one set by setMimeType().
    */
   void handleRequestPiecewise(const Http::Request& request,
                               Http::Response& response, std::istream& input);
+
+  /*! \brief Handles a request and streams the data from a std::istream.
+   *
+   * You can call this method from a custom handleRequest() implementations.
+   */
+  void handleRequestPiecewise(const Http::Request& request,
+                              Http::Response& response, std::istream& input,
+                              const std::string& mimeType);
 
 private:
   std::string mimeType_;

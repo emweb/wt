@@ -43,6 +43,14 @@ void WStreamResource::handleRequestPiecewise(const Http::Request& request,
                                              Http::Response& response,
                                              std::istream& input)
 {
+  handleRequestPiecewise(request, response, input, mimeType_);
+}
+
+void WStreamResource::handleRequestPiecewise(const Http::Request& request,
+                                             Http::Response& response,
+                                             std::istream& input,
+                                             const std::string& mimeType)
+{
   typedef std::pair<::uint64_t, std::streamsize> State;
 
   ::uint64_t startByte = 0;
@@ -97,7 +105,7 @@ void WStreamResource::handleRequestPiecewise(const Http::Request& request,
       response.setContentLength(::uint64_t(beyondLastByte));
     }
 
-    response.setMimeType(mimeType_);
+    response.setMimeType(mimeType);
   }
 
   input.seekg(static_cast<std::istream::pos_type>(startByte));
