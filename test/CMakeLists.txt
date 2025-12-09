@@ -283,6 +283,7 @@ IF(ENABLE_LIBWTTEST)
         http/HttpClientServerTest.C
         http/BotTest.C
         resource/WStreamResourceTest.C
+        resource/WResourceTest.C
       )
 
       SUBDIRS(
