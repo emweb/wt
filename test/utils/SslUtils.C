@@ -43,7 +43,7 @@ xPNLHqvzNWNWo9W76S5MNbhVkpg2EjKRBtD7Rg/c93Ftt/C3vwWmCXoepECHUi26
 
 BOOST_AUTO_TEST_CASE( SslUtils_readPrivateKey )
 {
-  Wt::cpp17::filesystem::path tmpFile = std::tmpnam(nullptr);
+  Wt::cpp17::filesystem::path tmpFile = "wt-test-tmp-filename";
   {
     std::ofstream ofs(tmpFile.string(), std::ios::out | std::ios::binary);
     ofs << pkeyStr;
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE( SslUtils_readPrivateKey )
 
 BOOST_AUTO_TEST_CASE( SslUtils_rs256 )
 {
-  Wt::cpp17::filesystem::path tmpFile = std::tmpnam(nullptr);
+  Wt::cpp17::filesystem::path tmpFile = "wt-test-tmp-filename";
   {
     std::ofstream ofs(tmpFile.string(), std::ios::out | std::ios::binary);
     ofs << pkeyStr;
