@@ -601,6 +601,11 @@ void Client::disconnect()
   impl_ = nullptr;
 }
 
+bool Client::isConnected() const
+{
+  return impl_ && impl_->good();
+}
+
 bool Client::send(const Message& message)
 {
   if (!(impl_ && impl_->good())) {

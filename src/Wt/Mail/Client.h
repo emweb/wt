@@ -172,6 +172,9 @@ public:
    */
   void disconnect();
 
+  //! Returns whether the client is connected to an SMTP server.
+  bool isConnected() const;
+
   /*! \brief Sends a message.
    *
    * The client must be connected before messages can be sent.
