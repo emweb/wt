@@ -571,34 +571,48 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
   AlignmentFlag vAlign = it.alignment_ & AlignVerticalMask;
 
   if (orientation == Orientation::Horizontal) {
+    bool noAlign = false;
+
     std::string alignSelfStyle;
-    switch (vAlign) {
-    case AlignmentFlag::Top:
-      alignSelfStyle = "flex-start";
-      break;
-    case AlignmentFlag::Middle:
-      alignSelfStyle = "center";
-      break;
-    case AlignmentFlag::Bottom:
-      alignSelfStyle = "flex-end";
-      break;
-    case AlignmentFlag::Baseline:
-      alignSelfStyle = "baseline";
-      break;
-    default:
+    /*#13670 if this casts to 0, it means no Alignment flags are set
+     * so we should use default flex behavior. This check is not needed
+     * in c++ but is needed in java as vAlign would be null in that case.
+     */
+    if (vAlign != static_cast<AlignmentFlag>(0)) {
+      switch (vAlign) {
+      case AlignmentFlag::Top:
+        alignSelfStyle = "flex-start";
+        break;
+      case AlignmentFlag::Middle:
+        alignSelfStyle = "center";
+        break;
+      case AlignmentFlag::Bottom:
+        alignSelfStyle = "flex-end";
+        break;
+      case AlignmentFlag::Baseline:
+        alignSelfStyle = "baseline";
+        break;
+      default:
+        noAlign = true;
+        break;
+      }
+    } else {
+      noAlign = true;
+    }
+
+    if (noAlign) {
       el->setProperty(Property::StyleFlex, "1 1 auto");
       el = wrap(el, styleFlex());
       el->setProperty(Property::StyleFlex, "1 1 auto");
       /*
-       * Use the height of the Wt-fill-height and not of the element if
-       * the element is not sized explicitly. This allows to avoid
-       * scrollbars inside the element being moved up in the Dom tree
-       * due to the element being oversized.
-       */
+      * Use the height of the Wt-fill-height and not of the element if
+      * the element is not sized explicitly. This allows to avoid
+      * scrollbars inside the element being moved up in the Dom tree
+      * due to the element being oversized.
+      */
       el->setProperty(Property::StyleHeight, "100%");
       el = wrap(el, otherStyleFlex());
       el->addPropertyWord(Property::Class, "Wt-fill-height");
-      break;
     }
 
     /*
@@ -628,22 +642,36 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
       el->setProperty(Property::StyleAlignSelf, alignSelfStyle);
     }
   } else {
+    bool noAlign = false;
+
     std::string alignSelfStyle;
-    switch (hAlign) {
-    case AlignmentFlag::Left:
-      alignSelfStyle = "flex-start";
-      break;
-    case AlignmentFlag::Center:
-      alignSelfStyle = "center";
-      break;
-    case AlignmentFlag::Right:
-      alignSelfStyle = "flex-end";
-      break;
-    default:
+    /*#13670 if this casts to 0, it means no Alignment flags are set
+     * so we should use default flex behavior. This check is not needed
+     * in c++ but is needed in java as hAlign would be null in that case.
+     */
+    if (hAlign != static_cast<AlignmentFlag>(0)) {
+      switch (hAlign) {
+      case AlignmentFlag::Left:
+        alignSelfStyle = "flex-start";
+        break;
+      case AlignmentFlag::Center:
+        alignSelfStyle = "center";
+        break;
+      case AlignmentFlag::Right:
+        alignSelfStyle = "flex-end";
+        break;
+      default:
+        noAlign = true;
+        break;
+      }
+    } else {
+      noAlign = true;
+    }
+
+    if (noAlign) {
       el->setProperty(Property::StyleFlex, "1 1 auto");
       el = wrap(el, otherStyleFlex());
       el->addPropertyWord(Property::Class, "Wt-fill-width");
-      break;
     }
 
     if (vAlign != static_cast<AlignmentFlag>(0)) {
