@@ -123,7 +123,8 @@ namespace Wt {
     }
 
     return generateCode(key, codeDigits, time, startTime) == code
-           || generateCode(key, codeDigits, time - std::chrono::seconds(PERIOD_IN_SECONDS), startTime) == code;
+           || generateCode(key, codeDigits, time - std::chrono::seconds(PERIOD_IN_SECONDS), startTime) == code
+           || generateCode(key, codeDigits, time + std::chrono::seconds(PERIOD_IN_SECONDS), startTime) == code;
   }
     }
   }

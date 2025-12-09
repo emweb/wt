@@ -254,6 +254,18 @@ BOOST_AUTO_TEST_CASE( totp_test_validate_key64_code_16 )
   BOOST_REQUIRE(Auth::Mfa::validateCode(key, code, 16, time));
 }
 
+BOOST_AUTO_TEST_CASE( totp_test_validate_boundaries )
+{
+  std::string key = Wt::Utils::base32Encode("12345678901234567890");
+  auto time = std::chrono::seconds(WDateTime::currentDateTime().toTime_t());
+
+  auto code = Auth::Mfa::generateCode(key, 6, time);
+
+  BOOST_REQUIRE(Auth::Mfa::validateCode(key, code, 6, time - std::chrono::seconds(30)));
+  BOOST_REQUIRE(Auth::Mfa::validateCode(key, code, 6, time));
+  BOOST_REQUIRE(Auth::Mfa::validateCode(key, code, 6, time + std::chrono::seconds(30)));
+}
+
 BOOST_AUTO_TEST_CASE( totp_rfc6238 )
 {
   std::string key = Wt::Utils::base32Encode("12345678901234567890");
