@@ -58,7 +58,7 @@ private:
   std::string path_;
   const char *builtin_;
 #ifdef WT_THREADED
-  std::mutex resourceMutex_;
+  mutable std::recursive_mutex resourceMutex_;
 #endif
   mutable ResourceMap resources_;
 

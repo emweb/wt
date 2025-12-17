@@ -307,11 +307,18 @@ WMessageResources::WMessageResources(const char *builtin)
     builtin_(builtin)
 {
   std::istringstream s(builtin,  std::ios::in | std::ios::binary);
+#ifdef WT_THREADED
+  std::lock_guard<std::recursive_mutex> lock(resourceMutex_);
+#endif
   readResourceStream(s, resources_[""], "<internal resource bundle>");
 }
 
 std::set<std::string> WMessageResources::keys(const WLocale& locale) const
 {
+#ifdef WT_THREADED
+  std::lock_guard<std::recursive_mutex> lock(resourceMutex_);
+#endif
+  
   load(locale);
 
   std::set<std::string> keys;
@@ -355,6 +362,9 @@ void WMessageResources::load(const WLocale& locale) const
 void WMessageResources::hibernate()
 {
   if (!loadInMemory_) {
+#ifdef WT_THREADED
+    std::lock_guard<std::recursive_mutex> lock(resourceMutex_);
+#endif
     resources_.clear();
   }
 }
@@ -372,6 +382,10 @@ LocalizedString WMessageResources::resolveKey(const WLocale& locale, const std::
 LocalizedString WMessageResources::resolve(const std::string& locale, const std::string& key)
   const
 {
+#ifdef WT_THREADED
+  std::lock_guard<std::recursive_mutex> lock(resourceMutex_);
+#endif
+  
   if (resources_.find(locale) == resources_.end())
     load(locale);
 
@@ -430,6 +444,10 @@ LocalizedString WMessageResources::resolvePlural(const std::string& locale,
                                       const std::string& key,
                                       ::uint64_t amount) const
 {
+#ifdef WT_THREADED
+  std::lock_guard<std::recursive_mutex> lock(resourceMutex_);
+#endif
+  
   if (resources_.find(locale) == resources_.end())
     load(locale);
 
