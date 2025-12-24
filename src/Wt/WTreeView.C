@@ -450,6 +450,12 @@ void WTreeViewNode::updateGraphics(bool isLast, bool isEmpty)
         nodeWidget_->bindWidget
         ("expand", std::make_unique<ToggleButton>(view_->expandConfig_.get()));
 
+      // Prevent events on the expand/collapse button from bubbling up to TreeView, which would otherwise trigger row selection.
+      expandButton->mouseWentDown().preventPropagation();
+      expandButton->mouseWentUp().preventPropagation();
+      expandButton->clicked().preventPropagation();
+      expandButton->doubleClicked().preventPropagation();
+
       if (WApplication::instance()->environment().agentIsIE())
         expandButton->setWidth(19);
 
