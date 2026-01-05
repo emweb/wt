@@ -76,8 +76,6 @@ IF(ENABLE_LIBWTTEST)
     wdatetime/WDateTimeTest.C
     web/DomElementTest.C
     web/RefEncoderTest.C
-    ../src/web/RefEncoder.C
-    ../src/web/WebUtils.C
   )
 
   set(thirdpartysources
@@ -107,6 +105,13 @@ IF(ENABLE_LIBWTTEST)
     set(TEST_SOURCES ${TEST_SOURCES} utils/SslUtils.C)
   endif()
 
+  #  Shared Windows build fix for WT_RETHROW
+  if(MSVC AND NOT SHARED_LIBS)
+    set(TEST_SOURCES ${TEST_SOURCES}  ../src/web/RefEncoder.C ../src/web/WebUtils.C)
+  elseif(NOT MSVC)
+    set(TEST_SOURCES ${TEST_SOURCES}  ../src/web/RefEncoder.C ../src/web/WebUtils.C)
+  endif()
+
   ADD_EXECUTABLE(test.wt
     ${TEST_SOURCES}
   )
@@ -116,7 +121,13 @@ IF(ENABLE_LIBWTTEST)
   ENDIF(MSVC)
 
   TARGET_LINK_LIBRARIES(test.wt PRIVATE wt wttest ${BOOST_TEST_LIBRARIES} ${BOOST_FS_LIB} ${WT_THREAD_LIB})
-  target_compile_definitions(test.wt PRIVATE WT_TEST_CONFIG_XML=\"${WT_BINARY_DIR}/wt_config.xml\" WT_RETHROW=ON)
+
+  if(MSVC AND SHARED_LIBS)
+    target_compile_definitions(wt PRIVATE WT_RETHROW=ON)
+    target_compile_definitions(test.wt PRIVATE WT_TEST_CONFIG_XML=\"${WT_BINARY_DIR}/wt_config.xml\")
+  else()
+    target_compile_definitions(test.wt PRIVATE WT_TEST_CONFIG_XML=\"${WT_BINARY_DIR}/wt_config.xml\" WT_RETHROW=ON)
+  endif()
 
   IF(TARGET Boost::headers)
     TARGET_LINK_LIBRARIES(test.wt PRIVATE Boost::headers)
