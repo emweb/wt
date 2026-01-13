@@ -7,6 +7,7 @@
 
 #include "web/Configuration.h"
 #include "web/EntryPoint.h"
+#include "Wt/WMemoryResource.h"
 
 #include <string>
 #include <utility>
@@ -809,4 +810,198 @@ BOOST_AUTO_TEST_CASE( test_entry_point_removal_all_from_multiple_segments )
   BOOST_TEST(!seg1.children[0]->children[0]->dynamicChild);
   BOOST_TEST(seg1.children[0]->children[0]->entryPoint.get());
   BOOST_CHECK_EQUAL(seg1.children[0]->children[0]->children.size(), 0);
+}
+
+BOOST_AUTO_TEST_CASE( test_entry_point_removal_by_resource )
+{
+  Wt::EntryPointManager mgr;
+  const std::vector<unsigned char> data = {'d', 'a', 't', 'a'};
+  auto resource = std::make_shared<Wt::WMemoryResource>("text/plain", data);
+  resource->setInternalPath("/b/resource");
+
+  std::vector<std::string> paths = {"/a", "/b/c", "/b/${var}"};
+  addPathsToManager(mgr, paths);
+  mgr.addEntryPoint(std::make_shared<const Wt::EntryPoint>(resource, "/b/resource"));
+
+  // Verify the entry point is present
+  const Wt::PathSegment& seg1 = mgr.rootPathSegment();
+  BOOST_REQUIRE_EQUAL(seg1.children.size(), 2);
+  Wt::PathSegment* bSeg = nullptr;
+
+  for (const auto& child : seg1.children) {
+    if (child->segment == "b") {
+      bSeg = child.get();
+      break;
+    }
+  }
+
+  BOOST_REQUIRE(bSeg != nullptr);
+  BOOST_REQUIRE_EQUAL(bSeg->children.size(), 2);
+
+  bool found = false;
+  for (const auto& child : bSeg->children) {
+    if (child->segment == "resource") {
+      found = true;
+      break;
+    }
+  }
+
+  BOOST_REQUIRE(found);
+
+  // Remove the entry point by resource
+  mgr.removeResource(resource.get());
+
+  // Verify the entry point was removed
+  BOOST_REQUIRE_EQUAL(seg1.children.size(), 2);
+  bSeg = nullptr;
+
+  for (const auto& child : seg1.children) {
+    if (child->segment == "b") {
+      bSeg = child.get();
+      break;
+    }
+  }
+
+  BOOST_REQUIRE(bSeg != nullptr);
+  BOOST_REQUIRE_EQUAL(bSeg->children.size(), 1);
+
+  found = false;
+  for (const auto& child : bSeg->children) {
+    if (child->segment == "resource") {
+      found = true;
+      break;
+    }
+  }
+
+  BOOST_TEST(!found);
+}
+
+BOOST_AUTO_TEST_CASE( test_entry_point_removal_by_resource_only_removes_if_correct_resource )
+{
+  Wt::EntryPointManager mgr;
+  const std::vector<unsigned char> data = {'d', 'a', 't', 'a'};
+  auto resource = std::make_shared<Wt::WMemoryResource>("text/plain", data);
+  auto otherResource = std::make_shared<Wt::WMemoryResource>("text/plain", data);
+  resource->setInternalPath("/b/resource");
+  otherResource->setInternalPath("/b/resource");
+
+  std::vector<std::string> paths = {"/a", "/b/c", "/b/${var}"};
+  addPathsToManager(mgr, paths);
+  mgr.addEntryPoint(std::make_shared<const Wt::EntryPoint>(resource, "/b/resource"));
+
+  // Verify the entry point is present
+  const Wt::PathSegment& seg1 = mgr.rootPathSegment();
+  BOOST_REQUIRE_EQUAL(seg1.children.size(), 2);
+  Wt::PathSegment* bSeg = nullptr;
+
+  for (const auto& child : seg1.children) {
+    if (child->segment == "b") {
+      bSeg = child.get();
+      break;
+    }
+  }
+
+  BOOST_REQUIRE(bSeg != nullptr);
+  BOOST_REQUIRE_EQUAL(bSeg->children.size(), 2);
+
+  bool found = false;
+  for (const auto& child : bSeg->children) {
+    if (child->segment == "resource") {
+      found = true;
+      break;
+    }
+  }
+
+  BOOST_REQUIRE(found);
+
+  // Attempt to remove the entry point by a different resource
+  mgr.removeResource(otherResource.get());
+
+  // Verify the entry point was not removed and the resource is still present
+  BOOST_REQUIRE_EQUAL(seg1.children.size(), 2);
+  bSeg = nullptr;
+
+  for (const auto& child : seg1.children) {
+    if (child->segment == "b") {
+      bSeg = child.get();
+      break;
+    }
+  }
+
+  BOOST_REQUIRE(bSeg != nullptr);
+  BOOST_REQUIRE_EQUAL(bSeg->children.size(), 2);
+
+  found = false;
+  for (const auto& child : bSeg->children) {
+    if (child->segment == "resource") {
+      BOOST_CHECK_EQUAL(child->entryPoint->resource(), resource.get());
+      found = true;
+      break;
+    }
+  }
+
+  BOOST_TEST(found);
+}
+
+BOOST_AUTO_TEST_CASE( test_entry_point_removal_by_resource_only_remove_if_resource_exists )
+{
+  Wt::EntryPointManager mgr;
+  const std::vector<unsigned char> data = {'d', 'a', 't', 'a'};
+  auto resource = std::make_shared<Wt::WMemoryResource>("text/plain", data);
+  resource->setInternalPath("/b/resource");
+
+  std::vector<std::string> paths = {"/a", "/b/c", "/b/${var}", "/b/resource"};
+  addPathsToManager(mgr, paths);
+
+  // Verify the entry point is present
+  const Wt::PathSegment& seg1 = mgr.rootPathSegment();
+  BOOST_REQUIRE_EQUAL(seg1.children.size(), 2);
+  Wt::PathSegment* bSeg = nullptr;
+
+  for (const auto& child : seg1.children) {
+    if (child->segment == "b") {
+      bSeg = child.get();
+      break;
+    }
+  }
+
+  BOOST_REQUIRE(bSeg != nullptr);
+  BOOST_REQUIRE_EQUAL(bSeg->children.size(), 2);
+
+  bool found = false;
+  for (const auto& child : bSeg->children) {
+    if (child->segment == "resource") {
+      found = true;
+      break;
+    }
+  }
+
+  BOOST_REQUIRE(found);
+
+  // Try to remove the entry point by resource
+  mgr.removeResource(resource.get());
+
+  // Verify the entry point was not removed
+  BOOST_REQUIRE_EQUAL(seg1.children.size(), 2);
+  bSeg = nullptr;
+
+  for (const auto& child : seg1.children) {
+    if (child->segment == "b") {
+      bSeg = child.get();
+      break;
+    }
+  }
+
+  BOOST_REQUIRE(bSeg != nullptr);
+  BOOST_REQUIRE_EQUAL(bSeg->children.size(), 2);
+
+  found = false;
+  for (const auto& child : bSeg->children) {
+    if (child->segment == "resource") {
+      found = true;
+      break;
+    }
+  }
+
+  BOOST_TEST(found);
 }
