@@ -5,6 +5,9 @@
  */
 
 #include "Wt/WStringListModel.h"
+
+#include "Wt/WException.h"
+
 #include "WebUtils.h"
 
 #include <functional>
@@ -174,6 +177,10 @@ WFlags<ItemFlag> WStringListModel::flags(const WModelIndex& index) const
 
 bool WStringListModel::insertRows(int row, int count, const WModelIndex& parent)
 {
+  if (row > rowCount()) {
+    throw WException("Row to insert to is too large: " + std::to_string(row) + " > " + std::to_string(rowCount()));
+  }
+
   if (!parent.isValid()) {
     beginInsertRows(parent, row, row + count - 1);
     displayData_.insert(displayData_.begin() + row, count, WString());

@@ -3,10 +3,11 @@
  *
  * See the LICENSE file for terms of use.
  */
+#include "Wt/WStandardItem.h"
 
+#include "Wt/WException.h"
 #include "Wt/WLink.h"
 #include "Wt/WLogger.h"
-#include "Wt/WStandardItem.h"
 #include "Wt/WStandardItemModel.h"
 
 #include "WebUtils.h"
@@ -396,6 +397,10 @@ void WStandardItem
 ::insertColumn(int column,
                std::vector<std::unique_ptr<WStandardItem> > items)
 {
+  if (column > columnCount()) {
+    throw WException("Column to insert to is too large: " + std::to_string(column) + " > " + std::to_string(columnCount()));
+  }
+
   unsigned rc = rowCount();
 
   if (!columns_) {
@@ -441,6 +446,10 @@ void WStandardItem::appendRow(std::vector<std::unique_ptr<WStandardItem> > items
 void WStandardItem::insertRow(int row,
                               std::vector<std::unique_ptr<WStandardItem> > items)
 {
+  if (row > rowCount()) {
+    throw WException("Row to insert to is too large: " + std::to_string(row) + " > " + std::to_string(rowCount()));
+  }
+
   if (!columns_)
     setColumnCount(1);
 
@@ -473,6 +482,10 @@ void WStandardItem::insertRow(int row,
 
 void WStandardItem::insertColumns(int column, int count)
 {
+  if (column > columnCount()) {
+    throw WException("Column to insert to is too large: " + std::to_string(column) + " > " + std::to_string(columnCount()));
+  }
+
   if (count > 0) {
     if (model_)
       model_->beginInsertColumns(index(), column, column + count - 1);
@@ -500,6 +513,10 @@ void WStandardItem::insertColumns(int column, int count)
 
 void WStandardItem::insertRows(int row, int count)
 {
+  if (row > rowCount()) {
+    throw WException("Row to insert to is too large: " + std::to_string(row) + " > " + std::to_string(rowCount()));
+  }
+
   if (count > 0) {
     if (model_)
       model_->beginInsertRows(index(), row, row + count - 1);
