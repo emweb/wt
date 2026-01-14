@@ -6,6 +6,8 @@
 
 #include "Wt/WSortFilterProxyModel.h"
 
+#include "Wt/WStringListModel.h"
+
 #include "WebUtils.h"
 
 namespace Wt {
@@ -549,8 +551,9 @@ void WSortFilterProxyModel::sourceDataChanged(const WModelIndex& topLeft,
     return;
 
   bool refilter
-    = dynamic_ && (filterKeyColumn_ >= topLeft.column()
-                   && filterKeyColumn_ <= bottomRight.column());
+    = dynamic_ && ((filterKeyColumn_ >= topLeft.column()
+                   && filterKeyColumn_ <= bottomRight.column())
+                    || std::static_pointer_cast<WStringListModel>(sourceModel()));
 
   bool resort
     = dynamic_ && (sortKeyColumn_ >= topLeft.column()
