@@ -370,7 +370,7 @@ void WStandardItem::setRowCount(int rows)
 
 int WStandardItem::rowCount() const
 {
-  return columns_ ? (*columns_)[0].size() : 0;
+  return (columns_ && !columns_->empty()) ? (*columns_)[0].size() : 0;
 }
 
 void WStandardItem::setColumnCount(int columns)
