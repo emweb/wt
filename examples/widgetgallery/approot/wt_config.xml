@@ -45,6 +45,7 @@
         </http-headers>
 
         <use-script-nonce>true</use-script-nonce>
+        <serve-private-resources-to-bots>true</serve-private-resources-to-bots>
 
         <!-- <log-config>debug:wthttp/async</log-config> -->
         <UA-Compatible>IE8=IE7</UA-Compatible>
