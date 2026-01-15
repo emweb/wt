@@ -646,10 +646,14 @@ bool WSortFilterProxyModel::insertRows(int row, int count,
   int sourceRow;
 
   int currentCount = rowCount(parent);
-  if (row < currentCount)
+  if (row < currentCount) {
     sourceRow = mapToSource(index(row, 0, parent)).row();
-  else
+  } else if (row > currentCount) {
+    row = currentCount;
     sourceRow = sourceModel()->rowCount(mapToSource(parent));
+  } else {
+    sourceRow = sourceModel()->rowCount(mapToSource(parent));
+  }
 
   inserting_ = true;
   bool result
