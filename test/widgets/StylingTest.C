@@ -36,6 +36,8 @@
 #include "thirdparty/rapidxml/rapidxml_print.hpp"
 #include "thirdparty/rapidxml/rapidxml_utils.hpp"
 
+#include "web/DomElement.h"
+
 #include <iterator>
 #include <memory>
 #include <sstream>
@@ -200,6 +202,13 @@ struct TestedWidgets
   WTableView* tableView;
   WTimeEdit* timeEdit;
   WToolBar* toolbar;
+
+  DomElement* domElement;
+
+  ~TestedWidgets()
+  {
+    delete domElement;
+  }
 };
 
 TestedWidgets createAllWidgets(Wt::WApplication& testApp, bool themeEnabled)
@@ -236,7 +245,7 @@ TestedWidgets createAllWidgets(Wt::WApplication& testApp, bool themeEnabled)
   tw.toolbar = testApp.root()->addWidget(createWToolBar());
   tw.toolbar->setThemeStyleEnabled(themeEnabled);
 
-  testApp.domRoot()->createSDomElement(&testApp);
+  tw.domElement = testApp.domRoot()->createSDomElement(&testApp);
 
   return tw;
 }

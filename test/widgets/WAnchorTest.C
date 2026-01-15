@@ -26,6 +26,8 @@ BOOST_AUTO_TEST_CASE( WAnchor_external_link_render )
   auto domElement = anchorPtr->createSDomElement(&app);
 
   BOOST_TEST(domElement->getAttribute("href") == "https://www.emweb.be");
+
+  delete domElement;
 }
 
 BOOST_AUTO_TEST_CASE( WAnchor_internal_path_link_render )
@@ -42,6 +44,8 @@ BOOST_AUTO_TEST_CASE( WAnchor_internal_path_link_render )
   auto domElement = anchorPtr->createSDomElement(&app);
 
   BOOST_TEST(domElement->getAttribute("href") == "app");
+
+  delete domElement;
 }
 
 BOOST_AUTO_TEST_CASE( WAnchor_internal_path_same_page_link_render )
@@ -58,6 +62,8 @@ BOOST_AUTO_TEST_CASE( WAnchor_internal_path_same_page_link_render )
   auto domElement = anchorPtr->createSDomElement(&app);
 
   BOOST_TEST(domElement->getAttribute("href") == "app");
+
+  delete domElement;
 }
 
 BOOST_AUTO_TEST_CASE( WAnchor_internal_path_same_page_slash_link_render )
@@ -74,6 +80,8 @@ BOOST_AUTO_TEST_CASE( WAnchor_internal_path_same_page_slash_link_render )
   auto domElement = anchorPtr->createSDomElement(&app);
 
   BOOST_TEST(domElement->getAttribute("href") == "#app");
+
+  delete domElement;
 }
 
 BOOST_AUTO_TEST_CASE( WAnchor_external_link_with_parameters_render )
@@ -90,6 +98,8 @@ BOOST_AUTO_TEST_CASE( WAnchor_external_link_with_parameters_render )
   auto domElement = anchorPtr->createSDomElement(&app);
 
   BOOST_TEST(domElement->getAttribute("href") == "https://www.emweb.be?param1=1&param2=2");
+
+  delete domElement;
 }
 
 BOOST_AUTO_TEST_CASE( WAnchor_internal_path_link_with_parameters_render )
@@ -106,6 +116,8 @@ BOOST_AUTO_TEST_CASE( WAnchor_internal_path_link_with_parameters_render )
   auto domElement = anchorPtr->createSDomElement(&app);
 
   BOOST_TEST(domElement->getAttribute("href") == "app%3fparam1%3d1%26param2%3d2");
+
+  delete domElement;
 }
 
 BOOST_AUTO_TEST_CASE( WAnchor_external_link_with_parameters_and_session_id_render )
@@ -124,6 +136,8 @@ BOOST_AUTO_TEST_CASE( WAnchor_external_link_with_parameters_and_session_id_rende
 
   // This "&" will be handled by the RefEncoder
   BOOST_TEST(domElement->getAttribute("href") == "?request=redirect&url=https%3a%2f%2fwww.emweb.be%3fparam1%3d1%26param2%3d2&hash=bVKA5XzzgVcoduCJyhjk6w%3d%3d");
+
+  delete domElement;
 }
 
 BOOST_AUTO_TEST_CASE( WAnchor_internal_path_link_with_parameters_and_session_id_render )
@@ -141,4 +155,6 @@ BOOST_AUTO_TEST_CASE( WAnchor_internal_path_link_with_parameters_and_session_id_
   auto domElement = anchorPtr->createSDomElement(&app);
 
   BOOST_TEST(domElement->getAttribute("href") == "app%3fparam1%3d1%26param2%3d2");
+
+  delete domElement;
 }

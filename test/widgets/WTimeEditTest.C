@@ -37,6 +37,8 @@ BOOST_AUTO_TEST_CASE( WTimeEdit_setNativeControl_disable_with_validator )
   BOOST_REQUIRE(validator->step() == std::chrono::seconds(0));
   BOOST_REQUIRE(domElement->getAttribute("min") == "");
   BOOST_REQUIRE(domElement->getAttribute("max") == "");
+
+  delete domElement;
 }
 
 BOOST_AUTO_TEST_CASE( WTimeEdit_setNativeControl_disable_change_format )
@@ -63,6 +65,8 @@ BOOST_AUTO_TEST_CASE( WTimeEdit_setNativeControl_disable_change_format )
   BOOST_REQUIRE(validator->step() == std::chrono::seconds(0));
   BOOST_REQUIRE(domElement->getAttribute("min") == "");
   BOOST_REQUIRE(domElement->getAttribute("max") == "");
+
+  delete domElement;
 }
 
 BOOST_AUTO_TEST_CASE( WTimeEdit_setNativeControl_enable_no_validator )
@@ -84,6 +88,8 @@ BOOST_AUTO_TEST_CASE( WTimeEdit_setNativeControl_enable_no_validator )
   BOOST_REQUIRE(validator->step() == std::chrono::seconds(1));
   BOOST_REQUIRE(domElement->getAttribute("min") == "");
   BOOST_REQUIRE(domElement->getAttribute("max") == "");
+
+  delete domElement;
 }
 
 BOOST_AUTO_TEST_CASE( WTimeEdit_setNativeControl_enable_with_validator )
@@ -106,6 +112,8 @@ BOOST_AUTO_TEST_CASE( WTimeEdit_setNativeControl_enable_with_validator )
   BOOST_REQUIRE(validator->step() == std::chrono::seconds(1));
   BOOST_REQUIRE(domElement->getAttribute("min") == "10:00:00");
   BOOST_REQUIRE(domElement->getAttribute("max") == "11:00:00");
+
+  delete domElement;
 }
 
 BOOST_AUTO_TEST_CASE( WTimeEdit_setNativeControl_enable_change_format )
@@ -132,6 +140,8 @@ BOOST_AUTO_TEST_CASE( WTimeEdit_setNativeControl_enable_change_format )
   BOOST_REQUIRE(validator->step() == std::chrono::seconds(60));
   BOOST_REQUIRE(domElement->getAttribute("min") == "");
   BOOST_REQUIRE(domElement->getAttribute("max") == "");
+
+  delete domElement;
 }
 
 BOOST_AUTO_TEST_CASE( WTimeEdit_setNativeControl_enable_change_format_validator )
@@ -165,4 +175,6 @@ BOOST_AUTO_TEST_CASE( WTimeEdit_setNativeControl_enable_change_format_validator 
   BOOST_REQUIRE(domElement->getAttribute("step") == "1");
   BOOST_REQUIRE(domElement->getAttribute("min") == "");
   BOOST_REQUIRE(domElement->getAttribute("max") == "");
+
+  delete domElement;
 }

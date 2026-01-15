@@ -108,6 +108,8 @@ BOOST_AUTO_TEST_CASE( WDateEdit_setNativeControl_disable_with_validator )
   BOOST_REQUIRE(dateEdit->format() == "yyyy-MM-dd");
   BOOST_REQUIRE(domElement->getAttribute("min") == "");
   BOOST_REQUIRE(domElement->getAttribute("max") == "");
+
+  delete domElement;
 }
 
 BOOST_AUTO_TEST_CASE( WDateEdit_setNativeControl_disable_change_format )
@@ -132,6 +134,8 @@ BOOST_AUTO_TEST_CASE( WDateEdit_setNativeControl_disable_change_format )
   BOOST_REQUIRE(dateEdit->format() == "dd-MM-yyyy");
   BOOST_REQUIRE(domElement->getAttribute("min") == "");
   BOOST_REQUIRE(domElement->getAttribute("max") == "");
+
+  delete domElement;
 }
 
 BOOST_AUTO_TEST_CASE( WDateEdit_setNativeControl_enable_no_validator )
@@ -151,6 +155,8 @@ BOOST_AUTO_TEST_CASE( WDateEdit_setNativeControl_enable_no_validator )
   BOOST_REQUIRE(dateEdit->format() == "yyyy-MM-dd");
   BOOST_REQUIRE(domElement->getAttribute("min") == "");
   BOOST_REQUIRE(domElement->getAttribute("max") == "");
+
+  delete domElement;
 }
 
 BOOST_AUTO_TEST_CASE( WDateEdit_setNativeControl_enable_with_validator )
@@ -171,6 +177,8 @@ BOOST_AUTO_TEST_CASE( WDateEdit_setNativeControl_enable_with_validator )
   BOOST_REQUIRE(dateEdit->format() == "yyyy-MM-dd");
   BOOST_REQUIRE(domElement->getAttribute("min") == "2021-01-01");
   BOOST_REQUIRE(domElement->getAttribute("max") == "2022-01-01");
+
+  delete domElement;
 }
 
 BOOST_AUTO_TEST_CASE( WDateEdit_setNativeControl_enable_change_format )
@@ -194,4 +202,6 @@ BOOST_AUTO_TEST_CASE( WDateEdit_setNativeControl_enable_change_format )
   BOOST_REQUIRE(dateEdit->format() == "yyyy-MM-dd");
   BOOST_REQUIRE(domElement->getAttribute("min") == "");
   BOOST_REQUIRE(domElement->getAttribute("max") == "");
+
+  delete domElement;
 }
