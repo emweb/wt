@@ -209,46 +209,42 @@ struct TestedWidgets
   {
     delete domElement;
   }
+
+  void createAllWidgets(Wt::WApplication& testApp, bool themeEnabled)
+  {
+    dateEdit = testApp.root()->addWidget(createWDateEdit());
+    dateEdit->setThemeStyleEnabled(themeEnabled);
+    dialog = testApp.root()->addWidget(createWDialog());
+    dialog->setThemeStyleEnabled(themeEnabled);
+    dialog->show();
+    inPlaceEdit = testApp.root()->addWidget(createWInPlaceEdit());
+    inPlaceEdit->setThemeStyleEnabled(themeEnabled);
+    menu = testApp.root()->addWidget(createWMenu());
+    menu->setThemeStyleEnabled(themeEnabled);
+    menu->itemAt(0)->setThemeStyleEnabled(themeEnabled);
+    menu->itemAt(1)->setThemeStyleEnabled(themeEnabled);
+    messageBox = testApp.root()->addWidget(createWMessageBox());
+    messageBox->setThemeStyleEnabled(themeEnabled);
+    messageBox->show();
+    navBar = testApp.root()->addWidget(createWNavigationBar());
+    navBar->setThemeStyleEnabled(themeEnabled);
+    panel = testApp.root()->addWidget(createWPanel());
+    panel->setThemeStyleEnabled(themeEnabled);
+    pushButton = testApp.root()->addWidget(createWPushButton());
+    pushButton->setThemeStyleEnabled(themeEnabled);
+    splitButton = testApp.root()->addWidget(createWSplitButton());
+    splitButton->setThemeStyleEnabled(themeEnabled);
+    splitButton->dropDownButton()->setThemeStyleEnabled(themeEnabled);
+    tableView = testApp.root()->addWidget(createWTableView());
+    tableView->setThemeStyleEnabled(themeEnabled);
+    timeEdit = testApp.root()->addWidget(createWTimeEdit());
+    timeEdit->setThemeStyleEnabled(themeEnabled);
+    toolbar = testApp.root()->addWidget(createWToolBar());
+    toolbar->setThemeStyleEnabled(themeEnabled);
+
+    domElement = testApp.domRoot()->createSDomElement(&testApp);
+  }
 };
-
-TestedWidgets createAllWidgets(Wt::WApplication& testApp, bool themeEnabled)
-{
-  TestedWidgets tw;
-
-  tw.dateEdit = testApp.root()->addWidget(createWDateEdit());
-  tw.dateEdit->setThemeStyleEnabled(themeEnabled);
-  tw.dialog = testApp.root()->addWidget(createWDialog());
-  tw.dialog->setThemeStyleEnabled(themeEnabled);
-  tw.dialog->show();
-  tw.inPlaceEdit = testApp.root()->addWidget(createWInPlaceEdit());
-  tw.inPlaceEdit->setThemeStyleEnabled(themeEnabled);
-  tw.menu = testApp.root()->addWidget(createWMenu());
-  tw.menu->setThemeStyleEnabled(themeEnabled);
-  tw.menu->itemAt(0)->setThemeStyleEnabled(themeEnabled);
-  tw.menu->itemAt(1)->setThemeStyleEnabled(themeEnabled);
-  tw.messageBox = testApp.root()->addWidget(createWMessageBox());
-  tw.messageBox->setThemeStyleEnabled(themeEnabled);
-  tw.messageBox->show();
-  tw.navBar = testApp.root()->addWidget(createWNavigationBar());
-  tw.navBar->setThemeStyleEnabled(themeEnabled);
-  tw.panel = testApp.root()->addWidget(createWPanel());
-  tw.panel->setThemeStyleEnabled(themeEnabled);
-  tw.pushButton = testApp.root()->addWidget(createWPushButton());
-  tw.pushButton->setThemeStyleEnabled(themeEnabled);
-  tw.splitButton = testApp.root()->addWidget(createWSplitButton());
-  tw.splitButton->setThemeStyleEnabled(themeEnabled);
-  tw.splitButton->dropDownButton()->setThemeStyleEnabled(themeEnabled);
-  tw.tableView = testApp.root()->addWidget(createWTableView());
-  tw.tableView->setThemeStyleEnabled(themeEnabled);
-  tw.timeEdit = testApp.root()->addWidget(createWTimeEdit());
-  tw.timeEdit->setThemeStyleEnabled(themeEnabled);
-  tw.toolbar = testApp.root()->addWidget(createWToolBar());
-  tw.toolbar->setThemeStyleEnabled(themeEnabled);
-
-  tw.domElement = testApp.domRoot()->createSDomElement(&testApp);
-
-  return tw;
-}
 
 void testCssThemeRequiredClass(const Wt::WApplication& testApp, const TestedWidgets& tw)
 {
@@ -398,7 +394,8 @@ BOOST_AUTO_TEST_CASE(disabled_css_theme_required_classes)
   Wt::WApplication testApp(environment);
   testApp.setTheme(std::make_unique<WCssTheme>("default"));
 
-  auto tw = createAllWidgets(testApp, false);
+  TestedWidgets tw;
+  tw.createAllWidgets(testApp, false);
   testCssThemeRequiredClass(testApp, tw);
 }
 
@@ -408,7 +405,8 @@ BOOST_AUTO_TEST_CASE(enabled_css_theme_required_classes)
   Wt::WApplication testApp(environment);
   testApp.setTheme(std::make_unique<WCssTheme>("default"));
 
-  auto tw = createAllWidgets(testApp, true);
+  TestedWidgets tw;
+  tw.createAllWidgets(testApp, true);
   testCssThemeRequiredClass(testApp, tw);
 }
 
@@ -418,7 +416,8 @@ BOOST_AUTO_TEST_CASE(disabled_bootstrap2_theme_required_classes)
   Wt::WApplication testApp(environment);
   testApp.setTheme(std::make_unique<WBootstrap2Theme>());
 
-  auto tw = createAllWidgets(testApp, false);
+  TestedWidgets tw;
+  tw.createAllWidgets(testApp, false);
   testBootstrap2ThemeRequiredClass(testApp, tw);
 }
 
@@ -428,7 +427,8 @@ BOOST_AUTO_TEST_CASE(enabled_bootstrap2_theme_required_classes)
   Wt::WApplication testApp(environment);
   testApp.setTheme(std::make_unique<WBootstrap2Theme>());
 
-  auto tw = createAllWidgets(testApp, true);
+  TestedWidgets tw;
+  tw.createAllWidgets(testApp, true);
   testBootstrap2ThemeRequiredClass(testApp, tw);
 }
 
@@ -438,7 +438,8 @@ BOOST_AUTO_TEST_CASE(disabled_bootstrap3_theme_required_classes)
   Wt::WApplication testApp(environment);
   testApp.setTheme(std::make_unique<WBootstrap3Theme>());
 
-  auto tw = createAllWidgets(testApp, false);
+  TestedWidgets tw;
+  tw.createAllWidgets(testApp, false);
   testBootstrap3ThemeRequiredClass(testApp, tw);
 }
 
@@ -448,7 +449,8 @@ BOOST_AUTO_TEST_CASE(enabled_bootstrap3_theme_required_classes)
   Wt::WApplication testApp(environment);
   testApp.setTheme(std::make_unique<WBootstrap3Theme>());
 
-  auto tw = createAllWidgets(testApp, true);
+  TestedWidgets tw;
+  tw.createAllWidgets(testApp, true);
   testBootstrap3ThemeRequiredClass(testApp, tw);
 }
 
@@ -458,7 +460,8 @@ BOOST_AUTO_TEST_CASE(disabled_bootstrap5_theme_required_classes)
   Wt::WApplication testApp(environment);
   testApp.setTheme(std::make_unique<WBootstrap5Theme>());
 
-  auto tw = createAllWidgets(testApp, false);
+  TestedWidgets tw;
+  tw.createAllWidgets(testApp, false);
   testBootstrap5ThemeRequiredClass(testApp, tw);
 }
 
@@ -468,7 +471,8 @@ BOOST_AUTO_TEST_CASE(enabled_bootstrap5_theme_required_classes)
   Wt::WApplication testApp(environment);
   testApp.setTheme(std::make_unique<WBootstrap5Theme>());
 
-  auto tw = createAllWidgets(testApp, true);
+  TestedWidgets tw;
+  tw.createAllWidgets(testApp, true);
   testBootstrap5ThemeRequiredClass(testApp, tw);
 }
 
@@ -479,7 +483,8 @@ BOOST_AUTO_TEST_CASE(disabled_css_theme_style_classes)
   testApp.setTheme(std::make_unique<WCssTheme>("default"));
 
   // CREATE WIDGETS //
-  auto tw = createAllWidgets(testApp, false);
+  TestedWidgets tw;
+  tw.createAllWidgets(testApp, false);
 
   // TEST //
   //WDateEdit
@@ -562,7 +567,8 @@ BOOST_AUTO_TEST_CASE(disabled_bootstrap2_theme_style_classes)
   testApp.setTheme(std::make_unique<WBootstrap2Theme>());
 
   // CREATE WIDGETS //
-  auto tw = createAllWidgets(testApp, false);
+  TestedWidgets tw;
+  tw.createAllWidgets(testApp, false);
 
   // TEST //
   std::stringstream output;
@@ -693,7 +699,8 @@ BOOST_AUTO_TEST_CASE(disabled_bootstrap3_theme_style_classes)
   testApp.setTheme(std::make_unique<WBootstrap3Theme>());
 
   // CREATE WIDGETS //
-  auto tw = createAllWidgets(testApp, false);
+  TestedWidgets tw;
+  tw.createAllWidgets(testApp, false);
 
   // TEST //
   std::stringstream output;
@@ -832,7 +839,8 @@ BOOST_AUTO_TEST_CASE(disabled_bootstrap5_theme_style_classes)
   testApp.setTheme(std::make_unique<WBootstrap5Theme>());
 
   // CREATE WIDGETS //
-  auto tw = createAllWidgets(testApp, false);
+  TestedWidgets tw;
+  tw.createAllWidgets(testApp, false);
 
   // TEST //
   std::stringstream output;
@@ -1002,7 +1010,8 @@ BOOST_AUTO_TEST_CASE(enabled_css_theme_style_classes)
   testApp.setTheme(std::make_unique<WCssTheme>("default"));
 
   // CREATE WIDGETS //
-  auto tw = createAllWidgets(testApp, true);
+  TestedWidgets tw;
+  tw.createAllWidgets(testApp, true);
 
   // TEST //
   //WDateEdit
@@ -1088,7 +1097,8 @@ BOOST_AUTO_TEST_CASE(enabled_bootstrap2_theme_style_classes)
   testApp.setTheme(std::make_unique<WBootstrap2Theme>());
 
   // CREATE WIDGETS //
-  auto tw = createAllWidgets(testApp, true);
+  TestedWidgets tw;
+  tw.createAllWidgets(testApp, true);
 
   // TEST //
   std::stringstream output;
@@ -1224,7 +1234,8 @@ BOOST_AUTO_TEST_CASE(enabled_bootstrap3_theme_style_classes)
   testApp.setTheme(std::make_unique<WBootstrap3Theme>());
 
   // CREATE WIDGETS //
-  auto tw = createAllWidgets(testApp, true);
+  TestedWidgets tw;
+  tw.createAllWidgets(testApp, true);
 
   // TEST //
   std::stringstream output;
@@ -1369,7 +1380,8 @@ BOOST_AUTO_TEST_CASE(enabled_bootstrap5_theme_style_classes)
   testApp.setTheme(std::make_unique<WBootstrap5Theme>());
 
   // CREATE WIDGETS //
-  auto tw = createAllWidgets(testApp, true);
+  TestedWidgets tw;
+  tw.createAllWidgets(testApp, true);
 
   // TEST //
   std::stringstream output;
