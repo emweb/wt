@@ -2872,8 +2872,15 @@ window._$_APP_CLASS_$_ = new (function() {
     }
 
     if (i === 0) {
-      const errMsg = "single event exceeds max-formdata-size, cannot proceed";
-      sendError(errMsg, "Wt internal error; description: " + errMsg);
+      const errMsg = {
+        "client_url": window.location.href,
+        "exception": "single event exceeds max-formdata-size, cannot proceed",
+      };
+      sendError(
+        errMsg,
+        "Wt internal error; " +
+          "description: " + errMsg["exception"]
+      );
       throw new Error(errMsg);
     }
 
@@ -3142,12 +3149,17 @@ window._$_APP_CLASS_$_ = new (function() {
       } catch (e) {
         const stack = e.stack || e.stacktrace;
         const description = e.description || e.message;
-        const err = { "exception_code": e.code, "exception_description": description, "exception_js": msg };
+        const err = {
+          "exception_code": e.code,
+          "client_url": window.location.href,
+          "exception_description": description,
+          "exception_js": msg,
+        };
         err.stack = stack;
         sendError(
           err,
-          "Wt internal error; code: " + e.code +
-            ", description: " + description
+          "Wt internal error; code: " + e.code + ", " +
+            "description: " + description
         );
         throw e;
       }
@@ -3631,9 +3643,13 @@ window._$_APP_CLASS_$_ = new (function() {
         } catch (e) {
           const stack = e.stack || e.stacktrace;
           const description = e.description || e.message;
-          const err = { "exception_description": description };
+          const err = { "client_url": window.location.href, "exception_description": description };
           err.stack = stack;
-          sendError(err, "Wt internal error; description: " + description);
+          sendError(
+            err,
+            "Wt internal error; " +
+              "description: " + description
+          );
           throw e;
         }
       }
@@ -3722,8 +3738,12 @@ window._$_APP_CLASS_$_ = new (function() {
       _$_MAX_PENDING_EVENTS_$_ > 0 &&
       pendingEvents.length >= _$_MAX_PENDING_EVENTS_$_
     ) {
-      const errMsg = "too many pending events";
-      sendError(errMsg, "Wt internal error; description: " + errMsg);
+      const errMsg = { "client_url": window.location.href, "exception": "too many pending events" };
+      sendError(
+        errMsg,
+        "Wt internal error; " +
+          "description: " + errMsg["exception"]
+      );
 
       pendingEvents = [];
       throw new Error(errMsg);
@@ -3802,6 +3822,7 @@ window._$_APP_CLASS_$_ = new (function() {
         } else {
           const err = {
             "error-description": "Fatal error: failed loading " + uri,
+            "client_url": window.location.href,
           };
           sendError(err, err["error-description"]);
           quit(null);
@@ -4105,7 +4126,7 @@ window._$_APP_CLASS_$_ = new (function() {
   _$_$if_CATCH_ALL_ERROR_$_();
   window.onerror = function(message, source, lineno, colno, error) {
     let code;
-    const err = { "exception_code": code, "exception_description": message };
+    const err = { "client_url": window.location.href, "exception_code": code, "exception_description": message };
     if (typeof error !== "undefined") {
       code = error.code;
       err.stack = error.stack || error.stacktrace;
