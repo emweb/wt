@@ -2855,9 +2855,10 @@ window._$_APP_CLASS_$_ = new (function() {
     let se, result = "", feedback = false;
 
     let i = 0;
+    let eventData = "";
     for (; i < pendingEvents.length; ++i) {
       se = i > 0 ? "&e" + i : "&";
-      let eventData = se + pendingEvents[i].data.join(se);
+      eventData = se + pendingEvents[i].data.join(se);
       if (pendingEvents[i].evAckId < ackUpdateId) {
         eventData += se + "evAckId=" + pendingEvents[i].evAckId;
       }
@@ -2874,7 +2875,8 @@ window._$_APP_CLASS_$_ = new (function() {
     if (i === 0) {
       const errMsg = {
         "client_url": window.location.href,
-        "exception": "single event exceeds max-formdata-size, cannot proceed",
+        "exception": "single event exceeds max-formdata-size, cannot proceed" +
+          " (event size: " + eventData.length + " bytes , max-formdata-size: " + maxLength + " bytes)",
       };
       sendError(
         errMsg,
