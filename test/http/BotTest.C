@@ -11,8 +11,12 @@
 
 #include "Wt/Http/Client.h"
 #include "Wt/Http/Message.h"
+#include "Wt/Http/Request.h"
+#include "Wt/Http/Response.h"
 
+#include "Wt/WAnchor.h"
 #include "Wt/WContainerWidget.h"
+#include "Wt/WResource.h"
 #include "Wt/WServer.h"
 #include "Wt/WText.h"
 
@@ -56,10 +60,12 @@ namespace {
   const std::string hiddenInput = "<input id=\"Wt-history-field\" type=\"hidden\"/>";
   const std::string postForm = "<form method='post'";
 
+  const std::string botResourceMessage = "This is a bot resource.";
+
   class Server : public WServer
   {
   public:
-    Server() {
+    Server(bool allowBotResources = false) {
       int argc = 9;
       const char *argv[]
         = { "test",
@@ -68,7 +74,7 @@ namespace {
             "--docroot", ".",
             "--config", TEST_WT_CONFIG
           };
-      createBotConfig();
+      createBotConfig(allowBotResources);
       setServerConfiguration(argc, (char **)argv);
     }
 
@@ -83,14 +89,18 @@ namespace {
     }
 
   private:
-    void createBotConfig()
+    void createBotConfig(bool allowBotResources)
     {
+      std::string botResourcesConfig = allowBotResources ?
+        "    <serve-private-resources-to-bots>true</serve-private-resources-to-bots>" :
+        "";
       std::fstream config(TEST_WT_CONFIG, std::ios_base::out);
       config << "<server>"
              << "  <application-settings location=\"*\">"
              << "    <user-agents type=\"bot\">"
              << "      <user-agent>.*bot.*</user-agent>"
              << "   </user-agents>"
+             << botResourcesConfig
              << "  </application-settings>"
              << "</server>";
       config.flush();
@@ -155,6 +165,35 @@ namespace {
 
     Wt::AsioWrapper::error_code err_;
     Http::Message message_;
+  };
+
+  class BotResource: public Wt::WResource {
+  public:
+    virtual ~BotResource() {
+      beingDeleted();
+    }
+
+    void handleRequest(const Wt::Http::Request& request,
+                       Wt::Http::Response& response) override {
+      response.setStatus(200);
+      response.setMimeType("text/plain");
+      response.out() << botResourceMessage;
+    }
+
+    std::shared_ptr<WResource> botResource() override {
+      return std::make_shared<BotResource>();
+    }
+  };
+
+  class BotResourceApp : public WApplication {
+  public:
+    BotResourceApp(const WEnvironment& env, std::string& resourceUrl)
+      : WApplication(env)
+    {
+      auto resource = std::make_shared<BotResource>();
+      root()->addWidget(std::make_unique<WAnchor>(WLink(resource), "Bot Resource Link"));
+      resourceUrl = resource->url();
+    }
   };
 }
 
@@ -949,5 +988,82 @@ BOOST_AUTO_TEST_CASE( suspected_bot_access_progressive_boot_with_wtd )
 
   // Session has shut down already
   BOOST_TEST(server.sessions().empty());
+}
+
+BOOST_AUTO_TEST_CASE( bot_access_private_resource_default )
+{
+  Server server;
+  server.configuration().setBootstrapMethod(Configuration::BootstrapMethod::Progressive);
+
+  std::string resourceUrl;
+  bool hasApplicationStarted = false;
+  bool isBotUser = false;
+  server.addEntryPoint(EntryPointType::Application,
+                       [&hasApplicationStarted, &isBotUser, &resourceUrl] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
+                         isBotUser = env.agentIsSpiderBot();
+                         return std::make_unique<BotResourceApp>(env, resourceUrl);
+                       });
+
+  BOOST_REQUIRE(server.start());
+
+  // create application
+  Client client;
+  std::vector<Http::Message::Header> headers = {{ "User-Agent", "somebot" }};
+  client.get("http://" + server.address(), headers);
+  client.waitDone();
+
+  BOOST_REQUIRE(isBotUser);
+  BOOST_REQUIRE(hasApplicationStarted);
+
+  if (!resourceUrl.empty() && resourceUrl[0] != '/') {
+    resourceUrl = "/" + resourceUrl;
+  }
+  resourceUrl = "http://" + server.address() + resourceUrl;
+
+  client.get(resourceUrl, headers);
+  client.waitDone();
+
+  BOOST_TEST(!client.err());
+  BOOST_TEST(client.message().status() == 403);
+}
+
+BOOST_AUTO_TEST_CASE( bot_access_private_resource_on_bot_resources_allowed )
+{
+  Server server(true);
+  server.configuration().setBootstrapMethod(Configuration::BootstrapMethod::Progressive);
+
+  std::string resourceUrl;
+  bool hasApplicationStarted = false;
+  bool isBotUser = false;
+  server.addEntryPoint(EntryPointType::Application,
+                       [&hasApplicationStarted, &isBotUser, &resourceUrl] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
+                         isBotUser = env.agentIsSpiderBot();
+                         return std::make_unique<BotResourceApp>(env, resourceUrl);
+                       });
+
+  BOOST_REQUIRE(server.start());
+
+  // create application
+  Client client;
+  std::vector<Http::Message::Header> headers = {{ "User-Agent", "somebot" }};
+  client.get("http://" + server.address(), headers);
+  client.waitDone();
+
+  BOOST_REQUIRE(isBotUser);
+  BOOST_REQUIRE(hasApplicationStarted);
+
+  if (!resourceUrl.empty() && resourceUrl[0] != '/') {
+    resourceUrl = "/" + resourceUrl;
+  }
+  resourceUrl = "http://" + server.address() + resourceUrl;
+
+  client.get(resourceUrl, headers);
+  client.waitDone();
+
+  BOOST_TEST(!client.err());
+  BOOST_TEST(client.message().status() == 200);
+  BOOST_TEST(client.message().body() == botResourceMessage);
 }
 #endif // WT_THREADED
