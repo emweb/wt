@@ -607,6 +607,42 @@ BOOST_AUTO_TEST_CASE( resource_invalid_after_changed )
   }
 }
 
+BOOST_AUTO_TEST_CASE( auto_removable_resources_number_limited )
+{
+  Server server;
+  std::array<std::shared_ptr<WResource>, 1005> resources;
+
+  BOOST_REQUIRE(server.start());
+
+  //create resources
+  for (int i = 0; i < 1005; ++i) {
+    resources[i] = std::make_shared<TestResource>();
+    resources[i]->setAllowAutoRemoval(true);
+    server.addResource(resources[i], "/" + std::to_string(i));
+  }
+
+  Client client;
+
+  for (int i = 0; i < 1005; ++i) {
+    std::string resourceUrl = "http://" + server.address() + "/" + std::to_string(i);
+
+    client.get(resourceUrl);
+    client.waitDone();
+
+    BOOST_TEST(!client.err());
+
+    if (i < 5) {
+      //first 5 resources should have been removed
+      BOOST_TEST(client.message().status() == 404);
+    }
+    else {
+      BOOST_TEST(client.message().status() == 200);
+      BOOST_TEST(client.message().body() == "Hello");
+    }
+  }
+
+}
+
 
 BOOST_AUTO_TEST_CASE( application_expired_while_newid )
 {
