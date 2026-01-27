@@ -20,223 +20,11 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.12.2 (TBD)</h2>
+<h2>Release 4.12.2 (January 28, 2026)</h2>
 
 <p>
   Wt 4.12.2 is a patch release that addresses the following issues:
 </p>
-
-<ul>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13861" target="_blank">Issue #13861</a>:
-    corrected the layout rendering for <a href="classWt_1_1WMenuItem.html" target="_blank">WMenuItem</a>,
-    that are loaded <a href="namespaceWt.html#af25a7f0bb1d50c5b8bc98c4db9080313" target="_blank">Lazy</a>
-    through a <a href="classWt_1_1WStackedWidget.html" target="_blank">WStackedWidget</a>.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13798" target="_blank">Issue #13798</a>:
-    fixed
-    <a href="classWt_1_1WPopupMenu.html" target="_blank">WPopupMenu</a> submenus not taking
-    <a href="classWt_1_1WPopupMenu.html#a47a35b9b9ff72ea1c9daf86897730bd3" target="_blank">WPopupMenu::setAdjust</a>
-    flags into account when opening. Since
-    <a href="classWt_1_1WPopupMenu.html" target="_blank">WPopupMenu</a> submenus can now
-    hide its parent menu, more control over
-    <a href="classWt_1_1WPopupMenu.html#a5f65e7578883ecad37e9b1aae6a6cfe5" target="_blank">WPopupMenu::setAutoHide()</a>
-    was added, by allowing to change it for submenus as well, and by adding different
-    <a href="classWt_1_1WPopupMenu.html#ae7784177e77b54a16ccdb5dc720659fe" target="_blank">WPopupMenu::AutoHideBehaviour</a>
-    options that can be set using
-    <a href="classWt_1_1WPopupMenu.html#a5d52d004e6012067c722ccb9d29c129b" target="_blank">WPopupMenu::setAutoHideBehaviour()</a>.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13961" target="_blank">Issue #13961</a>:
-    corrected a check in the JavaScript code that was creating an error when pasting content to a <a href="classWt_1_1WTextEdit.html" target=_"blank">WTextEdit</a>.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13674" target="_blank">Issue #13674</a>:
-    fixed URL fragments sometimes being considered part of the internal path.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/9864" target="_blank">Issue #9864</a>:
-    fixed a bug that would prevent functions with more than 3 arguments to be connected to a
-    <a href="classWt_1_1WSignal.html" target="_blank">WSignal</a>.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13775" target="_blank">Issue #13775</a>:
-    fixed <a href="classWt_1_1WTreeView.html" target="_blank">WTreeView</a> cells
-    clearing their style classes if the size of their HTML <code>class</code>
-    exceeded 1024.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13777" target="_blank">Issue #13777</a>:
-    It's now made sure that a change on <a href="classWt_1_1WStandardItemModel.html" target="_blank">WStandardItemModel</a>
-    cannot be performed on invalid indices, with a crash as a result.
-    Nor can this change be (incorrectly) propagated to a <a href="classWt_1_1WTreeView.html" target="_blank">WTreeView</a>.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13786" target="_blank">Issue #13786</a>:
-    fixed <a href="classWt_1_1WTableView.html#a093b661f93551c1d6f73c423ae8ef459" target="_blank">WTableView::scrollTo()</a>
-    only checking if the top of the row was in the viewport in order to decide whether to scroll or not. It will now scroll if
-    either the top or the bottom of the row are not in the viewport.
-  </li>
-    <li>
-    <a href="https://redmine.emweb.be/issues/13670" target="_blank">Issue #13670</a>:
-    fixed the folowing issues with layouts:
-    <ul>
-      <li>
-        a bug where JavaScript layouts would sometimes not allow its
-        <a href="classWt_1_1WContainerWidget.html" target="_blank">WContainerWidget</a> to be resized.
-      </li>
-      <li>
-        a bug leading to items in flex layouts to have negative margins.
-      </li>
-      <li>
-        JavaScript layouts not taking margins into account if those margins width were set using
-        "thin", "medium" or "thick".
-      </li>
-      <li>
-        JavaScript layouts sometimes leaving a pixel between its content and the border of its
-        <a href="classWt_1_1WContainerWidget.html" target="_blank">WContainerWidget</a>. This was
-        espescially visible when zooming in or out on the page.
-      </li>
-      <li>
-        elements inside of
-        <a href="classWt_1_1WHBoxLayout.html" target="_blank">WHBoxLayout</a> or
-        <a href="classWt_1_1WVBoxLayout.html" target="_blank">WVBoxLayout</a> respectively not filling
-        the entire column/row, if its height/width was not set to "auto".
-      </li>
-      <li>
-        flex layouts not making their
-        <a href="classWt_1_1WContainerWidget.html" target="_blank">WContainerWidget</a> fit its content
-        when the <code>WContainerWidget</code> had a <code>max-width</code> or a <code>max-height</code>
-        set, without having a <code>width</code> or a <code>height</code> set.
-      </li>
-      <li>
-        flex layouts not allowing their content aligned in the same direction as itself to be shrinked.
-        This could lead to several ellements overlapping each other.
-      </li>
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13388" target="_blank">Issue #13388</a>:
-    fixed segmentation fault happening when authenticating a user with
-    <a href="classWt_1_1Auth_1_1Mfa_1_1TotpProcess.html" target="_blank">Auth::Mfa::TotpProcess</a>
-    while using a database not supporting transactions.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13740" target="_blank">Issue #13740</a>:
-    fixed a race condition in
-    <a href="classWt_1_1Auth_1_1OAuthProcess.html" target="_blank">Auth::OAuthProcess</a> that could in some
-    rare cases lead to a crash.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14079" target="_blank">Issue #14079</a>:
-    corrected various functions of both <a href="classWt_1_1WAbstractItemModel.html" target="_blank">WAbstractItemModel</a> and
-    <a href="classWt_1_1WAbstractListModel.html" target="_blank">WAbstractListModel</a>.
-    Many of its implementations also received fixes.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14058" target="_blank">Issue #14058</a>:
-    ensured the initial <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a> or
-    <a href="classWt_1_1WWTabWidget.html" target="_blank">WTabWidget</a> selection is visually rendered.
-  </li>
-  <li>
-    <a href="https://redmine.webtoolkit.eu/issues/13733" target="_blank">Issue #13733</a>:
-    ensured that when using any chart with an underlying <a href="classWt_1_1Dbo_1_1QueryModel.html" target="_blank">QueryModel</a>,
-    an out-of-bounds index will no longer be checked by default. This will no longer cause a crash.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/10954" target="_blank">Issue #10954</a>:
-    fixed
-    <a href="classWt_1_1WTime.html#" target="_blank">WTime</a> and
-    <a href="classWt_1_1WDateTime.html#" target="_blank">WDateTime</a> ignoring every 'h' and 'H' character
-    preceded by a single quote inside of the format.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13818" target="_blank">Issue #13818</a>:
-    fixed <a href="classWt_1_1WGroupBox.html" target="_blank">WGroupBox</a> switching from horizontal to vertical inside a
-    <a href="namespaceWt.html#aeb0e4f49ce4a28d8ce9b0c6005027876" target="_blank">LayoutImplementation::Flex</a> when using
-    <a href="classWt_1_1WGroupBox.html#a369081aa62b840875cac9ee5d24bd64e" target="_blank">WGroupBox::setTitle()</a>.
-
-    Additionally, fixed
-    <a href="classWt_1_1WGroupBox.html" target="_blank">WGroupBox</a> not always respecting the minimum
-    size of its content when having a
-    <a href="namespaceWt.html#aeb0e4f49ce4a28d8ce9b0c6005027876" target="_blank">LayoutImplementation::JavaScript</a>.
-    This could lead to other widget overlapping the content of the
-    <a href="classWt_1_1WGroupBox.html" target="_blank">WGroupBox</a>.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13714" target="_blank">Issue #13714</a>:
-    fixed a race condition in
-     <a href="classWt_1_1Http_1_1Client.html" target="_blank">Http::Client</a> that could lead to a crash if the
-     <a href="classWt_1_1Http_1_1Client.html#aad874b0869cb2202f6cd2b79e3956773" target="_blank">Http::Client::headersReceived()</a> signal was emitted while
-     the <code>Http::Client</code> was updating the body of the
-     <a href="classWt_1_1Http_1_1Message.html" target="_blank">Http::Message</a>.
-  </li>
-</ul>
-
-<p>
-  Wt 4.12.2 also comes with the following improvements:
-</p>
-
-<ul>
-  <li>
-    <a href="https://redmine.webtoolkit.eu/issues/13776" target="_blank">Issue #13776</a>:
-    the validity time of the link sent to:
-    <ul>
-      <li>validate a user's email address</li>
-      <li>reset a user's password</li>
-    </ul>
-    is now mentioned in both the email itself and the confirmation popup shown to the user.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14192" target="_blank">Issue #14192</a>:
-    made <a href="namespaceWt_1_1Auth_1_1Mfa.html#abe89fce88c4deaabe28085fd1c57742f" target="_blank">Auth::Mfa::validateCode()</a>
-    accept the next code as well as the current and previous codes.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13052" target="_blank">Issue #13052</a>:
-    Delayed the generation of the internal path from text in WMenuItem until
-    <a href="classWt_1_1WMenuItem.html#a7ed10e994274a4033e546bb346a13488" target="_blank">WMenuItem::pathComponent()</a> is called.
-    This will stop potential warnings about loss of detail when setting the text of a WMenuItem if the internal path is not used.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13791" target="_blank">Issue #13791</a>:
-    made the focus go back to the last focused widget when a popup gets hidden.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14267" target="_blank">Issue #14267</a>:
-    added client URL in JavaScript error reports.
-  </li>
-</ul>
-
-<p>
-  Wt 4.12.2 also comes with the following improvements:
-</p>
-
-<ul>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13770" target="_blank">Issue #13770</a>:
-    separated the default strings and templates in two different <code>xml</code> files. This should make it easier to localize the default strings.
-  </li>
-</ul>
-
-<p>
-  Wt 4.12.2 also comes with the following improvements:
-</p>
-
-<ul>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13676" target="_blank">Issue #13676</a>:
-    resolved some Clang and GCC compiler warnings.
-
-    Additionally, fixed
-    <a href="classWt_1_1WFileDropWidget.html">WFileDropWidget</a> making the client update
-    whether it can accept files or not every time it was updated.
-  </li>
-</ul>
-
-<h2>Release 4.12.1 (October 16, 2025)</h2>
-
-<p>Wt 4.12.1 is a patch release that addresses the following issues:</p>
 
 <ul>
   <li>
@@ -264,6 +52,207 @@ behaviour.
     class was added, which is a WResource that will automatically unexposed itself after
     being served once.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13798" target="_blank">Issue #13798</a>:
+    fixed
+    <a href="classWt_1_1WPopupMenu.html" target="_blank">WPopupMenu</a> submenus not taking
+    <a href="classWt_1_1WPopupMenu.html#a47a35b9b9ff72ea1c9daf86897730bd3" target="_blank">WPopupMenu::setAdjust()</a>
+    flags into account when opening. Since
+    <a href="classWt_1_1WPopupMenu.html" target="_blank">WPopupMenu</a> submenus can now
+    hide its parent menu, more control over
+    <a href="classWt_1_1WPopupMenu.html#a5f65e7578883ecad37e9b1aae6a6cfe5" target="_blank">WPopupMenu::setAutoHide()</a>
+    was added, by allowing to change it for submenus as well, and by adding different
+    <a href="classWt_1_1WPopupMenu.html#ae7784177e77b54a16ccdb5dc720659fe" target="_blank">WPopupMenu::AutoHideBehaviour</a>
+    options that can be set using
+    <a href="classWt_1_1WPopupMenu.html#a5d52d004e6012067c722ccb9d29c129b" target="_blank">WPopupMenu::setAutoHideBehaviour()</a>.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14058" target="_blank">Issue #14058</a>:
+    ensured the initial <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a> or
+    <a href="classWt_1_1WTabWidget.html" target="_blank">WTabWidget</a> selection is visually rendered.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13861" target="_blank">Issue #13861</a>:
+    corrected the layout rendering for <a href="classWt_1_1WMenuItem.html" target="_blank">WMenuItem</a>,
+    that are loaded <a href="namespaceWt.html#af25a7f0bb1d50c5b8bc98c4db9080313" target="_blank">Lazy</a>
+    through a <a href="classWt_1_1WStackedWidget.html" target="_blank">WStackedWidget</a>.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13961" target="_blank">Issue #13961</a>:
+    corrected a check in the JavaScript code that was creating an error when pasting content to a
+    <a href="classWt_1_1WTextEdit.html" target="_blank">WTextEdit</a>.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13786" target="_blank">Issue #13786</a>:
+    fixed <a href="classWt_1_1WTableView.html#a093b661f93551c1d6f73c423ae8ef459" target="_blank">WTableView::scrollTo()</a>
+    only checking if the top of the row was in the viewport in order to decide whether to scroll or not. It will now scroll if
+    either the top or the bottom of the row are not in the viewport.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13775" target="_blank">Issue #13775</a>:
+    fixed <a href="classWt_1_1WTreeView.html" target="_blank">WTreeView</a> cells
+    clearing their style classes if the size of their HTML <code>class</code>
+    exceeded 1024 characters.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13818" target="_blank">Issue #13818</a>:
+    fixed <a href="classWt_1_1WGroupBox.html" target="_blank">WGroupBox</a> switching from horizontal to vertical layouting inside a
+    <a href="namespaceWt.html#aeb0e4f49ce4a28d8ce9b0c6005027876" target="_blank">LayoutImplementation::Flex</a> when using
+    <a href="classWt_1_1WGroupBox.html#a369081aa62b840875cac9ee5d24bd64e" target="_blank">WGroupBox::setTitle()</a>.
+
+    Additionally, fixed
+    <a href="classWt_1_1WGroupBox.html" target="_blank">WGroupBox</a> not always respecting the minimum
+    size of its content when having a
+    <a href="namespaceWt.html#aeb0e4f49ce4a28d8ce9b0c6005027876" target="_blank">LayoutImplementation::JavaScript</a>.
+    This could lead to other widget overlapping the content of the
+    <a href="classWt_1_1WGroupBox.html" target="_blank">WGroupBox</a>.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13670" target="_blank">Issue #13670</a>:
+    fixed the following issues with layouts:
+    <ul>
+      <li>
+        a bug where JavaScript layouts would sometimes not allow its
+        <a href="classWt_1_1WContainerWidget.html" target="_blank">WContainerWidget</a> to be resized.
+      </li>
+      <li>
+        a bug leading to items in flex layouts to have negative margins.
+      </li>
+      <li>
+        JavaScript layouts not taking margins into account if those margins width were set using
+        "thin", "medium" or "thick".
+      </li>
+      <li>
+        JavaScript layouts sometimes leaving a pixel between its content and the border of its
+        <a href="classWt_1_1WContainerWidget.html" target="_blank">WContainerWidget</a>. This was
+        especially visible when zooming in or out on the page.
+      </li>
+      <li>
+        elements inside of
+        <a href="classWt_1_1WHBoxLayout.html" target="_blank">WHBoxLayout</a> or
+        <a href="classWt_1_1WVBoxLayout.html" target="_blank">WVBoxLayout</a> respectively not filling
+        the entire column/row, if its height/width was not set to "auto".
+      </li>
+      <li>
+        flex layouts not making their
+        <a href="classWt_1_1WContainerWidget.html" target="_blank">WContainerWidget</a> fit its content
+        when the <code>WContainerWidget</code> had a <code>max-width</code> or a <code>max-height</code>
+        set, without having a <code>width</code> or a <code>height</code> set.
+      </li>
+      <li>
+        flex layouts not allowing their content aligned in the same direction as itself to be shrunk.
+        This could lead to several elements overlapping each other.
+      </li>
+    </ul>
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13674" target="_blank">Issue #13674</a>:
+    fixed URL fragments sometimes being considered part of the internal path.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/9864" target="_blank">Issue #9864</a>:
+    fixed a bug that would prevent functions with more than 3 arguments to be connected to a
+    <a href="classWt_1_1Signal.html" target="_blank">WSignal</a>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/13733" target="_blank">Issue #13733</a>:
+    ensured that when using any chart with an underlying <a href="classWt_1_1Dbo_1_1QueryModel.html" target="_blank">QueryModel</a>,
+    an out-of-bounds index will no longer be checked by default. This will no longer cause a crash.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13777" target="_blank">Issue #13777</a>:
+    It's now made sure that a change on <a href="classWt_1_1WStandardItemModel.html" target="_blank">WStandardItemModel</a>
+    cannot be performed on invalid indices, with a crash as a result.
+    Nor can this change be (incorrectly) propagated to a <a href="classWt_1_1WTreeView.html" target="_blank">WTreeView</a>.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14079" target="_blank">Issue #14079</a>:
+    corrected various functions of both <a href="classWt_1_1WAbstractItemModel.html" target="_blank">WAbstractItemModel</a> and
+    <a href="classWt_1_1WAbstractListModel.html" target="_blank">WAbstractListModel</a>.
+    Many of its implementations also received fixes.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/10954" target="_blank">Issue #10954</a>:
+    fixed
+    <a href="classWt_1_1WTime.html#" target="_blank">WTime</a> and
+    <a href="classWt_1_1WDateTime.html#" target="_blank">WDateTime</a> ignoring every 'h' and 'H' character
+    preceded by a single quote inside of the format.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13388" target="_blank">Issue #13388</a>:
+    prevented a segmentation fault from happening when authenticating a user with
+    <a href="classWt_1_1Auth_1_1Mfa_1_1TotpProcess.html" target="_blank">Auth::Mfa::TotpProcess</a>
+    while using a database not supporting transactions.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13740" target="_blank">Issue #13740</a>:
+    fixed a race condition in
+    <a href="classWt_1_1Auth_1_1OAuthProcess.html" target="_blank">Auth::OAuthProcess</a> that could in some
+    rare cases lead to a crash.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13714" target="_blank">Issue #13714</a>:
+    fixed a race condition in
+     <a href="classWt_1_1Http_1_1Client.html" target="_blank">Http::Client</a> that could lead to a crash if the
+     <a href="classWt_1_1Http_1_1Client.html#aad874b0869cb2202f6cd2b79e3956773" target="_blank">Http::Client::headersReceived()</a> signal was emitted while
+     the <code>Http::Client</code> was updating the body of the
+     <a href="classWt_1_1Http_1_1Message.html" target="_blank">Http::Message</a>.
+  </li>
+</ul>
+
+<p>
+  Wt 4.12.2 also comes with the following improvements:
+</p>
+
+<ul>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13770" target="_blank">Issue #13770</a>:
+    separated the default strings and templates in two different <code>xml</code> files. This should make it easier to localize the default strings.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13791" target="_blank">Issue #13791</a>:
+    made the focus go back to the last focused widget when a popup gets hidden.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/13776" target="_blank">Issue #13776</a>:
+    the validity time of the link sent to:
+    <ul>
+      <li>validate a user's email address</li>
+      <li>reset a user's password</li>
+    </ul>
+    is now mentioned in both the email itself and the confirmation popup shown to the user.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14267" target="_blank">Issue #14267</a>:
+    added client URL in JavaScript error reports.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14192" target="_blank">Issue #14192</a>:
+    made <a href="namespaceWt_1_1Auth_1_1Mfa.html#abe89fce88c4deaabe28085fd1c57742f" target="_blank">Auth::Mfa::validateCode()</a>
+    accept the next code as well as the current and previous codes.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13052" target="_blank">Issue #13052</a>:
+    delayed the generation of the internal path from text in
+    <a href="classWt_1_1WMenuItem.html" target="_blank">WMenuItem</a> until
+    <a href="classWt_1_1WMenuItem.html#a7ed10e994274a4033e546bb346a13488" target="_blank">WMenuItem::pathComponent()</a> is called.
+    This will stop potential warnings about loss of detail when setting the text of a WMenuItem if the internal path is not used.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13676" target="_blank">Issue #13676</a>:
+    resolved some Clang and GCC compiler warnings.
+
+    Additionally, fixed
+    <a href="classWt_1_1WFileDropWidget.html" target="_blank">WFileDropWidget</a> making the client update
+    whether it can accept files or not every time it was updated.
+  </li>
+</ul>
+
+<h2>Release 4.12.1 (October 16, 2025)</h2>
+
+<p>Wt 4.12.1 is a patch release that addresses the following issues:</p>
+
+<ul>
   <li>
     <a href="https://redmine.emweb.be/issues/13867" target="_blank">Issue #13867</a>:
     corrected a breaking default <code>script</code> value of the <code>&lt;debug-level&gt;</code> configuration. This has been corrected to <code>framework</code>.
