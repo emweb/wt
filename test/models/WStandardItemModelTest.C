@@ -100,10 +100,18 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_appendColumn_test )
   BOOST_REQUIRE(model->columnCount() == 3);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(0, 1)->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(0, 1)->row(), 0);
   BOOST_TEST(!model->item(0, 2));
   BOOST_TEST(model->item(1, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(model->item(1, 1)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(1, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(1, 1)->row(), 1);
   BOOST_TEST(!model->item(1, 2));
 }
 
@@ -121,10 +129,20 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_appendRow_item_test )
   BOOST_REQUIRE(model->columnCount() == 2);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(0, 1)->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(0, 1)->row(), 0);
   BOOST_TEST(model->item(1, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(model->item(1, 1)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(1, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(1, 1)->row(), 1);
   BOOST_TEST(model->item(2, 0)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(2, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(2, 0)->row(), 2);
   BOOST_TEST(!model->item(2, 1));
 }
 
@@ -143,11 +161,23 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_appendRow_vector_test )
   BOOST_REQUIRE(model->columnCount() == 2);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(0, 1)->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(0, 1)->row(), 0);
   BOOST_TEST(model->item(1, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(model->item(1, 1)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(1, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(1, 1)->row(), 1);
   BOOST_TEST(model->item(2, 0)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(2, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(2, 0)->row(), 2);
   BOOST_TEST(model->item(2, 1)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(2, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(2, 1)->row(), 2);
 }
 
 BOOST_AUTO_TEST_CASE( WStandardItemModel_insertColumn_test )
@@ -165,11 +195,23 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_insertColumn_test )
   BOOST_REQUIRE(model->columnCount() == 3);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(0, 1)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(0, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(0, 1)->row(), 0);
   BOOST_TEST(model->item(0, 2)->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 2)->column(), 2);
+  BOOST_CHECK_EQUAL(model->item(0, 2)->row(), 0);
   BOOST_TEST(model->item(1, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(model->item(1, 1)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(1, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(1, 1)->row(), 1);
   BOOST_TEST(model->item(1, 2)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(1, 2)->column(), 2);
+  BOOST_CHECK_EQUAL(model->item(1, 2)->row(), 1);
 }
 
 BOOST_AUTO_TEST_CASE( WStandardItemModel_insertRow_item_test )
@@ -184,11 +226,21 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_insertRow_item_test )
   BOOST_REQUIRE(model->columnCount() == 2);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(0, 1)->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(0, 1)->row(), 0);
   BOOST_TEST(model->item(1, 0)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(!model->item(1, 1));
   BOOST_TEST(model->item(2, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(2, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(2, 0)->row(), 2);
   BOOST_TEST(model->item(2, 1)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(2, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(2, 1)->row(), 2);
 }
 
 BOOST_AUTO_TEST_CASE( WStandardItemModel_insertRow_vector_test )
@@ -206,11 +258,23 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_insertRow_vector_test )
   BOOST_REQUIRE(model->columnCount() == 2);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(0, 1)->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(0, 1)->row(), 0);
   BOOST_TEST(model->item(1, 0)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(model->item(1, 1)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(1, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(1, 1)->row(), 1);
   BOOST_TEST(model->item(2, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(2, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(2, 0)->row(), 2);
   BOOST_TEST(model->item(2, 1)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(2, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(2, 1)->row(), 2);
 }
 
 BOOST_AUTO_TEST_CASE( WStandardItemModel_takeRow_test )
@@ -226,9 +290,17 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_takeRow_test )
   BOOST_REQUIRE(row.size() == 2);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(0, 1)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(0, 1)->row(), 0);
   BOOST_TEST(row[0]->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(row[0]->column(), -1);
+  BOOST_CHECK_EQUAL(row[0]->row(), -1);
   BOOST_TEST(row[1]->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(row[1]->column(), -1);
+  BOOST_CHECK_EQUAL(row[1]->row(), -1);
 }
 
 BOOST_AUTO_TEST_CASE( WStandardItemModel_takeColumn_test )
@@ -244,9 +316,17 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_takeColumn_test )
   BOOST_REQUIRE(column.size() == 2);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(1, 0)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(column[0]->text() == "Row: 0 - Col: 0");
+  BOOST_TEST(column[1]->column() == -1);
+  BOOST_TEST(column[1]->row() == -1);
   BOOST_TEST(column[1]->text() == "Row: 1 - Col: 0");
+  BOOST_TEST(column[1]->column() == -1);
+  BOOST_TEST(column[1]->row() == -1);
 }
 
 BOOST_AUTO_TEST_CASE( WStandardItemModel_takeItem_test )
@@ -262,10 +342,18 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_takeItem_test )
   BOOST_REQUIRE(item);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(1, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(model->item(1, 1)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(1, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(1, 1)->row(), 1);
   BOOST_TEST(!model->item(0, 1));
   BOOST_TEST(item->text() == "Row: 0 - Col: 1");
+  BOOST_TEST(item->column() == -1);
+  BOOST_TEST(item->row() == -1);
 }
 
 BOOST_AUTO_TEST_CASE( WStandardItemModel_insertColumns_insert_test )
@@ -281,13 +369,29 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_insertColumns_insert_test )
   BOOST_REQUIRE(model->columnCount() == 4);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(0, 1)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(0, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(0, 1)->row(), 0);
   BOOST_TEST(model->item(0, 2)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(0, 2)->column(), 2);
+  BOOST_CHECK_EQUAL(model->item(0, 2)->row(), 0);
   BOOST_TEST(model->item(0, 3)->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 3)->column(), 3);
+  BOOST_CHECK_EQUAL(model->item(0, 3)->row(), 0);
   BOOST_TEST(model->item(1, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(model->item(1, 1)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(1, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(1, 1)->row(), 1);
   BOOST_TEST(model->item(1, 2)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(1, 2)->column(), 2);
+  BOOST_CHECK_EQUAL(model->item(1, 2)->row(), 1);
   BOOST_TEST(model->item(1, 3)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(1, 3)->column(), 3);
+  BOOST_CHECK_EQUAL(model->item(1, 3)->row(), 1);
 }
 
 BOOST_AUTO_TEST_CASE( WStandardItemModel_insertColumns_append_test )
@@ -303,13 +407,29 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_insertColumns_append_test )
   BOOST_REQUIRE(model->columnCount() == 4);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(0, 1)->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(0, 1)->row(), 0);
   BOOST_TEST(model->item(0, 2)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(0, 2)->column(), 2);
+  BOOST_CHECK_EQUAL(model->item(0, 2)->row(), 0);
   BOOST_TEST(model->item(0, 3)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(0, 3)->column(), 3);
+  BOOST_CHECK_EQUAL(model->item(0, 3)->row(), 0);
   BOOST_TEST(model->item(1, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(model->item(1, 1)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(1, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(1, 1)->row(), 1);
   BOOST_TEST(model->item(1, 2)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(1, 2)->column(), 2);
+  BOOST_CHECK_EQUAL(model->item(1, 2)->row(), 1);
   BOOST_TEST(model->item(1, 3)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(1, 3)->column(), 3);
+  BOOST_CHECK_EQUAL(model->item(1, 3)->row(), 1);
 }
 
 BOOST_AUTO_TEST_CASE( WStandardItemModel_insertColumns_nonexistent_index_test )
@@ -325,10 +445,18 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_insertColumns_nonexistent_index_test )
   BOOST_REQUIRE(model->columnCount() == 2);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(0, 1)->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(0, 1)->row(), 0);
   BOOST_TEST(!model->item(0, 2));
   BOOST_TEST(model->item(1, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(model->item(1, 1)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(1, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(1, 1)->row(), 1);
   BOOST_TEST(!model->item(2, 0));
 }
 
@@ -345,13 +473,29 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_insertRows_insert_test )
   BOOST_REQUIRE(model->columnCount() == 2);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(0, 1)->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(0, 1)->row(), 0);
   BOOST_TEST(model->item(1, 0)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(model->item(1, 1)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(1, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(1, 1)->row(), 1);
   BOOST_TEST(model->item(2, 0)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(2, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(2, 0)->row(), 2);
   BOOST_TEST(model->item(2, 1)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(2, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(2, 1)->row(), 2);
   BOOST_TEST(model->item(3, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(3, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(3, 0)->row(), 3);
   BOOST_TEST(model->item(3, 1)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(3, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(3, 1)->row(), 3);
 }
 
 BOOST_AUTO_TEST_CASE( WStandardItemModel_insertRows_append_test )
@@ -367,13 +511,29 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_insertRows_append_test )
   BOOST_REQUIRE(model->columnCount() == 2);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(0, 1)->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(0, 1)->row(), 0);
   BOOST_TEST(model->item(1, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(model->item(1, 1)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(1, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(1, 1)->row(), 1);
   BOOST_TEST(model->item(2, 0)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(2, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(2, 0)->row(), 2);
   BOOST_TEST(model->item(2, 1)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(2, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(2, 1)->row(), 2);
   BOOST_TEST(model->item(3, 0)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(3, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(3, 0)->row(), 3);
   BOOST_TEST(model->item(3, 1)->text().empty());
+  BOOST_CHECK_EQUAL(model->item(3, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(3, 1)->row(), 3);
 }
 
 BOOST_AUTO_TEST_CASE( WStandardItemModel_insertRows_nonexistent_test )
@@ -389,10 +549,18 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_insertRows_nonexistent_test )
   BOOST_REQUIRE(model->columnCount() == 2);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(0, 1)->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(0, 1)->row(), 0);
   BOOST_TEST(!model->item(0, 2));
   BOOST_TEST(model->item(1, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(model->item(1, 1)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(1, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(1, 1)->row(), 1);
   BOOST_TEST(!model->item(2, 0));
 }
 
@@ -424,7 +592,11 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_removeColumns_partial_test )
   BOOST_REQUIRE(model->columnCount() == 1);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(1, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(!model->item(0, 1));
   BOOST_TEST(!model->item(1, 1));
 }
@@ -442,9 +614,17 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_removeColumns_none_test )
   BOOST_REQUIRE(model->columnCount() == 2);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(0, 1)->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(0, 1)->row(), 0);
   BOOST_TEST(model->item(1, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(model->item(1, 1)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(1, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(1, 1)->row(), 1);
 }
 
 BOOST_AUTO_TEST_CASE( WStandardItemModel_removeRows_full_test )
@@ -475,7 +655,11 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_removeRows_partial_test )
   BOOST_REQUIRE(model->columnCount() == 2);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(0, 1)->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(0, 1)->row(), 0);
   BOOST_TEST(!model->item(1, 0));
   BOOST_TEST(!model->item(1, 1));
 }
@@ -493,9 +677,17 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_removeRows_none_test )
   BOOST_REQUIRE(model->columnCount() == 2);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(0, 1)->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(0, 1)->row(), 0);
   BOOST_TEST(model->item(1, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(model->item(1, 1)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(1, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(1, 1)->row(), 1);
 }
 
 BOOST_AUTO_TEST_CASE( WStandardItemModel_sort_test )
@@ -510,9 +702,17 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_sort_test )
   BOOST_REQUIRE(model->columnCount() == 2);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(1, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(model->item(0, 1)->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(0, 1)->row(), 0);
   BOOST_TEST(model->item(1, 1)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(1, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(1, 1)->row(), 1);
 
   model->sort(1, SortOrder::Descending);
 
@@ -520,7 +720,15 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_sort_test )
   BOOST_REQUIRE(model->columnCount() == 2);
 
   BOOST_TEST(model->item(0, 0)->text() == "Row: 1 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(0, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(0, 0)->row(), 0);
   BOOST_TEST(model->item(1, 0)->text() == "Row: 0 - Col: 0");
+  BOOST_CHECK_EQUAL(model->item(1, 0)->column(), 0);
+  BOOST_CHECK_EQUAL(model->item(1, 0)->row(), 1);
   BOOST_TEST(model->item(0, 1)->text() == "Row: 1 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(0, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(0, 1)->row(), 0);
   BOOST_TEST(model->item(1, 1)->text() == "Row: 0 - Col: 1");
+  BOOST_CHECK_EQUAL(model->item(1, 1)->column(), 1);
+  BOOST_CHECK_EQUAL(model->item(1, 1)->row(), 1);
 }

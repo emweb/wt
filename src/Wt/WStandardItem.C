@@ -499,7 +499,7 @@ void WStandardItem::insertColumns(int column, int count)
       Column c;
       for (int j = 0; j < rc; ++j) {
         c.push_back(std::make_unique<WStandardItem>());
-        adoptChild(j, column, c[j].get());
+        adoptChild(j, column + i, c[j].get());
       }
       columns_->insert(columns_->begin() + column + i, std::move(c));
     }
@@ -530,7 +530,7 @@ void WStandardItem::insertRows(int row, int count)
       Column& c = (*columns_)[i];
       for (int j = 0; j < count; ++j) {
         c.insert(c.begin() + row + j, std::make_unique<WStandardItem>());
-        adoptChild(row, i, c[row + j].get());
+        adoptChild(row + j, i, c[row + j].get());
 
         if (model_) {
           c[row + j]->setModel(model_);
