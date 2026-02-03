@@ -1,5 +1,6 @@
 #include "Wt/WWebSocketConnection.h"
 
+#include "Wt/AsioWrapper/namespace.hpp"
 #include "Wt/AsioWrapper/system_error.hpp"
 
 #include "Wt/WApplication.h"
@@ -12,6 +13,8 @@
 
 namespace Wt {
 LOGGER("WWebSocketConnection");
+
+namespace asio = AsioWrapper::asio;
 
 std::string OpCodeToString(OpCode code)
 {
@@ -603,12 +606,21 @@ void WebSocketTcpConnection::doClose()
 
 void WebSocketTcpConnection::doSocketRead(char* buffer, size_t size)
 {
-  socket_->async_read_some(AsioWrapper::asio::buffer(buffer, size), strand_.wrap(std::bind(&WebSocketTcpConnection::handleAsyncRead, shared_from_this(), std::placeholders::_1, std::placeholders::_2)));
+  auto ptr = std::static_pointer_cast<WebSocketTcpConnection>(shared_from_this());
+
+  socket_->async_read_some(AsioWrapper::asio::buffer(buffer, size),
+    [ptr](const AsioWrapper::error_code& e, std::size_t bytes_transferred) {
+      asio::dispatch(ptr->strand_, std::bind(&WebSocketTcpConnection::handleAsyncRead, ptr, e, bytes_transferred));
+    });
 }
 
 void WebSocketTcpConnection::doSocketWrite(const std::vector<AsioWrapper::asio::const_buffer>& buffer, OpCode type)
 {
-  async_write(socket(), buffer, strand_.wrap(std::bind(&WebSocketTcpConnection::handleAsyncWritten, shared_from_this(), type, std::placeholders::_1, std::placeholders::_2)));
+  auto ptr = std::static_pointer_cast<WebSocketTcpConnection>(shared_from_this());
+  async_write(socket(), buffer,
+    [ptr, type](const AsioWrapper::error_code& e, std::size_t bytes_transferred) {
+      asio::dispatch(ptr->strand_, std::bind(&WebSocketTcpConnection::handleAsyncWritten, ptr, type, e, bytes_transferred));
+    });
 }
 
 Socket& WebSocketTcpConnection::socket()
@@ -635,7 +647,9 @@ void WebSocketSslConnection::doClose()
   // Non-static pointer
   std::shared_ptr<WebSocketSslConnection> ptr = std::static_pointer_cast<WebSocketSslConnection>(shared_from_this());
 
-  socket_->async_shutdown(strand_.wrap(std::bind(&WebSocketSslConnection::stopTcpSocket, ptr, std::placeholders::_1)));
+  socket_->async_shutdown([ptr](const AsioWrapper::error_code& e) {
+      asio::dispatch(ptr->strand_, std::bind(&WebSocketSslConnection::stopTcpSocket, ptr, e));
+  });
 }
 
 void WebSocketSslConnection::stopTcpSocket(const AsioWrapper::error_code& e)
@@ -659,12 +673,20 @@ void WebSocketSslConnection::stopTcpSocket(const AsioWrapper::error_code& e)
 
 void WebSocketSslConnection::doSocketRead(char* buffer, size_t size)
 {
-  socket_->async_read_some(AsioWrapper::asio::buffer(buffer, size), strand_.wrap(std::bind(&WebSocketSslConnection::handleAsyncRead, shared_from_this(), std::placeholders::_1, std::placeholders::_2)));
+  auto ptr = std::static_pointer_cast<WebSocketSslConnection>(shared_from_this());
+  socket_->async_read_some(AsioWrapper::asio::buffer(buffer, size),
+    [ptr](const AsioWrapper::error_code& e, std::size_t bytes_transferred) {
+      asio::dispatch(ptr->strand_, std::bind(&WebSocketSslConnection::handleAsyncRead, ptr, e, bytes_transferred));
+    });
 }
 
 void WebSocketSslConnection::doSocketWrite(const std::vector<AsioWrapper::asio::const_buffer>& buffer, OpCode type)
 {
-  async_write(*socket_, buffer, strand_.wrap(std::bind(&WebSocketSslConnection::handleAsyncWritten, shared_from_this(), type, std::placeholders::_1, std::placeholders::_2)));
+  auto ptr = std::static_pointer_cast<WebSocketSslConnection>(shared_from_this());
+  async_write(*socket_, buffer,
+    [ptr, type](const AsioWrapper::error_code& e, std::size_t bytes_transferred) {
+      asio::dispatch(ptr->strand_, std::bind(&WebSocketSslConnection::handleAsyncWritten, ptr, type, e, bytes_transferred));
+    });
 }
 
 Socket& WebSocketSslConnection::socket()

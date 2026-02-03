@@ -105,13 +105,15 @@ void ProxyReply::writeDone(bool success)
 
   if (more_ && socket_) {
     LOG_DEBUG(this << ": async_read downstream");
+    auto self = std::static_pointer_cast<ProxyReply>(shared_from_this());
+    auto strand = connection()->strand();
     asio::async_read
       (*socket_, responseBuf_,
        asio::transfer_at_least(1),
-       connection()->strand().wrap
-       (std::bind(&ProxyReply::handleResponseRead,
-                  std::static_pointer_cast<ProxyReply>(shared_from_this()),
-                  std::placeholders::_1)));
+       [self, strand](const Wt::AsioWrapper::error_code& ec, std::size_t) {
+          asio::dispatch(strand,
+                        std::bind(&ProxyReply::handleResponseRead, self, ec));
+        });
   }
 }
 
@@ -133,15 +135,18 @@ bool ProxyReply::consumeData(const char *begin,
    if (socket_) {
       LOG_DEBUG(this << ": sending to child");
       // Connection with child already established, send request data
+      auto self = std::static_pointer_cast<ProxyReply>(shared_from_this());
+      auto strand = connection()->strand();
       asio::async_write
         (*socket_,
          asio::buffer(beginRequestBuf_, endRequestBuf_ - beginRequestBuf_),
-         connection()->strand().wrap
-         (std::bind
-          (&ProxyReply::handleDataWritten,
-           std::static_pointer_cast<ProxyReply>(shared_from_this()),
-           std::placeholders::_1,
-           std::placeholders::_2)));
+         [self, strand](const Wt::AsioWrapper::error_code& ec, std::size_t transferred) {
+           asio::dispatch(strand,
+                         std::bind(&ProxyReply::handleDataWritten,
+                                   self,
+                                   ec,
+                                   transferred));
+         });
     } else {
       /* Connection with child was closed */
       error(service_unavailable);
@@ -189,14 +194,17 @@ bool ProxyReply::consumeData(const char *begin,
         fwCertificates_ = true;
         // Launch new child process
         sessionProcess_ = sessionManager_.createSessionProcess();
+        auto self = std::static_pointer_cast<ProxyReply>(shared_from_this());
+        auto strand = connection()->strand();
 
         sessionProcess_->asyncExec(
             configuration(),
-            connection()->strand().wrap
-            (std::bind
-             (&ProxyReply::connectToChild,
-              std::static_pointer_cast<ProxyReply>(shared_from_this()),
-              std::placeholders::_1)));
+            [self, strand](bool success) {
+              asio::dispatch(strand,
+                            std::bind(&ProxyReply::connectToChild,
+                                      self,
+                                      success));
+            });
       } else {
         LOG_ERROR("maximum amount of sessions reached!");
         error(service_unavailable);
@@ -215,12 +223,15 @@ void ProxyReply::connectToChild(bool success)
 {
   if (success) {
     socket_.reset(new asio::ip::tcp::socket(connection()->server()->service()));
+
+    auto self = std::static_pointer_cast<ProxyReply>(shared_from_this());
+    auto strand = connection()->strand();
     socket_->async_connect
       (sessionProcess_->endpoint(),
-       connection()->strand().wrap
-       (std::bind(&ProxyReply::handleChildConnected,
-                  std::static_pointer_cast<ProxyReply>(shared_from_this()),
-                  std::placeholders::_1)));
+       [self, strand](const Wt::AsioWrapper::error_code& ec) {
+         asio::dispatch(strand,
+                        std::bind(&ProxyReply::handleChildConnected, self, ec));
+       });
   } else {
     error(service_unavailable);
   }
@@ -241,13 +252,17 @@ void ProxyReply::handleChildConnected(const Wt::AsioWrapper::error_code& ec)
   std::ostream os(&requestBuf_);
   os.write(beginRequestBuf_, static_cast<std::streamsize>(endRequestBuf_ - beginRequestBuf_));
 
+  auto self = std::static_pointer_cast<ProxyReply>(shared_from_this());
+  auto strand = connection()->strand();
   asio::async_write
     (*socket_, requestBuf_,
-     connection()->strand().wrap
-     (std::bind
-      (&ProxyReply::handleDataWritten,
-       std::static_pointer_cast<ProxyReply>(shared_from_this()),
-       std::placeholders::_1, std::placeholders::_2)));
+     [self, strand](const Wt::AsioWrapper::error_code& ec, std::size_t transferred) {
+        asio::dispatch(strand,
+                      std::bind(&ProxyReply::handleDataWritten,
+                                self,
+                                ec,
+                                transferred));
+     });
 }
 
 void ProxyReply::assembleRequestHeaders()
@@ -390,13 +405,14 @@ void ProxyReply::handleDataWritten(const Wt::AsioWrapper::error_code &ec,
       LOG_DEBUG(this << ": receive() upstream");
       receive();
     } else {
+      auto self = std::static_pointer_cast<ProxyReply>(shared_from_this());
+      auto strand = connection()->strand();
       asio::async_read_until
         (*socket_, responseBuf_, "\r\n",
-         connection()->strand().wrap
-         (std::bind
-          (&ProxyReply::handleStatusRead,
-           std::static_pointer_cast<ProxyReply>(shared_from_this()),
-           std::placeholders::_1)));
+         [self, strand](const Wt::AsioWrapper::error_code& ec, std::size_t) {
+           asio::dispatch(strand,
+                         std::bind(&ProxyReply::handleStatusRead, self, ec));
+         });
     }
   } else {
     LOG_ERROR("error sending data to child: " << ec.message());
@@ -423,12 +439,14 @@ void ProxyReply::handleStatusRead(const Wt::AsioWrapper::error_code &ec)
       return;
     }
 
+    auto self = std::static_pointer_cast<ProxyReply>(shared_from_this());
+    auto strand = connection()->strand();
     asio::async_read_until
       (*socket_, responseBuf_, "\r\n\r\n",
-       connection()->strand().wrap
-       (std::bind(&ProxyReply::handleHeadersRead,
-                  std::static_pointer_cast<ProxyReply>(shared_from_this()),
-                  std::placeholders::_1)));
+       [self, strand](const Wt::AsioWrapper::error_code& ec, std::size_t) {
+         asio::dispatch(strand,
+                       std::bind(&ProxyReply::handleHeadersRead, self, ec));
+       });
   } else {
     LOG_ERROR("error reading status line from child process " << sessionProcess_->pid() << ": " << ec.message());
     if (!sendReload())

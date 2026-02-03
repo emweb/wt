@@ -146,16 +146,21 @@ public:
     startTimer();
     resolver_.async_resolve
       (server, std::to_string(port),
-       strand_.wrap(std::bind(&Impl::handleResolveList,
-                              shared_from_this(),
-                              std::placeholders::_1,
-                              std::placeholders::_2)));
+       [self = shared_from_this()](const AsioWrapper::error_code& err, tcp::resolver::results_type endpoints) {
+          asio::dispatch(self->strand_,
+                         std::bind(&Impl::handleResolveList,
+                                   self,
+                                   err,
+                                   endpoints));
+        });
   }
 
   void asyncStop()
   {
     asio::post(ioService_,
-               strand_.wrap(std::bind(&Impl::stop, shared_from_this())));
+               [self = shared_from_this()]() {
+                 asio::dispatch(self->strand_, std::bind(&Impl::stop, self));
+               });
   }
 
 protected:
@@ -195,8 +200,9 @@ private:
   {
     timer_.expires_after(timeout_);
     timer_.async_wait
-      (strand_.wrap(std::bind(&Impl::timeout, shared_from_this(),
-                              std::placeholders::_1)));
+      ([self = shared_from_this()](const AsioWrapper::error_code& e) {
+          asio::dispatch(self->strand_, std::bind(&Impl::timeout, self, e));
+        });
   }
 
   void cancelTimer()
@@ -241,10 +247,13 @@ private:
 
       startTimer();
       asyncConnect(endpoint,
-                   strand_.wrap(std::bind(&Impl::handleConnect,
-                                          shared_from_this(),
-                                          std::placeholders::_1,
-                                          ++endpoint_iterator)));
+                  [self = shared_from_this(), it = ++endpoint_iterator](const AsioWrapper::error_code& err){
+                    asio::dispatch(self->strand_,
+                                   std::bind(&Impl::handleConnect,
+                                             self,
+                                             err,
+                                             it));
+                  });
     } else {
       if (aborted_)
         err_ = asio::error::operation_aborted;
@@ -265,9 +274,9 @@ private:
       // The connection was successful. Do the handshake (SSL only)
       startTimer();
       asyncHandshake
-        (strand_.wrap(std::bind(&Impl::handleHandshake,
-                                shared_from_this(),
-                                std::placeholders::_1)));
+        ([self = shared_from_this()](const AsioWrapper::error_code& err) {
+           asio::dispatch(self->strand_, std::bind(&Impl::handleHandshake, self, err));
+        });
     } else if (endpoint_iterator != tcp::resolver::results_type::iterator()) {
       // The connection failed. Try the next endpoint in the list.
       socket().close();
@@ -292,11 +301,13 @@ private:
       // The handshake was successful. Send the request.
       startTimer();
       asyncWriteRequest
-        (strand_.wrap
-         (std::bind(&Impl::handleWriteRequest,
-                      shared_from_this(),
-                      std::placeholders::_1,
-                      std::placeholders::_2)));
+        ([self = shared_from_this()](const AsioWrapper::error_code& err, const std::size_t& bytes_transferred) {
+           asio::dispatch(self->strand_,
+                          std::bind(&Impl::handleWriteRequest,
+                                    self,
+                                    err,
+                                    bytes_transferred));
+        });
     } else {
       if (aborted_)
         err_ = asio::error::operation_aborted;
@@ -318,11 +329,13 @@ private:
       startTimer();
       asyncReadUntil
         ("\r\n",
-         strand_.wrap
-         (std::bind(&Impl::handleReadStatusLine,
-                      shared_from_this(),
-                      std::placeholders::_1,
-                      std::placeholders::_2)));
+         [self = shared_from_this()](const AsioWrapper::error_code& err, const std::size_t& bytes_transferred) {
+           asio::dispatch(self->strand_,
+                          std::bind(&Impl::handleReadStatusLine,
+                                    self,
+                                    err,
+                                    bytes_transferred));
+         });
     } else {
       if (aborted_)
         err_ = asio::error::operation_aborted;
@@ -384,11 +397,13 @@ private:
       startTimer();
       asyncReadUntil
         ("\r\n\r\n",
-         strand_.wrap
-         (std::bind(&Impl::handleReadHeaders,
-                      shared_from_this(),
-                      std::placeholders::_1,
-                      std::placeholders::_2)));
+         [self = shared_from_this()](const AsioWrapper::error_code& err, const std::size_t& bytes_transferred) {
+           asio::dispatch(self->strand_,
+                          std::bind(&Impl::handleReadHeaders,
+                                    self,
+                                    err,
+                                    bytes_transferred));
+         });
     } else {
       if (aborted_)
         err_ = asio::error::operation_aborted;
@@ -461,11 +476,14 @@ private:
       if (!done) {
         // Start reading remaining data until EOF.
         startTimer();
-        asyncRead(strand_.wrap
-            (std::bind(&Impl::handleReadContent,
-                       shared_from_this(),
-                       std::placeholders::_1,
-                       std::placeholders::_2)));
+        asyncRead
+          ([self = shared_from_this()](const AsioWrapper::error_code& err, const std::size_t& bytes_transferred) {
+              asio::dispatch(self->strand_,
+                             std::bind(&Impl::handleReadContent,
+                                       self,
+                                       err,
+                                       bytes_transferred));
+            });
       } else {
         complete();
       }
@@ -500,11 +518,13 @@ private:
         // Continue reading remaining data until EOF.
         startTimer();
         asyncRead
-          (strand_.wrap
-           (std::bind(&Impl::handleReadContent,
-                      shared_from_this(),
-                      std::placeholders::_1,
-                      std::placeholders::_2)));
+          ([self = shared_from_this()](const AsioWrapper::error_code& err, const std::size_t& bytes_transferred) {
+              asio::dispatch(self->strand_,
+                             std::bind(&Impl::handleReadContent,
+                                       self,
+                                       err,
+                                       bytes_transferred));
+            });
       } else {
         complete();
       }

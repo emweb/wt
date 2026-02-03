@@ -495,22 +495,29 @@ void Server::startAccept()
   for (std::size_t i = 0; i < tcp_listeners_.size(); ++i) {
     asio::ip::tcp::acceptor &acceptor = tcp_listeners_[i]->acceptor;
     TcpConnectionPtr &new_connection = tcp_listeners_[i]->new_connection;
+    std::weak_ptr<TcpListener> listener = tcp_listeners_[i];
     acceptor.async_accept(new_connection->socket(),
-                          accept_strand_.wrap(
-                            std::bind(&Server::handleTcpAccept, this,
-                                        tcp_listeners_[i],
-                                        std::placeholders::_1)));
+                          [this, listener](const Wt::AsioWrapper::error_code& err) {
+                            asio::dispatch(accept_strand_,
+                                          std::bind(&Server::handleTcpAccept,
+                                                    this,
+                                                    listener,
+                                                    err));
+                          });
   }
 
 #ifdef HTTP_WITH_SSL
   for (std::size_t i = 0; i < ssl_listeners_.size(); ++i) {
     asio::ip::tcp::acceptor &acceptor = ssl_listeners_[i]->acceptor;
     SslConnectionPtr &new_connection = ssl_listeners_[i]->new_connection;
+    std::weak_ptr<SslListener> listener = ssl_listeners_[i];
     acceptor.async_accept(new_connection->socket(),
-                          accept_strand_.wrap(
-                            std::bind(&Server::handleSslAccept, this,
-                                        ssl_listeners_[i],
-                                        std::placeholders::_1)));
+                          [this, listener](const Wt::AsioWrapper::error_code& err) {
+                            asio::dispatch(accept_strand_,
+                                          std::bind(&Server::handleSslAccept, this,
+                                                    listener,
+                                                    err));
+                          });
   }
 #endif // HTTP_WITH_SSL
 }
@@ -576,7 +583,10 @@ void Server::stop()
   // to call from any thread, and not simultaneously with waiting for
   // a new async_accept() call.
   wt_.ioService().post
-    (accept_strand_.wrap(std::bind(&Server::handleStop, this)));
+    ([this]() {
+       asio::dispatch(accept_strand_,
+                      std::bind(&Server::handleStop, this));
+     });
 }
 
 void Server::resume()
@@ -595,7 +605,10 @@ void Server::handleResume()
 #endif // HTTP_WITH_SSL
 
   wt_.ioService().post
-    (accept_strand_.wrap(std::bind(&Server::removeAllListeners, this, true)));
+    ([this]() {
+       asio::dispatch(accept_strand_,
+                      std::bind(&Server::removeAllListeners, this, true));
+     });
 }
 
 void Server::handleTcpAccept(const std::weak_ptr<TcpListener>& listener, const Wt::AsioWrapper::error_code& e)
@@ -616,9 +629,11 @@ void Server::handleTcpAccept(const std::weak_ptr<TcpListener>& listener, const W
   }
 
   l->acceptor.async_accept(l->new_connection->socket(),
-                           accept_strand_.wrap(
-                                   std::bind(&Server::handleTcpAccept, this,
-                                       listener, std::placeholders::_1)));
+                          [this, listener](const Wt::AsioWrapper::error_code& err) {
+                           asio::dispatch(accept_strand_,
+                                          std::bind(&Server::handleTcpAccept, this,
+                                                    listener, err));
+                          });
 }
 
 #ifdef HTTP_WITH_SSL
@@ -640,9 +655,11 @@ void Server::handleSslAccept(const std::weak_ptr<SslListener>& listener, const W
   }
 
   l->acceptor.async_accept(l->new_connection->socket(),
-                           accept_strand_.wrap(
-                                   std::bind(&Server::handleSslAccept, this,
-                                             listener, std::placeholders::_1)));
+                           [this, listener](const Wt::AsioWrapper::error_code& err) {
+                             asio::dispatch(accept_strand_,
+                                            std::bind(&Server::handleSslAccept, this,
+                                                      listener, err));
+                           });
 }
 #endif // HTTP_WITH_SSL
 
@@ -669,7 +686,10 @@ void Server::handleStop()
 
   connection_manager_.stopAll();
   wt_.ioService().post
-    (accept_strand_.wrap(std::bind(&Server::removeAllListeners, this, false)));
+    ([this]() {
+        asio::dispatch(accept_strand_,
+                       std::bind(&Server::removeAllListeners, this, false));
+     });
 }
 
 void Server::removeAllListeners(bool restart)

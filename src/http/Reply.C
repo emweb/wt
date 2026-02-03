@@ -496,10 +496,12 @@ void Reply::send()
 
     // We post this since we want to avoid growing the stack indefinitely
     asio::post(connection_->server()->service(),
-               connection_->strand().wrap(
-                  std::bind(&Connection::startWriteResponse,
-                            connection_,
-                            shared_from_this())));
+               [self = shared_from_this(), connection = connection_]() {
+                 asio::dispatch(connection->strand(),
+                                std::bind(&Connection::startWriteResponse,
+                                          connection,
+                                          self));
+               });
   }
 }
 

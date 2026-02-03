@@ -52,10 +52,12 @@ void SslConnection::start()
     = std::static_pointer_cast<SslConnection>(shared_from_this());
 
   socket_->async_handshake(asio::ssl::stream_base::server,
-                          strand_.wrap
-                          (std::bind(&SslConnection::handleHandshake,
-                                     sft,
-                                     std::placeholders::_1)));
+      [sft](const Wt::AsioWrapper::error_code& err) {
+        asio::dispatch(sft->strand_,
+                        std::bind(&SslConnection::handleHandshake,
+                                  sft,
+                                  err));
+      });
 }
 
 void SslConnection::handleHandshake(const Wt::AsioWrapper::error_code& error)
@@ -100,13 +102,18 @@ void SslConnection::stop()
 
   sslShutdownTimer_.expires_after(std::chrono::seconds(1));
   sslShutdownTimer_.async_wait
-    (strand_.wrap(std::bind(&SslConnection::stopNextLayer,
-                            sft, std::placeholders::_1)));
+    ([sft](const Wt::AsioWrapper::error_code& e) {
+       asio::dispatch(sft->strand_,
+                      std::bind(&SslConnection::stopNextLayer,
+                                sft, e));
+     });
 
-  socket_->async_shutdown(strand_.wrap
-                         (std::bind(&SslConnection::stopNextLayer,
-                                    sft,
-                                    std::placeholders::_1)));
+  socket_->async_shutdown
+    ([sft](const Wt::AsioWrapper::error_code& e) {
+        asio::dispatch(sft->strand_,
+                       std::bind(&SslConnection::stopNextLayer,
+                                 sft, e));
+      });
 }
 
 void SslConnection::stopNextLayer(const Wt::AsioWrapper::error_code& ec)
@@ -142,12 +149,15 @@ void SslConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
 
   std::shared_ptr<SslConnection> sft
     = std::static_pointer_cast<SslConnection>(shared_from_this());
-  socket_->async_read_some(asio::buffer(buffer),
-                          strand_.wrap
-                          (std::bind(&SslConnection::handleReadRequestSsl,
-                                     sft,
-                                     std::placeholders::_1,
-                                     std::placeholders::_2)));
+  socket_->async_read_some
+    (asio::buffer(buffer),
+     [sft](const Wt::AsioWrapper::error_code& err, std::size_t bytes_transferred) {
+        asio::dispatch(sft->strand_,
+                      std::bind(&SslConnection::handleReadRequestSsl,
+                                sft,
+                                err,
+                                bytes_transferred));
+      });
 }
 
 void SslConnection::handleReadRequestSsl(const Wt::AsioWrapper::error_code& e,
@@ -180,13 +190,16 @@ void SslConnection::startAsyncReadBody(ReplyPtr reply,
 
   std::shared_ptr<SslConnection> sft
     = std::static_pointer_cast<SslConnection>(shared_from_this());
-  socket_->async_read_some(asio::buffer(buffer),
-                          strand_.wrap
-                          (std::bind(&SslConnection::handleReadBodySsl,
-                                     sft,
-                                     reply,
-                                     std::placeholders::_1,
-                                     std::placeholders::_2)));
+  socket_->async_read_some
+    (asio::buffer(buffer),
+     [sft, reply](const Wt::AsioWrapper::error_code& err, std::size_t bytes_transferred) {
+        asio::dispatch(sft->strand_,
+                      std::bind(&SslConnection::handleReadBodySsl,
+                                sft,
+                                reply,
+                                err,
+                                bytes_transferred));
+      });
 }
 
 void SslConnection::handleReadBodySsl(ReplyPtr reply,
@@ -221,12 +234,15 @@ void SslConnection
 
   std::shared_ptr<SslConnection> sft
     = std::static_pointer_cast<SslConnection>(shared_from_this());
-  asio::async_write(*socket_, buffers,
-                    strand_.wrap
-                    (std::bind(&SslConnection::handleWriteResponse0,
-                               sft, reply,
-                               std::placeholders::_1,
-                               std::placeholders::_2)));
+  asio::async_write
+    (*socket_, buffers,
+     [sft, reply](const Wt::AsioWrapper::error_code& err, std::size_t bytes_transferred) {
+        asio::dispatch(sft->strand_,
+                      std::bind(&SslConnection::handleWriteResponse0,
+                                sft, reply,
+                                err,
+                                bytes_transferred));
+      });
 }
 
 void SslConnection::doSocketTransferCallback()

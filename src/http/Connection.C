@@ -75,7 +75,9 @@ void Connection::finishReply()
 void Connection::scheduleStop()
 {
   asio::post(server_->service(),
-             strand_.wrap(std::bind(&Connection::stop, shared_from_this())));
+             [self = shared_from_this()]() {
+               asio::dispatch(self->strand_, std::bind(&Connection::stop, self));
+             });
 }
 
 void Connection::start()
@@ -367,7 +369,10 @@ void Connection::detectDisconnect(ReplyPtr reply,
                                   const std::function<void()>& callback)
 {
   asio::post(server_->service(),
-             strand_.wrap(std::bind(&Connection::asyncDetectDisconnect, this, reply, callback)));
+             [this, reply, callback]() {
+               asio::dispatch(strand_,
+                              std::bind(&Connection::asyncDetectDisconnect, this, reply, callback));
+             });
 }
 
 void Connection::asyncDetectDisconnect(ReplyPtr reply,
@@ -432,7 +437,9 @@ void Connection::startWriteResponse(ReplyPtr reply)
     LOG_ERROR("Connection::startWriteResponse(): connection already writing");
     close();
     asio::post(server_->service(),
-               strand_.wrap(std::bind(&Reply::writeDone, reply, false)));
+              [this, reply]() {
+                asio::dispatch(strand_, std::bind(&Reply::writeDone, reply, false));
+              });
     return;
   }
 

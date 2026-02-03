@@ -77,12 +77,15 @@ void TcpConnection::startAsyncReadRequest(Buffer& buffer, int timeout)
 
   std::shared_ptr<TcpConnection> sft
     = std::static_pointer_cast<TcpConnection>(shared_from_this());
-  socket_->async_read_some(asio::buffer(buffer),
-                          strand_.wrap
-                          (std::bind(&TcpConnection::handleReadRequest,
-                                     sft,
-                                     std::placeholders::_1,
-                                     std::placeholders::_2)));
+  socket_->async_read_some
+    (asio::buffer(buffer),
+     [sft](const Wt::AsioWrapper::error_code& err, std::size_t bytes_transferred) {
+        asio::dispatch(sft->strand_,
+                      std::bind(&TcpConnection::handleReadRequest,
+                                sft,
+                                err,
+                                bytes_transferred));
+      });
 }
 
 void TcpConnection::startAsyncReadBody(ReplyPtr reply,
@@ -102,13 +105,16 @@ void TcpConnection::startAsyncReadBody(ReplyPtr reply,
 
   std::shared_ptr<TcpConnection> sft
     = std::static_pointer_cast<TcpConnection>(shared_from_this());
-  socket_->async_read_some(asio::buffer(buffer),
-                          strand_.wrap
-                          (std::bind(&TcpConnection::handleReadBody0,
-                                     sft,
-                                     reply,
-                                     std::placeholders::_1,
-                                     std::placeholders::_2)));
+  socket_->async_read_some
+    (asio::buffer(buffer),
+     [sft, reply](const Wt::AsioWrapper::error_code& err, std::size_t bytes_transferred) {
+      asio::dispatch(sft->strand_,
+                     std::bind(&TcpConnection::handleReadBody0,
+                               sft,
+                               reply,
+                               err,
+                               bytes_transferred));
+     });
 }
 
 void TcpConnection::startAsyncWriteResponse
@@ -130,13 +136,18 @@ void TcpConnection::startAsyncWriteResponse
 
   std::shared_ptr<TcpConnection> sft
     = std::static_pointer_cast<TcpConnection>(shared_from_this());
-  asio::async_write(*socket_, buffers,
-                    strand_.wrap
-                    (std::bind(&TcpConnection::handleWriteResponse0,
-                               sft,
-                               reply,
-                               std::placeholders::_1,
-                               std::placeholders::_2)));
+  asio::async_write
+    (*socket_, buffers,
+     [sft, reply](const Wt::AsioWrapper::error_code& err, std::size_t bytes_transferred) {
+
+     asio::dispatch(sft->strand_,
+                   std::bind(&TcpConnection::handleWriteResponse0,
+                             sft,
+                             reply,
+                             err,
+                             bytes_transferred));
+      });
+
 }
 
 void TcpConnection::doSocketTransferCallback()
