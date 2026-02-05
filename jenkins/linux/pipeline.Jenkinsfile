@@ -250,6 +250,9 @@ pipeline {
                             warnError('mt test.sqlite3 failed') {
                                 sh "../build-mt/test/test.sqlite3 --report_level=detailed --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_sqlite3_test_log.xml"
                             }
+                            warnError('mt test.sqlite3.http failed') {
+                                sh "../build-mt/test/test.sqlite3.http --report_level=detailed --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_sqlite3_http_test_log.xml"
+                            }
                         }
                     }
                     post {

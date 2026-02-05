@@ -105,6 +105,15 @@ pipeline {
               }
             }
           }
+          stage('Test SQLite3_HTTP') {
+            steps {
+              dir('test') {
+                warnError('test.sqlite3.http failed') {
+                  sh "../build-shared-${env.SHARED_LIBS}/test/test.sqlite3.http --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/sqlite3_http_shared_${env.SHARED_LIBS}_test_log.xml"
+                }
+              }
+            }
+          }
         }
         post {
           success {

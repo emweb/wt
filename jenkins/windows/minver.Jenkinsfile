@@ -132,6 +132,27 @@ pipeline {
               }
             }
           }
+          stage('Test SQLite3_HTTP') {
+            steps {
+              dir('test') {
+                warnError('test.sqlite3.http failed') {
+                  bat """
+                        set BuildDir=${env.WORKSPACE}\\build-shared-${env.SHARED_LIBS}
+                        set Path=C:\\Boost\\lib;%Path%
+                        set Path=%BuildDir%\\src;%Path%
+                        set Path=%BuildDir%\\src\\Wt\\Dbo;%Path%
+                        set Path=%BuildDir%\\src\\Wt\\Dbo\\backend;%Path%
+                        set Path=%BuildDir%\\src\\http;%Path%
+
+                        ..\\build-shared-${env.SHARED_LIBS}\\test\\test.sqlite3.http ^
+                          --log_format=JUNIT ^
+                          --log_level=all ^
+                          --log_sink=${env.WORKSPACE}/sqlite3_http_shared_${env.SHARED_LIBS}_test_log.xml
+                      """;
+                }
+              }
+            }
+          }
         }
         post {
           success {
