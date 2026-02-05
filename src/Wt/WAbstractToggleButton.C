@@ -396,9 +396,6 @@ void WAbstractToggleButton::setFormData(const FormData& formData)
     else
       state_ = formData.values[0] != "0" ?
         CheckState::Checked : CheckState::Unchecked;
-  else
-    if (isEnabled() && isVisible())
-      state_ = CheckState::Unchecked;
 }
 
 void WAbstractToggleButton::getFormObjects(FormObjectsMap& formObjects)

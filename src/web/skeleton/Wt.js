@@ -2673,8 +2673,8 @@ window._$_APP_CLASS_$_ = new (function() {
       } else if (el.type === "checkbox" || el.type === "radio") {
         if (el.indeterminate || el.style.opacity === "0.5") {
           v = "i";
-        } else if (el.checked) {
-          v = el.value;
+        } else {
+          v = el.checked ? "1" : "0";
         }
       } else if (el.type !== "file") {
         if (el.classList.contains("Wt-edit-emptyText")) {
