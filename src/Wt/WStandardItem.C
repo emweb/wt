@@ -792,7 +792,7 @@ void WStandardItem::removeRows(int row, int count)
 
     if (c.empty()) {
       columnsToRemove.push_back(i);
-      columns_->erase(columns_->begin() + i);
+      removeColumn(i);
     }
   }
 
