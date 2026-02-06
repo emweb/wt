@@ -408,6 +408,10 @@ DomElement *FlexLayoutImpl::createDomElement(DomElement *parent,
     elId_ = id();
     result->setId(elId_);
     result->setProperty(Property::StyleDisplay, styleDisplay());
+    Property overflow = getOrientation() == Orientation::Horizontal ?
+        Property::StyleOverflowX :
+        Property::StyleOverflowY;
+    result->setProperty(overflow, "hidden");
     if (!objectName().empty()) {
       result->setAttribute("data-object-name", objectName());
     }

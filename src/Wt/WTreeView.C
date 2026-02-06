@@ -1067,6 +1067,7 @@ void WTreeView::setup()
     layout->addWidget(std::unique_ptr<WWidget>(contentsContainer_), 1);
 
     impl_->setLayout(std::move(layout));
+    impl_->setOverflow(Overflow::Hidden);
   } else {
     contentsContainer_ = new WContainerWidget();
     contentsContainer_->addWidget(std::unique_ptr<WWidget>(contents_));
