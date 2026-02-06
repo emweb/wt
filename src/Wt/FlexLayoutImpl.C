@@ -115,12 +115,14 @@ void FlexLayoutImpl::updateDom(DomElement& parent)
 
   for (unsigned i = 0; i < childLayouts_.size(); ++i) {
     bool justAdded = false;
-    WLayoutItem *childItem = childLayouts_[i]->layoutItem();
     for (unsigned j = 0; j < addedItems_.size() && !justAdded; ++j) {
-      justAdded = childItem == addedItems_[j];
+      justAdded = childLayouts_[i] == addedItems_[j];
     }
     if (!justAdded) {
-      childLayouts_[i]->updateDom(*div);
+      StdLayoutImpl* item = getStdLayoutImpl(childLayouts_[i]);
+      if (item) {
+        item->updateDom(*div);
+      }
     }
   }
 
@@ -316,7 +318,7 @@ void FlexLayoutImpl::itemAdded(WLayoutItem *item)
   addedItems_.push_back(item);
   StdLayoutImpl* child = getStdLayoutImpl(item);
   if (child) {
-    childLayouts_.push_back(child);
+    childLayouts_.push_back(item);
   }
   update();
 }
@@ -324,10 +326,7 @@ void FlexLayoutImpl::itemAdded(WLayoutItem *item)
 void FlexLayoutImpl::itemRemoved(WLayoutItem *item)
 {
   Utils::erase(addedItems_, item);
-  StdLayoutImpl* child = getStdLayoutImpl(item);
-  if (child) {
-    Utils::erase(childLayouts_, child);
-  }
+  Utils::erase(childLayouts_, item);
   removedItems_.push_back(getImpl(item)->id());
   update();
 }

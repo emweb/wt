@@ -50,7 +50,7 @@ private:
   std::vector<WLayoutItem *> addedItems_;
   std::vector<WLayoutItem *> resizedItems_;
   std::vector<std::string> removedItems_;
-  std::vector<StdLayoutImpl *> childLayouts_;
+  std::vector<WLayoutItem *> childLayouts_;
   std::string elId_;
   bool canAdjustLayout_;
 
