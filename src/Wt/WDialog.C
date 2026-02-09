@@ -9,6 +9,7 @@
 #include "Wt/WDialog.h"
 #include "Wt/WEnvironment.h"
 #include "Wt/WException.h"
+#include "Wt/WLogger.h"
 #include "Wt/WVBoxLayout.h"
 #include "Wt/WPushButton.h"
 #include "Wt/WTemplate.h"
@@ -28,6 +29,8 @@
 #endif
 
 namespace Wt {
+
+  LOGGER("WDialog");
 
 class DialogCover : public WContainerWidget
 {
@@ -450,8 +453,10 @@ void WDialog::render(WFlags<RenderFlag> flags)
     if (isThemeStyleEnabled()) {
       layoutContainer_->toggleStyleClass("movable", movable_);
     }
-    caption_->setCondition("if:theme-style-enabled", isThemeStyleEnabled());
-    caption_->setCondition("if:theme-style-disabled", !isThemeStyleEnabled());
+    if (caption_) {
+      caption_->setCondition("if:theme-style-enabled", isThemeStyleEnabled());
+      caption_->setCondition("if:theme-style-disabled", !isThemeStyleEnabled());
+    }
   }
 
   if (!isModal())
@@ -476,12 +481,22 @@ void WDialog::rejectWhenEscapePressed(bool enable)
 
 void WDialog::setWindowTitle(const WString& windowTitle)
 {
+  if (titleBar_->layout()) {
+    LOG_WARN("Cannot set window title when a layout is set on the title bar");
+    return;
+  }
+
+  if (!caption_) {
+    caption_ = titleBar_->addNew<WTemplate>(tr("Wt.WDialog.titlebar"));
+    caption_->addFunction("block", &WTemplate::Functions::block);
+  }
+
   caption_->bindString("title", windowTitle, TextFormat::Plain);
 }
 
 WString WDialog::windowTitle() const
 {
-  return caption_->resolveStringValue("title");
+  return caption_ ? caption_->resolveStringValue("title") : WString();
 }
 
 void WDialog::setTitleBarEnabled(bool enable)
@@ -495,6 +510,11 @@ void WDialog::setClosable(bool closable)
     return;
   }
 
+  if (titleBar_->layout()) {
+    LOG_WARN("Cannot make the dialog closable when a layout is set on the title bar");
+    return;
+  }
+
   if (closable) {
     auto theme = WApplication::instance()->theme();
     if (std::dynamic_pointer_cast<WBootstrap5Theme>(theme)) {
@@ -502,10 +522,10 @@ void WDialog::setClosable(bool closable)
     } else {
       closeIcon_ = titleBar_->insertWidget(0, std::make_unique<WText>());
     }
-    theme->apply(this, closeIcon_, DialogCloseIcon);
+    theme->apply(this, closeIcon_.get(), DialogCloseIcon);
     closeIcon_->clicked().connect(this, &WDialog::reject);
   } else {
-    titleBar_->removeWidget(closeIcon_);
+    titleBar_->removeWidget(closeIcon_.get());
     closeIcon_ = nullptr;
   }
 }

@@ -162,6 +162,8 @@ public:
    *
    * The window title is displayed in the title bar.
    *
+   * \note See the note of \ref titleBar.
+   *
    * \sa setTitleBarEnabled()
    */
   void setWindowTitle(const WString& title);
@@ -189,6 +191,13 @@ public:
    * The title bar contains a single text that contains the
    * caption. You may customize the title bar by for example adding
    * other content.
+   *
+   * \note Some functionality of WDialog such as setWindowTitle() and
+   *       setClosable() rely on widgets being added to the title bar.
+   *       These widgets are automatically created by Wt, if no custom
+   *       layout is specified. When the title bar is cleared (e.g. by
+   *       adding a layout to it), these functionalities will be
+   *       disabled.
    */
   WContainerWidget *titleBar() const { return titleBar_; }
 
@@ -329,12 +338,14 @@ public:
    *
    * The close button is shown in the title bar. Clicking the close button
    * will reject the dialog.
+   *
+   * \note See the note of \ref titleBar.
    */
   void setClosable(bool closable);
 
   /*! \brief Returns whether the dialog can be closed.
    */
-  bool closable() const { return closeIcon_ != nullptr; }
+  bool closable() const { return closeIcon_.get(); }
 
   /*! \brief Set focus on the first widget in the dialog.
    *
@@ -442,8 +453,8 @@ protected:
 
 private:
   WTemplate *impl_;
-  WTemplate *caption_;
-  WInteractWidget *closeIcon_;
+  observing_ptr<WTemplate> caption_;
+  observing_ptr<WInteractWidget> closeIcon_;
   WContainerWidget *titleBar_;
   WContainerWidget *contents_;
   WContainerWidget *layoutContainer_;
