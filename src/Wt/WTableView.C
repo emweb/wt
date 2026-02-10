@@ -1975,16 +1975,19 @@ int WTableView::renderedColumnsCount() const
 
 WWidget *WTableView::itemWidget(const WModelIndex& index) const
 {
-  if ((index.column() < headerColumnsTable_->count() || isColumnRendered(index.column())) &&
+  const int columnCount = ajaxMode() ? headerColumnsTable_->count() : plainTable_->columnCount();
+
+  if ((index.column() < columnCount || isColumnRendered(index.column())) &&
       isRowRendered(index.row()))
   {
     int renderedRow = index.row() - firstRow();
     int renderedCol;
 
-    if (index.column() < headerColumnsTable_->count())
+    if (index.column() < columnCount) {
       renderedCol = index.column();
-    else
-      renderedCol = headerColumnsTable_->count() + index.column() - firstColumn();
+    } else {
+      renderedCol = columnCount + index.column() - firstColumn();
+    }
 
     if (ajaxMode()) {
       ColumnWidget *column = columnContainer(renderedCol);
