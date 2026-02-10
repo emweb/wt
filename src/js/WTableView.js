@@ -85,18 +85,34 @@ WT_DECLARE_WT_MEMBER(
       maybeEmitScrolled();
     };
 
-    contentsContainer.wtResize = function(o, w, h, _setSize) {
+    contentsContainer.wtResize = function(o, _w, _h, _setSize) {
       if (!initialScrollTopSet) {
         o.scrollTop = initialScrollTop;
         o.onscroll();
         initialScrollTopSet = true;
       }
+
+      // Set the height of the contentscontainer to fit the size of the wrapping table.
+      const height = headerContainer.offsetHeight;
+      const avoidBorderOverlapOffset = 2;
+      const parentHeight = headerContainer.closest(".Wt-tableview").offsetHeight - avoidBorderOverlapOffset;
+      const newHeight = parentHeight - height;
+
+      contentsContainer.style.height = newHeight + "px";
+
+      // Set the width of the contentscontainer to fit the size of the wrapping table.
+      const width = headerColumnsContainer.offsetWidth;
+      const parentWidth = headerContainer.closest(".Wt-tableview").offsetWidth - avoidBorderOverlapOffset;
+      const newWidth = parentWidth - width;
+
+      contentsContainer.style.width = newWidth + "px";
+
       if (
-        (w - currentWidth) > (scrollX2 - scrollX1) / 2 ||
-        (h - currentHeight) > (scrollY2 - scrollY1) / 2
+        (newWidth - currentWidth) > (scrollX2 - scrollX1) / 2 ||
+        (newHeight - currentHeight) > (scrollY2 - scrollY1) / 2
       ) {
-        currentWidth = w;
-        currentHeight = h;
+        currentWidth = newWidth;
+        currentHeight = newHeight;
         const height = o.clientHeight === o.firstChild.offsetHeight ?
           -1 :
           o.clientHeight;
@@ -109,19 +125,6 @@ WT_DECLARE_WT_MEMBER(
           Math.round(height)
         );
       }
-
-      // Set the height of the contentscontainer to fit the size of the wrapping table.
-      const height = headerContainer.offsetHeight;
-      const avoidBorderOverlapOffset = 2;
-      const parentHeight = headerContainer.closest(".Wt-tableview").offsetHeight - avoidBorderOverlapOffset;
-
-      contentsContainer.style.height = parentHeight - height + "px";
-
-      // Set the width of the contentscontainer to fit the size of the wrapping table.
-      const width = headerColumnsContainer.offsetWidth;
-      const parentWidth = headerContainer.closest(".Wt-tableview").offsetWidth - avoidBorderOverlapOffset;
-
-      contentsContainer.style.width = parentWidth - width + "px";
     };
 
     function isSelected(item) {
