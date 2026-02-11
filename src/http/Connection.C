@@ -486,7 +486,8 @@ void Connection::handleWriteResponse(ReplyPtr reply)
         while (rcv_buffers_.size() > 1)
           rcv_buffers_.pop_front();
 
-        if (rcv_remaining_ < rcv_buffers_.back().data() + rcv_buffer_size_)
+        if (rcv_remaining_ >= rcv_buffers_.back().data() &&
+            rcv_remaining_ < rcv_buffers_.back().data() + rcv_buffer_size_)
           handleReadRequest0();
         else
           startAsyncReadRequest(rcv_buffers_.back(), KEEPALIVE_TIMEOUT);
