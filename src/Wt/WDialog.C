@@ -401,17 +401,6 @@ void WDialog::render(WFlags<RenderFlag> flags)
     bool centerX = offset(Side::Left).isAuto() && offset(Side::Right).isAuto(),
       centerY = offset(Side::Top).isAuto() && offset(Side::Bottom).isAuto();
 
-    /*
-     * Make sure layout adjusts to contents preferred width, especially
-     * important for IE workaround which uses static position scheme
-     */
-    if (app->environment().ajax())
-      if (width().isAuto())
-        if (maximumWidth().unit() == LengthUnit::Percentage ||
-            maximumWidth().toPixels() == 0)
-          impl_->resolveWidget("layout")->setMaximumSize(999999,
-                                                         maximumHeight());
-
     doJavaScript("new " WT_CLASS ".WDialog("
                  + app->javaScriptClass() + "," + jsRef()
                  + "," + titleBar_->jsRef()
