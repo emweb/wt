@@ -450,9 +450,12 @@ cpp17::any WItemDelegate::editState(WWidget *editor, WT_MAYBE_UNUSED const WMode
 {
   IndexContainerWidget *w =
       dynamic_cast<IndexContainerWidget *>(editor);
-  WLineEdit *lineEdit = dynamic_cast<WLineEdit *>(w->widget(0));
+  if (w) {
+    WLineEdit *lineEdit = dynamic_cast<WLineEdit *>(w->widget(0));
 
-  return cpp17::any(lineEdit->text());
+    return cpp17::any(lineEdit->text());
+  }
+  return {};
 }
 
 void WItemDelegate::setEditState(WWidget *editor, WT_MAYBE_UNUSED const WModelIndex& index,
@@ -460,9 +463,11 @@ void WItemDelegate::setEditState(WWidget *editor, WT_MAYBE_UNUSED const WModelIn
 {
   IndexContainerWidget *w =
       dynamic_cast<IndexContainerWidget *>(editor);
-  WLineEdit *lineEdit = dynamic_cast<WLineEdit *>(w->widget(0));
+  if (w) {
+    WLineEdit *lineEdit = dynamic_cast<WLineEdit *>(w->widget(0));
 
-  lineEdit->setText(cpp17::any_cast<WT_USTRING>(value));
+    lineEdit->setText(cpp17::any_cast<WT_USTRING>(value));
+  }
 }
 
 void WItemDelegate::setModelData(const cpp17::any& editState,
