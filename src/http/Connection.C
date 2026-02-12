@@ -290,6 +290,8 @@ void Connection::handleReadRequest(const Wt::AsioWrapper::error_code& e,
     handleReadRequest0();
   } else if (e != asio::error::operation_aborted &&
              e != asio::error::bad_descriptor) {
+    rcv_remaining_ = rcv_buffers_.back().data();
+    rcv_buffer_size_ = 0; // We don't care about the data.
     handleError(e);
   }
 }
@@ -413,6 +415,8 @@ void Connection::handleReadBody0(ReplyPtr reply,
   } else if (e != asio::error::operation_aborted
              && e != asio::error::bad_descriptor) {
     reply->consumeData(rcv_remaining_, rcv_remaining_, Request::Error);
+    rcv_remaining_ = rcv_buffers_.back().data();
+    rcv_buffer_size_ = 0; // We don't care about the data.
     handleError(e);
   }
 }
