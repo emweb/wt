@@ -380,6 +380,28 @@ BOOST_AUTO_TEST_CASE( http_client_server_test5 )
   }
 }
 
+BOOST_AUTO_TEST_CASE( http_client_server_test_incomplete_post_request_closed )
+{
+  Server server;
+  server.resource().setType(TestType::Continuation);
+  server.resource().delaySendingBody();
+
+  Http::Message msg;
+  msg.addHeader("Content-Type", "application/json");
+  msg.addHeader("Content-Length", "36");
+  msg.addBodyText("{\"name\": \"fuzz\", \"value\": \"test\"}");
+
+  BOOST_REQUIRE(server.start());
+
+  for (int i = 0; i < 10; ++i) {
+    Client client;
+    client.post("http://" + server.address() + "/api/data", msg);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    client.abort();
+    client.waitDone();
+  }
+}
+
 // Reserved example IP ranges:
 // - 192.0.2.0/24
 // - 198.51.100.0/24
