@@ -41,7 +41,7 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
  * Silk screen
  */
 .Wt-dialogcover {
-  background: rgb(204, 204, 204); 
+  background: rgb(204, 204, 204);
   height: 100%; width: 100%;
   top: 0px; left: 0px;
   position: fixed;
@@ -154,7 +154,7 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
   border: 0px;
   border-right: 1px solid #E0E0E0;
   border-bottom: 1px solid #E0E0E0;
-  border-top: 1px solid #E0E0E0;    
+  border-top: 1px solid #E0E0E0;
   line-height: 140%;
 }
 
@@ -265,6 +265,14 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
   font-size: 110%;
 }
 
+/*
+ * Fix dialog content being cut off see #14332
+ */
+.Wt-dialog .Wt-fill-width .body {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .Wt-dialog .body, .Wt-dialog .footer {
   padding: 4px 6px 4px;
 }
@@ -290,7 +298,7 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
   background-position: right -8px;
 }
 
-/* 
+/*
  * WMessageBox
  */
 .Wt-dialog .Wt-msgbox-icon {
@@ -429,7 +437,7 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
 
 .Wt-popupmenu li a {
   display: block;
-  padding: 2px 10px; 
+  padding: 2px 10px;
 }
 
 .Wt-popupmenu .Wt-padded {
@@ -603,7 +611,7 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
   background-image: url('spin-buttons-dn.png');
 }
 
-/* 
+/*
  * WSuggestionPopup
  */
 .Wt-suggest {

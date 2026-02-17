@@ -68,7 +68,7 @@
  * Custom collapse nav support
  */
 .navbar .nav-collapse {
-  display: block !important; 
+  display: block !important;
 }
 
 @media (max-width: 979px) {
@@ -148,6 +148,13 @@
   .modal-body {
     max-height: none; /* override max-height: 400px in Bootstrap */
   }
+
+  /*
+   * Fix dialog content being cut off see #14332
+   */
+  .Wt-fill-width > .modal-body {
+    width: 100%;
+  }
 }
 
 /*
@@ -188,7 +195,7 @@
   background: url(../splitter-h.png) no-repeat 50% 50% #EEE;
 }
 
-.Wt-hsh2, .Wt-vsh2, 
+.Wt-hsh2, .Wt-vsh2,
 .Wt-vrh2:hover, .Wt-hrh2:hover {
   background-color: @grayLight;
 }
@@ -727,7 +734,7 @@ body.Wt-rtl {
 
   .Wt-plaintable .Wt-tv-br {
     border-right: 0;
-  }  
+  }
 
   .Wt-tv-contents .Wt-tv-c, .Wt-plaintable td, .Wt-plaintable th {
     border-right: 1px solid @tableBorder;
@@ -1098,7 +1105,7 @@ body.Wt-rtl {
   span:hover {
     color: @white;
     background-color: @linkColor;
-  } 
+  }
 }
 
 /*

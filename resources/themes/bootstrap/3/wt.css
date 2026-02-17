@@ -140,6 +140,14 @@
   display: block;
 }
 
+/*
+ * Fix dialog content being cut off see #14332
+ */
+
+.Wt-fill-width > .modal-body {
+  width: 100%;
+}
+
 .modal-dialog .movable .modal-header {
   cursor: move;
 }

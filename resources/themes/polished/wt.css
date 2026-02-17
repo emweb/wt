@@ -261,6 +261,14 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
     background-position: right -13px;
 }
 
+/*
+ * Fix dialog content being cut off see #14332
+ */
+.Wt-dialog .Wt-fill-width .body {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .Wt-dialog .body, .Wt-dialog .footer {
     padding: 4px 6px;
 }
@@ -362,7 +370,7 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
     background-position: right center;
     transition: transform .3s ease-in-out;
 }
-  
+
 .Wt-collapsed .Wt-collapse-button {
     transform: rotate(-90deg);
 }
@@ -649,7 +657,7 @@ span.Wt-disabled, fieldset.Wt-disabled legend {
     background: url(slider-thumb-disabled.png) no-repeat scroll center;
 }
 
-/* 
+/*
  * WSuggestionPopup
  */
 .Wt-suggest {
@@ -1163,7 +1171,7 @@ body.Wt-rtl .Wt-treeview .Wt-header .Wt-tv-c {
     padding: 0px;
     margin-right: 7px;
 }
- 
+
 .Wt-treeview .Wt-scroll {
     overflow: auto;
     height: 22px;

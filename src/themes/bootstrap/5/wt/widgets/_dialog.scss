@@ -15,6 +15,11 @@
       cursor: move;
     }
 
+    // Fix dialog content being cut off see #14332
+    .Wt-fill-width > .modal-body {
+      width: 100%;
+    }
+
     // WMessageBox
     // Wt-specific classes: Wt-msgbox-body, Wt-msgbox-icon, Wt-msgbox-text
     .modal-content > .modal-body.Wt-msgbox-body {
