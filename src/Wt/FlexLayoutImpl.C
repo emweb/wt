@@ -128,16 +128,18 @@ void FlexLayoutImpl::updateDom(DomElement& parent)
 
   addedItems_.clear();
 
-  for (unsigned i = 0; i < resizedItems_.size(); ++i) {
-    WWidget *item = resizedItems_[i]->widget();
-    WStringStream method;
-    method << "layout.resizeItem("
-           << item->id() << ","
-           << '"' << item->width().cssText() << "\","
-           << '"' << item->height().cssText() << "\","
-           << ")";
+  if (canAdjustLayout_) {
+    for (unsigned i = 0; i < resizedItems_.size(); ++i) {
+      WWidget *item = resizedItems_[i]->widget();
+      WStringStream method;
+      method << "layout.resizeItem("
+            << item->id() << ","
+            << '"' << item->width().cssText() << "\","
+            << '"' << item->height().cssText() << "\","
+            << ")";
 
-    div->callMethod(method.str());
+      div->callMethod(method.str());
+    }
   }
 
   resizedItems_.clear();
