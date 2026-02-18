@@ -16,6 +16,7 @@ WT_DECLARE_WT_MEMBER(
     const self = this;
     const WT = APP.WT;
     const rtl = document.body.classList.contains("Wt-rtl");
+    const headerColumnsContainerId = headerColumnsContainer.id;
 
     const EnsureVisible = 0;
     const PositionAtTop = 1;
@@ -76,11 +77,13 @@ WT_DECLARE_WT_MEMBER(
     }
 
     this.onContentsContainerScroll = function() {
+      const headerColumnsContainerEl = WT.getElement(headerColumnsContainerId);
+
       scrollLeft =
         headerContainer.scrollLeft =
           contentsContainer.scrollLeft;
       scrollTop =
-        headerColumnsContainer.scrollTop =
+        headerColumnsContainerEl.scrollTop =
           contentsContainer.scrollTop;
       maybeEmitScrolled();
     };
@@ -92,6 +95,8 @@ WT_DECLARE_WT_MEMBER(
         initialScrollTopSet = true;
       }
 
+      const headerColumnsContainerEl = WT.getElement(headerColumnsContainerId);
+
       // Set the height of the contentscontainer to fit the size of the wrapping table.
       const height = headerContainer.offsetHeight;
       const avoidBorderOverlapOffset = 2;
@@ -101,7 +106,7 @@ WT_DECLARE_WT_MEMBER(
       contentsContainer.style.height = newHeight + "px";
 
       // Set the width of the contentscontainer to fit the size of the wrapping table.
-      const width = headerColumnsContainer.offsetWidth;
+      const width = headerColumnsContainerEl.offsetWidth;
       const parentWidth = headerContainer.closest(".Wt-tableview").offsetWidth - avoidBorderOverlapOffset;
       const newWidth = parentWidth - width;
 
@@ -181,12 +186,14 @@ WT_DECLARE_WT_MEMBER(
         delta = -delta;
       }
 
+      const headerColumnsContainerEl = WT.getElement(headerColumnsContainerId);
+
       const columnClass = header.className.split(" ")[0],
         columnId = columnClass.substring(7) * 1,
         headers = header.parentNode,
         headerColumn = headers.parentNode !== headerContainer,
         contents = headerColumn ?
-          headerColumnsContainer.firstChild :
+          headerColumnsContainerEl.firstChild :
           contentsContainer.firstChild,
         wt_tv_contents = contents.firstChild,
         column = contents.querySelector("." + columnClass),
@@ -202,8 +209,8 @@ WT_DECLARE_WT_MEMBER(
           cwidth;
 
       if (headerColumn) {
-        headerColumnsContainer.style.width = cwidth;
-        headerColumnsContainer.firstChild.style.width = cwidth;
+        headerColumnsContainerEl.style.width = cwidth;
+        headerColumnsContainerEl.firstChild.style.width = cwidth;
         contentsContainer.style.left = cwidth;
         headerContainer.style.left = cwidth;
       }
@@ -348,10 +355,11 @@ WT_DECLARE_WT_MEMBER(
     };
 
     this.resetScroll = function() {
+      const headerColumnsContainerEl = WT.getElement(headerColumnsContainerId);
       headerContainer.scrollLeft = scrollLeft;
       contentsContainer.scrollLeft = scrollLeft;
       contentsContainer.scrollTop = scrollTop;
-      headerColumnsContainer.scrollTop = scrollTop;
+      headerColumnsContainerEl.scrollTop = scrollTop;
     };
 
     this.setScrollToPending = function() {
@@ -647,6 +655,8 @@ WT_DECLARE_WT_MEMBER(
         return;
       }
 
+      const headerColumnsContainerEl = WT.getElement(headerColumnsContainerId);
+
       if (
         !WT.isIE && !isTouched &&
         (scrollTop !== contentsContainer.scrollTop ||
@@ -666,7 +676,7 @@ WT_DECLARE_WT_MEMBER(
             contentsContainer.scrollLeft =
               scrollLeft;
         }
-        headerColumnsContainer.scrollTop =
+        headerColumnsContainerEl.scrollTop =
           contentsContainer.scrollTop =
             scrollTop;
       }
@@ -676,7 +686,7 @@ WT_DECLARE_WT_MEMBER(
 
       const scrollwidth = contentsContainer.offsetWidth -
         contentsContainer.clientWidth;
-      tw -= headerColumnsContainer.clientWidth;
+      tw -= headerColumnsContainerEl.clientWidth;
 
       if (
         tw > 200 && // XXX: IE's incremental rendering foobars completely
@@ -698,7 +708,7 @@ WT_DECLARE_WT_MEMBER(
       const scrollheight = contentsContainer.offsetHeight -
         contentsContainer.clientHeight;
 
-      const pns = headerColumnsContainer.style;
+      const pns = headerColumnsContainerEl.style;
       if (pns && (pns.marginBottom !== scrollheight + "px")) {
         pns.marginBottom = scrollheight + "px";
         APP.layouts2.adjust(el.childNodes[0].id, [[1, 0]]);
