@@ -112,6 +112,11 @@ WT_DECLARE_WT_MEMBER(
 
       contentsContainer.style.width = newWidth + "px";
 
+      // Set the height of the headercolumnscontainer to fit the size of the wrapping table.
+      const scrollheight = contentsContainer.offsetHeight - contentsContainer.clientHeight;
+
+      headerColumnsContainerEl.style.height = newHeight - scrollheight + "px";
+
       if (
         (newWidth - currentWidth) > (scrollX2 - scrollX1) / 2 ||
         (newHeight - currentHeight) > (scrollY2 - scrollY1) / 2
