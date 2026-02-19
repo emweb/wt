@@ -51,10 +51,13 @@ WT_DECLARE_WT_MEMBER(
 
     this.defaultValue = defaultValue;
 
-    function isBS5() {
+    function isBS() {
       return typeof WT.theme === "object" &&
-        WT.theme.type === "bootstrap" &&
-        WT.theme.version === 5;
+        WT.theme.type === "bootstrap";
+    }
+
+    function isBS5() {
+      return isBS() && WT.theme.version === 5;
     }
 
     /* Checks if we are (still) assisting the given edit */
@@ -150,6 +153,9 @@ WT_DECLARE_WT_MEMBER(
         } catch (e) {
           return 28;
         }
+      } else if (isBS()) {
+        // Bootstrap 2 and 3 use a 20px wide dropdown icon
+        return 20;
       } else {
         return 16;
       }

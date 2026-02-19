@@ -43,6 +43,7 @@
 
 #ifndef WT_DEBUG_JS
 #include "js/BootstrapValidate.min.js"
+#include "js/Bootstrap3Theme.min.js"
 #endif
 
 namespace skeletons {
@@ -112,6 +113,8 @@ void WBootstrap3Theme::init(WApplication *app) const
 {
   app->builtinLocalizedStrings().useBuiltin(skeletons::BootstrapTheme_xml);
   app->builtinLocalizedStrings().useBuiltin(skeletons::Bootstrap3Theme_xml);
+
+  LOAD_JAVASCRIPT(app, "js/Bootstrap3Theme.js", "theme", wtjs3);
 }
 
 void WBootstrap3Theme::apply(WWidget *widget, DomElement& element,
