@@ -5,8 +5,6 @@
  */
 #include <Wt/WConfig.h>
 
-#ifdef WT_THREADED
-
 #include <boost/test/unit_test.hpp>
 #include <thread>
 
@@ -125,5 +123,3 @@ BOOST_AUTO_TEST_CASE( test_serverpush_test )
 
   environment.startRequest();
 }
-
-#endif // WT_THREADED

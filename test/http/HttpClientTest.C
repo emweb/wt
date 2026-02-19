@@ -6,8 +6,6 @@
 
 #include <Wt/WConfig.h>
 
-#ifdef WT_THREADED
-
 #include <boost/test/unit_test.hpp>
 #include <thread>
 #include <condition_variable>
@@ -39,7 +37,7 @@ namespace {
         doneCondition_.wait(guard);
     }
 
-    void reset() 
+    void reset()
     {
       done_ = false;
     }
@@ -145,7 +143,7 @@ BOOST_AUTO_TEST_CASE( http_client_test4 )
   TestFixture app(environment);
 
   environment.server()->ioService().start();
-  
+
   std::unique_ptr<Client> c(new Client());
   c->done().connect(std::bind(&TestFixture::onDone, &app,
                               std::placeholders::_1,
@@ -161,7 +159,7 @@ BOOST_AUTO_TEST_CASE( http_client_test4 )
 
   environment.server()->ioService().stop();
   environment.server()->ioService().start();
-  
+
   app.reset();
 
   if (c->get("https://" + ok)) {
@@ -202,5 +200,3 @@ BOOST_AUTO_TEST_CASE( http_client_test6 )
   BOOST_CHECK_EQUAL(url.port, 80);
   BOOST_CHECK_EQUAL(url.path, "/a/b/c");
 }
-
-#endif // WT_THREADED

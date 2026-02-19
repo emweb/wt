@@ -5,8 +5,6 @@
  */
 #include "Wt/WConfig.h"
 
-#ifdef WT_THREADED
-
 #include "Wt/cpp17/filesystem.hpp"
 
 #include "Wt/Http/Client.h"
@@ -1066,4 +1064,3 @@ BOOST_AUTO_TEST_CASE( bot_access_private_resource_on_bot_resources_allowed )
   BOOST_TEST(client.message().status() == 200);
   BOOST_TEST(client.message().body() == botResourceMessage);
 }
-#endif // WT_THREADED

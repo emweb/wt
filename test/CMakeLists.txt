@@ -1,4 +1,6 @@
 IF(ENABLE_LIBWTTEST)
+  # Tests source that do not require multi-threading.
+  # The tests requiring multi-threading are added conditionally below.
   SET(TEST_SOURCES
     test.C
     any/AnyTest.C
@@ -14,7 +16,6 @@ IF(ENABLE_LIBWTTEST)
     json/JsonSerializerTest.C
     json/JsonValueTest.C
     http/CookieTest.C
-    http/HttpClientTest.C
     formdelegate/WFormDelegate.C
     logger/ConcurentLoggingTest.C
     mail/MailClientTest.C
@@ -78,12 +79,19 @@ IF(ENABLE_LIBWTTEST)
     payment/MoneyTest.C
     locale/LocaleNumberTest.C
     trampoline/RefEncoder.C
-    testenvironment/TestEnvironmentTest.C
     signals/SignalTest.C
     wdatetime/WDateTimeTest.C
     web/DomElementTest.C
     web/RefEncoderTest.C
   )
+
+  if (MULTI_THREADED)
+    # Add tests that require multi-threading.
+    set(TEST_SOURCES ${TEST_SOURCES}
+      http/HttpClientTest.C
+      testenvironment/TestEnvironmentTest.C
+    )
+  endif()
 
   set(thirdpartysources
     test.C
@@ -253,11 +261,20 @@ IF(ENABLE_LIBWTTEST)
   ENDIF (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/interactive)
 
   IF(CONNECTOR_HTTP)
+    # Tests source that do not require multi-threading.
+    # The tests requiring multi-threading are added conditionally below.
     SET(HTTP_TEST_SOURCES
       test.C
-      http/HttpClientServerTest.C
-      http/BotTest.C
     )
+
+    if (MULTI_THREADED)
+      # Add tests that require multi-threading.
+      set(HTTP_TEST_SOURCES ${HTTP_TEST_SOURCES}
+        http/HttpClientServerTest.C
+        http/BotTest.C
+      )
+    endif()
+
     if (NOT (WT_CPP17_FILESYSTEM_IMPLEMENTATION STREQUAL "std" OR BOOST_FS_LIB))
       message(STATUS "** Not building test.http: requires std::filesystem or boost_filesystem library.")
     else()
@@ -285,10 +302,18 @@ IF(ENABLE_LIBWTTEST)
     if (NOT (WT_CPP17_FILESYSTEM_IMPLEMENTATION STREQUAL "std" OR BOOST_FS_LIB))
       message(STATUS "** Not building dbo-http tests: requires std::filesystem or boost_filesystem library.")
     else()
+      # Tests source that do not require multi-threading.
+      # The tests requiring multi-threading are added conditionally below.
       set(DBO_HTTP_TEST_SOURCES
         test.C
-        dbo/http/AuthDboHttpTest.C
       )
+
+      if (MULTI_THREADED)
+        # Add tests that require multi-threading.
+        set(DBO_HTTP_TEST_SOURCES ${DBO_HTTP_TEST_SOURCES}
+          dbo/http/AuthDboHttpTest.C
+        )
+      endif()
 
       set(DBO_HTTP_LIBS wt wtdbo wthttp ${WT_THREAD_LIB} ${BOOST_FS_LIB} ${BOOST_TEST_LIBRARIES})
 

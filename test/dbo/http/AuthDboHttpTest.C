@@ -6,8 +6,6 @@
 
 #include <Wt/WConfig.h>
 
-#ifdef WT_THREADED
-
 #include <boost/test/unit_test.hpp>
 
 #include <Wt/WAnchor.h>
@@ -299,5 +297,3 @@ BOOST_AUTO_TEST_CASE( auth_dbo_invalidate_session_id_on_logout_test )
 
   BOOST_TEST(sessionId != app->sessionId());
 }
-
-#endif // WT_THREADED

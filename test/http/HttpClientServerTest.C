@@ -5,8 +5,6 @@
  */
 #include <Wt/WConfig.h>
 
-#ifdef WT_THREADED
-
 #include <boost/test/unit_test.hpp>
 
 #include <Wt/WResource.h>
@@ -758,6 +756,3 @@ BOOST_AUTO_TEST_CASE( http_server_clean_close )
     }
   }
 }
-
-
-#endif // WT_THREADED
