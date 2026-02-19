@@ -239,6 +239,8 @@ void WSuggestionPopup::modelRowsInserted(const WModelIndex& parent,
     TextFormat format = index.flags().test(ItemFlag::XHTMLText) ?
       TextFormat::XHTML : TextFormat::Plain;
     WAnchor *anchor = line->addWidget(std::make_unique<WAnchor>());
+    // Void attach to prevent propagation (via Wt-no-default)
+    anchor->clicked().connect([] {});
     WText *value = anchor->addWidget(std::make_unique<WText>(asString(d), format));
 
     cpp17::any d2 = index.data(editRole_);
