@@ -642,6 +642,46 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_removeRows_full_test )
   BOOST_TEST(!model->item(0, 0));
 }
 
+BOOST_AUTO_TEST_CASE( WStandardItemModel_removeRows_with_header_full_test )
+{
+  // Test whether removing all rows does not impact the columns header
+
+  std::unique_ptr<WStandardItemModel> model = createPopulatedModel(2, 2);
+  model->setHeaderData(0, std::string("Header 1"));
+  model->setHeaderData(1, std::string("Header 2"));
+
+  // Check the header data is correct before removing rows
+  BOOST_REQUIRE(cpp17::any_cast<std::string>(model->headerData(0)) == "Header 1");
+  BOOST_REQUIRE(cpp17::any_cast<std::string>(model->headerData(1)) == "Header 2");
+
+  // Remove all rows
+  bool removed = model->removeRows(0, 2);
+
+  // Check the rows are removed and the header data are still correct
+  BOOST_REQUIRE(removed);
+  BOOST_REQUIRE(model->rowCount() == 0);
+  BOOST_REQUIRE(model->columnCount() == 2);
+
+  BOOST_TEST(cpp17::any_cast<std::string>(model->headerData(0)) == "Header 1");
+  BOOST_TEST(cpp17::any_cast<std::string>(model->headerData(1)) == "Header 2");
+
+  // Add a new row
+  std::vector<std::unique_ptr<WStandardItem>> newRow;
+  for (size_t c = 0; c < 2; ++c) {
+    auto item = std::make_unique<WStandardItem>();
+    item->setText(WString("Row:1 - Col: {1}").arg(c));
+    newRow.push_back(std::move(item));
+  }
+  model->appendRow(std::move(newRow));
+
+  // Check the new row is added and the header data are still correct
+  BOOST_REQUIRE(model->rowCount() == 1);
+  BOOST_REQUIRE(model->columnCount() == 2);
+
+  BOOST_TEST(cpp17::any_cast<std::string>(model->headerData(0)) == "Header 1");
+  BOOST_TEST(cpp17::any_cast<std::string>(model->headerData(1)) == "Header 2");
+}
+
 BOOST_AUTO_TEST_CASE( WStandardItemModel_removeRows_partial_test )
 {
   // Tests whether the model correctly removes a single row at the end
