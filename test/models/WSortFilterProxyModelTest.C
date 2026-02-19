@@ -291,7 +291,12 @@ namespace {
     model->removeRows(0, wrapper.getModelRows());
 
     BOOST_REQUIRE(model->rowCount() == 0);
-    BOOST_REQUIRE(model->columnCount() == 0);
+
+    if (wrapper.isListModel()) {
+      BOOST_REQUIRE(model->columnCount() == 0);
+    } else {
+      BOOST_REQUIRE(model->columnCount() == wrapper.getModelColumns());
+    }
 
     BOOST_CHECK_THROW(wrapper.get(0, 0), std::out_of_range);
   }

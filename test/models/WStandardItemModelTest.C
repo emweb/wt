@@ -637,7 +637,7 @@ BOOST_AUTO_TEST_CASE( WStandardItemModel_removeRows_full_test )
 
   BOOST_REQUIRE(removed);
   BOOST_REQUIRE(model->rowCount() == 0);
-  BOOST_REQUIRE(model->columnCount() == 0);
+  BOOST_REQUIRE(model->columnCount() == 2);
 
   BOOST_TEST(!model->item(0, 0));
 }
