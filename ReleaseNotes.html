@@ -24,18 +24,17 @@ behaviour.
 
 <p> Wt 4.12.3 is a patch release that addresses the following issues: </p>
 
+<dl class="section note">
+  <dt>CVE (ID pending)</dt>
+  <dd>
+    Addressed a Use-After-Free vulnerability in the <code>wthttp connector</code>. See
+    <a href="https://redmine.emweb.be/issues/14136" target="_blank">Issue #14136</a> for more details.
+    <br/>
+    We recommend anyone to upgrade live deployments of his application to the latest version.
+  </dd>
+</dl>
+
 <ul>
-  <li>
-    <b>wthttp security issue:</b>
-    Because of the following fix, we recommend anyone to upgrade live deployments of his application
-    to the latest version.
-    <ul>
-      <li>
-        <a href="https://redmine.emweb.be/issues/14136" target="_blank">Issue #14136</a>:
-        addressed a Use-After-Free vulnerability in the <code>wthttp connector</code>.
-      </li>
-    </ul>
-  </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14311" target="_blank">Issue #14311</a>:
     fixed missing boost dependency when building Wt with the flag <code>-DWT_CPP17_FILESYSTEM_IMPLEMENTATION="std"</code>.
