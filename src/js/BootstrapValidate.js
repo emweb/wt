@@ -42,7 +42,7 @@ WT_DECLARE_WT_MEMBER(2, JavaScriptFunction, "setValidationState", function(edit,
   let validClass = "Wt-valid";
   let invalidClass = "Wt-invalid";
   const theme = this.theme;
-  if (typeof theme === "object") {
+  if (typeof theme === "object" && theme.classes) {
     validClass = theme.classes.valid;
     invalidClass = theme.classes.invalid;
   }
