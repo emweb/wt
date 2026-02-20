@@ -26,33 +26,19 @@ behaviour.
 
 <ul>
   <li>
-    <a href="https://redmine.emweb.be/issues/14136" target="_blank">Issue #14136</a>:
-    fixed a use after free in <code>wthttp</code>.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14302" target="_blank">Issue #14302</a>:
-    fixed fatal error happening when changing the
-    <a href="namespaceWt.html#aeb0e4f49ce4a28d8ce9b0c6005027876" target="_blank">LayoutImplementation</a> of a sublayout in a flex layout.
+    <b>wthttp security issue:</b>
+    Because of the following fix, we recommend anyone to upgrade live deployments of his application
+    to the latest version.
+    <ul>
+      <li>
+        <a href="https://redmine.emweb.be/issues/14136" target="_blank">Issue #14136</a>:
+        addressed a Use-After-Free vulnerability in the <code>wthttp connector</code>.
+      </li>
+    </ul>
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14311" target="_blank">Issue #14311</a>:
     fixed missing boost dependency when building Wt with the flag <code>-DWT_CPP17_FILESYSTEM_IMPLEMENTATION="std"</code>.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/11875" target="_blank">Issue #11875</a>:
-    fixed <a href="classWt_1_1WTreeView.html" target="_blank">WTreeView<a>
-    taking all the available width when inside of a layout with
-    <a href="namespaceWt.html#aeb0e4f49ce4a28d8ce9b0c6005027876" target="_blank">Wt::LayoutImplementation::Flex</a>.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14300" target="_blank">Issue #14300</a>:
-    reverted empty columns in
-    <a href="classWt_1_1WStandardItemModel.html" target="_blank">WStandardItemModel</a> being automatically removed.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/12393" target="_blank">Issue #12393</a>:
-    <a href="classWt_1_1WLeafletMap.html" target="_blank">WLeafletMap</a>
-    no longer causes a JavaScript error when reloading the session after panning.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14065" target="_blank">Issue #14065</a>:
@@ -61,17 +47,25 @@ behaviour.
     in a session without ajax support.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/14094" target="_blank">Issue #14094</a>:
-    fixed vertical scrollbar being missplaced in
-    <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a>.
+    <a href="https://redmine.emweb.be/issues/14311" target="_blank">Issue #14311</a>:
+    fixed
+    <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> not taking the removal of the widgets in
+    its title bar into account, leading to segfaults when trying to access those widgets after they were removed.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/13855" target="_blank">Issue #13855</a>:
-    avoided a useless HTTP request being sent when the
-    <a href="classWt_1_1WTextEdit.html#a5952f46d2f8d21e2fd45135e29d5061d" target="_blank">WTextEdit is rendered</a>,
-    if the signal is not connected. The resulting error log, coming from the
-    <a href="classWt_1_1WApplication.html" target="_blank">WApplication</a>
-    trying to interpret the signal, is now avoided.
+    <a href="https://redmine.emweb.be/issues/14302" target="_blank">Issue #14302</a>:
+    fixed fatal error happening when changing the
+    <a href="namespaceWt.html#aeb0e4f49ce4a28d8ce9b0c6005027876" target="_blank">LayoutImplementation</a> of a sublayout in a flex layout.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/12393" target="_blank">Issue #12393</a>:
+    <a href="classWt_1_1WLeafletMap.html" target="_blank">WLeafletMap</a>
+    no longer causes a JavaScript error when reloading the session after panning.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14300" target="_blank">Issue #14300</a>:
+    reverted empty columns in
+    <a href="classWt_1_1WStandardItemModel.html" target="_blank">WStandardItemModel</a> being automatically removed.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14285" target="_blank">Issue #14285</a>:
@@ -82,10 +76,20 @@ behaviour.
     <a href="classWt_1_1WStandardItemModel.html" target="_blank">WStandardItemModel</a>.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/14311" target="_blank">Issue #14311</a>:
-    fixed
-    <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> not taking the removal of the widgets in
-    its title bar into account, leading to segfaults when trying to access those widgets after they were removed.
+    <a href="https://redmine.emweb.be/issues/11875" target="_blank">Issue #11875</a>:
+    fixed <a href="classWt_1_1WTreeView.html" target="_blank">WTreeView</a>
+    taking all the available width when inside of a layout with
+    <a href="namespaceWt.html#aeb0e4f49ce4a28d8ce9b0c6005027876" target="_blank">Wt::LayoutImplementation::Flex</a>.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14094" target="_blank">Issue #14094</a>:
+    fixed vertical scrollbar being missplaced in
+    <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a>.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14346" target="_blank">Issue #14346</a>:
+    ensured a <a href="classWt_1_1WSuggestionPopup.html" target="_blank">WSuggestionPopup</a>
+    no longer scrolls the page on selection.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14291" target="_blank">Issue #14291</a>:
@@ -95,9 +99,12 @@ behaviour.
     momentarily considered set to <code>Unchecked</code> on the server side when added to the page.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/14346" target="_blank">Issue #14346</a>:
-    ensured a <a href="classWt_1_1WSuggestionPopup.html" target="_blank">WSuggestionPopup</a>
-    no longer scrolls the page on selection.
+    <a href="https://redmine.emweb.be/issues/13855" target="_blank">Issue #13855</a>:
+    avoided a useless HTTP request being sent when the
+    <a href="classWt_1_1WTextEdit.html#a5952f46d2f8d21e2fd45135e29d5061d" target="_blank">WTextEdit</a>
+    is rendered, if the signal is not connected. The resulting error log, coming from the
+    <a href="classWt_1_1WApplication.html" target="_blank">WApplication</a>
+    trying to interpret the signal, is now avoided.
   </li>
 </ul>
 
