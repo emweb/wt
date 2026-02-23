@@ -120,6 +120,10 @@ private:
   /// Handle a request to resume the server.
   void handleResume();
 
+  /// Clear ssl and tcp listeners vectors.
+  /// No handle_accept() should be in the accept_strand_ when this is executed.
+  void removeAllListeners(bool restart);
+
   /// Expire sessions periodically for dedicated processes
   void expireSessions(Wt::AsioWrapper::error_code ec);
 

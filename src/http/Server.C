@@ -584,15 +584,14 @@ void Server::handleResume()
 {
   for (std::size_t i = 0; i < tcp_listeners_.size(); ++i)
     tcp_listeners_[i]->acceptor.close();
-  tcp_listeners_.clear();
 
 #ifdef HTTP_WITH_SSL
   for (std::size_t i = 0; i < ssl_listeners_.size(); ++i)
     ssl_listeners_[i]->acceptor.close();
-  ssl_listeners_.clear();
 #endif // HTTP_WITH_SSL
 
-  start();
+  wt_.ioService().post
+    (accept_strand_.wrap(std::bind(&Server::removeAllListeners, this, true)));
 }
 
 void Server::handleTcpAccept(const std::weak_ptr<TcpListener>& listener, const Wt::AsioWrapper::error_code& e)
@@ -658,15 +657,28 @@ void Server::handleStop()
   // will exit.
   for (std::size_t i = 0; i < tcp_listeners_.size(); ++i)
     tcp_listeners_[i]->acceptor.close();
-  tcp_listeners_.clear();
 
 #ifdef HTTP_WITH_SSL
   for (std::size_t i = 0; i < ssl_listeners_.size(); ++i)
     ssl_listeners_[i]->acceptor.close();
-  ssl_listeners_.clear();
 #endif // HTTP_WITH_SSL
 
   connection_manager_.stopAll();
+  wt_.ioService().post
+    (accept_strand_.wrap(std::bind(&Server::removeAllListeners, this, false)));
+}
+
+void Server::removeAllListeners(bool restart)
+{
+  tcp_listeners_.clear();
+
+#ifdef HTTP_WITH_SSL
+  ssl_listeners_.clear();
+#endif // HTTP_WITH_SSL
+
+  if (restart) {
+    start();
+  }
 }
 
 void Server::expireSessions(Wt::AsioWrapper::error_code ec)
