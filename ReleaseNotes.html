@@ -41,6 +41,10 @@ behaviour.
     wrongly returning unrendered widgets when used in plain HTML mode. This could then also lead to a segmentation fault when
     trying to modify the headers before the view was rendered.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14268" target="_blank">Issue #14268</a>:
+    fixed a use-after-free in the <code>wthttp connector</code> that could happen when closing the server.
+  </li>
 </ul>
 
 <p>Wt 4.12.6 also comes with the following improvements:</p>
