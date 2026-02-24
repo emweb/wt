@@ -64,7 +64,7 @@ void WRadioButton::setFormData(const FormData& formData)
   if (!Utils::isEmpty(formData.values)) {
     const std::string& value = formData.values[0];
 
-    if (value == id()) {
+    if (value == "1") {
       if (buttonGroup_) {
         buttonGroup_->uncheckOthers(this);
         state_ = CheckState::Checked;
