@@ -241,6 +241,9 @@ int WContainerWidget::indexOf(WWidget *widget) const
 
 WWidget *WContainerWidget::widget(int index) const
 {
+  if (index < 0 || index >= children_.size())
+    throw Wt::WException("WContainerWidget::widget: index " + std::to_string(index)
+      + " is out of range [0, " + std::to_string(children_.size()) + ")");
   return children_[index];
 }
 
