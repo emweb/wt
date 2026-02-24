@@ -1315,8 +1315,12 @@ WWidget* WTableView::headerWidget(int column, bool contentsOnly)
         result = headers_->widget(column - headerColumnsTable_->count());
     }
   } else
-    if (plainTable_ && column < plainTable_->columnCount())
-      result = plainTable_->elementAt(0, column)->widget(0);
+    if (plainTable_ && column < plainTable_->columnCount()) {
+      WTableCell *headerCell = plainTable_->elementAt(0, column);
+      if (headerCell->count() == 0)
+        return result;
+      result = headerCell->widget(0);
+    }
 
   if (result && contentsOnly)
     return result->find("contents");
