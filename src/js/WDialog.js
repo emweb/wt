@@ -131,17 +131,23 @@ WT_DECLARE_WT_MEMBER(
         }
 
         if (centerX) {
-          el.style.left = Math.round(
-            (ws.x - w) / 2 +
-              (WT.isIE6 ? document.documentElement.scrollLeft : 0)
+          el.style.left = Math.max(
+            0,
+            Math.round(
+              (ws.x - w) / 2 +
+                (WT.isIE6 ? document.documentElement.scrollLeft : 0)
+            )
           ) + "px";
           el.style.marginLeft = "0px";
         }
 
         if (centerY) {
-          el.style.top = Math.round(
-            (ws.y - h) / 2 +
-              (WT.isIE6 ? document.documentElement.scrollTop : 0)
+          el.style.top = Math.max(
+            0,
+            Math.round(
+              (ws.y - h) / 2 +
+                (WT.isIE6 ? document.documentElement.scrollTop : 0)
+            )
           ) + "px";
           el.style.marginTop = "0px";
         }
