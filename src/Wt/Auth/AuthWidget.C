@@ -367,7 +367,9 @@ void AuthWidget::onLoginChange()
           (model_->baseAuth()->authTokenCookieName());
       }
 #ifndef WT_TARGET_JAVA
-      WApplication::instance()->changeSessionId();
+      if (created_) { // do not do this if onLoginChange() is called from create()
+        WApplication::instance()->changeSessionId();
+      }
 #endif // WT_TARGET_JAVA
       model_->reset();
       createLoginView();
