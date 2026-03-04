@@ -434,7 +434,7 @@ void WTableView::setSpannerCount(const Side side, const int count)
     int total = 0;
     for (int i = rowHeaderCount(); i < count; i++)
       if (!columnInfo(i).hidden)
-        total += (int)columnInfo(i).width.toPixels() + 7;
+        total += columnWidthWithPadding(i);
     table_->setOffsets(total, Side::Left);
     firstColumn_ = count;
     break;
@@ -495,7 +495,7 @@ void WTableView::addSection(const Side side)
 
     if (!columnInfo(w->column()).hidden)
       table_->setOffsets(table_->offset(Side::Left).toPixels()
-                         - columnWidth(w->column()).toPixels() - 7, Side::Left);
+                         - columnWidthWithPadding(w->column()), Side::Left);
     else
       w->hide();
 
@@ -551,7 +551,7 @@ void WTableView::removeSection(const Side side)
 
     if (!columnInfo(w->column()).hidden)
       table_->setOffsets(table_->offset(Side::Left).toPixels()
-                         + columnWidth(w->column()).toPixels() + 7, Side::Left);
+                         + columnWidthWithPadding(w->column()), Side::Left);
     ++firstColumn_;
 
     for (int i = w->count() - 1; i >= 0; --i)
@@ -760,7 +760,7 @@ void WTableView::reset()
   int total = 0;
   for (int i = 0; i < columnCount(); ++i)
     if (!columnInfo(i).hidden)
-      total += (int)columnInfo(i).width.toPixels() + 7;
+      total += columnWidthWithPadding(i);
 
   headers_->setWidth(total);
   canvas_->resize(total, canvasHeight());
@@ -1075,7 +1075,7 @@ void WTableView::setColumnHidden(int column, bool hidden)
   if (columnInfo(column).hidden != hidden) {
     WAbstractItemView::setColumnHidden(column, hidden);
 
-    int delta = static_cast<int>(columnInfo(column).width.toPixels()) + 7;
+    int delta = columnWidthWithPadding(column);
     if (hidden)
       delta = -delta;
 
@@ -1209,18 +1209,19 @@ void WTableView::updateColumnOffsets()
 
   int totalRendered = 0;
   for (int i = 0; i < rowHeaderCount(); ++i) {
-    ColumnInfo ci = columnInfo(i);
+    const int widthWithPadding = columnWidthWithPadding(i);
+    const bool hidden = columnInfo(i).hidden;
 
     ColumnWidget *w = columnContainer(i);
     w->setOffsets(0, Side::Left);
     w->setOffsets(totalRendered, Side::Left);
     w->setWidth(0);
-    w->setWidth(ci.width.toPixels() + 7);
+    w->setWidth(widthWithPadding);
 
-    if (!columnInfo(i).hidden)
-      totalRendered += (int)ci.width.toPixels() + 7;
+    if (!hidden)
+      totalRendered += widthWithPadding;
 
-    w->setHidden(ci.hidden);
+    w->setHidden(hidden);
   }
 
   headerColumnsContainer_->setWidth(totalRendered);
@@ -1237,7 +1238,8 @@ void WTableView::updateColumnOffsets()
   totalRendered = 0;
   int total = 0;
   for (int i = rowHeaderCount(); i < columnCount(); ++i) {
-    ColumnInfo ci = columnInfo(i);
+    const int widthWithPadding = columnWidthWithPadding(i);
+    const bool hidden = columnInfo(i).hidden;
 
     if (i >= fc && i <= lc) {
       ColumnWidget *w = columnContainer(rowHeaderCount() + i - fc);
@@ -1245,16 +1247,16 @@ void WTableView::updateColumnOffsets()
       w->setOffsets(0, Side::Left);
       w->setOffsets(totalRendered, Side::Left);
       w->setWidth(0);
-      w->setWidth(ci.width.toPixels() + 7);
+      w->setWidth(widthWithPadding);
 
-      if (!columnInfo(i).hidden)
-        totalRendered += (int)ci.width.toPixels() + 7;
+      if (!hidden)
+        totalRendered += widthWithPadding;
 
-      w->setHidden(ci.hidden);
+      w->setHidden(hidden);
     }
 
-    if (!columnInfo(i).hidden)
-      total += (int)columnInfo(i).width.toPixels() + 7;
+    if (!hidden)
+      total += widthWithPadding;
   }
 
   double ch = canvasHeight();
@@ -1399,6 +1401,11 @@ void WTableView::shiftModelIndexColumns(int start, int count)
     selectionChanged().emit();
 }
 
+int WTableView::columnWidthWithPadding(int column) const
+{
+  return static_cast<int>(columnInfo(column).width.toPixels()) + 7;
+}
+
 void WTableView::modelColumnsInserted(const WModelIndex& parent,
                                       int start, int end)
 {
@@ -1410,7 +1417,7 @@ void WTableView::modelColumnsInserted(const WModelIndex& parent,
 
   for (int i = start; i < start + count; ++i) {
     columns_.insert(columns_.begin() + i, createColumnInfo(i));
-    width += (int)columnInfo(i).width.toPixels() + 7;
+    width += columnWidthWithPadding(i);
   }
 
   shiftModelIndexColumns(start, end - start + 1);
@@ -1450,7 +1457,7 @@ void WTableView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
 
   for (int i = start; i < start + count; ++i)
     if (!columnInfo(i).hidden)
-      width += (int)columnInfo(i).width.toPixels() + 7;
+      width += columnWidthWithPadding(i);
 
   WApplication *app = WApplication::instance();
   for (int i = start; i< start + count; ++i)
@@ -1732,17 +1739,17 @@ void WTableView::computeRenderedArea()
       if (columnInfo(i).hidden)
         continue;
 
-      int w = static_cast<int>(columnInfo(i).width.toPixels());
+      const int widthWithPadding = columnWidthWithPadding(i);
 
-      if (total <= left && left < total + w)
+      if (total <= left && left < total + widthWithPadding)
         renderedFirstColumn_ = i;
 
-      if (total <= right && right < total + w) {
+      if (total <= right && right < total + widthWithPadding) {
         renderedLastColumn_ = i;
         break;
       }
 
-      total += w + 7;
+      total += widthWithPadding;
     }
 
     assert(renderedLastColumn_ == -1
@@ -1904,7 +1911,7 @@ WModelIndex WTableView::translateModelIndex(bool headerColumns,
   if (headerColumns) {
     for (int i = 0; i < rowHeaderCount(); ++i) {
       if (!columnInfo(i).hidden)
-        total += static_cast<int>(columnInfo(i).width.toPixels()) + 7;
+        total += columnWidthWithPadding(i);
 
       if (event.widget().x < total) {
         column = i;
@@ -1914,7 +1921,7 @@ WModelIndex WTableView::translateModelIndex(bool headerColumns,
   } else {
     for (int i = rowHeaderCount(); i < columnCount(); i++) {
       if (!columnInfo(i).hidden)
-        total += static_cast<int>(columnInfo(i).width.toPixels()) + 7;
+        total += columnWidthWithPadding(i);
 
       if (event.widget().x < total) {
         column = i;
@@ -1938,7 +1945,7 @@ WModelIndex WTableView::translateModelIndex(const Touch& touch)
 
   for (int i = rowHeaderCount(); i < columnCount(); i++) {
     if (!columnInfo(i).hidden)
-      total += static_cast<int>(columnInfo(i).width.toPixels()) + 7;
+      total += columnWidthWithPadding(i);
 
     if (touch.widget().x < total) {
       column = i;
