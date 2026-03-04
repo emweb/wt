@@ -213,7 +213,7 @@ async def go_over_menu(driver):
               print(entry)
 
       # Firefox
-      except WebDriverException:
+      except AttributeError:
         if len(capturedProblem) > 0:
           for line in capturedProblem:
             print("PROBLEM: {0}".format(line))
