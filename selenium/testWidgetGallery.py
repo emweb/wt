@@ -178,7 +178,7 @@ async def go_over_menu(driver):
                }
   check_moved_page(driver, titleValue)
 
-  main_menu = driver.find_element(By.CLASS_NAME, 'nav')
+  main_menu = driver.find_element(By.XPATH, '//div[@class="wg-sidebar"]/ul[contains(@class, "nav")]')
   main_menu_items = main_menu.find_elements(By.XPATH, 'child::li')
   for main_item in main_menu_items:
     sub_menu = main_item.find_element(By.CLASS_NAME, 'submenu')
