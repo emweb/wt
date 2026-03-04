@@ -106,6 +106,8 @@ def execute_test(driver, url):
 
   try:
     driver.get(url)
+    # Ensure the menu is fully visible
+    driver.set_window_size(1920, 1080)
     returnValue = trio.run(go_over_menu, driver)
 
   finally:
