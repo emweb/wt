@@ -34,6 +34,13 @@ behaviour.
     <a href="https://redmine.emweb.be/issues/14395" target="_blank">Issue #14395</a>:
     added the scope to some <code>target_compile_definitions</code> where they were missing.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14376" target="_blank">Issue #14376</a>:
+    fixed
+    <a href="classWt_1_1WTableView.html#a4e5900e1c92219763c7b5d4a9e1ac2c5" target="_blank">WTableView::itemWidget()</a>
+    wrongly returning unrendered widgets when used in plain HTML mode. This could then also lead to a segmentation fault when
+    trying to modify the headers before the view was rendered.
+  </li>
 </ul>
 
 <h2>Release 4.12.5 (March 3, 2026)</h2>
