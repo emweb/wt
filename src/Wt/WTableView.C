@@ -1992,8 +1992,10 @@ WWidget *WTableView::itemWidget(const WModelIndex& index) const
     if (ajaxMode()) {
       ColumnWidget *column = columnContainer(renderedCol);
       return column->widget(renderedRow);
+    } else if (renderedCol < plainTable_->columnCount()) {
+      return  plainTable_->elementAt(renderedRow + 1, renderedCol);
     } else {
-      return plainTable_->elementAt(renderedRow + 1, renderedCol);
+      return nullptr;
     }
   } else
     return nullptr;
