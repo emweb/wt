@@ -10,6 +10,8 @@
 
 #include <optional>
 #include <Python.h>
+#include <iostream>
+#include <optional>
 #include <string>
 
 #define val(x) #x
@@ -48,6 +50,10 @@ namespace Selenium {
     PyObject* getWebdriverModule() { return webdriverModule_; }
     //! Returns the by module
     PyObject* getByModule() { return byModule_; }
+    //! Returns the wait module
+    PyObject* getWaitModule() { return waitModule_; }
+    //! Returns the expected conditions module
+    PyObject* getExpectedConditionsModule() { return expectedConditionsModule_; }
 
     ~PythonInterpreter()
     {
@@ -201,7 +207,9 @@ namespace Selenium {
   private:
     PythonInterpreter()
       : webdriverModule_(nullptr),
-        byModule_(nullptr)
+        byModule_(nullptr),
+        waitModule_(nullptr),
+        expectedConditionsModule_(nullptr)
     {
       initializePython();
       importModules();
@@ -254,10 +262,26 @@ namespace Selenium {
         PyErr_Clear();
         throw new InterpreterException("Failed to import selenium.webdriver.common.by");
       }
+
+      waitModule_ = PyImport_ImportModule("selenium.webdriver.support.wait");
+      if (!waitModule_) {
+        PyErr_Print();
+        PyErr_Clear();
+        throw new InterpreterException("Failed to import selenium.webdriver.support.wait");
+      }
+
+      expectedConditionsModule_ = PyImport_ImportModule("selenium.webdriver.support.expected_conditions");
+      if (!expectedConditionsModule_) {
+        PyErr_Print();
+        PyErr_Clear();
+        throw new InterpreterException("Failed to import selenium.webdriver.support.expected_conditions");
+      }
     }
 
     PyObject* webdriverModule_;
     PyObject* byModule_;
+    PyObject* waitModule_;
+    PyObject* expectedConditionsModule_;
   };
 }
 
