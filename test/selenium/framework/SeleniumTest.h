@@ -32,12 +32,7 @@ namespace Selenium {
   class SeleniumTest
   {
   public:
-    enum class Browser {
-      Chrome,
-      Firefox
-    };
-
-    SeleniumTest(Browser browser = Browser::Chrome,
+    SeleniumTest(SeleniumAPI::Browser browser = SeleniumAPI::Browser::Chrome,
                 const std::string& docroot = ".")
       : fixture_(docroot), browser_(browser)
     {
@@ -66,14 +61,37 @@ namespace Selenium {
       return fixture_.url();
     }
 
+    /*! \brief Initialize the API.
+     *
+     * This sets up the browser connection, and waits for the initial page to be
+     * loaded.
+     */
+    SeleniumAPI& api()
+    {
+      if (!api_) {
+        api_ = std::make_unique<SeleniumAPI>();
+        if (!api_->setupBrowser(fixture_.url(), browser_)) {
+          throw std::runtime_error("Failed to setup browser");
+        }
+        if (!api_->waitForPageLoad()) {
+          throw std::runtime_error("Failed to load page");
+        }
+      }
+      return *api_;
+    }
+
     ~SeleniumTest()
     {
+      if (api_) {
+        api_->cleanup();
+      }
       stopServer();
     }
 
   private:
+    std::unique_ptr<SeleniumAPI> api_;
     SeleniumFixture fixture_;
-    Browser browser_;
+    SeleniumAPI::Browser browser_;
   };
 }
 
