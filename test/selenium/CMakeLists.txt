@@ -29,6 +29,11 @@ if(ENABLE_LIBWTTEST AND ENABLE_SELENIUM_TESTS)
     execute_process(COMMAND ${CMAKE_SOURCE_DIR}/test/selenium/python-env/bin/python3 -m pip install selenium)
   endif()
 
+  # Add Selenium test source files
+  set(SELENIUM_TEST_SOURCES
+    ../test.C # Have correct boost headers included
+  )
+
   # Create test executable
   add_executable(test.selenium ${SELENIUM_TEST_SOURCES})
   set_target_properties(test.selenium PROPERTIES FOLDER "test/selenium")
