@@ -182,5 +182,11 @@ The current list consists of:
     <td>boost</td>
     <td>It is possible to use the standalone version of Asio (Asio 1.12.0 or higher) instead of the one in the Boost library. This can be configured by <strong>WT_ASIO_IMPLEMENTATION</strong> (<strong>boost/standalone</strong>). If standalone Asio is not installed in a default location, its prefix needs to be specified with <strong>ASIO_PREFIX</strong> (as a path).</td>
   </tr>
+  <tr>
+    <td><a href="https://www.python.org/" target="_blank">Python3</a></td>
+    <td>ENABLE_SELENIUM_TESTS</td>
+    <td>OFF</td>
+    <td>This enables or disables <a href="https://www.selenium.dev/" target="_blank">Selenium</a> tests. This framework will call upon Python3, inside its own virtual environment, to actually run the tests. If Python3 is not installed in a default location, its prefix needs to be specified with <strong>Python3_ROOT_DIR</strong> (as a path).</td>
+  </tr>
 </table>
 //! [OptDep]
