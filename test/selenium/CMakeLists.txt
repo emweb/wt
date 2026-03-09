@@ -33,6 +33,7 @@ if(ENABLE_LIBWTTEST AND ENABLE_SELENIUM_TESTS)
   set(SELENIUM_TEST_SOURCES
     ../test.C # Have correct boost headers included
     ElementTest.C
+    InteractionTest.C
     LocatorTest.C
     SetupTest.C
   )
