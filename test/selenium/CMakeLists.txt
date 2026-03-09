@@ -36,6 +36,7 @@ if(ENABLE_LIBWTTEST AND ENABLE_SELENIUM_TESTS)
     InteractionTest.C
     LocatorTest.C
     SetupTest.C
+    widgets/WText.C
   )
 
   # Create test executable
