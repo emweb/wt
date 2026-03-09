@@ -8,6 +8,7 @@
 
 #include "SeleniumAPI.h"
 #include "SeleniumFixture.h"
+#include "SeleniumWait.h"
 
 #include <boost/test/unit_test.hpp>
 

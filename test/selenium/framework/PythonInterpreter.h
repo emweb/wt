@@ -8,10 +8,9 @@
 
 #include <Wt/WException.h>
 
+#include <functional>
 #include <optional>
 #include <Python.h>
-#include <iostream>
-#include <optional>
 #include <string>
 
 #define val(x) #x
@@ -118,6 +117,58 @@ namespace Selenium {
       return result;
     }
 
+    // Deallocates the condition (from self)
+    static void conditionDealloc(PyObject* self)
+    {
+      ConditionWrapper* wrapper = reinterpret_cast<ConditionWrapper*>(self);
+      if (wrapper->condition) {
+        delete wrapper->condition;
+      }
+      Py_TYPE(self)->tp_free(self);
+    }
+
+    // Creates the actual condition from the provided function.
+    static PyObject* createConditionCallable(const std::function<bool()>& condition)
+    {
+      static PyTypeObject conditionType = {
+        PyVarObject_HEAD_INIT(NULL, 0)
+        "SeleniumCondition",           /* tp_name */
+        sizeof(ConditionWrapper),      /* tp_basicsize */
+        0,                             /* tp_itemsize */
+        conditionDealloc,              /* tp_dealloc */
+        0,                             /* tp_print */
+        0,                             /* tp_getattr */
+        0,                             /* tp_setattr */
+        0,                             /* tp_reserved */
+        0,                             /* tp_repr */
+        0,                             /* tp_as_number */
+        0,                             /* tp_as_sequence */
+        0,                             /* tp_as_mapping */
+        0,                             /* tp_hash */
+        conditionCall,                 /* tp_call */
+        0,                             /* tp_str */
+        0,                             /* tp_getattro */
+        0,                             /* tp_setattro */
+        0,                             /* tp_as_buffer */
+        Py_TPFLAGS_DEFAULT,            /* tp_flags */
+        "Condition wrapper",           /* tp_doc */
+      };
+
+      if (conditionType.tp_name && conditionType.tp_base == nullptr) {
+        if (PyType_Ready(&conditionType) < 0) {
+          return nullptr;
+        }
+      }
+
+      ConditionWrapper* wrapper = PyObject_New(ConditionWrapper, &conditionType);
+      if (!wrapper) {
+        return nullptr;
+      }
+
+      wrapper->condition = new std::function<bool()>(condition);
+      return reinterpret_cast<PyObject*>(wrapper);
+    }
+
     //! Convert PyObject to UTF-8 string (after type checking).
     static std::optional<std::string> asUTF8(PyObject* obj)
     {
@@ -174,6 +225,12 @@ namespace Selenium {
       PyErr_Print();
       PyErr_Clear();
       return false;
+    }
+
+    //! Converts an integer to a PyObject.
+    static PyObject* fromInt(int value)
+    {
+      return PyLong_FromLong(value);
     }
 
     //! Converts the PyObject to an integer (with type checking)
@@ -276,6 +333,31 @@ namespace Selenium {
         PyErr_Clear();
         throw new InterpreterException("Failed to import selenium.webdriver.support.expected_conditions");
       }
+    }
+
+    // Structure to hold the C++ function in Python object
+    struct ConditionWrapper {
+      PyObject_HEAD
+      std::function<bool()>* condition;
+    };
+
+    // Creates a call to the condition to self, given the arguments.
+    static PyObject* conditionCall(PyObject* self, PyObject* args, PyObject* kwargs)
+    {
+      ConditionWrapper* wrapper = reinterpret_cast<ConditionWrapper*>(self);
+      if (wrapper->condition) {
+        try {
+          bool result = (*wrapper->condition)();
+          if (result) {
+            Py_RETURN_TRUE;
+          } else {
+            Py_RETURN_FALSE;
+          }
+        } catch (...) {
+          Py_RETURN_FALSE;
+        }
+      }
+      Py_RETURN_FALSE;
     }
 
     PyObject* webdriverModule_;
