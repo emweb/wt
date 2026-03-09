@@ -6,6 +6,7 @@
 #include "framework/SeleniumTest.h"
 
 // This test ensures that the SeleniumFixture correctly sets up the
-// server.
+// server, it will call for the API initialization, and load the
+// initial page.
 SELENIUM_TEST(selenium_setup, Wt::WApplication)
 END_SELENIUM_TEST

@@ -18,6 +18,9 @@ namespace Selenium {
     { \
       Selenium::SeleniumTest<app_type> test; \
       BOOST_REQUIRE(test.startServer()); \
+      auto& api = test.api(); \
+      \
+      (void)api; \
 
 #define END_SELENIUM_TEST \
     }
