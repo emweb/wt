@@ -37,8 +37,14 @@ WPushButton::WPushButton(const WString& text, TextFormat format)
 
 WPushButton::~WPushButton()
 {
-  if (popupMenu_)
+  if (popupMenu_) {
     popupMenu_->setButton(nullptr);
+#ifdef WT_TARGET_JAVA
+    WPopupMenu* menu = popupMenu_.release();
+    delete menu;
+    popupMenu_.reset();
+#endif
+  }
 }
 
 bool WPushButton::setText(const WString& text)
