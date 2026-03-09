@@ -32,6 +32,7 @@ if(ENABLE_LIBWTTEST AND ENABLE_SELENIUM_TESTS)
   # Add Selenium test source files
   set(SELENIUM_TEST_SOURCES
     ../test.C # Have correct boost headers included
+    SetupTest.C
   )
 
   # Create test executable
