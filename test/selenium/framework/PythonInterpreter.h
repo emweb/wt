@@ -46,6 +46,8 @@ namespace Selenium {
 
     //! Returns the webdriver module
     PyObject* getWebdriverModule() { return webdriverModule_; }
+    //! Returns the by module
+    PyObject* getByModule() { return byModule_; }
 
     ~PythonInterpreter()
     {
@@ -139,9 +141,67 @@ namespace Selenium {
       return pyStr;
     }
 
+    //! Gets the value of the dictionary \p obj with key \p value
+    static PyObject* getDictionary(PyObject* obj, const std::string& value)
+    {
+      PyObject* result = PyDict_GetItemString(obj, value.c_str());
+      if (!result) {
+        throw new InterpreterException("Failed to retrieve dictionary value: " + value);
+      }
+
+      // "Hack" since dictionary retrievals are non-owned.
+      Py_INCREF(result);
+      return result;
+    }
+
+    //! Converts the PyObject to a bool (with type checking)
+    static bool asBool(PyObject* obj)
+    {
+      if (PyBool_Check(obj)) {
+        return PyObject_IsTrue(obj);
+      }
+
+      if (obj == Py_None) {
+        return false;
+      }
+
+      PyErr_Print();
+      PyErr_Clear();
+      return false;
+    }
+
+    //! Converts the PyObject to an integer (with type checking)
+    static int asInt(PyObject* obj)
+    {
+      if (PyLong_Check(obj)) {
+        return static_cast<int>(PyLong_AsLong(obj));
+      }
+
+      if (PyFloat_Check(obj)) {
+        return static_cast<int>(PyFloat_AsDouble(obj));
+      }
+
+
+      if (obj == Py_None) {
+        return 0;
+      }
+
+      PyObject* intObj = PyNumber_Long(obj);
+      if (!intObj) {
+        PyErr_Print();
+        PyErr_Clear();
+        return 0;
+      }
+
+      long result = PyLong_AsLong(intObj);
+      Py_DECREF(intObj);
+      return static_cast<int>(result);
+    }
+
   private:
     PythonInterpreter()
-      : webdriverModule_(nullptr)
+      : webdriverModule_(nullptr),
+        byModule_(nullptr)
     {
       initializePython();
       importModules();
@@ -186,9 +246,18 @@ namespace Selenium {
         PyErr_Clear();
         throw new InterpreterException("Failed to imprort selenium.webdriver");
       }
+
+      // Import selenium.webdriver.common.by
+      byModule_ = PyImport_ImportModule("selenium.webdriver.common.by");
+      if (!byModule_) {
+        PyErr_Print();
+        PyErr_Clear();
+        throw new InterpreterException("Failed to import selenium.webdriver.common.by");
+      }
     }
 
     PyObject* webdriverModule_;
+    PyObject* byModule_;
   };
 }
 

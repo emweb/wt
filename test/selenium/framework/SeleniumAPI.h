@@ -8,6 +8,7 @@
 
 #include <Wt/WException.h>
 
+#include "Element.h"
 #include "PythonInterpreter.h"
 
 #include <chrono>
@@ -48,6 +49,34 @@ namespace Selenium {
       Chrome,
       Firefox
     };
+
+    enum class FindBy {
+      ID,
+      XPATH,
+      CSS_SELECTOR,
+      CLASS_NAME,
+      TAG_NAME,
+      NAME
+    };
+
+    static const char* findByToString(FindBy findBy) {
+      switch (findBy) {
+        case FindBy::ID:
+          return "ID";
+        case FindBy::XPATH:
+          return "XPATH";
+        case FindBy::CSS_SELECTOR:
+          return "CSS_SELECTOR";
+        case FindBy::CLASS_NAME:
+          return "CLASS_NAME";
+        case FindBy::TAG_NAME:
+          return "TAG_NAME";
+        case FindBy::NAME:
+          return "NAME";
+      }
+
+      return "";
+    }
 
     SeleniumAPI()
       : driver_(nullptr)
@@ -166,6 +195,69 @@ namespace Selenium {
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
       }
+    }
+
+    //! Returns the correct locator for the strategy.
+    PyObject* getLocator(FindBy findBy) const
+    {
+      PyObject* byModule = PythonInterpreter::instance().getByModule();
+      if (!byModule) {
+        return nullptr;
+      }
+
+      PyObject* byClass = PythonInterpreter::instance().getAttribute(byModule, "By");
+      if (!byClass) {
+        return nullptr;
+      }
+
+      auto locatorName = findByToString(findBy);
+      PyObject* locator = PythonInterpreter::instance().getAttribute(byClass, locatorName);
+      Py_DECREF(byClass);
+
+      return locator;
+    }
+
+    //! Retrieves the element identified by \p value with the \p findBy strategy.
+    std::optional<Element> getElement(FindBy findBy, const std::string& value)
+    {
+      if (!driver_) {
+        throw new APIException("Driver not initialized");
+      }
+
+      // Get the locator
+      PyObject* locator = getLocator(findBy);
+      if (!locator) {
+        throw new APIException("Failed to get locator: " + std::string(findByToString(findBy)));
+      }
+
+      // Find element
+      PyObject* findMethod = PythonInterpreter::getAttribute(driver_, "find_element");
+      if (!findMethod) {
+        Py_DECREF(locator);
+        return std::nullopt;
+      }
+
+      PyObject* valueArg = PythonInterpreter::fromUTF8(value);
+      if (!valueArg) {
+        Py_DECREF(locator);
+        Py_DECREF(findMethod);
+        return std::nullopt;
+      }
+
+      PyObject* element = PythonInterpreter::callFunction(findMethod, locator, valueArg);
+      Py_DECREF(valueArg);
+      Py_DECREF(locator);
+      Py_DECREF(findMethod);
+
+      if (!element) {
+        throw new APIException("Element not found: " + value);
+      }
+
+      // Create Element and store the PyObject reference
+      Element elem(element);
+      Py_DECREF(element);
+
+      return elem;
     }
 
     //! Removes the webdriver
