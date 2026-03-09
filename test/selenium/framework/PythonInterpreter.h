@@ -8,6 +8,7 @@
 
 #include <Wt/WException.h>
 
+#include <optional>
 #include <Python.h>
 #include <string>
 
@@ -58,6 +59,85 @@ namespace Selenium {
     PythonInterpreter& operator=(const PythonInterpreter&) = delete;
     PythonInterpreter(PythonInterpreter&&) = delete;
     PythonInterpreter& operator=(PythonInterpreter&&) = delete;
+
+    //! Retrieves the attribute \p attrName from the object \p obj.
+    static PyObject* getAttribute(PyObject* obj, const std::string& attrName)
+    {
+      if (!obj) {
+        throw new InterpreterException("Passed object is null");
+      }
+
+      PyObject* attribute = PyObject_GetAttrString(obj, attrName.c_str());
+      if (!attribute) {
+        PyErr_Print();
+        PyErr_Clear();
+        throw new InterpreterException("Failed to get attribute '" + attrName + "'");
+      }
+
+      return attribute;
+    }
+
+    //! Calls the object \p obj using the named \p name argument \p param.
+    static PyObject* call(PyObject* object, const std::string& name, PyObject* param)
+    {
+      PyObject* kwargs = PyDict_New();
+      PyDict_SetItemString(kwargs, name.c_str(), param);
+      PyObject* result = PyObject_Call(object, PyTuple_New(0), kwargs);
+
+      Py_DECREF(kwargs);
+      if (!result) {
+        throw new InterpreterException("Failed to call object with parameter named: " + name);
+      }
+
+      return result;
+    }
+
+    //! Calls the function \p func using the arguments \p args.
+    template<typename... Args>
+    static PyObject* callFunction(PyObject* func, Args... args)
+    {
+      if (!func) {
+        throw new InterpreterException("Function is null");
+      }
+
+      PyObject* result = PyObject_CallFunctionObjArgs(func, args..., nullptr);
+      if (!result) {
+        PyErr_Print();
+        PyErr_Clear();
+        throw new InterpreterException("Function call failed");
+      }
+
+      return result;
+    }
+
+    //! Convert PyObject to UTF-8 string (after type checking).
+    static std::optional<std::string> asUTF8(PyObject* obj)
+    {
+      if (PyUnicode_Check(obj)) {
+        return std::string(PyUnicode_AsUTF8(obj));
+      }
+
+      if (obj == Py_None) {
+        return "";
+      }
+
+      PyErr_Print();
+      PyErr_Clear();
+      throw new InterpreterException("Failed to convert to UTF-8");
+    }
+
+    //! Convert UTF-8 string to PyObject.
+    static PyObject* fromUTF8(const std::string& str)
+    {
+      PyObject* pyStr = PyUnicode_FromString(str.c_str());
+      if (!pyStr) {
+        PyErr_Print();
+        PyErr_Clear();
+        throw new InterpreterException("Failed to create Python string from UTF-8");
+      }
+
+      return pyStr;
+    }
 
   private:
     PythonInterpreter()

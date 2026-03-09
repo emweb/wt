@@ -11,16 +11,9 @@
 #include "PythonInterpreter.h"
 
 #include <chrono>
-#include <memory>
-#include <optional>
 #include <Python.h>
 #include <string>
 #include <thread>
-#include <vector>
-
-namespace Wt {
-  class WApplication;
-}
 
 namespace Selenium {
   /*! \class APIException "test/selenium/framework/SeleniumAPI.h"
@@ -93,12 +86,8 @@ namespace Selenium {
       }
 
       // Create driver instance with empty options
-      PyObject* kwargs = PyDict_New();
-      PyDict_SetItemString(kwargs, "options", options);
+      driver_ = PythonInterpreter::call(driverClass, "options", options);
       Py_DECREF(options);
-
-      driver_ = PyObject_Call(driverClass, PyTuple_New(0), kwargs);
-      Py_DECREF(kwargs);
       Py_DECREF(driverClass);
 
       if (!driver_) {
@@ -183,7 +172,7 @@ namespace Selenium {
     void cleanup()
     {
       if (driver_) {
-        PyObject* quitMethod = PyObject_GetAttrString(driver_, "quit");
+        PyObject* quitMethod = PythonInterpreter::instance().getAttribute(driver_, "quit");
         if (quitMethod) {
           PyObject* result = PythonInterpreter::callFunction(quitMethod);
           Py_XDECREF(result);
@@ -201,7 +190,7 @@ namespace Selenium {
     {
       const char* optionsClass = (browser == Browser::Chrome) ? "ChromeOptions" : "FirefoxOptions";
 
-      PyObject* optionsClassObj = PyObject_GetAttrString(PythonInterpreter::instance().getWebdriverModule(), optionsClass);
+      PyObject* optionsClassObj = PythonInterpreter::instance().getAttribute(PythonInterpreter::instance().getWebdriverModule(), optionsClass);
 
       if (!optionsClassObj) {
         PyErr_Print();
@@ -219,7 +208,7 @@ namespace Selenium {
       }
 
       // Add headless argument (and rendering options)
-      PyObject* addArgMethod = PyObject_GetAttrString(options, "add_argument");
+      PyObject* addArgMethod = PythonInterpreter::instance().getAttribute(options, "add_argument");
       if (addArgMethod) {
         if (browser == Browser::Chrome) {
           PyObject* arg = PythonInterpreter::fromUTF8("-headless=new");
