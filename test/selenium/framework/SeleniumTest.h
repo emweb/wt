@@ -21,9 +21,13 @@ namespace Selenium {
       BOOST_REQUIRE(test.startServer()); \
       auto& api = test.api(); \
       Selenium::SeleniumWait wait(api.driver(), std::chrono::seconds(10)); \
+      auto updateApplication = [&](const std::function<void(app_type*)>& fn) { \
+        test.updateApplication(fn); \
+      }; \
       \
       (void)api; \
       (void)wait; \
+      (void)updateApplication;
 
 #define END_SELENIUM_TEST \
     }
