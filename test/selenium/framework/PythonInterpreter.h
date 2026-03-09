@@ -43,6 +43,9 @@ namespace Selenium {
       return instance;
     }
 
+    //! Returns the webdriver module
+    PyObject* getWebdriverModule() { return webdriverModule_; }
+
     ~PythonInterpreter()
     {
       if (Py_IsInitialized()) {
@@ -58,8 +61,10 @@ namespace Selenium {
 
   private:
     PythonInterpreter()
+      : webdriverModule_(nullptr)
     {
       initializePython();
+      importModules();
     }
 
     // Intitialize Python using the C-API.
@@ -89,9 +94,21 @@ namespace Selenium {
       int res = PyRun_SimpleString(pythonCode.c_str());
       PyErr_Clear();
       if (res == -1) {
-        throw new InterpreterException("Failed to execute site-package importing");
+        throw new InterpreterException("Failed to configure Python virtual environment");
       }
     }
+
+    void importModules()
+    {
+      webdriverModule_ = PyImport_ImportModule("selenium.webdriver");
+      if (!webdriverModule_) {
+        PyErr_Print();
+        PyErr_Clear();
+        throw new InterpreterException("Failed to imprort selenium.webdriver");
+      }
+    }
+
+    PyObject* webdriverModule_;
   };
 }
 
