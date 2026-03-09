@@ -86,6 +86,20 @@ namespace Selenium {
       return *api_;
     }
 
+    // Updates the application instances in the WServer to run the function.
+    // This update is then triggered, so that awaited changes can occur.
+    void updateApplication(const std::function<void(AppType*)>& function)
+    {
+      fixture_.server().postAll([function]() {
+        auto app = dynamic_cast<AppType*>(Wt::WApplication::instance());
+        if (app) {
+          function(app);
+          app->triggerUpdate();
+        }
+      });
+    }
+
+
     ~SeleniumTest()
     {
       if (api_) {
