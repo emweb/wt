@@ -279,6 +279,10 @@ IF(ENABLE_LIBWTTEST)
         http/HttpClientServerTest.C
         http/BotTest.C
       )
+
+      SUBDIRS(
+        selenium
+      )
     endif()
 
     if (NOT (WT_CPP17_FILESYSTEM_IMPLEMENTATION STREQUAL "std" OR BOOST_FS_LIB))

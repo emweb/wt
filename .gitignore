@@ -26,3 +26,4 @@ debug/
 !.vscode/settings.json
 !.vscode/extensions.json
 CMakeUserPresets.json
+test/selenium/python-env/*
