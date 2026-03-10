@@ -1407,7 +1407,7 @@ void WTableView::shiftModelIndexColumns(int start, int count)
 
 int WTableView::columnWidthWithPadding(int column) const
 {
-  return static_cast<int>(columnInfo(column).width.toPixels()) + 7;
+  return static_cast<int>(columnInfo(column).width.toPixels()) + 1;
 }
 
 void WTableView::modelColumnsInserted(const WModelIndex& parent,
