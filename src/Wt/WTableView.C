@@ -1107,7 +1107,7 @@ void WTableView::setColumnHidden(int column, bool hidden)
 
 void WTableView::setColumnWidth(int column, const WLength& width)
 {
-  WLength rWidth = WLength(round(width.value()), width.unit());
+  WLength rWidth = WLength(round(width.toPixels()));
   double delta = rWidth.toPixels() - columnInfo(column).width.toPixels();
   columnInfo(column).width = rWidth;
 
