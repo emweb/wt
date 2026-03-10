@@ -50,7 +50,7 @@ namespace server {
 
 RequestHandler::RequestHandler(const Configuration &config,
                                const Wt::Configuration& wtConfig,
-                               Wt::WLogger& logger)
+                               AccessLogger& logger)
   : config_(config),
     wtConfig_(wtConfig),
     logger_(logger),

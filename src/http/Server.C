@@ -149,6 +149,8 @@ Server::Server(const Configuration& config, Wt::WServer& wtServer)
   accessLogger_.addField("type", false);
   accessLogger_.addField("message", true);
 
+  accessLogger_.setFormat("${IP}   ${METHOD} ${URI}  ${HTTP_VERSION} ${STATUS} ${CONTENT}");
+
   start();
 }
 

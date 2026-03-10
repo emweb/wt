@@ -25,6 +25,7 @@
 #include <cassert>
 #include <cctype>
 #include <chrono>
+#include <regex>
 #include <string>
 
 #ifdef WT_BUILDING
@@ -515,32 +516,31 @@ void Reply::setRelay(ReplyPtr reply)
   }
 }
 
-void Reply::logReply(Wt::WLogger& logger)
+void Reply::logReply(AccessLogger& logger)
 {
   if (relay_.get())
     return relay_->logReply(logger);
 
   if (logger.logging("access", WT_LOGGER)) {
-    Wt::WStringStream msg;
-    msg << request_.remoteIP << " "
-        << /* rfc931 << */ " "
-        << /* authuser << */ " "
-        << request_.method.str() << ' '
-        << request_.uri.str() << " HTTP/"
-        << request_.http_version_major << '.'
-        << request_.http_version_minor << " "
-        << status_ << " "
-        << std::to_string(contentSent_);
+    Wt::WStringStream httpVersion;
+    httpVersion << "HTTP/" << request_.http_version_major << "." << request_.http_version_minor;
+
+    std::string msg = logger.createMessage(request_.remoteIP,
+                                           request_.method.str(),
+                                           request_.uri.str(),
+                                           httpVersion.str(),
+                                           std::to_string(status_),
+                                           std::to_string(contentSent_));
 
     if (configuration_.accessLog().empty()) {
-      LOG_ACCESS(msg.str());
+      LOG_ACCESS(msg);
     } else {
       Wt::WLogEntry e = logger.entry("access");
       e << Wt::WLogger::timestamp << Wt::WLogger::sep
         << getpid() << Wt::WLogger::sep
         << /* sessionId << */ Wt::WLogger::sep
         << "[access]" << Wt::WLogger::sep
-        << WT_LOGGER << ": " << msg.str();
+        << WT_LOGGER << ": " << msg;
     }
   }
   /*

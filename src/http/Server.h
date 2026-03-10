@@ -29,7 +29,7 @@
 #include "ConnectionManager.h"
 #include "RequestHandler.h"
 
-#include "Wt/WLogger.h"
+#include "AccessLogger.h"
 
 #include <memory>
 
@@ -72,6 +72,8 @@ public:
   SessionProcessManager *sessionManager() { return sessionManager_; }
 
   void updateProcessSessionId(const std::string& sessionId);
+
+  AccessLogger& accessLogger() { return accessLogger_; }
 
 private:
   std::vector<asio::ip::address> resolveAddress(asio::ip::tcp::resolver &resolver,
@@ -134,7 +136,7 @@ private:
   Wt::WServer& wt_;
 
   /// The logger
-  Wt::WLogger accessLogger_;
+  AccessLogger accessLogger_;
 
   /// The strand for handleTcpAccept(), handleSslAccept() and handleStop()
   Wt::AsioWrapper::strand accept_strand_;

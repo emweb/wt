@@ -40,7 +40,7 @@ public:
 
   virtual void reset(const std::shared_ptr<const Wt::EntryPoint>& ep) override;
   virtual void writeDone(bool success) override;
-  virtual void logReply(Wt::WLogger& logger) override;
+  virtual void logReply(AccessLogger& logger) override;
 
   ~WtReply();
 

@@ -169,7 +169,7 @@ void WtReply::reset(const std::shared_ptr<const Wt::EntryPoint>& ep)
 #endif
 }
 
-void WtReply::logReply(Wt::WLogger& logger)
+void WtReply::logReply(AccessLogger& logger)
 {
   Reply::logReply(logger);
 

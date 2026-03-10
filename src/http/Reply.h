@@ -29,9 +29,9 @@
 #endif
 
 #include "Wt/WStringStream.h"
-#include "Wt/WLogger.h"
 #include "../web/Configuration.h"
 
+#include "AccessLogger.h"
 #include "Buffer.h"
 #include "WHttpDllDefs.h"
 #include "Request.h"
@@ -157,7 +157,7 @@ public:
 
   const Configuration& configuration() { return configuration_; }
 
-  virtual void logReply(Wt::WLogger& logger);
+  virtual void logReply(AccessLogger& logger);
   void setStatus(status_type status);
   status_type status() const { return status_; }
 

@@ -19,11 +19,10 @@
 
 #include <string>
 
-#include "Wt/WLogger.h"
-
 #include "Configuration.h"
 #include "SessionProcessManager.h"
 #include "WtReply.h"
+#include "AccessLogger.h"
 #include "../web/Configuration.h"
 
 namespace http {
@@ -39,7 +38,7 @@ public:
   /// Construct with a directory containing files to be served.
   explicit RequestHandler(const Configuration &config,
                           const Wt::Configuration& wtConfig,
-                          Wt::WLogger& logger);
+                          AccessLogger& logger);
 
   /// Handle a request and produce a reply.
   ReplyPtr handleRequest(Request& req, ReplyPtr& lastWtReply,
@@ -54,7 +53,7 @@ public:
     return config_.errRoot();
   }
 
-  Wt::WLogger& logger() const { return logger_; }
+  AccessLogger& logger() const { return logger_; }
 
   void setSessionManager(SessionProcessManager *sessionManager);
 
@@ -66,7 +65,7 @@ private:
   /// The Wt configuration
   const Wt::Configuration &wtConfig_;
   /// The logger
-  Wt::WLogger& logger_;
+  AccessLogger& logger_;
   /// The session manager for dedicated processes
   SessionProcessManager *sessionManager_;
 
