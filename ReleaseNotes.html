@@ -26,6 +26,17 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.emweb.be/issues/14305" target="_blank">Issue #14305</a>:
+    added the possibility to change the format of the access logs using
+    <a href="classWt_1_1WServer.html#ac513e830dbe4eb582bfc37b27826c7c1" target="_blank">WServer::setAccessLoggerFormat()</a>.
+
+    Additionally, the access logger is now accessible through the new
+    <a href="classWt_1_1WServer.html#acc962bccafdd3345b2d4e39e6b9baf31" target="_blank">WServer::accessLogger()</a> function, which
+    allows to change the output file of the access logger at runtime. To complement this, it is now also possible to change
+    whether the access logs are redirected to the standard logger or not using
+    <a href="classWt_1_1WServer.html#a3aeddcc6ac27fab56874747b3dddee71" target="_blank">WServer::setRedirectAccessLog()</a>.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13785" target="_blank">Issue #13785</a>:
     <a href="classWt_1_1WAbstractItemView.html#ae68d56771c5e9d408d78b4b9d198967f" target="_blank">WAbstractItemView::scrollTo()</a> now also
     takes the column of the index into account when scrolling to an item. It is now also possible to specify different hints for the row and
