@@ -299,4 +299,12 @@ int WRun(const std::string &applicationName,
   }
 }
 
+void WServer::setAccessLoggerFormat(const std::string& format)
+{ }
+
+std::string WServer::accessLoggerFormat() const
+{
+  return std::string();
+}
+
 }

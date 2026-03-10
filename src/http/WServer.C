@@ -325,6 +325,16 @@ std::vector<WServer::SessionInfo> WServer::sessions() const
   }
 }
 
+void WServer::setAccessLoggerFormat(const std::string& format)
+{
+  impl_->server_->accessLogger().setFormat(format);
+}
+
+std::string WServer::accessLoggerFormat() const
+{
+  return impl_->server_->accessLogger().format();
+}
+
 void WServer::setSslPasswordCallback(const SslPasswordCallback& cb)
 {
   sslPasswordCallback_ = cb;

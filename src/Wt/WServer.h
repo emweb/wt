@@ -628,6 +628,33 @@ public:
 
   const WLogSink * customLogger() const;
 
+#ifndef WT_TARGET_JAVA
+  /*! \brief Sets the format for the access logger.
+   *
+   * The format string can contain the following placeholders:
+   * - ${IP} : the remote IP address of the client
+   * - ${METHOD} : the HTTP method of the request (e.g. GET, POST, ...)
+   * - ${URI} : the URI of the request
+   * - ${HTTP_VERSION} : the HTTP version of the request (e.g. HTTP/1.1)
+   * - ${STATUS} : the HTTP status code of the response
+   * - ${CONTENT} : the content's size of the request
+   *
+   * \note This is only available with the wthttp connector, and has no
+   *       effect on other connectors.
+   */
+  WTCONNECTOR_API void setAccessLoggerFormat(const std::string& format);
+
+
+  /*! \brief Returns the format for the access logger.
+   *
+   * \note This always retunrs an empty string when not using the
+   *       wthttp connector.
+   *
+   * \sa setAccessLoggerFormat()
+   */
+  WTCONNECTOR_API std::string accessLoggerFormat() const;
+#endif // WT_TARGET_JAVA
+
   /*! \brief Adds an entry to the log.
    *
    * \sa Wt::log(), WApplication::log()
