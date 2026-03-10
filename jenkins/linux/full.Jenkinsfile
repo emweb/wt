@@ -100,7 +100,6 @@ pipeline {
                 dir('test') {
                     warnError('st wthttp test.wt failed') {
                         sh "../build-st-http/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_wthttp_test_log.xml"
-
                     }
                 }
             }
@@ -115,7 +114,6 @@ pipeline {
                 dir('test') {
                     warnError('mt wtfcgi test.wt failed') {
                         sh "../build-mt-fcgi/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_wtfcgi_test_log.xml"
-
                     }
                 }
             }
@@ -130,7 +128,6 @@ pipeline {
                 dir('test') {
                     warnError('st wtfcgi test.wt failed') {
                         sh "../build-st-fcgi/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_wtfcgi_test_log.xml"
-
                     }
                 }
             }
