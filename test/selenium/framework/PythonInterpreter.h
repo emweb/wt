@@ -85,15 +85,32 @@ namespace Selenium {
     }
 
     //! Calls the object \p obj using the named \p name argument \p param.
-    static PyObject* call(PyObject* object, const std::string& name, PyObject* param)
+    static PyObject* call(PyObject* object, std::vector<std::string>& names, std::vector<PyObject*> params)
     {
-      PyObject* kwargs = PyDict_New();
-      PyDict_SetItemString(kwargs, name.c_str(), param);
-      PyObject* result = PyObject_Call(object, PyTuple_New(0), kwargs);
+      // Create empty tuple for positional arguments
+      PyObject* args = PyTuple_New(0);
 
+      // Create kwargs dictionary
+      PyObject* kwargs = PyDict_New();
+      for (size_t i = 0; i < names.size() && i < params.size(); ++i) {
+        PyDict_SetItemString(kwargs, names[i].c_str(), params[i]);
+      }
+
+      // Call the object with empty positional args and keyword args
+      PyObject* result = PyObject_Call(object, args, kwargs);
+
+      Py_DECREF(args);
       Py_DECREF(kwargs);
+
       if (!result) {
-        throw new InterpreterException("Failed to call object with parameter named: " + name);
+        PyErr_Print();
+        PyErr_Clear();
+        std::string errorMsg = "Failed to call object with parameters: ";
+        for (size_t i = 0; i < names.size(); ++i) {
+          if (i > 0) errorMsg += ", ";
+          errorMsg += names[i];
+        }
+        throw new InterpreterException(errorMsg);
       }
 
       return result;

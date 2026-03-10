@@ -164,6 +164,17 @@ Strictly speaking `selenium` is not a requirement, as it is installed ad-hoc.
    If desired, specific test can be run with the `-t` flag. Do note that the
    filter will be of the format `selenium_{suite}/{name}`.
 
+   Additionally, there are two custom arguments that can be passed to the test
+   cases. Twice they are a string. They are called:
+   - `--browser-type`: this is either `"chrome"`, or `"firefox"`.
+   - `--browser-driver`: this is the path to the chrome or gecko driver.
+
+   Passing thos arguments happens like:
+   ```bash
+   ./test.selenium -t {filter} --log_...  -- --browser-type "chrome"
+   --browser-driver "/path/do/driver"
+   ```
+
 ### Creating Your Own Tests
 
 Creating you own test is very easy. You only need to have an instance of

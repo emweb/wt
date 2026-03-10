@@ -90,7 +90,7 @@ namespace Selenium {
     }
 
     //! Set up the driver, with the correct browser and its options.
-    bool setupBrowser(const std::string& url, Browser browser = Browser::Chrome)
+    bool setupBrowser(const std::string& url, Browser browser, const std::string& driverPath)
     {
       cleanup();
 
@@ -114,9 +114,19 @@ namespace Selenium {
         throw new APIException("Failed to get browser options");
       }
 
-      // Create driver instance with empty options
-      driver_ = PythonInterpreter::call(driverClass, "options", options);
+      PyObject* service = setupBrowserService(browser, driverPath);
+      if (!service) {
+        Py_DECREF(options);
+        Py_DECREF(driverClass);
+        throw new APIException("Failed to get browser service");
+      }
+
+      // Create driver instance with options, and optional service
+      std::vector<std::string> nameList = { "options", "service" };
+      std::vector<PyObject*> paramList = { options, service };
+      driver_ = PythonInterpreter::call(driverClass, nameList, paramList);
       Py_DECREF(options);
+      Py_DECREF(service);
       Py_DECREF(driverClass);
 
       if (!driver_) {
@@ -323,6 +333,32 @@ namespace Selenium {
       }
 
       return options;
+    }
+
+    PyObject* setupBrowserService(Browser browser, const std::string& driverPath)
+    {
+      const char* serviceClass = (browser == Browser::Chrome) ? "ChromeService" : "FirefoxService";
+
+      PyObject* serviceClassObj = PythonInterpreter::instance().getAttribute(PythonInterpreter::instance().getWebdriverModule(), serviceClass);
+
+      if (!serviceClassObj) {
+        PyErr_Print();
+        PyErr_Clear();
+        throw new APIException(std::string("Failed to get ") + serviceClass);
+      }
+
+      PyObject* arg = PythonInterpreter::fromUTF8(driverPath);
+      PyObject* service = PythonInterpreter::callFunction(serviceClassObj, arg);
+      Py_DECREF(arg);
+      Py_DECREF(serviceClassObj);
+
+      if (!service) {
+        PyErr_Print();
+        PyErr_Clear();
+        throw new APIException("Failed to create service instance");
+      }
+
+      return service;
     }
 
     PyObject* driver_;

@@ -17,7 +17,25 @@ namespace Selenium {
 #define SELENIUM_TEST(test_name, app_type) \
     BOOST_AUTO_TEST_CASE(test_name) \
     { \
-      Selenium::SeleniumTest<app_type> test; \
+      Selenium::SeleniumAPI::Browser type = Selenium::SeleniumAPI::Browser::Chrome; \
+      std::string driverPath; \
+      int argc = boost::unit_test::framework::master_test_suite().argc; \
+      char** argv = boost::unit_test::framework::master_test_suite().argv; \
+      if (argc >= 3) { \
+        if (strcmp(argv[1], "--browser-type") == 0) { \
+          if (strcmp(argv[2], "firefox") == 0) { \
+            type = Selenium::SeleniumAPI::Browser::Firefox; \
+          } else if (strcmp(argv[2], "chrome") == 0) { \
+            type = Selenium::SeleniumAPI::Browser::Chrome; \
+          } \
+        } \
+      } \
+      if (argc == 5) { \
+        if (strcmp(argv[3], "--browser-driver") == 0) { \
+          driverPath = std::string(argv[4]); \
+        } \
+      } \
+      Selenium::SeleniumTest<app_type> test(type, driverPath); \
       BOOST_REQUIRE(test.startServer()); \
       auto& api = test.api(); \
       Selenium::SeleniumWait wait(api.driver(), std::chrono::seconds(10)); \
@@ -42,9 +60,12 @@ namespace Selenium {
   class SeleniumTest
   {
   public:
-    SeleniumTest(SeleniumAPI::Browser browser = SeleniumAPI::Browser::Chrome,
-                const std::string& docroot = ".")
-      : fixture_(docroot), browser_(browser)
+    SeleniumTest(SeleniumAPI::Browser browser,
+                 const std::string& driverPath,
+                 const std::string& docroot = ".")
+      : fixture_(docroot),
+        driverPath_(driverPath),
+        browser_(browser)
     {
       fixture_.setAppCreator([](const Wt::WEnvironment& env) {
         auto app = std::make_unique<AppType>(env);
@@ -80,7 +101,7 @@ namespace Selenium {
     {
       if (!api_) {
         api_ = std::make_unique<SeleniumAPI>();
-        if (!api_->setupBrowser(fixture_.url(), browser_)) {
+        if (!api_->setupBrowser(fixture_.url(), browser_, driverPath_)) {
           throw std::runtime_error("Failed to setup browser");
         }
         if (!api_->waitForPageLoad()) {
@@ -115,6 +136,7 @@ namespace Selenium {
   private:
     std::unique_ptr<SeleniumAPI> api_;
     SeleniumFixture fixture_;
+    std::string driverPath_;
     SeleniumAPI::Browser browser_;
   };
 }
