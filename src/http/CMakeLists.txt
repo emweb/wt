@@ -20,6 +20,7 @@ IF(CONNECTOR_HTTP)
 
   SET(libhttpsources
     Android.h Android.C
+    AccessLogger.h AccessLogger.C
     Configuration.h Configuration.C
     Connection.h Connection.C
     ConnectionManager.h ConnectionManager.C
