@@ -532,7 +532,7 @@ void Reply::logReply(AccessLogger& logger)
                                            std::to_string(status_),
                                            std::to_string(contentSent_));
 
-    if (configuration_.accessLog().empty()) {
+    if (logger.redirect()) {
       LOG_ACCESS(msg);
     } else {
       Wt::WLogEntry e = logger.entry("access");

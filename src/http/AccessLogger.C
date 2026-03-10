@@ -25,7 +25,8 @@ AccessLogger::Token::Token(const std::string& text)
 { }
 
 AccessLogger::AccessLogger()
-  : beingDeleted_(false)
+  : beingDeleted_(false),
+    redirect_(false)
 { }
 
 AccessLogger::~AccessLogger()
@@ -44,6 +45,11 @@ void AccessLogger::setFormat(const std::string& format)
 
   format_ = format;
   parseFormat();
+}
+
+void AccessLogger::setRedirect(bool redirect)
+{
+  redirect_ = redirect;
 }
 
 std::string AccessLogger::createMessage(

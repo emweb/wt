@@ -335,6 +335,21 @@ std::string WServer::accessLoggerFormat() const
   return impl_->server_->accessLogger().format();
 }
 
+Wt::WLogger* WServer::accessLogger()
+{
+  return &impl_->server_->accessLogger();
+}
+
+void WServer::setRedirectAccessLog(bool redirect)
+{
+  impl_->server_->accessLogger().setRedirect(redirect);
+}
+
+bool WServer::redirectAccessLog() const
+{
+  return impl_->server_->accessLogger().redirect();
+}
+
 void WServer::setSslPasswordCallback(const SslPasswordCallback& cb)
 {
   sslPasswordCallback_ = cb;

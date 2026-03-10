@@ -12,6 +12,7 @@
 
 #include "WHttpDllDefs.h"
 
+#include <atomic>
 #include <mutex>
 #include <shared_mutex>
 #include <vector>
@@ -28,6 +29,9 @@ public:
   void setFormat(const std::string& format);
   std::string format() const { return format_; }
 
+  void setRedirect(bool redirect);
+  bool redirect() const { return redirect_; }
+
   std::string createMessage(
     const std::string& remoteIP,
     const std::string& method,
@@ -38,6 +42,7 @@ public:
 
 private:
   bool beingDeleted_;
+  std::atomic_bool redirect_;
   std::string format_;
   mutable std::shared_timed_mutex formatLock_;
 

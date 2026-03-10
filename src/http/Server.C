@@ -135,6 +135,8 @@ Server::Server(const Configuration& config, Wt::WServer& wtServer)
     accessLogger_.configure(std::string("-*"));
   } else if (!config.accessLog().empty()) {
     accessLogger_.setFile(config.accessLog());
+  } else {
+    accessLogger_.setRedirect(true);
   }
 
   if (wt_.configuration().sessionPolicy() == Wt::Configuration::DedicatedProcess &&

@@ -653,6 +653,37 @@ public:
    * \sa setAccessLoggerFormat()
    */
   WTCONNECTOR_API std::string accessLoggerFormat() const;
+
+  /*! \brief Returns the access logger if it exists.
+   *
+   * \note This always returns nullptr when not using the wthttp
+   *       connector.
+   *
+   * \sa setAccessLoggerFormat(), setRedirectAccessLog()
+   */
+  WTCONNECTOR_API WLogger* accessLogger();
+
+  /*! \brief Sets whether access log redirection is enabled.
+   *
+   * When access log redirection is enabled, the access log will be
+   * logged like other log messages, using the server logger (default
+   * or custom).
+   *
+   * \note This is only available with the wthttp connector, and has no
+   *       effect with other connectors.
+   *
+   * \sa accessLogger(), setCustomLogger()
+   */
+  WTCONNECTOR_API void setRedirectAccessLog(bool redirect);
+
+  /*! \brief Returns whether access log redirection is enabled.
+   *
+   * \note This always returns true when not using the wthttp
+   *       connector.
+   *
+   * \sa setRedirectAccessLog(), accessLogger(), setCustomLogger()
+   */
+  WTCONNECTOR_API bool redirectAccessLog() const;
 #endif // WT_TARGET_JAVA
 
   /*! \brief Adds an entry to the log.
