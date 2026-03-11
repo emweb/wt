@@ -67,7 +67,7 @@ WTableView::WTableView()
     viewportWidth_(1000),
     viewportTop_(0),
     viewportHeight_(UNKNOWN_VIEWPORT_HEIGHT),
-    scrollToRow_(-1),
+    scrollToIndex_(),
     scrollToHint_(ScrollHint::EnsureVisible),
     columnResizeConnected_(false)
 {
@@ -248,10 +248,10 @@ void WTableView::resize(const WLength& width, const WLength& height)
       viewportHeight_
         = static_cast<int>(std::ceil((height.toPixels()
                                       - headerHeight().toPixels())));
-      if (scrollToRow_ != -1) {
-        WModelIndex index = model()->index(scrollToRow_, 0, rootIndex());
-        scrollToRow_ = -1;
-        scrollTo(index, scrollToHint_);
+      if (scrollToIndex_.isValid()) {
+        WModelIndex scrollToIndex;
+        std::swap(scrollToIndex, scrollToIndex_);
+        scrollTo(scrollToIndex, scrollToHint_);
       }
     } else
       viewportHeight_ = UNKNOWN_VIEWPORT_HEIGHT;
@@ -1659,10 +1659,10 @@ void WTableView::onViewportChange(int left, int top, int width, int height)
   viewportTop_ = top;
   viewportHeight_ = height;
 
-  if (scrollToRow_ != -1) {
-    WModelIndex index = model()->index(scrollToRow_, 0, rootIndex());
-    scrollToRow_ = -1;
-    scrollTo(index, scrollToHint_);
+  if (scrollToIndex_.isValid()) {
+    WModelIndex scrollToIndex;
+    std::swap(scrollToIndex_, scrollToIndex);
+    scrollTo(scrollToIndex, scrollToHint_);
   }
 
   computeRenderedArea();
@@ -2144,7 +2144,7 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
           scheduleRerender(RenderState::NeedAdjustViewPort);
         }
       } else {
-        scrollToRow_ = index.row();
+        scrollToIndex_ = index;
         scrollToHint_ = hint;
       }
 

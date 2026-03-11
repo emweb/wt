@@ -231,7 +231,7 @@ private:
     renderedFirstColumn_, renderedLastColumn_;
 
   /* Scroll to to process after viewport height is known */
-  int scrollToRow_;
+  WModelIndex scrollToIndex_;
   ScrollHint scrollToHint_;
   bool columnResizeConnected_;
 
