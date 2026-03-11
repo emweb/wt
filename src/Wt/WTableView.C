@@ -2114,15 +2114,29 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
 {
   if (index.parent() == rootIndex()) {
     if (ajaxMode()) {
-      int rh = static_cast<int>(rowHeight().toPixels());
+      const int rh = static_cast<int>(rowHeight().toPixels());
       int rowY = index.row() * rh;
+      const int column = index.column();
+      int columnX = 0;
+      for (int columnBefore = 0; columnBefore < column; ++columnBefore)
+        columnX += columnWidthWithPadding(columnBefore);
+      const int cw = columnWidthWithPadding(column);
 
       if (viewportHeight_ != UNKNOWN_VIEWPORT_HEIGHT) {
+        if (viewportLeft_ + viewportWidth_ < columnX + cw)
+          viewportLeft_ = columnX;
+        else if (columnX < viewportLeft_)
+          viewportLeft_ = std::max(0, columnX - viewportWidth_ + cw);
+        else
+          columnX = -1;
+
         if (hint == ScrollHint::EnsureVisible) {
           if (viewportTop_ + viewportHeight_ < rowY + rh)
             hint = ScrollHint::PositionAtTop;
           else if (rowY < viewportTop_)
-           hint = ScrollHint::PositionAtBottom;
+            hint = ScrollHint::PositionAtBottom;
+          else
+            rowY = -1;
         }
 
         switch (hint) {
@@ -2153,8 +2167,8 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
 
         s << jsRef() << ".wtObj.setScrollToPending();"
           << "setTimeout(function() {"
-          << jsRef() << ".wtObj.scrollTo(-1, "
-          << rowY << "," << (int)hint << "); }, 0);";
+          << jsRef() << ".wtObj.scrollTo("
+          << columnX << "," << rowY << "," << (int)hint << "); }, 0);";
 
         doJavaScript(s.str());
       }
