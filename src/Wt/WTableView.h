@@ -239,6 +239,8 @@ private:
 
   ColumnWidget *columnContainer(int renderedColumn) const;
 
+  int columnWidthWithPadding(int column) const;
+
   void modelColumnsInserted(const WModelIndex& parent, int start, int end);
   void modelColumnsAboutToBeRemoved(const WModelIndex& parent,
                                     int start, int end);

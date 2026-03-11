@@ -206,7 +206,7 @@ WT_DECLARE_WT_MEMBER(
       }
 
       header.style.width = (newWidth + 1) + "px";
-      column.style.width = (newWidth + 7) + "px";
+      column.style.width = (newWidth + 1) + "px";
       APP.layouts2.adjust(el.childNodes[0].id, [[1, 1]]);
 
       for (; h; h = h.nextSibling) {
