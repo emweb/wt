@@ -231,13 +231,15 @@ private:
     renderedFirstColumn_, renderedLastColumn_;
 
   /* Scroll to to process after viewport height is known */
-  int scrollToRow_;
+  WModelIndex scrollToIndex_;
   ScrollHint scrollToHint_;
   bool columnResizeConnected_;
 
   void updateTableBackground();
 
   ColumnWidget *columnContainer(int renderedColumn) const;
+
+  int columnWidthWithPadding(int column) const;
 
   void modelColumnsInserted(const WModelIndex& parent, int start, int end);
   void modelColumnsAboutToBeRemoved(const WModelIndex& parent,

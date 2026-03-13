@@ -67,7 +67,7 @@ WTableView::WTableView()
     viewportWidth_(1000),
     viewportTop_(0),
     viewportHeight_(UNKNOWN_VIEWPORT_HEIGHT),
-    scrollToRow_(-1),
+    scrollToIndex_(),
     scrollToHint_(ScrollHint::EnsureVisible),
     columnResizeConnected_(false)
 {
@@ -248,10 +248,10 @@ void WTableView::resize(const WLength& width, const WLength& height)
       viewportHeight_
         = static_cast<int>(std::ceil((height.toPixels()
                                       - headerHeight().toPixels())));
-      if (scrollToRow_ != -1) {
-        WModelIndex index = model()->index(scrollToRow_, 0, rootIndex());
-        scrollToRow_ = -1;
-        scrollTo(index, scrollToHint_);
+      if (scrollToIndex_.isValid()) {
+        WModelIndex scrollToIndex;
+        std::swap(scrollToIndex, scrollToIndex_);
+        scrollTo(scrollToIndex, scrollToHint_);
       }
     } else
       viewportHeight_ = UNKNOWN_VIEWPORT_HEIGHT;
@@ -434,7 +434,7 @@ void WTableView::setSpannerCount(const Side side, const int count)
     int total = 0;
     for (int i = rowHeaderCount(); i < count; i++)
       if (!columnInfo(i).hidden)
-        total += (int)columnInfo(i).width.toPixels() + 7;
+        total += columnWidthWithPadding(i);
     table_->setOffsets(total, Side::Left);
     firstColumn_ = count;
     break;
@@ -495,7 +495,7 @@ void WTableView::addSection(const Side side)
 
     if (!columnInfo(w->column()).hidden)
       table_->setOffsets(table_->offset(Side::Left).toPixels()
-                         - columnWidth(w->column()).toPixels() - 7, Side::Left);
+                         - columnWidthWithPadding(w->column()), Side::Left);
     else
       w->hide();
 
@@ -551,7 +551,7 @@ void WTableView::removeSection(const Side side)
 
     if (!columnInfo(w->column()).hidden)
       table_->setOffsets(table_->offset(Side::Left).toPixels()
-                         + columnWidth(w->column()).toPixels() + 7, Side::Left);
+                         + columnWidthWithPadding(w->column()), Side::Left);
     ++firstColumn_;
 
     for (int i = w->count() - 1; i >= 0; --i)
@@ -760,7 +760,7 @@ void WTableView::reset()
   int total = 0;
   for (int i = 0; i < columnCount(); ++i)
     if (!columnInfo(i).hidden)
-      total += (int)columnInfo(i).width.toPixels() + 7;
+      total += columnWidthWithPadding(i);
 
   headers_->setWidth(total);
   canvas_->resize(total, canvasHeight());
@@ -1075,7 +1075,7 @@ void WTableView::setColumnHidden(int column, bool hidden)
   if (columnInfo(column).hidden != hidden) {
     WAbstractItemView::setColumnHidden(column, hidden);
 
-    int delta = static_cast<int>(columnInfo(column).width.toPixels()) + 7;
+    int delta = columnWidthWithPadding(column);
     if (hidden)
       delta = -delta;
 
@@ -1107,7 +1107,7 @@ void WTableView::setColumnHidden(int column, bool hidden)
 
 void WTableView::setColumnWidth(int column, const WLength& width)
 {
-  WLength rWidth = WLength(round(width.value()), width.unit());
+  WLength rWidth = WLength(round(width.toPixels()));
   double delta = rWidth.toPixels() - columnInfo(column).width.toPixels();
   columnInfo(column).width = rWidth;
 
@@ -1209,18 +1209,19 @@ void WTableView::updateColumnOffsets()
 
   int totalRendered = 0;
   for (int i = 0; i < rowHeaderCount(); ++i) {
-    ColumnInfo ci = columnInfo(i);
+    const int widthWithPadding = columnWidthWithPadding(i);
+    const bool hidden = columnInfo(i).hidden;
 
     ColumnWidget *w = columnContainer(i);
     w->setOffsets(0, Side::Left);
     w->setOffsets(totalRendered, Side::Left);
     w->setWidth(0);
-    w->setWidth(ci.width.toPixels() + 7);
+    w->setWidth(widthWithPadding);
 
-    if (!columnInfo(i).hidden)
-      totalRendered += (int)ci.width.toPixels() + 7;
+    if (!hidden)
+      totalRendered += widthWithPadding;
 
-    w->setHidden(ci.hidden);
+    w->setHidden(hidden);
   }
 
   headerColumnsContainer_->setWidth(totalRendered);
@@ -1237,7 +1238,8 @@ void WTableView::updateColumnOffsets()
   totalRendered = 0;
   int total = 0;
   for (int i = rowHeaderCount(); i < columnCount(); ++i) {
-    ColumnInfo ci = columnInfo(i);
+    const int widthWithPadding = columnWidthWithPadding(i);
+    const bool hidden = columnInfo(i).hidden;
 
     if (i >= fc && i <= lc) {
       ColumnWidget *w = columnContainer(rowHeaderCount() + i - fc);
@@ -1245,16 +1247,16 @@ void WTableView::updateColumnOffsets()
       w->setOffsets(0, Side::Left);
       w->setOffsets(totalRendered, Side::Left);
       w->setWidth(0);
-      w->setWidth(ci.width.toPixels() + 7);
+      w->setWidth(widthWithPadding);
 
-      if (!columnInfo(i).hidden)
-        totalRendered += (int)ci.width.toPixels() + 7;
+      if (!hidden)
+        totalRendered += widthWithPadding;
 
-      w->setHidden(ci.hidden);
+      w->setHidden(hidden);
     }
 
-    if (!columnInfo(i).hidden)
-      total += (int)columnInfo(i).width.toPixels() + 7;
+    if (!hidden)
+      total += widthWithPadding;
   }
 
   double ch = canvasHeight();
@@ -1399,6 +1401,11 @@ void WTableView::shiftModelIndexColumns(int start, int count)
     selectionChanged().emit();
 }
 
+int WTableView::columnWidthWithPadding(int column) const
+{
+  return static_cast<int>(columnInfo(column).width.toPixels()) + 7;
+}
+
 void WTableView::modelColumnsInserted(const WModelIndex& parent,
                                       int start, int end)
 {
@@ -1410,7 +1417,7 @@ void WTableView::modelColumnsInserted(const WModelIndex& parent,
 
   for (int i = start; i < start + count; ++i) {
     columns_.insert(columns_.begin() + i, createColumnInfo(i));
-    width += (int)columnInfo(i).width.toPixels() + 7;
+    width += columnWidthWithPadding(i);
   }
 
   shiftModelIndexColumns(start, end - start + 1);
@@ -1450,7 +1457,7 @@ void WTableView::modelColumnsAboutToBeRemoved(const WModelIndex& parent,
 
   for (int i = start; i < start + count; ++i)
     if (!columnInfo(i).hidden)
-      width += (int)columnInfo(i).width.toPixels() + 7;
+      width += columnWidthWithPadding(i);
 
   WApplication *app = WApplication::instance();
   for (int i = start; i< start + count; ++i)
@@ -1652,10 +1659,10 @@ void WTableView::onViewportChange(int left, int top, int width, int height)
   viewportTop_ = top;
   viewportHeight_ = height;
 
-  if (scrollToRow_ != -1) {
-    WModelIndex index = model()->index(scrollToRow_, 0, rootIndex());
-    scrollToRow_ = -1;
-    scrollTo(index, scrollToHint_);
+  if (scrollToIndex_.isValid()) {
+    WModelIndex scrollToIndex;
+    std::swap(scrollToIndex_, scrollToIndex);
+    scrollTo(scrollToIndex, scrollToHint_);
   }
 
   computeRenderedArea();
@@ -1732,17 +1739,17 @@ void WTableView::computeRenderedArea()
       if (columnInfo(i).hidden)
         continue;
 
-      int w = static_cast<int>(columnInfo(i).width.toPixels());
+      const int widthWithPadding = columnWidthWithPadding(i);
 
-      if (total <= left && left < total + w)
+      if (total <= left && left < total + widthWithPadding)
         renderedFirstColumn_ = i;
 
-      if (total <= right && right < total + w) {
+      if (total <= right && right < total + widthWithPadding) {
         renderedLastColumn_ = i;
         break;
       }
 
-      total += w + 7;
+      total += widthWithPadding;
     }
 
     assert(renderedLastColumn_ == -1
@@ -1904,7 +1911,7 @@ WModelIndex WTableView::translateModelIndex(bool headerColumns,
   if (headerColumns) {
     for (int i = 0; i < rowHeaderCount(); ++i) {
       if (!columnInfo(i).hidden)
-        total += static_cast<int>(columnInfo(i).width.toPixels()) + 7;
+        total += columnWidthWithPadding(i);
 
       if (event.widget().x < total) {
         column = i;
@@ -1914,7 +1921,7 @@ WModelIndex WTableView::translateModelIndex(bool headerColumns,
   } else {
     for (int i = rowHeaderCount(); i < columnCount(); i++) {
       if (!columnInfo(i).hidden)
-        total += static_cast<int>(columnInfo(i).width.toPixels()) + 7;
+        total += columnWidthWithPadding(i);
 
       if (event.widget().x < total) {
         column = i;
@@ -1938,7 +1945,7 @@ WModelIndex WTableView::translateModelIndex(const Touch& touch)
 
   for (int i = rowHeaderCount(); i < columnCount(); i++) {
     if (!columnInfo(i).hidden)
-      total += static_cast<int>(columnInfo(i).width.toPixels()) + 7;
+      total += columnWidthWithPadding(i);
 
     if (touch.widget().x < total) {
       column = i;
@@ -2107,15 +2114,29 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
 {
   if (index.parent() == rootIndex()) {
     if (ajaxMode()) {
-      int rh = static_cast<int>(rowHeight().toPixels());
+      const int rh = static_cast<int>(rowHeight().toPixels());
       int rowY = index.row() * rh;
+      const int column = index.column();
+      int columnX = 0;
+      for (int columnBefore = 0; columnBefore < column; ++columnBefore)
+        columnX += columnWidthWithPadding(columnBefore);
+      const int cw = columnWidthWithPadding(column);
 
       if (viewportHeight_ != UNKNOWN_VIEWPORT_HEIGHT) {
+        if (viewportLeft_ + viewportWidth_ < columnX + cw)
+          viewportLeft_ = columnX;
+        else if (columnX < viewportLeft_)
+          viewportLeft_ = std::max(0, columnX - viewportWidth_ + cw);
+        else
+          columnX = -1;
+
         if (hint == ScrollHint::EnsureVisible) {
           if (viewportTop_ + viewportHeight_ < rowY + rh)
             hint = ScrollHint::PositionAtTop;
           else if (rowY < viewportTop_)
-           hint = ScrollHint::PositionAtBottom;
+            hint = ScrollHint::PositionAtBottom;
+          else
+            rowY = -1;
         }
 
         switch (hint) {
@@ -2137,7 +2158,7 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
           scheduleRerender(RenderState::NeedAdjustViewPort);
         }
       } else {
-        scrollToRow_ = index.row();
+        scrollToIndex_ = index;
         scrollToHint_ = hint;
       }
 
@@ -2146,8 +2167,8 @@ void WTableView::scrollTo(const WModelIndex& index, ScrollHint hint)
 
         s << jsRef() << ".wtObj.setScrollToPending();"
           << "setTimeout(function() {"
-          << jsRef() << ".wtObj.scrollTo(-1, "
-          << rowY << "," << (int)hint << "); }, 0);";
+          << jsRef() << ".wtObj.scrollTo("
+          << columnX << "," << rowY << "," << (int)hint << "); }, 0);";
 
         doJavaScript(s.str());
       }
