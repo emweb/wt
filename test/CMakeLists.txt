@@ -18,6 +18,10 @@ IF(ENABLE_LIBWTTEST)
     json/JsonValueTest.C
     http/CookieTest.C
     formdelegate/WFormDelegate.C
+    layouts/WBorderLayoutTest.C
+    layouts/WBoxLayoutTest.C
+    layouts/WFitLayoutTest.C
+    layouts/WGridLayoutTest.C
     logger/ConcurentLoggingTest.C
     mail/MailClientTest.C
     mail/MailMessageTest.C
