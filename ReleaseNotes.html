@@ -31,7 +31,7 @@ behaviour.
     takes the column of the index into account when scrolling to an item. It is now also possible to specify different hints for the row and
     column when scrolling to an item.
 
-    Additionnally, some bugs linked to scrolling were fixed for both
+    Additionally, some bugs linked to scrolling were fixed for both
     <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a> and
     <a href="classWt_1_1WTreeView.html" target="_blank">WTreeView</a>.
   </li>
@@ -45,6 +45,14 @@ behaviour.
     fixed
     <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a> headers label
     alignment when aligning to the right or the center.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14035" target="_blank">Issue #14035</a>:
+    fixed
+    <a href="classWt_1_1WHBoxLayout.html" target="_blank">WHBoxLayout::itemAt()</a>,
+    <a href="classWt_1_1WVBoxLayout.html" target="_blank">WVBoxLayout::itemAt()</a>, and
+    <a href="classWt_1_1WGridLayout.html" target="_blank">WGridLayout::itemAt()</a> not checking that
+    the given index was in the valid range, leading to segfault instead of returning nullptr.
   </li>
 </ul>
 
