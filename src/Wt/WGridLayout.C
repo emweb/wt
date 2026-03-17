@@ -83,6 +83,10 @@ WLayoutItem *WGridLayout::itemAt(int index) const
   int row = index / columnCount();
   int col = index % columnCount();
 
+  if (index < 0 || row >= rowCount()) {
+    return nullptr;
+  }
+
   return grid_.items_[row][col].item_.get();
 }
 
