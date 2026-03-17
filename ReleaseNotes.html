@@ -20,20 +20,11 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.12.6 (TBD)</h2>
+<h2>Release 4.12.6 (March 17, 2026)</h2>
 
 <p>Wt 4.12.6 is a patch release that addresses the following issues:</p>
 
 <ul>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14352" target="_blank">Issue #14352</a>:
-    fixed compilation error that could happen when using clang with C++20 with the
-    <code>WT_CPP17_FILESYSTEM_IMPLEMENTATION="std"</code> option.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14395" target="_blank">Issue #14395</a>:
-    added the scope to some <code>target_compile_definitions</code> where they were missing.
-  </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14376" target="_blank">Issue #14376</a>:
     fixed
@@ -42,17 +33,10 @@ behaviour.
     trying to modify the headers before the view was rendered.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/14293" target="_blank">Issue #14293</a>:
+    <a href="https://redmine.emweb.be/issues/14066" target="_blank">Issue #14066</a>:
     fixed
-    <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> fitting to its content in
-    <a href="classWt_1_1WBootstrap2Theme.html" target="_blank">WBootstrap2Theme</a> and
-    <a href="classWt_1_1WBootstrap3Theme.html" target="_blank">WBootstrap3Theme</a>.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14332" target="_blank">Issue #14332</a>:
-    fixed
-    <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a>'s content being cut off when containing a
-    <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a> with a width bigger than the dialog itself.
+    <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a> header columns not
+    always having the same height as the content columns, which lead to several issues.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14319" target="_blank">Issue #14319</a>:
@@ -65,10 +49,17 @@ behaviour.
     inverting top and bottom.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/14066" target="_blank">Issue #14066</a>:
+    <a href="https://redmine.emweb.be/issues/14332" target="_blank">Issue #14332</a>:
     fixed
-    <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a> header columns not
-    always having the same height as the content columns, which lead to several issues.
+    <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a>'s content being cut off when containing a
+    <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a> with a width bigger than the dialog itself.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14293" target="_blank">Issue #14293</a>:
+    fixed
+    <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> fitting to its content in
+    <a href="classWt_1_1WBootstrap2Theme.html" target="_blank">WBootstrap2Theme</a> and
+    <a href="classWt_1_1WBootstrap3Theme.html" target="_blank">WBootstrap3Theme</a>.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13958" target="_blank">Issue #13958</a>:
@@ -77,9 +68,18 @@ behaviour.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13692" target="_blank">Issue #13692</a>:
-    Fixed JS layouts in <a href="classWt_1_1WStackedWidget.html" target="_blank">WStackedWidget</a>
+    fixed JS layouts in <a href="classWt_1_1WStackedWidget.html" target="_blank">WStackedWidget</a>
     not being updated after being switched in with an animation. This would lead to the
     content of the layout being fitted to the size of the old container.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14352" target="_blank">Issue #14352</a>:
+    fixed compilation error that could happen when using clang with C++20 with the
+    <code>WT_CPP17_FILESYSTEM_IMPLEMENTATION="std"</code> option.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14395" target="_blank">Issue #14395</a>:
+    added the scope to some <code>target_compile_definitions</code> where they were missing.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14268" target="_blank">Issue #14268</a>:
@@ -91,16 +91,16 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.emweb.be/issues/14356" target="_blank">Issue #14356</a>:
+    ensured that
+    <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> top-left corner is visible when the dialog
+    position is automatically determined by wt.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/14380" target="_blank">Issue #14380</a>:
     changed the style class <code>.in</code> for <code>.show</code> when using
     <a href="classWt_1_1WBootstrap5Theme.html" target="_blank">WBootstrap5Theme</a> as it is the
     correct class to use for Bootstrap 5.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14356" target="_blank">Issue #14356</a>:
-    Ensured that
-    <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> top-left corner is visible when the dialog
-    position is automatically determined by wt.
   </li>
 </ul>
 
