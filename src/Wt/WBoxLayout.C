@@ -89,12 +89,16 @@ WLayoutItem *WBoxLayout::itemAt(int index) const
       index = grid_.columns_.size() - 1 - index;
     WT_FALLTHROUGH
   case LayoutDirection::LeftToRight:
+    if (index < 0 || grid_.items_.empty() || index >= grid_.items_[0].size())
+      return nullptr;
     return grid_.items_[0][index].item_.get();
   case LayoutDirection::BottomToTop:
     if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
       index = grid_.rows_.size() - 1 - index;
     WT_FALLTHROUGH
   case LayoutDirection::TopToBottom:
+    if (index < 0 || index >= grid_.items_.size() || grid_.items_[index].empty())
+      return nullptr;
     return grid_.items_[index][0].item_.get();
   }
 
