@@ -13,12 +13,15 @@
 #include "Wt/WContainerWidget.h"
 #include "Wt/WEnvironment.h"
 #include "Wt/WImage.h"
+#include "Wt/WLogger.h"
 #include "Wt/WModelIndex.h"
 #include "Wt/WHBoxLayout.h"
 #include "Wt/WText.h"
 #include "Wt/WTheme.h"
 
 namespace Wt {
+
+LOGGER("WItemDelegate");
 
 template <class Widget>
 class IndexEdit final : public Widget
@@ -455,6 +458,8 @@ cpp17::any WItemDelegate::editState(WWidget *editor, WT_MAYBE_UNUSED const WMode
 
     return cpp17::any(lineEdit->text());
   }
+
+  LOG_ERROR("Cannot retrieve editor state for default editor. You must override editState() and setEditState() for custom editors.");
   return cpp17::any();
 }
 
@@ -467,6 +472,8 @@ void WItemDelegate::setEditState(WWidget *editor, WT_MAYBE_UNUSED const WModelIn
     WLineEdit *lineEdit = dynamic_cast<WLineEdit *>(w->widget(0));
 
     lineEdit->setText(cpp17::any_cast<WT_USTRING>(value));
+  } else {
+    LOG_ERROR("Cannot set editor state for default editor. You must override editState() and setEditState() for custom editors.");
   }
 }
 
