@@ -158,6 +158,12 @@ public:
    */
   WModelIndex modelIndexAt(WWidget *widget) const;
 
+  /*! \brief Returns the number of entirely visible rows.
+   *
+   * \note In plain HTML mode, it returns a guess based on the rendered rows.
+   */
+  int visibleRowCount() const;
+
   virtual EventSignal<WScrollEvent>& scrolled() override;
 
 #ifdef WT_TEST_VISIBILITY
