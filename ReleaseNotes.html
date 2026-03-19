@@ -95,6 +95,14 @@ behaviour.
     <a href="classWt_1_1WApplication.html" target="_blank">WApplication</a> that had a
     <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> open.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14504" target="_blank">Issue #14504</a>:
+    fixed
+    <a href="classWt_1_1WItemDelegate.html#ad846a8933d846fc43394bb6d5fd78d7e" target="_blank">WItemDelegate::editState()</a> and
+    <a href="classWt_1_1WItemDelegate.html#aa1519431acb606b62b9d4f8faf279d03" target="_blank">WItemDelegate::setEditState()</a>
+    segfaulting when the editor widget was not a
+    <a href="classWt_1_1WLineEdit.html" target="_blank">WLineEdit</a>. It will now log an error instead of crashing.
+  </li>
 </ul>
 
 <p>Wt 4.13.0 also comes with the following improvements:</p>
