@@ -455,7 +455,7 @@ cpp17::any WItemDelegate::editState(WWidget *editor, WT_MAYBE_UNUSED const WMode
 
     return cpp17::any(lineEdit->text());
   }
-  return {};
+  return cpp17::any();
 }
 
 void WItemDelegate::setEditState(WWidget *editor, WT_MAYBE_UNUSED const WModelIndex& index,
