@@ -65,6 +65,13 @@ behaviour.
     <a href="classWt_1_1WGridLayout.html" target="_blank">WGridLayout::itemAt()</a> not checking that
     the given index was in the valid range, leading to segfault instead of returning nullptr.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14416" target="_blank">Issue #14416</a>:
+    fixed
+    <a href="classWt_1_1WWebWidget.html#aa140064593fa5f47ebdf26fcf71c4948" target="_blank">WWebWidget::setSelectable(true)</a> preventing selection instead of allowing it.
+    This caused several widgets to have unselectable text, like in
+    <a href="https://redmine.emweb.be/issues/14310" target="_blank">issue #14310</a>.
+  </li>
 </ul>
 
 <p>Wt 4.13.0 also comes with the following improvements:</p>
