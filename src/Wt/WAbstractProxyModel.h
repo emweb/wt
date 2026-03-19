@@ -183,8 +183,8 @@ public:
 
   /*! \brief Handles a drop event.
    *
-   * The default proxy implementation maps the given index to the source model
-   * , and forwards the dropEvent call to the source model.
+   * The default proxy implementation maps the given index to the
+   * source model, and forwards the dropEvent call to the source model.
    */
   virtual void dropEvent(const WDropEvent &e, DropAction action,
                          const WModelIndex &index, Wt::Side side) override;
