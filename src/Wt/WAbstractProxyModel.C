@@ -82,6 +82,11 @@ void WAbstractProxyModel::dropEvent(const WDropEvent& e, DropAction action,
   sourceModel_->dropEvent(e, action, sourceRow, sourceColumn, sourceParent);
 }
 
+void WAbstractProxyModel::dropEvent(const WDropEvent &e, DropAction action,
+                                    const WModelIndex &index, Wt::Side side) {
+  sourceModel_->dropEvent(e, action, mapToSource(index), side);
+}
+
 void *WAbstractProxyModel::toRawIndex(const WModelIndex& index) const
 {
   return sourceModel_->toRawIndex(mapToSource(index));
