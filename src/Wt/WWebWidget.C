@@ -1748,7 +1748,7 @@ void WWebWidget::updateDom(DomElement& element, bool all)
       // All event handlers ought to be JS, not DOM: #13501
       WStringStream selectJS;
       selectJS << WT_CLASS << ".$('" << id() << "').onselectstart = "
-               << "function() { event.cancelBubble=true; return false; };";
+               << "function() { event.cancelBubble=true; return true; };";
       Wt::WApplication::instance()->doJavaScript(selectJS.str());
     }
 
