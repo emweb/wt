@@ -1572,13 +1572,12 @@ void WWebWidget::updateDom(DomElement& element, bool all)
         */
         if (!app) app = WApplication::instance();
 
-        bool ltr = app->layoutDirection() == LayoutDirection::LeftToRight;
         switch (layoutImpl_->floatSide_) {
         case Side::Left:
-          element.setProperty(Property::StyleFloat, ltr ? "left" : "right");
+          element.setProperty(Property::StyleFloat,  "left");
           break;
         case Side::Right:
-          element.setProperty(Property::StyleFloat, ltr ? "right" : "left");
+          element.setProperty(Property::StyleFloat, "right");
           break;
         default:
           /* illegal values */
