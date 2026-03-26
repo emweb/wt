@@ -394,6 +394,8 @@ std::string WApplication::onePixelGifUrl()
 
 WApplication::~WApplication()
 {
+  quitted_ = true;
+
 #ifndef WT_TARGET_JAVA
   Configuration& conf = env().server()->configuration();
   if (conf.servePrivateResourcesToBots() && env().agentIsSpiderBot()) {
@@ -1156,6 +1158,8 @@ EventSignal<>& WApplication::globalEscapePressed()
 
 void WApplication::setAsFocus(const std::string& id)
 {
+  if (!root() || hasQuit())
+    return;
   WWidget* w = root()->findById(id);
   if (w) {
     w->setFocus();
