@@ -49,6 +49,7 @@ IF(ENABLE_LIBWTTEST)
     render/CssSelectorTest.C
     render/SpecificityTest.C
     render/WTextRendererTest.C
+    strings/WMessageResourcesTest.C
     strings/WStringTest.C
     types/WDateTest.C
     types/WDateTimeTest.C
