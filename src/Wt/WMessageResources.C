@@ -215,19 +215,27 @@ private:
 
   void safe_div(::int64_t& result, ::int64_t y) const
   {
-    if (y != 0) {
-      result = result / y;
-    } else {
+    switch (y) {
+    case 0:
       throw WInvalidOperationException("WMessageResources::evalPluralCase(): Cannot divide by 0");
+    case -1:
+      result = -result; // Avoid overflow error when result is int64_t minimum value.
+      break;
+    default:
+      result = result / y;
     }
   }
 
   void safe_rem(::int64_t& result, ::int64_t y) const
   {
-    if (y != 0) {
+    switch (y) {
+    case 0:
+      throw WInvalidOperationException("WMessageResources::evalPluralCase(): Cannot divide by 0");
+    case -1:
+      result = 0; // Avoid overflow error when result is int64_t minimum value.
+      break;
+    default:
       result = result % y;
-    } else {
-      throw WInvalidOperationException("WMessageResources::evalPluralCase(): Cannot modulo by 0");
     }
   }
 
