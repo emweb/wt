@@ -70,7 +70,16 @@ namespace Wt {
     {
 #ifdef WT_FILESYSTEM_IMPL_STD
   #ifndef WT_FILESYSTEM_IMPL_STD_CLOCK_17
-      return std::chrono::clock_cast<std::chrono::system_clock>(Wt::cpp17::filesystem::last_write_time(file));
+      auto ftime = Wt::cpp17::filesystem::last_write_time(file);
+
+    #ifdef _LIBCPP_VERSION
+      // libc++ does not yet support clock_cast. See issue #14352.
+      auto systime = decltype(ftime)::clock::to_sys(ftime);
+      return std::chrono::time_point_cast<std::chrono::system_clock::duration>(systime);
+    #else
+      return std::chrono::clock_cast<std::chrono::system_clock>(ftime);
+    #endif // _LIBCPP_VERSION
+
   #else // WT_FILESYSTEM_IMPL_STD_CLOCK_17
       LOG_DEBUG("When using cpp17 or lower with std::filesystem, the result of this function is an approximation. Use boost::filesystem, instead of std::filesystem (see WT_CPP17_FILESYSTEM_IMPLEMENTATION) if this is a problem for your application.");
       auto ftime = Wt::cpp17::filesystem::last_write_time(file);
