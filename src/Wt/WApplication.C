@@ -1870,13 +1870,20 @@ void WApplication::streamFaviconUpdate(WStringStream& out)
 {
   const std::string url = favicon()->url();
   if (url != faviconUrl_) {
-    out << "link = document.querySelector(\"link[rel~='icon']\");"
-        << "if (!link) {"
-        <<   "link = document.createElement('link');"
-        <<   "link.rel = 'icon';"
-        <<   "document.head.appendChild(link);"
-        << "}"
-        << "link.href = " << WString(url).jsStringLiteral() << ";";
+    if (url.empty()) {
+       out << "let link = document.querySelector(\"link[rel~='icon']\");"
+           << "if (link) {"
+           <<   "link.parentNode.removeChild(link);"
+           << "}";
+    } else {
+      out << "let link = document.querySelector(\"link[rel~='icon']\");"
+          << "if (!link) {"
+          <<   "link = document.createElement('link');"
+          <<   "link.rel = 'icon';"
+          <<   "document.head.appendChild(link);"
+          << "}"
+          << "link.href = " << WString(url).jsStringLiteral() << ";";
+    }
 
     faviconUrl_ = url;
   }
