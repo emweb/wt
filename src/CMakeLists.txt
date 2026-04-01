@@ -224,6 +224,7 @@ Wt/WRectArea.h Wt/WRectArea.C
 Wt/WRectF.h Wt/WRectF.C
 Wt/WRegExpValidator.h Wt/WRegExpValidator.C
 Wt/WResource.h Wt/WResource.C
+Wt/WResourceFavicon.h Wt/WResourceFavicon.C
 Wt/WSelectionBox.h Wt/WSelectionBox.C
 Wt/WSelfDeletingResource.h Wt/WSelfDeletingResource.C
 Wt/WServer.h Wt/WServer.C
