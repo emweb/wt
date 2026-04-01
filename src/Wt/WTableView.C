@@ -2282,7 +2282,7 @@ int WTableView::sumColumnWidthsBefore(int column) const
   int total = 0;
   for (int i = rowHeaderCount(); i < column; ++i) {
     if (!columnInfo(i).hidden) {
-      total += static_cast<int>(columnWidth(i).toPixels()) + 7;
+      total += columnWidthWithPadding(i);
     }
   }
   return total;
