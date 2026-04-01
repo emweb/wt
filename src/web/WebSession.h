@@ -32,6 +32,7 @@
 
 #include "Wt/WApplication.h"
 #include "Wt/WEnvironment.h"
+#include "Wt/WFavicon.h"
 #include "Wt/WLogger.h"
 
 #ifdef WT_THREADED
@@ -81,7 +82,8 @@ public:
   bool attachThreadToLockedHandler();
 
   EntryPointType type() const { return type_; }
-  std::string favicon() const;
+  WFavicon* favicon() const;
+  WFavicon* defaultFavicon() const { return defaultFavicon_.get(); }
   std::string docType() const;
 
   std::string sessionId() const { return sessionId_; }
@@ -300,7 +302,7 @@ private:
   std::deque<std::shared_ptr<ApplicationEvent> > eventQueue_;
 
   EntryPointType type_;
-  std::string favicon_;
+  std::unique_ptr<WFavicon> defaultFavicon_;
   State state_;
 
   std::string sessionId_, sessionIdCookie_, multiSessionId_;

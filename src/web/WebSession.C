@@ -16,6 +16,7 @@
 #include "Wt/WResource.h"
 #include "Wt/WServer.h"
 #include "Wt/WTimerWidget.h"
+#include "Wt/WUrlFavicon.h"
 #ifndef WT_TARGET_JAVA
 #include "Wt/WWebSocketResource.h"
 #endif // WT_TARGET_JAVA
@@ -104,7 +105,7 @@ WebSession::WebSession(WebController *controller,
                        const WebRequest *request,
                        WEnvironment *env)
   : type_(type),
-    favicon_(favicon),
+    defaultFavicon_(std::make_unique<WUrlFavicon>(favicon)),
     state_(State::JustCreated),
     sessionId_(sessionId),
     sessionIdChanged_(false),
@@ -313,12 +314,9 @@ void WebSession::destruct()
 }
 #endif // WT_TARGET_JAVA
 
-std::string WebSession::favicon() const
+WFavicon* WebSession::favicon() const
 {
-  if (app_ && app_->favicon()) {
-    return app_->favicon()->url();
-  }
-  return favicon_;
+  return app_ ? app_->favicon() : defaultFavicon();
 }
 
 std::string WebSession::docType() const

@@ -351,10 +351,10 @@ void WApplication::setFavicon(std::unique_ptr<WFavicon> icon)
   favicon_ = std::move(icon);
 }
 
- WFavicon *WApplication::favicon() const
- {
-  return favicon_.get();
- }
+WFavicon *WApplication::favicon() const
+{
+  return favicon_ ? favicon_.get() : session_->defaultFavicon();
+}
 
 #ifndef WT_TARGET_JAVA
 
@@ -1868,23 +1868,17 @@ SoundManager *WApplication::getSoundManager()
 
 void WApplication::streamFaviconUpdate(WStringStream& out)
 {
-  if ((!faviconUrl_.empty() && ! favicon_) ||
-      (favicon_ && favicon_->url() != faviconUrl_)) {
+  const std::string url = favicon()->url();
+  if (url != faviconUrl_) {
     out << "link = document.querySelector(\"link[rel~='icon']\");"
         << "if (!link) {"
         <<   "link = document.createElement('link');"
         <<   "link.rel = 'icon';"
         <<   "document.head.appendChild(link);"
         << "}"
-        << "link.href = ";
-    if (favicon_) {
-      faviconUrl_ = favicon_->url();
-      out << WString(faviconUrl_).jsStringLiteral();
-    } else {
-      faviconUrl_.clear();
-      out << WString(session_->favicon()).jsStringLiteral();
-    }
-    out <<";";
+        << "link.href = " << WString(url).jsStringLiteral() << ";";
+
+    faviconUrl_ = url;
   }
 }
 

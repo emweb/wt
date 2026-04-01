@@ -2194,9 +2194,10 @@ std::string WebRenderer::headDeclarations() const
       }
     }
 
-  if (!session_.favicon().empty()) {
+  const std::string faviconUrl = session_.favicon()->url();
+  if (!faviconUrl.empty()) {
     result <<
-      "<link rel=\"shortcut icon\" href=\"" << session_.favicon() << '"';
+      "<link rel=\"shortcut icon\" href=\"" << faviconUrl << '"';
     closeSpecial(result);
   }
 
