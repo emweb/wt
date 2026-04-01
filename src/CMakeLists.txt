@@ -277,6 +277,7 @@ Wt/WTreeNode.h Wt/WTreeNode.C
 Wt/WTreeTable.h Wt/WTreeTable.C
 Wt/WTreeTableNode.h Wt/WTreeTableNode.C
 Wt/WTreeView.h Wt/WTreeView.C
+Wt/WUrlFavicon.h Wt/WUrlFavicon.C
 Wt/WValidator.h Wt/WValidator.C
 Wt/WVBoxLayout.h Wt/WVBoxLayout.C
 Wt/WVector3.h Wt/WVector3.C
