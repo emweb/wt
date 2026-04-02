@@ -61,20 +61,14 @@ void WRadioButton::setFormData(const FormData& formData)
   if (flags_.test(BIT_STATE_CHANGED) || isReadOnly())
     return;
 
-  if (!Utils::isEmpty(formData.values)) {
-    const std::string& value = formData.values[0];
-
-    if (value == "1") {
-      if (buttonGroup_) {
-        buttonGroup_->uncheckOthers(this);
-        state_ = CheckState::Checked;
-      }
-    } else
-      if (!buttonGroup_)
-        WAbstractToggleButton::setFormData(formData);
-  } else
-    if (!buttonGroup_)
-      WAbstractToggleButton::setFormData(formData);
+  if (buttonGroup_) {
+    if (!Utils::isEmpty(formData.values) && formData.values[0] == "1") {
+      buttonGroup_->uncheckOthers(this);
+      state_ = CheckState::Checked;
+    }
+  } else {
+    WAbstractToggleButton::setFormData(formData);
+  }
 }
 
 }
