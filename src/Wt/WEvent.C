@@ -258,17 +258,43 @@ Key WKeyEvent::key() const
   if (key >= 96 && key <= 105)
       key -= int('0');
 
-  if (key >= 'A' && key <= 'Z')
+  if ((key >= 'A' && key <= 'Z')
+      || (key >= '0' && key <= '9')
+      || (key >= 16 && key <= 18) // modifiers
+      || (key >= 33 && key <= 40) // cursor
+      || (key >= 45 && key <= 46) // Ins, Del
+      || (key >= 106 && key <= 123) // Num pad, F1-F12
+      || (key >= 186 && key <= 192) // OEM keys 1/3
+      || (key >= 219 && key <= 222)) // OEM keys 2/3
     return static_cast<Key>(key);
-  else if (key == 8 || key == 9 || key == 13 || key == 27 || key == 32
-           || (key >= 16 && key <= 18)
-           || (key >= 33 && key <= 40)
-           || (key >= 45 && key <= 46)
-       || (key >= 48 && key <= 57)
-       || (key >= 112 && key <= 123))
-    return static_cast<Key>(key);
-  else
-    return Key::Unknown;
+  switch (key)
+  {
+    case   8: // Backspace
+    case   9: // Tab
+    case  12: // NumClear
+    case  13: // Enter
+    case  19: // Pause
+    case  27: // Escape
+    case  32: // Space
+    case  91: // Meta
+    case  93: // ContextMenu
+    case 226: // OEM keys 3/3
+      return static_cast<Key>(key);
+
+    // Chromium
+    case  92:  return Key::Meta; // right Windows key
+
+    // Firefox
+    case  59:  return Key::OemSemicolon;
+    case  60:  return Key::OemBackslash;
+    case  63:  return Key::OemOpenBrackets;
+    case 160:  return Key::OemPipe;
+    case 163:  return Key::OemQuestion;
+    case 171:  return Key::OemPlus;
+    case 173:  return Key::OemMinus;
+
+    default:   return Key::Unknown;
+  }
 #else // WT_TARGET_JAVA
   return keyFromValue(key);
 #endif // WT_TARGET_JAVA
