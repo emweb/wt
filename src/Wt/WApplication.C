@@ -117,6 +117,7 @@ WApplication::WApplication(const WEnvironment& env
 #ifndef WT_TARGET_JAVA
     initialized_(false),
 #endif // WT_TARGET_JAVA
+    beingDeleted_(false),
     selectionStart_(-1),
     selectionEnd_(-1),
     layoutDirection_(LayoutDirection::LeftToRight),
@@ -394,7 +395,7 @@ std::string WApplication::onePixelGifUrl()
 
 WApplication::~WApplication()
 {
-  quitted_ = true;
+  beingDeleted_ = true;
 
 #ifndef WT_TARGET_JAVA
   Configuration& conf = env().server()->configuration();
@@ -1158,7 +1159,7 @@ EventSignal<>& WApplication::globalEscapePressed()
 
 void WApplication::setAsFocus(const std::string& id)
 {
-  if (!root() || hasQuit())
+  if (!root() || beingDeleted_)
     return;
   WWidget* w = root()->findById(id);
   if (w) {

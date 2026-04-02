@@ -2408,6 +2408,7 @@ private:
 #ifndef WT_TARGET_JAVA
   bool initialized_;
 #endif // WT_TARGET_JAVA
+  bool beingDeleted_;
   std::string focusId_;
   int selectionStart_, selectionEnd_;
   LayoutDirection layoutDirection_;
