@@ -154,7 +154,7 @@ void FlexLayoutImpl::updateDom(DomElement& parent)
     div->callMethod("layout.adjust()");
   }
 
-  if (!canAdjustLayout_ && skipLayoutAdjust) {
+  if (!canAdjustLayout_ && !skipLayoutAdjust) {
     canAdjustLayout_ = true;
   }
 
