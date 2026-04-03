@@ -68,6 +68,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
 
         unwrapped.style.height = "auto";
         copySizeLimits(unwrapped, unjustified);
+        unwrapped.style.maxWidth = "100%";
+        unwrapped.style.maxHeight = "100%";
       }
 
       if (unjustified.classList.contains("Wt-fill-height")) {
@@ -79,6 +81,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
         internalWrap.style.flexBasis = unwrapped.style.height;
         unwrapped.style.height = "auto";
         copySizeLimits(unwrapped, unjustified);
+        unwrapped.style.maxWidth = "100%";
+        unwrapped.style.maxHeight = "100%";
 
         const top = WT.getElement(topLayout);
         setTimeout(function() {
@@ -94,11 +98,11 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
 
   setTimeout(init, 0);
 
-  this.resizeItem = function(item, width, height) {
-    setTimeout(adjustItem, 0, item, width, height);
+  this.resizeItem = function(item, width, height, maxWidth, maxHeight) {
+    setTimeout(adjustItem, 0, item, width, height, maxWidth, maxHeight);
   };
 
-  function adjustItem(item, width, height) {
+  function adjustItem(item, width, height, maxWidth, maxHeight) {
     if (!item) {
       return;
     }
@@ -108,19 +112,21 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
       return;
     }
 
+    let delagateMaxSize = false;
+
     if (p.classList.contains("Wt-fill-width")) {
       p.style.flexBasis = height;
       item.style.height = "auto";
+      item.style.maxWidth = maxWidth;
+      item.style.maxHeight = maxHeight;
+      delagateMaxSize = true;
 
       copySizeLimits(item, p);
     }
 
     p = p.parentElement;
-    if (!p) {
-      return;
-    }
 
-    if (p.classList.contains("Wt-fill-height")) {
+    if (p && p.classList.contains("Wt-fill-height")) {
       const justifyWrap = p.parentElement;
       if (justifyWrap && justifyWrap.classList.contains("Wt-justify-wrap")) {
         justifyWrap.style.flexBasis = width;
@@ -129,6 +135,9 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
       const internalWrap = p.children[0];
       internalWrap.style.flexBasis = height;
       item.style.height = "auto";
+      item.style.maxWidth = maxWidth;
+      item.style.maxHeight = maxHeight;
+      delagateMaxSize = true;
 
       copySizeLimits(item, p);
 
@@ -138,6 +147,11 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
           item.style.width = "auto";
         }
       }, 0);
+    }
+
+    if (delagateMaxSize) {
+      item.style.maxWidth = "100%";
+      item.style.maxHeight = "100%";
     }
   }
 

@@ -136,6 +136,8 @@ void FlexLayoutImpl::updateDom(DomElement& parent)
             << item->id() << ","
             << '"' << item->width().cssText() << "\","
             << '"' << item->height().cssText() << "\","
+            << '"' << item->maximumWidth().cssText() << "\","
+            << '"' << item->maximumHeight().cssText() << "\""
             << ")";
 
       div->callMethod(method.str());
