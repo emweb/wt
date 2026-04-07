@@ -291,7 +291,7 @@ _$_$endif_$_();
     }
 
     // determine notification permission status
-    if ("Notification" in window) {
+    if (window.Notification) {
       otherInfo += "&notif=" + Notification.permission;
     }
 

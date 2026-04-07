@@ -11,7 +11,7 @@ WT_DECLARE_APP_MEMBER(
   JavaScriptFunction,
   "WNotificationSetup",
   function(APP) {
-    if (typeof APP.WNotification === "undefined" && "Notification" in window) {
+    if (typeof APP.WNotification === "undefined" && window.Notification) {
       new (function() {
         APP.WNotification = this;
         const notifications = {};
