@@ -101,6 +101,12 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.emweb.be/issues/14459" target="_blank">Issue #14459</a>:
+    added more strictness to incoming GET requests. In <a href="https://redmine.emweb.be/issues/13970" target="_blank">Issue #13970</a>,
+    we already ensure that a <code>wtd</code> alone in a new request would be considered suspect. Now we add <code>signal</code> (in itself) as a suspect
+    parameter too. When combined, they are allowed.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/14420" target="_blank">Issue #14420</a>:
     made
     <a href="classWt_1_1Dbo_1_1collection_1_1iterator.html" target="_blank">Dbo::collection::iterator</a> and
