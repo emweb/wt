@@ -175,7 +175,14 @@ void WEnvironment::init(const WebRequest& request, const std::string& sessionId)
   const std::string* wtdE = request.getParameter("wtd");
   const char* method = request.requestMethod();
 
-  isLikelyBotGetRequest_ = wtdE && *wtdE != sessionId &&
+  // Incoming GET requests with ONLY `signal` shouldn't exist in a new
+  // application: see #14459
+  const std::string* signalE = request.getParameter("signal");
+
+  // A wtd or a signal (mutually exclusive) should not be present on a
+  // GET request.
+  isLikelyBotGetRequest_ = ((wtdE && !signalE && *wtdE != sessionId) ||
+                            (!wtdE && signalE)) &&
                            method && std::string(method) == "GET" &&
                            agentSupportsAjax();
 }
