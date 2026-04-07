@@ -183,8 +183,7 @@ void WEnvironment::init(const WebRequest& request, const std::string& sessionId)
   // GET request.
   isLikelyBotGetRequest_ = ((wtdE && !signalE && *wtdE != sessionId) ||
                             (!wtdE && signalE)) &&
-                           method && std::string(method) == "GET" &&
-                           agentSupportsAjax();
+                           method && std::string(method) == "GET";
 }
 
 
