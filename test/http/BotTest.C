@@ -988,6 +988,182 @@ BOOST_AUTO_TEST_CASE( suspected_bot_access_progressive_boot_with_wtd )
   BOOST_TEST(server.sessions().empty());
 }
 
+BOOST_AUTO_TEST_CASE( suspected_bot_access_delayed_boot_with_signal )
+{
+  Server server;
+
+  bool hasApplicationStarted = false;
+  bool isBotUser = false;
+  bool isSuspectedBot = false;
+  server.addEntryPoint(EntryPointType::Application,
+                       [&hasApplicationStarted, &isBotUser, &isSuspectedBot] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
+                         isBotUser = env.agentIsSpiderBot();
+                         isSuspectedBot = env.isLikelyBotGetRequest();
+                         return std::make_unique<TestApplication>(env);
+                       });
+  BOOST_REQUIRE(server.start());
+
+  Client client;
+  std::vector<Http::Message::Header> headers = {{ "User-Agent", "Regular Agent" }};
+  client.get("http://" + server.address() + "/?signal=012", headers);
+  client.waitDone();
+
+  BOOST_TEST(!client.err());
+
+  // A request body should contain the opening basic HTML tags, and then the Plain.html
+  // This does NOT CONTAIN ANY REFERENCE TO A WTD!
+  BOOST_TEST(client.message().body().find(doctype) != std::string::npos);
+  BOOST_TEST(client.message().body().find(iframe) != std::string::npos);
+  // No form is present
+  BOOST_TEST(client.message().body().find(postForm) == std::string::npos);
+
+  // The output here will NOT contain IDs for elements
+  BOOST_TEST(client.message().body().find(" id=\"o") == std::string::npos);
+
+  // Not detected as bot, but no application was launched
+  BOOST_TEST(!isBotUser);
+  BOOST_TEST(isSuspectedBot);
+  BOOST_TEST(hasApplicationStarted);
+  BOOST_TEST(!server.configuration().agentIsBot("Regular Agent"));
+
+  // Session has shut down already
+  BOOST_TEST(server.sessions().empty());
+}
+
+BOOST_AUTO_TEST_CASE( suspected_bot_access_progressive_boot_with_signal )
+{
+  Server server;
+  server.configuration().setBootstrapMethod(Configuration::Progressive);
+
+  bool hasApplicationStarted = false;
+  bool isBotUser = false;
+  bool isSuspectedBot = false;
+  server.addEntryPoint(EntryPointType::Application,
+                       [&hasApplicationStarted, &isBotUser, &isSuspectedBot] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
+                         isBotUser = env.agentIsSpiderBot();
+                         isSuspectedBot = env.isLikelyBotGetRequest();
+                         return std::make_unique<TestApplication>(env);
+                       });
+  BOOST_REQUIRE(server.start());
+
+  Client client;
+  std::vector<Http::Message::Header> headers = {{ "User-Agent", "Regular Agent" }};
+  client.get("http://" + server.address() + "/?signal=012", headers);
+  client.waitDone();
+
+  BOOST_TEST(!client.err());
+
+  // A request body should contain the opening basic HTML tags, and then the Boot.html and Boot.js.
+  // This does NOT CONTAIN ANY REFERENCE TO A WTD!
+  BOOST_TEST(client.message().body().find(doctype) != std::string::npos);
+  BOOST_TEST(client.message().body().find(iframe) != std::string::npos);
+  // No form is present
+  BOOST_TEST(client.message().body().find(postForm) == std::string::npos);
+
+  // The output here will NOT contain IDs for elements
+  BOOST_TEST(client.message().body().find(" id=\"o") == std::string::npos);
+
+  // Not detected as bot, and application was launched
+  BOOST_TEST(!isBotUser);
+  BOOST_TEST(isSuspectedBot);
+  BOOST_TEST(hasApplicationStarted);
+  BOOST_TEST(!server.configuration().agentIsBot("Regular Agent"));
+
+  // Session has shut down already
+  BOOST_TEST(server.sessions().empty());
+}
+
+BOOST_AUTO_TEST_CASE( suspected_bot_access_delayed_boot_allowed_with_wtd_and_signal )
+{
+  Server server;
+
+  bool hasApplicationStarted = false;
+  bool isBotUser = false;
+  bool isSuspectedBot = false;
+  server.addEntryPoint(EntryPointType::Application,
+                       [&hasApplicationStarted, &isBotUser, &isSuspectedBot] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
+                         isBotUser = env.agentIsSpiderBot();
+                         isSuspectedBot = env.isLikelyBotGetRequest();
+                         return std::make_unique<TestApplication>(env);
+                       });
+  BOOST_REQUIRE(server.start());
+
+  Client client;
+  std::vector<Http::Message::Header> headers = {{ "User-Agent", "Regular Agent" }};
+  client.get("http://" + server.address() + "/?wtd=0123456789101213&signal=012", headers);
+  client.waitDone();
+
+  BOOST_TEST(!client.err());
+
+  // Non-bot, so session is alive (but missing WApp)
+  std::string sessionId = server.sessions()[0].sessionId;
+  BOOST_TEST(client.message().body().find(doctype) != std::string::npos);
+  // Boot.js
+  BOOST_TEST(client.message().body().find(loadScript) != std::string::npos);
+
+  // Boot.html
+  BOOST_TEST(client.message().body().find("<link href=\"?wtd=" + sessionId + "&amp;request=style&amp;page=1") != std::string::npos);
+  // No form
+  BOOST_TEST(client.message().body().find(postForm) == std::string::npos);
+
+  // Not detected as bot, and starting WApp (delayed).
+  BOOST_TEST(!isBotUser);
+  BOOST_TEST(!isSuspectedBot);
+  BOOST_TEST(!hasApplicationStarted);
+  BOOST_TEST(!server.configuration().agentIsBot("Regular Agent"));
+
+  // Session is running
+  BOOST_TEST(!server.sessions().empty());
+}
+
+BOOST_AUTO_TEST_CASE( suspected_bot_access_progressive_boot_allowed_with_wtd_and_signal )
+{
+  Server server;
+  server.configuration().setBootstrapMethod(Configuration::Progressive);
+
+  bool hasApplicationStarted = false;
+  bool isBotUser = false;
+  bool isSuspectedBot = false;
+  server.addEntryPoint(EntryPointType::Application,
+                       [&hasApplicationStarted, &isBotUser, &isSuspectedBot] (const WEnvironment& env) {
+                         hasApplicationStarted = true;
+                         isBotUser = env.agentIsSpiderBot();
+                         isSuspectedBot = env.isLikelyBotGetRequest();
+                         return std::make_unique<TestApplication>(env);
+                       });
+  BOOST_REQUIRE(server.start());
+
+  Client client;
+  std::vector<Http::Message::Header> headers = {{ "User-Agent", "Regular Agent" }};
+  client.get("http://" + server.address() + "/?wtd=0123456789101213&signal=012", headers);
+  client.waitDone();
+
+  BOOST_TEST(!client.err());
+
+  // A request body should contain the opening basic HTML tags, and then the Boot.js script segment.
+  // After that a form from the Hybrid.html
+  BOOST_TEST(client.message().body().find(doctype) != std::string::npos);
+  // Boot.js
+  BOOST_TEST(client.message().body().find(loadScript) != std::string::npos);
+
+  // Non-bot, so session is alive
+  std::string sessionId = server.sessions()[0].sessionId;
+  BOOST_TEST(client.message().body().find(iframe) != std::string::npos);
+  BOOST_TEST(client.message().body().find("<form method='post' action='?wtd=" + sessionId + "' id='Wt-form'") != std::string::npos);
+
+  // Not detected as bot, and application was launched
+  BOOST_TEST(!isBotUser);
+  BOOST_TEST(!isSuspectedBot);
+  BOOST_TEST(hasApplicationStarted);
+  BOOST_TEST(!server.configuration().agentIsBot("Regular Agent"));
+
+  // Session is still running
+  BOOST_TEST(!server.sessions().empty());
+}
+
 BOOST_AUTO_TEST_CASE( bot_access_private_resource_default )
 {
   Server server;
