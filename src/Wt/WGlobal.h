@@ -826,6 +826,7 @@ enum class Key {
   Enter = 13,             //!< Enter key.
   Tab = 9,                //!< Tab key.
   Backspace = 8,          //!< Backspace key.
+  Clear = 12,             //!< Clear key.
   Shift = 16,             //!< Shift key.
   Control = 17,           //!< Control key.
   Alt = 18,               //!< Alt key.
@@ -843,7 +844,16 @@ enum class Key {
   Delete = 46,            //!< Delete key.
   Meta = 91,              //!< Meta / Windows key.
   ContextMenu = 93,       //!< Context menu / Apps key.
-  NumClear = 12,          //!< '5' num pad key / Clear key.
+  Numpad0 = 96,           //!< '0' num pad key.
+  Numpad1 = 97,           //!< '1' num pad key.
+  Numpad2 = 98,           //!< '2' num pad key.
+  Numpad3 = 99,           //!< '3' num pad key.
+  Numpad4 = 100,          //!< '4' num pad key.
+  Numpad5 = 101,          //!< '5' num pad key.
+  Numpad6 = 102,          //!< '6' num pad key.
+  Numpad7 = 103,          //!< '7' num pad key.
+  Numpad8 = 104,          //!< '8' num pad key.
+  Numpad9 = 105,          //!< '9' num pad key.
   NumMultiply = 106,      //!< '*' num pad key.
   NumAdd = 107,           //!< '+' num pad key.
   NumSeparator = 108,     //!< ',' num pad key.
