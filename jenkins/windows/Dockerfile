@@ -57,18 +57,18 @@ RUN choco install `
       7zip.install `
       -y
 
-ARG BOOST_URL=https://archives.boost.io/release/1.81.0/source/boost_1_81_0.7z
+ARG BOOST_URL=https://archives.boost.io/release/1.90.0/source/boost_1_90_0.7z
 RUN powershell `
       -NoProfile `
       -ExecutionPolicy Bypass `
-      -Command "(New-Object System.Net.WebClient).DownloadFile(\"$env:BOOST_URL\", 'C:\TEMP\boost_1_81_0.7z')"
+      -Command "(New-Object System.Net.WebClient).DownloadFile(\"$env:BOOST_URL\", 'C:\TEMP\boost_1_90_0.7z')"
 
-RUN cd %UserProfile% && 7z x C:\TEMP\boost_1_81_0.7z
+RUN cd %UserProfile% && 7z x C:\TEMP\boost_1_90_0.7z
 
 ARG VCVARS_VER=14.3
 
 RUN C:\BuildTools\Common7\Tools\VsDevCmd.bat -arch=amd64 -host_arch=amd64 -vcvars_ver=%VCVARS_VER% && `
-    cd %UserProfile%\boost_1_81_0 && `
+    cd %UserProfile%\boost_1_90_0 && `
     .\bootstrap.bat && `
     .\b2 `
       variant=debug,release `
