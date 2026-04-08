@@ -360,7 +360,11 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
     else if (elementRole == FormButton)
       element.addPropertyWord(Property::Class, "form-file-button");
     else if (elementRole == Badge) {
-      element.addPropertyWords(Property::Class, "Wt-badge badge bg-primary");
+      element.addPropertyWords(Property::Class, "Wt-badge badge");
+      auto badge = dynamic_cast<WBadge *>(widget);
+      if (badge && badge->useDefaultStyle()) {
+        element.addPropertyWord(Property::Class, "text-bg-primary");
+      }
     }
 
     auto inPlaceEdit = dynamic_cast<WInPlaceEdit *>(widget);

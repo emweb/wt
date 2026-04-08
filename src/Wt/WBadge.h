@@ -58,8 +58,35 @@ public:
 
   bool isInline() const override { return true; }
 
+  /*! \brief Sets whether the badge should use the default theme style
+   *
+   * If set to true, the badge will use the default theme style defined
+   * in the current theme.
+   *
+   * We recommend setting this to false if you want to customize the
+   * badge's style using setDecorationStyle() to avoid having the
+   * default style overriding your custom style. This is currently only
+   * important for the Bootstrap 5 theme.
+   *
+   * By default, this is set to true.
+   */
+  void setUseDefaultStyle(bool use);
+
+  /*! \brief Returns whether the badge uses the default style
+   *
+   * \sa setUseDefaultStyle()
+   */
+  bool useDefaultStyle() const { return useDefaultStyle_; }
+
 protected:
   void updateDom(DomElement& element, bool all) override;
+
+private:
+  static const int BIT_USE_DEFAULT_STYLE_CHANGED = 0;
+
+  std::bitset<1> flags_;
+
+  bool useDefaultStyle_;
 };
 
 }
