@@ -23,6 +23,9 @@ void Notification::populateSubMenu(Wt::WMenu *menu)
                 deferCreate([this]{ return wnotification(); }))
     ->setPathComponent("");
 
+  menu->addItem("WBadge",
+                deferCreate([this]{ return wbadge(); }));
+
 }
 
 
@@ -37,6 +40,19 @@ std::unique_ptr<Wt::WWidget> Notification::wnotification()
   result->bindWidget("AskNotificationPermission", AskNotificationPermission());
   result->bindWidget("NotificationSend", NotificationSend());
   result->bindWidget("NotificationChat", NotificationChat());
+
+  return std::move(result);
+}
+
+#include "examples/Badge.cpp"
+#include "examples/BadgeInPopupMenu.cpp"
+
+std::unique_ptr<Wt::WWidget> Notification::wbadge()
+{
+  auto result = std::make_unique<TopicTemplate>("notification-wbadge");
+
+  result->bindWidget("Badge", Badge());
+  result->bindWidget("BadgeInPopupMenu", BadgeInPopupMenu());
 
   return std::move(result);
 }

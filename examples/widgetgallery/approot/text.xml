@@ -5386,4 +5386,31 @@
 
   </message>
 
+  <message id="notification-wbadge">
+    <h2 id="wbadge">WBadge</h2>
+    <p>
+      A ${doc-link WBadge} is a short text, often shown against a contrasting
+      background, which is used to convey important information at a
+      glance.
+    </p>
+
+    <fieldset class="example">
+      <legend>Example</legend>
+      ${Badge}
+      ${src Badge}
+    </fieldset>
+
+    <p>
+      A badge can also be added to any ${doc-link WPushButton} or ${doc-link WMenuItem}. This
+      is useful to attract the user's attention to a particular button or menu item.
+    </p>
+
+    <fieldset class="example">
+      <legend>Example</legend>
+      ${BadgeInPopupMenu}
+      ${src BadgeInPopupMenu}
+    </fieldset>
+
+  </message>
+
 </messages>

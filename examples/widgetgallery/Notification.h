@@ -21,6 +21,7 @@ public:
 
 private:
   std::unique_ptr<Wt::WWidget> wnotification();
+  std::unique_ptr<Wt::WWidget> wbadge();
 };
 
 #endif // MEDIA_H_
