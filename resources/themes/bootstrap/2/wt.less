@@ -608,13 +608,13 @@
   /* resize handles */
   .Wt-tv-rh {
     float: right;
-    width: 4px;
+    width: 3px;
     cursor: col-resize;
   }
 
   .Wt-tv-no-rh {
     width: 0px;
-    margin-left: 4px;
+    margin-left: 3px;
     cursor: default;
   }
 
@@ -665,7 +665,7 @@ body.Wt-rtl {
 
     .Wt-tv-no-rh {
       margin-left: 0px;
-      margin-right: 4px;
+      margin-right: 3px;
     }
   }
 }
@@ -682,11 +682,19 @@ body.Wt-rtl {
   white-space: nowrap;
 
   .Wt-header .Wt-label {
-    padding-inline: 3px;
+    padding-inline: 3px 0px;
+  }
+
+  .Wt-header .Wt-tv-no-rh ~ * > * > .Wt-label {
+    padding-inline-end: 3px;
   }
 
   .Wt-header div[style*="text-align:center;"] .Wt-tv-sh ~ .Wt-label {
-    padding-inline: 16px 0px;
+    padding-inline: 19px 0px;
+  }
+
+  .Wt-header.Wt-tv-no-rh ~ div[style*="text-align:center;"] > * > .Wt-tv-sh ~ .Wt-label {
+    padding-inline-start: 16px;
   }
 
   .Wt-tv-contents {

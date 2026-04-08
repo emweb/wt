@@ -674,12 +674,20 @@ body.Wt-rtl {
 .Wt-tableview {
   white-space: nowrap;
 
-  .Wt-tableview .Wt-header .Wt-label {
-    padding-inline: 3px;
+  .Wt-header .Wt-label {
+    padding-inline: 3px 0px;
+  }
+
+  .Wt-header .Wt-tv-no-rh ~ * > * > .Wt-label {
+    padding-inline-end: 3px;
   }
 
   .Wt-header div[style*="text-align:center;"] .Wt-tv-sh ~ .Wt-label {
-    padding-inline: 16px 0px;
+    padding-inline: 19px 0px;
+  }
+
+  .Wt-header.Wt-tv-no-rh ~ div[style*="text-align:center;"] > * > .Wt-tv-sh ~ .Wt-label {
+    padding-inline-start: 16px;
   }
 
   .Wt-tv-contents {
