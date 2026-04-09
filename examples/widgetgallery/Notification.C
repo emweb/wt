@@ -26,6 +26,8 @@ void Notification::populateSubMenu(Wt::WMenu *menu)
   menu->addItem("WBadge",
                 deferCreate([this]{ return wbadge(); }));
 
+  menu->addItem("WFavicon",
+                deferCreate([this]{ return wfavicon(); }));
 }
 
 
@@ -53,6 +55,19 @@ std::unique_ptr<Wt::WWidget> Notification::wbadge()
 
   result->bindWidget("Badge", Badge());
   result->bindWidget("BadgeInPopupMenu", BadgeInPopupMenu());
+
+  return std::move(result);
+}
+
+#include "examples/ChangeFavicon.cpp"
+#include "examples/FaviconPair.cpp"
+
+std::unique_ptr<Wt::WWidget> Notification::wfavicon()
+{
+  auto result = std::make_unique<TopicTemplate>("notification-wfavicon");
+
+  result->bindWidget("ChangeFavicon", ChangeFavicon());
+  result->bindWidget("FaviconPair", FaviconPair());
 
   return std::move(result);
 }

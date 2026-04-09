@@ -5410,6 +5410,55 @@
       ${BadgeInPopupMenu}
       ${src BadgeInPopupMenu}
     </fieldset>
+  </message>
+
+  <message id="notification-wfavicon">
+    <h2 id="wfavicon">WFavicon</h2>
+    <p>
+      A ${doc-link WFavicon} is an object that represents a
+      favicon that can be set for the application. Changing the
+      favicon can be used to notify the user that something happened on
+      the application, even when the user is looking at another tab.
+      This is less intrusive than a ${doc-link WNotification}, and does
+      not require permission from the user.
+    </p>
+
+      <h3 id="wfavicon/changingfavicon">Changing Favicon</h3>
+      <p>
+        You can change the favicon to any image that a browser accepts
+        as a favicon (e.g. PNG, JPEG, ICO). This will only modify the
+        favicon for the application, so it will only affect the user.
+        You can go back to the default favicon of the application by
+        setting the favicon of the application to <code>nullptr</code>.
+      </p>
+      <p>
+        Tips: You can set the default favicon for an application when
+        adding the entry point for the application, or you can
+        configure the default favicon in the<code>wt_config.xml</code>,
+        by setting the property named <code>favicon</code>.
+      </p>
+
+      <fieldset class="example">
+        <legend>Example</legend>
+        ${ChangeFavicon}
+        ${src ChangeFavicon}
+      </fieldset>
+
+      <h3 id="wfavicon/wfaviconpair">Favicon Pair</h3>
+      <p>
+        A ${doc-link WFavicon} has 2 states: the default state and the
+        updated state. This state can be changed using the
+        <code>update()</code> and <code>reset()</code> methods. Basic
+        ${doc-link WFavicon} are the same image in both states, but
+        a ${doc-link WFaviconPair} is a favicon that shows a different
+        ${doc-link WFavicon} in each state.
+      </p>
+
+      <fieldset class="example">
+        <legend>Example</legend>
+        ${FaviconPair}
+        ${src FaviconPair}
+      </fieldset>
 
   </message>
 
