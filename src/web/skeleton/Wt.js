@@ -4053,13 +4053,13 @@ window._$_APP_CLASS_$_ = new (function() {
     return "0";
   }
 
-  window.onunload = function() {
+  window.addEventListener("pagehide", () => {
     if (!hasQuit) {
       self.emit(self, "Wt-unload");
       scheduleUpdate();
       sendUpdate();
     }
-  };
+  });
 
   function setLocale(m) {
     if (m === "") {
