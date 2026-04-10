@@ -25,9 +25,9 @@ for (int i = 0; i < tableView->model()->columnCount(); ++i)
     tableView->setColumnWidth(i, 120);
 
 /*
- * 7 pixels are padding/border per column
+ * 1 pixels are border per column
  * 2 pixels are border of the entire table
  */
-tableView->setWidth((WIDTH + 7) * tableView->model()->columnCount() + 2);
+tableView->setWidth((WIDTH+1) * tableView->model()->columnCount() + 2);
 
 SAMPLE_END(return std::move(tableView))

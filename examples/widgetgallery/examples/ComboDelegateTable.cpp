@@ -118,6 +118,6 @@ table->setHeaderHeight(0);
 const int WIDTH = 120;
 for (int i = 0; i < table->model()->columnCount(); ++i)
     table->setColumnWidth(i, WIDTH);
-table->setWidth((WIDTH + 7) * table->model()->columnCount() + 2);
+table->setWidth((WIDTH + 1) * table->model()->columnCount() + 2);
 
 SAMPLE_END(return std::move(table))

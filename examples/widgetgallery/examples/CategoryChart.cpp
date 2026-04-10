@@ -42,7 +42,7 @@ table->setRowHeight(28);
 table->setHeaderHeight(28);
 table->setMargin(10, Side::Top | Side::Bottom);
 table->setMargin(WLength::Auto, Side::Left | Side::Right);
-table->setWidth(4*120 + 80 + 5*7 + 2);
+table->setWidth(4*120 + 80 + 5 + 2);
 
 /*
  * Editing does not really work without Ajax, it would require an

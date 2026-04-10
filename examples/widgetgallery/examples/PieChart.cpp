@@ -88,7 +88,7 @@ table->setModel(model);
 table->setColumnWidth(1, 100);
 table->setRowHeight(28);
 table->setHeaderHeight(28);
-table->setWidth(150 + 100 + 14 + 2);
+table->setWidth(150 + 100 + 2 + 2);
 
 if (WApplication::instance()->environment().ajax())
     table->setEditTriggers(EditTrigger::SingleClicked);
