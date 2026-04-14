@@ -59,7 +59,7 @@ const int WWebWidget::DEFAULT_BASE_Z_INDEX = 1100;
 const int WWebWidget::Z_INDEX_INCREMENT = 1100;
 
 #ifndef WT_TARGET_JAVA
-const std::bitset<43> WWebWidget::AllChangeFlags = std::bitset<43>()
+const std::bitset<44> WWebWidget::AllChangeFlags = std::bitset<44>()
   .set(BIT_FLEX_BOX_CHANGED)
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
@@ -132,8 +132,6 @@ WWebWidget::WWebWidget()
   flags_.set(BIT_INLINE);
   flags_.set(BIT_ENABLED);
   flags_.set(BIT_TOOLTIP_SHOW_ON_HOVER);
-
-  focussed().connect(this, &WWebWidget::onFocus);
 }
 
 
@@ -2610,6 +2608,10 @@ void WWebWidget::doLoad(WWidget *w)
 
 void WWebWidget::render(WFlags<RenderFlag> flags)
 {
+  if (!flags_.test(BIT_FOCUS_CONNECTED)) {
+    focussed().connect(this, &WWebWidget::onFocus);
+    flags_.set(BIT_FOCUS_CONNECTED);
+  }
   WWidget::render(flags);
 }
 
