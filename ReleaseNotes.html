@@ -20,21 +20,48 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.13.0 (TBD)</h2>
+<h2>Release 4.13.0 (April 14, 2026)</h2>
 
 <p>Wt 4.13.0 is a major release that introduces the following new features:</p>
 
 <ul>
   <li>
-    <a href="https://redmine.emweb.be/issues/14305" target="_blank">Issue #14305</a>:
-    added the possibility to change the format of the access logs using
-    <a href="classWt_1_1WServer.html#ac513e830dbe4eb582bfc37b27826c7c1" target="_blank">WServer::setAccessLoggerFormat()</a>.
-
-    Additionally, the access logger is now accessible through the new
-    <a href="classWt_1_1WServer.html#acc962bccafdd3345b2d4e39e6b9baf31" target="_blank">WServer::accessLogger()</a> function, which
-    allows to change the output file of the access logger at runtime. To complement this, it is now also possible to change
-    whether the access logs are redirected to the standard logger or not using
-    <a href="classWt_1_1WServer.html#a3aeddcc6ac27fab56874747b3dddee71" target="_blank">WServer::setRedirectAccessLog()</a>.
+    <a href="https://redmine.webtoolkit.eu/issues/12968" target="_blank">Issue #12968</a>:
+    It is now possible to send notifications trough JavaScript notification API using <a href="classWt_1_1WNotification.html" target="_blank">WNotification</a>. You
+    can see examples of how to use it in the
+    <a href="https://www.webtoolkit.eu/widgets/notification" target="_blank">Widget Gallery</a>.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/12967" target="_blank">Issue #12967</a>:
+    It is now possible to change the favicon of an individual
+    <a href="classWt_1_1WApplication.html" target="_blank">WApplication</a> using
+    <a href="classWt_1_1WApplication.html#a2681edc4e1b0edbb22c5e1aa72381101" target="_blank">WApplication::setFavicon()</a>. This takes as parameter a
+    <a href="classWt_1_1WFavicon.html" target="_blank">WFavicon</a> which is a new class representing favicons. Since the main goal of this feature is to allow developers to notify
+    the user using the favicon, the WFavicon is mainly designed to make around this idea. While WFavicon is an abstract class, we also added four specialisations of this class.
+    The
+    <a href="classWt_1_1WResourceFavicon.html" target="_blank">WResourceFavicon</a> and
+    <a href="classWt_1_1WUrlFavicon.html" target="_blank">WUrlFavicon</a> are simple specialisations of WFavicon that allows to create a favicon from a
+    <a href="classWt_1_1WResource.html" target="_blank">WResource</a> or a URL respectively.
+    The
+    <a href="classWt_1_1WRasterFavicon.html" target="_blank">WRasterFavicon</a>, uses a
+    <a href="classWt_1_1WRasterImage.html" target="_blank">WRasterImage</a> to update the favicon (this is only available if WRasterImage is available).
+    And the
+    <a href="classWt_1_1WFaviconPair.html" target="_blank">WFaviconPair</a>, can be used to switch between two
+    <a href="classWt_1_1WFavicon.html" target="_blank">WFavicon</a>.
+    You can see examples of how to use it in the
+    <a href="https://www.webtoolkit.eu/widgets/notification/wfavicon" target="_blank">Widget Gallery</a>.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/12946" target="_blank">Issue #12946</a>:
+    Added
+    <a href="classWt_1_1WBadge.html" target="_blank">WBadge</a>, a new class that represents a badge which is a text
+    with a special look. Badges are often used to draw the attention, or warn of updates.
+    It is possible to add a WBadge to a
+    <a href="classWt_1_1WPushButton.html" target="_blank">WPushButton</a>, to a
+    <a href="classWt_1_1WMenuItem.html" target="_blank">WMenuItem</a>, (and by extension) to a
+    <a href="classWt_1_1WTabWidget.html" target="_blank">WTabWidget</a>.
+    You can see examples of how to use it in the
+    <a href="https://www.webtoolkit.eu/widgets/notification/wbadge" target="_blank">Widget Gallery</a>.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13785" target="_blank">Issue #13785</a>:
@@ -47,27 +74,23 @@ behaviour.
     <a href="classWt_1_1WTreeView.html" target="_blank">WTreeView</a>.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/12946" target="_blank">Issue #12946</a>:
-    Added
-    <a href="classWt_1_1WBadge.html" target="_blank">WBadge</a>, a new class that represents a badge which is a text
-    with a special look. Badges are often used to draw the attention, or warn of updates.
-    It is possible to add a WBadge to a
-    <a href="classWt_1_1WPushButton.html" target="_blank">WPushButton</a>, to a
-    <a href="classWt_1_1WMenuItem.html" target="_blank">WMenuItem</a>, (and by extension) to a
-    <a href="classWt_1_1WTabWidget.html" target="_blank">WTabWidget</a>.
-  </li>
-  <li>
-    <a href="https://redmine.webtoolkit.eu/issues/12968" target="_blank">Issue #12968</a>:
-    It is now possible to send notifications trough JavaScript notification API using <a href="classWt_1_1WNotification.html" target="_blank">WNotification</a>. You
-    can see examples of how to use it in the widget gallery.
-  </li>
-  <li>
     <a href="https://redmine.webtoolkit.eu/issues/7986" target="_blank">Issue #7986</a>:
     added caching for form objects data on the server side to reduce the size of the request sent to the server by the client.
     This can be disabled by setting the <code>form-data-caching</code> option to <code>false</code> in the <code>wt_config.xml</code> file.
 
     Note that this reduction in request size may come at the cost of an increase response size when updating form objects. It is possible
     to limit this impact by changing the <code>form-data-resend-ratio-limit</code> option in the <code>wt_config.xml</code> file.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14305" target="_blank">Issue #14305</a>:
+    added the possibility to change the format of the access logs using
+    <a href="classWt_1_1WServer.html#ac513e830dbe4eb582bfc37b27826c7c1" target="_blank">WServer::setAccessLoggerFormat()</a>.
+
+    Additionally, the access logger is now accessible through the new
+    <a href="classWt_1_1WServer.html#acc962bccafdd3345b2d4e39e6b9baf31" target="_blank">WServer::accessLogger()</a> function, which
+    allows to change the output file of the access logger at runtime. To complement this, it is now also possible to change
+    whether the access logs are redirected to the standard logger or not using
+    <a href="classWt_1_1WServer.html#a3aeddcc6ac27fab56874747b3dddee71" target="_blank">WServer::setRedirectAccessLog()</a>.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/12940" target="_blank">Issue #12940</a>:
@@ -78,50 +101,16 @@ behaviour.
     <a href="classWt_1_1WPainter.html" target="_blank">WPainter</a> have been updated to use WTextF instead of
     <a href="classWt_1_1WString.html" target="_blank">WString</a>.
   </li>
-  <li>
-    <a href="https://redmine.webtoolkit.eu/issues/12967" target="_blank">Issue #12967</a>:
-    It is now possible to change the favicon of an individual
-    <a href="classWt_1_1WApplication.html" target="_blank">WApplication</a> using
-    <a href="classWt_1_1WApplication.html#a2681edc4e1b0edbb22c5e1aa72381101" target="_blank">WApplication::setFavicon()</a>. This takes as parameter a
-    <a href="classWt_1_1WFavicon.html" target="_blank">WFavicon</a> which is a new class representing favicons. Since the main goal of this feature is to allow developpers to notify
-    the user using the favicon, the WFavicon is mainly designed to make arround this idea. While WFavicon is an abstract class, we also added two specialisations of this class.
-    The first one is
-    <a href="classWt_1_1WRasterFavicon.html" target="_blank">WRasterFavicon</a>, which uses a
-    <a href="classWt_1_1WRasterImage.html" target="_blank">WRasterImage</a> to update the favicon (this is only available if WRasterImage is available).
-    The second one is
-    <a href="classWt_1_1WResourcePairFavicon.html" target="_blank">WResourcePairFavicon</a>, which can switch between two
-    <a href="classWt_1_1WResource.html" target="_blank">WResource</a> to update the favicon.
-  </li>
 </ul>
 
 <p>Wt 4.13.0 also fixes the following bugs:</p>
 
 <ul>
   <li>
-    <a href="https://redmine.emweb.be/issues/13574" target="_blank">Issue #13574</a>:
-    fixed
-    <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a> headers label
-    alignment when aligning to the right or the center.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14035" target="_blank">Issue #14035</a>:
-    fixed
-    <a href="classWt_1_1WHBoxLayout.html" target="_blank">WHBoxLayout::itemAt()</a>,
-    <a href="classWt_1_1WVBoxLayout.html" target="_blank">WVBoxLayout::itemAt()</a>, and
-    <a href="classWt_1_1WGridLayout.html" target="_blank">WGridLayout::itemAt()</a> not checking that
-    the given index was in the valid range, leading to segfault instead of returning nullptr.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14416" target="_blank">Issue #14416</a>:
-    fixed
-    <a href="classWt_1_1WWebWidget.html#aa140064593fa5f47ebdf26fcf71c4948" target="_blank">WWebWidget::setSelectable(true)</a> preventing selection instead of allowing it.
-    This caused several widgets to have unselectable text, like in
-    <a href="https://redmine.emweb.be/issues/14310" target="_blank">issue #14310</a>.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14427" target="_blank">Issue #14427</a>:
-    fixed a SIGFPE that could happen when using
-    <a href="classWt_1_1WLocalizedStrings.html#a2f50fd381c0757539a635a9992eebdab" target="_blank">WLocalizedStrings::evaluatePluralExpression()</a>.
+    <a href="https://redmine.emweb.be/issues/14441" target="_blank">Issue #14441</a>:
+    fixed segmentation fault that could occur when deleting a
+    <a href="classWt_1_1WApplication.html" target="_blank">WApplication</a> that had a
+    <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> open.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14447" target="_blank">Issue #14447</a>:
@@ -131,24 +120,19 @@ behaviour.
     <a href="classWt_1_1WButtonGroup.html" target="_blank">WButtonGroup</a>.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/14441" target="_blank">Issue #14441</a>:
-    fixed segmentation fault that could occur when deleting a
-    <a href="classWt_1_1WApplication.html" target="_blank">WApplication</a> that had a
-    <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> open.
+    <a href="https://redmine.emweb.be/issues/14416" target="_blank">Issue #14416</a>:
+    fixed
+    <a href="classWt_1_1WWebWidget.html#aa140064593fa5f47ebdf26fcf71c4948" target="_blank">WWebWidget::setSelectable(true)</a> preventing selection instead of allowing it.
+    This caused several widgets to have unselectable text, like in
+    <a href="https://redmine.emweb.be/issues/14310" target="_blank">issue #14310</a>.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/14053" target="_blank">Issue #14053</a>:
+    <a href="https://redmine.emweb.be/issues/14035" target="_blank">Issue #14035</a>:
     fixed
-    <a href="classWt_1_1WAbstractProxyModel.html" target="_blank">WAbstractProxyModel</a> not using the overridden version of
-    <a href="classWt_1_1WAbstractItemModel.html#a4d7fa5951281dd9b623c9afd7ed9c2ef" target="_blank">WAbstractItemModel::dropEvent()</a> when handling drop events.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14504" target="_blank">Issue #14504</a>:
-    fixed
-    <a href="classWt_1_1WItemDelegate.html#ad846a8933d846fc43394bb6d5fd78d7e" target="_blank">WItemDelegate::editState()</a> and
-    <a href="classWt_1_1WItemDelegate.html#aa1519431acb606b62b9d4f8faf279d03" target="_blank">WItemDelegate::setEditState()</a>
-    segfaulting when the editor widget was not a
-    <a href="classWt_1_1WLineEdit.html" target="_blank">WLineEdit</a>. It will now log an error instead of crashing.
+    <a href="classWt_1_1WBoxLayout.html#a3484fc08d50ec25c3f596cf6c9aea500" target="_blank">WHBoxLayout::itemAt()</a>,
+    <a href="classWt_1_1WBoxLayout.html#a3484fc08d50ec25c3f596cf6c9aea500" target="_blank">WVBoxLayout::itemAt()</a>, and
+    <a href="classWt_1_1WGridLayout.html#a77fef7a57e94c094ca88105874db028b" target="_blank">WGridLayout::itemAt()</a> not checking that
+    the given index was in the valid range, leading to segfault instead of returning nullptr.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14455" target="_blank">Issue #14455</a>:
@@ -163,14 +147,39 @@ behaviour.
     would be partially hidden instead of shrinking.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/14431" target="_blank">Issue #14431</a>:
-    added a workaround for libc++ not supporting <code>std::chrono::clock_cast</code> yet,
-    as this was causing a compilation error when compiling with libc++ with c++ version 20.
+    <a href="https://redmine.emweb.be/issues/13574" target="_blank">Issue #13574</a>:
+    fixed
+    <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a> headers label
+    alignment when aligning to the right or the center.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14053" target="_blank">Issue #14053</a>:
+    fixed
+    <a href="classWt_1_1WAbstractProxyModel.html" target="_blank">WAbstractProxyModel</a> not using the overridden version of
+    <a href="classWt_1_1WAbstractItemModel.html#a4d7fa5951281dd9b623c9afd7ed9c2ef" target="_blank">WAbstractItemModel::dropEvent()</a> when handling drop events.
   </li>
   <li>
     Fixed
     <a href="classWt_1_1WRasterImage.html" target="_blank">WRasterImage</a> unable to read dataUri when using
     <a href="http://www.graphicsmagick.org/" target="_blank">GraphicsMagick</a>.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14504" target="_blank">Issue #14504</a>:
+    fixed
+    <a href="classWt_1_1WItemDelegate.html#ad846a8933d846fc43394bb6d5fd78d7e" target="_blank">WItemDelegate::editState()</a> and
+    <a href="classWt_1_1WItemDelegate.html#aa1519431acb606b62b9d4f8faf279d03" target="_blank">WItemDelegate::setEditState()</a>
+    segfaulting when the editor widget was not a
+    <a href="classWt_1_1WLineEdit.html" target="_blank">WLineEdit</a>. It will now log an error instead of crashing.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14427" target="_blank">Issue #14427</a>:
+    fixed a SIGFPE that could happen when using
+    <a href="classWt_1_1WLocalizedStrings.html#a2f50fd381c0757539a635a9992eebdab" target="_blank">WLocalizedStrings::evaluatePluralExpression()</a>.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14431" target="_blank">Issue #14431</a>:
+    added a workaround for libc++ not supporting <code>std::chrono::clock_cast</code> yet,
+    as this was causing a compilation error when compiling with libc++ with c++ version 20.
   </li>
 </ul>
 
@@ -178,10 +187,16 @@ behaviour.
 
 <ul>
   <li>
-    <a href="https://redmine.emweb.be/issues/14459" target="_blank">Issue #14459</a>:
-    added more strictness to incoming GET requests. In <a href="https://redmine.emweb.be/issues/13970" target="_blank">Issue #13970</a>,
-    we already ensure that a <code>wtd</code> alone in a new request would be considered suspect. Now we add <code>signal</code> (in itself) as a suspect
-    parameter too. When combined, they are allowed.
+    <a href="https://redmine.emweb.be/issues/13841" target="_blank">Issue #13841</a>:
+    added the ability to retrieve the currently focused widget in a Wt application using
+    <a href="classWt_1_1WApplication.html#a1918508a02889373a9e1fc1d872f2753" target="_blank">WApplication::focusedWidget()</a>,
+    or its ID using
+    <a href="classWt_1_1WApplication.html#a7e094aee22c9ce9ad74ed76a11e1b109" target="_blank">WApplication::focus()</a>.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/9328" target="_blank">Issue #9328</a>:
+    improved the positioning of tooltips so that they do not go outside of the screen and
+    add a vertical scrollbar to the tooltip if necessary.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13789" target="_blank">Issue #13789</a>:
@@ -195,11 +210,10 @@ behaviour.
     when compiling Wt with boost 1.90.0 or later.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/13841" target="_blank">Issue #13841</a>:
-    added the ability to retrieve the currently focused widget in a Wt application using
-    <a href="classWt_1_1WApplication.html#a1918508a02889373a9e1fc1d872f2753" target="_blank">WApplication::focusedWidget()</a>,
-    or its ID using
-    <a href="classWt_1_1WApplication.html#a7e094aee22c9ce9ad74ed76a11e1b109" target="_blank">WApplication::focus()</a>.
+    <a href="https://redmine.emweb.be/issues/14459" target="_blank">Issue #14459</a>:
+    added more strictness to incoming GET requests. In <a href="https://redmine.emweb.be/issues/13970" target="_blank">Issue #13970</a>,
+    we already ensure that a <code>wtd</code> alone in a new request would be considered suspect. Now we add <code>signal</code> (in itself) as a suspect
+    parameter too. When combined, they are allowed.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14420" target="_blank">Issue #14420</a>:
@@ -214,11 +228,6 @@ behaviour.
     <a href="https://redmine.emweb.be/issues/14467" target="_blank">Issue #14467</a>:
     replaced the use of the deprecated <code>unload</code> event with <code>pagehide</code>
     to know when a page is being unloaded by the browser.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/9328" target="_blank">Issue #9328</a>:
-    improved the positioning of tooltips so that they do not go outside of the screen and
-    add a vertical scrollbar to the tooltip if necessary.
   </li>
 </ul>
 
