@@ -3,6 +3,8 @@
  *
  * See the LICENSE file for terms of use.
  */
+
+#include "Wt/WLogger.h"
 #include "Wt/WGroupBox.h"
 #include "Wt/WVBoxLayout.h"
 
@@ -10,6 +12,8 @@
 #include "StdWidgetItemImpl.h"
 
 namespace Wt {
+
+  LOGGER("WGroupBox");
 
 WGroupBox::WGroupBox()
 {
@@ -87,6 +91,69 @@ void WGroupBox::refresh()
   }
 
   WContainerWidget::refresh();
+}
+
+void WGroupBox::addWidget(std::unique_ptr<WWidget> widget)
+{
+  if (!logicalLayout_) {
+    realLayout()->addWidget(std::move(widget));
+  }
+}
+
+void WGroupBox::insertBefore(std::unique_ptr<WWidget> widget,
+                             WWidget *before)
+{
+  int index = indexOf(before);
+
+  if (index == -1) {
+    LOG_ERROR("insertBefore(): before is not in container, appending at back");
+    // We don't want to use an override here, to behave like a WContainerWidget.
+    index = WGroupBox::count();
+  }
+
+  insertWidget(index, std::move(widget));
+}
+
+void WGroupBox::insertWidget(int index, std::unique_ptr<WWidget> widget)
+{
+  if (!logicalLayout_) {
+    WBoxLayout *boxLayout = dynamic_cast<WBoxLayout *>(realLayout());
+    if (boxLayout) {
+      boxLayout->insertWidget(index, std::move(widget));
+    } else {
+      // should never happen
+      LOG_ERROR("Could not insert widget. Logical layout is not a box layout");
+    }
+  }
+}
+
+int WGroupBox::indexOf(WWidget* w) const
+{
+  if (!logicalLayout_) {
+    for (int i = 0; i < realLayout()->count(); ++i) {
+      WWidget* candidate = widget(i);
+      if (candidate == w) {
+        return i;
+      }
+    }
+  }
+
+  return -1;
+}
+
+WWidget* WGroupBox::widget(int index) const
+{
+  if (logicalLayout_) {
+    return nullptr;
+  }
+
+  WLayoutItem *item = realLayout()->itemAt(index);
+  return item ? item->widget() : nullptr;
+}
+
+int WGroupBox::count() const
+{
+  return logicalLayout_ ? 0 : realLayout()->count();
 }
 
 int WGroupBox::firstChildIndex() const

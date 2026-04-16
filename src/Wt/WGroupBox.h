@@ -109,6 +109,17 @@ public:
 
   virtual void refresh() override;
 
+  using WContainerWidget::addWidget;
+  using WContainerWidget::insertBefore;
+  using WContainerWidget::insertWidget;
+
+  void addWidget(std::unique_ptr<WWidget> widget) override;
+  void insertBefore(std::unique_ptr<WWidget> widget, WWidget *before) override;
+  void insertWidget(int index, std::unique_ptr<WWidget> widget) override;
+  int indexOf(WWidget *widget) const override;
+  WWidget* widget(int index) const override;
+  int count() const override;
+
 protected:
   virtual DomElementType domElementType() const override;
 
