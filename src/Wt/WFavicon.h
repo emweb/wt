@@ -35,6 +35,8 @@ namespace Wt {
 class WT_API WFavicon
 {
 public:
+  virtual ~WFavicon() = default;
+
   /*! \brief Returns the url to the favicon.
    * 
    * This should return the absolute url to the favicon.
