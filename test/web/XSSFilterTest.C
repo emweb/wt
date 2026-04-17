@@ -200,10 +200,10 @@ BOOST_FIXTURE_TEST_CASE( test_XSSFilter_XSSFilterRemoveScript_resolved_xhtml_wit
   // entity in the string as-is.
 
   Wt::WString content = Wt::WString::tr("xhtml-with-entity");
-  Wt::WString expected = "<p>Hello & I am a string!</p>";
+  Wt::WString expected = "<p>Hello &amp; I am a string!</p>";
 
   bool result = Wt::WWebWidget::removeScript(content);
 
-  BOOST_REQUIRE(!result);
+  BOOST_REQUIRE(result);
   BOOST_CHECK_EQUAL(content, expected);
 }

@@ -65,7 +65,7 @@ bool XSSFilterRemoveScript(WString& text)
   if (text.empty())
     return true;
 
-  std::string result = "<span>" + text.toUTF8() + "</span>";
+  std::string result = "<span>" + text.toXhtmlUTF8() + "</span>";
   std::vector<char> buf;
   buf.reserve(result.size() + 1);
   buf.insert(buf.end(), result.begin(), result.end());
