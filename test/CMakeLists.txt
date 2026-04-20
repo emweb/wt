@@ -90,6 +90,7 @@ IF(ENABLE_LIBWTTEST)
     wdatetime/WDateTimeTest.C
     web/DomElementTest.C
     web/RefEncoderTest.C
+    web/XSSFilterTest.C
   )
 
   if (MULTI_THREADED)

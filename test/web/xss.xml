@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages>
+  <message id="check">Found</message>
+
+  <message id="plain">Hello, I am a string!</message>
+  <message id="xhtml"><p>Hello, I am a string!</p></message>
+  <message id="unsafe-xhtml-script"><p><script>var j = 5;</script>Hello, I am a string!</p></message>
+  <message id="unsafe-xhtml-attribute"><p onclick='var j = 5;'>Hello, I am a string!</p></message>
+  <message id="unsafe-xhtml-attribute-value"><a href='javascript:doSomething();'>Hello, I am a string!</a></message>
+  <message id="xhtml-with-entity"><p>Hello &amp; I am a string!</p></message>
+</messages>
