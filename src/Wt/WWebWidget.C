@@ -2829,11 +2829,7 @@ std::string WWebWidget::resolveRelativeUrl(const std::string& url)
 
 bool WWebWidget::removeScript(WString& text)
 {
-#ifndef WT_NO_XSS_FILTER
   return XSSFilterRemoveScript(text);
-#else
-  return true;
-#endif
 }
 
 bool WWebWidget::scrollVisibilityEnabled() const
