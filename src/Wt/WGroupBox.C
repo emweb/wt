@@ -106,7 +106,7 @@ void WGroupBox::insertBefore(std::unique_ptr<WWidget> widget,
   int index = indexOf(before);
 
   if (index == -1) {
-    LOG_ERROR("insertBefore(): before is not in container, appending at back");
+    LOG_WARN("insertBefore(): before is not in container, appending at back");
     // We don't want to use an override here, to behave like a WContainerWidget.
     index = WGroupBox::count();
   }

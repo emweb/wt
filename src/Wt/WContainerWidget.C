@@ -128,7 +128,7 @@ void WContainerWidget::insertBefore(std::unique_ptr<WWidget> widget,
   int index = indexOf(before);
 
   if (index == -1) {
-    LOG_ERROR("insertBefore(): before is not in container, appending at back");
+    LOG_WARN("insertBefore(): before is not in container, appending at back");
     index = children_.size();
   }
 
