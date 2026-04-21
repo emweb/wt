@@ -237,7 +237,7 @@ public:
    * \sa getCookie()
    */
   const std::string *getHostCookie(const std::string& cookieName) const { return getCookie("__Host-" + cookieName); }
-  
+
   /*! \brief Returns a header value.
    *
    * Returns a header value, or an empty string if the header was
@@ -295,6 +295,16 @@ public:
   WNotification::Permission notificationPermission() const { return notificationPermission_; }
 
   bool positionAnchorSupported() const { return positionAnchorSupported_; }
+
+  /*! \brief Returns the original visibility state of the page.
+   *
+   * This returns the visibility state of the page as it was when ajax
+   * was enabled.
+   *
+   * \sa WApplication::visibilityChanged(),
+   *     WApplication::visibilityState()
+   */
+  VisibilityState visibilityState() const { return visibilityState_; }
 
   /*! \brief Returns the horizontal resolution of the client's screen.
    *
@@ -766,6 +776,7 @@ protected:
   bool                      notificationSupported_;
   WNotification::Permission notificationPermission_;
   bool                      positionAnchorSupported_;
+  VisibilityState           visibilityState_;
 
   Http::ParameterMap parameters_;
   CookieMap   cookies_;
@@ -805,6 +816,7 @@ private:
   void updateUrlScheme(const WebRequest& request);
   void enableAjax(const WebRequest& request);
   void setNotificationPermission(const std::string& permission);
+  void setVisibilityState(const std::string& visibilityState);
 
   bool agentSupportsAjax() const;
   static void parseCookies(const std::string& cookie,

@@ -53,6 +53,7 @@ WEnvironment::WEnvironment()
     notificationSupported_(false),
     notificationPermission_(WNotification::Permission::Default),
     positionAnchorSupported_(false),
+    visibilityState_(VisibilityState::Unknown),
     timeZoneOffset_(0)
 { }
 
@@ -69,6 +70,7 @@ WEnvironment::WEnvironment(WebSession *session)
     notificationSupported_(false),
     notificationPermission_(WNotification::Permission::Default),
     positionAnchorSupported_(false),
+    visibilityState_(VisibilityState::Unknown),
     timeZoneOffset_(0)
 { }
 
@@ -237,6 +239,11 @@ void WEnvironment::enableAjax(const WebRequest& request)
   const std::string *anchorE = request.getParameter("anchor");
   positionAnchorSupported_ = anchorE ? (*anchorE == "true") : false;
 
+  const std::string *viSE = request.getParameter("viS");
+  if (viSE) {
+    setVisibilityState(*viSE);
+  }
+
   const std::string *hashE = request.getParameter("_");
 
   // the internal path, when present as an anchor (#), is only
@@ -276,6 +283,17 @@ void WEnvironment::setNotificationPermission(const std::string& permission)
     notificationPermission_ = WNotification::Permission::Granted;
   } else if (permission == "default") {
     notificationPermission_ = WNotification::Permission::Default;
+  }
+}
+
+void WEnvironment::setVisibilityState(const std::string& visibilityState)
+{
+  if (visibilityState == "visible") {
+    visibilityState_ = VisibilityState::Visible;
+  } else if (visibilityState == "hidden") {
+    visibilityState_ = VisibilityState::Hidden;
+  } else {
+    visibilityState_ = VisibilityState::Unknown;
   }
 }
 

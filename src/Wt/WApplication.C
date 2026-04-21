@@ -124,7 +124,7 @@ WApplication::WApplication(const WEnvironment& env
     layoutDirection_(LayoutDirection::LeftToRight),
     htmlAttributeChanged_(true),
     bodyAttributeChanged_(true),
-    visibilityState_(VisibilityState::Unknown),
+    visibilityState_(env.visibilityState()),
     scriptLibrariesAdded_(0),
     theme_(nullptr),
     styleSheetsAdded_(0),
@@ -1279,6 +1279,11 @@ void WApplication::enableAjax()
   doJavaScript
     (WT_CLASS ".ajaxInternalPaths(" +
      WWebWidget::jsStringLiteral(resolveRelativeUrl(bookmarkUrl("/"))) + ");");
+
+  if (visibilityState_ != environment().visibilityState()) {
+    visibilityState_ = environment().visibilityState();
+    visibilityChanged_.emit(visibilityState_);
+  }
 }
 
 void WApplication::redirect(const std::string& url)

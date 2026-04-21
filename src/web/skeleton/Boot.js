@@ -308,6 +308,9 @@ _$_$endif_$_();
     const supportAnchor = CSS.supports("position-area", "right");
     otherInfo += "&anchor=" + (supportAnchor ? "true" : "false");
 
+    // determine visibility state
+    otherInfo += "&viS=" + document.visibilityState;
+
     let needSessionInUrl = !no_replace || !ajax;
 
     if (needSessionInUrl) {

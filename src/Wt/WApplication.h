@@ -2055,7 +2055,7 @@ public:
    *
    * This returns whether the application is currently visible to the
    * user, or if it is hidden. This is only available when ajax is
-   * supported.
+   * enabled, and will return VisibilityState::Unknown otherwise.
    *
    * \sa visibilityChanged()
    */
@@ -2067,6 +2067,9 @@ public:
    * changed, for instance, when the user switches tab.
    *
    * This is never emitted when ajax is not supported by the browser.
+   *
+   * \note When using progressive bootstrap, this signal will likely
+   *       also be emitted when ajax is being enabled.
    *
    * \sa visibilityState()
    */
