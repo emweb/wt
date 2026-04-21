@@ -4217,6 +4217,14 @@ window._$_APP_CLASS_$_ = new (function() {
     }
   });
 
+  window.addEventListener("visibilitychange", () => {
+    if (!hasQuit) {
+      self.emit(self, "Wt-visibilityChange", document.visibilityState);
+      scheduleUpdate();
+      sendUpdate();
+    }
+  });
+
   function setLocale(m) {
     if (m === "") {
       return;

@@ -941,6 +941,33 @@ enum class CheckState {
   Checked           //!< Checked
 };
 
+/*! \brief Enumeration for the visibility state of a page.
+ *
+ * The visibility state of a page indicates whether the page content is
+ * visible to the user or not.
+ *
+ * \sa WApplication::visibilityState()
+ */
+enum class VisibilityState {
+  /*! \brief The page content may be visible to the user.
+   *
+   * This state means that the page may be completely or partially
+   * visible to the user. In practice, it means that the page is the
+   * active tab of a window that is not minimized.
+   */
+  Visible,
+
+  /*! \brief The page content is not visible to the user.
+   *
+   * This state means that the page content is hidden from the user.
+   * This could be because the page is in a background tab,
+   * the window is minimized, or the OS screen lock is active.
+   */
+  Hidden,
+
+  Unknown //!< The visibility state of the page is not known.
+};
+
 /*! \brief Enumeration that indicates how to change a selection.
  *
  * \sa WPaintedWidget::update(), WPaintDevice::paintFlags()

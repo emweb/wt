@@ -2051,6 +2051,27 @@ public:
    */
   bool debug() const;
 
+  /*! \brief Returns the current visibility state of the application.
+   *
+   * This returns whether the application is currently visible to the
+   * user, or if it is hidden. This is only available when ajax is
+   * supported.
+   *
+   * \sa visibilityChanged()
+   */
+  VisibilityState visibilityState() const { return visibilityState_; }
+
+  /*! \brief Signal that is emitted when the visibility state of the application changed.
+   *
+   * This is emitted when the visibility state of the application
+   * changed, for instance, when the user switches tab.
+   *
+   * This is never emitted when ajax is not supported by the browser.
+   *
+   * \sa visibilityState()
+   */
+  Signal<VisibilityState>& visibilityChanged() { return visibilityChanged_; }
+
   /*
    * Methods for client-side focus
    */
@@ -2397,6 +2418,7 @@ protected:
 private:
   Signal< ::int64_t > requestTooLarge_;
   Signal<> unsuspended_;
+  Signal<VisibilityState> visibilityChanged_;
 
   struct ScriptLibrary {
     ScriptLibrary(const std::string& uri, const std::string& symbol);
@@ -2477,6 +2499,7 @@ private:
   std::unordered_map<std::string, std::string> htmlAttributes_;
   std::unordered_map<std::string, std::string> bodyAttributes_;
   bool htmlAttributeChanged_, bodyAttributeChanged_;
+  VisibilityState visibilityState_;
 
   std::vector<ScriptLibrary> scriptLibraries_;
   int scriptLibrariesAdded_;
@@ -2517,6 +2540,7 @@ private:
   bool customJQuery_;
 
   EventSignal<> showLoadingIndicator_, hideLoadingIndicator_;
+  JSignal<std::string> visibilityChangedJs_;
   JSignal<> unloaded_;
   JSignal<> idleTimeout_;
   Signal<> focusChanged_;
@@ -2590,6 +2614,7 @@ private:
    */
   void setExposeSignals(bool how) { exposeSignals_ = how; }
   bool exposeSignals() const { return exposeSignals_; }
+  void onVisibilityChange(const std::string& visibility);
   void doUnload();
   void doIdleTimeout();
   void onUpdateNotificationPermission(const std::string& permission);

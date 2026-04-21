@@ -124,6 +124,7 @@ WApplication::WApplication(const WEnvironment& env
     layoutDirection_(LayoutDirection::LeftToRight),
     htmlAttributeChanged_(true),
     bodyAttributeChanged_(true),
+    visibilityState_(VisibilityState::Unknown),
     scriptLibrariesAdded_(0),
     theme_(nullptr),
     styleSheetsAdded_(0),
@@ -136,6 +137,7 @@ WApplication::WApplication(const WEnvironment& env
     customJQuery_(false),
     showLoadingIndicator_("showload", this),
     hideLoadingIndicator_("hideload", this),
+    visibilityChangedJs_(this, "Wt-visibilityChange"),
     unloaded_(this, "Wt-unload"),
     idleTimeout_(this, "Wt-idleTimeout"),
     notificationPermissionAsked_(false),
@@ -297,6 +299,7 @@ WApplication::WApplication(const WEnvironment& env
   setLoadingIndicator
     (std::unique_ptr<WLoadingIndicator>(new WDefaultLoadingIndicator()));
 
+  visibilityChangedJs_.connect(this, &WApplication::onVisibilityChange);
   unloaded_.connect(this, &WApplication::doUnload);
   idleTimeout_.connect(this, &WApplication::doIdleTimeout);
   updateNotificationPermission_.connect(this, &WApplication::onUpdateNotificationPermission);
@@ -837,6 +840,19 @@ WWidget* WApplication::findById(const std::string& id) const
   }
 
   return result;
+}
+
+void WApplication::onVisibilityChange(const std::string& visibility)
+{
+  if (visibility == "visible") {
+    visibilityState_ = VisibilityState::Visible;
+  } else if (visibility == "hidden") {
+    visibilityState_ = VisibilityState::Hidden;
+  } else {
+    visibilityState_ = VisibilityState::Unknown;
+  }
+
+  visibilityChanged_.emit(visibilityState_);
 }
 
 void WApplication::doUnload()
