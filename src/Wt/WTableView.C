@@ -1905,6 +1905,14 @@ WModelIndex WTableView::modelIndexAt(WWidget *widget) const
   return WModelIndex();
 }
 
+int WTableView::visibleRowCount() const
+{
+  if (ajaxMode())
+    return viewportHeight_ / static_cast<int>(rowHeight().toPixels());
+  else
+    return renderedLastRow_ - renderedFirstRow_;
+}
+
 WModelIndex WTableView::translateModelIndex(bool headerColumns,
                                             const WMouseEvent& event)
 {
