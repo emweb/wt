@@ -579,6 +579,8 @@ void WDialog::reject()
 void WDialog::setModal(bool modal)
 {
   modal_ = modal;
+  layoutContainer_->setGlobalUnfocused(modal);
+  layoutContainer_->setCanReceiveFocus(!modal);
 }
 
 void WDialog::onDefaultPressed()
