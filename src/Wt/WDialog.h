@@ -354,6 +354,14 @@ public:
    */
   void setAutoFocus(bool enable){ autoFocus_ = enable;}
 
+  /*! \brief Set focus on the widget's first descendant.
+   *
+   * This sets the focus on the first focusable widget in the dialog.
+   * If no focusable widget is found, it will try to focus itself
+   * instead.
+   */
+  bool setFirstFocus() override;
+
   virtual void setHidden(bool hidden,
                          const WAnimation& animation = WAnimation()) override;
 

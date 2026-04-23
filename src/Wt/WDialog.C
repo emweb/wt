@@ -452,8 +452,9 @@ void WDialog::render(WFlags<RenderFlag> flags)
     impl_->mouseWentDown().connect(this, &WDialog::bringToFront);
 
   if ( flags.test(RenderFlag::Full) && autoFocus_) {
-    if (!impl_->findById(Wt::WApplication::instance()->focus()))
-      impl_->setFirstFocus();
+    if (!impl_->findById(Wt::WApplication::instance()->focus())) {
+      setFirstFocus();
+    }
   }
 
   WPopupWidget::render(flags);
@@ -517,6 +518,27 @@ void WDialog::setClosable(bool closable)
     titleBar_->removeWidget(closeIcon_.get());
     closeIcon_ = nullptr;
   }
+}
+
+bool WDialog::setFirstFocus()
+{
+  if (!isModal()) {
+    impl_->setCanReceiveFocus(false);
+    layoutContainer_->setCanReceiveFocus(false);
+  }
+
+  bool childFocused = impl_->setFirstFocus();
+
+  if (!isModal()) {
+    impl_->setCanReceiveFocus(true);
+    layoutContainer_->setCanReceiveFocus(true);
+    if (!childFocused) {
+      layoutContainer_->setFocus(true);
+    }
+    return true;
+  }
+
+  return childFocused;
 }
 
 DialogCode WDialog::exec(const WAnimation& animation)
