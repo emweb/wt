@@ -643,9 +643,9 @@ void WDialog::setHidden(bool hidden, const WAnimation& animation)
 
     DialogCover *c = cover();
     if (!hidden) {
-      if (!WWebWidget::canOptimizeUpdates() || isRendered()) {
+      if ((!WWebWidget::canOptimizeUpdates() || isRendered()) && offset(Side::Left).isAuto()) {
         doJavaScript("var o = " + jsRef() + ";"
-                   "if (o && o.wtObj) o.wtObj.centerDialog();");
+                     "if (o && o.wtObj) o.wtObj.centerDialog();");
       }
       if (c)
         c->pushDialog(this, animation);
@@ -688,6 +688,8 @@ void WDialog::positionAt(const Wt::WMouseEvent& ev)
         setOffsets(ev.window().x, Side::Left);
         setOffsets(ev.window().y, Side::Top);
   }
+  if (isHidden())
+    show();
 }
 
 DialogCover *WDialog::cover()
