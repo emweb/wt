@@ -362,7 +362,7 @@ public:
                           WFlags<Orientation> adjustOrientations = AllOrientations)
     override;
 
-  /*! \brief Set the position of the widget at the mouse position
+  /*! \brief Sets the position of the widget at the mouse position and shows it if hidden.
    */
   void positionAt(const Wt::WMouseEvent& ev);
 
