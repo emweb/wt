@@ -99,7 +99,7 @@ public:
    *
    * To remove the badge again, call this function with \p nullptr.
    *
-   * \sa removeWidget() 
+   * \sa removeWidget()
    */
   void setBadge(std::unique_ptr<WBadge> badge);
 
@@ -420,6 +420,7 @@ private:
   void setCheckBox();
   void setUnCheckBox();
   void menuItemCheckedPropagate();
+  void updateMenuZIndex();
   std::string pathComponentFromText() const;
 
   std::unique_ptr<WWidget> takeContentsForStack();

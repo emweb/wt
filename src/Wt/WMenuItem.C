@@ -557,11 +557,7 @@ void WMenuItem::setParentMenu(WMenu *menu)
   menu_ = menu;
 
   updateInternalPath();
-
-  if (menu && menu->isPopup() &&
-      subMenu_ && subMenu_->isPopup()) {
-    subMenu_->webWidget()->setZIndex(std::max(menu->zIndex() + 1000, subMenu_->zIndex()));
-  }
+  updateMenuZIndex();
 }
 
 WWidget *WMenuItem::contents() const
@@ -678,10 +674,7 @@ void WMenuItem::setMenu(std::unique_ptr<WMenu> menu)
   }
   addWidget(std::move(menu));
 
-  if (subMenu_->isPopup() &&
-      parentMenu() && parentMenu()->isPopup()) {
-    subMenu_->webWidget()->setZIndex(std::max(parentMenu()->zIndex() + 1000, subMenu_->zIndex()));
-  }
+  updateMenuZIndex();
 
   if (popup) {
     setSelectable(false);
@@ -694,6 +687,25 @@ void WMenuItem::setMenu(std::unique_ptr<WMenu> menu)
     // are checkable)
     if (dynamic_cast<WPopupMenu*>(menu_))
       popup->show();
+  }
+}
+
+void WMenuItem::updateMenuZIndex()
+{
+  if (!subMenu_ || !subMenu_->isPopup() ||
+      !menu_ || !menu_->isPopup()) {
+    return;
+  }
+
+  int currentZIndex = subMenu_->zIndex();
+  int newZIndex = std::max(menu_->zIndex() + 1000, currentZIndex);
+
+  if (newZIndex != currentZIndex) {
+    subMenu_->webWidget()->setZIndex(newZIndex);
+
+    for (WMenuItem* submenuItem : subMenu_->items()) {
+      submenuItem->updateMenuZIndex();
+    }
   }
 }
 
