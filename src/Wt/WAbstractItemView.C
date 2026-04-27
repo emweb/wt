@@ -307,6 +307,8 @@ void WAbstractItemView
   setRootIndex(WModelIndex());
 
   setHeaderHeight(headerLineHeight_);
+
+  currentSortColumn_ = -1;
 }
 
 void WAbstractItemView::setRootIndex(const WModelIndex& rootIndex)
