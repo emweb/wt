@@ -300,6 +300,12 @@ WApplication::WApplication(const WEnvironment& env
   unloaded_.connect(this, &WApplication::doUnload);
   idleTimeout_.connect(this, &WApplication::doIdleTimeout);
   updateNotificationPermission_.connect(this, &WApplication::onUpdateNotificationPermission);
+
+  globalEnterPressed().ignoreBubbling();
+  globalEscapePressed().ignoreBubbling();
+  globalKeyPressed().ignoreBubbling();
+  globalKeyWentDown().ignoreBubbling();
+  globalKeyWentUp().ignoreBubbling();
 }
 
 void WApplication::setJavaScriptClass(const std::string& javaScriptClass)

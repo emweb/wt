@@ -325,6 +325,12 @@ void WDialog::create()
   setMovable(true);
 
   zIndexChanged_.connect(this, &WDialog::zIndexChanged);
+
+  keyWentDown().ignoreBubbling();
+  keyWentUp().ignoreBubbling();
+  keyPressed().ignoreBubbling();
+  enterPressed().ignoreBubbling();
+  escapePressed().ignoreBubbling();
 }
 
 WDialog::~WDialog()
