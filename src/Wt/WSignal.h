@@ -412,7 +412,7 @@ public:
    * Use this method to prevent the default browser action associated
    * with this event.
    *
-   * \sa setPreventPropagation()
+   * \sa preventPropagation()
    */
   void preventDefaultAction(bool prevent = true);
 
@@ -436,6 +436,22 @@ public:
    * \sa preventPropagation()
    */
   bool propagationPrevented() const;
+
+  /*! \brief Ignores bubbling events.
+   *
+   * An event bubbles when it is propagated to the ancestors of the
+   * event target. This prevents the signal from being emited if the
+   * target of the event is not the owner of the signal.
+   *
+   * \sa preventPropagation()
+   */
+  void ignoreBubbling(bool ignore = true);
+
+  /*! \brief Returns whether bubbling events are ignored.
+   *
+   * \sa ignoreBubbling()
+   */
+  bool bubblingIgnored() const;
 
 #ifndef WT_CNOR
   const std::string createUserEventCall(const std::string& jsObject,
@@ -483,7 +499,8 @@ protected:
   static const int BIT_CAN_AUTOLEARN = 3;
   static const int BIT_PREVENT_DEFAULT = 4;
   static const int BIT_PREVENT_PROPAGATION = 5;
-  static const int BIT_SIGNAL_SERVER_ANYWAY = 6;
+  static const int BIT_IGNORE_BUBBLING = 6;
+  static const int BIT_SIGNAL_SERVER_ANYWAY = 7;
 
 #ifdef WT_THREADED
   static std::atomic<unsigned> nextId_;
@@ -495,7 +512,7 @@ protected:
   WObject *owner_;
   const unsigned id_;
   std::vector<StatelessConnection> connections_;
-  std::bitset<7> flags_;
+  std::bitset<8> flags_;
 
   /*
    * Dummy signal used for knowing if stateless connections are still

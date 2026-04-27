@@ -512,6 +512,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
         """if (" WT_CLASS ".isIElt9 && document.createEventObject) "
         ""  "e = document.createEventObject(e);"
         """o.wtE1 = e;"
+        """const wtCurrentTargetSave = e.currentTarget;"
         """o.wtClickTimeout = setTimeout(function() {"
         ""   "o.wtClickTimeout = null; o.wtE1 = null;";
 

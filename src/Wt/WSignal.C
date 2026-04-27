@@ -155,6 +155,13 @@ EventSignalBase::createUserEventCall(const std::string& jsObject,
 const std::string EventSignalBase::javaScript() const
 {
   std::string result = "";
+  if (bubblingIgnored()) {
+    WWidget* target = dynamic_cast<WWidget*>(owner());
+    result += "if(e.target !== e.currentTarget &&"
+              "" "!" WT_CLASS ".hasTag(e.target, 'BODY') &&"
+              "" "(typeof wtCurrentTargetSave === 'undefined' ||"
+              ""  "e.target !== wtCurrentTargetSave)) {return;}";
+  }
 
   for (unsigned i = 0; i < connections_.size(); ++i) {
     if (connections_[i].ok()) {
@@ -238,6 +245,19 @@ void EventSignalBase::preventPropagation(bool prevent)
 bool EventSignalBase::propagationPrevented() const
 {
   return flags_.test(BIT_PREVENT_PROPAGATION);
+}
+
+void EventSignalBase::ignoreBubbling(bool ignore)
+{
+  if (bubblingIgnored() != ignore) {
+    flags_.set(BIT_IGNORE_BUBBLING, ignore);
+    ownerRepaint();
+  }
+}
+
+bool EventSignalBase::bubblingIgnored() const
+{
+  return flags_.test(BIT_IGNORE_BUBBLING);
 }
 
 void EventSignalBase::prepareDestruct()
