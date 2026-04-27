@@ -688,8 +688,9 @@ void WDialog::positionAt(const Wt::WMouseEvent& ev)
         setOffsets(ev.window().x, Side::Left);
         setOffsets(ev.window().y, Side::Top);
   }
-  if (isHidden())
+  if (isHidden()) {
     show();
+  }
 }
 
 DialogCover *WDialog::cover()
