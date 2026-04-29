@@ -76,11 +76,6 @@ namespace Wt {
   namespace Auth {
     namespace Saml {
 
-std::vector<std::string> ServiceImpl::loadedCatalogs_;
-std::unique_ptr<ServiceImpl::WtAppender> ServiceImpl::logAppender_;
-int ServiceImpl::serviceCount_ = 0;
-bool ServiceImpl::xmlSecurityConfigured_ = false;
-
 class ServiceImpl::WtAppender : public logging::AppenderSkeleton {
 public:
   explicit WtAppender(const std::string &name)
@@ -125,6 +120,11 @@ protected:
 private:
   std::vector<std::pair<logging::Priority::PriorityLevel, std::string>> priorityMap_;
 };
+
+std::vector<std::string> ServiceImpl::loadedCatalogs_;
+std::unique_ptr<ServiceImpl::WtAppender> ServiceImpl::logAppender_;
+int ServiceImpl::serviceCount_ = 0;
+bool ServiceImpl::xmlSecurityConfigured_ = false;
 
 ServiceImpl::ServiceImpl(::Wt::Auth::Saml::Service &service)
   : service_(service)
