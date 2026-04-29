@@ -57,8 +57,8 @@ private:
   void windBuffer(int offset);
   int index(const std::string search);
 
-  enum {BUFSIZE = 8192};
-  enum {MAXBOUND = 100};
+  static constexpr int BUFSIZE = 8192;
+  static constexpr int MAXBOUND = 100;
 
   int buflen_;
   char buf_[BUFSIZE + MAXBOUND];
