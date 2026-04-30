@@ -59,7 +59,7 @@ const int WWebWidget::DEFAULT_BASE_Z_INDEX = 1100;
 const int WWebWidget::Z_INDEX_INCREMENT = 1100;
 
 #ifndef WT_TARGET_JAVA
-const std::bitset<44> WWebWidget::AllChangeFlags = std::bitset<44>()
+const std::bitset<45> WWebWidget::AllChangeFlags = std::bitset<45>()
   .set(BIT_FLEX_BOX_CHANGED)
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
@@ -74,7 +74,8 @@ const std::bitset<44> WWebWidget::AllChangeFlags = std::bitset<44>()
   .set(BIT_ZINDEX_CHANGED)
   .set(BIT_TABINDEX_CHANGED)
   .set(BIT_SCROLL_VISIBILITY_CHANGED)
-  .set(BIT_OBJECT_NAME_CHANGED);
+  .set(BIT_OBJECT_NAME_CHANGED)
+  .set(BIT_POSITION_ANCHOR_NAME_CHANGED);
 #endif // WT_TARGET_JAVA
 
 WWebWidget::TransientImpl::TransientImpl()
@@ -721,6 +722,20 @@ void WWebWidget::calcZIndex()
 bool WWebWidget::isPopup() const
 {
   return layoutImpl_ ? layoutImpl_->zIndex_ != 0 : false;
+}
+
+std::string WWebWidget::positionAnchorName() const
+{
+  return positionAnchorName_;
+}
+
+void WWebWidget::becomePositionAnchor()
+{
+  if (positionAnchorName_.empty()) {
+    positionAnchorName_ = "--Wt-anchor-" + id();
+    flags_.set(BIT_POSITION_ANCHOR_NAME_CHANGED);
+    repaint();
+  }
 }
 
 void WWebWidget::setMargin(const WLength& margin, WFlags<Side> sides)
@@ -2013,6 +2028,15 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     flags_.reset(BIT_OBJECT_NAME_CHANGED);
   }
 
+  if (all || flags_.test(BIT_POSITION_ANCHOR_NAME_CHANGED)) {
+    if (isPositionAnchor()) {
+      element.setProperty(Property::StyleAnchorName, positionAnchorName());
+    } else {
+      element.removeProperty(Property::StyleAnchorName);
+    }
+    flags_.reset(BIT_POSITION_ANCHOR_NAME_CHANGED);
+  }
+
   renderOk();
 
   transientImpl_.reset();
@@ -2259,6 +2283,7 @@ void WWebWidget::propagateRenderOk(bool deep)
   flags_.reset(BIT_SCROLL_VISIBILITY_CHANGED);
   flags_.reset(BIT_OBJECT_NAME_CHANGED);
   flags_.reset(BIT_PARENT_CHANGED);
+  flags_.reset(BIT_POSITION_ANCHOR_NAME_CHANGED);
 #endif
 
   renderOk();

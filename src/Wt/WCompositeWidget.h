@@ -106,6 +106,8 @@ public:
   virtual bool isEnabled() const override;
   virtual void setPopup(bool popup) override;
   virtual bool isPopup() const override;
+  std::string positionAnchorName() const override;
+  void becomePositionAnchor() override;
   virtual void setInline(bool isInline) override;
   virtual bool isInline() const override;
   virtual void setDecorationStyle(const WCssDecorationStyle& style) override;

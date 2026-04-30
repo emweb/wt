@@ -130,6 +130,8 @@ public:
   virtual bool isEnabled() const override;
   virtual void setPopup(bool popup) override;
   virtual bool isPopup() const override;
+  std::string positionAnchorName() const override;
+  void becomePositionAnchor() override;
   virtual void setInline(bool isInline) override;
   virtual bool isInline() const override;
   virtual void setDecorationStyle(const WCssDecorationStyle& style) override;
@@ -432,6 +434,7 @@ private:
   static const int BIT_TOOLTIP_SHOW_ON_HOVER = 41;
   static const int BIT_RESEND_FORM_DATA = 42;
   static const int BIT_FOCUS_CONNECTED = 43;
+  static const int BIT_POSITION_ANCHOR_NAME_CHANGED = 44;
 
 
   static const char *FOCUS_SIGNAL;
@@ -441,9 +444,10 @@ private:
   static const int Z_INDEX_INCREMENT;
 
   std::string elementTagName_;
+  std::string positionAnchorName_;
 
 #ifndef WT_TARGET_JAVA
-  static const std::bitset<44> AllChangeFlags;
+  static const std::bitset<45> AllChangeFlags;
 #endif // WT_TARGET_JAVA
 
   void loadToolTip();
@@ -451,7 +455,7 @@ private:
   /*
    * Frequently used attributes.
    */
-  std::bitset<44> flags_;
+  std::bitset<45> flags_;
   std::unique_ptr<WLength> width_;
   std::unique_ptr<WLength> height_;
 

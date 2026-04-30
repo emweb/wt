@@ -91,6 +91,8 @@ enum class Property { InnerHTML, AddedInnerHTML,
                       StyleFlexFlow,
                       StyleAlignSelf,
                       StyleJustifyContent,
+                      StyleAnchorName,
+
 
                       /* Keep as last, e.g. for bitset sizing. Otherwise, unused. */
                       LastPlusOne };

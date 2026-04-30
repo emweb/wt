@@ -603,6 +603,43 @@ public:
    */
   virtual bool isPopup() const = 0;
 
+  /*! \brief Returns the position-anchor name of this widget.
+   *
+   * Returns the position-anchor name of this widget if it is a
+   * position-anchor, or an empty string otherwise.
+   *
+   * This position-anchor name is used in css rules to position other
+   * widgets in relation to this widget.
+   *
+   * \note If you are using your own position-anchor names, you should
+   *       not make them start with "--Wt-", as this is reserved for
+   *       Wt's position-anchor names.
+   *
+    * \sa becomePositionAnchor()
+   */
+  virtual std::string positionAnchorName() const = 0;
+
+  /*! \brief Makes this widget a position-anchor.
+   *
+   * If the widget is not already a position-anchor, this will generate
+   * a unique position-anchor name for this widget (using the id()),
+   * which can be used in CSS rules to position other widgets in
+   * relation to this widget.
+   *
+   * \note If you are using your own position-anchor names, you should
+   *       not make them start with "--Wt-", as this is reserved for
+   *       Wt's position-anchor names.
+   *
+   * \sa positionAnchorName()
+   */
+  virtual void becomePositionAnchor() = 0;
+
+  /*! \brief Returns whether this widget is a position-anchor.
+   *
+   * \sa positionAnchorName(), becomePositionAnchor()
+   */
+  bool isPositionAnchor() const { return !positionAnchorName().empty(); }
+
   /*! \brief Sets whether the widget is displayed inline or as a block.
    *
    * This option changes whether this widget must be rendered in line

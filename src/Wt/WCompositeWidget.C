@@ -263,6 +263,17 @@ bool WCompositeWidget::isPopup() const
   return impl_->isPopup();
 }
 
+std::string WCompositeWidget::positionAnchorName() const
+{
+  return impl_->positionAnchorName();
+}
+
+void WCompositeWidget::becomePositionAnchor()
+{
+  impl_->becomePositionAnchor();
+}
+
+
 void WCompositeWidget::setInline(bool isInline)
 {
   resetLearnedSlot(&WWidget::show);
