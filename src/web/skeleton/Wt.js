@@ -1804,6 +1804,19 @@ if (!window._$_WT_CLASS_$_) {
       return { x: x, y: y, width: w, height: h };
     };
 
+    this.anchorRelativeDistance = function(side, dist) {
+      return "calc(anchor(" + side + ") + " + dist + ")";
+    };
+
+    this.useAnchorPosition = function(e) {
+      return CSS.supports("position-area", "right") &&
+        e.style.positionAnchor !== "" &&
+        e.style.positionAnchor !== "auto" &&
+        e.style.positionAnchor !== "none" &&
+        e.style.positionAnchor !== "normal" &&
+        e.style.positionAnchor !== "match-parent";
+    };
+
     /*
      * position right to (x) or left from (rightx) and
      * bottom of (y) or top from (bottomy)
@@ -1812,6 +1825,8 @@ if (!window._$_WT_CLASS_$_) {
       const hsides = ["left", "right"],
         vsides = ["top", "bottom"];
 
+      const useAnchor = WT.useAnchorPosition(e);
+
       e.style[hsides[0]] = e.style[hsides[1]] = "auto";
       e.style[vsides[0]] = e.style[vsides[1]] = "auto";
 
@@ -1819,6 +1834,9 @@ if (!window._$_WT_CLASS_$_) {
         reserveHeight = e.offsetHeight,
         hside,
         vside;
+
+      let anchorRight = x > rightx,
+        anchorBottom = y > bottomy;
 
       let windowSize = WT.windowSize(),
         windowX = document.body.scrollLeft + document.documentElement.scrollLeft,
@@ -1857,32 +1875,49 @@ if (!window._$_WT_CLASS_$_) {
 
       if (x + reserveWidth > windowX + windowSize.x) {
         // too far right, chose other side
+        anchorRight = !anchorRight;
+
         if (adjustX && reserveWidth > rightx - windowX) {
           /*
            * Too large to be displayed from the left starting from the
            * current rightx, and can be displayed between x and rightx
            */
-          rightx = windowX + reserveWidth;
+
+          if (useAnchor) {
+            x = windowX - reserveWidth + Math.min(x, rightx);
+          } else {
+            rightx = windowX + reserveWidth;
+          }
+        } else if (useAnchor) {
+          x = 0;
         }
-        let scrollX = op.scrollLeft;
-        if (op === document.body) {
-          scrollX = op.clientWidth - windowSize.x;
+
+        if (!useAnchor) {
+          let scrollX = op.scrollLeft;
+          if (op === document.body) {
+            scrollX = op.clientWidth - windowSize.x;
+          }
+          rightx = rightx - offsetParent.x + scrollX;
+          x = op.clientWidth - (rightx + WT.px(e, "marginRight"));
         }
-        rightx = rightx - offsetParent.x + scrollX;
-        x = op.clientWidth - (rightx + WT.px(e, "marginRight"));
         hside = 1;
       } else {
-        let scrollX = op.scrollLeft;
-        if (op === document.body) {
-          scrollX = 0;
+        if (useAnchor) {
+          x = 0;
+        } else {
+          let scrollX = op.scrollLeft;
+          if (op === document.body) {
+            scrollX = 0;
+          }
+          x = x - offsetParent.x + scrollX;
+          x = x - WT.px(e, "marginLeft");
         }
-        x = x - offsetParent.x + scrollX;
-        x = x - WT.px(e, "marginLeft");
         hside = 0;
       }
 
       if (y + reserveHeight > windowY + windowSize.y) {
         // too far below, chose other side
+        anchorBottom = !anchorBottom;
         if (bottomy > windowY + windowSize.y) {
           // requested bottom edge is already off screen
           bottomy = windowY + windowSize.y;
@@ -1892,23 +1927,36 @@ if (!window._$_WT_CLASS_$_) {
            * Too tall to be displayed upwards starting from the current
            * bottomy, and can be displayed between y and bottomy
            */
-          bottomy = windowY + reserveHeight;
+          if (useAnchor) {
+            y = windowY - reserveHeight + Math.min(y, bottomy);
+          } else {
+            bottomy = windowY + reserveHeight;
+          }
+        } else if (useAnchor) {
+          y = 0;
         }
-        let scrollY = op.scrollTop;
-        if (op === document.body) {
-          scrollY = op.clientHeight - windowSize.y;
+        if (!useAnchor) {
+          let scrollY = op.scrollTop;
+          if (op === document.body) {
+            scrollY = op.clientHeight - windowSize.y;
+          }
+
+          bottomy = bottomy - offsetParent.y + scrollY;
+          y = op.clientHeight -
+            (bottomy + WT.px(e, "marginBottom") + WT.pxComputedStyle(e, "borderBottomWidth"));
         }
-        bottomy = bottomy - offsetParent.y + scrollY;
-        y = op.clientHeight -
-          (bottomy + WT.px(e, "marginBottom") + WT.pxComputedStyle(e, "borderBottomWidth"));
         vside = 1;
       } else {
-        let scrollY = op.scrollTop;
-        if (op === document.body) {
-          scrollY = 0;
+        if (useAnchor) {
+          y = 0;
+        } else {
+          let scrollY = op.scrollTop;
+          if (op === document.body) {
+            scrollY = 0;
+          }
+          y = y - offsetParent.y + scrollY;
+          y = y - WT.px(e, "marginTop") + WT.pxComputedStyle(e, "borderTopWidth");
         }
-        y = y - offsetParent.y + scrollY;
-        y = y - WT.px(e, "marginTop") + WT.pxComputedStyle(e, "borderTopWidth");
         vside = 0;
       }
 
@@ -1919,8 +1967,18 @@ if (!window._$_WT_CLASS_$_) {
         y = wy + ws.y - e.offsetHeight - 3;
       */
 
-      e.style[hsides[hside]] = x + "px";
-      e.style[vsides[vside]] = y + "px";
+      let hDist = x + "px",
+        vDist = y + "px";
+
+      if (useAnchor) {
+        const hAnchorSide = anchorRight ? "right" : "left";
+        const vAnchorSide = anchorBottom ? "bottom" : "top";
+        hDist = WT.anchorRelativeDistance(hAnchorSide, hDist);
+        vDist = WT.anchorRelativeDistance(vAnchorSide, vDist);
+      }
+
+      e.style[hsides[hside]] = hDist;
+      e.style[vsides[vside]] = vDist;
     };
 
     this.positionXY = function(id, x, y, adjustX = true, adjustY = true) {
@@ -1976,6 +2034,8 @@ if (!window._$_WT_CLASS_$_) {
        */
       let p, pp = atw;
       w.parentNode.removeChild(w);
+      const isPopup = w.classList.contains("Wt-popup");
+      const useAnchor = WT.useAnchorPosition(w);
 
       for (p = pp.parentNode; !p.classList.contains("Wt-domRoot"); p = p.parentNode) {
         if (p.wtReparentBarrier) {
@@ -1991,6 +2051,7 @@ if (!window._$_WT_CLASS_$_) {
         // of an issue on Firefox where clientWidth !== scrollWidth and
         // clientHeight !== scrollHeight when using the border-collapse CSS property.
         if (
+          !(useAnchor && isPopup) &&
           WT.css(p, "display") !== "inline" &&
           p.clientHeight > 100 &&
           (getComputedStyle(p).overflowY === "scroll" ||

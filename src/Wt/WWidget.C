@@ -447,6 +447,13 @@ void WWidget::positionAt(const WWidget *widget, Orientation orientation,
   if (isHidden())
     show();
 
+  /*
+   * We cannot remove the const in the function signature for
+   * retrocompatibility.
+   */
+  WWidget* w = const_cast<WWidget *>(widget);
+  setPositionAnchor(w);
+
   std::string side = (orientation == Orientation::Horizontal
                       ? ".Horizontal" : ".Vertical");
 

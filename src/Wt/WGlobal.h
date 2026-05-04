@@ -451,6 +451,12 @@ W_DECLARE_OPERATORS_FOR_FLAGS(Side)
 static const WFlags<Side> AllSides =
   Side::Left | Side::Right | Side::Top | Side::Bottom;
 
+static const WFlags<Side> AllHorizontalSide =
+  Side::Left | Side::Right | Side::CenterX;
+
+static const WFlags<Side> AllVerticalSides =
+  Side::Top | Side::Bottom | Side::CenterY;
+
 /*! \brief Enumeration that specifies a horizontal or a vertical alignment.
  *
  * The vertical alignment flags are AlignmentFlag::Baseline,

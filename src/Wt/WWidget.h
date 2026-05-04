@@ -640,6 +640,37 @@ public:
    */
   bool isPositionAnchor() const { return !positionAnchorName().empty(); }
 
+  /*! \brief Sets the position-anchor of this widget.
+   *
+   * Sets the position-anchor of this widget to \p anchorName. Setting
+   * an empty string removes the position-anchor.
+   *
+   * \sa positionAnchorName(), becomePositionAnchor()
+   */
+  virtual void setPositionAnchor(const std::string& anchorName) = 0;
+
+  /*! \brief Sets a widget as the position-anchor of this widget.
+   *
+   * This will set the position-anchor of this widget to the
+   * position-anchor name of the given widget. If \p anchor is not a
+   * position-anchor, then it will first be made a position-anchor by
+   * calling becomePositionAnchor(). If \p anchor is nullptr, the
+   * position-anchor of this widget will be removed.
+   *
+   * \sa positionAnchorName()
+   */
+  virtual void setPositionAnchor(WWidget* anchor) = 0;
+
+  /*! \brief Returns the position-anchor of this widget.
+   *
+   * Returns the position-anchor name of the position-anchor of this
+   * widget. If this widget does not have a position-anchor, returns an
+   * empty string instead.
+   *
+   * \sa setPositionAnchor(), positionAnchorName()
+   */
+  virtual std::string positionAnchor() const = 0;
+
   /*! \brief Sets whether the widget is displayed inline or as a block.
    *
    * This option changes whether this widget must be rendered in line

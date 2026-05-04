@@ -273,6 +273,20 @@ void WCompositeWidget::becomePositionAnchor()
   impl_->becomePositionAnchor();
 }
 
+void WCompositeWidget::setPositionAnchor(const std::string& anchorName)
+{
+  impl_->setPositionAnchor(anchorName);
+}
+
+void WCompositeWidget::setPositionAnchor(WWidget* anchor)
+{
+  impl_->setPositionAnchor(anchor);
+}
+
+std::string WCompositeWidget::positionAnchor() const
+{
+  return impl_->positionAnchor();
+}
 
 void WCompositeWidget::setInline(bool isInline)
 {

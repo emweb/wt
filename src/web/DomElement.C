@@ -187,6 +187,7 @@ CssPropertyMap createCssNamesMap()
   Wt::Utils::insert(cssNames, Wt::Property::StyleFlexFlow,std::string("flex-flow"));
   Wt::Utils::insert(cssNames, Wt::Property::StyleAlignSelf,std::string("align-self"));
   Wt::Utils::insert(cssNames, Wt::Property::StyleAnchorName,std::string("anchor-name"));
+  Wt::Utils::insert(cssNames, Wt::Property::StylePositionAnchor,std::string("position-anchor"));
   Wt::Utils::insert(cssNames, Wt::Property::StyleJustifyContent,std::string("justify-content"));
   return cssNames;
 }
@@ -268,6 +269,7 @@ CssPropertyMap createCssCamelNamesMap()
   Wt::Utils::insert(cssCamelNames, Wt::Property::StyleFlexFlow,std::string("flexFlow"));
   Wt::Utils::insert(cssCamelNames, Wt::Property::StyleAlignSelf,std::string("alignSelf"));
   Wt::Utils::insert(cssCamelNames, Wt::Property::StyleAnchorName,std::string("anchorName"));
+  Wt::Utils::insert(cssCamelNames, Wt::Property::StylePositionAnchor,std::string("positionAnchor"));
   Wt::Utils::insert(cssCamelNames, Wt::Property::StyleJustifyContent,std::string("justifyContent"));
   return cssCamelNames;
 }

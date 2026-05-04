@@ -108,6 +108,9 @@ public:
   virtual bool isPopup() const override;
   std::string positionAnchorName() const override;
   void becomePositionAnchor() override;
+  void setPositionAnchor(const std::string& anchorName) override;
+  void setPositionAnchor(WWidget* anchor) override;
+  std::string positionAnchor() const override;
   virtual void setInline(bool isInline) override;
   virtual bool isInline() const override;
   virtual void setDecorationStyle(const WCssDecorationStyle& style) override;

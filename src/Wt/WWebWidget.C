@@ -59,7 +59,7 @@ const int WWebWidget::DEFAULT_BASE_Z_INDEX = 1100;
 const int WWebWidget::Z_INDEX_INCREMENT = 1100;
 
 #ifndef WT_TARGET_JAVA
-const std::bitset<45> WWebWidget::AllChangeFlags = std::bitset<45>()
+const std::bitset<46> WWebWidget::AllChangeFlags = std::bitset<46>()
   .set(BIT_FLEX_BOX_CHANGED)
   .set(BIT_HIDDEN_CHANGED)
   .set(BIT_GEOMETRY_CHANGED)
@@ -75,7 +75,8 @@ const std::bitset<45> WWebWidget::AllChangeFlags = std::bitset<45>()
   .set(BIT_TABINDEX_CHANGED)
   .set(BIT_SCROLL_VISIBILITY_CHANGED)
   .set(BIT_OBJECT_NAME_CHANGED)
-  .set(BIT_POSITION_ANCHOR_NAME_CHANGED);
+  .set(BIT_POSITION_ANCHOR_NAME_CHANGED)
+  .set(BIT_POSITION_ANCHOR_CHANGED);
 #endif // WT_TARGET_JAVA
 
 WWebWidget::TransientImpl::TransientImpl()
@@ -736,6 +737,46 @@ void WWebWidget::becomePositionAnchor()
     flags_.set(BIT_POSITION_ANCHOR_NAME_CHANGED);
     repaint();
   }
+}
+
+void WWebWidget::setPositionAnchor(const std::string& anchorName)
+{
+  if (positionAnchor() == anchorName) {
+    return;
+  }
+
+  if (!layoutImpl_) {
+    layoutImpl_.reset(new LayoutImpl());
+  }
+
+  layoutImpl_->positionAnchor_ = anchorName;
+
+  if (!anchorName.empty() &&
+      positionScheme() != PositionScheme::Fixed &&
+      positionScheme() != PositionScheme::Absolute) {
+    setPositionScheme(PositionScheme::Absolute);
+  }
+
+  flags_.set(BIT_POSITION_ANCHOR_CHANGED);
+
+  repaint();
+}
+
+void WWebWidget::setPositionAnchor(WWidget* anchor)
+{
+  if (anchor) {
+    if (!anchor->isPositionAnchor()) {
+      anchor->becomePositionAnchor();
+    }
+    setPositionAnchor(anchor->positionAnchorName());
+  } else {
+    setPositionAnchor("");
+  }
+}
+
+std::string WWebWidget::positionAnchor() const
+{
+  return layoutImpl_ ? layoutImpl_->positionAnchor_ : "";
 }
 
 void WWebWidget::setMargin(const WLength& margin, WFlags<Side> sides)
@@ -2028,6 +2069,15 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     flags_.reset(BIT_OBJECT_NAME_CHANGED);
   }
 
+  if (flags_.test(BIT_POSITION_ANCHOR_CHANGED)) {
+    if (!positionAnchor().empty()) {
+      element.setProperty(Property::StylePositionAnchor, positionAnchor());
+    } else {
+      element.removeProperty(Property::StylePositionAnchor);
+    }
+    flags_.reset(BIT_POSITION_ANCHOR_CHANGED);
+  }
+
   if (all || flags_.test(BIT_POSITION_ANCHOR_NAME_CHANGED)) {
     if (isPositionAnchor()) {
       element.setProperty(Property::StyleAnchorName, positionAnchorName());
@@ -2284,6 +2334,7 @@ void WWebWidget::propagateRenderOk(bool deep)
   flags_.reset(BIT_OBJECT_NAME_CHANGED);
   flags_.reset(BIT_PARENT_CHANGED);
   flags_.reset(BIT_POSITION_ANCHOR_NAME_CHANGED);
+  flags_.reset(BIT_POSITION_ANCHOR_CHANGED);
 #endif
 
   renderOk();
