@@ -1238,18 +1238,34 @@ if (!window._$_WT_CLASS_$_) {
       return parseCss(v, /^\s*(-?\d+(?:\.\d+)?)\s*%\s*$/i, defaultValue);
     };
 
+    this.useClac = function(v) {
+      return v.match(/^\s*calc\(/i) !== null;
+    };
+
     // Get an element metric in pixels
     this.px = function(c, s) {
-      return WT.parsePx(WT.css(c, s));
+      const v = WT.css(c, s);
+      if (WT.useClac(v)) {
+        return WT.pxComputedStyle(c, s);
+      }
+      return WT.parsePx(v);
     };
 
     // Get a widget style in pixels, when set directly
     this.pxself = function(c, s) {
-      return WT.parsePx(c.style[s]);
+      const v = c.style[s];
+      if (WT.useClac(v)) {
+        return WT.pxComputedStyle(c, s);
+      }
+      return WT.parsePx(v);
     };
 
     this.pctself = function(c, s) {
-      return WT.parsePct(c.style[s], 0);
+      let v = c.style[s];
+      if (WT.useClac(v)) {
+        v = getComputedStyle(c)[s];
+      }
+      return WT.parsePct(v, 0);
     };
 
     this.pxComputedStyle = function(c, s) {
