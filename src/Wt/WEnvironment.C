@@ -52,6 +52,7 @@ WEnvironment::WEnvironment()
     isLikelyBotGetRequest_(false),
     notificationSupported_(false),
     notificationPermission_(WNotification::Permission::Default),
+    positionAnchorSupported_(false),
     timeZoneOffset_(0)
 { }
 
@@ -67,6 +68,7 @@ WEnvironment::WEnvironment(WebSession *session)
     isLikelyBotGetRequest_(false),
     notificationSupported_(false),
     notificationPermission_(WNotification::Permission::Default),
+    positionAnchorSupported_(false),
     timeZoneOffset_(0)
 { }
 
@@ -231,6 +233,9 @@ void WEnvironment::enableAjax(const WebRequest& request)
   if (preferredColorScheme_ != "light" && preferredColorScheme_ != "dark") {
     preferredColorScheme_.clear();
   }
+
+  const std::string *anchorE = request.getParameter("anchor");
+  positionAnchorSupported_ = anchorE ? (*anchorE == "true") : false;
 
   const std::string *hashE = request.getParameter("_");
 

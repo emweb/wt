@@ -304,6 +304,10 @@ _$_$endif_$_();
       }
     }
 
+    // determine if position anchor are supported
+    const supportAnchor = CSS.supports("position-area", "right");
+    otherInfo += "&anchor=" + (supportAnchor ? "true" : "false");
+
     let needSessionInUrl = !no_replace || !ajax;
 
     if (needSessionInUrl) {

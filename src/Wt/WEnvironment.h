@@ -294,6 +294,8 @@ public:
    */
   WNotification::Permission notificationPermission() const { return notificationPermission_; }
 
+  bool positionAnchorSupported() const { return positionAnchorSupported_; }
+
   /*! \brief Returns the horizontal resolution of the client's screen.
    *
    * Returns -1 if screen width is not known.
@@ -763,6 +765,7 @@ protected:
   bool                      isLikelyBotGetRequest_;
   bool                      notificationSupported_;
   WNotification::Permission notificationPermission_;
+  bool                      positionAnchorSupported_;
 
   Http::ParameterMap parameters_;
   CookieMap   cookies_;
