@@ -59,6 +59,20 @@ class WT_API WebSession
   : public std::enable_shared_from_this<WebSession>
 #endif
 {
+private:
+  struct SignalProcessAction
+  {
+    SignalProcessAction(unsigned int number, bool updateCache, bool handleSignal)
+      : number(number),
+        updateCache(updateCache),
+        handleSignal(handleSignal)
+    { }
+
+    unsigned int number;
+    bool updateCache;
+    bool handleSignal;
+  };
+
 public:
   enum class State {
     JustCreated,
@@ -216,7 +230,7 @@ public:
     void setRequest(WebRequest *request, WebResponse *response);
 
     int nextSignal;
-    std::vector<unsigned int> signalOrder;
+    std::vector<SignalProcessAction> signalActions;
 
 #ifdef WT_THREADED
     std::thread::id lockOwner() const { return lockOwner_; }
@@ -364,12 +378,12 @@ private:
                                 bool checkExposed) const;
 
   const Http::ParameterValues& getFormParamValues(const WebRequest& request,
-                                                  const std::string& se,
-                                                  const std::string& name);
+                                                  const std::string& name,
+                                                  const SignalProcessAction& spa);
 
   WObject::FormData getFormData(const WebRequest& request,
-                                const std::string& se,
-                                const std::string& name);
+                                const std::string& name,
+                                const SignalProcessAction& spa);
 
   bool inFormDataCache(const std::string& name) const;
 
@@ -385,9 +399,9 @@ private:
   void processSignal(EventSignalBase *s, const std::string& se,
                      const WebRequest& request, SignalKind kind);
 
-  std::vector<unsigned int> getSignalProcessingOrder(const WEvent& e) const;
+  std::vector<SignalProcessAction> getSignalProcessingOrder(const WEvent& e) const;
   void notifySignal(const WEvent& e);
-  void propagateFormValues(const WEvent& e, const std::string& se);
+  void propagateFormValues(const WEvent& e, const std::string& se, const SignalProcessAction& spa);
 
   const std::string *getSignal(const WebRequest& request,
                                const std::string& se) const;
