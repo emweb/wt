@@ -158,6 +158,11 @@ WLength WCompositeWidget::maximumHeight() const
   return impl_->maximumHeight();
 }
 
+void WCompositeWidget::anchorAt(WWidget *widget, Orientation orientation)
+{
+  impl_->anchorAt(widget, orientation);
+}
+
 void WCompositeWidget::setLineHeight(const WLength& height)
 {
   impl_->setLineHeight(height);

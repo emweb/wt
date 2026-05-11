@@ -86,6 +86,8 @@ public:
     override;
   virtual WLength maximumWidth() const override;
   virtual WLength maximumHeight() const override;
+  void anchorAt(WWidget *widget,
+                Orientation orientation = Orientation::Vertical) override;
   virtual void setLineHeight(const WLength& height) override;
   virtual WLength lineHeight() const override;
   virtual void setFloatSide(Side s) override;

@@ -389,6 +389,36 @@ public:
                           Orientation orientation = Orientation::Vertical,
                           WFlags<Orientation> adjustOrientations = AllOrientations);
 
+  /*! \brief Anchors a widget to another widget.
+   *
+   * This will use the given \p widget as position-anchor for this
+   * widget. This means that the offsets of this widget will be
+   * relative to the given \p widget, and this widget will be moved
+   * together with the given \p widget when the given \p widget is
+   * moved. This also makes this widget visible only when its
+   * position-anchor widget is visible (can be changed using custom
+   * CSS).
+   *
+   * For more information, you can check the CSS documentation for the
+   * CSS property "position-area".
+   *
+   * \p orientation specifies the axis on which the widget is anchored
+   * to the other widget. For example, when \p orientation =
+   * Wt::Orientation::Vertical, the widget is anchored to the other
+   * widget at the top or bottom edge of the given \p widget, depending
+   * on the amount of space available.
+   *
+   * Contrarily to positionAt(), the widget will reposition itself
+   * dynamically depending on the available space.
+   *
+   * \note This only works if the position-anchors are supported and
+   *       JavaScript is available. If it is not the case, this will
+   *       fall back to using positionAt() instead.
+   *
+   */
+  virtual void anchorAt(WWidget *widget,
+                        Orientation orientation = Orientation::Vertical) = 0;
+
   /*! \brief Sets the CSS line height for contained text.
    */
   virtual void setLineHeight(const WLength& height) = 0;

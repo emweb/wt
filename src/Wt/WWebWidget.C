@@ -475,6 +475,35 @@ WLength WWebWidget::maximumHeight() const
   return layoutImpl_ ? layoutImpl_->maximumHeight_ : WLength::Auto;
 }
 
+void WWebWidget::anchorAt(WWidget* widget, Orientation orientation)
+{
+  if (!widget && !layoutImpl_) {
+    return;
+  }
+
+  WApplication* app = WApplication::instance();
+
+  if (app->environment().positionAnchorSupported()) {
+    if (!layoutImpl_) {
+      layoutImpl_.reset(new LayoutImpl());
+    }
+
+    setPositionAnchor(widget);
+    if (!layoutImpl_->anchorOrientations_.test(orientation)) {
+      layoutImpl_->anchorOrientations_ = orientation;
+      flags_.set(BIT_POSITION_ANCHOR_CHANGED);
+    }
+
+    if (isHidden() && widget) {
+      show();
+    }
+
+    repaint();
+  } else {
+    positionAt(widget, orientation, AllOrientations);
+  }
+}
+
 void WWebWidget::setLineHeight(const WLength& height)
 {
   if (!layoutImpl_)
@@ -2069,11 +2098,34 @@ void WWebWidget::updateDom(DomElement& element, bool all)
     flags_.reset(BIT_OBJECT_NAME_CHANGED);
   }
 
-  if (flags_.test(BIT_POSITION_ANCHOR_CHANGED)) {
+  if (all || flags_.test(BIT_POSITION_ANCHOR_CHANGED)) {
     if (!positionAnchor().empty()) {
+      WStringStream anchorArea;
+      WStringStream anchorFallback;
+
+      if (layoutImpl_->anchorOrientations_.test(Orientation::Vertical)) {
+        anchorArea << "bottom";
+        anchorFallback << "flip-block";
+      }
+
+      if (layoutImpl_->anchorOrientations_.test(Orientation::Horizontal)) {
+        anchorArea << " right";
+        anchorFallback << " flip-inline";
+      }
+
+      if (anchorArea.empty()) {
+        element.removeProperty(Property::StylePositionArea);
+        element.removeProperty(Property::StylePositionTryFallbacks);
+      } else {
+        element.setProperty(Property::StylePositionArea, anchorArea.str());
+        element.setProperty(Property::StylePositionTryFallbacks, anchorFallback.str());
+      }
+
       element.setProperty(Property::StylePositionAnchor, positionAnchor());
     } else {
       element.removeProperty(Property::StylePositionAnchor);
+      element.removeProperty(Property::StylePositionArea);
+      element.removeProperty(Property::StylePositionTryFallbacks);
     }
     flags_.reset(BIT_POSITION_ANCHOR_CHANGED);
   }

@@ -93,6 +93,8 @@ enum class Property { InnerHTML, AddedInnerHTML,
                       StyleJustifyContent,
                       StyleAnchorName,
                       StylePositionAnchor,
+                      StylePositionArea,
+                      StylePositionTryFallbacks,
 
 
                       /* Keep as last, e.g. for bitset sizing. Otherwise, unused. */
