@@ -309,6 +309,7 @@ void WSuggestionPopup::modelLayoutChanged()
 void WSuggestionPopup::forEdit(WFormWidget *edit, WFlags<PopupTrigger> triggers)
 {
   EventSignalBase& b = edit->keyPressed();
+  edit->becomePositionAnchor();
 
   connectObjJS(b, "editKeyDown");
   connectObjJS(edit->keyWentDown(), "editKeyDown");
@@ -347,6 +348,7 @@ void WSuggestionPopup::setAutoSelectEnabled(bool enabled)
 
 void WSuggestionPopup::showAt(WFormWidget *edit)
 {
+  edit->becomePositionAnchor();
   doJavaScript(jsRef() + ".wtObj.showAt("
                + edit->jsRef() + ");");
 }

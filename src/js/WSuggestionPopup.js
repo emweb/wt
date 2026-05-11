@@ -76,6 +76,10 @@ WT_DECLARE_WT_MEMBER(
     }
 
     function positionPopup(edit) {
+      if (CSS.supports("position-area", "right") && edit.style.anchorName !== "") {
+        el.style.position = "fixed";
+        el.style.positionAnchor = edit.style.anchorName;
+      }
       el.style.display = "block";
       WT.positionAtWidget(el.id, edit.id, WT.Vertical, false, adjustX, adjustY);
     }
