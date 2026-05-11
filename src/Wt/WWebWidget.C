@@ -2100,25 +2100,25 @@ void WWebWidget::updateDom(DomElement& element, bool all)
 
   if (all || flags_.test(BIT_POSITION_ANCHOR_CHANGED)) {
     if (!positionAnchor().empty()) {
-      WStringStream anchorArea;
-      WStringStream anchorFallback;
-
-      if (layoutImpl_->anchorOrientations_.test(Orientation::Vertical)) {
-        anchorArea << "bottom";
-        anchorFallback << "flip-block";
-      }
-
-      if (layoutImpl_->anchorOrientations_.test(Orientation::Horizontal)) {
-        anchorArea << " right";
-        anchorFallback << " flip-inline";
-      }
-
-      if (anchorArea.empty()) {
+      if (layoutImpl_->anchorOrientations_.empty()) {
         element.removeProperty(Property::StylePositionArea);
         element.removeProperty(Property::StylePositionTryFallbacks);
       } else {
+        WStringStream anchorArea;
+        if (layoutImpl_->anchorOrientations_.test(Orientation::Vertical)) {
+          anchorArea << "bottom";
+        } else {
+          anchorArea << "span-bottom";
+        }
+
+        if (layoutImpl_->anchorOrientations_.test(Orientation::Horizontal)) {
+          anchorArea << " right";
+        } else {
+          anchorArea << " span-right";
+        }
+
         element.setProperty(Property::StylePositionArea, anchorArea.str());
-        element.setProperty(Property::StylePositionTryFallbacks, anchorFallback.str());
+        element.setProperty(Property::StylePositionTryFallbacks, "flip-block, flip-inline, flip-block flip-inline");
       }
 
       element.setProperty(Property::StylePositionAnchor, positionAnchor());

@@ -71,6 +71,9 @@
 .dropdown-menu li label {
   display: inline;
 }
+.dropdown-menu.Wt-popup {
+  top: unset;
+}
 /*
  * Make label in any menu item inline
  */

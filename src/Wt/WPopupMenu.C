@@ -50,6 +50,7 @@ WPopupMenu::WPopupMenu(WStackedWidget *contentsStack)
   // Set high ZIndex so WPopupMenu is above pretty much every dialog by default
   webWidget()->setBaseZIndex(110000);
   setPopup(true);
+  setPositionScheme(PositionScheme::Fixed);
 
   hide();
 }
@@ -168,7 +169,11 @@ void WPopupMenu::popup(WWidget *location, Orientation orientation)
   doJavaScript(jsRef() + ".wtObj.popupAt("
                + location->jsRef() + ");");
 
-  positionAt(location, orientation, adjustFlags_);
+  if (adjustFlags_ == AllOrientations) {
+    anchorAt(location, orientation);
+  } else {
+    positionAt(location, orientation, adjustFlags_);
+  }
 }
 
 void WPopupMenu::popup(const WMouseEvent& e)

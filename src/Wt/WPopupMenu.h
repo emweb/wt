@@ -292,6 +292,9 @@ public:
    * hiding the widget (or point) from which it popped up.
    * \sa WWidget::positionAt() for more informations.
    *
+   * If it can adjust in both orientations, WWidget::anchorAt() is used
+   * instead of WWidget::positionAt().
+   *
    * By default, it can adjust in both orientations.
    */
   void setAdjust(WFlags<Orientation> adjustOrientations);

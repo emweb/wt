@@ -665,12 +665,13 @@ void WMenuItem::undoSelectVisual()
 
 void WMenuItem::setMenu(std::unique_ptr<WMenu> menu)
 {
+  WApplication* app = WApplication::instance();
   subMenu_ = menu.get();
   subMenu_->parentItem_ = this;
 
   WPopupMenu *popup = dynamic_cast<WPopupMenu *>(subMenu_);
   if (popup) {
-    Wt::WApplication::instance()->removeGlobalWidget(menu.get());
+    app->removeGlobalWidget(menu.get());
   }
   addWidget(std::move(menu));
 
@@ -685,8 +686,12 @@ void WMenuItem::setMenu(std::unique_ptr<WMenu> menu)
     // an issue where child widgets would remain unexposed, even
     // though this submenu was open (e.g. in a submenu where items
     // are checkable)
-    if (dynamic_cast<WPopupMenu*>(menu_))
+    if (dynamic_cast<WPopupMenu*>(menu_)) {
+      if (app->environment().positionAnchorSupported()) {
+        popup->anchorAt(anchor(), Orientation::Horizontal);
+      }
       popup->show();
+    }
   }
 }
 

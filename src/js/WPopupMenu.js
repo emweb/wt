@@ -71,14 +71,19 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, g
       * for the menu padding and border
       */
     const margin = WT.px(menu, "paddingTop") + WT.pxComputedStyle(menu, "borderTopWidth");
-    WT.positionAtWidget(
-      menu.id,
-      menu.parentItem.id,
-      WT.Horizontal,
-      -margin,
-      menu.classList.contains("Wt-AdjustX"),
-      menu.classList.contains("Wt-AdjustY")
-    );
+
+    if (!WT.useAnchorPosition(menu)) {
+      WT.positionAtWidget(
+        menu.id,
+        menu.parentItem.id,
+        WT.Horizontal,
+        -margin,
+        menu.classList.contains("Wt-AdjustX"),
+        menu.classList.contains("Wt-AdjustY")
+      );
+    } else {
+      menu.style.top = -WT.px(menu, "paddingTop") - WT.px(menu, "marginTop") + "px";
+    }
     setOthersInactive(menu, null);
     lastOpenedSubmenu = menu;
 
@@ -313,6 +318,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, g
         document.addEventListener("keydown", onDocumentKeyDown);
       }, 0);
       el.style.display = "block";
+      el.style.position = "fixed";
     }
 
     setOthersInactive(el, null);
