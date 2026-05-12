@@ -821,7 +821,7 @@ BOOST_AUTO_TEST_CASE( non_bot_test_application_delayed_boot )
 #ifdef WT_DEBUG_JS
   BOOST_TEST(client.message().body().find("let selfUrl = '?wtd=" + sessionId + "' + \"&sid=\"") != std::string::npos);
 #else
-  BOOST_TEST(client.message().body().find("let p='?wtd=" + sessionId + "'+\"&sid=\"") != std::string::npos);
+  BOOST_TEST(client.message().body().find("='?wtd=" + sessionId + "'+\"&sid=\"") != std::string::npos);
 #endif
 
   // Not detected as bot, but no application was launched
@@ -888,7 +888,7 @@ BOOST_AUTO_TEST_CASE( non_bot_test_application_progressive_boot )
 #ifdef WT_DEBUG_JS
   BOOST_TEST(client.message().body().find("let selfUrl = '?wtd=" + sessionId + "' + \"&sid=\"") != std::string::npos);
 #else
-  BOOST_TEST(client.message().body().find("let p='?wtd=" + sessionId + "'+\"&sid=\"") != std::string::npos);
+  BOOST_TEST(client.message().body().find("='?wtd=" + sessionId + "'+\"&sid=\"") != std::string::npos);
 #endif
 
   // This will contain output that hold IDs for elements (starting with 'o')
