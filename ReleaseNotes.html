@@ -58,6 +58,20 @@ behaviour.
     <a href="classWt_1_1WEventSignal.html#a493ddaa7a9332c7880f6e005c2a0b9cb" target="_blank">WEventSignal::ignoreBubbling()</a>.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/14494" target="_blank">Issue #14494</a>:
+    added
+    <a href="classWt_1_1WWidget.html#ab4e595dd2fd53ec3648409e44b58ce32" target="_blank">WWidget::anchorAt()</a>
+    which anchor the widget to another one using CSS position-area, and in addition, makes the widget disappear when its position-anchor
+    is scrolled out of view. This is now used by default for
+    <a href="classWt_1_1WPopupMenu.html" target="_blank">WPopupMenu</a>s inside
+    <a href="classWt_1_1WPushButton.html" target="_blank">WPushButton</a>.
+
+    Additionally, changed
+    <a href="classWt_1_1WWidget.html#a2d627cbf964560995ac51c25d69d8b54" target="_blank">WWidget::positionAt()</a>
+    to use CSS position-anchor, when available, to avoid the need reparent the popup widgets while still allowing
+    them to keep the correct position when the anchor widget is moved due to scrolling.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13499" target="_blank">Issue #13499</a>:
     adds support for cookies prefix in Wt::Auth. It is now possible to select the prefix of
     the remember-me cookies via the
