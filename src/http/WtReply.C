@@ -549,6 +549,10 @@ void WtReply::writeDone(bool success)
     fetchMoreDataCallback_ = nullptr;
     f(success ? Wt::WebWriteEvent::Completed :  Wt::WebWriteEvent::Error);
   }
+
+  if (!httpRequest_ || httpRequest_->done()) {
+    connection()->setResponseDone();
+  }
 }
 
 void WtReply::send(const Wt::WebRequest::WriteCallback& callBack,

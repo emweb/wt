@@ -92,6 +92,7 @@ public:
 
   bool waitingResponse() const { return waitingResponse_; }
   void setHaveResponse() { haveResponse_ = true; }
+  void setResponseDone() { responseDone_ = true; }
   void startWriteResponse(ReplyPtr reply);
 
   void handleReadBody(ReplyPtr reply);
