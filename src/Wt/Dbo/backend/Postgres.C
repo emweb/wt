@@ -592,7 +592,7 @@ public:
       return false;
 
 
-#ifdef WT_CPP_LIB_TO_CHAR
+#ifdef WT_CPP_LIB_TO_CHARS
     std::string result_s = PQgetvalue(result_, row_, column);
 
     // try to convert with from_chars which has good round-trip properties
@@ -627,14 +627,14 @@ public:
       return false;
 
 
-#ifdef WT_CPP_LIB_TO_CHAR
+#ifdef WT_CPP_LIB_TO_CHARS
     std::string result_s = PQgetvalue(result_, row_, column);
 
     // try to convert with from_chars which has good round-trip properties
     auto returnValue = std::from_chars(result_s.data(), result_s.data() + result_s.size(), *value);
 
     // fall-back to boost::spirit for "out of range", e.g. subnormals in some implementations
-    if (retutnValue.ec == std::errc::result_out_of_range) {
+    if (returnValue.ec == std::errc::result_out_of_range) {
       try {
         *value = std::stod(PQgetvalue(result_, row_, column));
       } catch (std::out_of_range&) {
