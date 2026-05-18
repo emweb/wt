@@ -122,7 +122,7 @@ namespace {
   {
 #ifdef WT_CPP_LIB_TO_CHARS
     std::array<char, 30> buf;
-    auto returnValue = std::to_chars(buf.begin(), buf.end(), d);
+    auto returnValue = std::to_chars(buf.data(), buf.data() + buf.size(), d);
 
     if (returnValue.ec != std::errc()) {
       throw std::invalid_argument(
@@ -147,7 +147,7 @@ namespace {
   {
 #ifdef WT_CPP_LIB_TO_CHARS
     std::array<char, 30> buf;
-    auto returnValue = std::to_chars(buf.begin(), buf.end(), f);
+    auto returnValue = std::to_chars(buf.data(), buf.data() + buf.size(), f);
 
     if (returnValue.ec != std::errc()) {
       throw std::invalid_argument(
