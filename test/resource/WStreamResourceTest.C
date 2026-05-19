@@ -36,6 +36,10 @@ namespace {
   class TestResource : public WStreamResource
   {
   public:
+    TestResource()
+      : WStreamResource("text/plain")
+    { }
+
     virtual ~TestResource() {
       beingDeleted();
     }
@@ -44,9 +48,20 @@ namespace {
                        Http::Response& response) override
     {
       std::istringstream input(fullData);
-      handleRequestPiecewise(request, response, input);
+      if (otherMimeType_.empty()) {
+        handleRequestPiecewise(request, response, input);
+      } else {
+        handleRequestPiecewise(request, response, input, otherMimeType_);
+      }
       std::this_thread::sleep_for(SimulatedWorkTime);
     }
+
+    void setOtherMimeType(const std::string& mimeType) {
+      otherMimeType_ = mimeType;
+    }
+
+  private:
+    std::string otherMimeType_;
   };
 
   class Server : public WServer
@@ -246,6 +261,56 @@ BOOST_AUTO_TEST_CASE( wstreamresource_concurrent_partial_get )
   BOOST_TEST(!partClient2.err());
   BOOST_TEST(partClient2.message().status() == 206);
   BOOST_TEST(partClient2.message().body() == "test stream resource. This stream is used to test ");
+}
+
+BOOST_AUTO_TEST_CASE( wstreamresource_handleRequestPiecewise_fixed_mime_type )
+{
+  /* Tests that the MIME type is correctly set when calling
+   * handleRequestPiecewise().
+   */
+  Server server;
+  server.resource().setMimeType("some/mime-type");
+
+  BOOST_REQUIRE(server.start());
+
+  Client client;
+  client.get("http://" + server.address() + "/test");
+  client.waitDone();
+
+  BOOST_TEST(!client.err());
+  BOOST_TEST(client.message().status() == 200);
+  BOOST_REQUIRE(client.message().getHeader("Content-Type") != nullptr);
+  BOOST_TEST(*client.message().getHeader("Content-Type") == "some/mime-type");
+}
+
+BOOST_AUTO_TEST_CASE( wstreamresource_handleRequestPiecewise_changed_mime_type )
+{
+  /* Tests that the MIME type can be overridden when calling
+   * handleRequestPiecewise() with a custom MIME type.
+   */
+  Server server;
+
+  BOOST_REQUIRE(server.start());
+  server.resource().setOtherMimeType("some/mime-type");
+
+  Client client;
+  client.get("http://" + server.address() + "/test");
+  client.waitDone();
+
+  BOOST_TEST(!client.err());
+  BOOST_TEST(client.message().status() == 200);
+  BOOST_REQUIRE(client.message().getHeader("Content-Type") != nullptr);
+  BOOST_TEST(*client.message().getHeader("Content-Type") == "some/mime-type");
+
+  server.resource().setOtherMimeType("random/mime-type");
+
+  client.get("http://" + server.address() + "/test");
+  client.waitDone();
+
+  BOOST_TEST(!client.err());
+  BOOST_TEST(client.message().status() == 200);
+  BOOST_REQUIRE(client.message().getHeader("Content-Type") != nullptr);
+  BOOST_TEST(*client.message().getHeader("Content-Type") == "random/mime-type");
 }
 
 
