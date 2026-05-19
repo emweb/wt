@@ -59,18 +59,19 @@ auto s_ = s.get();
 s_->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
 chart->addSeries(std::move(s));
 
-chart->resize(800, 400);
+chart->resize(820, 400);
 
 // Enable pan and zoom
 chart->setPanEnabled(true);
 chart->setZoomEnabled(true);
 
+chart->setPlotAreaPadding(50, Side::Left | Side::Right);
 chart->setMargin(WLength::Auto, Side::Left | Side::Right); // Center horizontally
 
 // Add a WAxisSliderWidget for the chart using the data series for column 2
 auto sliderWidget = container->addNew<Chart::WAxisSliderWidget>(s_);
-sliderWidget->resize(800, 80);
-sliderWidget->setSelectionAreaPadding(40, Side::Left | Side::Right);
+sliderWidget->resize(820, 80);
+sliderWidget->setSelectionAreaPadding(50, Side::Left | Side::Right);
 sliderWidget->setMargin(WLength::Auto, Side::Left | Side::Right); // Center horizontally
 
 /*

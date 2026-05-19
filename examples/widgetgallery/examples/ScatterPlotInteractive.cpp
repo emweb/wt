@@ -111,6 +111,8 @@ chart->resize(800, 400);
 chart->setPanEnabled(true);
 chart->setZoomEnabled(true);
 
+chart->setPlotAreaPadding(50, Side::Left | Side::Right);
+
 chart->setMargin(WLength::Auto, Side::Left | Side::Right); // Center horizontally
 
 SAMPLE_END(return std::move(container))

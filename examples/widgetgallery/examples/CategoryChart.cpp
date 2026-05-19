@@ -85,8 +85,8 @@ chart->setLegendEnabled(true);
 /*
  * Provide ample space for the title, the X and Y axis and the legend.
  */
-chart->setPlotAreaPadding(40, Side::Left | Side::Top | Side::Bottom);
-chart->setPlotAreaPadding(120, Side::Right);
+chart->setPlotAreaPadding(50, Side::Left | Side::Top | Side::Bottom);
+chart->setPlotAreaPadding(130, Side::Right);
 
 /*
  * Add all (but first) column as bar series.

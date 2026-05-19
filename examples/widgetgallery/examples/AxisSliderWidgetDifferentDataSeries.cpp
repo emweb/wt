@@ -99,7 +99,7 @@ chart->axis(Chart::Axis::Y).setMinimumZoomRange(0.1);
 chart->axis(Chart::Axis::Y).setMinimum(-1.5);
 chart->axis(Chart::Axis::Y).setMaximum(1.5);
 
-chart->resize(800, 400);
+chart->resize(840, 400);
 
 // Enable pan and zoom
 chart->setPanEnabled(true);
@@ -107,14 +107,15 @@ chart->setZoomEnabled(true);
 
 // Enable on-demand loading
 chart->setOnDemandLoadingEnabled(true);
+chart->setPlotAreaPadding(60, Side::Left | Side::Right);
 
 chart->setMargin(WLength::Auto, Side::Left | Side::Right); // Center horizontally
 
 // Add a WAxisSliderWidget for the chart using the data series for column 2
 auto sliderWidget =
     container->addNew<Chart::WAxisSliderWidget>(roughSeries_);
-sliderWidget->resize(800, 80);
-sliderWidget->setSelectionAreaPadding(40, Side::Left | Side::Right);
+sliderWidget->resize(840, 80);
+sliderWidget->setSelectionAreaPadding(60, Side::Left | Side::Right);
 sliderWidget->setMargin(WLength::Auto, Side::Left | Side::Right); // Center horizontally
 
 /*

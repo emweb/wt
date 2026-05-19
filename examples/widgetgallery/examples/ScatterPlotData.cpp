@@ -73,7 +73,7 @@ chart->axis(Chart::Axis::X).setScale(Chart::AxisScale::Date);
 /*
  * Provide ample space for the title, the X and Y axis and the legend.
  */
-chart->setPlotAreaPadding(40, Side::Left | Side::Top | Side::Bottom);
+chart->setPlotAreaPadding(50, Side::Left | Side::Top | Side::Bottom);
 chart->setPlotAreaPadding(120, Side::Right);
 
 /*
