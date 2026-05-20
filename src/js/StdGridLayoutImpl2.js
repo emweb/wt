@@ -782,7 +782,7 @@ WT_DECLARE_WT_MEMBER(
             } else {
               totalMargin += DC.margins[SPACING];
               if (rh) {
-                totalMargin += RESIZE_HANDLE_MARGIN * 2;
+                totalMargin += RESIZE_HANDLE_MARGIN;
               }
             }
 
