@@ -1330,10 +1330,18 @@ Settings may be set in the configuration file /etc/wt/wthttpd
 
   If you wish to customize the mapping from file extension to MIME type,
   this can be done by specifying the path to a CSV file. This file must
-  be a CSV file with two columns. The first column is the file extension
-  (without the '.' in front) and the second column is the corresponding
-  MIME type. Capitalization does not matter in the file, as the content is
-  always sent in lower case.
+  be a CSV file with two or three columns. The first column is the file
+  extension (without the '.' in front), the second column is the
+  corresponding MIME type, and the thrid column (which is optional) is
+  a boolean (true or false) which define whether this MIME type can be
+  compressed on the fly when sent in a response. Capitalization does
+  not matter in the file, as the content is always sent in lower case.
+
+  Note that by default, Wt will consider that any video, audio or
+  images should not be compressed, while all the other should. There
+  are of course some excpetions like <code>image/svg+xml</code>, which
+  are allowed to be compressed, or <code>application/gzip</code> which
+  are not allowed to be compressed.
 
    \section error_sec &nbsp;11. Error handling and logging
 
