@@ -31,6 +31,7 @@ namespace http {
 namespace server {
 namespace mime_types {
 using ExtensionMap = std::map<std::string, std::string>;
+using CompressionMap = std::map<std::string, bool>;
 
 struct mapping
 {
@@ -123,7 +124,33 @@ ExtensionMap defaultExtensionMappings()
   return defaultExtMap;
 }
 
+CompressionMap defaultCompressionExceptions()
+{
+  CompressionMap compressionExceptions;
+  compressionExceptions["application/epub+zip"] = false;
+  compressionExceptions["application/gzip"] = false;
+  compressionExceptions["application/java-archive"] = false;
+  compressionExceptions["application/ogg"] = false;
+  compressionExceptions["application/vnd.amazon.ebook"] = false;
+  compressionExceptions["application/vnd.openxmlformats-officedocument.wordprocessingml.document"] = false;
+  compressionExceptions["application/vnd.openxmlformats-officedocument.presentationml.presentation"] = false;
+  compressionExceptions["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"] = false;
+  compressionExceptions["application/vnd.rar"] = false;
+  compressionExceptions["application/x-7z-compressed"] = false;
+  compressionExceptions["application/x-bzip"] = false;
+  compressionExceptions["application/x-bzip2"] = false;
+  compressionExceptions["application/x-freearc"] = false;
+  compressionExceptions["application/x-tar"] = false;
+  compressionExceptions["application/zip"] = false;
+  compressionExceptions["audio/x-midi"] = true;
+  compressionExceptions["font/woff"] = false;
+  compressionExceptions["font/woff2"] = false;
+  compressionExceptions["image/svg+xml"] = true;
+  return compressionExceptions;
+}
+
 ExtensionMap extMap = defaultExtensionMappings();
+CompressionMap compressionExceptions = defaultCompressionExceptions();
 
 void readMapFromCsv(std::istream& f)
 {
@@ -191,6 +218,18 @@ std::string extensionToType(const std::string& extension)
     return res->second;
   }
   return "application/octet-stream";
+}
+
+bool canCompress(const std::string& mimeType)
+{
+  auto compressionException = compressionExceptions.find(mimeType);
+  if (compressionException != compressionExceptions.end()) {
+    return compressionException->second;
+  }
+
+  return !boost::algorithm::starts_with(mimeType, "audio/") &&
+         !boost::algorithm::starts_with(mimeType, "image/") &&
+         !boost::algorithm::starts_with(mimeType, "video/");
 }
 
 } // namespace mime_types

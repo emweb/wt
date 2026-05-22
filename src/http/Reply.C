@@ -15,6 +15,7 @@
 
 #include "Configuration.h"
 #include "Connection.h"
+#include "MimeTypes.h"
 #include "Reply.h"
 #include "Request.h"
 #include "Server.h"
@@ -406,14 +407,7 @@ bool Reply::nextBuffers(std::vector<asio::const_buffer>& result)
           && configuration_.compression()
           && request_.acceptGzipEncoding()
           && (cl == -1)
-          && (ct.find("text/html") != std::string::npos
-              || ct.find("text/plain") != std::string::npos
-              || ct.find("text/javascript") != std::string::npos
-              || ct.find("text/css") != std::string::npos
-              || ct.find("application/xhtml+xml")!= std::string::npos
-              || ct.find("image/svg+xml")!= std::string::npos
-              || ct.find("application/octet")!= std::string::npos
-              || ct.find("text/x-json") != std::string::npos);
+          && mime_types::canCompress(ct);
 
         if (gzipEncoding_) {
           buf_ << "Content-Encoding: gzip\r\n";

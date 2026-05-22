@@ -32,6 +32,8 @@ void updateMapping(const std::string& csvFile);
 /// Convert a file extension into a MIME type.
 std::string extensionToType(const std::string& extension);
 
+bool canCompress(const std::string& mimeType);
+
 } // namespace mime_types
 } // namespace server
 } // namespace http
