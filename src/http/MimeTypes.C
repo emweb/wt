@@ -164,7 +164,7 @@ void readMapFromCsv(std::istream& f)
       using CsvTokenizer = boost::tokenizer<boost::escaped_list_separator<char>>;
       CsvTokenizer tok(line);
 
-      std::string extension, mime_type;
+      std::string extension, mime_type, compress;
       int col = 0;
       for (auto i = tok.begin(); i != tok.end(); ++i, ++col) {
         switch (col)
@@ -179,15 +179,29 @@ void readMapFromCsv(std::istream& f)
           boost::algorithm::to_lower(mime_type);
           break;
 
+        case 2:
+          compress = *i;
+          boost::algorithm::to_lower(compress);
+          break;
+
         default:
           break;
         }
       }
-      if (col == 2) {
+      if (col == 2 || col == 3) {
         extMap[extension] = mime_type;
+        if (col == 3) {
+          if (compress == "true") {
+            compressionExceptions[mime_type] = true;
+          } else if (compress == "false") {
+            compressionExceptions[mime_type] = false;
+          } else if (!compress.empty()) {
+            LOG_WARN("Invalid value for compression parameter \"" << compress << "\" at row " << row << " of in file extension to MIME type mapping file. Expected 'true', 'false', or ''.");
+          }
+        }
       } else if (col) {
         LOG_WARN("Ignoring row " << row << " in file extension to MIME type mapping file due to incorrect amount of column.\n"
-                 << "Correct formatting required two columns. First the extension, then the MIME type, in CSV format, thus separated by a comma.");
+                 << "Correct formatting requires 2 or 3 columns. First the extension, then the MIME type, and optionally the compression parameter, in CSV format, thus separated by a comma.");
       }
     }
   }
