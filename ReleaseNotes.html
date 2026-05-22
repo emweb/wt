@@ -183,6 +183,16 @@ behaviour.
     lacked <code>std::any</code>.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/14479" target="_blank">Issue #14479</a>:
+    added the possibility to configure whether a MIME type should be allowed to be
+    compressed on the fly by the server when being sent to the client by wthttp. This
+    can be done by adding a third (optional) column to the MIME type configuration file
+    with a boolean value indicating whether the MIME type should be compressed or not.
+
+    Additionally, excepted for some specific MIME types, wthttp will by default be allowed
+    to compress any MIME type that are not audio, image, or video.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/12464" target="_blank">Issue #12464</a>:
     added the possibility to specify the MIME type when calling
     <a href="classWt_1_1WStreamResource.html#a6397570c842aa542bb195b6b31c2dab6" target="_blank">WStreamResource::handleRequestPiecewise()</a>,
