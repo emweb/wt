@@ -4051,6 +4051,8 @@ window._$_APP_CLASS_$_ = new (function() {
           const err = {
             "error-description": "Error: failed loading " + uri,
             "client_url": window.location.href,
+            "script_uri": uri,
+            "script_symbol": symbol,
           };
           jsLoadFailed(uri);
           sendError(err, err["error-description"]);
