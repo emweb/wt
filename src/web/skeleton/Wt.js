@@ -14,6 +14,7 @@
   _$_KEEP_ALIVE_$_
   _$_MAX_FORMDATA_SIZE_$_
   _$_MAX_PENDING_EVENTS_$_
+  _$_NO_DEFAULT_CLASS_$_
   _$_QUITTED_STR_$_
   _$_SERVER_PUSH_TIMEOUT_$_
   _$_SESSION_URL_$_
@@ -764,7 +765,7 @@ if (!window._$_WT_CLASS_$_) {
           WT.cancelEvent(e);
           return true;
         }
-        if (o.classList.contains("Wt-no-default")) {
+        if (o.classList.contains(_$_NO_DEFAULT_CLASS_$_)) {
           e.preventDefault();
         }
         return f.call(this, o, e);

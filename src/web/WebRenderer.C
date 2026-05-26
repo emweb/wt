@@ -1038,6 +1038,7 @@ void WebRenderer::serveMainscript(WebResponse& response)
                 WString::tr("Wt.QuittedMessage").jsStringLiteral());
   script.setVar("MAX_FORMDATA_SIZE", conf.maxFormDataSize());
   script.setVar("MAX_PENDING_EVENTS", conf.maxPendingEvents());
+  script.setVar("NO_DEFAULT_CLASS", WWebWidget::jsStringLiteral(WInteractWidget::noDefault));
 
   std::string deployPath = session_.env().publicDeploymentPath_;
   if (deployPath.empty())
