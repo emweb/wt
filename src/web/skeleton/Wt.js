@@ -4030,6 +4030,13 @@ window._$_APP_CLASS_$_ = new (function() {
     }
   }
 
+  function jsLoadFailed(path) {
+    if (typeof jsLibsLoaded[path] !== UNDEFINED) {
+      delete jsLibsLoaded[path];
+    }
+    waitingForJavaScript = false;
+  }
+
   function loadScript(uri, symbol, tries) {
     let loaded = false, error = false;
 
@@ -4042,11 +4049,11 @@ window._$_APP_CLASS_$_ = new (function() {
           loadScript(uri, symbol, t - 1);
         } else {
           const err = {
-            "error-description": "Fatal error: failed loading " + uri,
+            "error-description": "Error: failed loading " + uri,
             "client_url": window.location.href,
           };
+          jsLoadFailed(uri);
           sendError(err, err["error-description"]);
-          quit(null);
         }
       }
     }
