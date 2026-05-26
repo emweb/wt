@@ -740,6 +740,99 @@ if (!window._$_WT_CLASS_$_) {
       }
     };
 
+    // u
+    function addSignalUpdate(app, sig, f) {
+      /*
+       * This order, first JavaScript and then event propagation is important
+       * for WCheckBox where the tristate state is cleared before propagating
+       * its value
+       */
+
+      if (typeof f === UNDEFINED) {
+        return (o, e) => app._p_.update(o, sig, e, true);
+      }
+      return function(o, e) {
+        e.wtu = () => app._p_.update(o, sig, e, true);
+        return f.call(this, o, e);
+      };
+    }
+
+    // c
+    function addSignalGuard(dc, f) {
+      return function(o, e) {
+        if (o.classList.contains(dc)) {
+          WT.cancelEvent(e);
+          return true;
+        }
+        if (o.classList.contains("Wt-no-default")) {
+          e.preventDefault();
+        }
+        return f.call(this, o, e);
+      };
+    }
+
+    // a
+    function addAnchorSignalGuard(f) {
+      return function(o, e) {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || (WT.button(e) > 1)) {
+          return true;
+        }
+        return f.call(this, o, e);
+      };
+    }
+
+    // s
+    function finalizeSignalFunction(f) {
+      return function(event) {
+        const e = event || window.event, o = this;
+        return f.call(this, o, e);
+      };
+    }
+
+    this.mks = function(f = (_o, _e) => {}) {
+      return finalizeSignalFunction(f);
+    };
+
+    this.mksu = function(app, sig, f) {
+      const res = addSignalUpdate(app, sig, f);
+      return finalizeSignalFunction(res);
+    };
+
+    this.mksc = function(dc, f = (_o, _e) => {}) {
+      const res = addSignalGuard(dc, f);
+      return finalizeSignalFunction(res);
+    };
+
+    this.mksa = function(f = (_o, _e) => {}) {
+      const res = addAnchorSignalGuard(f);
+      return finalizeSignalFunction(res);
+    };
+
+    this.mkscu = function(dc, app, sig, f) {
+      let res = addSignalUpdate(app, sig, f);
+      res = addSignalGuard(dc, res);
+      return finalizeSignalFunction(res);
+    };
+
+    this.mksau = function(app, sig, f) {
+      let res = addSignalUpdate(app, sig, f);
+      res = addAnchorSignalGuard(res);
+      return finalizeSignalFunction(res);
+    };
+
+    this.mksac = function(dc, f = (_o, _e) => {}) {
+      let res = addSignalGuard(dc, f);
+      res = addAnchorSignalGuard(res);
+      return finalizeSignalFunction(res);
+    };
+
+    this.mksacu = function(dc, app, sig, f) {
+      let res = addSignalUpdate(app, sig, f);
+      res = addSignalGuard(dc, res);
+      res = addAnchorSignalGuard(res);
+      return finalizeSignalFunction(res);
+    };
+
     this.getElement = function(id) {
       let el = document.getElementById(id);
       if (!el) {

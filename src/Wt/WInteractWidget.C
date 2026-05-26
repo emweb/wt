@@ -284,11 +284,6 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     = (mouseUp && mouseUp->needsUpdate(all))
     || updateMouseMove;
 
-  std::string HandlerChecks = "if(o.classList.contains('" +
-    app->theme()->disabledClass() +
-    "')){" WT_CLASS ".cancelEvent(e);return;}" +
-    "if(o.classList.contains('"+noDefault+"')){e.preventDefault();}";
-
   if (updateMouseDown) {
     /*
      * when we have a mouseUp event, we also need a mouseDown event
@@ -302,16 +297,14 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
      */
     WStringStream js;
 
-    js << HandlerChecks;
-
     if (mouseUp && mouseUp->isConnected())
-      js << app->javaScriptClass() << "._p_.saveDownPos(event);";
+      js << app->javaScriptClass() << "._p_.saveDownPos(e);";
 
     if ((mouseDrag && mouseDrag->isConnected())
         || (mouseDown && mouseDown->isConnected()
             && ((mouseUp && mouseUp->isConnected())
                 || (mouseMove && mouseMove->isConnected()))))
-      js << WT_CLASS ".capture(this);";
+      js << WT_CLASS ".capture(o);";
 
     if ((mouseMove && mouseMove->isConnected())
         || (mouseDrag && mouseDrag->isConnected()))
@@ -320,10 +313,10 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     if (mouseDown) {
       js << mouseDown->javaScript();
       element.setEvent("mousedown", js.str(),
-                       mouseDown->encodeCmd(), mouseDown->isExposedSignal());
+                       mouseDown->encodeCmd(), mouseDown->isExposedSignal(), app->theme()->disabledClass());
       mouseDown->updateOk();
     } else
-      element.setEvent("mousedown", js.str(), std::string(), false);
+      element.setEvent("mousedown", js.str(), std::string(), false, app->theme()->disabledClass());
   }
 
   if (updateMouseUp) {
@@ -333,7 +326,6 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
      * when we have a mouseMove or mouseDrag event, we need to keep track
      * of unpressing the button.
      */
-    js << HandlerChecks;
 
     if ((mouseMove && mouseMove->isConnected())
         || (mouseDrag && mouseDrag->isConnected()))
@@ -342,10 +334,10 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     if (mouseUp) {
       js << mouseUp->javaScript();
       element.setEvent("mouseup", js.str(),
-                       mouseUp->encodeCmd(), mouseUp->isExposedSignal());
+                       mouseUp->encodeCmd(), mouseUp->isExposedSignal(), app->theme()->disabledClass());
       mouseUp->updateOk();
     } else
-      element.setEvent("mouseup", js.str(), std::string(), false);
+      element.setEvent("mouseup", js.str(), std::string(), false, app->theme()->disabledClass());
   }
 
   if (updateMouseMove) {
@@ -408,23 +400,21 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
      */
     WStringStream js;
 
-    js << HandlerChecks;
-
     if (touchEnd && touchEnd->isConnected())
-      js << app->javaScriptClass() << "._p_.saveDownPos(event);";
+      js << app->javaScriptClass() << "._p_.saveDownPos(e);";
 
     if ((touchStart && touchStart->isConnected()
             && ((touchEnd && touchEnd->isConnected())
                 || (touchMove && touchMove->isConnected()))))
-      js << WT_CLASS ".capture(this);";
+      js << WT_CLASS ".capture(o);";
 
     if (touchStart) {
       js << touchStart->javaScript();
       element.setEvent("touchstart", js.str(),
-                       touchStart->encodeCmd(), touchStart->isExposedSignal());
+                       touchStart->encodeCmd(), touchStart->isExposedSignal(), app->theme()->disabledClass());
       touchStart->updateOk();
     } else
-      element.setEvent("touchstart", js.str(), std::string(), false);
+      element.setEvent("touchstart", js.str(), std::string(), false, app->theme()->disabledClass());
   }
 
   if (updateTouchEnd) {
@@ -434,15 +424,14 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
      * when we have a touchMove, we need to keep track
      * of removing touch.
      */
-    js << HandlerChecks;
 
     if (touchEnd) {
       js << touchEnd->javaScript();
       element.setEvent("touchend", js.str(),
-                         touchEnd->encodeCmd(), touchEnd->isExposedSignal());
+                         touchEnd->encodeCmd(), touchEnd->isExposedSignal(), app->theme()->disabledClass());
       touchEnd->updateOk();
     } else
-      element.setEvent("touchend", js.str(), std::string(), false);
+      element.setEvent("touchend", js.str(), std::string(), false, app->theme()->disabledClass());
   }
 
   if (updateTouchMove) {
@@ -469,8 +458,6 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
 
   if (updateMouseClick) {
     WStringStream js;
-
-    js << HandlerChecks;
 
     if (mouseDrag)
       js << "if (" WT_CLASS ".dragged()) return;";
@@ -545,7 +532,7 @@ void WInteractWidget::updateDom(DomElement& element, bool all)
     }
 
     element.setEvent(CLICK_SIGNAL, js.str(),
-                     mouseClick ? mouseClick->encodeCmd() : "");
+                     mouseClick ? mouseClick->encodeCmd() : "", false, app->theme()->disabledClass());
 
     if (mouseDblClick) {
       if (app->environment().agentIsIElt(9))

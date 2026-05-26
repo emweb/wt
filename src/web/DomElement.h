@@ -324,7 +324,8 @@ public:
   void setEvent(const char *eventName,
                 const std::string& jsCode,
                 const std::string& signalName,
-                bool isExposed = false);
+                bool isExposed = false,
+                const std::string& disabledClass = std::string());
 
   /*! \brief Sets an event handler.
    *
@@ -573,10 +574,11 @@ private:
   struct EventHandler {
     std::string jsCode;
     std::string signalName;
+    bool useJsFunctionGenerator;
 
     EventHandler() { }
-    EventHandler(const std::string& j, const std::string& sn)
-      : jsCode(j), signalName(sn) { }
+    EventHandler(const std::string& j, const std::string& sn, bool uf = false)
+      : jsCode(j), signalName(sn), useJsFunctionGenerator(uf) { }
   };
 
   typedef std::map<std::string, std::string> AttributeMap;

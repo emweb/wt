@@ -571,7 +571,8 @@ void DomElement::setEventSignal(const char *eventName,
 void DomElement::setEvent(const char *eventName,
                           const std::string& jsCode,
                           const std::string& signalName,
-                          bool isExposed)
+                          bool isExposed,
+                          const std::string& disabledClass)
 {
   WApplication *app = WApplication::instance();
 
@@ -580,30 +581,57 @@ void DomElement::setEvent(const char *eventName,
 
   WStringStream js;
   if (isExposed || anchorClick || !jsCode.empty()) {
-    js << "var e=event||window.event,";
-    js << "o=this;";
+    js << WT_CLASS << ".mks";
+    WStringStream param;
+    bool firstParam = true;
+    if (anchorClick) {
+      js << "a";
+    }
 
-    if (anchorClick)
-      js << "if(e.ctrlKey||e.metaKey||e.shiftKey||(" WT_CLASS ".button(e) > 1))"
-        "return true;else{";
+    if (!disabledClass.empty()) {
+      if (firstParam) {
+        firstParam = false;
+      } else {
+        param << ",";
+      }
 
-    /*
-     * This order, first JavaScript and then event propagation is important
-     * for WCheckBox where the tristate state is cleared before propagating
-     * its value
-     */
-    js << jsCode;
+      param << "'" << disabledClass << "'";
+      js << "c";
+    }
 
-    if (isExposed)
-      js << app->javaScriptClass() << "._p_.update(o,'"
-         << signalName << "',e,true);";
+    if (isExposed) {
+      if (firstParam) {
+        firstParam = false;
+      } else {
+        param << ",";
+      }
 
-    if (anchorClick)
-      js << "}";
+      param << app->javaScriptClass() << ","
+            << "'" << signalName << "'";
+      js << "u";
+    }
+
+    if (!jsCode.empty()) {
+      if (firstParam) {
+        firstParam = false;
+      } else {
+        param << ",";
+      }
+
+      param << "function(o,e){" << jsCode;
+
+      if (isExposed) {
+        param << ";e.wtu();";
+      }
+
+      param << "}";
+    }
+
+    js << "(" << param.str() << ")";
   }
 
   ++numManipulations_;
-  eventHandlers_[eventName] = EventHandler(js.str(), signalName);
+  eventHandlers_[eventName] = EventHandler(js.str(), signalName, !js.empty());
 }
 
 void DomElement::setEvent(const char *eventName, const std::string& jsCode)
@@ -700,11 +728,18 @@ void DomElement::processEvents(WT_MAYBE_UNUSED WApplication* app) const
   const char *S_keypress = WInteractWidget::KEYPRESS_SIGNAL;
 
   EventHandlerMap::const_iterator keypress = eventHandlers_.find(S_keypress);
-  if (keypress != eventHandlers_.end() && !keypress->second.jsCode.empty())
-    Utils::access(self->eventHandlers_, S_keypress).jsCode
-      = "if (" WT_CLASS ".isKeyPress(event)){"
-      + Utils::access(self->eventHandlers_, S_keypress).jsCode
-      + '}';
+  if (keypress != eventHandlers_.end() && !keypress->second.jsCode.empty()) {
+    WStringStream js;
+    js << "if (" << WT_CLASS << ".isKeyPress(event)){"
+       << Utils::access(self->eventHandlers_, S_keypress).jsCode;
+    if (keypress->second.useJsFunctionGenerator) {
+      js << ".call(this, event);";
+      Utils::access(self->eventHandlers_, S_keypress).useJsFunctionGenerator = false;
+    }
+    js << "}";
+
+    Utils::access(self->eventHandlers_, S_keypress).jsCode = js.str();
+  }
 }
 
 void DomElement::setTimeout(int msec, bool jsRepeat)
@@ -984,17 +1019,23 @@ void DomElement::setJavaScriptEvent(EscapeOStream& out,
   // events on the dom root container are events received by the whole
   // document when no element has focus
 
-  unsigned fid = nextId_++;
+  std::string functionName;
 
-  out << "function f" << fid << "(event) { ";
+  if (handler.useJsFunctionGenerator) {
+    functionName = handler.jsCode;
+  } else {
+    unsigned fid = nextId_++;
+    functionName = "f" + std::to_string(fid);
+    out << "function " << functionName << "(event) { ";
 
-  out << handler.jsCode;
+    out << handler.jsCode;
 
-  out << "}\n";
+    out << "}\n";
+  }
 
   if (globalUnfocused_) {
     out << app->javaScriptClass()
-      <<  "._p_.bindGlobal('" << std::string(eventName) <<"', '" << id_ << "', f" << fid
+      <<  "._p_.bindGlobal('" << std::string(eventName) <<"', '" << id_ << "', " << functionName
       << ")\n";
     return;
   } else {
@@ -1006,9 +1047,9 @@ void DomElement::setJavaScriptEvent(EscapeOStream& out,
       app->environment().agentIsIE() &&
       static_cast<unsigned int>(app->environment().agent()) >=
       static_cast<unsigned int>(UserAgent::IE9))
-    out << ".addEventListener('wheel', f" << fid << ", false);\n";
+    out << ".addEventListener('wheel', " << functionName << ", false);\n";
   else
-    out << ".on" << const_cast<char *>(eventName) << "=f" << fid << ";\n";
+    out << ".on" << const_cast<char *>(eventName) << "=" << functionName << ";\n";
 }
 
 void DomElement::asHTML(EscapeOStream& out,
