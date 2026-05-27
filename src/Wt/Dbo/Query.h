@@ -35,7 +35,8 @@ namespace Wt {
         void fieldsForSelect(const SelectFieldList& list,
                              std::vector<FieldInfo>& result) const;
         std::pair<SqlStatement *, SqlStatement *>
-        statements(const std::string& join, const std::string &where,
+        statements(const std::string& with,
+                   const std::string& join, const std::string &where,
                    const std::string &groupBy,
                    const std::string &having, const std::string &orderBy,
                    int limit, int offset) const;
@@ -56,7 +57,8 @@ namespace Wt {
         std::string sql_;
         SelectFieldLists selectFieldLists_;
 
-        std::string createQuerySelectSql(const std::string& join,
+        std::string createQuerySelectSql(const std::string& with,
+                                         const std::string& join,
                                          const std::string& where,
                                          const std::string& groupBy,
                                          const std::string& having,
@@ -235,6 +237,20 @@ public:
    */
   AbstractQuery& having(const std::string& fields);
 
+  /*! \brief Adds a CTE to the query.
+   *
+   * This is a convenience method for creating a SQL query, and adds a
+   * Common Table Expression (CTE) \p query with name \p alias to the
+   * current query.
+   *
+   * Multiple CTE may be provided by successive calls to
+   * with().
+   *
+   * A CTE is a named subquery that can be referred to in the main
+   * query or in other CTEs.
+   */
+  AbstractQuery& with(const std::string& alias, const std::string& query);
+
   /*! \brief Sets a result offset.
    *
    * Sets a result offset. This has the effect that the next
@@ -272,7 +288,7 @@ public:
   int limit() const;
 
 protected:
-  std::string join_, where_, groupBy_, having_, orderBy_;
+  std::string with_, join_, where_, groupBy_, having_, orderBy_;
   int limit_, offset_;
 
   AbstractQuery();
@@ -710,6 +726,22 @@ public:
    */
   Query<Result, BindStrategy>& having(const std::string& fields);
 
+  /*! \brief Adds a CTE to the query.
+   *
+   * This is a convenience method for creating a SQL query, and adds a
+   * Common Table Expression (CTE) \p query with name \p alias to the
+   * current query.
+   *
+   * Multiple CTE may be provided by successive calls to
+   * with().
+   *
+   * A CTE is a named subquery that can be referred to in the main
+   * query or in other CTEs.
+   *
+   * \sa asString(), bindSubqueryValues()
+   */
+  Query<Result, BindStrategy>& with(const std::string& alias, const std::string& query);
+
   /*! \brief Sets a result offset.
    *
    * Sets a result offset. This has the effect that the next
@@ -815,6 +847,7 @@ public:
   Query<Result, DynamicBinding>& orderBy(const std::string& fieldName);
   Query<Result, DynamicBinding>& groupBy(const std::string& fields);
   Query<Result, DynamicBinding>& having(const std::string& fields);
+  Query<Result, DynamicBinding>& with(const std::string& alias, const std::string& query);
   Query<Result, DynamicBinding>& offset(int count);
   Query<Result, DynamicBinding>& limit(int count);
   Query<Result, DynamicBinding>& setCountQuery(const Query<Result, DynamicBinding>& countQuery);

@@ -130,7 +130,8 @@ std::string addLimitQuery(const std::string& sql, const std::string &orderBy, in
 
   return result;
 }
-std::string completeQuerySelectSql(const std::string& sql,
+std::string completeQuerySelectSql(const std::string& with,
+                                   const std::string& sql,
                                    const std::string& join,
                                    const std::string& where,
                                    const std::string& groupBy,
@@ -140,7 +141,12 @@ std::string completeQuerySelectSql(const std::string& sql,
                                    const std::vector<FieldInfo>& fields,
                                    LimitQuery limitQueryMethod)
 {
-  std::string result = sql + join;
+  std::string result;
+  if (!with.empty()) {
+    result += "with " + with + ' ';
+  }
+
+  result += sql + join;
 
   if (!where.empty())
     result += " where " + where;
@@ -157,7 +163,8 @@ std::string completeQuerySelectSql(const std::string& sql,
   return addLimitQuery(result, orderBy, limit, offset, limitQueryMethod);
 }
 
-std::string createQuerySelectSql(const std::string& from,
+std::string createQuerySelectSql(const std::string& with,
+                                 const std::string& from,
                                  const std::string& join,
                                  const std::string& where,
                                  const std::string& groupBy,
@@ -167,7 +174,13 @@ std::string createQuerySelectSql(const std::string& from,
                                  const std::vector<FieldInfo>& fields,
                                  LimitQuery limitQueryMethod)
 {
-  std::string result = "select " + selectColumns(fields) + ' ' + from + join;
+  std::string result;
+
+  if (!with.empty()) {
+    result += "with " + with + ' ';
+  }
+
+  result += "select " + selectColumns(fields) + ' ' + from + join;
 
   if (!where.empty())
     result += " where " + where;
@@ -184,13 +197,16 @@ std::string createQuerySelectSql(const std::string& from,
   return addLimitQuery(result, orderBy, limit, offset, limitQueryMethod);
 }
 
-std::string createQueryCountSql(const std::string& query,
+std::string createQueryCountSql(const std::string& with,
+                                const std::string& query,
                                 bool requireSubqueryAlias)
 {
-  if (requireSubqueryAlias)
-    return "select count(1) from (" + query + ") dbocount";
-  else
-    return "select count(1) from (" + query + ")";
+  std:: string withClause = with.empty() ? "" : "with " + with + ' ';
+  if (requireSubqueryAlias) {
+    return withClause + "select count(1) from (" + query + ") dbocount";
+  } else {
+    return withClause + "select count(1) from (" + query + ")";
+  }
 }
 
 void substituteFields(const SelectFieldList& list,
@@ -307,6 +323,17 @@ AbstractQuery& AbstractQuery::having(const std::string& having)
   return *this;
 }
 
+AbstractQuery& AbstractQuery::with(const std::string& alias,
+                                   const std::string& query)
+{
+  if (!with_.empty()) {
+    with_ += ", ";
+  }
+  with_ += alias + " as (" + query + ")";
+
+  return *this;
+}
+
 AbstractQuery& AbstractQuery::offset(int offset)
 {
   offset_ = offset;
@@ -356,7 +383,8 @@ AbstractQuery::~AbstractQuery()
 { }
 
 AbstractQuery::AbstractQuery(const AbstractQuery& other)
-  : join_(other.join_),
+  : with_(other.with_),
+    join_(other.join_),
     where_(other.where_),
     groupBy_(other.groupBy_),
     having_(other.having_),
@@ -374,6 +402,7 @@ AbstractQuery& AbstractQuery::operator=(const AbstractQuery& other)
     return *this;
   }
 
+  with_ = other.with_;
   join_ = other.join_;
   where_ = other.where_;
   groupBy_ = other.groupBy_;

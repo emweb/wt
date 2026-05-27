@@ -23,7 +23,8 @@ namespace Wt {
     namespace Impl {
 
 extern std::string WTDBO_API
-completeQuerySelectSql(const std::string& sql,
+completeQuerySelectSql(const std::string& with,
+                       const std::string& sql,
                        const std::string& join,
                        const std::string& where,
                        const std::string& groupBy,
@@ -34,7 +35,8 @@ completeQuerySelectSql(const std::string& sql,
                        LimitQuery useRowsFromTo);
 
 extern std::string WTDBO_API
-createQuerySelectSql(const std::string& from,
+createQuerySelectSql(const std::string& with,
+                     const std::string& from,
                      const std::string& join,
                      const std::string& where,
                      const std::string& groupBy,
@@ -45,7 +47,8 @@ createQuerySelectSql(const std::string& from,
                      LimitQuery useRowsFromTo);
 
 extern std::string WTDBO_API
-createQueryCountSql(const std::string& query,
+createQueryCountSql(const std::string& with,
+                    const std::string& query,
                     bool requireSubqueryAlias);
 
 extern void WTDBO_API
@@ -115,7 +118,8 @@ std::vector<FieldInfo> QueryBase<Result>::fields() const
 }
 
 template <class Result>
-std::string QueryBase<Result>::createQuerySelectSql(const std::string& join,
+std::string QueryBase<Result>::createQuerySelectSql(const std::string& with,
+                                                    const std::string& join,
                                                     const std::string& where,
                                                     const std::string& groupBy,
                                                     const std::string& having,
@@ -129,7 +133,7 @@ std::string QueryBase<Result>::createQuerySelectSql(const std::string& join,
     std::string sql;
 
     std::vector<FieldInfo> fs = this->fields();
-    return Impl::createQuerySelectSql(sql_, join, where, groupBy, having, orderBy,
+    return Impl::createQuerySelectSql(with, sql_, join, where, groupBy, having, orderBy,
                                       limit, offset, fs,
                                       this->session_->limitQueryMethod_);
   } else {
@@ -149,7 +153,7 @@ std::string QueryBase<Result>::createQuerySelectSql(const std::string& join,
       Impl::substituteFields(list, fs, sql, sql_offset);
     }
 
-    return Impl::completeQuerySelectSql(sql, join, where, groupBy, having, orderBy,
+    return Impl::completeQuerySelectSql(with, sql, join, where, groupBy, having, orderBy,
                                         limit, offset, fs,
                                         this->session_->limitQueryMethod_);
   }
@@ -157,17 +161,18 @@ std::string QueryBase<Result>::createQuerySelectSql(const std::string& join,
 
 template <class Result>
 std::pair<SqlStatement *, SqlStatement *>
-QueryBase<Result>::statements(const std::string& join,
+QueryBase<Result>::statements(const std::string& with,
+                              const std::string& join,
                               const std::string& where,
                               const std::string& groupBy,
                               const std::string& having,
                               const std::string& orderBy,
                               int limit, int offset) const
 {
-  std::string sql = createQuerySelectSql(join, where, groupBy, having, orderBy, limit, offset);
+  std::string sql = createQuerySelectSql(with, join, where, groupBy, having, orderBy, limit, offset);
   auto statement = this->session_->getOrPrepareStatement(sql);
 
-  sql = Impl::createQueryCountSql(sql, this->session_->requireSubqueryAlias_);
+  sql = Impl::createQueryCountSql(with, createQuerySelectSql("", join, where, groupBy, having, orderBy, limit, offset), this->session_->requireSubqueryAlias_);
   auto countStatement = this->session_->getOrPrepareStatement(sql);
 
   return std::make_pair(statement, countStatement);
@@ -331,7 +336,7 @@ void Query<Result, DirectBinding>::prepareStatements() const
 
   std::tie(this->statement_, this->countStatement_)
     = this->statements(std::string(), std::string(), std::string(), std::string(),
-                       std::string(), -1, -1);
+                       std::string(), std::string(), -1, -1);
 
   column_ = 0;
 }
@@ -412,8 +417,8 @@ Query<Result, DynamicBinding>::~Query()
 template <class Result>
 std::string Query<Result, DynamicBinding>::asString() const
 {
-  return this->createQuerySelectSql(join_, where_, groupBy_, having_,
-                                    orderBy_, limit_, offset_);
+  return this->createQuerySelectSql(with_, join_, where_, groupBy_,
+                                    having_, orderBy_, limit_, offset_);
 }
 
 template <class Result>
@@ -517,6 +522,16 @@ Query<Result, DynamicBinding>::having(const std::string& having)
 
   return *this;
 }
+
+template <class Result>
+Query<Result, DynamicBinding>&
+Query<Result, DynamicBinding>::with(const std::string& alias, const std::string& query)
+{
+  AbstractQuery::with(alias, query);
+
+  return *this;
+}
+
 template <class Result>
 Query<Result, DynamicBinding>&
 Query<Result, DynamicBinding>::offset(int offset)
@@ -559,7 +574,7 @@ collection<Result> Query<Result, DynamicBinding>::resultList() const
   SqlStatement *statement, *countStatement;
 
   std::tie(statement, countStatement)
-    = this->statements(join_, where_, groupBy_, having_, orderBy_, limit_, offset_);
+    = this->statements(with_, join_, where_, groupBy_, having_, orderBy_, limit_, offset_);
 
   bindParameters(this->session_, statement);
 
@@ -580,7 +595,7 @@ SqlStatement *Query<Result, DynamicBinding>::countStatement() const
   SqlStatement *statement, *countStatement;
 
   std::tie(statement, countStatement) =
-    this->statements(join_, where_, groupBy_, having_, orderBy_, limit_, offset_);
+    this->statements(with_, join_, where_, groupBy_, having_, orderBy_, limit_, offset_);
 
   statement->done();
 
