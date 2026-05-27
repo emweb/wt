@@ -188,6 +188,7 @@ void JavaScriptEvent::get(const WebRequest& request, const std::string& se)
 
   keyCode = parseIntParameter(request, concat(s, seLength, "keyCode"), 0);
   charCode = parseIntParameter(request, concat(s, seLength, "charCode"), 0);
+  key = getStringParameter(request, concat(s, seLength, "key"));
 
   button = parseIntParameter(request, concat(s, seLength, "button"), 0);
 
@@ -296,6 +297,11 @@ Key WKeyEvent::key() const
   return keyFromValue(key);
 #endif // WT_TARGET_JAVA
 
+}
+
+std::string WKeyEvent::keyValue() const
+{
+  return jsEvent_.key;
 }
 
 int WKeyEvent::charCode() const

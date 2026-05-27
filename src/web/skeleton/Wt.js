@@ -2908,6 +2908,8 @@ window._$_APP_CLASS_$_ = new (function() {
     }
     result.push("button=" + button);
 
+    result.push("key=" + encodeURIComponent(e.key));
+
     if (typeof e.keyCode !== UNDEFINED) {
       result.push("keyCode=" + e.keyCode);
     }
