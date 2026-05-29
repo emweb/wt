@@ -2142,7 +2142,7 @@ void WTableView::scrollTo(const WModelIndex& index,
     if (ajaxMode()) {
       int rh = static_cast<int>(rowHeight().toPixels());
       int rowY = index.row() * rh;
-      int cw = static_cast<int>(columnWidth(index.column()).toPixels());
+      int cw = columnWidthWithPadding(index.column());
       int colX = sumColumnWidthsBefore(index.column());
 
       if (viewportHeight_ != UNKNOWN_VIEWPORT_HEIGHT) {

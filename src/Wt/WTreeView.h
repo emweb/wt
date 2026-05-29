@@ -396,6 +396,7 @@ private:
 
   virtual WWidget *headerWidget(int column, bool contentsOnly = true) override;
 
+  int columnWidthWithPadding(int column) const;
   int sumColumnWidthsBefore(int column) const;
 
   void onScrollBarColumnScroll(WScrollEvent event);

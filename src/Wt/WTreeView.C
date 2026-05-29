@@ -3101,7 +3101,7 @@ void WTreeView::scrollTo(const WModelIndex& index,
                               std::numeric_limits<int>::max());
   const int col = index.column();
 
-  const int cw = static_cast<int>(columnWidth(col).toPixels());
+  const int cw = columnWidthWithPadding(col);
   const int colStart = sumColumnWidthsBefore(col);
 
   WApplication *app = WApplication::instance();
@@ -3175,12 +3175,17 @@ void WTreeView::scrollTo(const WModelIndex& index,
     setCurrentPage(row / pageSize());
 }
 
+int WTreeView::columnWidthWithPadding(int column) const
+{
+  return static_cast<int>(columnWidth(column).toPixels()) + 7;
+}
+
 int WTreeView::sumColumnWidthsBefore(int column) const
 {
   int total = 0;
   for (int i = rowHeaderCount(); i < column; ++i) {
     if (!columnInfo(i).hidden) {
-      total += static_cast<int>(columnWidth(i).toPixels()) + 7;
+      total += columnWidthWithPadding(i);
     }
   }
   return total;
