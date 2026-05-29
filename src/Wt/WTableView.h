@@ -162,6 +162,25 @@ public:
    */
   WModelIndex modelIndexAt(WWidget *widget) const;
 
+  /*! \brief Returns the incoming index.
+   *
+   * This returns the index of the not yet fully visible cell that is
+   * closest to given \p corner of the viewport (the container
+   * containing the non-header columns and rows). If the viewport is
+   * fully scrolled in both directions of the \p corner, then, the
+   * index of the cell in the corner is returned instead.
+   *
+   * By default, \p corner is the top-left corner. And in case of a
+   * tie, the top row and left column are preferred.
+   *
+   * \note When the WTableView is not yet rendered, the incoming index
+   *       may not be correct as the size of the table is only an
+   *       estimate at that time.
+   *
+   * \sa scrollTo()
+   */
+  WModelIndex incomingIndex(WFlags<Side> corner = WFlags<Side>()) const;
+
   virtual EventSignal<WScrollEvent>& scrolled() override;
 
 #ifdef WT_TEST_VISIBILITY
@@ -270,6 +289,10 @@ private:
   int lastRow() const;
   int firstColumn() const;
   int lastColumn() const;
+  int incomingTopRow() const;
+  int incomingBottomRow() const;
+  int incomingLeftColumn() const;
+  int incomingRightColumn() const;
 
   void setup();
   void reset();
@@ -339,6 +362,7 @@ private:
   void setRenderedHeight(double th);
 
   int sumColumnWidthsBefore(int column) const;
+  int columnAtX(int x) const;
 };
 
 }

@@ -488,6 +488,49 @@ int WTableView::lastColumn() const
     return columnCount() - 1;
 }
 
+int WTableView::incomingTopRow() const
+{
+  if (ajaxMode()) {
+    // -1 for the case where we are exactly at the beginning a the row
+    int res = (viewportTop_ - 1) / static_cast<int>(rowHeight().toPixels());
+    return std::min(res, renderedLastRow_);
+  } else {
+    return std::max(0, renderedFirstRow_ - 1);
+  }
+}
+
+int WTableView::incomingBottomRow() const
+{
+  if (ajaxMode()) {
+    int rh = static_cast<int>(rowHeight().toPixels());
+    int res = (viewportTop_ + viewportHeight_) / rh;
+    bool hasPreloadMargin = static_cast<int>(preloadMargin(Side::Bottom).toPixels() / rh);
+    int limit = hasPreloadMargin ? renderedLastRow_ : model()->rowCount(rootIndex()) - 1;
+    return std::min(res, limit);
+  } else {
+    return std::min(renderedLastRow_ + 1, model()->rowCount(rootIndex()) - 1);
+  }
+}
+
+int WTableView::incomingLeftColumn() const
+{
+  if (ajaxMode()) {
+    return columnAtX(viewportLeft_);
+  } else {
+    return std::min(rowHeaderCount(), columnCount() - 1);
+  }
+}
+
+int WTableView::incomingRightColumn() const
+{
+  if (ajaxMode()) {
+    // +1 for the case where we are exactly at the end of a column
+    return columnAtX(viewportLeft_ + viewportWidth_ + 1);
+  } else {
+    return columnCount() - 1;
+  }
+}
+
 void WTableView::addSection(const Side side)
 {
   assert(ajaxMode());
@@ -1917,6 +1960,16 @@ WModelIndex WTableView::modelIndexAt(WWidget *widget) const
   return WModelIndex();
 }
 
+WModelIndex WTableView::incomingIndex(WFlags<Side> corner) const
+{
+  int row = corner.test(Side::Bottom) && !corner.test(Side::Top) ?
+    incomingBottomRow() : incomingTopRow();
+  int col = corner.test(Side::Right) && !corner.test(Side::Left) ?
+    incomingRightColumn() : incomingLeftColumn();
+
+  return model()->index(row, col, rootIndex());
+}
+
 WModelIndex WTableView::translateModelIndex(bool headerColumns,
                                             const WMouseEvent& event)
 {
@@ -2298,6 +2351,25 @@ int WTableView::sumColumnWidthsBefore(int column) const
     }
   }
   return total;
+}
+
+int WTableView::columnAtX(int x) const
+{
+  assert(ajaxMode());
+  int total = 0;
+  int lastVisible = -1;
+  for (int i = rowHeaderCount(); i < columnCount(); ++i) {
+    if (!columnInfo(i).hidden) {
+      total += columnWidthWithPadding(i);
+      lastVisible = i;
+
+      if (total >= x) {
+        return i;
+      }
+    }
+  }
+
+  return lastVisible;
 }
 
 EventSignal<WScrollEvent>& WTableView::scrolled(){
