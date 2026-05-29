@@ -86,6 +86,15 @@ WT_DECLARE_WT_MEMBER(
         );
 
         waitingForContent = true;
+      } else {
+        APP.emitOnUpdate(
+          el,
+          "scrolled",
+          Math.round(rtlScrollLeft(contentsContainer)),
+          Math.round(contentsContainer.scrollTop),
+          Math.round(contentsContainer.clientWidth),
+          Math.round(contentsContainer.clientHeight)
+        );
       }
     }
 

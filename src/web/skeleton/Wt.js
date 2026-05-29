@@ -3359,6 +3359,7 @@ window._$_APP_CLASS_$_ = new (function() {
   let updating = false;
 
   function update(el, signalName, e, feedback) {
+    emitWaitingSignals();
     checkEventOverflow();
 
     /*
@@ -3800,10 +3801,8 @@ window._$_APP_CLASS_$_ = new (function() {
     }
   }
 
-  function emit(object, config) {
-    checkEventOverflow();
-
-    const userEvent = {}, ei = pendingEvents.length;
+  function createUserEvent(object, config, args) {
+    const userEvent = {};
     userEvent.signal = "user";
 
     if (typeof object === "string") {
@@ -3824,8 +3823,8 @@ window._$_APP_CLASS_$_ = new (function() {
     }
 
     userEvent.args = [];
-    for (let i = 2; i < arguments.length; ++i) {
-      const a = arguments[i];
+    for (let i = 2; i < args.length; ++i) {
+      const a = args[i];
       let r;
       if (a === false) {
         r = 0;
@@ -3838,11 +3837,41 @@ window._$_APP_CLASS_$_ = new (function() {
       }
       userEvent.args[i - 2] = r;
     }
+    return userEvent;
+  }
+
+  let waitingSignals = new Map();
+
+  function emitOnUpdate(object, config) {
+    const userEvent = createUserEvent(object, config, arguments);
+    waitingSignals.set(userEvent.id + "_" + userEvent.name, userEvent);
+  }
+
+  function emitWaitingSignals() {
+    const signals = waitingSignals;
+    waitingSignals = new Map();
+
+    for (const [_name, userEvent] of signals) {
+      makePending(userEvent);
+    }
+  }
+
+  function makePending(userEvent) {
+    checkEventOverflow();
+
+    const ei = pendingEvents.length;
+
     userEvent.feedback = true;
     userEvent.evAckId = ackUpdateId;
 
     pendingEvents[ei] = encodeEvent(userEvent);
+  }
 
+  function emit(object, config) {
+    const userEvent = createUserEvent(object, config, arguments);
+    waitingSignals.delete(userEvent.id + "_" + userEvent.name);
+    emitWaitingSignals();
+    makePending(userEvent);
     scheduleUpdate();
   }
 
@@ -4316,6 +4345,7 @@ window._$_APP_CLASS_$_ = new (function() {
 
   this.WT = _$_WT_CLASS_$_;
   this.emit = emit;
+  this.emitOnUpdate = emitOnUpdate;
 })();
 
 window._$_APP_CLASS_$_SignalEmit = _$_APP_CLASS_$_.emit;
