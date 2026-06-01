@@ -181,6 +181,31 @@ public:
    */
   WModelIndex incomingIndex(WFlags<Side> corner = WFlags<Side>()) const;
 
+  /*! \brief Returns the number of fully visible rows.
+   *
+   * Returns the number of fully visible rows, excluding the headers.
+   *
+   * \note When the WTableView is not yet rendered, the visible row
+   *       count may not be correct as the size of the table is only
+   *       an estimate at that time.
+   *
+   * \sa visibleColumnCount(), incomingIndex()
+   */
+  int visibleRowCount() const;
+
+  /*! \brief Returns the number of fully visible columns.
+   *
+   * Returns the number of fully visible columns, excluding the
+   * headers.
+   *
+   * \note When the WTableView is not yet rendered, the visible column
+   *       count may not be correct as the size of the table is only
+   *       an estimate at that time.
+   *
+   * \sa visibleRowCount(), incomingIndex()
+   */
+  int visibleColumnCount() const;
+
   virtual EventSignal<WScrollEvent>& scrolled() override;
 
 #ifdef WT_TEST_VISIBILITY

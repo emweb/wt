@@ -1970,6 +1970,43 @@ WModelIndex WTableView::incomingIndex(WFlags<Side> corner) const
   return model()->index(row, col, rootIndex());
 }
 
+int WTableView::visibleRowCount() const
+{
+  if (ajaxMode()) {
+    double rh = rowHeight().toPixels();
+    int first = static_cast<int>(std::ceil(viewportTop_ / rh));
+    int last = static_cast<int>((viewportTop_ + viewportHeight_) / rh);
+    last = std::min(last, renderedLastRow_ + 1);
+    return last - first;
+  } else {
+    return renderedLastRow_ + 1 - renderedFirstRow_;
+  }
+}
+
+int WTableView::visibleColumnCount() const
+{
+  if (ajaxMode()) {
+    int colStart = 0;
+    int count = 0;
+    for (int i = rowHeaderCount(); i < columnCount(); i++) {
+      if (!columnInfo(i).hidden) {
+        int colEnd = colStart + columnWidthWithPadding(i);
+        if (colStart >= viewportLeft_) {
+          if (colEnd <= viewportLeft_ + viewportWidth_) {
+            count++;
+          } else {
+            break;
+          }
+        }
+        colStart = colEnd;
+      }
+    }
+    return count;
+  } else {
+    return columnCount() - rowHeaderCount();
+  }
+}
+
 WModelIndex WTableView::translateModelIndex(bool headerColumns,
                                             const WMouseEvent& event)
 {
