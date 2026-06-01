@@ -92,7 +92,7 @@ def branch(Map args) {
         }
     }
     stage("Test SQL Server shared=${args.shared}") {
-        docker.image('mcr.microsoft.com/mssql/server:2019-latest').withRun('-e ACCEPT_EULA=Y -e \'SA_PASSWORD=hereIsMyPassword_1234\' -e MSSQL_PID=Express') { c ->
+        docker.image('mcr.microsoft.com/mssql/server:2025-latest').withRun('-e ACCEPT_EULA=Y -e \'SA_PASSWORD=hereIsMyPassword_1234\' -e MSSQL_PID=Express') { c ->
             sleep 60
             args.image.inside("--link ${c.id}:db ${ccache_args}") {
                 dir('test') {
