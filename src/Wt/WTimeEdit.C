@@ -60,6 +60,9 @@ void WTimeEdit::load()
   popup_->setAnchorWidget(this);
   popup_->setTransient(true);
 
+  // Issue #14575: Block popup rendering until this widget is rendered.
+  WApplication::instance()->removeGlobalWidget(popup_.get());
+
   scheduleThemeStyleApply(WApplication::instance()->theme(), popup_.get(), TimePickerPopup);
 
   escapePressed().connect(popup_.get(), &WPopupWidget::hide);
@@ -193,8 +196,11 @@ void WTimeEdit::setHidden(bool hidden, const WAnimation& animation)
 
 void WTimeEdit::render(WFlags<RenderFlag> flags)
 {
-  if (flags.test(RenderFlag::Full) && !nativeControl())
-      defineJavaScript();
+  if (flags.test(RenderFlag::Full) && !nativeControl()) {
+    // Issue #14575: Allow the popup to be rendered.
+    WApplication::instance()->addGlobalWidget(popup_.get());
+    defineJavaScript();
+  }
   WLineEdit::render(flags);
 }
 

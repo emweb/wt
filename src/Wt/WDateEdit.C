@@ -64,6 +64,9 @@ void WDateEdit::load()
   popup_->setAnchorWidget(this);
   popup_->setTransient(true);
 
+  // Issue #14575: Block popup rendering until this widget is rendered.
+  WApplication::instance()->removeGlobalWidget(popup_.get());
+
   oCalendar_->activated().connect(popup_.get(), &WPopupWidget::hide);
   temp->bindWidget("calendar", std::move(uCalendar_));
 
@@ -329,6 +332,8 @@ void WDateEdit::defineJavaScript()
 void WDateEdit::render(WFlags<RenderFlag> flags)
 {
   if (flags.test(RenderFlag::Full) && !nativeControl()) {
+    // Issue #14575: Allow the popup to be rendered.
+    WApplication::instance()->addGlobalWidget(popup_.get());
     defineJavaScript();
     std::shared_ptr<WDateValidator> dv = dateValidator();
     if (dv) {
