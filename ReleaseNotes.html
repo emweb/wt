@@ -42,6 +42,14 @@ behaviour.
     able to concurrently handle multiple requests correctly.
   </li>
   <li>
+  <a href="https://redmine.emweb.be/issues/14576" target="_blank">Issue #14576</a>:
+    fixed adding an empty path component or changing a path component to an empty one in a
+    <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a> would change the selected
+    item to the one with the empty path component if the
+    <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a> had internal path enabled.
+
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/12407" target="_blank">Issue #12407</a>:
     fixed submenus wrongly selecting themselves when clearing their selection using
     <a href="classWt_1_1WMenu.html#aec1801d047dc0f150d1cc12b801aa6c2" target="_blank">WMenu::select(-1)</a>. This meant that
