@@ -72,12 +72,15 @@ public:
                             WFlags<ValidationStyleFlag> flags) const override;
   bool canBorderBoxElement(const DomElement &element) const override;
   Side panelCollapseIconSide() const override;
+  void setColorMode(const std::string& mode) override;
+  std::string colorMode() const override { return colorMode_; }
 
 protected:
   void applyFunctionalStyling(WWidget *widget, WWidget *child, int widgetRole) const override;
   void applyOptionalStyling(WWidget *widget, WWidget *child, int widgetRole) const override;
 
 private:
+  std::string colorMode_;
   static std::string classBtn(const WWidget *widget);
   static bool hasButtonStyleClass(const WWidget *widget);
   static bool hasNavbarExpandClass(const WNavigationBar *widget);

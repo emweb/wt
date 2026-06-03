@@ -82,6 +82,10 @@ void WBootstrap5Theme::init(WApplication *app) const
   if (v.empty()) {
     app->addMetaHeader("viewport", "width=device-width, initial-scale=1");
   }
+
+  if (!colorMode().empty()) {
+    app->setHtmlAttribute("data-bs-theme", colorMode());
+  }
 }
 
 std::string WBootstrap5Theme::name() const
@@ -466,6 +470,19 @@ bool WBootstrap5Theme::canBorderBoxElement(WT_MAYBE_UNUSED const DomElement& ele
 Side WBootstrap5Theme::panelCollapseIconSide() const
 {
   return Side::Right;
+}
+
+void WBootstrap5Theme::setColorMode(const std::string& mode)
+{
+  if (mode != colorMode_) {
+    colorMode_ = mode;
+
+    WApplication* app = WApplication::instance();
+
+    if (app->theme().get() == this) {
+      app->setHtmlAttribute("data-bs-theme", mode);
+    }
+  }
 }
 
 void WBootstrap5Theme::applyFunctionalStyling(WWidget *widget,

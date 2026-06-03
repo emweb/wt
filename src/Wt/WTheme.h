@@ -224,6 +224,28 @@ public:
    */
   virtual Side panelCollapseIconSide() const;
 
+  /*! \brief Sets the color mode for the theme.
+   *
+   * The color mode is a string that indicates which color mode the
+   * theme be in. The interpretation of the color mode is up to the
+   * theme, but it is typically used to indicate a dark or light mode.
+   *
+   * This is relevant only for themes that support color modes. The
+   * default implementation does nothing. You can override this method
+   * if you want to support color modes in your theme.
+   *
+   * \sa WBootstrap5Theme
+   */
+  virtual void setColorMode(const std::string& mode);
+
+  /*! \brief Returns the current color mode for the theme.
+   *
+   * The default implementation always returns an empty string.
+   *
+   * \sa setColorMode()
+   */
+  virtual std::string colorMode() const;
+
 protected:
   /*! \brief Applies the functional part of the theme to a widget's child.
    *

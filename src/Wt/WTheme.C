@@ -54,4 +54,16 @@ void WTheme::loadValidationStyling(WT_MAYBE_UNUSED WApplication* app) const
 {
   LOG_WARN("loadValidationStyling(): Using the default (empty) call. Override it if you make use of custom validation (using DOM.validate() or DOM.wtValdiate()).");
 }
+
+void WTheme::setColorMode(const std::string& mode)
+{
+  LOG_WARN("setColorMode(): Using the default (empty) call. Override it if you make use of color modes.");
+}
+
+std::string WTheme::colorMode() const
+{
+  LOG_WARN("colorMode(): Using the default (empty) call. Override it if you make use of color modes.");
+  return "";
+}
+
 }
