@@ -254,8 +254,15 @@ void WMenu::itemPathChanged(WMenuItem *item)
   if (internalPathEnabled_ && item->internalPathEnabled()) {
     WApplication *app = wApp;
 
-    if (app->internalPathMatches(basePath_ + item->pathComponent()))
-      item->setFromInternalPath(app->internalPath());
+    if (app->internalPathMatches(basePath_ + item->pathComponent())) {
+      std::string appPath = app->internalSubPath(basePath_);
+      WMenuItem* current = currentItem();
+
+      if (!current ||
+          match(appPath, item->pathComponent()) > match(appPath, current->pathComponent())) {
+        item->setFromInternalPath(app->internalPath());
+      }
+    }
   }
 }
 
