@@ -655,6 +655,7 @@ void WApplication::setTheme(const std::shared_ptr<WTheme>& theme)
 {
   theme_ = theme;
   theme_->init(this);
+  colorModeChanged_.emit(theme_->colorMode());
 }
 
 void WApplication::useStyleSheet(const WLink& link, const std::string& media)

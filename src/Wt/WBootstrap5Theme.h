@@ -74,6 +74,7 @@ public:
   Side panelCollapseIconSide() const override;
   void setColorMode(const std::string& mode) override;
   std::string colorMode() const override { return colorMode_; }
+  WColor sliderTickColor() const override;
 
 protected:
   void applyFunctionalStyling(WWidget *widget, WWidget *child, int widgetRole) const override;

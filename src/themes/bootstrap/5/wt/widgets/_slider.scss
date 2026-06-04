@@ -123,3 +123,50 @@ fieldset[disabled] .Wt-slider-v .handle:active {
 .Wt-native-vertical-slider {
   transform: rotate(-90deg)
 }
+
+@include color-mode(dark) {
+  .Wt-slider-v,
+  .Wt-slider-h {
+    .Wt-w {
+      background-color: #3A424A;
+    }
+
+    .handle {
+      &:focus {
+        box-shadow: 0 0 0 1px #21252965, 0 0 0 .25rem rgba(red($primary), green($primary), blue($primary), .40);
+      }
+
+      &:active {
+        opacity: 0.6;
+      }
+    }
+  }
+
+  .Wt-slider-h .handle.disabled,
+  .Wt-slider-h .handle[disabled],
+  fieldset[disabled] .Wt-slider-h .handle,
+  .Wt-slider-h .handle.disabled:hover,
+  .Wt-slider-h .handle[disabled]:hover,
+  fieldset[disabled] .Wt-slider-h .handle:hover,
+  .Wt-slider-h .handle.disabled:focus,
+  .Wt-slider-h .handle[disabled]:focus,
+  fieldset[disabled] .Wt-slider-h .handle:focus,
+  .Wt-slider-h .handle.disabled:active,
+  .Wt-slider-h .handle[disabled]:active,
+  fieldset[disabled] .Wt-slider-h .handle:active,
+  .Wt-slider-v .handle.disabled,
+  .Wt-slider-v .handle[disabled],
+  fieldset[disabled] .Wt-slider-v .handle,
+  .Wt-slider-v .handle.disabled:hover,
+  .Wt-slider-v .handle[disabled]:hover,
+  fieldset[disabled] .Wt-slider-v .handle:hover,
+  .Wt-slider-v .handle.disabled:focus,
+  .Wt-slider-v .handle[disabled]:focus,
+  fieldset[disabled] .Wt-slider-v .handle:focus,
+  .Wt-slider-v .handle.disabled:active,
+  .Wt-slider-v .handle[disabled]:active,
+  fieldset[disabled] .Wt-slider-v .handle:active {
+    background-color: #212529;
+    border-color: #525252;
+  }
+}

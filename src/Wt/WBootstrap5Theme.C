@@ -481,7 +481,17 @@ void WBootstrap5Theme::setColorMode(const std::string& mode)
 
     if (app->theme().get() == this) {
       app->setHtmlAttribute("data-bs-theme", mode);
+      app->themeColorModeChanged().emit(mode);
     }
+  }
+}
+
+WColor WBootstrap5Theme::sliderTickColor() const
+{
+  if (colorMode() == "dark") {
+    return WColor(73, 77, 81);
+  } else {
+    return WTheme::sliderTickColor();
   }
 }
 

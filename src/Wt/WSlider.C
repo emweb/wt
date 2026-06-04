@@ -744,6 +744,9 @@ void WSlider::render(WFlags<RenderFlag> flags)
         auto paintedSlider = std::make_unique<PaintedSlider>(this);
         manageWidget(paintedSlider_, std::move(paintedSlider));
         paintedSlider_->sliderResized(width(), height());
+
+        WApplication *app = WApplication::instance();
+        app->themeColorModeChanged().connect(paintedSlider_.get(), &PaintedSlider::updateState);
       }
     } else {
       auto tickList = std::make_unique<TickList>(this);
@@ -850,6 +853,7 @@ void WSlider::setDisabled(bool disabled)
 void WSlider::paintTick(WPainter& painter, WT_MAYBE_UNUSED int value, int x, int y)
 {
   if (!tickPosition_.empty()) {
+    WApplication *app = WApplication::instance();
     int h = 0;
 
     if (orientation_ == Orientation::Horizontal)
@@ -858,7 +862,7 @@ void WSlider::paintTick(WPainter& painter, WT_MAYBE_UNUSED int value, int x, int
       h = (int)painter.device()->width().toPixels();
 
     WPen pen;
-    pen.setColor(WColor(0xd7, 0xd7, 0xd7));
+    pen.setColor(app->theme()->sliderTickColor());
     pen.setCapStyle(PenCapStyle::Flat);
     pen.setWidth(1);
     painter.setPen(pen);

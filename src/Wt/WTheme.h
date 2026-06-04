@@ -7,6 +7,7 @@
 #ifndef WT_WTHEME_H
 #define WT_WTHEME_H
 
+#include <Wt/WColor.h>
 #include <Wt/WObject.h>
 #include <Wt/WGlobal.h>
 #include <Wt/WValidator.h>
@@ -245,6 +246,15 @@ public:
    * \sa setColorMode()
    */
   virtual std::string colorMode() const;
+
+  /*! \brief Returns the color of the slider ticks.
+   *
+   * Returns the color that will be used for the ticks of WSliders that
+   * do not use native controls.
+   *
+   * \sa WSlider::setNativeControl()
+   */
+  virtual WColor sliderTickColor() const { return WColor(0xd7, 0xd7, 0xd7); }
 
 protected:
   /*! \brief Applies the functional part of the theme to a widget's child.

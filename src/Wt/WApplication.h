@@ -423,6 +423,14 @@ public:
    */
   void setCssTheme(const std::string& name);
 
+  /*! \brief Signal emitted when the theme's color-mode changed.
+   *
+   * This signal is emitted when the theme's color-mode changed.
+   *
+   * \sa WTheme::setColorMode()
+   */
+  Signal<std::string>& themeColorModeChanged() { return colorModeChanged_; }
+
   /*! \brief Sets the layout direction.
    *
    * The default direction is LayoutDirection::LeftToRight.
@@ -2476,6 +2484,7 @@ private:
   std::shared_ptr<WTheme> theme_;
   std::vector<WLinkedCssStyleSheet> styleSheets_;
   std::vector<WLinkedCssStyleSheet> styleSheetsToRemove_;
+  Signal<std::string> colorModeChanged_;
 
   int styleSheetsAdded_;
 
