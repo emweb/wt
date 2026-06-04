@@ -50,3 +50,17 @@
     }
   }
 }
+
+@include color-mode(dark) {
+  .card.Wt-panel.Wt-collapsible {
+    > .card-header > .Wt-collapse-button {
+      background-image: #{escape-svg($wt-panel-collapse-icon-dark)};
+    }
+
+    &:not(.Wt-collapsed) {
+      > .card-header > .Wt-collapse-button {
+        background-image: #{escape-svg($wt-panel-collapse-active-icon-dark)};
+      }
+    }
+  }
+}
