@@ -22,3 +22,22 @@
 .Wt-hrh2:hover {
   background-color: #999999;
 }
+
+@include color-mode(dark) {
+  .Wt-hrh2 {
+    background-image: url(#{$wt-theme-prefix}../splitter-v-dark.png);
+    background-color: #313131;
+  }
+
+  .Wt-vrh2 {
+    background-image: url(#{$wt-theme-prefix}../splitter-h-dark.png);
+    background-color: #313131;
+  }
+
+  .Wt-hsh2,
+  .Wt-vsh2,
+  .Wt-vrh2:hover,
+  .Wt-hrh2:hover {
+    background-color: #7a7a7a;
+  }
+}

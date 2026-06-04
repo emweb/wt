@@ -50,3 +50,11 @@
     background-repeat: no-repeat;
   }
 }
+
+@include color-mode(dark) {
+  .Wt-dialog.modal {
+    &.Wt-resizable > .modal-dialog > .modal-content {
+      background-image: url(#{$wt-resources-prefix}resizable-dark.png);
+    }
+  }
+}

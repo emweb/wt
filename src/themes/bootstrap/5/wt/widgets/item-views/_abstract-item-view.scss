@@ -1,7 +1,7 @@
 .Wt-itemview {
   white-space: nowrap;
   cursor: default;
-  background: white;
+  background: $pagination-bg;
   border: 1px solid #dddddd;
 
   &.Wt-itemview-paged {
@@ -102,6 +102,43 @@ body.Wt-rtl .Wt-itemview {
   .Wt-tv-no-rh {
     margin-right: 4px;
     margin-left: 0;
+  }
+}
+
+@include color-mode(dark) {
+  .Wt-itemview {
+    border-color: #43474B;
+
+    .Wt-spacer {
+      background-image: url(#{$wt-resources-prefix}loading-dark.png);
+    }
+
+    .Wt-tv-rh:hover {
+      background-color: #878B8F;
+    }
+
+    .active {
+      color: #000;
+      text-shadow: 0 -1px 0 rgba(255, 255, 255, 0.25);
+      background-color: #4d94d4;
+    }
+
+    .Wt-drop-site {
+      background-color: #32363A;
+      outline: 1px dotted white;
+    }
+
+    .Wt-tv-sh-none {
+      background-image: url(#{$wt-theme-prefix}../sort-arrow-none-dark.gif);
+    }
+
+    .Wt-tv-sh-up {
+      background-image: url(#{$wt-theme-prefix}../sort-arrow-up-dark.gif);
+    }
+
+    .Wt-tv-sh-down {
+      background-image: url(#{$wt-theme-prefix}../sort-arrow-down-dark.gif);
+    }
   }
 }
 

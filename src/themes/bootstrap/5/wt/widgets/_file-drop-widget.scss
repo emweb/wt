@@ -38,3 +38,9 @@
     z-index: 20000;
   }
 }
+
+@include color-mode(dark) {
+  .Wt-filedropzone {
+    background-color: #525252;
+  }
+}

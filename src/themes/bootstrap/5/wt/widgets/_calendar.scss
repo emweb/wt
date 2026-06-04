@@ -96,3 +96,37 @@
 .Wt-calendar .form-control {
   display: initial;
 }
+
+@include color-mode(dark) {
+  .Wt-cal {
+
+    .Wt-cal-now {
+      background-color: #525252;
+    }
+
+    tr:first-child {
+      th {
+        &:hover {
+          background: #3B3B3B;
+        }
+      }
+    }
+
+    .days td {
+      &:hover {
+        background: #3B3B3B;
+      }
+
+      .Wt-cal-oom,
+      .Wt-cal-oor {
+        color: #696969;
+      }
+
+      .Wt-cal-sel,
+      .Wt-cal-sel:hover {
+        color: #000;
+      }
+    }
+
+  }
+}
