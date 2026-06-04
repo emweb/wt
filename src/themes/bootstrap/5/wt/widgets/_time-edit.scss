@@ -32,3 +32,28 @@
     cursor: default;
   }
 }
+
+@include color-mode(dark) {
+  .Wt-timeedit,
+  .Wt-timeedit.form-control {
+    background-image: escape-svg($wt-time-edit-icon-dark);
+
+    &.hover {
+      background-image: escape-svg($wt-time-edit-icon-hover-dark);
+    }
+
+    @if $enable-validation-icons {
+      &.form-control {
+        @each $state, $data in $form-validation-states {
+          @include form-validation-state-selector($state) {
+            background-image: escape-svg($wt-time-edit-icon-dark), escape-svg(map-get($data, "icon"));
+
+            &.hover {
+              background-image: escape-svg($wt-time-edit-icon-hover-dark), escape-svg(map-get($data, "icon"));
+            }
+          }
+        }
+      }
+    }
+  }
+}

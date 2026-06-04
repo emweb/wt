@@ -33,3 +33,35 @@
     }
   }
 }
+
+@include color-mode(dark) {
+  .Wt-spinbox {
+    background-image: escape-svg($wt-spinbox-icon-dark);
+
+    &.up {
+      background-image: escape-svg($wt-spinbox-icon-up-dark);
+    }
+
+    &.dn {
+      background-image: escape-svg($wt-spinbox-icon-down-dark);
+    }
+
+    @if $enable-validation-icons {
+      &.form-control {
+        @each $state, $data in $form-validation-states {
+          @include form-validation-state-selector($state) {
+            background-image: escape-svg($wt-spinbox-icon-dark), escape-svg(map-get($data, "icon"));
+
+            &.up {
+              background-image: escape-svg($wt-spinbox-icon-up-dark), escape-svg(map-get($data, "icon"));
+            }
+
+            &.dn {
+              background-image: escape-svg($wt-spinbox-icon-down-dark), escape-svg(map-get($data, "icon"));
+            }
+          }
+        }
+      }
+    }
+  }
+}
