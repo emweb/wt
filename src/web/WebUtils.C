@@ -9,6 +9,7 @@
 #include "thirdparty/rapidxml/rapidxml.hpp"
 #include "Wt/WException.h"
 #include "Wt/WString.h"
+#include "Wt/WStringUtil.h"
 #include "Wt/Utils.h"
 
 #include <boost/algorithm/string.hpp>
@@ -19,6 +20,8 @@
 #include <cstdio>
 #include <fstream>
 #include <iomanip>
+#include <regex>
+#include <unordered_map>
 
 #ifdef WT_WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -396,6 +399,107 @@ void inplaceUrlDecode(std::string &text)
   }
 
   text.erase(j);
+}
+
+namespace {
+static const std::unordered_map<wchar_t, wchar_t> asciiReplaceMap = {
+  {L'à', L'a'}, {L'á', L'a'}, {L'â', L'a'}, {L'ã', L'a'}, {L'ä', L'a'},
+  {L'å', L'a'}, {L'ā', L'a'}, {L'ă', L'a'}, {L'ą', L'a'}, {L'ǎ', L'a'},
+  {L'ǻ', L'a'}, {L'ạ', L'a'}, {L'ả', L'a'}, {L'ấ', L'a'}, {L'ầ', L'a'},
+  {L'ẩ', L'a'}, {L'ẫ', L'a'}, {L'ậ', L'a'}, {L'ắ', L'a'}, {L'ằ', L'a'},
+  {L'ẳ', L'a'}, {L'ẵ', L'a'}, {L'ặ', L'a'},
+  {L'è', L'e'}, {L'é', L'e'}, {L'ê', L'e'}, {L'ë', L'e'}, {L'ē', L'e'},
+  {L'ĕ', L'e'}, {L'ė', L'e'}, {L'ę', L'e'}, {L'ě', L'e'}, {L'ẹ', L'e'},
+  {L'ẻ', L'e'}, {L'ẽ', L'e'}, {L'ế', L'e'}, {L'ề', L'e'}, {L'ể', L'e'},
+  {L'ễ', L'e'}, {L'ệ', L'e'},
+  {L'ì', L'i'}, {L'í', L'i'}, {L'î', L'i'}, {L'ï', L'i'}, {L'ĩ', L'i'},
+  {L'ī', L'i'}, {L'ĭ', L'i'}, {L'į', L'i'}, {L'ǐ', L'i'}, {L'ỉ', L'i'},
+  {L'ị', L'i'},
+  {L'ò', L'o'}, {L'ó', L'o'}, {L'ô', L'o'}, {L'õ', L'o'}, {L'ö', L'o'},
+  {L'ø', L'o'}, {L'ō', L'o'}, {L'ŏ', L'o'}, {L'ő', L'o'}, {L'ǒ', L'o'},
+  {L'ǿ', L'o'}, {L'ọ', L'o'}, {L'ỏ', L'o'}, {L'ố', L'o'}, {L'ồ', L'o'},
+  {L'ổ', L'o'}, {L'ỗ', L'o'}, {L'ộ', L'o'}, {L'ớ', L'o'}, {L'ờ', L'o'},
+  {L'ở', L'o'}, {L'ỡ', L'o'}, {L'ợ', L'o'},
+  {L'ù', L'u'}, {L'ú', L'u'}, {L'û', L'u'}, {L'ü', L'u'}, {L'ũ', L'u'},
+  {L'ū', L'u'}, {L'ŭ', L'u'}, {L'ů', L'u'}, {L'ű', L'u'}, {L'ų', L'u'},
+  {L'ǔ', L'u'}, {L'ụ', L'u'}, {L'ủ', L'u'}, {L'ứ', L'u'}, {L'ừ', L'u'},
+  {L'ử', L'u'}, {L'ữ', L'u'}, {L'ự', L'u'},
+  {L'ý', L'y'}, {L'ÿ', L'y'}, {L'ŷ', L'y'}, {L'ỳ', L'y'}, {L'ỵ', L'y'},
+  {L'ỷ', L'y'}, {L'ỹ', L'y'},
+
+  {L'À', L'A'}, {L'Á', L'A'}, {L'Â', L'A'}, {L'Ã', L'A'}, {L'Ä', L'A'},
+  {L'Å', L'A'}, {L'Ā', L'A'}, {L'Ă', L'A'}, {L'Ą', L'A'}, {L'Ǎ', L'A'},
+  {L'Ǻ', L'A'}, {L'Ạ', L'A'}, {L'Ả', L'A'}, {L'Ấ', L'A'}, {L'Ầ', L'A'},
+  {L'Ẩ', L'A'}, {L'Ẫ', L'A'}, {L'Ậ', L'A'}, {L'Ắ', L'A'}, {L'Ằ', L'A'},
+  {L'Ẳ', L'A'}, {L'Ẵ', L'A'}, {L'Ặ', L'A'},
+  {L'È', L'E'}, {L'É', L'E'}, {L'Ê', L'E'}, {L'Ë', L'E'}, {L'Ē', L'E'},
+  {L'Ĕ', L'E'}, {L'Ė', L'E'}, {L'Ę', L'E'}, {L'Ě', L'E'}, {L'Ẹ', L'E'},
+  {L'Ẻ', L'E'}, {L'Ẽ', L'E'}, {L'Ế', L'E'}, {L'Ề', L'E'}, {L'Ể', L'E'},
+  {L'Ễ', L'E'}, {L'Ệ', L'E'},
+  {L'Ì', L'I'}, {L'Í', L'I'}, {L'Î', L'I'}, {L'Ï', L'I'}, {L'Ĩ', L'I'},
+  {L'Ī', L'I'}, {L'Ĭ', L'I'}, {L'Į', L'I'}, {L'Ǐ', L'I'}, {L'Ỉ', L'I'},
+  {L'Ị', L'I'},
+  {L'Ò', L'O'}, {L'Ó', L'O'}, {L'Ô', L'O'}, {L'Õ', L'O'}, {L'Ö', L'O'},
+  {L'Ø', L'O'}, {L'Ō', L'O'}, {L'ŏ', L'O'}, {L'Ő', L'O'}, {L'Ǒ', L'O'},
+  {L'Ǿ', L'O'}, {L'Ọ', L'O'}, {L'Ỏ', L'O'}, {L'Ố', L'O'}, {L'Ồ', L'O'},
+  {L'Ổ', L'O'}, {L'Ỗ', L'O'}, {L'Ộ', L'O'}, {L'Ớ', L'O'}, {L'Ờ', L'O'},
+  {L'Ở', L'O'}, {L'Ỡ', L'O'}, {L'Ợ', L'O'},
+  {L'Ù', L'U'}, {L'Ú', L'U'}, {L'Û', L'U'}, {L'Ü', L'U'}, {L'Ũ', L'U'},
+  {L'Ū', L'U'}, {L'Ŭ', L'U'}, {L'Ů', L'U'}, {L'Ű', L'U'}, {L'Ų', L'U'},
+  {L'Ǔ', L'U'}, {L'Ụ', L'U'}, {L'Ủ', L'U'}, {L'Ứ', L'U'}, {L'Ừ', L'U'},
+  {L'Ử', L'U'}, {L'Ữ', L'U'}, {L'Ự', L'U'},
+  {L'Ý', L'Y'}, {L'Ÿ', L'Y'}, {L'Ŷ', L'Y'}, {L'Ỳ', L'Y'}, {L'Ỵ', L'Y'},
+  {L'Ỷ', L'Y'}, {L'Ỹ', L'Y'},
+
+  {L'ç', L'c'}, {L'ć', L'c'}, {L'ĉ', L'c'}, {L'ċ', L'c'}, {L'č', L'c'},
+  {L'Ç', L'C'}, {L'Ć', L'C'}, {L'Ĉ', L'C'}, {L'Ċ', L'C'}, {L'Č', L'C'},
+  {L'ď', L'd'}, {L'đ', L'd'}, {L'Ď', L'D'}, {L'Đ', L'D'},
+  {L'ĝ', L'g'}, {L'ğ', L'g'}, {L'ġ', L'g'}, {L'ģ', L'g'},
+  {L'Ĝ', L'G'}, {L'Ğ', L'G'}, {L'Ġ', L'G'}, {L'Ģ', L'G'},
+  {L'ĥ', L'h'}, {L'ħ', L'h'}, {L'Ĥ', L'H'}, {L'Ħ', L'H'},
+  {L'ĵ', L'j'}, {L'Ĵ', L'J'},
+  {L'ķ', L'k'}, {L'Ķ', L'K'},
+  {L'ĺ', L'l'}, {L'ļ', L'l'}, {L'ľ', L'l'}, {L'ŀ', L'l'}, {L'ł', L'l'},
+  {L'Ĺ', L'L'}, {L'Ļ', L'L'}, {L'Ľ', L'L'}, {L'Ŀ', L'L'}, {L'Ł', L'L'},
+  {L'ñ', L'n'}, {L'ń', L'n'}, {L'ņ', L'n'}, {L'ň', L'n'}, {L'ŉ', L'n'},
+  {L'Ñ', L'N'}, {L'Ń', L'N'}, {L'Ņ', L'N'}, {L'Ň', L'N'},
+  {L'ŕ', L'r'}, {L'ŗ', L'r'}, {L'ř', L'r'},
+  {L'Ŕ', L'R'}, {L'Ŗ', L'R'}, {L'Ř', L'R'},
+  {L'ś', L's'}, {L'ŝ', L's'}, {L'ş', L's'}, {L'š', L's'}, {L'ș', L's'},
+  {L'Ś', L'S'}, {L'Ŝ', L'S'}, {L'Ş', L'S'}, {L'Š', L'S'}, {L'Ș', L'S'},
+  {L'ţ', L't'}, {L'ť', L't'}, {L'ŧ', L't'}, {L'ț', L't'},
+  {L'Ţ', L'T'}, {L'Ť', L'T'}, {L'Ŧ', L'T'}, {L'Ț', L'T'},
+  {L'ŵ', L'w'}, {L'Ŵ', L'W'},
+  {L'ź', L'z'}, {L'ż', L'z'}, {L'ž', L'z'},
+  {L'Ź', L'Z'}, {L'Ż', L'Z'}, {L'Ž', L'Z'},
+
+  {L'‘', L'\''}, {L'’', L'\''}, {L'‚', L'\''}, {L'‛', L'\''},
+  {L'“', L'"'},  {L'”', L'"'},  {L'„', L'"'},  {L'‟', L'"'},
+  {L'‹', L'<'},  {L'›', L'>'},
+  {L'«', L'"'},  {L'»', L'"'},
+  {L'‐', L'-'},  {L'‑', L'-'},  {L'–', L'-'},  {L'—', L'-'},
+  {L'―', L'-'},  {L'⸗', L'-'},
+  {L'˜', L'~'},
+  {L'·', L'.'},  {L'•', L'.'}
+};
+}
+
+std::string toAscii(const std::wstring& input) {
+  if (input.empty()) {
+    return "";
+  }
+
+  std::wstring s = input;
+  for (auto& c : s) {
+    auto it = asciiReplaceMap.find(c);
+    if (it != asciiReplaceMap.end()) {
+      c = it->second;
+    }
+}
+
+  // Remove any remaining bytes that are outside the standard 7-bit ASCII range
+  std::wregex nonAsciiRegex(L"[^\\x00-\\x7F]");
+  return Wt::toUTF8(std::regex_replace(s, nonAsciiRegex, L"?"));
 }
 
 std::string EncodeHttpHeaderField(const std::string &fieldname,

@@ -100,26 +100,7 @@ WT_BOSTREAM& Response::out()
         // Browser incompatibility hell: internatianalized filename suggestions
         // First filename is for browsers that don't support RFC 5987
         // Second filename is for browsers that do support RFC 5987
-        cdp << ';';
-
-        // We cannot query wApp here, because wApp doesn't exist for
-        // static resources.
-        const char *ua = response_->userAgent();
-        bool isIE = ua && strstr(ua, "MSIE") != nullptr;
-        bool isChrome = ua && strstr(ua, "Chrome") != nullptr;
-
-        if (isIE || isChrome) {
-          // filename="foo-%c3%a4-%e2%82%ac.html"
-          // Note: IE never converts %20 back to space, so avoid escaping
-          // IE wil also not url decode the filename if the file has no ASCII
-          // extension (e.g. .txt)
-          cdp << "filename=\""
-              << Utils::urlEncode(fileName.toUTF8(), " ")
-              << "\";";
-        } else {
-          // Binary UTF-8 sequence: for FF3, Safari, Chrome, Chrome9
-          cdp << "filename=\"" << fileName.toUTF8() << "\";";
-        }
+        cdp << ";filename=\"" << Utils::toAscii(fileName.value()) << "\";";
         // Next will be picked by RFC 5987 in favour of the
         // one without specified encoding (Chrome9,
         cdp << Utils::EncodeHttpHeaderField("filename", fileName);

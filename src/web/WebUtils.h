@@ -302,6 +302,8 @@ extern std::string dataUrlDecode(const std::string& url,
 
 #ifndef WT_TARGET_JAVA
 extern void inplaceUrlDecode(std::string& s);
+
+extern std::string toAscii(const std::wstring& s);
 #endif
 
 extern std::string EncodeHttpHeaderField(const std::string &fieldname,
