@@ -19,8 +19,12 @@ namespace Wt {
 
 const char *WTreeNode::imagePlus_ = "nav-plus.gif";
 const char *WTreeNode::imageMin_ = "nav-minus.gif";
+const char *WTreeNode::imagePlusDark_ = "nav-plus-dark.gif";
+const char *WTreeNode::imageMinDark_ = "nav-minus-dark.gif";
 const char *WTreeNode::imagePlusRtl_ = "nav-plus-rtl.gif";
 const char *WTreeNode::imageMinRtl_ = "nav-minus-rtl.gif";
+const char *WTreeNode::imagePlusDarkRtl_ = "nav-plus-dark-rtl.gif";
+const char *WTreeNode::imageMinDarkRtl_ = "nav-minus-dark-rtl.gif";
 
 WTreeNode::WTreeNode(const WString& labelText,
                      std::unique_ptr<WIconPair> labelIcon)
@@ -78,19 +82,10 @@ void WTreeNode::init(const WString &labelText, std::unique_ptr<WIconPair> labelI
   /*
    * Expand icon
    */
-  if (WApplication::instance()->layoutDirection() ==
-      LayoutDirection::RightToLeft)
-    expandIcon_ = layout_->bindWidget
-      ("expand",
-       std::make_unique<WIconPair>
-       (app->theme()->resourcesUrl() + imagePlusRtl_,
-        app->theme()->resourcesUrl() + imageMinRtl_));
-  else
-    expandIcon_ = layout_->bindWidget
-      ("expand",
-       std::make_unique<WIconPair>
-       (app->theme()->resourcesUrl() + imagePlus_,
-        app->theme()->resourcesUrl() + imageMin_));
+  expandIcon_ = layout_->bindWidget
+    ("expand",
+     std::make_unique<WIconPair>(app->onePixelGifUrl(),
+                                 app->onePixelGifUrl()));
 
   expandIcon_->setStyleClass("Wt-ctrl Wt-expand");
   expandIcon_->hide();
@@ -450,6 +445,7 @@ void WTreeNode::doExpand()
   wasCollapsed_ = !isExpanded();
   collapsed_ = false;
 
+  expandIcon_->removeStyleClass("Wt-collapsed", true);
   expandIcon_->setState(1);
 
   childContainer()->show();
@@ -470,6 +466,7 @@ void WTreeNode::doCollapse()
   wasCollapsed_ = !isExpanded();
   collapsed_ = true;
 
+  expandIcon_->addStyleClass("Wt-collapsed", true);
   expandIcon_->setState(0);
   childContainer()->hide();
 
@@ -481,6 +478,7 @@ void WTreeNode::undoDoCollapse()
 {
   if (!wasCollapsed_) {
     // re-expand
+    expandIcon_->removeStyleClass("Wt-collapsed", true);
     expandIcon_->setState(1);
     childContainer()->show();
     if (labelIcon_)
@@ -493,6 +491,7 @@ void WTreeNode::undoDoExpand()
 {
   if (wasCollapsed_) {
     // re-collapse
+    expandIcon_->addStyleClass("Wt-collapsed", true);
     expandIcon_->setState(0);
     childContainer()->hide();
     if (labelIcon_)

@@ -33,7 +33,7 @@
   }
 
   .active {
-    color: #ffffff;
+    color: $pagination-bg;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
     cursor: default;
     background-color: #428bca;
@@ -45,12 +45,23 @@
     width: 19px;
     height: 19px;
 
+    &.Wt-expand {
+      background: url(#{$wt-theme-prefix}nav-minus.gif) no-repeat 0 center;
+
+      &.Wt-collapsed {
+        background: url(#{$wt-theme-prefix}nav-plus.gif) no-repeat 0 center;
+      }
+    }
+
+
     &.Wt-noexpand {
       background: url(#{$wt-resources-prefix}line-middle.gif) no-repeat 0 0;
     }
 
     img {
       vertical-align: top;
+      width: 19px;
+      height: 19px;
     }
   }
 
@@ -89,6 +100,14 @@ body.Wt-rtl {
     .Wt-ctrl {
       float: right;
 
+      &.Wt-expand {
+      background: url(#{$wt-theme-prefix}nav-minus-rtl.gif) no-repeat 0 center;
+
+      &.Wt-collapsed {
+        background: url(#{$wt-theme-prefix}nav-plus-rtl.gif) no-repeat 0 center;
+      }
+    }
+
       &.Wt-noexpand {
         background-image: url(#{$wt-resources-prefix}line-middle-rtl.gif);
         background-position: top right;
@@ -97,6 +116,60 @@ body.Wt-rtl {
 
     .cols-row {
       float: left;
+    }
+  }
+}
+
+@include color-mode(dark) {
+  .Wt-tree {
+    &.Wt-trunk,
+    .Wt-item.Wt-trunk {
+      background-image: url(#{$wt-resources-prefix}line-trunk-dark.gif);
+    }
+
+    .Wt-item.Wt-end {
+      background-image: url(#{$wt-resources-prefix}line-last-dark.gif);
+    }
+
+    .active {
+      text-shadow: 0 -1px 0 rgba(255, 255, 255, 0.4);
+      background-color: #4d94d4;
+    }
+
+    .Wt-ctrl {
+      &.Wt-expand {
+        background-image: url(#{$wt-theme-prefix}nav-minus-dark.gif);
+
+        &.Wt-collapsed {
+          background-image: url(#{$wt-theme-prefix}nav-plus-dark.gif);
+        }
+      }
+
+      &.Wt-noexpand {
+        background-image: url(#{$wt-resources-prefix}line-middle-dark.gif);
+      }
+    }
+  }
+
+  body.Wt-rtl {
+    .Wt-tree {
+      .Wt-item.Wt-end {
+        background-image: url(#{$wt-resources-prefix}line-last-dark-rtl.gif);
+      }
+
+      .Wt-ctrl{
+        &.Wt-expand {
+          background-image: url(#{$wt-theme-prefix}nav-minus-dark-rtl.gif);
+
+          &.Wt-collapsed {
+            background-image: url(#{$wt-theme-prefix}nav-plus-dark-rtl.gif);
+          }
+        }
+
+        &.Wt-noexpand {
+          background-image: url(#{$wt-resources-prefix}line-middle-dark-rtl.gif);
+        }
+      }
     }
   }
 }

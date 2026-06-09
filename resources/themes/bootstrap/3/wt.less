@@ -821,12 +821,22 @@ body.Wt-rtl {
     width: 19px;
     height: 19px;
 
+    &.Wt-expand {
+      background: url(nav-minus.gif) no-repeat 0 center;
+
+      &.Wt-collapsed {
+        background: url(nav-plus.gif) no-repeat 0 center;
+      }
+    }
+
     &.Wt-noexpand {
       background: url(../../../line-middle.gif) no-repeat 0 0;
     }
 
     img {
       vertical-align: top;
+      width: 19px;
+      height: 19px;
     }
   }
 
@@ -863,6 +873,14 @@ body.Wt-rtl {
 
     .Wt-ctrl {
       float: right;
+
+      &.Wt-expand {
+        background: url(nav-minus-rtl.gif) no-repeat 0 center;
+
+        &.Wt-collapsed {
+          background: url(nav-plus-rtl.gif) no-repeat 0 center;
+        }
+      }
 
       &.Wt-noexpand {
         background-image: url(../../../line-middle-rtl.gif);

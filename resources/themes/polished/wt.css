@@ -874,6 +874,27 @@ body.Wt-rtl .Wt-tree .Wt-ctrl {
     float: right;
 }
 
+.Wt-tree .Wt-ctrl.Wt-expand {
+  background: url(nav-minus.gif) no-repeat 0 center;
+}
+
+.Wt-tree .Wt-ctrl.Wt-expand.Wt-collapsed {
+  background: url(nav-plus.gif) no-repeat 0 center;
+}
+
+.Wt-tree .Wt-ctrl img {
+  width: 19px;
+  height: 17px;
+}
+
+body.Wt-rtl .Wt-tree .Wt-ctrl.Wt-expand {
+  background: url(nav-minus-rtl.gif) no-repeat 0 center;
+}
+
+body.Wt-rtl .Wt-tree .Wt-ctrl.Wt-expand.Wt-collapsed {
+  background: url(nav-plus-rtl.gif) no-repeat 0 center;
+}
+
 .Wt-treetable {
     background: white;
     border: 1px solid #dcdfe8;

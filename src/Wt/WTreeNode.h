@@ -393,8 +393,12 @@ private:
 
   static const char* imagePlus_;
   static const char* imageMin_;
+  static const char* imagePlusDark_;
+  static const char* imageMinDark_;
   static const char* imagePlusRtl_;
   static const char* imageMinRtl_;
+  static const char* imagePlusDarkRtl_;
+  static const char* imageMinDarkRtl_;
 
   Wt::Signals::connection clickedConnection_;
   friend class WTree;

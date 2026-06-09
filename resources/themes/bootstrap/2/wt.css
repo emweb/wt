@@ -855,12 +855,23 @@ body.Wt-rtl .Wt-tableview .Wt-plaintable tbody .Wt-tv-c {
   width: 19px;
   height: 19px;
 }
+
+.Wt-tree .Wt-ctrl.Wt-expand {
+  background: url(nav-minus.gif) no-repeat 0 center;
+}
+
+.Wt-tree .Wt-ctrl.Wt-expand.Wt-collapsed {
+  background: url(nav-plus.gif) no-repeat 0 center;
+}
+
 .Wt-tree .Wt-ctrl.Wt-noexpand {
   background-image: url(../../../line-middle.gif);
   background-repeat: no-repeat;
 }
 .Wt-tree .Wt-ctrl img {
   vertical-align: top;
+  width: 19px;
+  height: 19px;
 }
 .Wt-tree .cols-row {
   float: right;
@@ -887,6 +898,12 @@ body.Wt-rtl .Wt-tree .Wt-item.Wt-end {
 }
 body.Wt-rtl .Wt-tree .Wt-ctrl {
   float: right;
+}
+body.Wt-rtl .Wt-tree .Wt-ctrl.Wt-expand {
+  background: url(nav-minus-rtl.gif) no-repeat 0 center;
+}
+body.Wt-rtl .Wt-tree .Wt-ctrl.Wt-expand.Wt-collapsed {
+  background: url(nav-plus-rtl.gif) no-repeat 0 center;
 }
 body.Wt-rtl .Wt-tree .Wt-ctrl.Wt-noexpand {
   background-image: url(../../../line-middle-rtl.gif);
