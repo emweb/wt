@@ -54,6 +54,7 @@ WCartesian3DChart::WCartesian3DChart()
     chartType_(ChartType::Scatter),
     background_(StandardColor::White),
     chartPalette_(std::make_shared<WStandardPalette>(PaletteFlavour::Muted)),
+    titleColor_(0, 0, 0),
     interface_(new WChart3DImplementation(this)),
     axisRenderWidth_(1024),
     axisRenderHeight_(256),
@@ -88,6 +89,7 @@ WCartesian3DChart::WCartesian3DChart(ChartType type)
     chartType_(type),
     background_(StandardColor::White),
     chartPalette_(std::make_shared<WStandardPalette>(PaletteFlavour::Muted)),
+    titleColor_(0, 0, 0),
     interface_(new WChart3DImplementation(this)),
     axisRenderWidth_(1024),
     axisRenderHeight_(256),
@@ -259,6 +261,12 @@ void WCartesian3DChart::setTitle(const WString &title)
 void WCartesian3DChart::setTitleFont(const WFont &titleFont)
 {
   titleFont_ = titleFont;
+  updateChart(ChartUpdates::GLTextures);
+}
+
+void WCartesian3DChart::setTitleColor(const WColor& titleColor)
+{
+  titleColor_ = titleColor;
   updateChart(ChartUpdates::GLTextures);
 }
 
@@ -993,6 +1001,7 @@ void WCartesian3DChart::initTitle()
 
   WPainter painter(titlePaintDev.get());
   painter.setFont(titleFont_);
+  painter.setPen(WPen(titleColor_));
   painter.drawText(WRectF(0, 0, width().value(), pixelHeight),
                    WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Middle, title_);
   painter.end();

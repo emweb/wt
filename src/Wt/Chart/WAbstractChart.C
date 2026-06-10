@@ -18,7 +18,8 @@ LOGGER("Chart.WAbstractChart");
 
 WAbstractChart::WAbstractChart()
   : background_(StandardColor::White),
-    autoPadding_(false)
+    autoPadding_(false),
+    titleColor_(0, 0, 0)
 {
   titleFont_.setFamily(FontFamily::SansSerif);
   titleFont_.setSize(WLength(15, LengthUnit::Point));
@@ -84,6 +85,11 @@ void WAbstractChart::setTitle(const WString& title)
 void WAbstractChart::setTitleFont(const WFont& titleFont)
 {
   set(titleFont_, titleFont);
+}
+
+void WAbstractChart::setTitleColor(const WColor& color)
+{
+  set(titleColor_, color);
 }
 
 void WAbstractChart::setAxisTitleFont(const WFont& titleFont)

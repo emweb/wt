@@ -300,10 +300,13 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
 
   if (!title().empty()) {
     WFont oldFont = painter.font();
+    WPen oldPen = painter.pen();
     painter.setFont(titleFont());
+    painter.setPen(WPen(titleColor()));
     painter.drawText(cx - 50, cy - r, 100, 50,
                      WFlags<AlignmentFlag>(AlignmentFlag::Center) | AlignmentFlag::Top, title());
     painter.setFont(oldFont);
+    painter.setPen(oldPen);
   }
 
   painter.restore();

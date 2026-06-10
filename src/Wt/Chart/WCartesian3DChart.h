@@ -322,6 +322,22 @@ public:
    */
   const WFont& titleFont() const { return titleFont_; }
 
+  /*! \brief Set the color of the title.
+   *
+   * Changes the color for the chart title.
+   *
+   * By default, the title is black.
+   *
+   * \sa setTitle(), setTitleFont()
+   */
+  void setTitleColor(const WColor& titleColor);
+
+  /*! \brief Returns the color of the title.
+   *
+   * \sa setTitleColor()
+   */
+  const WColor& titleColor() const { return titleColor_; }
+
   /*! \brief Enables the legend.
    *
    * The location of the legend can be configured using
@@ -557,6 +573,7 @@ private:
   std::shared_ptr<WChartPalette> chartPalette_;
   WString title_;
   WFont titleFont_;
+  WColor titleColor_;
 
   WLegend3D legend_;
 

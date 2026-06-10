@@ -4684,6 +4684,7 @@ void WCartesianChart::renderLegend(WPainter& painter) const
       + (w - plotAreaPadding(Side::Left) - plotAreaPadding(Side::Right)) / 2 ;
     painter.save();
     painter.setFont(titleFont());
+    painter.setPen(WPen(titleColor()));
     double titleHeight = titleFont().sizeLength().toPixels();
     const int TITLE_PADDING = 10;
     const int TITLE_WIDTH = 1000;

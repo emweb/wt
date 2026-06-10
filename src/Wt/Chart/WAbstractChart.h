@@ -213,6 +213,22 @@ public:
    */
   const WFont& titleFont() const { return titleFont_; }
 
+  /*! \brief Set the color of the title.
+   *
+   * Changes the color for the chart title.
+   *
+   * By default, the title is black.
+   *
+   * \sa setTitle(), setTitleFont()
+   */
+  void setTitleColor(const WColor& color);
+
+  /*! \brief Returns the color of the title.
+   *
+   * \sa setTitleColor()
+   */
+  const WColor& titleColor() const { return titleColor_; }
+
   void setAxisTitleFont(const WFont& titleFont);
   const WFont& axisTitleFont() const { return titleFont_; }
 
@@ -237,6 +253,7 @@ private:
   int padding_[4];
   WString title_;
   WFont titleFont_;
+  WColor titleColor_;
   WFont axisTitleFont_;
 
   // connections with the current model, used to disconnect from a model
