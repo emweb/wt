@@ -11,6 +11,7 @@
 #include <Wt/WItemDelegate.h>
 #include <Wt/WShadow.h>
 #include <Wt/WStandardItemModel.h>
+#include <Wt/WTheme.h>
 
 #include "../../treeview-dragdrop/CsvUtil.h"
 
@@ -37,7 +38,6 @@ for (int row = 0; row < model->rowCount(); ++row) {
  * Creates the scatter plot.
  */
 Chart::WCartesianChart *chart = container->addNew<Chart::WCartesianChart>();
-chart->setBackground(WColor(220, 220, 220));
 #ifndef WT_TARGET_JAVA
 chart->setModel(model);
 #else // WT_TARGET_JAVA
@@ -72,5 +72,59 @@ auto sliderWidget = container->addNew<Chart::WAxisSliderWidget>(s_);
 sliderWidget->resize(800, 80);
 sliderWidget->setSelectionAreaPadding(40, Side::Left | Side::Right);
 sliderWidget->setMargin(WLength::Auto, Side::Left | Side::Right); // Center horizontally
+
+/*
+ * Support Dark and Light modes
+ */
+
+if (WApplication::instance()->theme()->colorMode() == "dark") {
+    chart->setTextPen(WPen(StandardColor::White));
+    chart->yAxis(0).setPen(WPen(StandardColor::White));
+    chart->xAxis(0).setPen(WPen(StandardColor::White));
+    chart->setBackground(WColor(63, 63, 63));
+    chart->setLegendStyle(WFont(),
+                          WPen(StandardColor::Transparent),
+                          WBrush(StandardColor::Transparent),
+                          WColor(StandardColor::White));
+
+    sliderWidget->setBackground(WColor(55, 55, 55));
+    sliderWidget->setSelectedAreaBrush(WColor(33, 37, 41));
+    sliderWidget->setSeriesPen(WPen(StandardColor::White));
+    sliderWidget->setHandleBrush(WColor(255, 196, 255));
+} else {
+    chart->setBackground(WColor(220, 220, 220));
+}
+
+WApplication::instance()->themeColorModeChanged().connect([=] (std::string mode) {
+    if (mode == "dark") {
+        chart->setTextPen(WPen(StandardColor::White));
+        chart->yAxis(0).setPen(WPen(StandardColor::White));
+        chart->xAxis(0).setPen(WPen(StandardColor::White));
+        chart->setBackground(WColor(63, 63, 63));
+        chart->setLegendStyle(WFont(),
+                          WPen(StandardColor::Transparent),
+                          WBrush(StandardColor::Transparent),
+                          WColor(StandardColor::White));
+
+        sliderWidget->setBackground(WColor(55, 55, 55));
+        sliderWidget->setSelectedAreaBrush(WColor(33, 37, 41));
+        sliderWidget->setSeriesPen(WPen(StandardColor::White));
+        sliderWidget->setHandleBrush(WColor(255, 196, 255));
+    } else {
+        chart->setTextPen(WPen());
+        chart->yAxis(0).setPen(WPen());
+        chart->xAxis(0).setPen(WPen());
+        chart->setBackground(WColor(220, 220, 220));
+        chart->setLegendStyle(WFont(),
+                          WPen(StandardColor::Transparent),
+                          WBrush(StandardColor::Transparent),
+                          WColor(StandardColor::Black));
+
+        sliderWidget->setBackground(WColor(230, 230, 230));
+        sliderWidget->setSelectedAreaBrush(StandardColor::White);
+        sliderWidget->setSeriesPen(WPen(StandardColor::Black));
+        sliderWidget->setHandleBrush(WColor(0, 0, 200));
+    }
+});
 
 SAMPLE_END(return std::move(container))

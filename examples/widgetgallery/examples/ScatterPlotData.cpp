@@ -11,6 +11,7 @@
 #include <Wt/WShadow.h>
 #include <Wt/WStandardItemModel.h>
 #include <Wt/WTableView.h>
+#include <Wt/WTheme.h>
 
 #include "../../treeview-dragdrop/CsvUtil.h"
 
@@ -59,7 +60,6 @@ table->setItemDelegateForColumn(0, std::make_shared<WItemDelegate>());
  * Creates the scatter plot.
  */
 Chart::WCartesianChart *chart = container->addNew<Chart::WCartesianChart>();
-chart->setBackground(WColor(220, 220, 220));
 #ifndef WT_TARGET_JAVA
 chart->setModel(model);
 #else // WT_TARGET_JAVA
@@ -84,6 +84,44 @@ for (int i = 2; i < 4; ++i) {
     s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
     chart->addSeries(std::move(s));
 }
+
+/*
+ * Support Dark and Light modes
+ */
+if (WApplication::instance()->theme()->colorMode() == "dark") {
+    chart->setTextPen(WPen(StandardColor::White));
+    chart->yAxis(0).setPen(WPen(StandardColor::White));
+    chart->xAxis(0).setPen(WPen(StandardColor::White));
+    chart->setBackground(WColor(63, 63, 63));
+    chart->setLegendStyle(WFont(),
+                          WPen(StandardColor::Transparent),
+                          WBrush(StandardColor::Transparent),
+                          WColor(StandardColor::White));
+} else {
+    chart->setBackground(WColor(220, 220, 220));
+}
+
+WApplication::instance()->themeColorModeChanged().connect([=] (std::string mode) {
+    if (mode == "dark") {
+        chart->setTextPen(WPen(StandardColor::White));
+        chart->yAxis(0).setPen(WPen(StandardColor::White));
+        chart->xAxis(0).setPen(WPen(StandardColor::White));
+        chart->setBackground(WColor(63, 63, 63));
+        chart->setLegendStyle(WFont(),
+                          WPen(StandardColor::Transparent),
+                          WBrush(StandardColor::Transparent),
+                          WColor(StandardColor::White));
+    } else {
+        chart->setTextPen(WPen());
+        chart->yAxis(0).setPen(WPen());
+        chart->xAxis(0).setPen(WPen());
+        chart->setBackground(WColor(220, 220, 220));
+        chart->setLegendStyle(WFont(),
+                          WPen(StandardColor::Transparent),
+                          WBrush(StandardColor::Transparent),
+                          WColor(StandardColor::Black));
+    }
+});
 
 chart->resize(800, 400);
 chart->setMargin(WLength::Auto, Side::Left | Side::Right);

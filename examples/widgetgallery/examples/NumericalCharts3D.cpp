@@ -3,6 +3,7 @@
 #include <Wt/WBorder.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WImage.h>
+#include <Wt/WTheme.h>
 #include <Wt/Chart/WCartesian3DChart.h>
 #include <Wt/Chart/WGridData.h>
 #include <Wt/Chart/WEquidistantGridData.h>
@@ -92,6 +93,48 @@ chart->addDataSeries(std::move(dataset1));
 chart->addDataSeries(std::move(dataset2));
 chart->addDataSeries(std::move(dataset3));
 chart->addDataSeries(std::move(dataset4));
+
+/*
+ * Support Dark and Light modes
+ */
+
+chart->setBackground(WColor(StandardColor::Transparent));
+
+if (WApplication::instance()->theme()->colorMode() == "dark") {
+    chart->setIntersectionLinesColor(WColor(StandardColor::White));
+    chart->setGridLinesPen(WPen(StandardColor::White));
+    chart->setCubeLinesPen(WPen(StandardColor::White));
+    chart->axis(Chart::Axis::X3D).setPen(WPen(StandardColor::White));
+    chart->axis(Chart::Axis::X3D).setTextPen(WPen(StandardColor::White));
+    chart->axis(Chart::Axis::Y3D).setPen(WPen(StandardColor::White));
+    chart->axis(Chart::Axis::Y3D).setTextPen(WPen(StandardColor::White));
+    chart->axis(Chart::Axis::Z3D).setPen(WPen(StandardColor::White));
+    chart->axis(Chart::Axis::Z3D).setTextPen(WPen(StandardColor::White));
+}
+
+WApplication::instance()->themeColorModeChanged().connect([=] (std::string mode) {
+    if (mode == "dark") {
+        chart->setIntersectionLinesColor(WColor(StandardColor::White));
+        chart->setGridLinesPen(WPen(StandardColor::White));
+        chart->setCubeLinesPen(WPen(StandardColor::White));
+        chart->axis(Chart::Axis::X3D).setPen(WPen(StandardColor::White));
+        chart->axis(Chart::Axis::X3D).setTextPen(WPen(StandardColor::White));
+        chart->axis(Chart::Axis::Y3D).setPen(WPen(StandardColor::White));
+        chart->axis(Chart::Axis::Y3D).setTextPen(WPen(StandardColor::White));
+        chart->axis(Chart::Axis::Z3D).setPen(WPen(StandardColor::White));
+        chart->axis(Chart::Axis::Z3D).setTextPen(WPen(StandardColor::White));
+    } else {
+        chart->setIntersectionLinesColor(WColor(StandardColor::Black));
+        chart->setGridLinesPen(WPen(StandardColor::Black));
+        chart->setCubeLinesPen(WPen(StandardColor::Black));
+        chart->axis(Chart::Axis::X3D).setPen(WPen(StandardColor::Black));
+        chart->axis(Chart::Axis::X3D).setTextPen(WPen(StandardColor::Black));
+        chart->axis(Chart::Axis::Y3D).setPen(WPen(StandardColor::Black));
+        chart->axis(Chart::Axis::Y3D).setTextPen(WPen(StandardColor::Black));
+        chart->axis(Chart::Axis::Z3D).setPen(WPen(StandardColor::Black));
+        chart->axis(Chart::Axis::Z3D).setTextPen(WPen(StandardColor::Black));
+    }
+});
 
 chart->setAlternativeContent
     (std::make_unique<WImage>(WLink("pics/numericalChartScreenshot.png")));

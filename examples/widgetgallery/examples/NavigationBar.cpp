@@ -17,7 +17,7 @@ Wt::WNavigationBar *navigation = container->addNew<Wt::WNavigationBar>();
 // you want to use another theme.
 navigation->setResponsive(true);
 // WBootstrap5Theme applies no color scheme by default, so we have to add them here.
-navigation->addStyleClass("navbar-light bg-light");
+navigation->addStyleClass("bg-body-secondary");
 navigation->setTitle("Corpy Inc.",
                      "https://www.google.com/search?q=corpy+inc");
 

@@ -11,6 +11,7 @@
 #include <Wt/WItemDelegate.h>
 #include <Wt/WShadow.h>
 #include <Wt/WStandardItemModel.h>
+#include <Wt/WTheme.h>
 
 #include "../../treeview-dragdrop/CsvUtil.h"
 
@@ -65,6 +66,44 @@ chart->axis(Chart::Axis::X).setMinimumZoomRange((max - min) / 16.0);
   s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
   chart->addSeries(std::move(s));
 }
+
+/*
+ * Support Dark and Light modes
+ */
+if (WApplication::instance()->theme()->colorMode() == "dark") {
+    chart->setTextPen(WPen(StandardColor::White));
+    chart->yAxis(0).setPen(WPen(StandardColor::White));
+    chart->xAxis(0).setPen(WPen(StandardColor::White));
+    chart->setBackground(WColor(63, 63, 63));
+    chart->setLegendStyle(WFont(),
+                          WPen(StandardColor::Transparent),
+                          WBrush(StandardColor::Transparent),
+                          WColor(StandardColor::White));
+} else {
+    chart->setBackground(WColor(220, 220, 220));
+}
+
+WApplication::instance()->themeColorModeChanged().connect([=] (std::string mode) {
+    if (mode == "dark") {
+        chart->setTextPen(WPen(StandardColor::White));
+        chart->yAxis(0).setPen(WPen(StandardColor::White));
+        chart->xAxis(0).setPen(WPen(StandardColor::White));
+        chart->setBackground(WColor(63, 63, 63));
+        chart->setLegendStyle(WFont(),
+                          WPen(StandardColor::Transparent),
+                          WBrush(StandardColor::Transparent),
+                          WColor(StandardColor::White));
+    } else {
+        chart->setTextPen(WPen());
+        chart->yAxis(0).setPen(WPen());
+        chart->xAxis(0).setPen(WPen());
+        chart->setBackground(WColor(220, 220, 220));
+        chart->setLegendStyle(WFont(),
+                          WPen(StandardColor::Transparent),
+                          WBrush(StandardColor::Transparent),
+                          WColor(StandardColor::Black));
+    }
+});
 
 chart->resize(800, 400);
 

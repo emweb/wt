@@ -1,6 +1,8 @@
 #include <Wt/Chart/WCartesianChart.h>
+#include <Wt/WApplication.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WStandardItemModel.h>
+#include <Wt/WTheme.h>
 #include <Wt/WTimer.h>
 
 #include <cmath>
@@ -51,6 +53,42 @@ chart->setPlotAreaPadding(40, Side::Top | Side::Bottom);
 auto s = std::make_unique<Chart::WDataSeries>(1, Chart::SeriesType::Curve);
 s->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
 chart->addSeries(std::move(s));
+
+/*
+ * Support Dark and Light modes
+ */
+
+chart->setBackground(WBrush(StandardColor::Transparent));
+
+if (WApplication::instance()->theme()->colorMode() == "dark") {
+    chart->setTextPen(WPen(StandardColor::White));
+    chart->yAxis(0).setPen(WPen(StandardColor::White));
+    chart->xAxis(0).setPen(WPen(StandardColor::White));
+    chart->setLegendStyle(WFont(),
+                          WPen(StandardColor::Transparent),
+                          WBrush(StandardColor::Transparent),
+                          WColor(StandardColor::White));
+}
+
+WApplication::instance()->themeColorModeChanged().connect([=] (std::string mode) {
+    if (mode == "dark") {
+        chart->setTextPen(WPen(StandardColor::White));
+        chart->yAxis(0).setPen(WPen(StandardColor::White));
+        chart->xAxis(0).setPen(WPen(StandardColor::White));
+        chart->setLegendStyle(WFont(),
+                          WPen(StandardColor::Transparent),
+                          WBrush(StandardColor::Transparent),
+                          WColor(StandardColor::White));
+    } else {
+        chart->setTextPen(WPen());
+        chart->yAxis(0).setPen(WPen());
+        chart->xAxis(0).setPen(WPen());
+        chart->setLegendStyle(WFont(),
+                          WPen(StandardColor::Transparent),
+                          WBrush(StandardColor::Transparent),
+                          WColor(StandardColor::Black));
+    }
+});
 
 chart->resize(800, 300); // WPaintedWidget must be given explicit size.
 

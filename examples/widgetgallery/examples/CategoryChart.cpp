@@ -1,5 +1,6 @@
 #include <Wt/Chart/WCartesianChart.h>
 #include <Wt/Chart/WDataSeries.h>
+#include <Wt/Chart/WStandardPalette.h>
 #include <Wt/WAbstractItemView.h>
 #include <Wt/WApplication.h>
 #include <Wt/WContainerWidget.h>
@@ -8,6 +9,7 @@
 #include <Wt/WStandardItemModel.h>
 #include <Wt/WStandardItem.h>
 #include <Wt/WTableView.h>
+#include <Wt/WTheme.h>
 
 #include "../../treeview-dragdrop/CsvUtil.h"
 
@@ -90,10 +92,46 @@ chart->setPlotAreaPadding(120, Side::Right);
  * Add all (but first) column as bar series.
  */
 for (int column = 1; column < model->columnCount(); ++column) {
-    auto series = std::make_unique<Chart::WDataSeries>(column, Chart::SeriesType::Bar);
+    auto seriesPtr = std::make_unique<Chart::WDataSeries>(column, Chart::SeriesType::Bar);
+    auto series = seriesPtr.get();
     series->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
-    chart->addSeries(std::move(series));
+    chart->addSeries(std::move(seriesPtr));
 }
+
+/*
+ * Support Dark and Light modes
+ */
+chart->setBackground(WBrush(StandardColor::Transparent));
+
+if (WApplication::instance()->theme()->colorMode() == "dark") {
+    chart->setTextPen(WPen(StandardColor::White));
+    chart->yAxis(0).setPen(WPen(StandardColor::White));
+    chart->xAxis(0).setPen(WPen(StandardColor::White));
+    chart->setLegendStyle(WFont(),
+                          WPen(StandardColor::Transparent),
+                          WBrush(StandardColor::Transparent),
+                          WColor(StandardColor::White));
+}
+
+WApplication::instance()->themeColorModeChanged().connect([=] (std::string mode) {
+    if (mode == "dark") {
+        chart->setTextPen(WPen(StandardColor::White));
+        chart->yAxis(0).setPen(WPen(StandardColor::White));
+        chart->xAxis(0).setPen(WPen(StandardColor::White));
+        chart->setLegendStyle(WFont(),
+                              WPen(StandardColor::Transparent),
+                              WBrush(StandardColor::Transparent),
+                              WColor(StandardColor::White));
+    } else {
+        chart->setTextPen(WPen());
+        chart->yAxis(0).setPen(WPen());
+        chart->xAxis(0).setPen(WPen());
+        chart->setLegendStyle(WFont(),
+                              WPen(StandardColor::Transparent),
+                              WBrush(StandardColor::Transparent),
+                              WColor(StandardColor::Black));
+    }
+});
 
 chart->resize(600, 400);
 chart->setMargin(WLength::Auto, Side::Left | Side::Right);

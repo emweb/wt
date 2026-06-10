@@ -4,6 +4,7 @@
 #include <Wt/WCssDecorationStyle.h>
 #include <Wt/WBorder.h>
 #include <Wt/WImage.h>
+#include <Wt/WTheme.h>
 #include <Wt/Chart/WCartesian3DChart.h>
 #include <Wt/Chart/WGridData.h>
 
@@ -60,5 +61,50 @@ chart->addDataSeries(std::move(isotopes));
 
 chart->setAlternativeContent
     (std::make_unique<WImage>(WLink("pics/categoricalChartScreenshot.png")));
+
+/*
+ * Support Dark and Light modes
+ */
+
+chart->setBackground(WColor(StandardColor::Transparent));
+
+if (WApplication::instance()->theme()->colorMode() == "dark") {
+    chart->setIntersectionLinesColor(WColor(StandardColor::White));
+    chart->setGridLinesPen(WPen(StandardColor::White));
+    chart->setCubeLinesPen(WPen(StandardColor::White));
+    chart->setTitleColor(WColor(StandardColor::White));
+    chart->axis(Chart::Axis::X3D).setPen(WPen(StandardColor::White));
+    chart->axis(Chart::Axis::X3D).setTextPen(WPen(StandardColor::White));
+    chart->axis(Chart::Axis::Y3D).setPen(WPen(StandardColor::White));
+    chart->axis(Chart::Axis::Y3D).setTextPen(WPen(StandardColor::White));
+    chart->axis(Chart::Axis::Z3D).setPen(WPen(StandardColor::White));
+    chart->axis(Chart::Axis::Z3D).setTextPen(WPen(StandardColor::White));
+}
+
+WApplication::instance()->themeColorModeChanged().connect([=] (std::string mode) {
+    if (mode == "dark") {
+        chart->setIntersectionLinesColor(WColor(StandardColor::White));
+        chart->setGridLinesPen(WPen(StandardColor::White));
+        chart->setCubeLinesPen(WPen(StandardColor::White));
+        chart->setTitleColor(WColor(StandardColor::White));
+        chart->axis(Chart::Axis::X3D).setPen(WPen(StandardColor::White));
+        chart->axis(Chart::Axis::X3D).setTextPen(WPen(StandardColor::White));
+        chart->axis(Chart::Axis::Y3D).setPen(WPen(StandardColor::White));
+        chart->axis(Chart::Axis::Y3D).setTextPen(WPen(StandardColor::White));
+        chart->axis(Chart::Axis::Z3D).setPen(WPen(StandardColor::White));
+        chart->axis(Chart::Axis::Z3D).setTextPen(WPen(StandardColor::White));
+    } else {
+        chart->setIntersectionLinesColor(WColor(StandardColor::Black));
+        chart->setGridLinesPen(WPen(StandardColor::Black));
+        chart->setCubeLinesPen(WPen(StandardColor::Black));
+        chart->setTitleColor(WColor(StandardColor::Black));
+        chart->axis(Chart::Axis::X3D).setPen(WPen(StandardColor::Black));
+        chart->axis(Chart::Axis::X3D).setTextPen(WPen(StandardColor::Black));
+        chart->axis(Chart::Axis::Y3D).setPen(WPen(StandardColor::Black));
+        chart->axis(Chart::Axis::Y3D).setTextPen(WPen(StandardColor::Black));
+        chart->axis(Chart::Axis::Z3D).setPen(WPen(StandardColor::Black));
+        chart->axis(Chart::Axis::Z3D).setTextPen(WPen(StandardColor::Black));
+    }
+});
 
 SAMPLE_END(return std::move(container))

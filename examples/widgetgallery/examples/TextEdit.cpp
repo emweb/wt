@@ -1,15 +1,18 @@
 #include <Wt/Utils.h>
+#include <Wt/WApplication.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WPushButton.h>
 #include <Wt/WText.h>
 #include <Wt/WTextEdit.h>
+#include <Wt/WTheme.h>
 
 #ifdef WT_TARGET_JAVA
 using namespace Wt;
 #endif // WT_TARGET_JAVA
 
 SAMPLE_BEGIN(TextEdit)
-auto container = std::make_unique<Wt::WContainerWidget>();
+auto containerPtr = std::make_unique<Wt::WContainerWidget>();
+auto container = containerPtr.get();
 
 Wt::WTextEdit *edit = container->addNew<Wt::WTextEdit>();
 edit->setHeight(300);
@@ -28,6 +31,33 @@ edit->setText("<p>"
       "</ul>"
     "<p>don't have style.</p>");
 
+/*
+ * Support Dark and Light modes
+ */
+
+if (Wt::WApplication::instance()->theme()->colorMode() == "dark") {
+    edit->setConfigurationSetting("skin", "oxide-dark");
+    edit->setStyleSheet("dark");
+}
+
+Wt::WApplication::instance()->themeColorModeChanged().connect([=] (std::string mode) {
+    //TinyMCE does not support dynamic skin changes, so we need to recreate the editor
+    auto e = dynamic_cast<Wt::WTextEdit*>(container->widget(0));
+    auto text = e->text();
+    container->removeWidget(e);
+    e = container->insertWidget(0, std::make_unique<Wt::WTextEdit>());
+    e->setText(text);
+    e->setHeight(300);
+
+    if (mode == "dark") {
+        e->setConfigurationSetting("skin", "oxide-dark");
+        e->setStyleSheet("dark");
+    } else {
+        e->setConfigurationSetting("skin", "oxide");
+        e->setStyleSheet("default");
+    }
+});
+
 Wt::WPushButton *button = container->addNew<Wt::WPushButton>("Get text");
 button->setMargin(10, Wt::Side::Top | Wt::Side::Bottom);
 
@@ -38,4 +68,4 @@ button->clicked().connect([=] {
     out->setText("<pre>" + Wt::Utils::htmlEncode(edit->text()) + "</pre>");
 });
 
-SAMPLE_END(return std::move(container))
+SAMPLE_END(return std::move(containerPtr))

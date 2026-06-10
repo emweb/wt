@@ -5,6 +5,7 @@
 #include <Wt/WStandardItemModel.h>
 #include <Wt/WStandardItem.h>
 #include <Wt/WTableView.h>
+#include <Wt/WTheme.h>
 
 #ifdef WT_TARGET_JAVA
 using namespace Wt;
@@ -115,6 +116,22 @@ chart->setDisplayLabels(Chart::LabelOption::Outside |
 // Enable a 3D and shadow effect.
 chart->setPerspectiveEnabled(true, 0.2);
 chart->setShadowEnabled(true);
+
+/*
+ * Support Dark and Light modes
+ */
+
+if (WApplication::instance()->theme()->colorMode() == "dark") {
+    chart->setLabelTextColor(WColor(StandardColor::White));
+}
+
+WApplication::instance()->themeColorModeChanged().connect([=] (std::string mode) {
+    if (mode == "dark") {
+        chart->setLabelTextColor(WColor(StandardColor::White));
+    } else {
+        chart->setLabelTextColor(WColor(StandardColor::Black));
+    }
+});
 
 chart->setExplode(0, 0.3);  // Explode the first item.
 chart->resize(800, 300);    // WPaintedWidget must be given an explicit size.
