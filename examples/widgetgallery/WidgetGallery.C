@@ -9,11 +9,14 @@
 #include "WidgetGallery.h"
 
 #include <Wt/WApplication.h>
+#include <Wt/WCheckBox.h>
+#include <Wt/WIcon.h>
 #include <Wt/WMenu.h>
 #include <Wt/WNavigationBar.h>
 #include <Wt/WPushButton.h>
 #include <Wt/WStackedWidget.h>
 #include <Wt/WText.h>
+#include <Wt/WTheme.h>
 
 namespace {
 
@@ -22,11 +25,40 @@ const std::string closeMenuText = "<i class='fa fa-bars' aria-hidden='true'></i>
 
 }
 
-WidgetGallery::WidgetGallery()
+WidgetGallery::WidgetGallery(bool darkMode)
   : BaseTemplate("tpl:widget-gallery"),
     openMenuButton_(nullptr),
+    colorModeToggle_(nullptr),
     menuOpen_(false) // once applies when responsive UI
 {
+  if (darkMode) {
+
+    setCondition("if:darkmode", darkMode);
+
+    auto sunIcon = bindNew<Wt::WIcon>("sun-icon");
+    sunIcon->setName("sun-o");
+    sunIcon->setFloatSide(Wt::Side::Left);
+    sunIcon->setSize(1.5);
+    auto moonIcon = bindNew<Wt::WIcon>("moon-icon");
+    moonIcon->setName("moon-o");
+    moonIcon->setFloatSide(Wt::Side::Left);
+    moonIcon->setSize(1.5);
+
+    colorModeToggle_ = bindNew<Wt::WCheckBox>("color-mode-toggle");
+    colorModeToggle_->setChecked(false);
+    colorModeToggle_->setInline(true);
+    Wt::WApplication* app = Wt::WApplication::instance();
+    std::string colorMode = app->environment().preferredColorScheme();
+
+    colorModeToggle_->checked().connect([=] (){
+      Wt::WApplication::instance()->theme()->setColorMode("dark");
+    });
+
+    colorModeToggle_->unChecked().connect([=] (){
+      Wt::WApplication::instance()->theme()->setColorMode("light");
+    });
+  }
+
   contentsStack_ = bindNew<Wt::WStackedWidget>("contents");
 
   Wt::WAnimation animation(Wt::AnimationEffect::Fade,
@@ -65,6 +97,18 @@ WidgetGallery::WidgetGallery()
     menu->select(0);
     menu->itemAt(0)->menu()->select(0);
   }
+}
+
+void WidgetGallery::enableAjax()
+{
+  if (colorModeToggle_) {
+    Wt::WApplication* app = Wt::WApplication::instance();
+    std::string colorMode = app->environment().preferredColorScheme();
+    app->theme()->setColorMode(colorMode);
+    colorModeToggle_->setChecked(colorMode == "dark");
+  }
+
+  BaseTemplate::enableAjax();
 }
 
 Wt::WMenuItem *WidgetGallery::addToMenu(Wt::WMenu *menu,

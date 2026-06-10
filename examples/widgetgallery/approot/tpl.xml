@@ -12,6 +12,13 @@
           ${</if:java>}
           <h1>Widget Gallery</h1>
         </div>
+        ${<if:darkmode>}
+          <div class="form-check form-switch mx-auto wg-colormode-toggle">
+            ${sun-icon}
+            ${color-mode-toggle}
+            ${moon-icon}
+          </div>
+        ${</if:darkmode>}
         ${menu}
       </div>
       <div class="wg-open-menu">

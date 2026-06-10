@@ -43,12 +43,15 @@ std::unique_ptr<WApplication> createApplication(const Wt::WEnvironment& env)
   else
     theme = *themePtr;
 
+  bool darkMode = false;
   if (theme == "wt" || theme == "jwt") {
     auto wtTheme = std::make_shared<Theme>(theme);
     app->setTheme(wtTheme);
+    darkMode = true;
   } else if (theme == "bootstrap5") {
     auto bootstrapTheme = std::make_shared<WBootstrap5Theme>();
     app->setTheme(bootstrapTheme);
+    darkMode = true;
   } else if (theme == "bootstrap3") {
     auto bootstrapTheme = std::make_shared<WBootstrap3Theme>();
     bootstrapTheme->setResponsive(true);
@@ -70,7 +73,7 @@ std::unique_ptr<WApplication> createApplication(const Wt::WEnvironment& env)
   app->messageResourceBundle().use(app->appRoot() + "tpl");
   app->messageResourceBundle().use(app->appRoot() + "src");
 
-  app->root()->addWidget(std::make_unique<WidgetGallery>());
+  app->root()->addWidget(std::make_unique<WidgetGallery>(darkMode));
 
   app->setTitle("Wt Widget Gallery");
 

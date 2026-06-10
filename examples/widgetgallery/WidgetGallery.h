@@ -15,11 +15,15 @@ class Topic;
 class WidgetGallery : public BaseTemplate
 {
 public:
-  WidgetGallery();
+  WidgetGallery(bool darkMode);
+
+protected:
+  void enableAjax() override;
 
 private:
   Wt::WStackedWidget *contentsStack_;
   Wt::WPushButton *openMenuButton_;
+  Wt::WCheckBox *colorModeToggle_;
   bool menuOpen_;
 
   Wt::WMenuItem *addToMenu(Wt::WMenu *menu,
