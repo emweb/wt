@@ -307,9 +307,9 @@ void WCartesian3DChart::setLegendLocation(Side side, AlignmentFlag alignment)
 }
 
 void WCartesian3DChart::setLegendStyle(const WFont &font, const WPen &border,
-                                       const WBrush &background)
+                                       const WBrush &background, const WColor &textColor)
 {
-  legend_.setLegendStyle(font, border, background);
+  legend_.setLegendStyle(font, border, background, textColor);
   updateChart(ChartUpdates::GLTextures);
 }
 

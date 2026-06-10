@@ -243,6 +243,20 @@ public:
    */
   WString labelFormat() const;
 
+  /*! \brief Sets the label text color
+   *
+   * Sets the color of the text of the labels.
+   *
+   * \sa setDisplayLabels(), setLabelFormat()
+   */
+  void setLabelTextColor(const WColor& color);
+
+  /*! \brief Returns the label text color
+   *
+   * \sa setLabelTextColor()
+   */
+  WColor labelTextColor() const { return labelColor_; }
+
   /*! \brief Creates a widget which renders the a legend item.
    *
    * Depending on the passed LabelOption flags, the legend item widget,
@@ -335,6 +349,7 @@ private:
   WFlags<LabelOption>  labelOptions_;
   bool                 shadow_;
   WString              labelFormat_;
+  WColor               labelColor_;
 
   struct PieData {
     bool customBrush;

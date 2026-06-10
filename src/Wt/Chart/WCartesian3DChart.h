@@ -376,17 +376,20 @@ public:
 
   /*! \brief Configures the legend decoration.
    *
-   * This configures the font, border and background for the legend.
+   * This configures the font, border, background and color for the
+   * legend.
    *
    * The default font is a 10pt sans serif font (the same as the
    * default axis label font), the default \p border is \link
-   * Wt::PenStyle::None PenStyle::None\endlink and the default \p background is \link
-   * Wt::BrushStyle::None BrushStyle::None\endlink.
+   * Wt::PenStyle::None PenStyle::None\endlink, the default
+   * \p background is \link Wt::BrushStyle::None
+   * BrushStyle::None\endlink, and the default \p textColor is black.
    *
    * \sa setLegendEnabled()
    */
   void setLegendStyle(const WFont &font, const WPen &border,
-                      const WBrush &background);
+                      const WBrush &background,
+                      const WColor &textColor = WColor(0, 0, 0));
 
   /*! \brief Returns the legend side.
    *

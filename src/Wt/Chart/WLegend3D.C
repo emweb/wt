@@ -63,9 +63,12 @@ void WLegend3D
     }
 
     // draw label
+    WPen pen = painter->pen();
+    painter->setPen(WPen(legendTextColor_));
     painter->drawText( labelWidth + 10, 0, 100, lineHeight,
                        WFlags<AlignmentFlag>(AlignmentFlag::Left) | AlignmentFlag::Middle,
                        series->title() );
+    painter->setPen(pen);
 
     // offset painter
     if (count == legendColumns_) {

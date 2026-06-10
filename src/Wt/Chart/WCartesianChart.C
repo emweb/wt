@@ -1962,9 +1962,10 @@ void WCartesianChart::setLegendColumns(int columns, const WLength& columnWidth)
 
 void WCartesianChart::setLegendStyle(const WFont& font,
                                      const WPen& border,
-                                     const WBrush& background)
+                                     const WBrush& background,
+                                     const WColor& textColor)
 {
-  legend_.setLegendStyle(font, border, background);
+  legend_.setLegendStyle(font, border, background, textColor);
 
   update();
 }
@@ -4658,7 +4659,7 @@ void WCartesianChart::renderLegend(WPainter& painter) const
 
     painter.drawRect(x + xOffset - legendPadding/2, y + yOffset - legendPadding/2, legendWidth + legendPadding, legendHeight + legendPadding);
 
-    painter.setPen(WPen());
+    painter.setPen(WPen(legendTextColor()));
 
     painter.setFont(legendFont());
 

@@ -17,6 +17,7 @@ WLegend::WLegend()
     legendAlignment_(AlignmentFlag::Middle),
     legendColumns_(1),
     legendColumnWidth_(100),
+    legendTextColor_(0, 0, 0),
     legendBorder_(PenStyle::None),
     legendBackground_(BrushStyle::None)
 {
@@ -41,11 +42,13 @@ void WLegend::setLegendLocation(LegendLocation location,
 
 void WLegend::setLegendStyle(const WFont &font,
                              const WPen &border,
-                             const WBrush &background)
+                             const WBrush &background,
+                             const WColor& textColor)
 {
   legendFont_ = font;
   legendBorder_ = border;
   legendBackground_ = background;
+  legendTextColor_ = textColor;
 }
 
 void WLegend::setLegendColumns(int columns)

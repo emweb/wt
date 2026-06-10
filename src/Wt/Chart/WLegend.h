@@ -23,13 +23,14 @@ public:
   void setLegendEnabled(bool enabled);
   bool isLegendEnabled() const { return legendEnabled_; }
   void setLegendLocation(LegendLocation location, Side side, AlignmentFlag alignment);
-  void setLegendStyle(const WFont &font, const WPen &border, const WBrush &background);
+  void setLegendStyle(const WFont &font, const WPen &border, const WBrush &background, const WColor& textColor);
   LegendLocation legendLocation() const { return legendLocation_; }
   Side legendSide() const { return legendSide_; }
   AlignmentFlag legendAlignment() const { return legendAlignment_; }
   int legendColumns() const { return legendColumns_; }
   WLength legendColumnWidth() const { return legendColumnWidth_; }
   WFont legendFont() const { return legendFont_; }
+  WColor legendTextColor() const { return legendTextColor_; }
   WPen legendBorder() const { return legendBorder_; }
   WBrush legendBackground() const { return legendBackground_; }
   void setLegendColumns(int columns);
@@ -43,6 +44,7 @@ protected:
   int legendColumns_;
   WLength legendColumnWidth_;
   WFont legendFont_;
+  WColor legendTextColor_;
   WPen legendBorder_;
   WBrush legendBackground_;
 };

@@ -69,6 +69,12 @@ WString WPieChart::labelFormat() const
   return labelFormat_;
 }
 
+void WPieChart::setLabelTextColor(const WColor& color)
+{
+  labelColor_ = color;
+  update();
+}
+
 void WPieChart::setDataColumn(int modelColumn)
 {
   if (dataColumn_ != modelColumn) {
@@ -288,9 +294,11 @@ void WPieChart::paint(WPainter& painter, const WRectF& rectangle) const
         }
 
   if ((v / total * 100) >= avoidLabelRendering_) {
-    painter.setPen(WPen(c));
+    WPen oldPen = painter.pen();
+    painter.setPen(WPen(labelTextColor()));
     drawLabel(&painter, WRectF(left, top, width, height),
              alignment, labelText(i, v, total, labelOptions_), i);
+    painter.setPen(oldPen);
         }
 
         currentAngle = endAngle;
