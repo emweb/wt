@@ -62,6 +62,18 @@
   left: 250px;
 }
 
+.form-check.form-switch.wg-colormode-toggle {
+  width: fit-content;
+  height: 24px;
+  padding: 0px;
+
+  input {
+    width: 45px;
+    height: 21px;
+    margin: 2px 5px 0px 5px;
+  }
+}
+
 .wg-contents {
   margin-left: 0px;
   margin-top: 40px;

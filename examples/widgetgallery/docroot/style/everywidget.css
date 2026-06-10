@@ -129,7 +129,7 @@ div.contents {
 .popupmenuLabel {
     padding: 5px;
     background-color: #E7E5E0;
-    cursor: default;   
+    cursor: default;
 }
 
 .example .form {
@@ -225,4 +225,72 @@ div.contents {
 
 .dl-horizontal.no-clear:after {
   clear: none;
+}
+
+[data-bs-theme=dark] {
+    .trhead {
+        border-bottom-color: white;
+    }
+
+    .menu > li > .nav-pills > .active > a,
+    .menu > li > .nav-pills > .active > a:hover {
+        color: white;
+        background-color: #155682;
+    }
+
+    .menu > li > .nav-pills a {
+        color: #ececec;
+    }
+
+    span.title {
+        color: #6ca530;
+    }
+
+    span.doc a {
+        color: #959595;
+    }
+
+    span.doc a:hover {
+        color: #267a00;
+    }
+
+    span.reactive {
+        background-color: #4c4c4c;
+    }
+
+    .example-table {
+        border-color: #939393;
+    }
+
+    .example-table td {
+        border-right-color: #939393;
+    }
+
+    .example-tree .selected {
+        background-color: #2f2e00;
+    }
+
+    .events {
+        border-color: #6ca530;
+    }
+
+    .popupmenuLabel {
+        background-color: #393834;
+    }
+
+    .example .form {
+        background-color: #3e3e3e;
+    }
+
+    .example {
+        border-color:#25516e;
+    }
+
+    .src > legend {
+        border-top-color:#25516e;
+    }
+
+    .src pre {
+        background-color: #272727;
+    }
 }

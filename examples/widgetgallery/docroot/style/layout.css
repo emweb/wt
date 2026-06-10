@@ -18,3 +18,18 @@
     text-align: center;
     padding: 3px;
 }
+
+[data-bs-theme=dark] {
+    .yellow-box {
+        background-color: #8b7500;
+        border-color: white;
+    }
+
+    .green-box {
+        background-color: #003a00;
+    }
+
+    .blue-box {
+        background-color: #005c6a;
+    }
+}

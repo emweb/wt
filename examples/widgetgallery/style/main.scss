@@ -83,3 +83,13 @@ $wt-resources-prefix: "../resources/";
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
+
+@include color-mode(dark) {
+  .wg-sidebar {
+
+    .nav > li > .nav a:active,
+    .nav > li > .nav a:hover {
+      background-color: #313131;
+    }
+  }
+}
