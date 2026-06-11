@@ -140,15 +140,19 @@ WT_DECLARE_WT_MEMBER(
 
       // Set the height of the contentscontainer to fit the size of the wrapping table.
       const height = headerContainer.offsetHeight;
-      const avoidBorderOverlapOffset = 2;
-      const parentHeight = headerContainer.closest(".Wt-tableview").offsetHeight - avoidBorderOverlapOffset;
+      const table = headerContainer.closest(".Wt-tableview");
+      const avoidHorizontalBorderOverlapOffset = WT.pxComputedStyle(table, "borderTopWidth") +
+        WT.pxComputedStyle(table, "borderBottomWidth");
+      const parentHeight = table.offsetHeight - avoidHorizontalBorderOverlapOffset;
       const newHeight = parentHeight - height;
 
       contentsContainer.style.height = newHeight + "px";
 
       // Set the width of the contentscontainer to fit the size of the wrapping table.
       const width = headerColumnsContainerEl.offsetWidth;
-      const parentWidth = headerContainer.closest(".Wt-tableview").offsetWidth - avoidBorderOverlapOffset;
+      const avoidVerticalBorderOverlapOffset = WT.pxComputedStyle(table, "borderLeftWidth") +
+        WT.pxComputedStyle(table, "borderRightWidth");
+      const parentWidth = table.offsetWidth - avoidVerticalBorderOverlapOffset;
       const newWidth = parentWidth - width;
 
       contentsContainer.style.width = newWidth + "px";
