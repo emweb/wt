@@ -281,14 +281,19 @@ std::string WWidget::jsRef() const
 
 void WWidget::htmlText(std::ostream& out)
 {
+  WStringStream js;
+  htmlText(out, js);
+  WApplication::instance()->doJavaScript(js.str());
+}
+
+void WWidget::htmlText(std::ostream& out, WStringStream& js)
+{
   DomElement *element = createSDomElement(WApplication::instance());
 
   DomElement::TimeoutList timeouts;
   EscapeOStream sout(out);
-  EscapeOStream js;
-  element->asHTML(sout, js, timeouts);
-
-  WApplication::instance()->doJavaScript(js.str());
+  EscapeOStream sjs(js);
+  element->asHTML(sout, sjs, timeouts);
 
   delete element;
 }

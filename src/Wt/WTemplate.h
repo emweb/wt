@@ -870,6 +870,7 @@ private:
 
   WString text_;
   std::string errorText_;
+  WStringStream boundWidgetsJs_;
 
   bool encodeInternalPaths_, encodeTemplateText_, changed_;
   TemplateWidgetIdMode widgetIdMode_;

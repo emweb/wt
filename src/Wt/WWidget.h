@@ -997,8 +997,33 @@ public:
    * HTML, and calling this method on a widget that is rendered may
    * interfere with the library keeping track of changes to the
    * widget.
+   *
+   * \warning The JavaScript code called by the widget will be executed
+   *          by the client.
    */
   virtual void htmlText(std::ostream& out);
+
+  /*! \brief Streams the (X)HTML representation.
+   *
+   * Streams the widget as CharEncoding::UTF8-encoded (HTML-compatible)
+   * XHTML. This returns the same (X)HTML content as adding the
+   * WWidget to the DOM tree. The JavaScript that would have been
+   * called as part of adding this widget to the DOM tree has been
+   * stored in \p js.
+   *
+   * This may be useful as a debugging tool for the web-savvy, or in
+   * other rare situations. Usually, you will not deal directly with
+   * HTML, and calling this method on a widget that is rendered may
+   * interfere with the library keeping track of changes to the
+   * widget.
+   *
+   * \note If your intention is to execute the JavaScript code, you can
+   *       use WApplication::doJavaScript() with the JavaScript code
+   *       streamed to \p js.
+   *
+   * \sa WTemplate
+   */
+  virtual void htmlText(std::ostream& out, WStringStream& js);
 
   /*! \brief Sets as selectable.
    *

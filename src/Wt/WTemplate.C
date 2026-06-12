@@ -419,7 +419,7 @@ void WTemplate::resolveString(const std::string& varName,
         result << "<span id=\"" << w->id() << "\"> </span>";
       } else {
         applyArguments(w, args);
-        w->htmlText(result);
+        w->htmlText(result, boundWidgetsJs_);
       }
 
       if (newlyRendered_)
@@ -524,8 +524,11 @@ void WTemplate::updateDom(DomElement& element, bool all)
     std::stringstream html;
     renderTemplate(html);
 
+    element.callJavaScript(boundWidgetsJs_.str());
+
     previouslyRendered_ = nullptr;
     newlyRendered_ = nullptr;
+    boundWidgetsJs_.clear();
 
     for (unsigned i = 0; i < newlyRendered.size(); ++i) {
       WWidget *w = newlyRendered[i];
