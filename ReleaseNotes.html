@@ -106,6 +106,17 @@ behaviour.
     up behind its parent menu.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/14576" target="_blank">Issue #14576</a>:
+    fixed
+    <a href="classWt_1_1WTemplate.html" target="_blank">WTemplate</a> with bound widgets not executing JavaScript code on the client side when calling
+    <a href="classWt_1_1WTemplate.html#a98baf277a7dd3144a38edb77cbb3d284" target="_blank">WTemplate::renderTemplate()</a>.
+
+    Additionally,
+    <a href="classWt_1_1WWidget.html#aaae07190fb97d856149226ea315a75d0" target="_blank">WWidget::htmlText()</a> will no longer execute JavaScript code,
+    but will instead stream the JavaScript code to the optional
+    <a href="classWt_1_1WStringStream.html" target="_blank">WStringStream</a>.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/14579" target="_blank">Issue #14579</a>:
     ensured that
     <a href="classWt_1_1WResource.html" target="_blank">WResource</a> suggested file names
