@@ -26,6 +26,25 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.emweb.be/issues/13788" target="_blank">Issue #13788</a>:
+    added color mode support to
+    <a href="classWt_1_1WTheme.html" target="_blank">WTheme</a>. This is mainly relevant for
+    <a href="classWt_1_1WBootstrap5Theme.html" target="_blank">WBootstrap5Theme</a>, which introduced this concept to support
+    dark and light mode.
+
+    The color mode can be changed using
+    <a href="classWt_1_1WTheme.html#a4e17e64908c4882d9263b808210b25b2" target="_blank">WTheme::setColorMode()</a>. Note that you will have
+    to override this function if you want other themes than
+    <a href="classWt_1_1WBootstrap5Theme.html" target="_blank">WBootstrap5Theme</a> to support color modes. Some changes to
+    <a href="classWt_1_1WBootstrap5Theme.html" target="_blank">WBootstrap5Theme</a> custom css for wt have also be made to support
+    dark mode.
+
+    It is also possible to react to color mode changes by connecting to the
+    <a href="classWt_1_1WApplication.html#ad9f67bae1c1ff7100cd46258553817d4" target="_blank">WApplication::themeColorModeChanged()</a> signal and
+    to check the preferred color scheme of the client using
+    <a href="classWt_1_1WEnvironment.html#a9f77d68ae27a0ff1f22a6d3aefe07185" target="_blank">WEnvironment::preferredColorScheme()</a>.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/14571" target="_blank">Issue #14571</a>:
     added
     <a href="classWt_1_1WTableView.html#a758e93e27af525ca489557bccf459da2" target="_blank">WTableView::incomingIndex()</a>
