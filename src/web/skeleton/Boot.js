@@ -295,6 +295,15 @@ _$_$endif_$_();
       otherInfo += "&notif=" + Notification.permission;
     }
 
+    // determine preferred color scheme
+    if (window.matchMedia) {
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        otherInfo += "&pcs=dark";
+      } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+        otherInfo += "&pcs=light";
+      }
+    }
+
     let needSessionInUrl = !no_replace || !ajax;
 
     if (needSessionInUrl) {

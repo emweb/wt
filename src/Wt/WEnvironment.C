@@ -226,6 +226,12 @@ void WEnvironment::enableAjax(const WebRequest& request)
     setNotificationPermission(*notifE);
   }
 
+  const std::string* preferredColorSchemeE = request.getParameter("pcs");
+  preferredColorScheme_ = preferredColorSchemeE ? *preferredColorSchemeE : std::string("");
+  if (preferredColorScheme_ != "light" && preferredColorScheme_ != "dark") {
+    preferredColorScheme_.clear();
+  }
+
   const std::string *hashE = request.getParameter("_");
 
   // the internal path, when present as an anchor (#), is only

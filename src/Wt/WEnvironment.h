@@ -359,6 +359,16 @@ public:
    */
   std::string timeZoneName() const { return timeZoneName_; }
 
+  /*! \brief Returns the preferred color scheme as reported by the client.
+   *
+   * Returns the preferred color scheme for the client, which is either
+   * "light" or "dark". In case the client has no preference, or the
+   * browser does not support this, the empty string is returned.
+   *
+   * \sa WTheme::setColorMode()
+   */
+  std::string preferredColorScheme() const { return preferredColorScheme_; }
+
   /*! \brief Returns the server host name that is used by the client.
    *
    * The hostname is the unresolved host name with optional port number,
@@ -760,6 +770,7 @@ protected:
   WLocale locale_;
   std::chrono::minutes timeZoneOffset_;
   std::string timeZoneName_;
+  std::string preferredColorScheme_;
   std::string host_;
   std::string userAgent_;
   std::string urlScheme_;
