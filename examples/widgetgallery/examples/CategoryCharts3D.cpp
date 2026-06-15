@@ -59,9 +59,6 @@ isotopes->setType(Chart::Series3DType::Bar);
 // add the dataseries to the chart
 chart->addDataSeries(std::move(isotopes));
 
-chart->setAlternativeContent
-    (std::make_unique<WImage>(WLink("pics/categoricalChartScreenshot.png")));
-
 /*
  * Support Dark and Light modes
  */
@@ -79,6 +76,11 @@ if (WApplication::instance()->theme()->colorMode() == "dark") {
     chart->axis(Chart::Axis::Y3D).setTextPen(WPen(StandardColor::White));
     chart->axis(Chart::Axis::Z3D).setPen(WPen(StandardColor::White));
     chart->axis(Chart::Axis::Z3D).setTextPen(WPen(StandardColor::White));
+    chart->setAlternativeContent
+        (std::make_unique<WImage>(WLink("pics/categoricalChartScreenshot-dark.png")));
+} else {
+    chart->setAlternativeContent
+        (std::make_unique<WImage>(WLink("pics/categoricalChartScreenshot.png")));
 }
 
 WApplication::instance()->themeColorModeChanged().connect([=] (std::string mode) {
@@ -93,6 +95,8 @@ WApplication::instance()->themeColorModeChanged().connect([=] (std::string mode)
         chart->axis(Chart::Axis::Y3D).setTextPen(WPen(StandardColor::White));
         chart->axis(Chart::Axis::Z3D).setPen(WPen(StandardColor::White));
         chart->axis(Chart::Axis::Z3D).setTextPen(WPen(StandardColor::White));
+        chart->setAlternativeContent
+            (std::make_unique<WImage>(WLink("pics/categoricalChartScreenshot-dark.png")));
     } else {
         chart->setIntersectionLinesColor(WColor(StandardColor::Black));
         chart->setGridLinesPen(WPen(StandardColor::Black));
@@ -104,6 +108,8 @@ WApplication::instance()->themeColorModeChanged().connect([=] (std::string mode)
         chart->axis(Chart::Axis::Y3D).setTextPen(WPen(StandardColor::Black));
         chart->axis(Chart::Axis::Z3D).setPen(WPen(StandardColor::Black));
         chart->axis(Chart::Axis::Z3D).setTextPen(WPen(StandardColor::Black));
+        chart->setAlternativeContent
+            (std::make_unique<WImage>(WLink("pics/categoricalChartScreenshot.png")));
     }
 });
 

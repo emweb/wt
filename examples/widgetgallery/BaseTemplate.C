@@ -19,6 +19,10 @@ BaseTemplate::BaseTemplate(const char *trKey)
   addFunction("tr", &Functions::tr);
   addFunction("block", &Functions::block);
 
+  Wt::WApplication::instance()->themeColorModeChanged().connect([this] {
+    reset();
+  });
+
 #ifndef WT_TARGET_JAVA
   setCondition("if:cpp", true);
   setCondition("if:java", false);
@@ -49,6 +53,12 @@ void BaseTemplate::resolveString(const std::string& varName,
     }
 
     const Wt::WApplication* app = Wt::WApplication::instance();
+
+    if (app->theme()->colorMode() == "dark" &&
+        boost::starts_with(src, "pics/")) {
+      boost::replace_all(src, ".png", "-dark.png");
+    }
+
     result << "<img src=\"" << Wt::Utils::htmlAttributeValue(app->resolveRelativeUrl(src)) << "\" ";
     if (!alt.empty()) {
       result << "alt=\"" << Wt::Utils::htmlAttributeValue(alt) << "\" ";

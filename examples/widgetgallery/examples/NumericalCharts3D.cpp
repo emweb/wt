@@ -110,6 +110,11 @@ if (WApplication::instance()->theme()->colorMode() == "dark") {
     chart->axis(Chart::Axis::Y3D).setTextPen(WPen(StandardColor::White));
     chart->axis(Chart::Axis::Z3D).setPen(WPen(StandardColor::White));
     chart->axis(Chart::Axis::Z3D).setTextPen(WPen(StandardColor::White));
+    chart->setAlternativeContent
+        (std::make_unique<WImage>(WLink("pics/numericalChartScreenshot-dark.png")));
+} else {
+    chart->setAlternativeContent
+        (std::make_unique<WImage>(WLink("pics/numericalChartScreenshot.png")));
 }
 
 WApplication::instance()->themeColorModeChanged().connect([=] (std::string mode) {
@@ -123,6 +128,8 @@ WApplication::instance()->themeColorModeChanged().connect([=] (std::string mode)
         chart->axis(Chart::Axis::Y3D).setTextPen(WPen(StandardColor::White));
         chart->axis(Chart::Axis::Z3D).setPen(WPen(StandardColor::White));
         chart->axis(Chart::Axis::Z3D).setTextPen(WPen(StandardColor::White));
+        chart->setAlternativeContent
+            (std::make_unique<WImage>(WLink("pics/numericalChartScreenshot-dark.png")));
     } else {
         chart->setIntersectionLinesColor(WColor(StandardColor::Black));
         chart->setGridLinesPen(WPen(StandardColor::Black));
@@ -133,10 +140,9 @@ WApplication::instance()->themeColorModeChanged().connect([=] (std::string mode)
         chart->axis(Chart::Axis::Y3D).setTextPen(WPen(StandardColor::Black));
         chart->axis(Chart::Axis::Z3D).setPen(WPen(StandardColor::Black));
         chart->axis(Chart::Axis::Z3D).setTextPen(WPen(StandardColor::Black));
+        chart->setAlternativeContent
+            (std::make_unique<WImage>(WLink("pics/numericalChartScreenshot.png")));
     }
 });
-
-chart->setAlternativeContent
-    (std::make_unique<WImage>(WLink("pics/numericalChartScreenshot.png")));
 
 SAMPLE_END(return std::move(container))
