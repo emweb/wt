@@ -283,7 +283,6 @@ void WWidget::htmlText(std::ostream& out)
 {
   WStringStream js;
   htmlText(out, js);
-  WApplication::instance()->doJavaScript(js.str());
 }
 
 void WWidget::htmlText(std::ostream& out, WStringStream& js)

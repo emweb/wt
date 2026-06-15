@@ -998,8 +998,15 @@ public:
    * interfere with the library keeping track of changes to the
    * widget.
    *
-   * \warning The JavaScript code called by the widget will be executed
-   *          by the client.
+   * \note Before Wt 4.13.3, this method would execute the JavaScript
+   *       code that would have been called as part of adding this
+   *       widget to the DOM tree. So that they are available in the
+   *       DOM tree with the correct handlers and functions. This is no
+   *       longer the case. If you still want to execute the JavaScript
+   *       code, you can use the
+   *       WWidget::htmlText(std::ostream&, WStringStream&) method
+   *       instead, and call the JavaScript code streamed to the
+   *       WStringStream yourself using WApplication::doJavaScript().
    */
   virtual void htmlText(std::ostream& out);
 
