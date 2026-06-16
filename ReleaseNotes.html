@@ -46,6 +46,19 @@ behaviour.
     <a href="classWt_1_1WTableView.html#a758e93e27af525ca489557bccf459da2" target="_blank">WTableView::visibleColumnCount()</a>
     which allow to retrieve the number of fully visible rows and columns.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/993" target="_blank">Issue #993</a>:
+    Add the
+    <a href="classWt_1_1Dbo_1_1NotificationListener.html" target="_blank">Dbo::NotificationListener</a>, which allows to send and receive notifications through a database. Those notifications trigger signals that can be accessed with
+    <a href="classWt_1_1Dbo_1_1NotificationListener.html#af032bf13ae89b48c126aaa3c8487812a" target="_blank">Dbo::NotificationListener::notified()</a>. This is currently only implemented for PostgreSQL, but can be implemented for other Dbo by making a custom implementation of the following functions:
+    <ul>
+      <li><a href="classWt_1_1Dbo_1_1SqlConnection.html#a293e4a49c0224dc512817d20a6c2b882" target="_blank">Dbo::SqlConnection::sendSubscription()</a></li>
+      <li><a href="classWt_1_1Dbo_1_1SqlConnection.html#a1f6d207b50a5b0ed88fa21bb5945dc1a" target="_blank">Dbo::SqlConnection::notify()</a></li>
+      <li><a href="classWt_1_1Dbo_1_1SqlConnection.html#ab324381df8db923d165bea8b7afa5532" target="_blank">Dbo::SqlConnection::getNextNotify()</a></li>
+      <li><a href="classWt_1_1Dbo_1_1SqlConnection.html#a0f76caf1e8b8ba6e21fdbf64f2c6a1c5" target="_blank">Dbo::SqlConnection::setupNotify()</a></li>
+      <li><a href="classWt_1_1Dbo_1_1SqlConnection.html#adb0aee2ce0f35ae4f268e1bceb376b9f" target="_blank">Dbo::SqlConnection::stopListen()</a></li>
+    </ul>
+  </li>
 </ul>
 
 <p>Wt 4.14.0 also fixes the following bugs:</p>
