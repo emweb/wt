@@ -39,3 +39,22 @@ BOOST_AUTO_TEST_CASE(WMenu_addItem_change_index_for_internal_path_match)
   BOOST_TEST(menu->currentIndex() == previousIndex);
 }
 
+BOOST_AUTO_TEST_CASE(WMenu_internal_path_matching_segment_boundary)
+{
+  Wt::Test::WTestEnvironment testEnv;
+  testEnv.setInternalPath("/contact-us");
+  Wt::WApplication app(testEnv);
+
+  Wt::WStackedWidget *stack = app.root()->addNew<Wt::WStackedWidget>();
+  Wt::WMenu *menu = app.root()->addNew<Wt::WMenu>(stack);
+  menu->setInternalPathEnabled("/");
+
+  menu->addItem("contact", std::make_unique<Wt::WText>("Contact Page"));
+
+  BOOST_TEST(menu->currentIndex() == -1);
+
+  app.setInternalPath("/contact/us");
+
+  BOOST_TEST(menu->currentIndex() == 0);
+}
+

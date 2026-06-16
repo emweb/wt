@@ -29,21 +29,21 @@ namespace {
    * ("a", "a") -> 1
    */
   int match(const std::string& path, const std::string& component) {
-    if (component.length() > path.length())
-      return -1;
-
-    int length = std::min(component.length(), path.length());
-
-    int current = -1;
-
-    for (int i = 0; i < length; ++i) {
-      if (component[i] != path[i]) {
-        return current;
-      } else if (component[i] == '/')
-        current = i;
+    if (component.empty()) {
+      return 0;
     }
 
-    return length;
+    if (component.length() > path.length()) {
+      return -1;
+    }
+
+    if (path.compare(0, component.length(), component) == 0) {
+      if (path.length() == component.length() || path[component.length()] == '/') {
+        return static_cast<int>(component.length());
+      }
+    }
+
+    return -1;
   }
 }
 
