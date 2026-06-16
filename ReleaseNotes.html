@@ -20,7 +20,7 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.13.3 (TBD)</h2>
+<h2>Release 4.13.3 (June 16, 2026)</h2>
 
 <p>Wt 4.13.3 is a patch release that addresses the following issues:</p>
 
@@ -32,22 +32,22 @@ behaviour.
     Firefox.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/12073" target="_blank">Issue #12073</a>:
-    fixed compilation error on windows when compiling <code>wtdbopostgres.lib</code> with C++17 or higher.
-  </li>
-  <li>
     <a href="https://redmine.emweb.be/issues/12463" target="_blank">Issue #12463</a>:
     made
     <a href="classWt_1_1WStreamResource.html#ab83350ee7a4a14ad06965145073b0293" target="_blank">WStreamResource::handleRequestPiecewise()</a>
     able to concurrently handle multiple requests correctly.
   </li>
   <li>
-  <a href="https://redmine.emweb.be/issues/14576" target="_blank">Issue #14576</a>:
-    fixed adding an empty path component or changing a path component to an empty one in a
-    <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a> would change the selected
-    item to the one with the empty path component if the
-    <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a> had internal path enabled.
-
+    <a href="https://redmine.emweb.be/issues/14150" target="_blank">Issue #14150</a>:
+    fixed
+    sub-sub-<a href="classWt_1_1WPopupMenu.html" target="_blank">WPopupMenu</a> sometimes popping
+    up behind its parent menu.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14575" target="_blank">Issue #14575</a>:
+    fixed
+    <a href="classWt_1_1WDateEdit.html" target="_blank">WDateEdit</a> and
+    <a href="classWt_1_1WTimeEdit.html" target="_blank">WTimeEdit</a> popups missing some style classes when the editor started hidden.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/12407" target="_blank">Issue #12407</a>:
@@ -58,36 +58,15 @@ behaviour.
     select the first item of the submenu.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/14527" target="_blank">Issue #14527</a>:
-    fixed resize handles in layouts adding extra space at the end of a row or column.
+  <a href="https://redmine.emweb.be/issues/14576" target="_blank">Issue #14576</a>:
+    fixed adding an empty path component or changing a path component to an empty one in a
+    <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a> would change the selected
+    item to the one with the empty path component if the
+    <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a> had internal path enabled.
   </li>
   <li>
-  <a href="https://redmine.emweb.be/issues/13907" target="_blank">Issue #13907</a>:
-    fixed a warning about an incorrect version of TinyMCE sometimes being logged when the correct version was actually used.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/12429" target="_blank">Issue #12429</a>:
-    fixed
-    <a href="classWt_1_1WAbstractItemView.html" target="_blank">WAbstractItemView</a> not resetting
-    the sorted column when changing or resetting its model.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14575" target="_blank">Issue #14575</a>:
-    fixed
-    <a href="classWt_1_1WDateEdit.html" target="_blank">WDateEdit</a> and
-    <a href="classWt_1_1WTimeEdit.html" target="_blank">WTimeEdit</a> popups missing some style classes when the editor started hidden.
-  </li>
-  <li>
-  <a href="https://redmine.emweb.be/issues/14572" target="_blank">Issue #14572</a>:
-    fixed
-    <a href="classWt_1_1WAbstractItemView.html#ae68d56771c5e9d408d78b4b9d198967f" target="_blank">WAbstractItemView::scrollTo()</a>
-    not fully scrolling the column to the left when it should, leading to the right border of the last column being hidden.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14172" target="_blank">Issue #14172</a>:
-    fixed
-    <a href="classWt_1_1WTextEdit.html" target="_blank">WTextEdit</a> making the
-    application crash when the configured TinyMCE version was not a valid integer.
+    <a href="https://redmine.emweb.be/issues/12073" target="_blank">Issue #12073</a>:
+    fixed compilation error on windows when compiling <code>wtdbopostgres.lib</code> with C++17 or higher.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/10923" target="_blank">Issue #10923</a>:
@@ -96,19 +75,25 @@ behaviour.
     <a href="namespaceWt.html#af4b6ed5fd28b4f5fa141b153c1107349accf2281a355c2c9cd4698ac30bea7820" target="_blank">Widgetset</a> mode.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/9106" target="_blank">Issue #9106</a>:
-    fixed a race condition that could lead to websocket connections not being closed at the destruction of the session.
+    <a href="https://redmine.emweb.be/issues/14527" target="_blank">Issue #14527</a>:
+    fixed resize handles in layouts adding extra space at the end of a row or column.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/14150" target="_blank">Issue #14150</a>:
+    <a href="https://redmine.emweb.be/issues/12429" target="_blank">Issue #12429</a>:
     fixed
-    sub-sub-<a href="classWt_1_1WWebWidget.html#" target="_blank">WPopupMenu</a> sometimes popping
-    up behind its parent menu.
+    <a href="classWt_1_1WAbstractItemView.html" target="_blank">WAbstractItemView</a> not resetting
+    the sorted column when changing or resetting its model.
+  </li>
+  <li>
+  <a href="https://redmine.emweb.be/issues/14572" target="_blank">Issue #14572</a>:
+    fixed
+    <a href="classWt_1_1WAbstractItemView.html#ae68d56771c5e9d408d78b4b9d198967f" target="_blank">WAbstractItemView::scrollTo()</a>
+    not fully scrolling the column to the left when it should, leading to the right border of the last column being hidden.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14576" target="_blank">Issue #14576</a>:
     fixed
-    <a href="classWt_1_1WTemplate.html" target="_blank">WTemplate</a> with bound widgets not executing JavaScript code on the client side when calling
+    <a href="classWt_1_1WTemplate.html" target="_blank">WTemplate</a> with bound widgets executing JavaScript code on the client side when calling
     <a href="classWt_1_1WTemplate.html#a98baf277a7dd3144a38edb77cbb3d284" target="_blank">WTemplate::renderTemplate()</a>.
 
     Additionally,
@@ -117,28 +102,31 @@ behaviour.
     <a href="classWt_1_1WStringStream.html" target="_blank">WStringStream</a>.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/9106" target="_blank">Issue #9106</a>:
+    fixed a race condition that could lead to websocket connections not being closed at the destruction of the session.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/14579" target="_blank">Issue #14579</a>:
     ensured that
     <a href="classWt_1_1WResource.html" target="_blank">WResource</a> suggested file names
     fallback for browser that do not support RFC 5987 are sent without non-ASCII characters
     to maximize retrocompatibility.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14172" target="_blank">Issue #14172</a>:
+    fixed
+    <a href="classWt_1_1WTextEdit.html" target="_blank">WTextEdit</a> making the
+    application crash when the configured TinyMCE version was not a valid integer.
+  </li>
+  <li>
+  <a href="https://redmine.emweb.be/issues/13907" target="_blank">Issue #13907</a>:
+    fixed a warning about an incorrect version of TinyMCE sometimes being logged when the correct version was actually used.
+  </li>
 </ul>
 
 <p>Wt 4.13.3 also comes with the following improvements: </p>
 
 <ul>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14473" target="_blank">Issue #14473</a>:
-    made
-    <a href="classWt_1_1WDialog.html" target="_blank">WDialog::popupAt(WMouseEvent)</a>
-    also show the dialog.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/12815" target="_blank">Issue #12815</a>:
-    added some clarification to the documentation of
-    <a href="namespaceWt_1_1Form_1_1Dbo.html" target="_blank">Form::Dbo</a> classes.
-  </li>
   <li>
     <a href="https://redmine.emweb.be/issues/12664" target="_blank">Issue #12664</a>:
     added the possibility to check whether a
@@ -147,10 +135,21 @@ behaviour.
     <a href="classWt_1_1Mail_1_1Client.html#a77e59d60fe764dd199a86a7fe922ac9b" target="_blank">Mail::Client::isConnected()</a>.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/14473" target="_blank">Issue #14473</a>:
+    made
+    <a href="classWt_1_1WDialog.html#a7dd5be946b39806805285cfa7416757f" target="_blank">WDialog::positionAt(WMouseEvent)</a>
+    also show the dialog.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/14045" target="_blank">Issue #14045</a>:
     added debug logging when committing or rolling back a
     <a href="classWt_1_1Dbo_1_1Transaction.html" target="_blank">Dbo::Transaction</a>.
     The case where the transaction is nested, and would not immediately commit, is logged as well.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/12815" target="_blank">Issue #12815</a>:
+    added some clarification to the documentation of
+    <a href="namespaceWt_1_1Form_1_1Dbo.html" target="_blank">Form::Dbo</a> classes.
   </li>
 </ul>
 
