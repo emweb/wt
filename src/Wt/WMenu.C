@@ -283,10 +283,13 @@ std::unique_ptr<WMenuItem> WMenu::removeItem(WMenuItem *item)
 
     item->setParentMenu(nullptr);
 
-    if (itemIndex <= current_ && current_ >= 0)
+    if (itemIndex == current_) {
+      setCurrent(-1);
+      select(-1, true);
+    } else if (itemIndex < current_ && current_ > 0) {
       --current_;
-
-    select(current_, true);
+      select(current_, true);
+    }
   }
 
   return result;
