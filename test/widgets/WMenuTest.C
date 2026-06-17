@@ -49,12 +49,16 @@ BOOST_AUTO_TEST_CASE(WMenu_internal_path_matching_segment_boundary)
   Wt::WMenu *menu = app.root()->addNew<Wt::WMenu>(stack);
   menu->setInternalPathEnabled("/");
 
-  menu->addItem("contact", std::make_unique<Wt::WText>("Contact Page"));
-
-  BOOST_TEST(menu->currentIndex() == -1);
-
-  app.setInternalPath("/contact/us");
+  menu->addItem("dashboard", std::make_unique<Wt::WText>("Dashboard"));
 
   BOOST_TEST(menu->currentIndex() == 0);
+
+  menu->addItem("contact", std::make_unique<Wt::WText>("Contact Page"));
+
+  BOOST_TEST(menu->currentIndex() == 0);
+
+  app.setInternalPath("/contact/us",  true);
+
+  BOOST_TEST(menu->currentIndex() == 1);
 }
 
