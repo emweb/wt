@@ -13,6 +13,8 @@
 
 #include "WebUtils.h"
 
+#include <boost/algorithm/string.hpp>
+
 /*
  * TODO:
  *  - disable everything selection-related for menu items that have a
@@ -37,7 +39,7 @@ namespace {
       return -1;
     }
 
-    if (path.compare(0, component.length(), component) == 0) {
+    if (boost::starts_with(path, component)) {
       if (path.length() == component.length() ||
           path[component.length()] == '/' ||
           path[component.length() -1 ] == '/') {
