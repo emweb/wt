@@ -67,7 +67,7 @@ public:
 
   /*! \brief Returns the pen to draw the selected part of the data series with.
    */
-  WPen selectedSeriesPen() const { return *selectedSeriesPen_; }
+  WPen selectedSeriesPen() const { return selectedSeriesPen_ ? *selectedSeriesPen_ : seriesPen(); }
 
   /*! \brief Set the brush to draw the handles left and right of the selected area with.
    */

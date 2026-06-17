@@ -32,7 +32,7 @@ LOGGER("Chart.WAxisSliderWidget");
 
 WAxisSliderWidget::WAxisSliderWidget()
   : series_(nullptr),
-    selectedSeriesPen_(&seriesPen_),
+    selectedSeriesPen_(nullptr),
     handleBrush_(WColor(0,0,200)),
     background_(WColor(230, 230, 230)),
     selectedAreaBrush_(WColor(255, 255, 255)),
@@ -45,7 +45,7 @@ WAxisSliderWidget::WAxisSliderWidget()
 
 WAxisSliderWidget::WAxisSliderWidget(WDataSeries *series)
   : series_(series),
-    selectedSeriesPen_(&seriesPen_),
+    selectedSeriesPen_(nullptr),
     handleBrush_(WColor(0,0,200)),
     background_(WColor(230, 230, 230)),
     selectedAreaBrush_(WColor(255, 255, 255)),
@@ -82,7 +82,7 @@ WAxisSliderWidget::~WAxisSliderWidget()
   if (chart()) {
     chart()->removeAxisSliderWidget(this);
   }
-  if (selectedSeriesPen_ != &seriesPen_) {
+  if (selectedSeriesPen_) {
     delete selectedSeriesPen_;
   }
 }
@@ -109,7 +109,7 @@ void WAxisSliderWidget::setSeriesPen(const WPen& pen)
 
 void WAxisSliderWidget::setSelectedSeriesPen(const WPen& pen)
 {
-  if (selectedSeriesPen_ != &seriesPen_) {
+  if (selectedSeriesPen_) {
     delete selectedSeriesPen_;
   }
   selectedSeriesPen_ = new WPen(pen);
@@ -443,7 +443,7 @@ void WAxisSliderWidget::paintEvent(WPaintDevice *paintDevice)
     painter.fillRect(hv(t).map(rightHandle), handleBrush_);
   }
 
-  if (selectedSeriesPen_ != &seriesPen_ && *selectedSeriesPen_ != seriesPen_) {
+  if (selectedSeriesPen_ && *selectedSeriesPen_ != seriesPen_) {
     WPainterPath clipPath;
     clipPath.addRect(hv(selectionRect));
     painter.setClipPath(selectionTransform.map(clipPath));
