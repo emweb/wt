@@ -2,12 +2,23 @@ INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
 
 ADD_EXECUTABLE(fuzz-css  fuzz-css.C)
 ADD_EXECUTABLE(fuzz-eval fuzz-eval.C)
+ADD_EXECUTABLE(fuzz-http fuzz-http.C)
 ADD_EXECUTABLE(fuzz-json fuzz-json.C)
 ADD_EXECUTABLE(fuzz-uri  fuzz-uri.C)
 ADD_EXECUTABLE(fuzz-xml  fuzz-xml.C)
 
 TARGET_LINK_LIBRARIES(fuzz-css  PRIVATE wt $ENV{LIB_FUZZING_ENGINE})
 TARGET_LINK_LIBRARIES(fuzz-eval PRIVATE wt $ENV{LIB_FUZZING_ENGINE})
+TARGET_LINK_LIBRARIES(fuzz-http PRIVATE wt wthttp $ENV{LIB_FUZZING_ENGINE})
 TARGET_LINK_LIBRARIES(fuzz-json PRIVATE wt $ENV{LIB_FUZZING_ENGINE})
 TARGET_LINK_LIBRARIES(fuzz-uri  PRIVATE wt $ENV{LIB_FUZZING_ENGINE})
 TARGET_LINK_LIBRARIES(fuzz-xml  PRIVATE wt $ENV{LIB_FUZZING_ENGINE})
+
+# fuzz-http uses libwthttp's internal headers, whose layout depends on these;
+# match the definitions libwthttp is built with (see src/http/CMakeLists.txt).
+IF(ZLIB_FOUND)
+  TARGET_COMPILE_DEFINITIONS(fuzz-http PRIVATE WTHTTP_WITH_ZLIB)
+ENDIF(ZLIB_FOUND)
+IF(ENABLE_SSL AND OPENSSL_FOUND)
+  TARGET_COMPILE_DEFINITIONS(fuzz-http PRIVATE HTTP_WITH_SSL)
+ENDIF(ENABLE_SSL AND OPENSSL_FOUND)
