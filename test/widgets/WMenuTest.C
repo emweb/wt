@@ -57,8 +57,18 @@ BOOST_AUTO_TEST_CASE(WMenu_internal_path_matching_segment_boundary)
 
   BOOST_TEST(menu->currentIndex() == 0);
 
+  auto downloadItem = menu->addItem("download", std::make_unique<Wt::WText>("Download Page"));
+  downloadItem->setPathComponent("download/");
+
+  BOOST_TEST(menu->currentIndex() == 0);
+
   app.setInternalPath("/contact/us",  true);
 
   BOOST_TEST(menu->currentIndex() == 1);
+
+  // Check that path components ending with a slash are correctly matched
+  app.setInternalPath("/download/file",  true);
+
+  BOOST_TEST(menu->currentIndex() == 2);
 }
 

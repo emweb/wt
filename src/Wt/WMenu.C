@@ -38,7 +38,9 @@ namespace {
     }
 
     if (path.compare(0, component.length(), component) == 0) {
-      if (path.length() == component.length() || path[component.length()] == '/') {
+      if (path.length() == component.length() ||
+          path[component.length()] == '/' ||
+          path[component.length() -1 ] == '/') {
         return static_cast<int>(component.length());
       }
     }
