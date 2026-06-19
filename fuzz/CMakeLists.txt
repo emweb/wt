@@ -1,5 +1,6 @@
 INCLUDE_DIRECTORIES(${WT_SOURCE_DIR}/src)
 
+ADD_EXECUTABLE(fuzz-cgi  fuzz-cgi.C)
 ADD_EXECUTABLE(fuzz-css  fuzz-css.C)
 ADD_EXECUTABLE(fuzz-eval fuzz-eval.C)
 ADD_EXECUTABLE(fuzz-http fuzz-http.C)
@@ -7,6 +8,7 @@ ADD_EXECUTABLE(fuzz-json fuzz-json.C)
 ADD_EXECUTABLE(fuzz-uri  fuzz-uri.C)
 ADD_EXECUTABLE(fuzz-xml  fuzz-xml.C)
 
+TARGET_LINK_LIBRARIES(fuzz-cgi  PRIVATE wt $ENV{LIB_FUZZING_ENGINE})
 TARGET_LINK_LIBRARIES(fuzz-css  PRIVATE wt $ENV{LIB_FUZZING_ENGINE})
 TARGET_LINK_LIBRARIES(fuzz-eval PRIVATE wt $ENV{LIB_FUZZING_ENGINE})
 TARGET_LINK_LIBRARIES(fuzz-http PRIVATE wt wthttp $ENV{LIB_FUZZING_ENGINE})
