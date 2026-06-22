@@ -51,6 +51,7 @@ private:
 
   void readUntilBoundary(WebRequest& request, const std::string boundary,
                          int tossAtBoundary,
+                         int maxLength,
                          std::string *resultString,
                          std::ostream *resultFile);
   void windBuffer(int offset);

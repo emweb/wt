@@ -44,42 +44,170 @@ using std::memmove;
 using std::strcpy;
 using std::strtol;
 
-namespace {
-  const std::regex boundary_e("\\bboundary=(?:(?:\"([^\"]+)\")|(\\S+))",
-                              std::regex::icase);
-  const std::regex name_e("\\bname=(?:(?:\"([^\"]+)\")|([^\\s:;]+))",
-                          std::regex::icase);
-  const std::regex filename_e("\\bfilename=(?:(?:\"([^\"]*)\")|([^\\s:;]+))",
-                              std::regex::icase);
-  const std::regex content_e("^\\s*Content-type:"
-                             "\\s*(?:(?:\"([^\"]+)\")|([^\\s:;]+))",
-                             std::regex::icase);
-  const std::regex content_disposition_e("^\\s*Content-Disposition:",
-                                         std::regex::icase);
-  const std::regex content_type_e("^\\s*Content-Type:",
-                                  std::regex::icase);
-
-  bool fishValue(const std::string& text,
-                 const std::regex& e, std::string& result)
-  {
-    std::smatch what;
-
-    if (std::regex_search(text, what, e)) {
-      result = std::string(what[1]) + std::string(what[2]);
-      return true;
-    } else
-      return false;
-  }
-
-  bool regexMatch(const std::string& text, const std::regex& e)
-  {
-    return std::regex_search(text, e);
-  }
-}
-
 namespace Wt {
 
 WT_MAYBE_UNUSED LOGGER("CgiParser");
+
+namespace {
+
+  constexpr int MAX_BOUNDARY_LENGTH = 70;
+  constexpr int MAX_NAME_LENGTH = 255;
+  constexpr int MAX_FILENAME_LENGTH = 1024;
+  constexpr int MAX_HEADER_FIELD_LENGTH = 1024 * 8;
+  constexpr int MAX_MULTIPART_NON_FILE_VALUE_SIZE = 1024 * 32;
+
+  bool isHeader(const std::string& name, const std::string& text)
+  {
+    std::string lower_line = Wt::Utils::lowerCase(text);
+    size_t pos = lower_line.find_first_not_of(" \t");
+    return pos != std::string::npos && lower_line.compare(pos, name.length(), name) == 0;
+  }
+
+  size_t findParam(const std::string& name,
+                  const std::string& text,
+                  size_t pos = 0)
+  {
+    if (name.empty()) {
+      return pos;
+    }
+
+    std::string stopChars {name[0], '"'};
+
+    while (pos != std::string::npos) {
+      pos = text.find_first_of(stopChars, pos);
+
+      if (pos == std::string::npos) {
+        break;
+      }
+
+      if (text[pos] == '"') {
+        pos++;
+        //ignore everything until the next quote
+        pos = text.find('"', pos);
+
+        if (pos == std::string::npos) {
+          break; // Malformed quotes
+        }
+
+      } else if (text.compare(pos, name.length(), name) == 0 &&
+                 (pos == 0 ||
+                  (!::isalnum(static_cast<unsigned char>(text[pos - 1])) &&
+                   text[pos - 1] != '_'))) {
+        // parameter name found
+        return pos + name.length();
+      }
+
+      pos++;
+    }
+
+    return std::string::npos;
+  }
+
+  bool extractParameterValue(const std::string& text, size_t pos,
+                            std::string& result, size_t maxLength = 0,
+                            const std::string& terminators = " \t:;")
+  {
+    size_t end_pos = pos;
+    if (text[pos] == '"') {
+      // Handle Quoted Values
+      pos++;
+      end_pos = text.find('"', pos);
+      if (end_pos == std::string::npos) {
+        return false; // Malformed quotes
+      }
+    } else {
+      // Handle Unquoted Values
+      end_pos = text.find_first_of(terminators, pos);
+      if (end_pos == std::string::npos) {
+        end_pos = text.length();
+      }
+    }
+
+    size_t length = end_pos - pos;
+
+    if (length == 0 || (maxLength != 0 && length > maxLength)) {
+      return false;
+    }
+    result = text.substr(pos, end_pos - pos);
+    return true;
+  }
+
+
+  bool fishContentTypeValue(const std::string& text, std::string& result)
+  {
+    std::string lower_line = Wt::Utils::lowerCase(text);
+
+    size_t pos = text.find_first_not_of(" \t");
+    if (pos == std::string::npos) {
+      return false;
+    }
+
+    if (pos != lower_line.find("content-type:", pos)) {
+      return false;
+    }
+
+    // Move past "content-type:"
+    pos += 13;
+
+    // Skip whitespace
+    pos = text.find_first_not_of(" \t", pos);
+    if (pos == std::string::npos) {
+      return false;
+    }
+
+    return extractParameterValue(text, pos, result);
+  }
+
+  bool fishBoundaryValue(const std::string& text, std::string& result)
+  {
+    std::string lower_line = Wt::Utils::lowerCase(text);
+
+    size_t pos = 0;
+
+    pos = findParam("boundary=", lower_line, pos);
+    if (pos == std::string::npos) {
+      return false;
+    }
+
+    return extractParameterValue(text, pos, result, MAX_BOUNDARY_LENGTH, " \t");
+  }
+
+  bool fishNameValue(const std::string& text, std::string& result)
+  {
+    std::string lower_line = Wt::Utils::lowerCase(text);
+
+    size_t pos = 0;
+
+    pos = findParam("name=", lower_line, pos);
+    if (pos == std::string::npos) {
+      return false;
+    }
+
+    return extractParameterValue(text, pos, result, MAX_NAME_LENGTH);
+  }
+
+  bool fishFilenameValue(const std::string& text, std::string& result)
+  {
+    std::string lower_line = Wt::Utils::lowerCase(text);
+
+    size_t pos = 0;
+
+    pos = findParam("filename=", lower_line, pos);
+    if (pos == std::string::npos) {
+      return false;
+    }
+
+    bool success = extractParameterValue(text, pos, result);
+
+    if (success && result.length() > MAX_FILENAME_LENGTH) {
+      // We still want a valid filename so that the file is spooled.
+      LOG_WARN("Received a multipart/form-data request with filename length " << result.length() << " exceeding maximum of " << MAX_FILENAME_LENGTH << ". Truncating.");
+      result = result.substr(result.length() - MAX_FILENAME_LENGTH);
+    }
+
+    return success;
+  }
+}
 
 CgiParser::CgiParser(::int64_t maxRequestSize, ::int64_t maxFormData)
   : maxFormData_(maxFormData),
@@ -176,7 +304,7 @@ void CgiParser::readMultipartData(WebRequest& request,
 {
   std::string boundary;
 
-  if (!fishValue(type, boundary_e, boundary))
+  if (!fishBoundaryValue(type, boundary))
     throw WException("Could not find a boundary for multipart data.");
 
   boundary = "--" + boundary;
@@ -203,14 +331,20 @@ void CgiParser::readMultipartData(WebRequest& request,
  *
  * tossAtBoundary controls how many characters extra (<0)
  * or few (>0) are saved at the start of the boundary in the result.
+ *
+ * maxLength controls the maximum number of characters to save in the
+ * result. -1 means no limit. If the limit is exceeded, an exception is
+ * thrown.
  */
 void CgiParser::readUntilBoundary(WebRequest& request,
                                   const std::string boundary,
                                   int tossAtBoundary,
+                                  int maxLength,
                                   std::string *resultString,
                                   std::ostream *resultFile)
 {
   int bpos;
+  int totalSaved = 0;
 
   while ((bpos = index(boundary)) == -1) {
     /*
@@ -224,6 +358,10 @@ void CgiParser::readUntilBoundary(WebRequest& request,
     /* save (up to) BUFSIZE from buffer to file or value string, but
      * mind the boundary length */
     int save = std::min((buflen_ - (int)boundary.length()), (int)BUFSIZE);
+    totalSaved += save;
+    if (maxLength >= 0 && totalSaved > maxLength) {
+      throw WException("CgiParser: maximum length for headers or content exceeded.");
+    }
 
     if (save > 0) {
       if (resultString)
@@ -245,6 +383,10 @@ void CgiParser::readUntilBoundary(WebRequest& request,
 
     left_ -= amt;
     buflen_ += amt;
+  }
+
+  if (maxLength >= 0 && totalSaved + bpos - tossAtBoundary > maxLength) {
+    throw WException("CgiParser: maximum length for headers or content exceeded.");
   }
 
   if (resultString)
@@ -280,7 +422,7 @@ int CgiParser::index(const std::string search)
 bool CgiParser::parseHead(WebRequest& request)
 {
   std::string head;
-  readUntilBoundary(request, "\r\n\r\n", -2, &head, 0);
+  readUntilBoundary(request, "\r\n\r\n", -2, MAX_HEADER_FIELD_LENGTH, &head, 0);
 
   std::string name;
   std::string fn;
@@ -293,13 +435,17 @@ bool CgiParser::parseHead(WebRequest& request)
                                                    ? std::string::npos
                                                    : i - current));
 
-    if (regexMatch(text, content_disposition_e)) {
-      fishValue(text, name_e, name);
-      fishValue(text, filename_e, fn);
+    if (isHeader("content-disposition:", text)) {
+      // If the name is not found or is too long, we ignore the header.
+      if (fishNameValue(text, name)) {
+        fishFilenameValue(text, fn);
+      } else {
+        LOG_WARN("Received a Content-Disposition header in a multipart/form-data request without a name parameter, or with a name parameter exceeding maximum of " << MAX_NAME_LENGTH << ". Ignoring header.");
+      }
     }
 
-    if (regexMatch(text, content_type_e)) {
-      fishValue(text, content_e, ctype);
+    if (isHeader("content-type:", text)) {
+      fishContentTypeValue(text, ctype);
     }
 
     current = i + 2;
@@ -341,9 +487,18 @@ bool CgiParser::parseHead(WebRequest& request)
 bool CgiParser::parseBody(WebRequest& request, const std::string boundary)
 {
   std::string value;
+  bool writeToMemory = !spoolStream_ && !currentKey_.empty();
+
+  int maxLength = -1;
+  if (writeToMemory) {
+    maxLength = MAX_MULTIPART_NON_FILE_VALUE_SIZE;
+  } else if (spoolStream_) {
+    maxLength = maxRequestSize_;
+  }
 
   readUntilBoundary(request, boundary, 2,
-                    spoolStream_ ? 0 : (!currentKey_.empty() ? &value : 0),
+                    maxLength,
+                    writeToMemory ? &value : nullptr,
                     spoolStream_.get());
 
   if (spoolStream_) {
