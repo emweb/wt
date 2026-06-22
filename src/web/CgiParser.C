@@ -143,7 +143,10 @@ void CgiParser::parse(WebRequest& request, ReadOption readOption)
     }
     Http::ParameterMap::const_iterator it = request_->parameters_.find("Wt-params");
     if (it != request_->parameters_.end() && it->second.size() == 1) {
-      Http::Request::parseFormUrlEncoded(it->second[0], request_->parameters_);
+      // We need a copy here in case of unexpected second "Wt-params"
+      // see issue#14616.
+      std::string wtParams = it->second[0];
+      Http::Request::parseFormUrlEncoded(wtParams, request_->parameters_);
     }
   }
 
