@@ -180,7 +180,7 @@ void CgiParser::readMultipartData(WebRequest& request,
 
   buflen_ = 0;
   left_ = len;
-  spoolStream_ = 0;
+  spoolStream_.reset();
   currentKey_.clear();
 
   if (!parseBody(request, boundary))
@@ -314,7 +314,7 @@ bool CgiParser::parseHead(WebRequest& request)
        */
       std::string spool = FileUtils::createTempFileName();
 
-      spoolStream_ = new std::ofstream(spool.c_str(),
+      spoolStream_ = std::make_unique<std::ofstream>(spool.c_str(),
         std::ios::out | std::ios::binary);
 
       request_->files_.insert
@@ -323,7 +323,7 @@ bool CgiParser::parseHead(WebRequest& request)
       LOG_DEBUG("spooling file to " << spool.c_str());
 
     } else {
-      spoolStream_ = 0;
+      spoolStream_.reset();
       // Clear currentKey so that file we don't do harm by reading this
       // giant blob in memory
       currentKey_ = "";
@@ -341,12 +341,11 @@ bool CgiParser::parseBody(WebRequest& request, const std::string boundary)
 
   readUntilBoundary(request, boundary, 2,
                     spoolStream_ ? 0 : (!currentKey_.empty() ? &value : 0),
-                    spoolStream_);
+                    spoolStream_.get());
 
   if (spoolStream_) {
     LOG_DEBUG("completed spooling");
-    delete spoolStream_;
-    spoolStream_ = 0;
+    spoolStream_.reset();
   } else {
     if (!currentKey_.empty()) {
       LOG_DEBUG("value: \"" << value << "\"");
