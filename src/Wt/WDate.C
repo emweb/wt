@@ -124,10 +124,6 @@ void WDate::setDate(int year, int month, int day)
 
 void WDate::setYmd(int y, int m, int d)
 {
-  // Cast to unsigned before shifting to avoid UB on negative years (C++11/14/17).
-  // The two's-complement bit pattern is then stored in signed int ymd_ so that
-  // operator<() performs a correct signed comparison and year() returns the right
-  // value via arithmetic right-shift for BCE (negative) years.
   ymd_ = static_cast<int>(
       (static_cast<unsigned>(y) << 16) |
       ((static_cast<unsigned>(m) & 0xFF) << 8) |
