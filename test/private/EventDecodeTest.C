@@ -13,142 +13,144 @@
 #include "web/CgiParser.h"
 #include "web/WebRequest.h"
 
-class MockRequest : public Wt::WebRequest {
-public:
-  bool supportsTransferWebSocketResourceSocket() override
-  {
-    return false;
-  }
+namespace {
+  class MockRequest : public Wt::WebRequest {
+  public:
+    bool supportsTransferWebSocketResourceSocket() override
+    {
+      return false;
+    }
 
-  virtual void flush(WT_MAYBE_UNUSED ResponseState state, WT_MAYBE_UNUSED const WriteCallback& callback) override
-  { }
+    virtual void flush(WT_MAYBE_UNUSED ResponseState state, WT_MAYBE_UNUSED const WriteCallback& callback) override
+    { }
 
-  virtual std::istream &in() override
-  {
-    return in_;
-  }
+    virtual std::istream &in() override
+    {
+      return in_;
+    }
 
-  virtual std::ostream &out() override
-  {
-    return out_;
-  }
+    virtual std::ostream &out() override
+    {
+      return out_;
+    }
 
-  virtual std::ostream &err() override
-  {
-    return err_;
-  }
+    virtual std::ostream &err() override
+    {
+      return err_;
+    }
 
-  virtual void setRedirect(WT_MAYBE_UNUSED const std::string& url) override
-  { }
+    virtual void setRedirect(WT_MAYBE_UNUSED const std::string& url) override
+    { }
 
-  virtual void setStatus(WT_MAYBE_UNUSED int status) override
-  { }
+    virtual void setStatus(WT_MAYBE_UNUSED int status) override
+    { }
 
-  int status() override
-  {
-    return 0;
-  }
+    int status() override
+    {
+      return 0;
+    }
 
-  virtual void setContentType(const std::string &value) override
-  {
-    contentType_ = value;
-  }
+    virtual void setContentType(const std::string &value) override
+    {
+      contentType_ = value;
+    }
 
-  virtual const char *contentType() const override
-  {
-    return contentType_.c_str();
-  }
+    virtual const char *contentType() const override
+    {
+      return contentType_.c_str();
+    }
 
-  virtual void setContentLength(int64_t length) override
-  {
-    contentLength_ = length;
-  }
+    virtual void setContentLength(int64_t length) override
+    {
+      contentLength_ = length;
+    }
 
-  virtual int64_t contentLength() const override
-  {
-    return contentLength_;
-  }
+    virtual int64_t contentLength() const override
+    {
+      return contentLength_;
+    }
 
-  virtual void addHeader(WT_MAYBE_UNUSED const std::string& name, WT_MAYBE_UNUSED const std::string& value) override
-  { }
+    virtual void addHeader(WT_MAYBE_UNUSED const std::string& name, WT_MAYBE_UNUSED const std::string& value) override
+    { }
 
-  void insertHeader(WT_MAYBE_UNUSED const std::string &name, WT_MAYBE_UNUSED const std::string &value) override
-  { }
+    void insertHeader(WT_MAYBE_UNUSED const std::string &name, WT_MAYBE_UNUSED const std::string &value) override
+    { }
 
-  virtual const char *envValue(WT_MAYBE_UNUSED const char *name) const override
-  {
-    return nullptr;
-  }
+    virtual const char *envValue(WT_MAYBE_UNUSED const char *name) const override
+    {
+      return nullptr;
+    }
 
-  virtual const std::string &serverName() const override
-  {
-    return serverName_;
-  }
+    virtual const std::string &serverName() const override
+    {
+      return serverName_;
+    }
 
-  virtual const std::string &serverPort() const override
-  {
-    return serverPort_;
-  }
+    virtual const std::string &serverPort() const override
+    {
+      return serverPort_;
+    }
 
-  virtual const std::string &scriptName() const override
-  {
-    return scriptName_;
-  }
+    virtual const std::string &scriptName() const override
+    {
+      return scriptName_;
+    }
 
-  virtual const char *requestMethod() const override
-  {
-    return requestMethod_.c_str();
-  }
+    virtual const char *requestMethod() const override
+    {
+      return requestMethod_.c_str();
+    }
 
-  virtual const std::string &queryString() const override
-  {
-    return queryString_;
-  }
+    virtual const std::string &queryString() const override
+    {
+      return queryString_;
+    }
 
-  virtual const std::string &pathInfo() const override
-  {
-    return pathInfo_;
-  }
+    virtual const std::string &pathInfo() const override
+    {
+      return pathInfo_;
+    }
 
-  virtual const std::string &remoteAddr() const override
-  {
-    return remoteAddr_;
-  }
+    virtual const std::string &remoteAddr() const override
+    {
+      return remoteAddr_;
+    }
 
-  virtual const char *urlScheme() const override
-  {
-    return urlScheme_.c_str();
-  }
+    virtual const char *urlScheme() const override
+    {
+      return urlScheme_.c_str();
+    }
 
-  virtual const char *headerValue(WT_MAYBE_UNUSED const char* name) const override
-  {
-    return nullptr;
-  }
+    virtual const char *headerValue(WT_MAYBE_UNUSED const char* name) const override
+    {
+      return nullptr;
+    }
 
-  virtual std::vector<Wt::Http::Message::Header> headers() const override
-  {
-    return std::vector<Wt::Http::Message::Header>{};
-  }
+    virtual std::vector<Wt::Http::Message::Header> headers() const override
+    {
+      return std::vector<Wt::Http::Message::Header>{};
+    }
 
-  virtual std::unique_ptr<Wt::WSslInfo> sslInfo(const Wt::Configuration &) const override
-  {
-    return nullptr;
-  }
+    virtual std::unique_ptr<Wt::WSslInfo> sslInfo(const Wt::Configuration &) const override
+    {
+      return nullptr;
+    }
 
-  std::string contentType_;
-  int64_t contentLength_;
-  std::stringstream in_;
-  std::stringstream out_;
-  std::stringstream err_;
-  std::string serverName_;
-  std::string serverPort_;
-  std::string scriptName_;
-  std::string requestMethod_;
-  std::string queryString_;
-  std::string pathInfo_;
-  std::string remoteAddr_;
-  std::string urlScheme_;
-};
+    std::string contentType_;
+    int64_t contentLength_;
+    std::stringstream in_;
+    std::stringstream out_;
+    std::stringstream err_;
+    std::string serverName_;
+    std::string serverPort_;
+    std::string scriptName_;
+    std::string requestMethod_;
+    std::string queryString_;
+    std::string pathInfo_;
+    std::string remoteAddr_;
+    std::string urlScheme_;
+  };
+}
 
 // Tests a particular crash scenario where the touches vector
 // became empty due to there being a negative touch id
