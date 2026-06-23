@@ -42,6 +42,7 @@ IF(ENABLE_LIBWTTEST)
     private/CExpressionParserTest.C
     private/ColorTest.C
     private/I18n.C
+    private/MultipartParseTest.C
     private/SessionFromCookieTest.C
     private/UrlManipTest.C
     render/BlockCssPropertyTest.C
