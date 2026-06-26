@@ -1325,6 +1325,7 @@ void WApplication::setCookie(const std::string& name,
   cookie.setSecure(secure);
 
   session_->renderer().setCookie(cookie);
+  addedCookies_[name] = value;
 }
 #endif // WT_TARGET_JAVA
 
@@ -1337,6 +1338,7 @@ void WApplication::setCookie(const Http::Cookie& cookie)
   }
 #endif // WT_TARGET_JAVA
   session_->renderer().setCookie(cookie);
+  addedCookies_[cookie.name()] = cookie.value();
 }
 
 void WApplication::removeCookie(const Http::Cookie& cookie)
