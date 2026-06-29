@@ -200,6 +200,13 @@ behaviour.
     stopped required scripts loading failure from stopping the application from the client side, making it impossible to
     recover from such failure. Instead, more detail will be logged about the failure so that developers can decide how to handle it.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14625" target="_blank">Issue #14625</a>:
+    added the possibility to use a custom random number generator for Wt using
+    <a href="classWt_1_1WRandom.html#ae641c67f8897a8f4fd1e0701f9aa6a81" target="_blank">WRandom::setGenerator()</a> and
+    <a href="classWt_1_1WRandom.html#ac4c462df437bfd67370413b9d2609f43" target="_blank">WRandom::setUniformGenerator()</a>.
+    This can be used in case the default random number generator does not work correctly on a specific platform.
+  </li>
 </ul>
 
 <h2>Release 4.13.4 (July 2, 2026)</h2>
