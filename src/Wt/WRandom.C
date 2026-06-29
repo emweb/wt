@@ -26,13 +26,19 @@ constexpr Int1 int_pow(Int1 n, Int2 exp)
   return exp == 0 ? 1 : n * int_pow(n, exp - 1);
 }
 
+int uniformRnd(std::int32_t min, std::int32_t max)
+{
+  std::uniform_int_distribution<std::int32_t> dis(min, max);
+  return dis(rnd());
+}
+
 }
 
 namespace Wt {
 
 unsigned int WRandom::get()
 {
-  return rnd()();
+  return generate_();
 }
 
 std::string WRandom::generateId(int length)
@@ -47,14 +53,12 @@ std::string WRandom::generateId(int length)
   static_assert(int_pow(static_cast<std::int64_t>(n_chars), MAX_CHARS_AT_A_TIME) <= std::numeric_limits<std::int32_t>::max(),
                 "You should be able to get 5 characters out of one random 32 bit integer");
 
-  std::uniform_int_distribution<std::int32_t> dis(0, int_pow(n_chars, MAX_CHARS_AT_A_TIME));
-
   std::string result;
   result.reserve(static_cast<std::size_t>(length));
 
   int i = 0;
   while (i < length) {
-    int n = dis(rnd());
+    int n = generateUniform_(0, int_pow(n_chars, MAX_CHARS_AT_A_TIME));
     for (int j = 0; i < length && j < MAX_CHARS_AT_A_TIME; ++i, ++j) {
       result.push_back(chars[n % n_chars]);
       n /= n_chars;
@@ -63,5 +67,9 @@ std::string WRandom::generateId(int length)
 
   return result;
 }
+
+std::function<unsigned int()> WRandom::generate_ = std::function<unsigned int()>([]() { return rnd()(); });
+
+std::function<int(::int32_t, ::int32_t)> WRandom::generateUniform_ = std::function<int(::int32_t, ::int32_t)>(uniformRnd);
 
 }

@@ -9,6 +9,7 @@
 #define WRANDOM_H_
 
 #include <Wt/WDllDefs.h>
+#include <functional>
 #include <string>
 
 namespace Wt {
@@ -39,6 +40,51 @@ public:
    * \sa get()
    */
   static std::string generateId(int length = 16);
+
+#ifndef WT_TARGET_JAVA
+  /*! \brief Sets the random number generator used by WRandom.
+   *
+   * Sets the random number generator used by WRandom::get().
+   *
+   * The generator should be thread-safe, as it may be called from
+   * multiple threads.
+   *
+   * \note This function is not thread safe, and should not be called
+   *       concurrently with any function of WRandom.
+   *
+   * \warning Several security features of %Wt depend on the quality of
+   *          the random number generator. Replacing it with a
+   *          low-entropy or deterministic generator will compromise
+   *          security.
+   */
+  static void setGenerator(const std::function<unsigned int()>& generator) { generate_ = generator; }
+
+  /*! \brief Sets the uniform random number generator used by WRandom.
+   *
+   * Sets the uniform random number generator used by
+   * WRandom::generateId(). The generator should return a uniformly
+   * distributed random number in the range [ \p min, \p max ] where
+   * \p min and \p max are given as parameters to the generator
+   * function.
+   *
+   * The generator should also be thread-safe, as it may be called from
+   * multiple threads.
+   *
+   * \note This function is not thread safe, and should not be called
+   *       concurrently with any function of WRandom.
+   *
+   * \warning Several security features of %Wt depend on the quality of
+   *          the random number generator. Replacing it with a
+   *          low-entropy, non-uniform or deterministic generator will
+   *          compromise security.
+   */
+  static void setUniformGenerator(const std::function<int(::int32_t min, ::int32_t max)>& generator) { generateUniform_ = generator; }
+
+private:
+  static std::function<unsigned int()> generate_;
+  static std::function<int(::int32_t min, ::int32_t max)> generateUniform_;
+#endif // WT_TARGET_JAVA
+
 };
 
 }
