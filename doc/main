@@ -770,13 +770,14 @@ appRoot=C:\Program Files\MyApplications\AppRoot
 
     <dt><strong>cache-form-data</strong></dt>
 
-    <dd>By default, Wt will cache the data of each form object so
-      that the client only needs to send the data of the form
+    <dd>If this is enabled, Wt will cache the data of each form object
+      so that the client only needs to send the data of the form
       objects that have been changed.
 
-      If this option is disabled, the client will send the data
-      of every form object in each signal sent to the server, but
-      the server will not use any memory to cache those data.</dd>
+      By default, this option is disabled. This means the client will
+      send the data of every form object in each signal sent to the
+      server, but the server will not use any memory to cache those
+      data.</dd>
 
     <dt><strong>form-data-resend-ratio-limit</strong></dt>
 

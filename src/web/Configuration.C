@@ -267,7 +267,7 @@ void Configuration::reset()
   valgrindPath_ = "";
   errorReporting_ = ErrorMessage;
   clientSideErrorReportLevel_ = Framework;
-  cacheFormData_ = true;
+  cacheFormData_ = false;
   maxFormDataResendRatio_ = 0.5;
   if (!runDirectory_.empty()) // disabled by connector
     runDirectory_ = RUNDIR;
