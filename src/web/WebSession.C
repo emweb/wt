@@ -1549,7 +1549,7 @@ void WebSession::handleRequest(Handler& handler)
 
             if (env_->agentIsSpiderBot()) { // Configured as bot (in wt_config.xml)
               kill();
-            } else if (env_->isLikelyBotGetRequest()) { // Detected as bad (potential) bot request
+            } else if (env_->isLikelyBotGetRequest() && conf.isInvalidWtdSuspicious()) { // Detected as bad (potential) bot request
               LOG_SECURE("terminating session for suspicious initial GET request (containing session ID)");
               kill();
             } else if (controller_->limitPlainHtmlSessions()) {

@@ -97,6 +97,9 @@
                even in the case cookies are not used for session management,
                the URL will not be cluttered with a sessionid.
                However, WApplication::refresh() will never be called.
+
+               When setting this option to false, we recommand setting
+               <is-invalid-wtd-suspicious> to false as well.
               -->
             <reload-is-new-session>true</reload-is-new-session>
 
@@ -812,6 +815,26 @@
                Http::Request::cspErrors().
          -->
         <csp-debug-endpoint>csp-report</csp-debug-endpoint>
+
+        <!-- Configure whether requests with invalid WTD are suspicious
+
+         By default, Wt will consider requests with invalid WTD headers
+         suspicious. This means that the request will be treated as a
+         bot request. The page will therefore be served as a plain HTML
+         page, the session will be deleted after serving the page, and
+         no wtd will be present in the response.
+
+         This can however cause issues when disabling the option
+         <reload-is-new-session> as the wtd will always be present in
+         the url (for non bot sessions). This is problematic when the
+         user bookmarks the page, as the wtd will be present in the
+         url, and when the user uses the bookmark, it will be treated
+         as a bot. This means plain HTML will be served and since the
+         session is deleted after serving the page, any form data
+         changed by the user on the HTML page will be reset when the
+         page is reloaded.
+        -->
+        <is-invalid-wtd-suspicious>true</is-invalid-wtd-suspicious>
 
         <!-- Configure whether private resources are served to bots
 

@@ -273,6 +273,7 @@ public:
   std::string cspDebugEndpoint() const;
   bool delayLoadAtBoot() const;
   bool useXFrameSameOrigin() const;
+  bool isInvalidWtdSuspicious() const;
   bool servePrivateResourcesToBots() const;
   std::string botResourcesPath() const;
   int maxAutoRemovablePublicResources() const;
@@ -348,6 +349,7 @@ private:
   PropertyMap     properties_;
   bool            xhtmlMimeType_;
   bool            behindReverseProxy_;
+  bool            isInvalidWtdSuspicious_;
   bool            servePrivateResourcesToBots_;
   std::string     botResourcesPath_;
 

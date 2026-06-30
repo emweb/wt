@@ -300,6 +300,7 @@ void Configuration::reset()
   debugCsp_ = false;
   cspDebugEndpoint_ = "csp-report";
   useXFrameSameOrigin_ = true;
+  isInvalidWtdSuspicious_ = true;
   servePrivateResourcesToBots_ = false;
   botResourcesPath_ = "/wt-temp";
   entryPointManager_.setMaxRemovableEntryPoints(DEFAULT_MAX_REMOVABLE_ENTRY_POINTS);
@@ -669,6 +670,13 @@ bool Configuration::isAllowedOrigin(const std::string &origin) const
     }
     return false;
   }
+}
+
+bool Configuration::isInvalidWtdSuspicious() const
+{
+  READ_LOCK;
+
+  return isInvalidWtdSuspicious_;
 }
 
 bool Configuration::servePrivateResourcesToBots() const
@@ -1268,6 +1276,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   cspDebugEndpoint_ = singleChildElementValue(app, "csp-debug-endpoint", cspDebugEndpoint_);
 
   setBoolean(app, "x-frame-same-origin", useXFrameSameOrigin_);
+  setBoolean(app, "is-invalid-wtd-suspicious", isInvalidWtdSuspicious_);
   setBoolean(app, "serve-private-resources-to-bots", servePrivateResourcesToBots_);
 
   std::string botResourcesPathVal

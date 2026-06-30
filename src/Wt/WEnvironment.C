@@ -491,6 +491,12 @@ const std::string WEnvironment::headerValue(const std::string& name) const
   return session_->getCgiHeader(name);
 }
 
+bool WEnvironment::treatLikeBot() const
+{
+  Configuration& conf = session_->controller()->configuration();
+  return agentIsSpiderBot() || (conf.isInvalidWtdSuspicious() && isLikelyBotGetRequest());
+}
+
 std::string WEnvironment::getCgiValue(const std::string& varName) const
 {
   if (varName == "QUERY_STRING")

@@ -475,7 +475,7 @@ public:
    *
    * \sa agentIsSpiderBot(), isLikelyBotGetRequest()
    */
-  bool treatLikeBot() const { return agentIsSpiderBot() || isLikelyBotGetRequest(); }
+  bool treatLikeBot() const;
 
   /*! \brief Returns the web server signature.
    *

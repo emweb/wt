@@ -605,7 +605,11 @@ appRoot=C:\Program Files\MyApplications\AppRoot
       debugging) or simply refresh (using WApplication::refresh()) the
       current session ? This setting may have implications for the URL
       that is displayed, because session information in needed in the
-      URL to handle the reload within the current session.</dd>
+      URL to handle the reload within the current session.
+
+      When setting this option to false, we recommand setting
+      <code>is-invalid-wtd-suspicious</code> to false as well.
+    </dd>
 
     <dt><strong>timeout</strong></dt>
 
@@ -1051,6 +1055,26 @@ appRoot=C:\Program Files\MyApplications\AppRoot
 
       Note: you can obtain the CSP reports using
       Http::Request::cspErrors().
+  </dd>
+
+  <dt><strong>is-invalid-wtd-suspicious</strong></dt>
+  <dd>Configure whether requests with invalid WTD are suspicious
+
+      By default, Wt will consider requests with invalid WTD headers
+      suspicious. This means that the request will be treated as a
+      bot request. The page will therefore be served as a plain HTML
+      page, the session will be deleted after serving the page, and
+      no wtd will be present in the response.
+
+      This can however cause issues when disabling the option
+      <code>reload-is-new-session</code> as the wtd will always be
+      present in the url (for non bot sessions). This is problematic
+      when the user bookmarks the page, as the wtd will be present in
+      the url, and when the user uses the bookmark, it will be treated
+      as a bot. This means plain HTML will be served and since the
+      session is deleted after serving the page, any form data
+      changed by the user on the HTML page will be reset when the
+      page is reloaded.
   </dd>
 
   <dt><strong>serve-private-resources-to-bots</strong></dt>
