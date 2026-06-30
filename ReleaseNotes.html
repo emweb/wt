@@ -223,6 +223,13 @@ behaviour.
     sent to the server.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/14593" target="_blank">Issue #14593</a>:
+    added the possibility to configure whether a request with an invalid session ID should be treated
+    like a bot request or not. This can be configured using the <code>is-invalid-wtd-suspicious</code>
+    option in the <code>wt_config.xml</code> file. This is mainly usefull when having the
+    <code>reload-is-new-session</code> option set to <code>false</code>.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/14044" target="_blank">Issue #14044</a>:
     added
     <a href="classWt_1_1Dbo_1_1Session.html#a359aec75ed8947531c2c8f278ee32b3c" target="_blank">Dbo::Session::transactionCount()</a>
