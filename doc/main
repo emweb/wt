@@ -986,10 +986,10 @@ appRoot=C:\Program Files\MyApplications\AppRoot
     <dd>This boolean configuration option configures whether the header
         X-Frame-Option "SAMEORIGIN" is sent when serving the main page
         or the bootstrap.</dd>
-  </dl>
 
   <dt><strong>use-script-nonce</strong></dt>
-  <dd>Configure whether nonces are used for scripts
+  <dd>Configure whether nonces are used for
+      scripts
 
       Setting this to true forces every script HTML tag to have the same nonce as the one given
       in the header of the reply in order to be executed. This nonce is randomly generated for
@@ -1021,8 +1021,7 @@ appRoot=C:\Program Files\MyApplications\AppRoot
       <strong>http-headers</strong> section. Any CSP header put there will be sent over together with the existing
       default CSP header. This means the default one is the baseline, and any policy it dictates is the minimum
       requirement. Only more strict rules the developer provides will be considered valid, and will be caught by the
-      browser.
-  </dd>
+      browser.</dd>
 
   <dt><strong>debug-csp</strong></dt>
   <dd>Configure whether Content Security Policy debugging is enabled
@@ -1058,7 +1057,8 @@ appRoot=C:\Program Files\MyApplications\AppRoot
   </dd>
 
   <dt><strong>is-invalid-wtd-suspicious</strong></dt>
-  <dd>Configure whether requests with invalid WTD are suspicious
+  <dd>Configure whether requests with invalid WTD are
+      suspicious
 
       By default, Wt will consider requests with invalid WTD headers
       suspicious. This means that the request will be treated as a
@@ -1078,7 +1078,8 @@ appRoot=C:\Program Files\MyApplications\AppRoot
   </dd>
 
   <dt><strong>serve-private-resources-to-bots</strong></dt>
-  <dd>Configure whether private resources are served to bots.
+  <dd>Configure whether private resources are served to
+      bots.
 
       Private resources are resources that are tied to a session in
       which it was usually created. Such a resource is deleted when the
@@ -1102,7 +1103,8 @@ appRoot=C:\Program Files\MyApplications\AppRoot
   </dd>
 
   <dt><strong>bot-resources-path</strong></dt>
-  <dd>Configure the path where bot resources are exposed.
+  <dd>Configure the path where bot resources are
+      exposed.
 
       This is the path under which all bot resources are exposed. It is
       only used when <strong>serve-private-resources-to-bots</strong>
@@ -1118,7 +1120,8 @@ appRoot=C:\Program Files\MyApplications\AppRoot
   </dd>
 
   <dt><strong>max-auto-removable-public-resources</strong></dt>
-  <dd>Configure the maximum number of auto-removable resources.
+  <dd>Configure the maximum number of auto-removable
+      resources.
 
       This setting configures the maximum number of auto-removable
       resources that can be public at the same time. When a new
@@ -1131,6 +1134,7 @@ appRoot=C:\Program Files\MyApplications\AppRoot
       By default, the number of auto-removable resources is limited
       to 1000.
   </dd>
+</dl>
 
   \subsection config_wthttpd 10.3 Wt httpd (command-line or configuration file) options
 
