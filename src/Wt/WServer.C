@@ -77,11 +77,13 @@ void WServer::destroy()
 void WServer
 ::setLocalizedStrings(const std::shared_ptr<WLocalizedStrings>& stringResolver)
 {
+  std::unique_lock l(localizedStringsMutex_);
   localizedStrings_ = stringResolver;
 }
 
 std::shared_ptr<WLocalizedStrings> WServer::localizedStrings() const
 {
+  std::shared_lock l(localizedStringsMutex_);
   return localizedStrings_;
 }
 

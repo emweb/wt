@@ -12,6 +12,7 @@
 #include <Wt/WLogger.h>
 
 #include <chrono>
+#include <shared_mutex>
 
 namespace http {
   namespace server {
@@ -747,6 +748,7 @@ private:
   std::string application_, configurationFile_, appRoot_, description_;
   Configuration *configuration_;
   std::shared_ptr<WLocalizedStrings> localizedStrings_;
+  mutable std::shared_mutex localizedStringsMutex_;
 
   bool ownsIOService_;
   WIOService *ioService_;
