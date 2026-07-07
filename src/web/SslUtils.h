@@ -28,7 +28,7 @@ namespace asio = boost::asio;
 namespace Wt {
   namespace Ssl {
     std::vector<Wt::WSslCertificate::DnAttribute>
-    getDnAttributes(struct X509_name_st *sn);
+    getDnAttributes(const struct X509_name_st *sn);
 
     WT_API extern WSslCertificate x509ToWSslCertificate(X509 *x);
 

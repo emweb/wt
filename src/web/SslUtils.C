@@ -57,7 +57,7 @@ void addWindowsCACertificates(asio::ssl::context &ctx) {
 namespace Wt {
   namespace Ssl {
     std::vector<Wt::WSslCertificate::DnAttribute>
-    getDnAttributes(struct X509_name_st *sn)
+    getDnAttributes(const struct X509_name_st *sn)
     {
       std::vector<Wt::WSslCertificate::DnAttribute> retval;
 
@@ -66,9 +66,9 @@ namespace Wt {
 
       int entries = X509_NAME_entry_count(sn);
       for (int i = 0; i < entries; ++i) {
-        X509_NAME_ENTRY *entry = X509_NAME_get_entry(sn, i);
-        ASN1_OBJECT *obj = X509_NAME_ENTRY_get_object(entry);
-        ASN1_STRING *data = X509_NAME_ENTRY_get_data(entry);
+        const X509_NAME_ENTRY *entry = X509_NAME_get_entry(sn, i);
+        const ASN1_OBJECT *obj = X509_NAME_ENTRY_get_object(entry);
+        const ASN1_STRING *data = X509_NAME_ENTRY_get_data(entry);
         int nid = OBJ_obj2nid(obj);
 
         std::string value;
@@ -143,13 +143,13 @@ namespace Wt {
       if (!date)
         return retval;
 
-      switch (date->type) {
+      switch (ASN1_STRING_type(date)) {
       case V_ASN1_UTCTIME:
         {
           // decode asn.1 Universal time string
           // Format further restricted by RFC 3280, section 4.1.2.5.1
-          int len = date->length;
-          const char *v = (const char *)date->data;
+          int len = ASN1_STRING_length(date);
+          const char *v = (const char *)ASN1_STRING_get0_data(date);
           if (len == 13) {
             retval =
               Wt::WDateTime::fromString(std::string(v, v + 12),
@@ -161,8 +161,8 @@ namespace Wt {
         {
           // decode asn.1 Universal time string
           // Format further restricted by RFC 3280, section 4.1.2.5.1
-          int len = date->length;
-          const char *v = (const char *)date->data;
+          int len = ASN1_STRING_length(date);
+          const char *v = (const char *)ASN1_STRING_get0_data(date);
           if (len == 15) {
             retval =
               Wt::WDateTime::fromString(std::string(v, v + 12),
