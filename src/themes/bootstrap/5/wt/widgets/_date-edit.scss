@@ -2,6 +2,7 @@
 .Wt-dateedit.form-control {
   background-image: escape-svg($wt-date-edit-icon);
   background-repeat: no-repeat;
+  /*rtl:ignore*/
   background-position: $wt-date-edit-bg-position;
   background-size: $wt-date-edit-bg-size;
 
@@ -15,6 +16,7 @@
         @include form-validation-state-selector($state) {
           padding-right: $wt-date-edit-feedback-icon-padding-end;
           background-image: escape-svg($wt-date-edit-icon), escape-svg(map-get($data, "icon"));
+          /*rtl:ignore*/
           background-position: $wt-date-edit-bg-position, $wt-date-edit-feedback-icon-position;
           background-size: $wt-date-edit-bg-size, $wt-date-edit-feedback-icon-size;
 

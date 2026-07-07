@@ -104,7 +104,11 @@ std::vector<WLinkedCssStyleSheet> WBootstrap5Theme::styleSheets() const
 
   const std::string themeDir = resourcesUrl();
 
-  result.push_back(WLinkedCssStyleSheet(WLink(themeDir + "main.css")));
+  const std::string cssName = wApp->layoutDirection() == LayoutDirection::RightToLeft
+    ? "main-rtl.css"
+    : "main.css";
+
+  result.push_back(WLinkedCssStyleSheet(WLink(themeDir + cssName)));
 
   return result;
 }

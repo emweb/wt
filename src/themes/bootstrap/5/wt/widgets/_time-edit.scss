@@ -2,6 +2,7 @@
 .Wt-timeedit.form-control {
   background-image: escape-svg($wt-time-edit-icon);
   background-repeat: no-repeat;
+  /*rtl:ignore*/
   background-position: $wt-time-edit-bg-position;
   background-size: $wt-time-edit-bg-size;
 
@@ -15,6 +16,7 @@
         @include form-validation-state-selector($state) {
           padding-right: $wt-time-edit-feedback-icon-padding-end;
           background-image: escape-svg($wt-time-edit-icon), escape-svg(map-get($data, "icon"));
+          /*rtl:ignore*/
           background-position: $wt-time-edit-bg-position, $wt-time-edit-feedback-icon-position;
           background-size: $wt-time-edit-bg-size, $wt-time-edit-feedback-icon-size;
 

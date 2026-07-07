@@ -27,6 +27,9 @@ importers:
       gulp-postcss:
         specifier: ^9.0.1
         version: 9.1.0(postcss@8.5.3)
+      gulp-rename:
+        specifier: ^2.1.0
+        version: 2.1.0
       gulp-sass:
         specifier: ^5.1.0
         version: 5.1.0
@@ -36,6 +39,9 @@ importers:
       postcss:
         specifier: ^8.4.20
         version: 8.5.3
+      rtlcss:
+        specifier: ^4.3.0
+        version: 4.3.0
       sass:
         specifier: ^1.57.1
         version: 1.86.3
@@ -747,6 +753,10 @@ packages:
     deprecated: Republished as 10.0.0 to follow the semver spec
     peerDependencies:
       postcss: ^8.0.0
+
+  gulp-rename@2.1.0:
+    resolution: {integrity: sha512-dGuzuH8jQGqCMqC544IEPhs5+O2l+IkdoSZsgd4kY97M1CxQeI3qrmweQBIrxLBbjbe/8uEWK8HHcNBc3OCy4g==}
+    engines: {node: '>=4'}
 
   gulp-sass@5.1.0:
     resolution: {integrity: sha512-7VT0uaF+VZCmkNBglfe1b34bxn/AfcssquLKVDYnCDJ3xNBaW7cUuI3p3BQmoKcoKFrs9jdzUxyb+u+NGfL4OQ==}
@@ -1527,6 +1537,11 @@ packages:
     resolution: {integrity: sha512-TTlYpa+OL+vMMNG24xSlQGEJ3B/RzEfUlLct7b5G/ytav+wPrplCpVMFuwzXbkecJrb6IYo1iFb0S9v37754mg==}
     engines: {node: '>=0.12'}
 
+  rtlcss@4.3.0:
+    resolution: {integrity: sha512-FI+pHEn7Wc4NqKXMXFM+VAYKEj/mRIcW4h24YVwVtyjI+EqGrLc2Hx/Ny0lrZ21cBWU2goLy36eqMcNj3AQJig==}
+    engines: {node: '>=12.0.0'}
+    hasBin: true
+
   safe-buffer@5.1.2:
     resolution: {integrity: sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==}
 
@@ -1658,6 +1673,10 @@ packages:
   strip-bom@2.0.0:
     resolution: {integrity: sha512-kwrX1y7czp1E69n2ajbG65mIo9dqvJ+8aBQXOGVxqwvNbsXdFM6Lq37dLAY3mknUwru8CfcCbfOLL/gMo+fi3g==}
     engines: {node: '>=0.10.0'}
+
+  strip-json-comments@3.1.1:
+    resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
+    engines: {node: '>=8'}
 
   stylehacks@5.1.1:
     resolution: {integrity: sha512-sBpcd5Hx7G6seo7b1LkpttvTz7ikD0LlH5RmdcBNb6fFR0Fl7LQwHDFr300q4cwUqi+IYrFGmsIHieMBfnN/Bw==}
@@ -2689,6 +2708,8 @@ snapshots:
       - jiti
       - tsx
 
+  gulp-rename@2.1.0: {}
+
   gulp-sass@5.1.0:
     dependencies:
       lodash.clonedeep: 4.5.0
@@ -3477,6 +3498,13 @@ snapshots:
 
   ret@0.1.15: {}
 
+  rtlcss@4.3.0:
+    dependencies:
+      escalade: 3.2.0
+      picocolors: 1.1.1
+      postcss: 8.5.3
+      strip-json-comments: 3.1.1
+
   safe-buffer@5.1.2: {}
 
   safe-buffer@5.2.1: {}
@@ -3621,6 +3649,8 @@ snapshots:
   strip-bom@2.0.0:
     dependencies:
       is-utf8: 0.2.1
+
+  strip-json-comments@3.1.1: {}
 
   stylehacks@5.1.1(postcss@8.5.3):
     dependencies:

@@ -1,3 +1,5 @@
+/*rtl:begin:ignore*/
+
 .Wt-treeview {
   ul {
     padding-left: 20px;
@@ -198,12 +200,12 @@ body.Wt-rtl {
     }
   }
 
-  .Wt-treeview {
+  body.Wt-rtl .Wt-treeview {
     .Wt-end {
       background-image: url(#{$wt-resources-prefix}tv-line-last-dark-rtl.gif);
     }
 
-    body.Wt-rtl .Wt-ctrl {
+    .Wt-ctrl {
       &.expand {
         background-image: url(#{$wt-theme-prefix}nav-plus-dark-rtl.gif);
       }
@@ -218,3 +220,5 @@ body.Wt-rtl {
     }
   }
 }
+
+/*rtl:end:ignore*/
