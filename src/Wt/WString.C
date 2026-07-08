@@ -306,6 +306,7 @@ std::string WString::resolveKey(TextFormat format) const
 {
   LocalizedString result;
   WLocalizedStrings *ls = nullptr;
+  std::shared_ptr<WLocalizedStrings> lssp;
   const WLocale *locale = nullptr;
 
   WApplication *app = WApplication::instance();
@@ -317,7 +318,8 @@ std::string WString::resolveKey(TextFormat format) const
   if (!ls) {
     WServer *server = WServer::instance();
     if (server) {
-      ls = server->localizedStrings().get();
+      lssp = server->localizedStrings();
+      ls = lssp.get();
       locale = &WLocale::currentLocale();
     }
   }
