@@ -20,7 +20,8 @@ void WordWidget::init(const std::string &word)
 
   clear();
   wordLetters_.clear();
-  for (WT_MAYBE_UNUSED const char ch : word_) {
+  const std::size_t wordLength = word_.size();
+  for (std::size_t i = 0; i < wordLength; ++i) {
     auto c = addNew<Wt::WText>("-");
     wordLetters_.push_back(c);
   }
