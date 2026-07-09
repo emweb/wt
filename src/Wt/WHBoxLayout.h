@@ -57,6 +57,11 @@ public:
   /*! \brief Creates a new horizontal box layout.
    */
   WHBoxLayout();
+  void setDirection (LayoutDirection dir) override;
+  LayoutDirection direction(void) override;
+
+private:
+  bool syncDirection_;
 };
 
 }
