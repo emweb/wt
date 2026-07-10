@@ -274,7 +274,7 @@ public:
   }
 };
 
-class UpdateResource : public Wt::WResource {
+class DboUpdateResource : public Wt::WResource {
 public:
   virtual void handleRequest(const Wt::Http::Request &request, Wt::Http::Response &response) {
     int n;
@@ -345,7 +345,7 @@ int main(int argc, char** argv) {
 
     server.addResource(std::make_shared<FortuneResource>(), "/fortune");
 
-    server.addResource(std::make_shared<UpdateResource>(), "/updates");
+    server.addResource(std::make_shared<DboUpdateResource>(), "/updates");
 
     server.addResource(std::make_shared<PlaintextResource>(), "/plaintext");
 
