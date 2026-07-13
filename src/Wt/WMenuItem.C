@@ -109,8 +109,10 @@ void WMenuItem::setContents(std::unique_ptr<WWidget> contents,
   int menuIdx = -1;
   WMenu *menu = menu_;
   std::unique_ptr<WMenuItem> self;
+  bool wasCurrent = false;
   if (menu) {
     menuIdx = menu->indexOf(this);
+    wasCurrent = menu->currentItem() == this;
     self = menu->removeItem(this);
   }
 
@@ -133,6 +135,11 @@ void WMenuItem::setContents(std::unique_ptr<WWidget> contents,
 
   if (menu) {
     menu->insertItem(menuIdx, std::move(self));
+    if (wasCurrent) {
+      // Restore the selection without re-emitting triggered() / itemSelected()
+      menu->setCurrent(menuIdx);
+      menu->select(menuIdx, true);
+    }
   }
 }
 
