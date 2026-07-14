@@ -21,7 +21,7 @@ namespace Wt {
  *
  * Using currentIndex() and setCurrentIndex(int index) you can
  * retrieve or set the visible widget.
- * 
+ *
  * When calling the above `setCurrentIndex(int index)`, this will fire
  * the currentWidgetChanged() signal. This allows developers to know
  * when the current visible widget has changed and what the new visible
@@ -138,11 +138,11 @@ public:
    */
   void setTransitionAnimation(const WAnimation& animation,
                               bool autoReverse = false);
-  
+
   /*! \brief %Signal which indicates that the current widget was changed.
    *
    * This signal is emitted when the current widget was changed. It holds
-   * a pointer to the new current widget. It is emitted every time the 
+   * a pointer to the new current widget. It is emitted every time the
    * setCurrentIndex() or setCurrentWidget() is called.
    */
   Signal<WWidget*>& currentWidgetChanged() {return currentWidgetChanged_;}
@@ -161,11 +161,12 @@ private:
   std::vector<ContentLoading> loadPolicies_;
 
   Signal<WWidget*> currentWidgetChanged_;
-  bool hasEmittedChanged_;
+  bool hasEmittedChanged_, preventEmit_;
 
   void defineJavaScript();
   void loadAnimateJS();
   void setLoadPolicy(int index, ContentLoading loadPolicy);
+  void setPreventEmit(bool preventEmit);
 
 
   friend class WMenu;

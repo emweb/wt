@@ -421,6 +421,8 @@ private:
   void setUnCheckBox();
   void menuItemCheckedPropagate();
   void updateMenuZIndex();
+  void reselect();
+  bool isSelected() const;
   std::string pathComponentFromText() const;
 
   std::unique_ptr<WWidget> takeContentsForStack();

@@ -60,6 +60,7 @@ WMenu::WMenu()
     contentsStack_(nullptr),
     internalPathEnabled_(false),
     emitPathChange_(false),
+    preventEmit_(false),
     parentItem_(nullptr),
     current_(-1),
     previousStackIndex_(-1),
@@ -74,6 +75,7 @@ WMenu::WMenu(WStackedWidget *contentsStack)
     contentsStack_(contentsStack),
     internalPathEnabled_(false),
     emitPathChange_(false),
+    preventEmit_(false),
     parentItem_(nullptr),
     current_(-1),
     previousStackIndex_(-1),
@@ -290,7 +292,7 @@ std::unique_ptr<WMenuItem> WMenu::removeItem(WMenuItem *item)
     if (itemIndex <= current_ && current_ >= 0)
       --current_;
 
-    select(current_, true);
+    select(current_, !preventEmit());
   }
 
   return result;
@@ -357,11 +359,15 @@ void WMenu::select(int index, bool changePath)
     }
 
     if (last != index) {
-      item->triggered().emit(item);
+      if (!preventEmit()) {
+        item->triggered().emit(item);
+      }
       if (self) {
         // item may have been deleted too
         if (ul()->indexOf(item) != -1) {
-          itemSelected_.emit(item);
+          if (!preventEmit()) {
+            itemSelected_.emit(item);
+          }
         } else {
           select(-1);
         }
@@ -402,12 +408,33 @@ void WMenu::selectVisual(int index, bool changePath, bool showContents)
       contentsStack_->setCurrentWidget(contents);
   }
 
-  itemSelectRendered_.emit(item);
+  if (!preventEmit()) {
+    itemSelectRendered_.emit(item);
+  }
 }
 
 void WMenu::renderSelected(WMenuItem *item, bool selected)
 {
   item->renderSelected(selected);
+}
+
+void WMenu::setPreventEmit(bool prevent)
+{
+  preventEmit_ = prevent;
+  if (contentsStack_) {
+    contentsStack_->setPreventEmit(prevent);
+  }
+  if (parentItem_ && parentItem_->parentMenu()) {
+    parentItem_->parentMenu()->setPreventEmit(prevent);
+  }
+}
+
+bool WMenu::preventEmit() const
+{
+  return preventEmit_ ||
+         (parentItem_ &&
+          parentItem_->parentMenu() &&
+          parentItem_->parentMenu()->preventEmit());
 }
 
 void WMenu::setItemHidden(int index, bool hidden)

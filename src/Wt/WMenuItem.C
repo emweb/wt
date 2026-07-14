@@ -106,10 +106,14 @@ WMenuItem::~WMenuItem()
 void WMenuItem::setContents(std::unique_ptr<WWidget> contents,
                             ContentLoading policy)
 {
+  int menuSelectedIndex = -1;
   int menuIdx = -1;
   WMenu *menu = menu_;
   std::unique_ptr<WMenuItem> self;
   if (menu) {
+    menu->setPreventEmit(true);
+    menuSelectedIndex = menu->currentIndex();
+    menu->select(-1, false);
     menuIdx = menu->indexOf(this);
     self = menu->removeItem(this);
   }
@@ -133,6 +137,18 @@ void WMenuItem::setContents(std::unique_ptr<WWidget> contents,
 
   if (menu) {
     menu->insertItem(menuIdx, std::move(self));
+
+    WMenuItem* parentMenuParent = menu->parentItem();
+    menu->setCurrent(menuSelectedIndex);
+
+    if (!parentMenuParent || parentMenuParent->isSelected()) {
+      WMenuItem* currentItem = menu->currentItem();
+      if (currentItem) {
+        currentItem->reselect();
+      }
+    }
+
+    menu->setPreventEmit(false);
   }
 }
 
@@ -721,6 +737,22 @@ void WMenuItem::setItemPadding(bool padding)
     if (a)
       a->toggleStyleClass("Wt-padded", padding);
   }
+}
+
+void WMenuItem::reselect()
+{
+  if (subMenu_ && subMenu_->currentIndex() != -1) {
+    subMenu_->currentItem()->reselect();
+  } else if (menu_) {
+    menu_->select(menu_->indexOf(this), false);
+  }
+}
+
+bool WMenuItem::isSelected() const
+{
+  return menu_ &&
+         menu_->currentItem() == this &&
+         (!menu_->parentItem() || menu_->parentItem()->isSelected());
 }
 
 }

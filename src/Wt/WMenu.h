@@ -654,7 +654,7 @@ protected:
 private:
   WContainerWidget *ul_;
   WStackedWidget *contentsStack_;
-  bool internalPathEnabled_, emitPathChange_;
+  bool internalPathEnabled_, emitPathChange_, preventEmit_;
   std::string basePath_, previousInternalPath_;
   WMenuItem *parentItem_;
 
@@ -673,6 +673,8 @@ private:
   void undoSelectVisual();
   void selectVisual(int item, bool changePath, bool showContents);
   void onItemHidden(int index, bool hidden);
+  void setPreventEmit(bool prevent);
+  bool preventEmit() const;
 
   friend class WMenuItem;
 

@@ -21,7 +21,8 @@ WStackedWidget::WStackedWidget()
     widgetsAdded_(false),
     javaScriptDefined_(false),
     loadAnimateJS_(false),
-    hasEmittedChanged_(false)
+    hasEmittedChanged_(false),
+    preventEmit_(false)
 {
   setOverflow(Overflow::Hidden);
   addStyleClass("Wt-stack");
@@ -69,11 +70,12 @@ std::unique_ptr<WWidget> WStackedWidget::removeWidget(WWidget *widget)
   auto result = WContainerWidget::removeWidget(widget);
   loadPolicies_.erase(loadPolicies_.begin() + index);
 
-  if (currentIndex_ >= count()) {
-    if (count() > 0)
-      setCurrentIndex(count() - 1);
-    else
+  if (currentIndex_ >= index) {
+    if (currentIndex_ > 0) {
+      setCurrentIndex(currentIndex_ - 1);
+    } else if (count() == 0) {
       currentIndex_ = -1;
+    }
   }
 
   return result;
@@ -151,7 +153,9 @@ void WStackedWidget::setCurrentIndex(int index, const WAnimation& animation,
   }
 
   // Only emit if the item has changed, or if emitting has not yet happened.
-  if ((hasChanged || !hasEmittedChanged_) && currentIndex_ >= 0) {
+  if (!preventEmit_ &&
+      (hasChanged || !hasEmittedChanged_) &&
+      currentIndex_ >= 0) {
     if (loadPolicies_[currentIndex_] == ContentLoading::Lazy) {
       // Lazy loaded widgets are wrapped in a WContainerWidget
       WContainerWidget* container = dynamic_cast<WContainerWidget*>(currentWidget());
@@ -243,5 +247,11 @@ void WStackedWidget::setLoadPolicy(int index, ContentLoading loadPolicy)
 {
   loadPolicies_[index] = loadPolicy;
 }
+
+void WStackedWidget::setPreventEmit(bool preventEmit)
+{
+  preventEmit_ = preventEmit;
+}
+
 
 }
