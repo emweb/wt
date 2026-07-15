@@ -1,6 +1,6 @@
 = Introduction to localization in Wt
 
-For Wt 4.12.0
+For Wt 4.14.0
 
 :doc: link:../reference/html/
 :tutorials: link:./
