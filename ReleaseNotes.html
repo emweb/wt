@@ -20,11 +20,17 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.14.0 (TBD)</h2>
+<h2>Release 4.14.0 (July 15, 2026)</h2>
 
-<p>
-  A new tutorial on how localization works in Wt is now available <a href="../../tutorial/localization.html">here</a>.
-</p>
+<p>Notable changes:</p>
+<ul>
+  <li>
+    Wt stops supporting being build with C++14. The minimum required C++ standard to build Wt is now C++17.
+  </li>
+  <li>
+    A new tutorial on how localization works in Wt is now available <a href="../../tutorial/localization.html" target="_blank">here</a>.
+  </li>
+</ul>
 
 <p>Wt 4.14.0 is a major release that introduces the following new features:</p>
 
@@ -49,13 +55,6 @@ behaviour.
     <a href="classWt_1_1WEnvironment.html#a9f77d68ae27a0ff1f22a6d3aefe07185" target="_blank">WEnvironment::preferredColorScheme()</a>.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/14571" target="_blank">Issue #14571</a>:
-    added
-    <a href="classWt_1_1WTableView.html#a758e93e27af525ca489557bccf459da2" target="_blank">WTableView::incomingIndex()</a>
-    which allows to retrieve the index of the next cell that is not yet fully visible in the viewport
-    in the direction of the given corner.
-  </li>
-  <li>
     <a href="https://redmine.emweb.be/issues/14047" target="_blank">Issue #14047</a>:
     added the possibility to define an endpoint to which Content Security Policy (CSP) violation reports are sent by the browser.
     This can be configured using the <code>debug-csp</code> and <code>csp-debug-endpoint</code> configuration options in the
@@ -67,15 +66,7 @@ behaviour.
     violation reports. This new
     <a href="classWt_1_1WResource.html" target="_blank">WResource</a> can be used to log CSP violations
     reported by the browser. You can also create your own
-    <a href="classWt_1_1WResource.html" target="_blank">WResource</a> to handle the reports, as it is possible to obtain those
-    CSP violation reports using
-    <a href="classWt_1_1Http_1_1Request.html#a79d14f9abe02bdbf1106bb73973f0565" target="_blank">Http::Request::cspErrors()</a>.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14493" target="_blank">Issue #14493</a>:
-    allowed to ignore bubbling
-    <a href="classWt_1_1WEventSignal.html" target="_blank">WEventSignal</a> using
-    <a href="classWt_1_1WEventSignal.html#a493ddaa7a9332c7880f6e005c2a0b9cb" target="_blank">WEventSignal::ignoreBubbling()</a>.
+    <a href="classWt_1_1WResource.html" target="_blank">WResource</a> to handle the reports.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14494" target="_blank">Issue #14494</a>:
@@ -87,9 +78,27 @@ behaviour.
     <a href="classWt_1_1WPushButton.html" target="_blank">WPushButton</a>.
 
     Additionally, changed
-    <a href="classWt_1_1WWidget.html#a2d627cbf964560995ac51c25d69d8b54" target="_blank">WWidget::positionAt()</a>
+    <a href="classWt_1_1WWidget.html#af0df90fe8bbcb42dd057f8c1f1835b49" target="_blank">WWidget::positionAt()</a>
     to use CSS position-anchor, when available, to avoid the need reparent the popup widgets while still allowing
     them to keep the correct position when the anchor widget is moved due to scrolling.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14213" target="_blank">Issue #14213</a>:
+    Added
+    <a href="classWt_1_1Dbo_1_1Query.html#ad95a5bc43cf4f8484574496d42db7738" target="_blank">Wt::Dbo::Query::with()</a>.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/993" target="_blank">Issue #993</a>:
+    Add the
+    <a href="classWt_1_1Dbo_1_1NotificationListener.html" target="_blank">Dbo::NotificationListener</a>, which allows to send and receive notifications through a database.
+    This is currently only implemented for PostgreSQL, but can be implemented for other Dbo by making a custom implementation of the following functions:
+    <ul>
+      <li><a href="classWt_1_1Dbo_1_1SqlConnection.html#ab5008c26e355303c276ad847fa9af4a0" target="_blank">Dbo::SqlConnection::subscribe()</a></li>
+      <li><a href="classWt_1_1Dbo_1_1SqlConnection.html#a1f6d207b50a5b0ed88fa21bb5945dc1a" target="_blank">Dbo::SqlConnection::notify()</a></li>
+      <li><a href="classWt_1_1Dbo_1_1SqlConnection.html#ab324381df8db923d165bea8b7afa5532" target="_blank">Dbo::SqlConnection::getNextNotify()</a></li>
+      <li><a href="classWt_1_1Dbo_1_1SqlConnection.html#a0f76caf1e8b8ba6e21fdbf64f2c6a1c5" target="_blank">Dbo::SqlConnection::setupNotify()</a></li>
+      <li><a href="classWt_1_1Dbo_1_1SqlConnection.html#adb0aee2ce0f35ae4f268e1bceb376b9f" target="_blank">Dbo::SqlConnection::stopListen()</a></li>
+    </ul>
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/13499" target="_blank">Issue #13499</a>:
@@ -117,46 +126,31 @@ behaviour.
     be used to retrieve the value of cookies with the corresponding prefix from the user's browser.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/14571" target="_blank">Issue #14571</a>:
+    added
+    <a href="classWt_1_1WTableView.html#a758e93e27af525ca489557bccf459da2" target="_blank">WTableView::incomingIndex()</a>
+    which allows to retrieve the index of the next cell that is not yet fully visible in the viewport
+    in the direction of the given corner.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13787" target="_blank">Issue #13787</a>:
     added
-    <a href="classWt_1_1WTableView.html#a758e93e27af525ca489557bccf459da2" target="_blank">WTableView::visibleRowCount()</a>
+    <a href="classWt_1_1WTableView.html#a606039eb8b7d3e399bdb8024787c1fb8" target="_blank">WTableView::visibleRowCount()</a>
     and
-    <a href="classWt_1_1WTableView.html#a758e93e27af525ca489557bccf459da2" target="_blank">WTableView::visibleColumnCount()</a>
+    <a href="classWt_1_1WTableView.html#adee027fcac266b887c6908e368a68a0b" target="_blank">WTableView::visibleColumnCount()</a>
     which allow to retrieve the number of fully visible rows and columns.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/993" target="_blank">Issue #993</a>:
-    Add the
-    <a href="classWt_1_1Dbo_1_1NotificationListener.html" target="_blank">Dbo::NotificationListener</a>, which allows to send and receive notifications through a database. Those notifications trigger signals that can be accessed with
-    <a href="classWt_1_1Dbo_1_1NotificationListener.html#af032bf13ae89b48c126aaa3c8487812a" target="_blank">Dbo::NotificationListener::notified()</a>. This is currently only implemented for PostgreSQL, but can be implemented for other Dbo by making a custom implementation of the following functions:
-    <ul>
-      <li><a href="classWt_1_1Dbo_1_1SqlConnection.html#a293e4a49c0224dc512817d20a6c2b882" target="_blank">Dbo::SqlConnection::sendSubscription()</a></li>
-      <li><a href="classWt_1_1Dbo_1_1SqlConnection.html#a1f6d207b50a5b0ed88fa21bb5945dc1a" target="_blank">Dbo::SqlConnection::notify()</a></li>
-      <li><a href="classWt_1_1Dbo_1_1SqlConnection.html#ab324381df8db923d165bea8b7afa5532" target="_blank">Dbo::SqlConnection::getNextNotify()</a></li>
-      <li><a href="classWt_1_1Dbo_1_1SqlConnection.html#a0f76caf1e8b8ba6e21fdbf64f2c6a1c5" target="_blank">Dbo::SqlConnection::setupNotify()</a></li>
-      <li><a href="classWt_1_1Dbo_1_1SqlConnection.html#adb0aee2ce0f35ae4f268e1bceb376b9f" target="_blank">Dbo::SqlConnection::stopListen()</a></li>
-    </ul>
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14213" target="_blank">Issue #14213</a>:
-    Added
-    <a href="classWt_1_1Dbo_1_1Query.html#ad95a5bc43cf4f8484574496d42db7738" target="_blank">Wt::Dbo::Query::with()</a>.
+    <a href="https://redmine.emweb.be/issues/14493" target="_blank">Issue #14493</a>:
+    allowed to ignore bubbling
+    <a href="classWt_1_1EventSignal.html" target="_blank">EventSignal</a> using
+    <a href="classWt_1_1EventSignalBase.html#a493ddaa7a9332c7880f6e005c2a0b9cb" target="_blank">EventSignal::ignoreBubbling()</a>.
   </li>
 </ul>
 
 <p>Wt 4.14.0 also fixes the following bugs:</p>
 
 <ul>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14497" target="_blank">Issue #14497</a>:
-    fixed compilation errors when compiling Wt with C++26.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14603" target="_blank">Issue #14603</a>:
-    fixed
-    <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a> internal path matching considering
-    prefix matches as valid even when they did not end on a path segment boundary.
-  </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14476" target="_blank">Issue #14476</a>:
     fixed non-modal
@@ -165,13 +159,23 @@ behaviour.
     <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> to receive any event.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/14654" target="_blank">Issue #14654</a>:
-    fixed compile errors happening when using OpenSSL 4.
+    <a href="https://redmine.emweb.be/issues/14603" target="_blank">Issue #14603</a>:
+    fixed
+    <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a> internal path matching considering
+    prefix matches as valid even when they did not end on a path segment boundary.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/3824" target="_blank">Issue #3824</a>:
     resolved a concurrent usage of <a href="classWt_1_1WServer.html#ae8dbb9cc4e418517ee0568a0dd1df182" target="_blank">WServer::localizedStrings()</a>.
     This was achieved by making items inside <a href="classWt_1_1WMessageResourceBundle.html" target="_blank">WMessageResourceBundle</a> (namely <code>WMessageResources</code>) thread-safe.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14654" target="_blank">Issue #14654</a>:
+    fixed compile errors happening when using OpenSSL 4.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14497" target="_blank">Issue #14497</a>:
+    fixed compilation errors when compiling Wt with C++26.
   </li>
 </ul>
 
@@ -186,19 +190,10 @@ behaviour.
 
     Additionally,
     <a href="classWt_1_1WBootstrap5Theme.html" target="_blank">WBootstrap5Theme</a> will now use the RTL version of Bootstrap 5 CSS when
-    <a href="classWt_1_1WApplication.html#a44c5f0398b5539269be3961b26e95b08">WApplication::setLayoutDirection()</a> is used to set the
+    <a href="classWt_1_1WApplication.html#a44c5f0398b5539269be3961b26e95b08" target="_blank">WApplication::setLayoutDirection()</a> is used to set the
     layout direction to <code>LayoutDirection::RightToLeft</code>.
 
     With those changes also comes several bug fixes and improvements related to RTL support.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/13666" target="_blank">Issue #13666</a>:
-    bumped the minimum required C++ standard to build Wt to C++17. This means that all uses of <code>WT_CXX17</code> and
-    <code>WT_CXX17ONLY</code> were removed in Wt's source code. <code>WT_CXX17</code> is now always defined, since Wt requires
-    C++17.
-
-    Additionnaly <code>Wt::cpp17::any</code> is now marked as deprecated, since this only existed because C++14
-    lacked <code>std::any</code>.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14479" target="_blank">Issue #14479</a>:
@@ -211,11 +206,11 @@ behaviour.
     to compress any MIME type that are not audio, image, or video.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/12464" target="_blank">Issue #12464</a>:
-    added the possibility to specify the MIME type when calling
-    <a href="classWt_1_1WStreamResource.html#a6397570c842aa542bb195b6b31c2dab6" target="_blank">WStreamResource::handleRequestPiecewise()</a>,
-    allowing to override the MIME type set by
-    <a href="classWt_1_1WStreamResource.html#aa25f97d38747be9451336422029bbde5" target="_blank">WStreamResource::setMimeType()</a>.
+    <a href="https://redmine.emweb.be/issues/14468" target="_blank">Issue #14468</a>:
+    added the possibility to know the visibility state of the application using the new
+    <a href="classWt_1_1WApplication.html#a4e71102a866d0658a4aaecba80ceeae9" target="_blank">WApplication::visibilityState()</a>, and
+    to be notified when it changes using the new
+    <a href="classWt_1_1WApplication.html#af34126f4f6f2b93c98bb99da2507dc22" target="_blank">WApplication::visibilityChanged()</a> signal.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14584" target="_blank">Issue #14584</a>:
@@ -227,11 +222,8 @@ behaviour.
     <a href="classWt_1_1Chart_1_1WPieChart.html#a1976f7ba7c6f4edd5872ba7034f3cfed" target="_blank">WPieChart::setLabelTextColor()</a>.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/14468" target="_blank">Issue #14468</a>:
-    added the possibility to know the visibility state of the application using the new
-    <a href="classWt_1_1WApplication.html#a4e71102a866d0658a4aaecba80ceeae9" target="_blank">WApplication::visibilityState()</a>, and
-    to be notified when it changes using the new
-    <a href="classWt_1_1WApplication.html#af34126f4f6f2b93c98bb99da2507dc22" target="_blank">WApplication::visibilityChanged()</a> signal.
+    <a href="https://redmine.emweb.be/issues/14550" target="_blank">Issue #14550</a>:
+    reduced the amount of duplicated JavaScript code generated for signals.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14462" target="_blank">Issue #14462</a>:
@@ -243,7 +235,7 @@ behaviour.
   <li>
     <a href="https://redmine.emweb.be/issues/13825" target="_blank">Issue #13825</a>:
     it is now possible to remove or update polylines and circles on a
-    <a href="classWt_1_1WLeafletMap.html">WLeafletMap</a>.
+    <a href="classWt_1_1WLeafletMap.html" target="_blank">WLeafletMap</a>.
     To make this possible, those elements are now represented by the classes
     <a href="classWt_1_1WLeafletMap_1_1Polyline.html" target="_blank">WLeafletMap::Polyline</a>
     and
@@ -258,11 +250,36 @@ behaviour.
     <a href="classWt_1_1WLeafletMap.html#abf1195588199c9cb0d429b3e95934fb8" target="_blank">WLeafletMap::removeCircle()</a>.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/13856" target="_blank">Issue #13856</a>:
+    added the possibility to change whether widgets are rendered using native controls
+    by default. This can be done using the new function
+    <a href="classWt_1_1WWebWidget.html#a2536488d7b48671b3cb3a171c362bcd3" target="_blank">WWebWidget::setDefaultNativeControl()</a>.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/12464" target="_blank">Issue #12464</a>:
+    added the possibility to specify the MIME type when calling
+    <a href="classWt_1_1WStreamResource.html#a6397570c842aa542bb195b6b31c2dab6" target="_blank">WStreamResource::handleRequestPiecewise()</a>,
+    allowing to override the MIME type set by
+    <a href="classWt_1_1WStreamResource.html#aa25f97d38747be9451336422029bbde5" target="_blank">WStreamResource::setMimeType()</a>.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/14593" target="_blank">Issue #14593</a>:
     added the possibility to configure whether a request with an invalid session ID should be treated
     like a bot request or not. This can be configured using the <code>is-invalid-wtd-suspicious</code>
     option in the <code>wt_config.xml</code> file. This is mainly usefull when having the
     <code>reload-is-new-session</code> option set to <code>false</code>.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14557" target="_blank">Issue #14557</a>:
+    stopped required scripts loading failure from stopping the application from the client side, making it impossible to
+    recover from such failure. Instead, more detail will be logged about the failure so that developers can decide how to handle it.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14074" target="_blank">Issue #14074</a>:
+    added the possibility to ignore the current local when using
+    <a href="classWt_1_1WDate.html#a899adee8d72161fa6bb08509a5e10ec0" target="_blank">WDate::fromString()</a>
+    or
+    <a href="classWt_1_1WDateTime.html#a403de3403bdce0885999d28fc53fdfcf" target="_blank">WDateTime::fromString()</a>.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14044" target="_blank">Issue #14044</a>:
@@ -273,17 +290,6 @@ behaviour.
     for the <a href="classWt_1_1Dbo_1_1Session.html" target="_blank">Dbo::Session</a>.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/13856" target="_blank">Issue #13856</a>:
-    added the possibility to change whether widgets are rendered using native controls
-    by default. This can be done using the new function
-    <a href="classWt_1_1WWebWidget.html#a2536488d7b48671b3cb3a171c362bcd3" target="_blank">WWebWidget::setDefaultNativeControl()</a>.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14557" target="_blank">Issue #14557</a>:
-    stopped required scripts loading failure from stopping the application from the client side, making it impossible to
-    recover from such failure. Instead, more detail will be logged about the failure so that developers can decide how to handle it.
-  </li>
-  <li>
     <a href="https://redmine.emweb.be/issues/14625" target="_blank">Issue #14625</a>:
     added the possibility to use a custom random number generator for Wt using
     <a href="classWt_1_1WRandom.html#ae641c67f8897a8f4fd1e0701f9aa6a81" target="_blank">WRandom::setGenerator()</a> and
@@ -291,15 +297,13 @@ behaviour.
     This can be used in case the default random number generator does not work correctly on a specific platform.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/14074" target="_blank">Issue #14074</a>:
-    added the possibility to ignore the current local when using
-    <a href="classWt_1_1WDate.html#a899adee8d72161fa6bb08509a5e10ec0" target="_blank">WDate::fromString()</a>
-    or
-    <a href="classWt_1_1WDateTime.html#a403de3403bdce0885999d28fc53fdfcf" target="_blank">WDateTime::fromString()</a>.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14550" target="_blank">Issue #14550</a>:
-    reduced the amount of duplicated JavaScript code generated for signals.
+    <a href="https://redmine.emweb.be/issues/13666" target="_blank">Issue #13666</a>:
+    bumped the minimum required C++ standard to build Wt to C++17. This means that all uses of <code>WT_CXX17</code> and
+    <code>WT_CXX17ONLY</code> were removed in Wt's source code. <code>WT_CXX17</code> is now always defined, since Wt requires
+    C++17.
+
+    Additionnaly <code>Wt::cpp17::any</code> is now marked as deprecated, since this only existed because C++14
+    lacked <code>std::any</code>.
   </li>
 </ul>
 
