@@ -162,7 +162,7 @@ public:
    *
    * \sa isNull(), WDate(int, int, int), setDate()
    */
-  bool isValid() const { return ymd_ > 1; }
+  bool isValid() const { return ymd_ != 0 && ymd_ != 1; }
 
   /*! \brief Returns the year.
    *
@@ -459,7 +459,7 @@ public:
   static RegExpInfo formatToRegExp(const WT_USTRING& format);
 
 private:
-  unsigned ymd_;
+  int ymd_;
 
   void setYmd(int year, int month, int day);
 

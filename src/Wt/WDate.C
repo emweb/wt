@@ -124,7 +124,10 @@ void WDate::setDate(int year, int month, int day)
 
 void WDate::setYmd(int y, int m, int d)
 {
-  ymd_ = (y << 16) | ((m & 0xFF) << 8) | (d & 0xFF);
+  ymd_ = static_cast<int>(
+      (static_cast<unsigned>(y) << 16) |
+      ((static_cast<unsigned>(m) & 0xFF) << 8) |
+       (static_cast<unsigned>(d) & 0xFF));
 }
 
 bool WDate::isLeapYear(int year)
