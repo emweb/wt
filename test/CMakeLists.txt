@@ -167,6 +167,43 @@ IF(ENABLE_LIBWTTEST)
     target_link_libraries(test.wt PRIVATE ${OPENSSL_LIBRARIES})
   endif()
 
+  # The temporary-file hooks getTempDir() and createTempFileName() are declared
+  # weak in FileUtils.C so applications can replace them at link time. A strong
+  # override applies to the *whole* binary, so these override tests must not be
+  # linked into test.wt or test.http: that would silently replace the hook for
+  # every other test in that binary -- including the security-sensitive http
+  # tests -- with a copy that can drift from the real implementation.
+  #
+  # Each hook therefore gets its own dedicated executable that overrides only
+  # that hook and exercises the real library implementation of the other one
+  # (the getTempDir test relies on the library's createTempFileName() picking up
+  # the replaced getTempDir(), which also proves runtime interposition in shared
+  # builds). The hooks are only weak with GNU-compatible compilers on non-Windows
+  # platforms; elsewhere the definition stays strong and cannot be replaced, so
+  # the tests are not built.
+  if(NOT WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_executable(test.fileutils-temp-dir-override
+      test.C
+      utils/GetTempDirOverrideTest.C
+    )
+    add_executable(test.fileutils-create-temp-override
+      test.C
+      utils/CreateTempFileNameOverrideTest.C
+    )
+    foreach(fileutils_override_test
+        test.fileutils-temp-dir-override
+        test.fileutils-create-temp-override)
+      target_link_libraries(${fileutils_override_test}
+        PRIVATE wt wttest ${BOOST_TEST_LIBRARIES} ${BOOST_FS_LIB} ${WT_THREAD_LIB})
+      if(TARGET Boost::headers)
+        target_link_libraries(${fileutils_override_test} PRIVATE Boost::headers)
+      endif()
+      if(WT_WITH_SSL)
+        target_link_libraries(${fileutils_override_test} PRIVATE ${OPENSSL_LIBRARIES})
+      endif()
+    endforeach()
+  endif()
+
   IF(ENABLE_LIBWTDBO)
     # Test all dbo backends
     SET(DBO_TEST_SOURCES

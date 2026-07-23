@@ -119,6 +119,14 @@ pipeline {
                     warnError('st test.wt failed') {
                         sh "../build-st/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_test_log.xml"
                     }
+                    // Weakly-replaceable temporary-file hooks: each override test
+                    // has its own binary so it never replaces the hook for test.wt.
+                    warnError('st test.fileutils-temp-dir-override failed') {
+                        sh "../build-st/test/test.fileutils-temp-dir-override --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_fileutils_temp_dir_test_log.xml"
+                    }
+                    warnError('st test.fileutils-create-temp-override failed') {
+                        sh "../build-st/test/test.fileutils-create-temp-override --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_fileutils_create_temp_test_log.xml"
+                    }
                 }
             }
         }
@@ -132,6 +140,12 @@ pipeline {
                 dir('test') {
                     warnError('mt test.wt failed') {
                         sh "../build-mt/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_test_log.xml"
+                    }
+                    warnError('mt test.fileutils-temp-dir-override failed') {
+                        sh "../build-mt/test/test.fileutils-temp-dir-override --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_fileutils_temp_dir_test_log.xml"
+                    }
+                    warnError('mt test.fileutils-create-temp-override failed') {
+                        sh "../build-mt/test/test.fileutils-create-temp-override --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_fileutils_create_temp_test_log.xml"
                     }
                 }
             }

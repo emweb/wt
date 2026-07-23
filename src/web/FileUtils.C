@@ -26,6 +26,16 @@
 
 #include <fstream>
 
+// The weak attribute is a compiler extension rather than a platform feature:
+// GCC, Clang, and compatible compilers define __GNUC__ and support it on any
+// non-Windows target. Other compilers keep a strong definition, so the
+// functions are simply not replaceable there.
+#if !defined(WT_WIN32) && defined(__GNUC__)
+#define WT_WEAK __attribute__((weak))
+#else
+#define WT_WEAK
+#endif
+
 namespace Wt {
   LOGGER("FileUtils");
 
@@ -121,6 +131,7 @@ namespace Wt {
       }
     }
 
+    WT_WEAK
     std::string getTempDir()
     {
       std::string tempDir;
@@ -141,7 +152,8 @@ namespace Wt {
       return tempDir;
     }
 
-    extern std::string createTempFileName()
+    WT_WEAK
+    std::string createTempFileName()
     {
       std::string tempDir = getTempDir();
 

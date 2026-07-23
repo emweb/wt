@@ -94,6 +94,14 @@ pipeline {
                 warnError('test.wt failed') {
                   sh "../build-${env.OS}/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/wt_${env.OS}_test_log.xml"
                 }
+                // Weakly-replaceable temporary-file hooks: each override test has
+                // its own binary so it never replaces the hook for test.wt.
+                warnError('test.fileutils-temp-dir-override failed') {
+                  sh "../build-${env.OS}/test/test.fileutils-temp-dir-override --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/fileutils_temp_dir_${env.OS}_test_log.xml"
+                }
+                warnError('test.fileutils-create-temp-override failed') {
+                  sh "../build-${env.OS}/test/test.fileutils-create-temp-override --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/fileutils_create_temp_${env.OS}_test_log.xml"
+                }
               }
             }
           }

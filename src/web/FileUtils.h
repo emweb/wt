@@ -31,6 +31,8 @@ namespace Wt {
     extern std::string leaf(const std::string &file);
 
 
+    extern WT_API std::string getTempDir();
+
     // Returns a filename that can be used as temporary file
     extern WT_API std::string createTempFileName();
 

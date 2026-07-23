@@ -203,6 +203,14 @@ pipeline {
                             warnError('st test.wt failed') {
                                 sh "../build-st/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_test_log.xml"
                             }
+                            // The temporary-file hooks are weakly replaceable; their override tests
+                            // live in dedicated binaries so they never replace the hook for test.wt.
+                            warnError('st test.fileutils-temp-dir-override failed') {
+                                sh "../build-st/test/test.fileutils-temp-dir-override --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_fileutils_temp_dir_test_log.xml"
+                            }
+                            warnError('st test.fileutils-create-temp-override failed') {
+                                sh "../build-st/test/test.fileutils-create-temp-override --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_fileutils_create_temp_test_log.xml"
+                            }
                             // No st test.http - this requires multi threading
                             warnError('st thirdpartytest.wt failed') {
                                 sh "../build-st/test/thirdpartytest.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/st_thirdparty_test_log.xml"
@@ -211,6 +219,12 @@ pipeline {
                         dir('test') {
                             warnError('mt test.wt failed') {
                                 sh "../build-mt/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_test_log.xml"
+                            }
+                            warnError('mt test.fileutils-temp-dir-override failed') {
+                                sh "../build-mt/test/test.fileutils-temp-dir-override --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_fileutils_temp_dir_test_log.xml"
+                            }
+                            warnError('mt test.fileutils-create-temp-override failed') {
+                                sh "../build-mt/test/test.fileutils-create-temp-override --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_fileutils_create_temp_test_log.xml"
                             }
                             warnError('mt test.http failed') {
                                 sh "../build-mt/test/test.http --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/mt_http_test_log.xml"

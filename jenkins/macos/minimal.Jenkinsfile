@@ -84,6 +84,14 @@ pipeline {
                 warnError('test.wt failed') {
                   sh "../build-shared-${env.SHARED_LIBS}/test/test.wt --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/wt_shared_${env.SHARED_LIBS}_test_log.xml"
                 }
+                // Weakly-replaceable temporary-file hooks: each override test has
+                // its own binary so it never replaces the hook for test.wt.
+                warnError('test.fileutils-temp-dir-override failed') {
+                  sh "../build-shared-${env.SHARED_LIBS}/test/test.fileutils-temp-dir-override --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/fileutils_temp_dir_shared_${env.SHARED_LIBS}_test_log.xml"
+                }
+                warnError('test.fileutils-create-temp-override failed') {
+                  sh "../build-shared-${env.SHARED_LIBS}/test/test.fileutils-create-temp-override --log_format=JUNIT --log_level=all --log_sink=${env.WORKSPACE}/fileutils_create_temp_shared_${env.SHARED_LIBS}_test_log.xml"
+                }
               }
             }
           }
