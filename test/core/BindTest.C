@@ -8,27 +8,29 @@
 
 #include <Wt/WObject.h>
 
-class MyObject : public Wt::WObject
-{
-public:
-  MyObject() { }
+namespace {
+  class MyObject : public Wt::WObject
+  {
+  public:
+    MyObject() { }
 
-  void foo() { 
-    result = 1;
-  }
+    void foo() {
+      result = 1;
+    }
 
-  void fooc() const { 
-    result = 1;
-  }
+    void fooc() const {
+      result = 1;
+    }
 
-  void bar(int v) { 
-    result = v;
-  }
+    void bar(int v) {
+      result = v;
+    }
 
-  static int result;
-};
+    static int result;
+  };
 
-int MyObject::result = 0;
+  int MyObject::result = 0;
+}
 
 BOOST_AUTO_TEST_CASE( test_bind1 )
 {
