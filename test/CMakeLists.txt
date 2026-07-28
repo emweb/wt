@@ -106,6 +106,7 @@ IF(ENABLE_LIBWTTEST)
   if (MULTI_THREADED)
     # Add tests that require multi-threading.
     set(TEST_SOURCES ${TEST_SOURCES}
+      core/BindStressTest.C
       http/HttpClientTest.C
       testenvironment/TestEnvironmentTest.C
     )
