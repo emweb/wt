@@ -6,15 +6,25 @@
 
 #include "DomElement.h"
 
+#include "Wt/WApplication.h"
 #include "Wt/WPasswordEdit.h"
 #include "Wt/WPasswordValidator.h"
+
+#ifndef WT_DEBUG_JS
+#include "js/WPasswordEdit.min.js"
+#endif
 
 namespace Wt {
 
 WPasswordEdit::WPasswordEdit()
   : WLineEdit(),
     nativeControl_(false),
-    textVisible_(false)
+    textVisible_(false),
+    revealButtonEnabled_(false),
+    javaScriptDefined_(false),
+    textVisibilityChangedUsed_(false),
+    textVisibilityChangedUsedRendered_(false),
+    textVisibilityChanged_(this, "textVisibility")
 {
   init();
 }
@@ -22,7 +32,12 @@ WPasswordEdit::WPasswordEdit()
 WPasswordEdit::WPasswordEdit(const WT_USTRING& content)
   : WLineEdit(content),
     nativeControl_(false),
-    textVisible_(false)
+    textVisible_(false),
+    revealButtonEnabled_(false),
+    javaScriptDefined_(false),
+    textVisibilityChangedUsed_(false),
+    textVisibilityChangedUsedRendered_(false),
+    textVisibilityChanged_(this, "textVisibility")
 {
   init();
 }
@@ -33,6 +48,12 @@ void WPasswordEdit::init()
   WLineEdit::setValidator(std::make_shared<WStackedValidator>());
   stackedValidator()->addValidator(pwdValidator_);
   setNativeControl(WWebWidget::defaultNativeControl());
+  textVisibilityChanged_.connect(this, &WPasswordEdit::handleTextVisibilityChanged);
+}
+
+void WPasswordEdit::handleTextVisibilityChanged(bool visible)
+{
+  textVisible_ = visible;
 }
 
 void WPasswordEdit::setNativeControl(bool nativeControl)
@@ -58,6 +79,24 @@ void WPasswordEdit::setTextVisible(bool visible)
     flags_.set(BIT_TEXT_VISIBLE_CHANGED);
     repaint();
   }
+}
+
+void WPasswordEdit::setRevealButtonEnabled(bool enabled)
+{
+  if (enabled != revealButtonEnabled_) {
+    revealButtonEnabled_ = enabled;
+    toggleStyleClass("Wt-passwordedit-reveal", enabled);
+  }
+}
+
+JSignal<bool>& WPasswordEdit::textVisibilityChanged()
+{
+  if (!textVisibilityChangedUsed_) {
+    textVisibilityChangedUsed_ = true;
+    repaint();
+  }
+
+  return textVisibilityChanged_;
 }
 
 void WPasswordEdit::setMinLength(int length)
@@ -184,6 +223,54 @@ void WPasswordEdit::updateDom(DomElement& element, bool all)
   flags_.reset(BIT_TEXT_VISIBLE_CHANGED);
 
   WLineEdit::updateDom(element, all);
+}
+
+void WPasswordEdit::render(WFlags<RenderFlag> flags)
+{
+  if (revealButtonEnabled_ && !javaScriptDefined_)
+    defineJavaScript();
+  else if (javaScriptDefined_ &&
+           textVisibilityChangedUsed_ != textVisibilityChangedUsedRendered_) {
+    doJavaScript(jsRef() + ".wtPObj.setTextVisibilityChangedConnected(" +
+                 (textVisibilityChangedUsed_ ? "true" : "false") + ");");
+    textVisibilityChangedUsedRendered_ = textVisibilityChangedUsed_;
+  }
+
+  WLineEdit::render(flags);
+}
+
+void WPasswordEdit::defineJavaScript()
+{
+  javaScriptDefined_ = true;
+  WApplication *app = WApplication::instance();
+
+  LOAD_JAVASCRIPT(app, "js/WPasswordEdit.js", "WPasswordEdit", wtjs1);
+
+  setJavaScriptMember(" WPasswordEdit", "new " WT_CLASS ".WPasswordEdit("
+                      + app->javaScriptClass() + "," + jsRef() + "," +
+                      (textVisibilityChangedUsed_ ? "true" : "false") + ");");
+  textVisibilityChangedUsedRendered_ = textVisibilityChangedUsed_;
+
+#ifdef WT_CNOR
+  EventSignalBase& b = mouseMoved();
+#endif
+
+  connectJavaScript(mouseMoved(), "mouseMove");
+  connectJavaScript(mouseWentUp(), "mouseUp");
+  connectJavaScript(mouseWentDown(), "mouseDown");
+  connectJavaScript(mouseWentOut(), "mouseOut");
+}
+
+void WPasswordEdit::connectJavaScript(Wt::EventSignalBase& s,
+                                      const std::string& methodName)
+{
+  std::string jsFunction =
+    "function(pobj, event) {"
+    """var o = " + jsRef() + ";"
+    """if (o && o.wtPObj) o.wtPObj." + methodName + "(pobj, event);"
+    "}";
+
+  s.connect(jsFunction);
 }
 
 }

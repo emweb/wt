@@ -141,6 +141,78 @@ BOOST_AUTO_TEST_CASE( password_edit_text_visible_keeps_validation )
   BOOST_REQUIRE(edit->validate() != Wt::ValidationState::Valid);
 }
 
+BOOST_AUTO_TEST_CASE( password_edit_reveal_button_style_class )
+{
+  // Tests that enabling the reveal button toggles the style class that
+  // themes use to show the button
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto edit = app.root()->addNew<Wt::WPasswordEdit>();
+
+  BOOST_TEST(!edit->revealButtonEnabled());
+  BOOST_TEST(!edit->hasStyleClass("Wt-passwordedit-reveal"));
+
+  edit->setRevealButtonEnabled(true);
+
+  BOOST_TEST(edit->revealButtonEnabled());
+  BOOST_TEST(edit->hasStyleClass("Wt-passwordedit-reveal"));
+
+  edit->setRevealButtonEnabled(false);
+
+  BOOST_TEST(!edit->revealButtonEnabled());
+  BOOST_TEST(!edit->hasStyleClass("Wt-passwordedit-reveal"));
+}
+
+BOOST_AUTO_TEST_CASE( password_edit_visibility_signal_connection_mode )
+{
+  // Tests that visibility updates are only sent immediately when requested
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto deferred = app.root()->addNew<Wt::WPasswordEdit>();
+  deferred->setRevealButtonEnabled(true);
+  delete deferred->createSDomElement(&app);
+  BOOST_TEST(deferred->javaScriptMember(" WPasswordEdit").find(",false);") !=
+             std::string::npos);
+
+  auto immediate = app.root()->addNew<Wt::WPasswordEdit>();
+  immediate->textVisibilityChanged().connect([](bool) {});
+  immediate->setRevealButtonEnabled(true);
+  delete immediate->createSDomElement(&app);
+  BOOST_TEST(immediate->javaScriptMember(" WPasswordEdit").find(",true);") !=
+             std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE( password_edit_visibility_signal_updates_state_first )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+
+  auto edit = app.root()->addNew<TestPasswordEdit>();
+  edit->setText("secret");
+  delete edit->createSDomElement(&app);
+
+  int calls = 0;
+  edit->textVisibilityChanged().connect([&](bool visible) {
+    BOOST_TEST(edit->isTextVisible() == visible);
+    BOOST_TEST(edit->text() == "secret");
+    ++calls;
+  });
+
+  edit->textVisibilityChanged().emit(true);
+  BOOST_TEST(edit->isTextVisible());
+
+  auto update = Wt::DomElement::getForUpdate(edit, Wt::DomElementType::INPUT);
+  edit->updateDom(*update, false);
+  BOOST_TEST(update->getAttribute("type") == "");
+  delete update;
+
+  edit->textVisibilityChanged().emit(false);
+  BOOST_TEST(!edit->isTextVisible());
+  BOOST_TEST(calls == 2);
+}
+
 BOOST_AUTO_TEST_CASE( password_edit_native_control_text_visible_render )
 {
   // Tests that a native control password edit with visible text renders

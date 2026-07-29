@@ -7,6 +7,7 @@
 #ifndef WPASSWORDEDIT_H_
 #define WPASSWORDEDIT_H_
 
+#include "Wt/WJavaScript.h"
 #include "Wt/WLineEdit.h"
 #include "Wt/WPasswordValidator.h"
 #include "Wt/WStackedValidator.h"
@@ -67,6 +68,42 @@ public:
    * \sa setTextVisible(bool)
    */
   bool isTextVisible() const { return textVisible_; }
+
+  /*! \brief Shows or hides a button allowing the user to reveal the password.
+   *
+   * When enabled, a button is shown inside the line edit which toggles
+   * the visibility of the password. The toggle happens client-side,
+   * without a server round trip, and is reported back with
+   * textVisibilityChanged().
+   *
+   * The default value is false.
+   *
+   * \note The button can only be activated with a pointer device. For a
+   *       keyboard-accessible toggle, connect your own control to
+   *       setTextVisible().
+   *
+   * \note Hiding the button does not hide a password that is currently
+   *       shown; use setTextVisible() for that.
+   *
+   * \sa revealButtonEnabled(), setTextVisible(), textVisibilityChanged()
+   */
+  void setRevealButtonEnabled(bool enabled);
+
+  /*! \brief Returns whether the reveal button is shown.
+   *
+   * \sa setRevealButtonEnabled(bool)
+   */
+  bool revealButtonEnabled() const { return revealButtonEnabled_; }
+
+  /*! \brief Signal emitted when the user toggles the text visibility.
+   *
+   * This is emitted when the visibility of the password is changed with
+   * the reveal button. The argument is whether the password is now shown
+   * in clear text.
+   *
+   * \sa setRevealButtonEnabled(bool), isTextVisible()
+   */
+  JSignal<bool>& textVisibilityChanged();
 
   /*! \brief Specifies the minimum length of text that can be entered.
    *
@@ -162,12 +199,18 @@ public:
 
 protected:
   void updateDom(DomElement& element, bool all) override;
+  void render(WFlags<RenderFlag> flags) override;
   WT_NODISCARD std::string type() const noexcept override { return textVisible_ ? "text" : "password"; }
   std::shared_ptr<WValidator> realValidator() const override { return WLineEdit::validator(); }
 
 private:
   bool nativeControl_;
   bool textVisible_;
+  bool revealButtonEnabled_;
+  bool javaScriptDefined_;
+  bool textVisibilityChangedUsed_;
+  bool textVisibilityChangedUsedRendered_;
+  JSignal<bool> textVisibilityChanged_;
   std::shared_ptr<WPasswordValidator> pwdValidator_;
   std::shared_ptr<WValidator> otherValidator_;
 
@@ -182,6 +225,9 @@ private:
   std::shared_ptr<WStackedValidator> stackedValidator() const { return std::dynamic_pointer_cast<WStackedValidator>(WLineEdit::validator()); }
 
   void init();
+  void handleTextVisibilityChanged(bool visible);
+  void defineJavaScript();
+  void connectJavaScript(Wt::EventSignalBase& s, const std::string& methodName);
 };
 
 }
