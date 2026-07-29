@@ -204,6 +204,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::dateEntry()
 #include "examples/PasswordEditDefault.cpp"
 #include "examples/PasswordEditAutocomplete.cpp"
 #include "examples/PasswordEditNative.cpp"
+#include "examples/PasswordEditReveal.cpp"
 
 std::unique_ptr<Wt::WWidget> FormWidgets::passwordEdit()
 {
@@ -211,6 +212,7 @@ std::unique_ptr<Wt::WWidget> FormWidgets::passwordEdit()
   result->bindWidget("PasswordEditDefault", PasswordEditDefault());
   result->bindWidget("PasswordEditAutocomplete", PasswordEditAutocomplete());
   result->bindWidget("PasswordEditNative", PasswordEditNative());
+  result->bindWidget("PasswordEditReveal", PasswordEditReveal());
 
   return std::move(result);
 }

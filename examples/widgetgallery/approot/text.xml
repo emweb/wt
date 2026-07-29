@@ -2096,6 +2096,17 @@
       <code>false</code>.
     </p>
 
+    <h3>Revealing the password</h3>
+    <p>
+      By default, the ${doc-link WPasswordEdit} widget hides the characters that
+      are typed into it. The method <code>setRevealButtonEnabled()</code> adds a
+      button inside the field with which the user can reveal the password. The
+      password can also be shown or hidden from the server side with the method
+      <code>setTextVisible()</code>.
+    </p>
+
+    ${block:basic-example PasswordEditReveal}
+
     <p><a href="#password">Top</a></p>
 
   </message>
@@ -2158,6 +2169,20 @@
         <div class="login-form mt-2">
           <input type="submit" value="Register" />
         </div>
+      </div>
+    </form>
+  </message>
+
+  <message id="PasswordEditReveal-template">
+    <form action="" method="dialog" class="login-form">
+      <div>
+        <label class="form-label" for="${id:password}">
+          Password:
+        </label>
+        <div class="login-form">${password}</div>
+      </div>
+      <div class="mt-2">
+        ${toggle}
       </div>
     </form>
   </message>
