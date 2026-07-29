@@ -13,14 +13,16 @@ namespace Wt {
 
 WPasswordEdit::WPasswordEdit()
   : WLineEdit(),
-    nativeControl_(false)
+    nativeControl_(false),
+    textVisible_(false)
 {
   init();
 }
 
 WPasswordEdit::WPasswordEdit(const WT_USTRING& content)
   : WLineEdit(content),
-    nativeControl_(false)
+    nativeControl_(false),
+    textVisible_(false)
 {
   init();
 }
@@ -46,6 +48,15 @@ void WPasswordEdit::setNativeControl(bool nativeControl)
       stackedValidator()->removeValidator(pwdValidator_);
     }
 
+  }
+}
+
+void WPasswordEdit::setTextVisible(bool visible)
+{
+  if (visible != textVisible_) {
+    textVisible_ = visible;
+    flags_.set(BIT_TEXT_VISIBLE_CHANGED);
+    repaint();
   }
 }
 
@@ -166,6 +177,11 @@ void WPasswordEdit::updateDom(DomElement& element, bool all)
     element.removeAttribute("required");
     element.removeAttribute("pattern");
   }
+
+  if (!all && flags_.test(BIT_TEXT_VISIBLE_CHANGED)) {
+    element.setAttribute("type", type());
+  }
+  flags_.reset(BIT_TEXT_VISIBLE_CHANGED);
 
   WLineEdit::updateDom(element, all);
 }

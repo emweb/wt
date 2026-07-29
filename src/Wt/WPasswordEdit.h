@@ -51,6 +51,23 @@ public:
    */
   bool nativeControl() const { return nativeControl_; }
 
+  /*! \brief Sets whether the password is shown in clear text.
+   *
+   * When enabled, the input changes its type from "password" to
+   * "text", revealing the content of the field.
+   *
+   * The default value is false.
+   *
+   * \sa isTextVisible()
+   */
+  void setTextVisible(bool visible);
+
+  /*! \brief Returns whether the password is shown in clear text.
+   *
+   * \sa setTextVisible(bool)
+   */
+  bool isTextVisible() const { return textVisible_; }
+
   /*! \brief Specifies the minimum length of text that can be entered.
    *
    * The default value is 0.
@@ -145,11 +162,12 @@ public:
 
 protected:
   void updateDom(DomElement& element, bool all) override;
-  WT_NODISCARD std::string type() const noexcept override { return "password"; }
+  WT_NODISCARD std::string type() const noexcept override { return textVisible_ ? "text" : "password"; }
   std::shared_ptr<WValidator> realValidator() const override { return WLineEdit::validator(); }
 
 private:
   bool nativeControl_;
+  bool textVisible_;
   std::shared_ptr<WPasswordValidator> pwdValidator_;
   std::shared_ptr<WValidator> otherValidator_;
 
@@ -157,8 +175,9 @@ private:
   static const int BIT_REQUIRED_CHANGED     = 1;
   static const int BIT_CONTROL_CHANGED      = 2;
   static const int BIT_PATTERN_CHANGED      = 3;
+  static const int BIT_TEXT_VISIBLE_CHANGED = 4;
 
-  std::bitset<4> flags_;
+  std::bitset<5> flags_;
 
   std::shared_ptr<WStackedValidator> stackedValidator() const { return std::dynamic_pointer_cast<WStackedValidator>(WLineEdit::validator()); }
 

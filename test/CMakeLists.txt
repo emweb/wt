@@ -80,6 +80,7 @@ IF(ENABLE_LIBWTTEST)
     widgets/WGroupBoxTest.C
     widgets/WLineEditTest.C
     widgets/WMenuTest.C
+    widgets/WPasswordEditTest.C
     widgets/WPopupMenuTest.C
     widgets/WSpinBoxTest.C
     widgets/WStackedWidgetTest.C
