@@ -132,6 +132,21 @@ public:
    */
   WLength(double value, LengthUnit unit = LengthUnit::Pixel);
 
+  /*! \brief Creates a length with a keyword unit.
+   *
+   * The length has no numeric component: value() is -1, as if
+   * constructed by parsing the bare keyword.
+   *
+   * This constructor is also used for the implicit conversion of a
+   * LengthUnit to a WLength.
+   *
+   * \throws WException if the unit is not one of the keyword units
+   *         (LengthUnit::FitContent, LengthUnit::MaxContent or
+   *         LengthUnit::MinContent), since all other units require a
+   *         numeric value.
+   */
+  WLength(LengthUnit unit);
+
   /*! \brief Returns whether the length is 'auto'.
    *
    * \sa WLength(), Auto

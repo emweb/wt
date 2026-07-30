@@ -5,6 +5,7 @@
  */
 #include <boost/test/unit_test.hpp>
 
+#include <Wt/WException.h>
 #include <Wt/WLength.h>
 
 BOOST_AUTO_TEST_CASE( length_test_constructors )
@@ -268,6 +269,48 @@ BOOST_AUTO_TEST_CASE( length_test_keyword_parsing )
   {
   Wt::WLength s("10fit-content");
   BOOST_CHECK(s.isAuto());
+  }
+}
+
+BOOST_AUTO_TEST_CASE( length_test_keyword_unit_constructor )
+{
+  //keyword units can be constructed without a value, equivalent to
+  //parsing the bare keyword
+  {
+  Wt::WLength l(Wt::LengthUnit::FitContent);
+  BOOST_CHECK(!l.isAuto());
+  BOOST_CHECK(l.unit() == Wt::LengthUnit::FitContent);
+  BOOST_CHECK(l.value() == -1);
+  BOOST_CHECK(l == Wt::WLength("fit-content"));
+  }
+
+  {
+  Wt::WLength l(Wt::LengthUnit::MaxContent);
+  BOOST_CHECK(!l.isAuto());
+  BOOST_CHECK(l.unit() == Wt::LengthUnit::MaxContent);
+  BOOST_CHECK(l.value() == -1);
+  BOOST_CHECK(l == Wt::WLength("max-content"));
+  }
+
+  {
+  Wt::WLength l(Wt::LengthUnit::MinContent);
+  BOOST_CHECK(!l.isAuto());
+  BOOST_CHECK(l.unit() == Wt::LengthUnit::MinContent);
+  BOOST_CHECK(l.value() == -1);
+  BOOST_CHECK(l == Wt::WLength("min-content"));
+  }
+
+  //the constructor is implicit, like the double constructor
+  {
+  Wt::WLength l = Wt::LengthUnit::MaxContent;
+  BOOST_CHECK(l.cssText() == "max-content");
+  }
+
+  //units with a numeric component cannot be constructed without a value
+  {
+  BOOST_CHECK_THROW(Wt::WLength{Wt::LengthUnit::Pixel}, Wt::WException);
+  BOOST_CHECK_THROW(Wt::WLength{Wt::LengthUnit::Percentage}, Wt::WException);
+  BOOST_CHECK_THROW(Wt::WLength{Wt::LengthUnit::ViewportMax}, Wt::WException);
   }
 }
 

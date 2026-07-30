@@ -117,6 +117,18 @@ WLength::WLength(double value, LengthUnit unit)
   setUnit(unit);
 }
 
+WLength::WLength(LengthUnit unit)
+  : auto_(false),
+    unit_(unit),
+    value_(-1)
+{
+  if (unit != LengthUnit::FitContent &&
+      unit != LengthUnit::MaxContent &&
+      unit != LengthUnit::MinContent)
+    throw WException("WLength::WLength(LengthUnit): unit requires a "
+                     "numeric value");
+}
+
 void WLength::setUnit(LengthUnit unit)
 {
   unit_ = unit;
