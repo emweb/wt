@@ -144,3 +144,74 @@ BOOST_AUTO_TEST_CASE( length_test_constructors )
     BOOST_REQUIRE(s.isAuto());
   }
 }
+
+BOOST_AUTO_TEST_CASE( length_test_css_text )
+{
+  //'auto' renders as the bare keyword
+  {
+  BOOST_CHECK(Wt::WLength::Auto.cssText() == "auto");
+  BOOST_CHECK(Wt::WLength().cssText() == "auto");
+  }
+
+  //numeric units append the unit suffix
+  {
+  Wt::WLength l(1.5);
+  BOOST_CHECK(l.cssText() == "1.5px");
+  }
+
+  {
+  Wt::WLength l(15.0, Wt::LengthUnit::FontEm);
+  BOOST_CHECK(l.cssText() == "15.0em");
+  }
+
+  {
+  Wt::WLength l(15.0, Wt::LengthUnit::Percentage);
+  BOOST_CHECK(l.cssText() == "15.0%");
+  }
+
+  {
+  Wt::WLength l(15.0, Wt::LengthUnit::ViewportWidth);
+  BOOST_CHECK(l.cssText() == "15.0vw");
+  }
+}
+
+BOOST_AUTO_TEST_CASE( length_test_to_pixels )
+{
+  //'auto' is 0 pixels
+  {
+  BOOST_CHECK(Wt::WLength::Auto.toPixels() == 0);
+  }
+
+  //font-relative units scale with the font size
+  {
+  Wt::WLength l(2.0, Wt::LengthUnit::FontEm);
+  BOOST_CHECK(l.toPixels(10.0) == 20.0);
+  }
+
+  {
+  Wt::WLength l(2.0, Wt::LengthUnit::FontEx);
+  BOOST_CHECK(l.toPixels(10.0) == 10.0);
+  }
+
+  //percentages are approximated relative to the font size
+  {
+  Wt::WLength l(50.0, Wt::LengthUnit::Percentage);
+  BOOST_CHECK(l.toPixels(16.0) == 8.0);
+  }
+
+  //absolute units use fixed conversion factors
+  {
+  Wt::WLength l(10.0);
+  BOOST_CHECK(l.toPixels() == 10.0);
+  }
+
+  {
+  Wt::WLength l(1.0, Wt::LengthUnit::Inch);
+  BOOST_CHECK(l.toPixels() == 72 * (4.0 / 3.0));
+  }
+
+  {
+  Wt::WLength l(1.0, Wt::LengthUnit::Point);
+  BOOST_CHECK(l.toPixels() == 4.0 / 3.0);
+  }
+}
