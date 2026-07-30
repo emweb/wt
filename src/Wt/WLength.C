@@ -37,8 +37,26 @@ void WLength::parseCssString(const char *s)
   unit_ = LengthUnit::Pixel;
   value_ = -1;
 
-  if (std::string("auto") == s) {
+  std::string keyword(s);
+  boost::trim(keyword);
+
+  if (keyword == "auto") {
     auto_ = true;
+    return;
+  }
+
+  if (keyword == "fit-content") {
+    unit_ = LengthUnit::FitContent;
+    return;
+  }
+
+  if (keyword == "max-content") {
+    unit_ = LengthUnit::MaxContent;
+    return;
+  }
+
+  if (keyword == "min-content") {
+    unit_ = LengthUnit::MinContent;
     return;
   }
 
@@ -102,6 +120,11 @@ WLength::WLength(double value, LengthUnit unit)
 void WLength::setUnit(LengthUnit unit)
 {
   unit_ = unit;
+
+  if (unit_ == LengthUnit::FitContent ||
+      unit_ == LengthUnit::MaxContent ||
+      unit_ == LengthUnit::MinContent)
+    value_ = -1;
 }
 
 bool WLength::operator== (const WLength& other) const
@@ -120,10 +143,16 @@ bool WLength::operator!= (const WLength& other) const
 const std::string WLength::cssText() const
 {
   static const char *unitText[]
-    = { "em", "ex", "px", "in", "cm", "mm", "pt", "pc", "%", "vw", "vh", "vmin", "vmax" };
+    = { "em", "ex", "px", "in", "cm", "mm", "pt", "pc", "%",
+        "vw", "vh", "vmin", "vmax",
+        "fit-content", "max-content", "min-content" };
 
   if (auto_)
     return "auto";
+  else if (unit_ == LengthUnit::FitContent ||
+           unit_ == LengthUnit::MaxContent ||
+           unit_ == LengthUnit::MinContent)
+    return unitText[static_cast<unsigned int>(unit_)];
   else {
 #ifndef WT_TARGET_JAVA
     char buf[30];
@@ -169,6 +198,10 @@ double WLength::toPixels(double fontSize) const
              unit_ == LengthUnit::ViewportMin ||
              unit_ == LengthUnit::ViewportMax)
       return value_ * fontSize / 100.0; // assuming relative to font size...
+    else if (unit_ == LengthUnit::FitContent ||
+             unit_ == LengthUnit::MaxContent ||
+             unit_ == LengthUnit::MinContent)
+      return 0; // the length depends on the content
     else
       return value_ * unitFactor[static_cast<unsigned int>(unit_) - 2];
 }

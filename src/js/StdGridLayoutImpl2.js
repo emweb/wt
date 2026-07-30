@@ -140,6 +140,23 @@ WT_DECLARE_WT_MEMBER(
       return null;
     }
 
+    function updateContentSizing(item, contentSizing) {
+      if (!contentSizing) {
+        return;
+      }
+
+      const oldContentSizing = item.cs || ["", ""];
+      if (item.set) {
+        for (let dir = 0; dir < 2; ++dir) {
+          if (oldContentSizing[dir] !== contentSizing[dir]) {
+            item.set[dir] = false;
+          }
+        }
+      }
+
+      item.cs = contentSizing;
+    }
+
     function calcPreferredSize(element, dir, asSet, widget) {
       const DC = DirConfig[dir];
 
@@ -313,6 +330,14 @@ WT_DECLARE_WT_MEMBER(
       }
     }
 
+    function calcIntrinsicMinimumSize(element, dir) {
+      const DC = DirConfig[dir];
+      const size = dir === HORIZONTAL ? element.offsetWidth : element.offsetHeight;
+
+      return size + WT.px(element, "margin" + DC.Left) +
+        WT.px(element, "margin" + DC.Right);
+    }
+
     function margin(el, dir) {
       const DC = DirConfig[dir];
 
@@ -431,6 +456,42 @@ WT_DECLARE_WT_MEMBER(
         const measurePreferredForStretching = true;
         let spanned = false;
 
+        /* Apply intrinsic minimum sizes to every dirty item before reading
+         * any of them, so the browser can update layout once for the batch.
+         */
+        for (const item of config.items) {
+          if (item && item.dirty > 1 && item.cs && item.cs[dir]) {
+            item.w = item.w || WT.$(item.id);
+            if (item.w) {
+              setCss(item.w, DC.size, "min-content");
+              if (item.set) {
+                item.set[dir] = false;
+              }
+            }
+          }
+        }
+
+        for (const item of config.items) {
+          if (item && item.dirty > 1 && item.cs && item.cs[dir] && item.w) {
+            item.intrinsicMinimum = item.intrinsicMinimum || [];
+            item.intrinsicMinimum[dir] = calcIntrinsicMinimumSize(item.w, dir);
+          }
+        }
+
+        /* Fit-content has the max-content preferred size. Apply every
+         * preferred keyword before the preferred-size measurement pass.
+         */
+        for (const item of config.items) {
+          if (item && item.dirty > 1 && item.cs && item.cs[dir] && item.w) {
+            const contentSizing = item.cs[dir];
+            setCss(
+              item.w,
+              DC.size,
+              contentSizing === "fit-content" ? "max-content" : contentSizing
+            );
+          }
+        }
+
         for (let di = 0; di < dirCount; ++di) {
           let dPreferred = 0;
           let dMinimum = DC.config[di][MIN_SIZE];
@@ -520,9 +581,15 @@ WT_DECLARE_WT_MEMBER(
                 }
 
                 if (item.dirty) {
+                  const contentSizing = item.cs ? item.cs[dir] : "";
+
                   let wMinimum;
                   if (item.dirty > 1) {
-                    wMinimum = calcMinimumSize(item.w, dir);
+                    if (contentSizing) {
+                      wMinimum = item.intrinsicMinimum[dir];
+                    } else {
+                      wMinimum = calcMinimumSize(item.w, dir);
+                    }
                     item.ms[dir] = wMinimum;
                   } else {
                     wMinimum = item.ms[dir];
@@ -683,6 +750,12 @@ WT_DECLARE_WT_MEMBER(
 
           preferredSize[di] = dPreferred;
           minimumSize[di] = dMinimum;
+        }
+
+        for (const item of config.items) {
+          if (item && item.dirty > 1 && item.cs && item.cs[dir] && item.w) {
+            setCss(item.w, DC.size, item.cs[dir]);
+          }
         }
 
         if (spanned) {
@@ -1567,9 +1640,10 @@ WT_DECLARE_WT_MEMBER(
               * (reasons unknown, only for a vertical scrollbar?)
               */
               const setSize = dir === 0 && item.sc[dir];
+              const contentSizing = item.cs ? item.cs[dir] : "";
 
               const hidden = isHidden(w);
-              if (!hidden && (setSize || ts !== ps || item.layout)) {
+              if (!hidden && (setSize || ts !== ps || item.layout || contentSizing)) {
                 if (setCss(w, DC.size, tsm + "px")) {
                   /*
                   * Setting a size no longer cancels the built-in margin!
@@ -1579,7 +1653,7 @@ WT_DECLARE_WT_MEMBER(
                 }
               } else {
                 if (!item.fs[dir]) {
-                  if (setCss(w, DC.size, "")) {
+                  if (setCss(w, DC.size, contentSizing) && !contentSizing) {
                     setItemDirty(item, 1);
                   }
                   if (item.set) {
@@ -1693,6 +1767,7 @@ WT_DECLARE_WT_MEMBER(
           const newItem = getItem(oldItem.id);
 
           if (newItem) {
+            const contentSizing = newItem.cs;
             newItem.ps = oldItem.ps;
             newItem.sc = oldItem.sc;
             newItem.ms = oldItem.ms;
@@ -1701,6 +1776,8 @@ WT_DECLARE_WT_MEMBER(
             newItem.fs = oldItem.fs;
             newItem.margin = oldItem.margin;
             newItem.set = oldItem.set;
+            newItem.cs = oldItem.cs;
+            updateContentSizing(newItem, contentSizing);
           } else {
             if (oldItem.set) {
               if (oldItem.set[HORIZONTAL]) {
@@ -1735,10 +1812,11 @@ WT_DECLARE_WT_MEMBER(
 
     this.setItemsDirty = function(items) {
       const colCount = DirConfig[HORIZONTAL].config.length;
-      for (const [row, col] of items) {
+      for (const [row, col, contentSizing] of items) {
         const item = config.items[row * colCount + col];
 
         if (item) {
+          updateContentSizing(item, contentSizing);
           item.dirty = 2;
           /*
           * When the item contains a layout, a change may also impact this:

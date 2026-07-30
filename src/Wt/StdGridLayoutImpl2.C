@@ -28,6 +28,41 @@ namespace Wt {
 
 WT_MAYBE_UNUSED LOGGER("WGridLayout2");
 
+namespace {
+
+const char *contentSizingKeyword(WLayoutItem *item, Orientation orientation)
+{
+  WWidget *widget = item->widget();
+  if (!widget)
+    return "";
+
+  const WLength size = orientation == Orientation::Horizontal
+    ? widget->width()
+    : widget->height();
+
+  switch (size.unit()) {
+  case LengthUnit::FitContent:
+    return "fit-content";
+  case LengthUnit::MaxContent:
+    return "max-content";
+  case LengthUnit::MinContent:
+    return "min-content";
+  default:
+    return "";
+  }
+}
+
+void streamContentSizing(WStringStream& js, WLayoutItem *item)
+{
+  js << "['"
+     << contentSizingKeyword(item, Orientation::Horizontal)
+     << "','"
+     << contentSizingKeyword(item, Orientation::Vertical)
+     << "']";
+}
+
+}
+
 StdGridLayoutImpl2::StdGridLayoutImpl2(WLayout *layout, Impl::Grid& grid)
   : StdLayoutImpl(layout),
     grid_(grid)
@@ -216,7 +251,9 @@ void StdGridLayoutImpl2::updateDom(DomElement& parent)
           if (!first)
             js << ",";
           first = false;
-          js << "[" << (int)row << "," << (int)col << "]";
+          js << "[" << (int)row << "," << (int)col << ",";
+          streamContentSizing(js, grid_.items_[row][col].item_.get());
+          js << "]";
         }
 
     js << "]);";
@@ -513,7 +550,9 @@ void StdGridLayoutImpl2::streamConfig(WStringStream& js, WApplication *app)
           js << "align:" << (int)align << ",";
         }
 
-        js << "dirty:" << (grid_.items_[row][col].update_ ? 2 : 0)
+        js << "cs:";
+        streamContentSizing(js, item.item_.get());
+        js << ",dirty:" << (grid_.items_[row][col].update_ ? 2 : 0)
            << ",id:'" << id << "'"
            << "}";
 

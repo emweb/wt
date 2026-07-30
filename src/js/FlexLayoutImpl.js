@@ -8,6 +8,7 @@
 
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, topLayout) {
   const WT = APP.WT;
+  const CONTENT_SIZING_SHRINK_PRIORITY = "1000000";
   if (!WT.LayoutUninitialized) {
     WT.LayoutUninitialized = 1;
   } else {
@@ -34,7 +35,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
       (el.style.height === "auto" ||
         el.style.height === "")
     ) {
-      el.style.height = "fit-content";
+      el.style.height = "max-content";
     }
 
     if (
@@ -43,7 +44,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
       (el.style.width === "auto" ||
         el.style.width === "")
     ) {
-      el.style.width = "fit-content";
+      el.style.width = "max-content";
     }
 
     for (const c of el.childNodes) {
@@ -86,7 +87,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
 
         const top = WT.getElement(topLayout);
         setTimeout(function() {
-          if (top && top.style.width !== "fit-content") {
+          if (top && top.style.width !== "max-content") {
             unwrapped.style.width = "auto";
           }
         }, 0);
@@ -98,11 +99,21 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
 
   setTimeout(init, 0);
 
-  this.resizeItem = function(item, width, height, maxWidth, maxHeight) {
-    setTimeout(adjustItem, 0, item, width, height, maxWidth, maxHeight);
+  this.resizeItem = function(item, width, height, maxWidth, maxHeight, hasContentSizingKeyword) {
+    setTimeout(adjustItem, 0, item, width, height, maxWidth, maxHeight, hasContentSizingKeyword);
   };
 
-  function adjustItem(item, width, height, maxWidth, maxHeight) {
+  function markContentSizingKeyword(item, hasContentSizingKeyword) {
+    if (item.getAttribute("flg") === "0") {
+      if (hasContentSizingKeyword) {
+        item.setAttribute("csk", "1");
+      } else {
+        item.removeAttribute("csk");
+      }
+    }
+  }
+
+  function adjustItem(item, width, height, maxWidth, maxHeight, hasContentSizingKeyword) {
     if (!item) {
       return;
     }
@@ -116,6 +127,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
 
     if (p.classList.contains("Wt-fill-width")) {
       p.style.flexBasis = height;
+      markContentSizingKeyword(p, hasContentSizingKeyword);
       item.style.height = "auto";
       item.style.maxWidth = maxWidth;
       item.style.maxHeight = maxHeight;
@@ -132,6 +144,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
         justifyWrap.style.flexBasis = width;
       }
       p.style.flexBasis = width;
+      markContentSizingKeyword(p, hasContentSizingKeyword);
       const internalWrap = p.children[0];
       internalWrap.style.flexBasis = height;
       item.style.height = "auto";
@@ -143,7 +156,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
 
       const top = WT.getElement(topLayout);
       setTimeout(function() {
-        if (top && top.style.width !== "fit-content") {
+        if (top && top.style.width !== "max-content") {
           item.style.width = "auto";
         }
       }, 0);
@@ -164,6 +177,11 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
 
       const children = el.childNodes;
       let totalStretch = 0;
+      let hasContentSizingItem = false;
+      const vertical = el.style.flexFlow.startsWith("column");
+      const fitContentContainer = vertical ?
+        el.style.height === "max-content" :
+        el.style.width === "max-content";
       for (const c of children) {
         if (
           c.style.display === "none" ||
@@ -174,6 +192,9 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
         }
 
         const flg = c.getAttribute("flg");
+        if (c.getAttribute("csk") === "1") {
+          hasContentSizingItem = true;
+        }
         if (flg === "0") {
           continue;
         }
@@ -211,11 +232,22 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
         }
 
         c.style.flexGrow = stretch;
+        if (fitContentContainer) {
+          c.style.flexShrink = "0";
+        } else if (totalStretch === 0) {
+          c.style.flexShrink = "1";
+        } else if (stretch !== 0) {
+          c.style.flexShrink = hasContentSizingItem ? CONTENT_SIZING_SHRINK_PRIORITY : "1";
+        } else if (c.getAttribute("csk") === "1") {
+          c.style.flexShrink = "1";
+        } else {
+          c.style.flexShrink = "0";
+        }
 
         const unjustified = c.classList.contains("Wt-justify-wrap") ? c.childNodes[0] : c;
         if (unjustified.classList.contains("Wt-fill-height")) {
           const top = WT.getElement(topLayout);
-          if (top && top.style.width !== "fit-content") {
+          if (top && top.style.width !== "max-content") {
             const unwrapped = unjustified.childNodes[0].childNodes[0];
             unwrapped.style.width = "auto";
           }

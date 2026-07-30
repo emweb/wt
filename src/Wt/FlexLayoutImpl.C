@@ -24,6 +24,24 @@ namespace Wt {
 
 WT_MAYBE_UNUSED LOGGER("FlexLayout");
 
+namespace {
+
+bool hasContentSizingKeyword(WLayoutItem *item, Orientation orientation)
+{
+  WWidget *widget = item->widget();
+  if (!widget)
+    return false;
+
+  const WLength& size = orientation == Orientation::Horizontal ?
+    widget->width() : widget->height();
+
+  return size.unit() == LengthUnit::FitContent ||
+         size.unit() == LengthUnit::MaxContent ||
+         size.unit() == LengthUnit::MinContent;
+}
+
+}
+
 FlexLayoutImpl::FlexLayoutImpl(WLayout *layout, Impl::Grid& grid)
   : StdLayoutImpl(layout),
     grid_(grid),
@@ -137,7 +155,8 @@ void FlexLayoutImpl::updateDom(DomElement& parent)
             << '"' << item->width().cssText() << "\","
             << '"' << item->height().cssText() << "\","
             << '"' << item->maximumWidth().cssText() << "\","
-            << '"' << item->maximumHeight().cssText() << "\""
+            << '"' << item->maximumHeight().cssText() << "\","
+            << hasContentSizingKeyword(resizedItems_[i], getOrientation())
             << ")";
 
       div->callMethod(method.str());
@@ -711,10 +730,40 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
     WStringStream flexProperty;
     int stretch = std::max(0, s.stretch_);
     int flexGrow = totalStretch == 0 ? 1 : stretch;
-    int flexShrink = totalStretch == 0 ? 1 : (stretch == 0 ? 0 : 1);
+    WWidget *layoutContainer = container();
+    bool fitContentContainer = layoutContainer &&
+      !(orientation == Orientation::Horizontal ?
+        layoutContainer->maximumWidth() :
+        layoutContainer->maximumHeight()).isAuto();
+    bool hasContentSizingItem = false;
+    for (int i = 0; i < count(orientation); ++i) {
+      if (hasContentSizingKeyword(item(orientation, i).item_.get(),
+                                  orientation)) {
+        hasContentSizingItem = true;
+        break;
+      }
+    }
+
+    const char *contentSizingShrinkPriority = "1000000";
+    const char *flexShrink;
+    if (fitContentContainer) {
+      flexShrink = "0";
+    } else if (totalStretch == 0) {
+      flexShrink = "1";
+    } else if (stretch != 0) {
+      // Give stretched items priority over content-sized items when shrinking.
+      flexShrink = hasContentSizingItem ? contentSizingShrinkPriority : "1";
+    } else if (hasContentSizingKeyword(it.item_.get(), orientation)) {
+      flexShrink = "1";
+    } else {
+      flexShrink = "0";
+    }
     flexProperty << flexGrow << ' ' << flexShrink << ' ' << s.initialSize_.cssText();
-    if (stretch == 0)
+    if (stretch == 0) {
       el->setAttribute("flg", "0");
+      if (hasContentSizingKeyword(it.item_.get(), orientation))
+        el->setAttribute("csk", "1");
+    }
     el->setProperty(Property::StyleFlex, flexProperty.str());
   }
 

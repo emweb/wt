@@ -43,7 +43,32 @@ enum class LengthUnit {
    *
    * \note Not supported on Internet Explorer
    */
-  ViewportMax
+  ViewportMax,
+  /*! \brief The content's preferred size, clamped by the available
+   *         space (fit-content)
+   *
+   * This is a keyword unit without a numeric component: the value of a
+   * WLength with this unit is ignored.
+   *
+   * \note Not supported on Internet Explorer
+   */
+  FitContent,
+  /*! \brief The content's preferred size (max-content)
+   *
+   * This is a keyword unit without a numeric component: the value of a
+   * WLength with this unit is ignored.
+   *
+   * \note Not supported on Internet Explorer
+   */
+  MaxContent,
+  /*! \brief The content's smallest possible size (min-content)
+   *
+   * This is a keyword unit without a numeric component: the value of a
+   * WLength with this unit is ignored.
+   *
+   * \note Not supported on Internet Explorer
+   */
+  MinContent
 };
 
 /*! \class WLength Wt/WLength.h Wt/WLength.h
@@ -51,6 +76,10 @@ enum class LengthUnit {
  *
  * The class combines a value with a unit. There is a special value
  * <i>auto</i> which has a different meaning depending on the context.
+ *
+ * The keyword units LengthUnit::FitContent, LengthUnit::MaxContent and
+ * LengthUnit::MinContent have, like <i>auto</i>, no numeric component:
+ * the value of a length with such a unit is ignored.
  */
 class WT_API WLength
 {
@@ -96,6 +125,10 @@ public:
    *
    * This constructor is also used for the implicit conversion of a
    * double to a WLength, assuming a pixel unit.
+   *
+   * For the keyword units (LengthUnit::FitContent,
+   * LengthUnit::MaxContent and LengthUnit::MinContent) the value is
+   * ignored and normalized to -1.
    */
   WLength(double value, LengthUnit unit = LengthUnit::Pixel);
 
@@ -106,6 +139,9 @@ public:
   bool isAuto() const { return auto_; }
 
   /*! \brief Returns the value.
+   *
+   * This is -1 for the keyword units (LengthUnit::FitContent,
+   * LengthUnit::MaxContent and LengthUnit::MinContent).
    *
    * \sa unit()
    */
@@ -137,6 +173,9 @@ public:
    * \note For percentages (LengthUnit::Percentage), and units relative to viewport size
    *       (LengthUnit::ViewportWidth, LengthUnit::ViewportHeight, LengthUnit::ViewportMin,
    *        LengthUnit::ViewportMax), a percentage of the font size is used.
+   *       For the keyword units (LengthUnit::FitContent,
+   *       LengthUnit::MaxContent and LengthUnit::MinContent), 0 is
+   *       returned since the length depends on the content.
    */
   double toPixels(double fontSize = 16.0) const;
 

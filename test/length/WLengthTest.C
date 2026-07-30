@@ -215,3 +215,108 @@ BOOST_AUTO_TEST_CASE( length_test_to_pixels )
   BOOST_CHECK(l.toPixels() == 4.0 / 3.0);
   }
 }
+
+BOOST_AUTO_TEST_CASE( length_test_keyword_parsing )
+{
+  //the content sizing keywords parse as keyword units without a value
+  {
+  Wt::WLength s("fit-content");
+  BOOST_CHECK(!s.isAuto());
+  BOOST_CHECK(s.unit() == Wt::LengthUnit::FitContent);
+  BOOST_CHECK(s.value() == -1);
+  }
+
+  {
+  Wt::WLength s("max-content");
+  BOOST_CHECK(!s.isAuto());
+  BOOST_CHECK(s.unit() == Wt::LengthUnit::MaxContent);
+  BOOST_CHECK(s.value() == -1);
+  }
+
+  {
+  Wt::WLength s("min-content");
+  BOOST_CHECK(!s.isAuto());
+  BOOST_CHECK(s.unit() == Wt::LengthUnit::MinContent);
+  BOOST_CHECK(s.value() == -1);
+  }
+
+  //surrounding whitespace is ignored, like for numeric lengths
+  {
+  Wt::WLength s("  fit-content  ");
+  BOOST_CHECK(!s.isAuto());
+  BOOST_CHECK(s.unit() == Wt::LengthUnit::FitContent);
+  }
+
+  {
+  Wt::WLength s(" auto ");
+  BOOST_CHECK(s.isAuto());
+  }
+
+  //keywords are case-sensitive, like 'auto' and the unit suffixes
+  {
+  Wt::WLength s("Fit-Content");
+  BOOST_CHECK(s.isAuto());
+  }
+
+  //the fit-content() functional form is not supported
+  {
+  Wt::WLength s("fit-content(200px)");
+  BOOST_CHECK(s.isAuto());
+  }
+
+  //a number followed by a keyword is not a valid length
+  {
+  Wt::WLength s("10fit-content");
+  BOOST_CHECK(s.isAuto());
+  }
+}
+
+BOOST_AUTO_TEST_CASE( length_test_keyword_css_text )
+{
+  //keyword units render as the bare keyword
+  {
+  BOOST_CHECK(Wt::WLength("fit-content").cssText() == "fit-content");
+  BOOST_CHECK(Wt::WLength("max-content").cssText() == "max-content");
+  BOOST_CHECK(Wt::WLength("min-content").cssText() == "min-content");
+  }
+
+  //the value passed to the constructor is ignored for keyword units
+  {
+  Wt::WLength l(42.0, Wt::LengthUnit::MaxContent);
+  BOOST_CHECK(l.cssText() == "max-content");
+  BOOST_CHECK(l.value() == -1);
+  }
+}
+
+BOOST_AUTO_TEST_CASE( length_test_keyword_to_pixels )
+{
+  //content-dependent sizes cannot be approximated server-side
+  {
+  BOOST_CHECK(Wt::WLength("fit-content").toPixels() == 0);
+  BOOST_CHECK(Wt::WLength("max-content").toPixels() == 0);
+  BOOST_CHECK(Wt::WLength("min-content").toPixels() == 0);
+  }
+
+  {
+  Wt::WLength l(100.0, Wt::LengthUnit::FitContent);
+  BOOST_CHECK(l.toPixels() == 0);
+  }
+}
+
+BOOST_AUTO_TEST_CASE( length_test_keyword_equality )
+{
+  //keyword lengths are canonical: the value does not participate
+  {
+  BOOST_CHECK(Wt::WLength("fit-content") ==
+                Wt::WLength(7.0, Wt::LengthUnit::FitContent));
+  BOOST_CHECK(Wt::WLength("fit-content") != Wt::WLength("max-content"));
+  BOOST_CHECK(Wt::WLength("fit-content") != Wt::WLength::Auto);
+  }
+
+  //arithmetic keeps keyword lengths canonical
+  {
+  Wt::WLength l = Wt::WLength("fit-content") * 2;
+  BOOST_CHECK(l.cssText() == "fit-content");
+  BOOST_CHECK(l == Wt::WLength("fit-content"));
+  }
+}
