@@ -14,6 +14,7 @@
 #include "FlexLayoutImpl.h"
 #include "DomElement.h"
 #include "ResizeSensor.h"
+#include "SizeHandle.h"
 #include "WebUtils.h"
 
 #ifndef WT_DEBUG_JS
@@ -171,6 +172,16 @@ void FlexLayoutImpl::updateDom(DomElement& parent)
 
   removedItems_.clear();
 
+  if (anyResizable()) {
+    SizeHandle::loadJavaScript(app);
+  }
+
+  {
+    WStringStream config;
+    streamConfig(config);
+    div->callMethod(config.str());
+  }
+
   if (canAdjustLayout_) {
     div->callMethod("layout.adjust()");
   }
@@ -287,7 +298,7 @@ int FlexLayoutImpl::minimumWidth() const
   for (unsigned i = 0; i < colCount; ++i)
     total += minimumWidthForColumn(i);
 
-  return total + (colCount-1) * grid_.horizontalSpacing_;
+  return total + totalSpacing(Orientation::Horizontal);
 }
 
 int FlexLayoutImpl::minimumHeight() const
@@ -299,7 +310,7 @@ int FlexLayoutImpl::minimumHeight() const
   for (unsigned i = 0; i < rowCount; ++i)
     total += minimumHeightForRow(i);
 
-  return total + (rowCount-1) * grid_.verticalSpacing_;
+  return total + totalSpacing(Orientation::Vertical);
 }
 
 int FlexLayoutImpl::maximumWidth() const
@@ -316,7 +327,7 @@ int FlexLayoutImpl::maximumWidth() const
     total += colMax;
   }
 
-  return total + (colCount-1) * grid_.horizontalSpacing_;
+  return total + totalSpacing(Orientation::Horizontal);
 }
 
 int FlexLayoutImpl::maximumHeight() const
@@ -333,7 +344,7 @@ int FlexLayoutImpl::maximumHeight() const
     total += rowMax;
   }
 
-  return total + (rowCount-1) * grid_.verticalSpacing_;
+  return total + totalSpacing(Orientation::Vertical);
 }
 
 void FlexLayoutImpl::itemAdded(WLayoutItem *item)
@@ -464,12 +475,20 @@ DomElement *FlexLayoutImpl::createDomElement(DomElement *parent,
     result->addChild(el);
   }
 
+  if (anyResizable()) {
+    SizeHandle::loadJavaScript(app);
+  }
+
   WStringStream js;
   js << "layout=new " WT_CLASS ".FlexLayout("
      << app->javaScriptClass() << ","
      << "'" << elId_<< "',"
      << "'" << container()->id() << "');";
   result->callMethod(js.str());
+
+  WStringStream config;
+  streamConfig(config);
+  result->callMethod(config.str());
 
   return result;
 }
@@ -534,6 +553,63 @@ int FlexLayoutImpl::indexOf(WLayoutItem *it, Orientation orientation)
       return i;
 
   return -1;
+}
+
+bool FlexLayoutImpl::anyResizable() const
+{
+  const std::vector<Impl::Grid::Section>& sections =
+    getOrientation() == Orientation::Horizontal ? grid_.columns_ : grid_.rows_;
+
+  for (unsigned i = 0; i < sections.size(); ++i) {
+    if (sections[i].resizable_) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void FlexLayoutImpl::streamConfig(WStringStream& js)
+{
+  Orientation orientation = getOrientation();
+  const int c = count(orientation);
+  bool first = true;
+
+  js << "layout.setConfig({resizable:[";
+  for (int i = 0; i < c; ++i) {
+    if (!section(orientation, i).resizable_) {
+      continue;
+    }
+    if (!first) {
+      js << ',';
+    }
+    first = false;
+    js << i;
+  }
+  js << "]})";
+}
+
+int FlexLayoutImpl::spacing(Orientation orientation, int index) const
+{
+  const std::vector<Impl::Grid::Section>& sections =
+    orientation == Orientation::Horizontal ? grid_.columns_ : grid_.rows_;
+  const int configured = orientation == Orientation::Horizontal ?
+    grid_.horizontalSpacing_ : grid_.verticalSpacing_;
+
+  return sections[index].resizable_ ?
+    std::max(configured, RESIZE_HANDLE_SPACE) : configured;
+}
+
+int FlexLayoutImpl::totalSpacing(Orientation orientation) const
+{
+  int total = 0;
+  const int sectionCount = count(orientation);
+
+  for (int i = 0; i + 1 < sectionCount; ++i) {
+    total += spacing(orientation, i);
+  }
+
+  return total;
 }
 
 LayoutDirection FlexLayoutImpl::getDirection() const
@@ -772,37 +848,37 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
   switch (getDirection()) {
   case LayoutDirection::LeftToRight:
     if (index != 0) {
-      m[3] += (grid_.horizontalSpacing_ + 1) / 2;
+      m[3] += (spacing(orientation, index - 1) + 1) / 2;
     }
     if (index != count(orientation)-1) {
-      m[1] += (grid_.horizontalSpacing_) / 2;
+      m[1] += spacing(orientation, index) / 2;
     }
     break;
 
   case LayoutDirection::RightToLeft:
     if (index != 0) {
-      m[1] += (grid_.horizontalSpacing_ + 1) / 2;
+      m[1] += (spacing(orientation, index - 1) + 1) / 2;
     }
     if (index != count(orientation)-1) {
-      m[3] += (grid_.horizontalSpacing_) / 2;
+      m[3] += spacing(orientation, index) / 2;
     }
     break;
 
   case LayoutDirection::TopToBottom:
     if (index != 0) {
-      m[0] += (grid_.verticalSpacing_ + 1) / 2;
+      m[0] += (spacing(orientation, index - 1) + 1) / 2;
     }
     if (index != count(orientation)-1) {
-      m[2] += (grid_.verticalSpacing_) / 2;
+      m[2] += spacing(orientation, index) / 2;
     }
     break;
 
   case LayoutDirection::BottomToTop:
     if (index != 0) {
-      m[2] += (grid_.verticalSpacing_ + 1) / 2;
+      m[2] += (spacing(orientation, index - 1) + 1) / 2;
     }
     if (index != count(orientation)-1) {
-      m[0] += (grid_.verticalSpacing_) / 2;
+      m[0] += spacing(orientation, index) / 2;
     }
     break;
   }

@@ -6,8 +6,10 @@
 #include <boost/test/unit_test.hpp>
 
 #include <Wt/WApplication.h>
+#include <Wt/WBoxLayout.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WHBoxLayout.h>
+#include <Wt/WLayout.h>
 #include <Wt/WLayoutImpl.h>
 #include <Wt/WStringStream.h>
 #include <Wt/WVBoxLayout.h>
@@ -16,6 +18,7 @@
 #include "web/DomElement.h"
 
 #include <memory>
+#include <string>
 
 using namespace Wt;
 
@@ -44,6 +47,32 @@ std::string renderUpdates(TestContainerWidget& container,
   return javaScript.str();
 }
 
+  struct RenderResult {
+    std::string html;
+    std::string javaScript;
+  };
+
+  // Exposes preferredImplementation() so tests can inspect it.
+  class TestBoxLayout : public WBoxLayout
+  {
+  public:
+    explicit TestBoxLayout(LayoutDirection dir) : WBoxLayout(dir) { }
+
+    LayoutImplementation preferred() const { return preferredImplementation(); }
+  };
+
+  // Renders the root so tests can inspect the generated page.
+  RenderResult render(Wt::WApplication& app)
+  {
+    Wt::DomElement *el = app.domRoot()->createSDomElement(&app);
+    Wt::EStream html;
+    Wt::EStream javaScript;
+    Wt::DomElement::TimeoutList timeouts;
+    el->asHTML(html, javaScript, timeouts);
+    RenderResult result { html.str(), javaScript.str() };
+    delete el;
+    return result;
+  }
 }
 
 BOOST_AUTO_TEST_CASE( test_vbox_layout_itemAt_range )
@@ -62,6 +91,129 @@ BOOST_AUTO_TEST_CASE( test_vbox_layout_itemAt_range )
   BOOST_CHECK(layout->itemAt(0)->widget() == item1);
   BOOST_CHECK(layout->itemAt(1)->widget() == item2);
   BOOST_CHECK(layout->itemAt(2) == nullptr);
+}
+
+// setResizable() used to force the JavaScript implementation. It now keeps
+// the default Flex implementation.
+BOOST_AUTO_TEST_CASE( test_hbox_setResizable_keeps_flex )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication testApp(environment);
+
+  auto container = testApp.root()->addNew<WContainerWidget>();
+  auto layout =
+    container->setLayout(std::make_unique<TestBoxLayout>(LayoutDirection::LeftToRight));
+
+  layout->addWidget(std::make_unique<WContainerWidget>());
+  layout->addWidget(std::make_unique<WContainerWidget>());
+
+  BOOST_CHECK(layout->preferred() == LayoutImplementation::Flex);
+
+  layout->setResizable(0);
+
+  BOOST_CHECK(layout->preferred() == LayoutImplementation::Flex);
+  BOOST_CHECK(layout->isResizable(0));
+  BOOST_CHECK(!layout->isResizable(1));
+}
+
+BOOST_AUTO_TEST_CASE( test_vbox_setResizable_keeps_flex )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication testApp(environment);
+
+  auto container = testApp.root()->addNew<WContainerWidget>();
+  auto layout =
+    container->setLayout(std::make_unique<TestBoxLayout>(LayoutDirection::TopToBottom));
+
+  layout->addWidget(std::make_unique<WContainerWidget>());
+  layout->addWidget(std::make_unique<WContainerWidget>());
+
+  layout->setResizable(0);
+
+  BOOST_CHECK(layout->preferred() == LayoutImplementation::Flex);
+  BOOST_CHECK(layout->isResizable(0));
+  BOOST_CHECK(!layout->isResizable(1));
+}
+
+// Flex handles reverse directions with flex-direction, so the resizable
+// section index must round-trip unchanged.
+BOOST_AUTO_TEST_CASE( test_hbox_setResizable_reversed_roundtrip )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication testApp(environment);
+
+  auto container = testApp.root()->addNew<WContainerWidget>();
+  auto layout =
+    container->setLayout(std::make_unique<TestBoxLayout>(LayoutDirection::RightToLeft));
+
+  layout->addWidget(std::make_unique<WContainerWidget>());
+  layout->addWidget(std::make_unique<WContainerWidget>());
+  layout->addWidget(std::make_unique<WContainerWidget>());
+
+  layout->setResizable(1);
+
+  BOOST_CHECK(layout->preferred() == LayoutImplementation::Flex);
+  BOOST_CHECK(!layout->isResizable(0));
+  BOOST_CHECK(layout->isResizable(1));
+  BOOST_CHECK(!layout->isResizable(2));
+}
+
+// The Flex implementation streams resizable indices in section order.
+BOOST_AUTO_TEST_CASE( test_hbox_setResizable_streams_config )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication testApp(environment);
+
+  auto container = testApp.root()->addNew<WContainerWidget>();
+  auto layout = container->setLayout(std::make_unique<WHBoxLayout>());
+
+  layout->addWidget(std::make_unique<WContainerWidget>());
+  layout->addWidget(std::make_unique<WContainerWidget>());
+  layout->addWidget(std::make_unique<WContainerWidget>());
+  layout->setResizable(1);
+
+  const std::string js = render(testApp).javaScript;
+
+  BOOST_CHECK(js.find("setConfig({resizable:[1]})") != std::string::npos);
+}
+
+// Reverse directions must keep the configured section order.
+BOOST_AUTO_TEST_CASE( test_hbox_reversed_streams_config_in_section_order )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication testApp(environment);
+
+  auto container = testApp.root()->addNew<WContainerWidget>();
+  auto layout =
+    container->setLayout(std::make_unique<WBoxLayout>(LayoutDirection::RightToLeft));
+
+  layout->addWidget(std::make_unique<WContainerWidget>());
+  layout->addWidget(std::make_unique<WContainerWidget>());
+  layout->addWidget(std::make_unique<WContainerWidget>());
+  layout->setResizable(0);
+
+  const std::string js = render(testApp).javaScript;
+
+  BOOST_CHECK(js.find("setConfig({resizable:[0]})") != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE( test_hbox_resizable_boundary_reserves_space )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication testApp(environment);
+
+  auto container = testApp.root()->addNew<WContainerWidget>();
+  auto layout = container->setLayout(std::make_unique<WHBoxLayout>());
+
+  layout->addWidget(std::make_unique<WContainerWidget>());
+  layout->addWidget(std::make_unique<WContainerWidget>());
+  layout->setSpacing(0);
+  layout->setResizable(0);
+
+  const std::string html = render(testApp).html;
+
+  BOOST_CHECK(html.find("margin-inline:0px 3px") != std::string::npos);
+  BOOST_CHECK(html.find("margin-inline:4px 0px") != std::string::npos);
 }
 
 BOOST_AUTO_TEST_CASE( test_hbox_layout_itemAt_range )

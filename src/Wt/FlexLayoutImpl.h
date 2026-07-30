@@ -16,6 +16,7 @@ namespace Wt {
 
   class WApplication;
   class WLayout;
+  class WStringStream;
 
 class FlexLayoutImpl : public StdLayoutImpl
 {
@@ -43,6 +44,7 @@ public:
 
 private:
   static const int BIT_OBJECT_NAME_CHANGED = 0;
+  static constexpr int RESIZE_HANDLE_SPACE = 7;
 
   std::bitset<1> flags_;
 
@@ -70,6 +72,11 @@ private:
   int count(Orientation orientation) const;
   int indexOf(WLayoutItem *item, Orientation orientation);
   int getTotalStretch(Orientation orientation);
+  int spacing(Orientation orientation, int index) const;
+  int totalSpacing(Orientation orientation) const;
+
+  bool anyResizable() const;
+  void streamConfig(WStringStream& js);
 
   static StdLayoutImpl *getStdLayoutImpl(WLayoutItem *item);
 

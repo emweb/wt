@@ -15,6 +15,15 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
     WT.LayoutUninitialized += 1;
   }
 
+  /* Thickness of the visible resize handle, in pixels. */
+  const HANDLE_SIZE = 5;
+
+  /* Indices whose following border can be dragged. */
+  let config = { resizable: [] };
+  /* Live resize-handle elements, keyed by the boundary (item) index. */
+  const handles = {};
+  let resizeObserver = null;
+
   function copySizeLimits(from, to) {
     to.style.maxHeight = from.style.maxHeight;
     to.style.minHeight = from.style.minHeight;
@@ -51,6 +60,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
       if (
         c.style.display === "none" ||
         c.classList.contains("out") ||
+        c.classList.contains("Wt-flex-rh") ||
         c.className === "resize-sensor"
       ) {
         continue;
@@ -195,6 +205,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
         if (
           c.style.display === "none" ||
           c.classList.contains("out") ||
+          c.classList.contains("Wt-flex-rh") ||
           c.className === "resize-sensor"
         ) {
           continue;
@@ -216,6 +227,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
         if (
           c.style.display === "none" ||
           c.classList.contains("out") ||
+          c.classList.contains("Wt-flex-rh") ||
           c.className === "resize-sensor"
         ) {
           continue;
@@ -262,6 +274,287 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
           }
         }
       }
+
+      positionHandles();
     }, 0);
   };
+
+  /*
+   * Resize handles.
+   *
+   * A resize handle is an absolutely positioned element between two
+   * adjacent items. It is appended after all item children so it never
+   * disturbs server-side positional inserts. Dragging fixes one section at
+   * a new size and lets Flex redistribute the remaining space, matching the
+   * JavaScript layout implementation.
+   */
+
+  this.setConfig = function(c) {
+    config = c;
+    setTimeout(reconcileHandles, 0);
+  };
+
+  function isHorizontal(el) {
+    const dir = WT.css(el, "flex-direction");
+    return dir === "row" || dir === "row-reverse" || dir === "";
+  }
+
+  /* Direct item children in section order. Hidden items remain in the
+   * list so their indices match the server-side configuration. */
+  function itemChildren(el) {
+    const result = [];
+    for (const c of el.childNodes) {
+      if (
+        !c.classList ||
+        c.classList.contains("out") ||
+        c.classList.contains("Wt-flex-rh") ||
+        c.className === "resize-sensor"
+      ) {
+        continue;
+      }
+      result.push(c);
+    }
+    return result;
+  }
+
+  function minSize(item, horizontal) {
+    const v = WT.px(item, horizontal ? "min-width" : "min-height");
+    return v > 0 ? v : 0;
+  }
+
+  function maxSize(item, horizontal) {
+    const prop = horizontal ? "max-width" : "max-height";
+    const raw = WT.css(item, prop);
+    if (!raw || raw === "none") {
+      return 0;
+    }
+    const v = WT.px(item, prop);
+    return v > 0 ? v : 0;
+  }
+
+  function isHidden(item) {
+    return item.style.display === "none";
+  }
+
+  function isStretchable(item) {
+    if (typeof item.wtFlexStretch === "undefined") {
+      item.wtFlexStretch = item.getAttribute("flg") !== "0";
+    }
+    return item.wtFlexStretch;
+  }
+
+  function itemSize(item, horizontal) {
+    const rect = item.getBoundingClientRect();
+    return horizontal ? rect.width : rect.height;
+  }
+
+  function setItemSize(item, px) {
+    item.style.flexGrow = "0";
+    item.style.flexShrink = "0";
+    /*
+     * The size comes from getBoundingClientRect(), so use border-box
+     * sizing when pinning the section.
+     */
+    item.style.boxSizing = "border-box";
+    item.style.flexBasis = px + "px";
+    item.setAttribute("flg", "0");
+  }
+
+  function reconcileHandles() {
+    const el = WT.getElement(id);
+    if (!el) {
+      return;
+    }
+
+    const resizable = new Set(config.resizable || []);
+    const items = itemChildren(el);
+    const horizontal = isHorizontal(el);
+    const handleClass = "Wt-flex-rh " + (horizontal ? "Wt-vrh2" : "Wt-hrh2");
+
+    /* Remove handles that are no longer valid. */
+    for (const key of Object.keys(handles)) {
+      const i = parseInt(key, 10);
+      if (!resizable.has(i) || i + 1 >= items.length) {
+        const h = handles[key];
+        if (h && h.parentNode) {
+          h.parentNode.removeChild(h);
+        }
+        delete handles[key];
+      }
+    }
+
+    /* Create handles for borders that have a following item. */
+    let anyHandle = false;
+    for (let i = 0; i + 1 < items.length; ++i) {
+      if (!resizable.has(i)) {
+        continue;
+      }
+      anyHandle = true;
+      let h = handles[i];
+      if (!h) {
+        h = document.createElement("div");
+        h.di = i;
+        h.style.position = "absolute";
+        h.onmousedown = h.ontouchstart = function(event) {
+          startResize(this.di, event || window.event);
+        };
+        el.appendChild(h);
+        handles[i] = h;
+      }
+      h.className = handleClass;
+    }
+
+    if (anyHandle) {
+      if (WT.css(el, "position") === "static") {
+        el.style.position = "relative";
+      }
+      if (!resizeObserver && window.ResizeObserver) {
+        resizeObserver = new ResizeObserver(function() {
+          positionHandles();
+        });
+        resizeObserver.observe(el);
+      }
+    } else if (resizeObserver) {
+      resizeObserver.disconnect();
+      resizeObserver = null;
+    }
+
+    positionHandles();
+  }
+
+  function positionHandles() {
+    const el = WT.getElement(id);
+    if (!el) {
+      return;
+    }
+
+    const items = itemChildren(el);
+    const horizontal = isHorizontal(el);
+    const elRect = el.getBoundingClientRect();
+    const originLeft = elRect.left + el.clientLeft;
+    const originTop = elRect.top + el.clientTop;
+    const paddingLeft = WT.pxComputedStyle(el, "padding-left");
+    const paddingRight = WT.pxComputedStyle(el, "padding-right");
+    const paddingTop = WT.pxComputedStyle(el, "padding-top");
+    const paddingBottom = WT.pxComputedStyle(el, "padding-bottom");
+
+    for (const key of Object.keys(handles)) {
+      const i = parseInt(key, 10);
+      const h = handles[key];
+
+      if (i + 1 >= items.length || isHidden(items[i]) || isHidden(items[i + 1])) {
+        h.style.display = "none";
+        continue;
+      }
+      h.style.display = "";
+
+      const a = items[i].getBoundingClientRect();
+      const b = items[i + 1].getBoundingClientRect();
+
+      if (horizontal) {
+        const nearEdge = a.left < b.left ? a.right : b.right;
+        const farEdge = a.left < b.left ? b.left : a.left;
+        const center = (nearEdge + farEdge) / 2;
+        h.style.left = (center - originLeft - HANDLE_SIZE / 2) + "px";
+        h.style.width = HANDLE_SIZE + "px";
+        h.style.top = paddingTop + "px";
+        h.style.height = (el.clientHeight - paddingTop - paddingBottom) + "px";
+      } else {
+        const nearEdge = a.top < b.top ? a.bottom : b.bottom;
+        const farEdge = a.top < b.top ? b.top : a.top;
+        const center = (nearEdge + farEdge) / 2;
+        h.style.top = (center - originTop - HANDLE_SIZE / 2) + "px";
+        h.style.height = HANDLE_SIZE + "px";
+        h.style.left = paddingLeft + "px";
+        h.style.width = (el.clientWidth - paddingLeft - paddingRight) + "px";
+      }
+    }
+  }
+
+  function maxSizeIncrease(items, resized, horizontal) {
+    let stretchable = 0;
+    let fixed = 0;
+    let hasStretchable = false;
+
+    for (const item of items) {
+      if (item === resized || isHidden(item)) {
+        continue;
+      }
+
+      const available = itemSize(item, horizontal) -
+        minSize(item, horizontal);
+      if (isStretchable(item)) {
+        stretchable += available;
+        hasStretchable = true;
+      } else {
+        fixed += available;
+      }
+    }
+
+    return hasStretchable ? stretchable : fixed;
+  }
+
+  function startResize(i, event) {
+    const el = WT.getElement(id);
+    if (!el) {
+      return;
+    }
+
+    const items = itemChildren(el);
+    if (i + 1 >= items.length || isHidden(items[i]) || isHidden(items[i + 1])) {
+      return;
+    }
+
+    const horizontal = isHorizontal(el);
+    const h = handles[i];
+    const before = items[i];
+    const after = items[i + 1];
+    const resized = isStretchable(before) && !isStretchable(after) ?
+      after :
+      before;
+    const other = resized === before ? after : before;
+    const resizedRect = resized.getBoundingClientRect();
+    const otherRect = other.getBoundingClientRect();
+    const visuallyFirst = horizontal ?
+      resizedRect.left < otherRect.left :
+      resizedRect.top < otherRect.top;
+    const direction = visuallyFirst ? 1 : -1;
+    const size = itemSize(resized, horizontal);
+    const minimum = minSize(resized, horizontal);
+    let maximum = size + maxSizeIncrease(items, resized, horizontal);
+    const configuredMaximum = maxSize(resized, horizontal);
+    if (configuredMaximum > 0) {
+      maximum = Math.min(maximum, configuredMaximum);
+    }
+
+    const minDelta = direction > 0 ? minimum - size : size - maximum;
+    const maxDelta = direction > 0 ? maximum - size : size - minimum;
+
+    new WT.SizeHandle(
+      WT,
+      horizontal ? "h" : "v",
+      HANDLE_SIZE,
+      horizontal ? h.offsetHeight : h.offsetWidth,
+      minDelta,
+      maxDelta,
+      /* Keep the transient bar out of the item loops. */
+      (horizontal ? "Wt-hsh2" : "Wt-vsh2") + " Wt-flex-rh",
+      function(delta) {
+        let newSize = size + direction * delta;
+        if (newSize < minimum) {
+          newSize = minimum;
+        }
+        if (newSize > maximum) {
+          newSize = maximum;
+        }
+        setItemSize(resized, newSize);
+        setTimeout(positionHandles, 0);
+      },
+      h,
+      el,
+      event,
+      0,
+      0
+    );
+  }
 });

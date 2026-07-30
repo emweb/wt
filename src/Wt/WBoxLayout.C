@@ -32,7 +32,7 @@ namespace {
 
 namespace Wt {
 
-LOGGER("WBoxLayout");
+WT_MAYBE_UNUSED LOGGER("WBoxLayout");
 
 WBoxLayout::WBoxLayout(LayoutDirection dir)
   : direction_(dir)
@@ -287,12 +287,6 @@ std::unique_ptr<WWidget> WBoxLayout::createSpacer(const WLength& size)
 void WBoxLayout::setResizable(int index, bool enabled,
                               const WLength& initialSize)
 {
-  if (preferredImplementation() == LayoutImplementation::Flex) {
-    LOG_WARN("Resize handles are not supported for flex layout implementation, "
-             "using JavaScript implementation instead");
-    setPreferredImplementation(LayoutImplementation::JavaScript);
-  }
-
   switch (direction_) {
   case LayoutDirection::RightToLeft:
     if ((impl() && implementation() != LayoutImplementation::Flex) || !implementationIsFlexLayout())
