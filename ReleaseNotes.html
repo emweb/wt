@@ -132,6 +132,13 @@ behaviour.
     <a href="classWt_1_1WApplication.html#a314a5461dc410f4713ab1b1258fd8ced" target="_blank">WApplication::sessionId()</a>).
     This allows to use those function without having to worry about the session changing id in another thread.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/12496" target="_blank">Issue #12496</a>:
+    made <code>Wt::FileUtils::getTempDir()</code> and <code>Wt::FileUtils::createTempFileName()</code> weak symbols on
+    non-Windows platforms when compiled with a GNU-compatible compiler like GCC or Clang, allowing applications to
+    replace them at link time with their own implementations, for example to control where temporary files are created
+    or how their names are generated.
+  </li>
 </ul>
 
 <h2>Release 4.14.4 (October 1, 2026)</h2>
