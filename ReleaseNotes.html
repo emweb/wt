@@ -277,6 +277,17 @@ behaviour.
     fixed suspicious get requests not being treated as bot requests by some features,
     when it should.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13872" target="_blank">Issue #13872</a>:
+    fixed
+    <a href="classWt_1_1WCompositeWidget.html" target="_blank">WCompositeWidget</a> not applying the theme
+    style classes (such as those of a
+    <a href="classWt_1_1WPanel.html" target="_blank">WPanel</a>) of its implementation widget.
+    As part of this fix, the protected helper
+    <a href="classWt_1_1WTheme.html#adad836a7aad091a9b3fcc650b8a48f39" target="_blank">WTheme::resolveImplementation()</a> was
+    added, which custom themes can use to resolve the implementation widget of a
+    <a href="classWt_1_1WCompositeWidget.html" target="_blank">WCompositeWidget</a>.
+  </li>
 </ul>
 
 <h2>Release 4.14.0 (July 15, 2026)</h2>
