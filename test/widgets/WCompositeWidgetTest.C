@@ -25,11 +25,40 @@
 #include <Wt/WTreeView.h>
 #include <Wt/Test/WTestEnvironment.h>
 
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WCssTheme.h>
+#include <Wt/WDateEdit.h>
+#include <Wt/WPanel.h>
+#include <Wt/WTimeEdit.h>
+
 // Note: In this file tests are repeated. This is done to test multiple themes.
 // If no theme is specified, the default of WCssTheme is used.
 // Then, a Bootstrap theme is selected each time in alternating fashion.
 // For all Bootstrap themes the disabled class name is always the same, so their
 // outcomes ought to be identical.
+
+namespace {
+
+// A minimal user-defined composite widget whose implementation is a framework
+// widget of type T. This mirrors the pattern from issue #13872, where a
+// WCompositeWidget's implementation (e.g. a WPanel) should still receive its
+// theme style classes.
+template <typename T>
+class ImplWrapper : public Wt::WCompositeWidget
+{
+public:
+  ImplWrapper()
+  {
+    impl_ = setImplementation(std::make_unique<T>());
+  }
+
+  T *impl() const { return impl_; }
+
+private:
+  T *impl_;
+};
+
+}
 
 BOOST_AUTO_TEST_CASE( WCompositeWidget_WMenu_setDisabled )
 {
@@ -1135,6 +1164,182 @@ BOOST_AUTO_TEST_CASE( WCompositeWidget_WTreeTable_addChildNode_when_setDisabled_
 
   BOOST_REQUIRE(!treeTablePtr->treeRoot()->childNodes()[1]->isDisabled());
   BOOST_REQUIRE(!treeTablePtr->treeRoot()->childNodes()[1]->hasStyleClass("disabled"));
+
+  delete domElement;
+}
+
+// Issue #13872: theme style classes of a widget used as the implementation of a
+// WCompositeWidget must be applied. Before the fix, the theme only inspected the
+// outermost widget of the render subtree (the user composite), so a wrapped
+// WPanel/WDateEdit/WTimeEdit never received its style classes.
+
+namespace {
+
+template <typename Panel>
+ImplWrapper<Panel> *addWrappedPanel(Wt::WApplication& app)
+{
+  auto wrapper = app.root()->addWidget(std::make_unique<ImplWrapper<Panel>>());
+  wrapper->impl()->setTitle("Title");
+  wrapper->impl()->setCollapsible(true);
+  wrapper->impl()->setCentralWidget(std::make_unique<Wt::WText>("content"));
+  return wrapper;
+}
+
+}
+
+BOOST_AUTO_TEST_CASE( WCompositeWidget_WPanel_implementation_appliesThemeStyle )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+  app.setTheme(std::make_shared<Wt::WCssTheme>("default"));
+
+  auto wrapper = addWrappedPanel<Wt::WPanel>(app);
+
+  auto domElement = wrapper->createSDomElement(&app);
+
+  BOOST_TEST(wrapper->hasStyleClass("Wt-panel"));
+  BOOST_TEST(wrapper->hasStyleClass("Wt-outset"));
+
+  delete domElement;
+}
+
+BOOST_AUTO_TEST_CASE( WCompositeWidget_WPanel_implementation_appliesThemeStyle_Bootstrap2 )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+  app.setTheme(std::make_shared<Wt::WBootstrap2Theme>());
+
+  auto wrapper = addWrappedPanel<Wt::WPanel>(app);
+
+  auto domElement = wrapper->createSDomElement(&app);
+
+  BOOST_TEST(wrapper->hasStyleClass("accordion-group"));
+
+  delete domElement;
+}
+
+BOOST_AUTO_TEST_CASE( WCompositeWidget_WPanel_implementation_appliesThemeStyle_Bootstrap3 )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+  app.setTheme(std::make_shared<Wt::WBootstrap3Theme>());
+
+  auto wrapper = addWrappedPanel<Wt::WPanel>(app);
+
+  auto domElement = wrapper->createSDomElement(&app);
+
+  BOOST_TEST(wrapper->hasStyleClass("panel"));
+  BOOST_TEST(wrapper->hasStyleClass("panel-default"));
+
+  delete domElement;
+}
+
+BOOST_AUTO_TEST_CASE( WCompositeWidget_WPanel_implementation_appliesThemeStyle_Bootstrap5 )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+  app.setTheme(std::make_shared<Wt::WBootstrap5Theme>());
+
+  auto wrapper = addWrappedPanel<Wt::WPanel>(app);
+
+  auto domElement = wrapper->createSDomElement(&app);
+
+  BOOST_TEST(wrapper->hasStyleClass("card"));
+  BOOST_TEST(wrapper->hasStyleClass("Wt-panel"));
+
+  delete domElement;
+}
+
+BOOST_AUTO_TEST_CASE( WCompositeWidget_WDateEdit_implementation_appliesThemeStyle )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+  app.setTheme(std::make_shared<Wt::WCssTheme>("default"));
+
+  auto wrapper = app.root()->addWidget(std::make_unique<ImplWrapper<Wt::WDateEdit>>());
+
+  auto domElement = wrapper->createSDomElement(&app);
+
+  BOOST_TEST(wrapper->hasStyleClass("Wt-dateedit"));
+
+  delete domElement;
+}
+
+BOOST_AUTO_TEST_CASE( WCompositeWidget_WDateEdit_implementation_appliesThemeStyle_Bootstrap5 )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+  app.setTheme(std::make_shared<Wt::WBootstrap5Theme>());
+
+  auto wrapper = app.root()->addWidget(std::make_unique<ImplWrapper<Wt::WDateEdit>>());
+
+  auto domElement = wrapper->createSDomElement(&app);
+
+  BOOST_TEST(wrapper->hasStyleClass("Wt-dateedit"));
+
+  delete domElement;
+}
+
+BOOST_AUTO_TEST_CASE( WCompositeWidget_WDateEdit_implementation_nativeControl_noPopupStyle )
+{
+  // Regression guard for the ticket note: a native date control must NOT get the
+  // custom (popup) style class, even when used as a composite's implementation.
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+  app.setTheme(std::make_shared<Wt::WBootstrap5Theme>());
+
+  auto wrapper = app.root()->addWidget(std::make_unique<ImplWrapper<Wt::WDateEdit>>());
+  wrapper->impl()->setNativeControl(true);
+
+  auto domElement = wrapper->createSDomElement(&app);
+
+  BOOST_TEST(!wrapper->hasStyleClass("Wt-dateedit"));
+
+  delete domElement;
+}
+
+BOOST_AUTO_TEST_CASE( WCompositeWidget_WTimeEdit_implementation_appliesThemeStyle )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+  app.setTheme(std::make_shared<Wt::WCssTheme>("default"));
+
+  auto wrapper = app.root()->addWidget(std::make_unique<ImplWrapper<Wt::WTimeEdit>>());
+
+  auto domElement = wrapper->createSDomElement(&app);
+
+  BOOST_TEST(wrapper->hasStyleClass("Wt-timeedit"));
+
+  delete domElement;
+}
+
+BOOST_AUTO_TEST_CASE( WCompositeWidget_WTimeEdit_implementation_appliesThemeStyle_Bootstrap5 )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+  app.setTheme(std::make_shared<Wt::WBootstrap5Theme>());
+
+  auto wrapper = app.root()->addWidget(std::make_unique<ImplWrapper<Wt::WTimeEdit>>());
+
+  auto domElement = wrapper->createSDomElement(&app);
+
+  BOOST_TEST(wrapper->hasStyleClass("Wt-timeedit"));
+
+  delete domElement;
+}
+
+BOOST_AUTO_TEST_CASE( WCompositeWidget_WTimeEdit_implementation_nativeControl_noPopupStyle )
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+  app.setTheme(std::make_shared<Wt::WBootstrap5Theme>());
+
+  auto wrapper = app.root()->addWidget(std::make_unique<ImplWrapper<Wt::WTimeEdit>>());
+  wrapper->impl()->setNativeControl(true);
+
+  auto domElement = wrapper->createSDomElement(&app);
+
+  BOOST_TEST(!wrapper->hasStyleClass("Wt-timeedit"));
 
   delete domElement;
 }

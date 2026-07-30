@@ -198,21 +198,21 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
   }
 
   case DomElementType::DIV: {
-    auto dialog = dynamic_cast<WDialog *>(widget);
+    auto dialog = resolveImplementation<WDialog>(widget);
     if (dialog) {
       element.addPropertyWord(Property::Class, "modal");
       element.addPropertyWord(Property::Class, "Wt-dialog");
       return;
     }
 
-    auto panel = dynamic_cast<WPanel *>(widget);
+    auto panel = resolveImplementation<WPanel>(widget);
     if (panel) {
       element.addPropertyWord(Property::Class, "card");
       element.addPropertyWord(Property::Class, "Wt-panel");
       return;
     }
 
-    auto bar = dynamic_cast<WProgressBar *>(widget);
+    auto bar = resolveImplementation<WProgressBar>(widget);
     if (bar) {
       switch (elementRole) {
       case MainElement:
@@ -225,13 +225,13 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
       return;
     }
 
-    auto map = dynamic_cast<WGoogleMap *>(widget);
+    auto map = resolveImplementation<WGoogleMap>(widget);
     if (map) {
       element.addPropertyWord(Property::Class, "Wt-googlemap");
       return;
     }
 
-    auto navBar = dynamic_cast<const WNavigationBar *>(widget);
+    auto navBar = resolveImplementation<WNavigationBar>(widget);
     if (navBar) {
       element.addPropertyWord(Property::Class, "navbar");
       if (!hasNavbarExpandClass(navBar)) {
@@ -296,9 +296,9 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
       break;
     }
 
-    auto tb = dynamic_cast<WAbstractToggleButton *>(widget);
-    auto sl = dynamic_cast<WSlider *>(widget);
-    auto fu = dynamic_cast<WFileUpload *>(widget);
+    auto tb = resolveImplementation<WAbstractToggleButton>(widget);
+    auto sl = resolveImplementation<WSlider>(widget);
+    auto fu = resolveImplementation<WFileUpload>(widget);
     if (!(tb || sl || fu))
       element.addPropertyWord(Property::Class, "form-control");
     else if (sl && !sl->nativeControl()) {
@@ -309,19 +309,19 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
       }
     }
 
-    auto spinBox = dynamic_cast<WAbstractSpinBox *>(widget);
+    auto spinBox = resolveImplementation<WAbstractSpinBox>(widget);
     if (spinBox) {
       element.addPropertyWord(Property::Class, "Wt-spinbox");
       return;
     }
 
-    auto dateEdit = dynamic_cast<WDateEdit *>(widget);
+    auto dateEdit = resolveImplementation<WDateEdit>(widget);
     if (dateEdit && !dateEdit->nativeControl()) {
       element.addPropertyWord(Property::Class, "Wt-dateedit");
       return;
     }
 
-    auto timeEdit = dynamic_cast<WTimeEdit *>(widget);
+    auto timeEdit = resolveImplementation<WTimeEdit>(widget);
     if (timeEdit && !timeEdit->nativeControl()) {
       element.addPropertyWord(Property::Class, "Wt-timeedit");
       return;

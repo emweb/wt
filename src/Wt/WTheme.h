@@ -257,6 +257,35 @@ public:
   virtual WColor sliderTickColor() const { return WColor(0xd7, 0xd7, 0xd7); }
 
 protected:
+  /*! \brief Resolves the implementation widget of type \p T.
+   *
+   * Returns the outermost widget of type \p T in the composite implementation
+   * chain starting at \p widget (inclusive), descending through each
+   * WCompositeWidget's implementation widget; returns \c nullptr if no such
+   * widget exists.
+   *
+   * A theme's apply() should use this instead of a plain
+   * <tt>dynamic_cast<T *>(widget)</tt> when it needs to recognize the type of
+   * the widget that a DOM element renders. When a framework widget (e.g. a
+   * WPanel) is used as the implementation of a WCompositeWidget, the theme is
+   * called with the outer composite as \p widget; a plain cast would then fail
+   * and no style classes would be applied. For a widget that is not a
+   * composite the type is matched at the first level, so the result is
+   * identical to <tt>dynamic_cast<T *>(widget)</tt>.
+   */
+  template <typename T>
+  static T *resolveImplementation(WWidget *widget)
+  {
+    while (widget) {
+      if (T *result = dynamic_cast<T *>(widget))
+        return result;
+
+      widget = compositeImplementation(widget);
+    }
+
+    return nullptr;
+  }
+
   /*! \brief Applies the functional part of the theme to a widget's child.
    *
    * Only applies the functional part of the theme. This means that
@@ -285,6 +314,16 @@ protected:
     const = 0;
 
   friend class WBootstrapTheme;
+
+private:
+  /*
+   * Returns the implementation widget of \p widget when it is a
+   * WCompositeWidget, or nullptr otherwise. Defined out-of-line (WTheme.C) so
+   * this header does not need the full WCompositeWidget definition; WTheme is
+   * a friend of WCompositeWidget so it may call its protected
+   * implementation().
+   */
+  static WWidget *compositeImplementation(WWidget *widget);
 };
 
 }

@@ -185,21 +185,21 @@ void WBootstrap3Theme::apply(WWidget *widget, DomElement& element,
 
   case DomElementType::DIV:
     {
-      WDialog *dialog = dynamic_cast<WDialog *>(widget);
+      WDialog *dialog = resolveImplementation<WDialog>(widget);
       if (dialog) {
         element.addPropertyWord(Property::Class, "modal-dialog");
         element.addPropertyWord(Property::Class, "Wt-dialog");
         return;
       }
 
-      WPanel *panel = dynamic_cast<WPanel *>(widget);
+      WPanel *panel = resolveImplementation<WPanel>(widget);
       if (panel) {
         element.addPropertyWord(Property::Class, "panel");
         element.addPropertyWord(Property::Class, "panel-default");
         return;
       }
 
-      WProgressBar *bar = dynamic_cast<WProgressBar *>(widget);
+      WProgressBar *bar = resolveImplementation<WProgressBar>(widget);
       if (bar) {
         switch (elementRole) {
         case MainElement:
@@ -215,19 +215,19 @@ void WBootstrap3Theme::apply(WWidget *widget, DomElement& element,
         return;
       }
 
-      WGoogleMap *map = dynamic_cast<WGoogleMap *>(widget);
+      WGoogleMap *map = resolveImplementation<WGoogleMap>(widget);
       if (map) {
         element.addPropertyWord(Property::Class, "Wt-googlemap");
         return;
       }
 
-      WAbstractItemView *itemView = dynamic_cast<WAbstractItemView *>(widget);
+      WAbstractItemView *itemView = resolveImplementation<WAbstractItemView>(widget);
       if (itemView) {
         element.addPropertyWord(Property::Class, "form-inline");
         return;
       }
 
-      WNavigationBar *navBar = dynamic_cast<WNavigationBar *>(widget);
+      WNavigationBar *navBar = resolveImplementation<WNavigationBar>(widget);
       if (navBar) {
         element.addPropertyWord(Property::Class, "navbar");
         element.addPropertyWord(Property::Class, "navbar-default");
@@ -280,24 +280,24 @@ void WBootstrap3Theme::apply(WWidget *widget, DomElement& element,
     {
       if (formControlStyle_) {
         WAbstractToggleButton *tb
-          = dynamic_cast<WAbstractToggleButton *>(widget);
+          = resolveImplementation<WAbstractToggleButton>(widget);
         if (!tb)
           element.addPropertyWord(Property::Class, "form-control");
       }
 
-      WAbstractSpinBox *spinBox = dynamic_cast<WAbstractSpinBox *>(widget);
+      WAbstractSpinBox *spinBox = resolveImplementation<WAbstractSpinBox>(widget);
       if (spinBox) {
         element.addPropertyWord(Property::Class, "Wt-spinbox");
         return;
       }
 
-      WDateEdit *dateEdit = dynamic_cast<WDateEdit *>(widget);
+      WDateEdit *dateEdit = resolveImplementation<WDateEdit>(widget);
       if (dateEdit && !dateEdit->nativeControl()) {
         element.addPropertyWord(Property::Class, "Wt-dateedit");
         return;
       }
 
-      WTimeEdit *timeEdit = dynamic_cast<WTimeEdit *>(widget);
+      WTimeEdit *timeEdit = resolveImplementation<WTimeEdit>(widget);
       if (timeEdit && !timeEdit->nativeControl()) {
         element.addPropertyWord(Property::Class, "Wt-timeedit");
         return;

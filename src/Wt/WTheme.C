@@ -5,6 +5,7 @@
  */
 
 #include "Wt/WApplication.h"
+#include "Wt/WCompositeWidget.h"
 #include "Wt/WCssTheme.h"
 #include "Wt/WLinkedCssStyleSheet.h"
 #include "Wt/WLogger.h"
@@ -15,6 +16,12 @@ LOGGER("WTheme");
 
 WTheme::WTheme()
 { }
+
+WWidget *WTheme::compositeImplementation(WWidget *widget)
+{
+  WCompositeWidget *composite = dynamic_cast<WCompositeWidget *>(widget);
+  return composite ? composite->implementation() : nullptr;
+}
 
 std::string WTheme::resourcesUrl() const
 {

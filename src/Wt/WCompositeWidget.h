@@ -288,6 +288,7 @@ private:
 
   friend class WPopupWidget;
   friend class WPopupMenu;
+  friend class WTheme;
 };
 
 }
