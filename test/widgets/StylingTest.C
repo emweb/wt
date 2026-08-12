@@ -25,6 +25,7 @@
 #include <Wt/WPushButton.h>
 #include <Wt/WSplitButton.h>
 #include <Wt/WStandardItemModel.h>
+#include <Wt/WStringStream.h>
 #include <Wt/WTableView.h>
 #include <Wt/WTemplate.h>
 #include <Wt/WText.h>
@@ -387,6 +388,29 @@ void testBootstrap5ThemeRequiredClass(WT_MAYBE_UNUSED const Wt::WApplication& te
 }
 
 } // namespace
+
+BOOST_AUTO_TEST_CASE(wtableview_column_alignment_updates_css_rule)
+{
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication testApp(environment);
+  WTableView tableView;
+  tableView.setModel(std::make_shared<WStandardItemModel>(0, 1));
+
+  const std::string selector = "#" + tableView.id() + " .Wt-tv-c1";
+
+  WStringStream initialUpdate;
+  testApp.styleSheet().javaScriptUpdate(&testApp, initialUpdate, true);
+
+  tableView.setColumnAlignment(0, AlignmentFlag::Center);
+
+  WStringStream incrementalUpdate;
+  testApp.styleSheet().javaScriptUpdate(&testApp, incrementalUpdate, false);
+  const std::string javaScript = incrementalUpdate.str();
+
+  BOOST_TEST(javaScript.find("getCssRule('" + selector + "')") !=
+             std::string::npos);
+  BOOST_TEST(javaScript.find("text-align: center") != std::string::npos);
+}
 
 BOOST_AUTO_TEST_CASE(disabled_css_theme_required_classes)
 {

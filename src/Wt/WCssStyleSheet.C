@@ -21,6 +21,13 @@ public:
     : rule_(rule)
   { }
 
+  virtual void setAttributeValue(const std::string& name,
+                                 const WT_USTRING& value) override {
+    WWebWidget::setAttributeValue(name, value);
+    if (name == "style")
+      rule_->modified();
+  }
+
   virtual void setPositionScheme(PositionScheme scheme) override {
     WWebWidget::setPositionScheme(scheme);
     rule_->modified();
