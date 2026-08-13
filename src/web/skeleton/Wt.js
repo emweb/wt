@@ -4504,8 +4504,33 @@ window._$_APP_CLASS_$_ = new (function() {
     return "0";
   }
 
+  function sendUnloadBeacon() {
+    if (
+      hasQuit ||
+      self !== window._$_APP_CLASS_$_ ||
+      typeof navigator === UNDEFINED ||
+      typeof navigator.sendBeacon !== "function"
+    ) {
+      return false;
+    }
+
+    try {
+      const request = "request=jsupdate" +
+        "&ackId=" + ackUpdateId +
+        "&pageId=" + pageId +
+        "&signal=user&id=app&name=Wt-unload&an=0";
+      const body = new Blob(
+        [request],
+        { type: "application/x-www-form-urlencoded" }
+      );
+      return navigator.sendBeacon(sessionUrl, body);
+    } catch (e) {
+      return false;
+    }
+  }
+
   window.addEventListener("pagehide", () => {
-    if (!hasQuit) {
+    if (!sendUnloadBeacon() && !hasQuit) {
       self.emit(self, "Wt-unload");
       scheduleUpdate();
       sendUpdate();

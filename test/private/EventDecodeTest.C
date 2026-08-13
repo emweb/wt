@@ -228,3 +228,42 @@ BOOST_AUTO_TEST_CASE( EventDecodeTest_negativeTouchId )
     BOOST_REQUIRE(Wt::WPointF(touch.widget()) == Wt::WPointF(Wt::Coordinates(101,39)));
   }
 }
+
+// Verifies that the dedicated form-encoded unload request is parsed into
+// request parameters. This is request-format coverage; it does not exercise
+// browser lifecycle behavior or navigator.sendBeacon. See issue #14709.
+BOOST_AUTO_TEST_CASE( EventDecodeTest_beaconUnload )
+{
+  MockRequest request;
+  const std::string body =
+    "request=jsupdate&"
+    "ackId=-1&"
+    "pageId=1&"
+    "signal=user&"
+    "id=app&"
+    "name=Wt-unload&"
+    "an=0";
+  request.setContentLength(static_cast<int64_t>(body.size()));
+  request.setContentType("application/x-www-form-urlencoded");
+  request.requestMethod_ = "POST";
+  request.queryString_ = "wtd=Jacx1tBYN9YMuZ8FIUsvzCJW1u8SshgO";
+  request.in_.str(body);
+
+  Wt::CgiParser parser{1024, 1024};
+  parser.parse(request, Wt::CgiParser::ReadDefault);
+
+  const std::string *req = request.getParameter("request");
+  const std::string *ackId = request.getParameter("ackId");
+  const std::string *pageId = request.getParameter("pageId");
+  const std::string *signal = request.getParameter("signal");
+  const std::string *id = request.getParameter("id");
+  const std::string *name = request.getParameter("name");
+  const std::string *an = request.getParameter("an");
+  BOOST_REQUIRE(req && *req == "jsupdate");
+  BOOST_REQUIRE(ackId && *ackId == "-1");
+  BOOST_REQUIRE(pageId && *pageId == "1");
+  BOOST_REQUIRE(signal && *signal == "user");
+  BOOST_REQUIRE(id && *id == "app");
+  BOOST_REQUIRE(name && *name == "Wt-unload");
+  BOOST_REQUIRE(an && *an == "0");
+}
