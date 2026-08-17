@@ -584,6 +584,16 @@ void Server::handleRequest(int serverSocket)
        */
       if (conf.sessionPolicy() == Configuration::DedicatedProcess) {
         /*
+         * Don't create a new session if we reached the maximum number
+         * of sessions.
+         */
+        if ((int)sessions_.size() > conf.maxNumSessions()) {
+          LOG_ERROR_S(&wt_, "session limit reached (" <<
+                      conf.maxNumSessions() << ')');
+          break;
+        }
+
+        /*
          * For dedicated process, create session at server, so that we
          * can keep track of process id for the session
          */
@@ -604,14 +614,7 @@ void Server::handleRequest(int serverSocket)
 
         /*
          * Create and fork a new session.
-         *
-         * But not if we have already too many sessions running...
          */
-        if ((int)sessions_.size() > conf.maxNumSessions()) {
-          LOG_ERROR_S(&wt_, "session limit reached (" <<
-                      conf.maxNumSessions() << ')');
-          break;
-        }
 
         pid_t pid = fork();
         if (pid == -1) {
