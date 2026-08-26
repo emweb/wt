@@ -161,6 +161,12 @@ behaviour.
     fixed the configuration parsing looking for the <code>original-ip-header</code> element outside of the <code>trusted-proxy-config</code> block
     instead of within it.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14772" target="_blank">Issue #14772</a>:
+    fixed dynamically added CSS rules sometimes being written into another
+    style element in the document instead of Wt's own inline style sheet,
+    potentially preventing the application from rendering.
+  </li>
 </ul>
 
 <p>Wt 4.15.0 also comes with the following improvements:</p>
