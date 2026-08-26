@@ -1768,21 +1768,15 @@ if (!window._$_WT_CLASS_$_) {
 
     function getInlineStyleSheet() {
       if (!inlineStyleSheet) {
-        const ds = document.styleSheets;
-        for (let i = 0, il = ds.length; i < il; ++i) {
-          const s = ds[i];
-          if (WT.hasTag(ds[i].ownerNode, "STYLE")) {
-            inlineStyleSheet = s;
-            break;
-          }
-        }
+        let s = document.getElementById("Wt-inline-css");
 
-        if (!inlineStyleSheet) {
-          const s = document.createElement("style");
+        if (!s) {
+          s = document.createElement("style");
+          s.id = "Wt-inline-css";
           document.getElementsByTagName("head")[0].appendChild(s);
-
-          inlineStyleSheet = s.sheet;
         }
+
+        inlineStyleSheet = s.sheet;
       }
 
       return inlineStyleSheet;
