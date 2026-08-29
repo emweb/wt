@@ -1406,6 +1406,7 @@ WCartesianChart::WCartesianChart()
     onDemandLoadingEnabled_(false),
     loadingBackground_(StandardColor::LightGray),
     cObjCreated_(false),
+    hasAjax_(false),
     jsSeriesSelected_(this, "seriesSelected"),
     loadTooltip_(this, "loadTooltip")
 {
@@ -1436,6 +1437,7 @@ WCartesianChart::WCartesianChart(ChartType type)
     onDemandLoadingEnabled_(false),
     loadingBackground_(StandardColor::LightGray),
     cObjCreated_(false),
+    hasAjax_(false),
     jsSeriesSelected_(this, "seriesSelected"),
     loadTooltip_(this, "loadTooltip")
 {
@@ -1451,6 +1453,33 @@ WCartesianChart::~WCartesianChart()
   for (std::size_t i = 0; i < copy.size(); ++i) {
     copy[i]->setSeries(nullptr);
   }
+}
+
+void WCartesianChart::enableAjax()
+{
+  WAbstractChart::enableAjax();
+  if (!hasAjax_) {
+    enableEventHandlers();
+  }
+  hasAjax_ = true;
+}
+
+// Needs ajax enabled
+void WCartesianChart::enableEventHandlers()
+{
+  mouseWentDown().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseDown(o, e);}}");
+  mouseWentUp().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseUp(o, e);}}");
+  mouseDragged().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseDrag(o, e);}}");
+  mouseMoved().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseMove(o, e);}}");
+  mouseWheel().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseWheel(o, e);}}");
+  mouseWentOut().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseOut(o, e);}}");
+  touchStarted().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.touchStart(o, e);}}");
+  touchEnded().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.touchEnd(o, e);}}");
+  touchMoved().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.touchMoved(o, e);}}");
+  clicked().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.clicked(o, e);}}");
+  jsSeriesSelected_.connect(this, &WCartesianChart::jsSeriesSelected);
+  loadTooltip_.connect(this, &WCartesianChart::loadTooltip);
+  voidEventSignal("dragstart", true)->preventDefaultAction(true);
 }
 
 void WCartesianChart::init()
@@ -1486,20 +1515,9 @@ void WCartesianChart::init()
     yAxes_[i].transformChanged.reset(new JSignal<>(this, "yTransformChanged" + std::to_string(i)));
   }
 
-  if (WApplication::instance() && WApplication::instance()->environment().ajax()) {
-    mouseWentDown().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseDown(o, e);}}");
-    mouseWentUp().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseUp(o, e);}}");
-    mouseDragged().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseDrag(o, e);}}");
-    mouseMoved().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseMove(o, e);}}");
-    mouseWheel().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseWheel(o, e);}}");
-    mouseWentOut().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.mouseOut(o, e);}}");
-    touchStarted().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.touchStart(o, e);}}");
-    touchEnded().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.touchEnd(o, e);}}");
-    touchMoved().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.touchMoved(o, e);}}");
-    clicked().connect("function(o, e){var o=" + this->cObjJsRef() + ";if(o){o.clicked(o, e);}}");
-    jsSeriesSelected_.connect(this, &WCartesianChart::jsSeriesSelected);
-    loadTooltip_.connect(this, &WCartesianChart::loadTooltip);
-    voidEventSignal("dragstart", true)->preventDefaultAction(true);
+  hasAjax_ = WApplication::instance() && WApplication::instance()->environment().ajax();
+  if (hasAjax_) {
+    enableEventHandlers();
   }
 
   wheelActions_[KeyboardModifier::None] = InteractiveAction::PanMatching;
