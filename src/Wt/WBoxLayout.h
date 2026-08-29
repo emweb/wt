@@ -121,13 +121,13 @@ public:
    *
    * \sa direction()
    */
-  void setDirection(LayoutDirection direction);
+  virtual void setDirection(LayoutDirection dir);
 
   /*! \brief Returns the layout direction.
    *
    * \sa setDirection()
    */
-  LayoutDirection direction() const { return direction_; }
+  virtual LayoutDirection direction()  { return direction_; }
 
   /*! \brief Sets spacing between each item.
    *
@@ -386,6 +386,7 @@ public:
   virtual bool implementationIsFlexLayout() const override;
 
 protected:
+  WBoxLayout(){}
   void insertItem(int index, std::unique_ptr<WLayoutItem> item, int stretch,
                   WFlags<AlignmentFlag> alignment);
 
