@@ -330,6 +330,7 @@ IF(ENABLE_LIBWTTEST)
       set(HTTP_TEST_SOURCES ${HTTP_TEST_SOURCES}
         http/HttpClientServerTest.C
         http/BotTest.C
+        http/WebSocketTest.C
         resource/WStreamResourceTest.C
         resource/WResourceTest.C
       )
