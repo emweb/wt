@@ -732,9 +732,11 @@ DomElement *FlexLayoutImpl::createElement(Orientation orientation,
     int flexGrow = totalStretch == 0 ? 1 : stretch;
     WWidget *layoutContainer = container();
     bool fitContentContainer = layoutContainer &&
-      !(orientation == Orientation::Horizontal ?
-        layoutContainer->maximumWidth() :
-        layoutContainer->maximumHeight()).isAuto();
+      (orientation == Orientation::Horizontal ?
+        layoutContainer->width().isAuto() &&
+          !layoutContainer->maximumWidth().isAuto() :
+        layoutContainer->height().isAuto() &&
+          !layoutContainer->maximumHeight().isAuto());
     bool hasContentSizingItem = false;
     for (int i = 0; i < count(orientation); ++i) {
       if (hasContentSizingKeyword(item(orientation, i).item_.get(),

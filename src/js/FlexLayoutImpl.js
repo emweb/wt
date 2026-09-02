@@ -123,11 +123,21 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
       return;
     }
 
+    const layoutElement = WT.getElement(id);
+    if (layoutElement) {
+      let flexItem = item;
+      while (flexItem && flexItem.parentElement !== layoutElement) {
+        flexItem = flexItem.parentElement;
+      }
+      if (flexItem) {
+        markContentSizingKeyword(flexItem, hasContentSizingKeyword);
+      }
+    }
+
     let delagateMaxSize = false;
 
     if (p.classList.contains("Wt-fill-width")) {
       p.style.flexBasis = height;
-      markContentSizingKeyword(p, hasContentSizingKeyword);
       item.style.height = "auto";
       item.style.maxWidth = maxWidth;
       item.style.maxHeight = maxHeight;
@@ -144,7 +154,6 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "FlexLayout", function(APP, id, t
         justifyWrap.style.flexBasis = width;
       }
       p.style.flexBasis = width;
-      markContentSizingKeyword(p, hasContentSizingKeyword);
       const internalWrap = p.children[0];
       internalWrap.style.flexBasis = height;
       item.style.height = "auto";
