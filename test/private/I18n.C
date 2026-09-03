@@ -7,13 +7,17 @@
 
 #include "Wt/Test/WTestEnvironment.h"
 #include "Wt/WApplication.h"
+#include "Wt/WMessageResourceBundle.h"
 #include "Wt/WString.h"
+#include "Wt/cpp17/filesystem.hpp"
 
 #include "web/FileUtils.h"
 
 #include <boost/algorithm/string/predicate.hpp>
 
+#include <fstream>
 #include <iostream>
+#include <stdexcept>
 
 namespace {
 
@@ -35,6 +39,115 @@ std::string trn(const std::string &key, int n)
   return Wt::WString::trn(key, n).arg(n).toUTF8();
 }
 
+class TemporaryMessageResourceBundle
+{
+public:
+  TemporaryMessageResourceBundle()
+    : path_(Wt::FileUtils::createTempFileName())
+  {
+    if (path_.empty()) {
+      throw std::runtime_error("Could not create a temporary file");
+    }
+  }
+
+  ~TemporaryMessageResourceBundle()
+  {
+    Wt::cpp17::fs_error_code error;
+    Wt::cpp17::filesystem::remove(path_, error);
+    Wt::cpp17::filesystem::remove(fileName(""), error);
+    Wt::cpp17::filesystem::remove(fileName("_nl"), error);
+  }
+
+  const std::string& path() const
+  {
+    return path_;
+  }
+
+  std::string fileName(const std::string& suffix) const
+  {
+    return path_ + suffix + ".xml";
+  }
+
+  void write(const std::string& suffix, const std::string& key,
+             const std::string& value)
+  {
+    std::ofstream file(fileName(suffix).c_str(),
+                       std::ios::binary | std::ios::trunc);
+    file << "<messages><message id=\"" << key << "\">" << value
+         << "</message></messages>";
+    file.close();
+
+    if (!file) {
+      throw std::runtime_error("Could not write a temporary resource file");
+    }
+  }
+
+private:
+  std::string path_;
+};
+
+}
+
+BOOST_AUTO_TEST_CASE( I18n_messageResourceBundleServerCache )
+{
+  TemporaryMessageResourceBundle files;
+  files.write("", "fallback", "base");
+  files.write("_nl", "localized", "initial");
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+  const Wt::WLocale locale("nl-BE");
+
+  Wt::WMessageResourceBundle original;
+  original.use(files.path(), false);
+  BOOST_REQUIRE_EQUAL(original.resolveKey(locale, "localized").value,
+                      "initial");
+  BOOST_REQUIRE_EQUAL(original.resolveKey(locale, "fallback").value, "base");
+
+  const std::string localizedFile = files.fileName("_nl");
+  const auto originalWriteTime
+    = Wt::cpp17::filesystem::last_write_time(localizedFile);
+  const auto originalSize = Wt::cpp17::filesystem::file_size(localizedFile);
+
+  files.write("_nl", "localized", "changed");
+  Wt::cpp17::filesystem::last_write_time(localizedFile, originalWriteTime);
+  BOOST_REQUIRE(Wt::cpp17::filesystem::last_write_time(localizedFile)
+                == originalWriteTime);
+  BOOST_REQUIRE_EQUAL(Wt::cpp17::filesystem::file_size(localizedFile),
+                      originalSize);
+
+  Wt::WMessageResourceBundle sameMetadata;
+  sameMetadata.use(files.path());
+  BOOST_REQUIRE_EQUAL(sameMetadata.resolveKey(locale, "localized").value,
+                      "initial");
+  BOOST_REQUIRE_EQUAL(sameMetadata.resolveKey(locale, "fallback").value,
+                      "base");
+
+  files.write("_nl", "localized", "refreshed");
+  BOOST_REQUIRE(Wt::cpp17::filesystem::file_size(localizedFile)
+                != originalSize);
+
+  Wt::WMessageResourceBundle refreshed;
+  refreshed.use(files.path());
+  BOOST_REQUIRE_EQUAL(refreshed.resolveKey(locale, "localized").value,
+                      "refreshed");
+  BOOST_REQUIRE_EQUAL(refreshed.resolveKey(locale, "fallback").value, "base");
+
+  const std::set<std::string> originalKeys = original.keys(locale);
+  BOOST_REQUIRE(originalKeys.find("localized") != originalKeys.end());
+  BOOST_REQUIRE_EQUAL(original.resolveKey(locale, "localized").value,
+                      "initial");
+  BOOST_REQUIRE_EQUAL(sameMetadata.resolveKey(locale, "localized").value,
+                      "initial");
+
+  sameMetadata.hibernate();
+  BOOST_REQUIRE_EQUAL(sameMetadata.resolveKey(locale, "localized").value,
+                      "initial");
+
+  original.hibernate();
+  BOOST_REQUIRE_EQUAL(original.resolveKey(locale, "localized").value,
+                      "refreshed");
+  BOOST_REQUIRE_EQUAL(original.resolveKey(locale, "fallback").value, "base");
 }
 
 BOOST_AUTO_TEST_CASE( I18n_messageResourceBundleTest )

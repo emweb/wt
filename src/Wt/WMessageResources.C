@@ -14,6 +14,11 @@
 #include "Wt/WLogger.h"
 #include "Wt/WMessageResources.h"
 #include "Wt/WStringStream.h"
+#ifndef WT_TARGET_JAVA
+#include "Wt/WApplication.h"
+#include "Wt/WEnvironment.h"
+#include "Wt/WServer.h"
+#endif // WT_TARGET_JAVA
 
 #include "DomElement.h"
 #include "WebUtils.h"
@@ -319,7 +324,9 @@ std::set<std::string> WMessageResources::keys(const WLocale& locale) const
   std::lock_guard<std::recursive_mutex> lock(resourceMutex_);
 #endif
   
-  load(locale);
+  if (resources_.find(locale.name()) == resources_.end()) {
+    load(locale);
+  }
 
   std::set<std::string> keys;
 
@@ -337,6 +344,25 @@ std::set<std::string> WMessageResources::keys(const WLocale& locale) const
 void WMessageResources::load(const WLocale& locale) const
 {
   if (!path_.empty()) {
+#ifndef WT_TARGET_JAVA
+    WApplication *app = WApplication::instance();
+    WServer *server = app ? app->environment().server() : WServer::instance();
+    if (server) {
+      // Prevent logging during parsing from loading this locale again.
+      resources_[locale.name()] = Resource();
+      std::string parseError;
+      const bool loaded
+        = server->loadMessageResource(*this, locale, parseError);
+      if (!parseError.empty()) {
+        LOG_ERROR(parseError);
+      }
+      if (!loaded && locale.name().empty()) {
+        LOG_ERROR("Could not load resource bundle: " << path_ << ".xml");
+      }
+      return;
+    }
+#endif // WT_TARGET_JAVA
+
     Resource& target = resources_[locale.name()];
     std::string l = locale.name();
 
@@ -464,14 +490,15 @@ LocalizedString WMessageResources::resolvePlural(const std::string& locale,
 }
 
 bool WMessageResources::readResourceFile(const std::string& locale,
-                                         Resource& resource) const
+                                         Resource& resource,
+                                         std::string *error) const
 {
   if (!path_.empty()) {
     std::string fileName
       = path_ + (locale.length() > 0 ? "_" : "") + locale + ".xml";
 
     std::ifstream s(fileName.c_str(), std::ios::binary);
-    return readResourceStream(s, resource, fileName);
+    return readResourceStream(s, resource, fileName, error);
   } else {
     return false;
   }
@@ -479,7 +506,8 @@ bool WMessageResources::readResourceFile(const std::string& locale,
 
 bool WMessageResources::readResourceStream(std::istream &s,
                                            Resource& resource,
-                                           const std::string &fileName) const
+                                           const std::string &fileName,
+                                           std::string *error) const
 {
   if (!s)
     return false;
@@ -644,9 +672,15 @@ bool WMessageResources::readResourceStream(std::istream &s,
       }
     }
   } catch (parse_error& e) {
-    LOG_ERROR("Error reading " << fileName
-              << ": at character " << (int)(e.where<char>() - text.get())
-              << ": " << e.what());
+    WStringStream message;
+    message << "Error reading " << fileName
+            << ": at character " << (int)(e.where<char>() - text.get())
+            << ": " << e.what();
+    if (error) {
+      *error = message.str();
+    } else {
+      LOG_ERROR(message.str());
+    }
   }
 
   return true;
@@ -676,4 +710,3 @@ int WMessageResources::evalPluralCase(const std::string &expression,
 
 }
 #endif // WT_CNOR
-

@@ -16,10 +16,18 @@
 
 #include <boost/algorithm/string.hpp>
 
+#ifndef WT_TARGET_JAVA
+#include <fstream>
+#include <map>
+#include <mutex>
+#endif // WT_TARGET_JAVA
+
 #include "Wt/WIOService.h"
 #include "Wt/WResource.h"
 #include "Wt/WServer.h"
 #include "Wt/WWebSocketResource.h"
+#include "Wt/WMessageResources.h"
+#include "Wt/cpp17/filesystem.hpp"
 
 #include "Configuration.h"
 #include "WebController.h"
@@ -27,6 +35,100 @@
 namespace Wt {
 
 LOGGER("WServer");
+
+#ifndef WT_TARGET_JAVA
+struct WServer::MessageResourceCache
+{
+  typedef decltype(cpp17::filesystem::last_write_time(
+    cpp17::filesystem::path())) LastWriteTime;
+  typedef decltype(cpp17::filesystem::file_size(
+    cpp17::filesystem::path())) FileSize;
+
+  struct Metadata {
+    LastWriteTime lastWriteTime_;
+    FileSize fileSize_;
+
+    Metadata()
+      : lastWriteTime_(),
+        fileSize_()
+    { }
+
+    bool operator==(const Metadata& other) const
+    {
+      return lastWriteTime_ == other.lastWriteTime_
+        && fileSize_ == other.fileSize_;
+    }
+  };
+
+  struct Entry {
+    std::string fileName_;
+    Metadata metadata_;
+    WMessageResources::Resource resource_;
+    std::string parseError_;
+  };
+
+  struct Source {
+    std::string locale_;
+    std::string fileName_;
+    Metadata metadata_;
+    bool hasMetadata_;
+
+    Source()
+      : hasMetadata_(false)
+    { }
+  };
+
+  typedef std::map<std::string, Entry> LocaleCache;
+  typedef std::map<std::string, LocaleCache> Cache;
+
+#ifdef WT_THREADED
+  std::mutex mutex_;
+#endif // WT_THREADED
+  Cache cache_;
+
+  static bool readMetadata(const std::string& fileName, Metadata& metadata)
+  {
+    cpp17::fs_error_code error;
+    const LastWriteTime lastWriteTime
+      = cpp17::filesystem::last_write_time(fileName, error);
+    if (error) {
+      return false;
+    }
+
+    const FileSize fileSize = cpp17::filesystem::file_size(fileName, error);
+    if (error) {
+      return false;
+    }
+
+    metadata.lastWriteTime_ = lastWriteTime;
+    metadata.fileSize_ = fileSize;
+    return true;
+  }
+
+  static bool findSource(const std::string& path, const std::string& locale,
+                         Source& source)
+  {
+    source.locale_ = locale;
+
+    for (;;) {
+      source.fileName_ = path + (source.locale_.empty() ? "" : "_")
+        + source.locale_ + ".xml";
+      std::ifstream file(source.fileName_.c_str(), std::ios::binary);
+      if (file) {
+        source.hasMetadata_ = readMetadata(source.fileName_, source.metadata_);
+        return true;
+      }
+
+      const std::string::size_type i = source.locale_.rfind('-');
+      if (i == std::string::npos) {
+        return false;
+      }
+
+      source.locale_.erase(i);
+    }
+  }
+};
+#endif // WT_TARGET_JAVA
 
   namespace {
     bool CatchSignals = true;
@@ -58,6 +160,10 @@ void WServer::init(const std::string& wtApplicationPath,
   logger_.addField("type", false);
   logger_.addField("message", true);
 
+#ifndef WT_TARGET_JAVA
+  messageResourceCache_ = std::make_shared<MessageResourceCache>();
+#endif // WT_TARGET_JAVA
+
   instance_ = this;
 }
 
@@ -73,6 +179,101 @@ void WServer::destroy()
 
   instance_ = 0;
 }
+
+#ifndef WT_TARGET_JAVA
+bool WServer::loadMessageResource(const WMessageResources& resources,
+                                  const WLocale& locale,
+                                  std::string& parseError)
+{
+#ifdef WT_THREADED
+  std::lock_guard<std::mutex> lock(messageResourceCache_->mutex_);
+#endif // WT_THREADED
+
+  MessageResourceCache::LocaleCache& localeCache
+    = messageResourceCache_->cache_[resources.path_];
+  const std::string requestedLocale = locale.name();
+  parseError.clear();
+
+  const auto setMissing = [&]() {
+    localeCache.erase(requestedLocale);
+    resources.resources_[requestedLocale] = WMessageResources::Resource();
+    return false;
+  };
+
+  const auto loadUncached = [&]() {
+    localeCache.erase(requestedLocale);
+    WMessageResources::Resource parsed = WMessageResources::Resource();
+    std::string sourceLocale = requestedLocale;
+
+    for (;;) {
+      std::string error;
+      if (resources.readResourceFile(sourceLocale, parsed, &error)) {
+        resources.resources_[requestedLocale] = parsed;
+        parseError = error;
+        return true;
+      }
+
+      const std::string::size_type i = sourceLocale.rfind('-');
+      if (i == std::string::npos) {
+        return setMissing();
+      }
+
+      sourceLocale.erase(i);
+    }
+  };
+
+  const unsigned maxCacheAttempts = 3;
+  for (unsigned attempt = 0; attempt < maxCacheAttempts; ++attempt) {
+    MessageResourceCache::Source source;
+    if (!MessageResourceCache::findSource(resources.path_, requestedLocale,
+                                          source)) {
+      return setMissing();
+    }
+
+    if (!source.hasMetadata_) {
+      return loadUncached();
+    }
+
+    MessageResourceCache::LocaleCache::const_iterator cached
+      = localeCache.find(requestedLocale);
+    if (cached != localeCache.end()
+        && cached->second.fileName_ == source.fileName_
+        && cached->second.metadata_ == source.metadata_) {
+      resources.resources_[requestedLocale] = cached->second.resource_;
+      parseError = cached->second.parseError_;
+      return true;
+    }
+
+    WMessageResources::Resource parsed = WMessageResources::Resource();
+    std::string parsedError;
+    if (!resources.readResourceFile(source.locale_, parsed, &parsedError)) {
+      continue;
+    }
+
+    MessageResourceCache::Source checkedSource;
+    if (!MessageResourceCache::findSource(resources.path_, requestedLocale,
+                                          checkedSource)
+        || !checkedSource.hasMetadata_
+        || checkedSource.locale_ != source.locale_
+        || checkedSource.fileName_ != source.fileName_
+        || !(checkedSource.metadata_ == source.metadata_)) {
+      continue;
+    }
+
+    MessageResourceCache::Entry& entry = localeCache[requestedLocale];
+    entry.fileName_ = source.fileName_;
+    entry.metadata_ = source.metadata_;
+    entry.resource_ = parsed;
+    entry.parseError_ = parsedError;
+    resources.resources_[requestedLocale] = entry.resource_;
+    parseError = parsedError;
+    return true;
+  }
+
+  // Do not let a continuously changing source monopolize the cache mutex.
+  return loadUncached();
+}
+#endif // WT_TARGET_JAVA
 
 void WServer
 ::setLocalizedStrings(const std::shared_ptr<WLocalizedStrings>& stringResolver)

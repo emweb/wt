@@ -21,6 +21,7 @@
 
 namespace Wt {
 
+class WServer;
 class WString;
 
 class WT_API WMessageResources
@@ -44,6 +45,10 @@ public:
   std::set<std::string> keys(const WLocale& locale) const;
 
 private:
+#ifndef WT_TARGET_JAVA
+  friend class WServer;
+#endif // WT_TARGET_JAVA
+
   typedef std::map<std::string, std::vector<std::string> > KeyValuesMap;
 
   struct Resource {
@@ -65,9 +70,11 @@ private:
   void load(const WLocale& locale) const;
   LocalizedString resolve(const std::string& locale, const std::string& key) const;
   LocalizedString resolvePlural(const std::string& locale, const std::string& key, ::uint64_t amount) const;
-  bool readResourceFile(const std::string& locale, Resource& resource) const;
+  bool readResourceFile(const std::string& locale, Resource& resource,
+                        std::string *error = nullptr) const;
   bool readResourceStream(std::istream &s, Resource& resource,
-                          const std::string &fileName) const;
+                          const std::string &fileName,
+                          std::string *error = nullptr) const;
 
   std::string findCase(const std::vector<std::string> &cases,
                        std::string pluralExpression,

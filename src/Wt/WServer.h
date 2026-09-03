@@ -12,6 +12,7 @@
 #include <Wt/WLogger.h>
 
 #include <chrono>
+#include <memory>
 #include <shared_mutex>
 
 namespace http {
@@ -25,6 +26,7 @@ class Configuration;
 class WebController;
 class WIOService;
 #ifndef WT_TARGET_JAVA
+class WMessageResources;
 class WWebSocketResource;
 #endif // WT_TARGET_JAVA
 
@@ -739,6 +741,15 @@ private:
   WebController *webController_;
 
 #ifndef WT_TARGET_JAVA
+  friend class WMessageResources;
+
+  struct MessageResourceCache;
+  std::shared_ptr<MessageResourceCache> messageResourceCache_;
+
+  bool loadMessageResource(const WMessageResources& resources,
+                           const WLocale& locale,
+                           std::string& parseError);
+
   std::vector<std::shared_ptr<WWebSocketResource>> webSocketResources_;
 
   WLogger logger_;
