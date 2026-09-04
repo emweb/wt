@@ -8,6 +8,7 @@
 #include "Wt/Test/WTestEnvironment.h"
 #include "Wt/WApplication.h"
 #include "Wt/WMessageResourceBundle.h"
+#include "Wt/WServer.h"
 #include "Wt/WString.h"
 #include "Wt/cpp17/filesystem.hpp"
 
@@ -15,8 +16,10 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 
+#include <chrono>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 
 namespace {
@@ -43,7 +46,8 @@ class TemporaryMessageResourceBundle
 {
 public:
   TemporaryMessageResourceBundle()
-    : path_(Wt::FileUtils::createTempFileName())
+    : path_(Wt::FileUtils::createTempFileName()),
+      revision_(0)
   {
     if (path_.empty()) {
       throw std::runtime_error("Could not create a temporary file");
@@ -56,6 +60,7 @@ public:
     Wt::cpp17::filesystem::remove(path_, error);
     Wt::cpp17::filesystem::remove(fileName(""), error);
     Wt::cpp17::filesystem::remove(fileName("_nl"), error);
+    Wt::cpp17::filesystem::remove(fileName("_nl-BE"), error);
   }
 
   const std::string& path() const
@@ -80,10 +85,20 @@ public:
     if (!file) {
       throw std::runtime_error("Could not write a temporary resource file");
     }
+
+    // Give each write a distinct timestamp, even on coarse filesystems.
+    const auto written = Wt::cpp17::filesystem::last_write_time(fileName(suffix));
+#ifdef WT_FILESYSTEM_IMPL_BOOST
+    const auto timestamp = written + ++revision_;
+#else
+    const auto timestamp = written + std::chrono::seconds(++revision_);
+#endif
+    Wt::cpp17::filesystem::last_write_time(fileName(suffix), timestamp);
   }
 
 private:
   std::string path_;
+  unsigned revision_;
 };
 
 }
@@ -116,6 +131,12 @@ BOOST_AUTO_TEST_CASE( I18n_messageResourceBundleServerCache )
   BOOST_REQUIRE_EQUAL(Wt::cpp17::filesystem::file_size(localizedFile),
                       originalSize);
 
+  const Wt::WLocale otherLocale("nl-NL");
+  Wt::WMessageResourceBundle sameSource;
+  sameSource.use(files.path());
+  BOOST_REQUIRE_EQUAL(sameSource.resolveKey(otherLocale, "localized").value,
+                      "initial");
+
   Wt::WMessageResourceBundle sameMetadata;
   sameMetadata.use(files.path());
   BOOST_REQUIRE_EQUAL(sameMetadata.resolveKey(locale, "localized").value,
@@ -139,6 +160,8 @@ BOOST_AUTO_TEST_CASE( I18n_messageResourceBundleServerCache )
                       "initial");
   BOOST_REQUIRE_EQUAL(sameMetadata.resolveKey(locale, "localized").value,
                       "initial");
+  BOOST_REQUIRE_EQUAL(sameSource.resolveKey(otherLocale, "localized").value,
+                      "initial");
 
   sameMetadata.hibernate();
   BOOST_REQUIRE_EQUAL(sameMetadata.resolveKey(locale, "localized").value,
@@ -148,6 +171,121 @@ BOOST_AUTO_TEST_CASE( I18n_messageResourceBundleServerCache )
   BOOST_REQUIRE_EQUAL(original.resolveKey(locale, "localized").value,
                       "refreshed");
   BOOST_REQUIRE_EQUAL(original.resolveKey(locale, "fallback").value, "base");
+}
+
+BOOST_AUTO_TEST_CASE( I18n_messageResourceBundleServerCacheEvents )
+{
+  TemporaryMessageResourceBundle files;
+  files.write("_nl", "localized", "initial");
+  const std::string localizedFile = files.fileName("_nl");
+  const auto originalWriteTime
+    = Wt::cpp17::filesystem::last_write_time(localizedFile);
+  const auto originalSize = Wt::cpp17::filesystem::file_size(localizedFile);
+
+  std::ostringstream cacheLog;
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+  environment.server()->logger().configure("* -debug debug:WServer");
+  environment.server()->logger().setStream(cacheLog);
+
+  const auto checkConsumer = [&](const std::string& locale,
+                                 const std::string& value,
+                                 const std::string& event) {
+    cacheLog.str("");
+    Wt::WMessageResourceBundle consumer;
+    consumer.use(files.path());
+    BOOST_CHECK_EQUAL(consumer.resolveKey(Wt::WLocale(locale),
+                                         "localized").value, value);
+    BOOST_CHECK(cacheLog.str().find("message resource cache: " + event
+                                   + ": " + localizedFile)
+                != std::string::npos);
+  };
+
+  checkConsumer("nl-BE", "initial", "load");
+  checkConsumer("nl-NL", "initial", "hit");
+
+#ifdef WT_FILESYSTEM_IMPL_BOOST
+  const auto touchedWriteTime = originalWriteTime - 60;
+#else
+  const auto touchedWriteTime = originalWriteTime - std::chrono::seconds(60);
+#endif
+  Wt::cpp17::filesystem::last_write_time(localizedFile, touchedWriteTime);
+  BOOST_REQUIRE(Wt::cpp17::filesystem::last_write_time(localizedFile)
+                != originalWriteTime);
+  checkConsumer("nl-BE", "initial", "reload");
+
+  files.write("_nl", "localized", "changed");
+  Wt::cpp17::filesystem::last_write_time(localizedFile, touchedWriteTime);
+  BOOST_REQUIRE(Wt::cpp17::filesystem::last_write_time(localizedFile)
+                == touchedWriteTime);
+  BOOST_REQUIRE_EQUAL(Wt::cpp17::filesystem::file_size(localizedFile),
+                      originalSize);
+  checkConsumer("nl-BE", "initial", "hit");
+  checkConsumer("nl-NL", "initial", "hit");
+
+  Wt::cpp17::filesystem::last_write_time(localizedFile, originalWriteTime);
+  checkConsumer("nl-BE", "changed", "reload");
+  checkConsumer("nl-NL", "changed", "hit");
+
+  files.write("_nl", "localized", "<wrong>");
+  checkConsumer("nl-BE", "", "reload");
+  BOOST_CHECK(cacheLog.str().find("Error reading " + localizedFile)
+              != std::string::npos);
+  checkConsumer("nl-NL", "", "hit");
+  BOOST_CHECK(cacheLog.str().find("Error reading " + localizedFile)
+              != std::string::npos);
+
+  files.write("_nl", "localized", "correct");
+  checkConsumer("nl-BE", "correct", "reload");
+
+  std::ofstream(localizedFile.c_str(), std::ios::binary | std::ios::trunc).close();
+  checkConsumer("nl-BE", "", "reload");
+  BOOST_CHECK(cacheLog.str().find("Error reading " + localizedFile)
+              != std::string::npos);
+  checkConsumer("nl-NL", "", "hit");
+  BOOST_CHECK(cacheLog.str().find("Error reading " + localizedFile)
+              != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE( I18n_messageResourceBundleServerCacheSourceChanges )
+{
+  TemporaryMessageResourceBundle files;
+  files.write("", "greeting", "base");
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+  const auto checkConsumer = [&](const std::string& value) {
+    Wt::WMessageResourceBundle consumer;
+    consumer.use(files.path());
+    BOOST_CHECK_EQUAL(consumer.resolveKey(Wt::WLocale("nl-BE"),
+                                         "greeting").value, value);
+  };
+
+  checkConsumer("base");
+  files.write("_nl", "greeting", "Dutch");
+  checkConsumer("Dutch");
+  files.write("_nl-BE", "greeting", "Belgian");
+  checkConsumer("Belgian");
+  BOOST_REQUIRE(Wt::cpp17::filesystem::remove(files.fileName("_nl-BE")));
+  checkConsumer("Dutch");
+  BOOST_REQUIRE(Wt::cpp17::filesystem::remove(files.fileName("_nl")));
+  checkConsumer("base");
+  files.write("_nl-BE", "greeting", "returned");
+  checkConsumer("returned");
+}
+
+BOOST_AUTO_TEST_CASE( I18n_messageResourceBundleServerCacheUnreadableSource )
+{
+  TemporaryMessageResourceBundle files;
+  files.write("_nl", "greeting", "Dutch");
+  BOOST_REQUIRE(Wt::cpp17::filesystem::create_directory(files.fileName("_nl-BE")));
+
+  Wt::Test::WTestEnvironment environment;
+  Wt::WApplication app(environment);
+  Wt::WMessageResourceBundle consumer;
+  consumer.use(files.path());
+  BOOST_CHECK_EQUAL(consumer.resolveKey(Wt::WLocale("nl-BE"),
+                                        "greeting").value, "Dutch");
 }
 
 BOOST_AUTO_TEST_CASE( I18n_messageResourceBundleTest )
