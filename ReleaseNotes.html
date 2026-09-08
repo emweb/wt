@@ -58,6 +58,14 @@ behaviour.
     modification time is checked for every new consumer. Changes that
     preserve this timestamp do not invalidate the cache.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/7417" target="_blank">Issue #7417</a>:
+    HTML canvas rendering in
+    <a href="classWt_1_1WPaintedWidget.html" target="_blank">WPaintedWidget</a>
+    now takes the browser's device pixel ratio into account. This makes painted
+    widgets, including charts, render more sharply on high-DPI displays.
+    Canvases are automatically repainted when the device pixel ratio changes.
+  </li>
 </ul>
 
 <h2>Release 4.14.4 (October 1, 2026)</h2>
