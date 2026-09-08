@@ -207,9 +207,32 @@ bool WebController::expireSessions()
   for (unsigned i = 0; i < toExpire.size(); ++i) {
     std::shared_ptr<WebSession> session = toExpire[i];
 
+    std::unique_ptr<WebSession::Handler> handler;
+#ifdef WT_THREADED
+    const auto lockDeadline = std::chrono::steady_clock::now()
+      + std::chrono::milliseconds(100);
+#endif // WT_THREADED
+    do {
+      handler = std::make_unique<WebSession::Handler>
+        (session, WebSession::Handler::LockOption::TryLock);
+#ifdef WT_THREADED
+      if (!handler->haveLock()) {
+        handler.reset();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+      }
+#endif // WT_THREADED
+    } while (!handler
+#ifdef WT_THREADED
+             && std::chrono::steady_clock::now() < lockDeadline
+#endif // WT_THREADED
+    );
+
+    if (!handler) {
+      LOG_WARN_S(session, "timeout: could not acquire lock to expire session");
+      continue;
+    }
+
     LOG_INFO_S(session, "timeout: expiring");
-    WebSession::Handler handler(session,
-                                WebSession::Handler::LockOption::TakeLock);
 
 #ifdef WT_THREADED
     std::unique_lock<std::recursive_mutex> lock(mutex_);

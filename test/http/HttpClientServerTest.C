@@ -21,6 +21,7 @@
 
 #include <chrono>
 #include <condition_variable>
+#include <future>
 #include <mutex>
 #include <thread>
 
@@ -788,6 +789,76 @@ BOOST_AUTO_TEST_CASE( application_expired_while_newid )
 
     t.join();
   }
+}
+
+BOOST_AUTO_TEST_CASE( application_expiration_skips_locked_session )
+{
+  Server server;
+  server.configuration().setBootstrapMethod(Configuration::Progressive);
+
+  std::vector<WApplication *> applications;
+  server.addEntryPoint(EntryPointType::Application,
+                       [&applications] (const WEnvironment& env) {
+                         auto application = std::make_unique<WApplication>(env);
+                         applications.push_back(application.get());
+                         return application;
+                       });
+
+  BOOST_REQUIRE(server.start());
+
+  Client client1;
+  client1.get("http://" + server.address());
+  client1.waitDone();
+
+  BOOST_REQUIRE(!client1.err());
+  BOOST_REQUIRE(client1.message().status() == 200);
+
+  Client client2;
+  client2.get("http://" + server.address());
+  client2.waitDone();
+
+  BOOST_REQUIRE(!client2.err());
+  BOOST_REQUIRE(client2.message().status() == 200);
+  BOOST_REQUIRE_EQUAL(applications.size(), 2);
+
+  WebController *controller = applications[0]->session()->controller();
+  BOOST_REQUIRE_EQUAL(controller->sessionCount(), 2);
+
+  server.configuration().setSessionTimeout(0);
+  {
+    WApplication::UpdateLock lock(applications[1]);
+    applications[1]->session()->setLoaded();
+  }
+
+  WApplication *lockedApplication = applications[0];
+  std::promise<void> lockHeldPromise;
+  std::future<void> lockHeld = lockHeldPromise.get_future();
+  std::promise<void> releaseLockPromise;
+  std::future<void> releaseLock = releaseLockPromise.get_future();
+  std::thread lockThread([lockedApplication, &lockHeldPromise, &releaseLock] {
+    WApplication::UpdateLock lock(lockedApplication);
+    lockedApplication->session()->setLoaded();
+    lockHeldPromise.set_value();
+    releaseLock.wait();
+  });
+
+  lockHeld.wait();
+  std::future<bool> expiration = std::async(std::launch::async, [controller] {
+    return controller->expireSessions();
+  });
+  const bool expirationReturned =
+    expiration.wait_for(std::chrono::seconds(1)) == std::future_status::ready;
+  const int remainingSessions = controller->sessionCount();
+
+  releaseLockPromise.set_value();
+  lockThread.join();
+  expiration.get();
+
+  BOOST_REQUIRE(expirationReturned);
+  BOOST_REQUIRE_EQUAL(remainingSessions, 1);
+
+  controller->expireSessions();
+  BOOST_REQUIRE_EQUAL(controller->sessionCount(), 0);
 }
 
 BOOST_AUTO_TEST_CASE( http_wresource_exception )
