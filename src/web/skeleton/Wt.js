@@ -948,37 +948,48 @@ if (!window._$_WT_CLASS_$_) {
         e = window.event;
       }
 
+      if (e.touches && e.touches[0]) {
+        e = e.touches[0];
+      } else if (e.changedTouches && e.changedTouches[0]) {
+        e = e.changedTouches[0];
+      }
+
       let posX = 0, posY = 0;
 
       const target = e.target || e.srcElement;
 
-      // if this is an iframe, offset against the frame's position
+      // Translate iframe viewport coordinates to the outer page. Using
+      // client coordinates avoids including the iframe's own scroll.
       if (target && (target.ownerDocument !== document)) {
         for (let i = 0; i < window.frames.length; i++) {
-          if (target.ownerDocument === window.frames[i].document) {
-            try {
-              const rect = window.frames[i].frameElement.getBoundingClientRect();
-              posX = rect.left;
-              posY = rect.top;
-            } catch (e) {
-              // Empty catch
+          try {
+            if (target.ownerDocument === window.frames[i].document) {
+              const frame = window.frames[i].frameElement;
+              const origin = WT.widgetPageCoordinates(frame);
+              posX = origin.x + frame.clientLeft;
+              posY = origin.y + frame.clientTop;
+              if (typeof e.clientX === "number") {
+                posX += e.clientX;
+                posY += e.clientY;
+              } else if (typeof e.pageX === "number") {
+                posX += e.pageX - window.frames[i].pageXOffset;
+                posY += e.pageY - window.frames[i].pageYOffset;
+              }
+              return { x: posX, y: posY };
             }
+          } catch (e) {
+            // Ignore inaccessible frames.
           }
         }
       }
 
-      if (e.touches && e.touches[0]) {
-        return WT.pageCoordinates(e.touches[0]);
-      } else if (e.changedTouches && e.changedTouches[0]) {
-        posX += e.changedTouches[0].pageX;
-        posY += e.changedTouches[0].pageY;
-      } else if (typeof e.pageX === "number") {
-        posX += e.pageX;
+      if (typeof e.pageX === "number") {
+        posX = e.pageX;
         posY = e.pageY;
       } else if (typeof e.clientX === "number") {
-        posX += e.clientX + document.body.scrollLeft +
+        posX = e.clientX + document.body.scrollLeft +
           document.documentElement.scrollLeft;
-        posY += e.clientY + document.body.scrollTop +
+        posY = e.clientY + document.body.scrollTop +
           document.documentElement.scrollTop;
       }
 
@@ -1554,6 +1565,11 @@ if (!window._$_WT_CLASS_$_) {
 
       if (e) {
         const t = WT.target(e);
+        // WTextEdit forwards iframe events to its textarea. Other capture
+        // targets, including its ancestors, still need explicit delivery.
+        if (t && t.ownerDocument && t.ownerDocument.wtCaptureTarget === captureElement) {
+          return null;
+        }
         let p = t;
 
         while (p && p !== captureElement) {
@@ -1694,6 +1710,7 @@ if (!window._$_WT_CLASS_$_) {
         try {
           if (!window.frames[i].document.body.hasMouseHandlers) {
             attachMouseHandlers(window.frames[i].document.body);
+            attachTouchHandlers(window.frames[i].document.body);
             window.frames[i].document.body.hasMouseHandlers = true;
           }
         } catch (e) {
@@ -2891,19 +2908,21 @@ window._$_APP_CLASS_$_ = new (function() {
 
     for (let i = 0, il = touches.length; i < il; ++i) {
       const t = touches[i];
+      const page = WT.pageCoordinates(t);
+      const client = WT.windowCoordinates(t);
       if (i !== 0) {
         result += ";";
       }
       result += [
         t.identifier,
-        Math.round(t.clientX),
-        Math.round(t.clientY),
-        Math.round(t.pageX),
-        Math.round(t.pageY),
+        Math.round(client.x),
+        Math.round(client.y),
+        Math.round(page.x),
+        Math.round(page.y),
         Math.round(t.screenX),
         Math.round(t.screenY),
-        Math.round(t.pageX - widgetCoords.x),
-        Math.round(t.pageY - widgetCoords.y),
+        Math.round(page.x - widgetCoords.x),
+        Math.round(page.y - widgetCoords.y),
       ].join(";");
     }
 

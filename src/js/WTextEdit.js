@@ -96,6 +96,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el, ex
     }
 
     const doc = iframe.contentDocument;
+    // Events forwarded below already reach this widget without capture.
+    doc.wtCaptureTarget = el;
 
     for (
       const type of [
