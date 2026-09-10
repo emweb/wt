@@ -7,6 +7,8 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <Wt/WApplication.h>
+#include <Wt/WLink.h>
 #include <Wt/WResource.h>
 #include <Wt/WServer.h>
 #include <Wt/WIOService.h>
@@ -566,6 +568,97 @@ BOOST_AUTO_TEST_CASE( http_client_address_forward_for_includes_us_on_subnet )
     // Should get IP address from X-Forwarded-For
     BOOST_REQUIRE(client.message().body() == "127.0.0.10");
   }
+}
+
+BOOST_AUTO_TEST_CASE( resource_link_after_session_id_change )
+{
+  Server server;
+  server.configuration().setBootstrapMethod(Configuration::Progressive);
+
+  WApplication *app = nullptr;
+  server.addEntryPoint(EntryPointType::Application,
+                       [&app] (const WEnvironment& env) {
+                         auto application = std::make_unique<WApplication>(env);
+                         app = application.get();
+                         return application;
+                       });
+  BOOST_REQUIRE(server.start());
+
+  // Complete the initial render so session ID rotation is enabled.
+  Client client;
+  BOOST_REQUIRE(client.get("http://" + server.address()));
+  client.waitDone();
+  BOOST_REQUIRE(!client.err());
+  BOOST_REQUIRE_EQUAL(client.message().status(), 200);
+  BOOST_REQUIRE(app);
+
+  WApplication::UpdateLock lock(app);
+  BOOST_REQUIRE(lock);
+
+  auto resource = std::make_shared<TestResource>();
+  WLink link(resource);
+  const std::string oldSessionId = app->sessionId();
+  const std::string oldUrl = link.url();
+  BOOST_REQUIRE(oldUrl.find("wtd=" + oldSessionId) != std::string::npos);
+
+  int changeCount = 0;
+  resource->dataChanged().connect([&changeCount] { ++changeCount; });
+
+  app->changeSessionId();
+
+  const std::string newSessionId = app->sessionId();
+  BOOST_REQUIRE_NE(newSessionId, oldSessionId);
+  BOOST_CHECK_NE(link.url(), oldUrl);
+  BOOST_CHECK(link.url().find("wtd=" + newSessionId) != std::string::npos);
+  BOOST_CHECK(link.url().find("wtd=" + oldSessionId) == std::string::npos);
+  BOOST_CHECK_EQUAL(changeCount, 1);
+}
+
+BOOST_AUTO_TEST_CASE( resource_deleted_after_session_id_change )
+{
+  Server server;
+  server.configuration().setBootstrapMethod(Configuration::Progressive);
+
+  WApplication *app = nullptr;
+  server.addEntryPoint(EntryPointType::Application,
+                       [&app] (const WEnvironment& env) {
+                         auto application = std::make_unique<WApplication>(env);
+                         app = application.get();
+                         return application;
+                       });
+  BOOST_REQUIRE(server.start());
+
+  // Complete the initial render so session ID rotation is enabled.
+  Client client;
+  BOOST_REQUIRE(client.get("http://" + server.address()));
+  client.waitDone();
+  BOOST_REQUIRE(!client.err());
+  BOOST_REQUIRE_EQUAL(client.message().status(), 200);
+  BOOST_REQUIRE(app);
+
+  WApplication::UpdateLock lock(app);
+  BOOST_REQUIRE(lock);
+
+  // A change callback may destroy another exposed resource.
+  auto first = std::make_unique<TestResource>();
+  auto second = std::make_unique<TestResource>();
+  first->url();
+  second->url();
+
+  int deletionCount = 0;
+  first->dataChanged().connect([&second, &deletionCount] {
+    second.reset();
+    ++deletionCount;
+  });
+  second->dataChanged().connect([&first, &deletionCount] {
+    first.reset();
+    ++deletionCount;
+  });
+
+  app->changeSessionId();
+
+  BOOST_CHECK_EQUAL(deletionCount, 1);
+  BOOST_CHECK(static_cast<bool>(first) != static_cast<bool>(second));
 }
 
 BOOST_AUTO_TEST_CASE( resource_invalid_after_changed )

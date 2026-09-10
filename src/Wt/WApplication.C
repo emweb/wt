@@ -645,7 +645,28 @@ std::string WApplication::sessionId() const
 #ifndef WT_TARGET_JAVA
 void WApplication::changeSessionId()
 {
+  const std::string oldSessionId = sessionId();
   session_->generateNewSessionId();
+
+  if (sessionId() == oldSessionId) {
+    return;
+  }
+
+  // Change callbacks may remove or destroy other exposed resources.
+  std::vector<observing_ptr<WResource> > resources;
+  resources.reserve(exposedResources_.size());
+  for (const auto& resource : exposedResources_) {
+    resources.emplace_back(resource.second);
+  }
+
+  for (const auto& resource : resources) {
+    if (resource) {
+      auto i = exposedResources_.find(resourceMapKey(resource.get()));
+      if (i != exposedResources_.end() && i->second == resource.get()) {
+        resource->setChanged();
+      }
+    }
+  }
 }
 #endif // WT_TARGET_JAVA
 
