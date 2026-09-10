@@ -9,6 +9,8 @@
 
 #include <algorithm>
 
+#include <Wt/WException.h>
+
 #include <Wt/Dbo/Session.h>
 
 #include <Wt/Form/Dbo/FieldOptions.h>

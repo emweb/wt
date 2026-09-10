@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages>
+  <!-- Renders one model field when FormView binds its matching widget. -->
+  <message id="field">
+    ${<if:{1}>}
+      <p>
+        <label for="${id:{1}}">${tr:{1}.label}</label><br />
+        ${{1}} ${{1}-info}
+      </p>
+    ${</if:{1}>}
+  </message>
+
+  <!-- Lays out the complete form and expands the field template above. -->
+  <message id="contact-form">
+    <div>
+      <h1>Simple Dbo Form</h1>
+      ${block:field name}
+      ${block:field email}
+      ${block:field age}
+      ${block:field date_of_birth}
+      ${block:field balance}
+      ${block:field receives_newsletter}
+      <p>${save-button}</p>
+      <p role="status">${status}</p>
+    </div>
+  </message>
+
+  <!--
+    FormModel uses these translated strings as labels. See the localization
+    tutorial for more information about message resource bundles.
+  -->
+  <message id="name.label">Name</message>
+  <message id="email.label">Email</message>
+  <message id="age.label">Age</message>
+  <message id="date_of_birth.label">Date of birth</message>
+  <message id="balance.label">Balance</message>
+  <message id="receives_newsletter.label">Receives newsletter</message>
+</messages>

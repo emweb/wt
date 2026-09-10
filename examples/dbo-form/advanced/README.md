@@ -8,7 +8,7 @@ How to run
 ----------
 
 ```
-../../build/examples/dbo-form/dbo-form.wt --docroot . --approot approot --http-listen 0.0.0.0:8080 -c approot/wt_config.xml --resources-dir=../../resources
+../../../build/examples/dbo-form/advanced/dbo-form.wt --docroot . --approot approot --http-listen 0.0.0.0:8080 -c approot/wt_config.xml --resources-dir=../../../resources
 ```
 
 Note: this example requires TinyMCE to be located in the resources folder.
