@@ -3085,7 +3085,8 @@ window._$_APP_CLASS_$_ = new (function() {
     }
 
     if (typeof e.clientX !== UNDEFINED) {
-      result.push("clientX=" + Math.round(e.clientX), "clientY=" + Math.round(e.clientY));
+      const clientCoords = WT.windowCoordinates(e);
+      result.push("clientX=" + Math.round(clientCoords.x), "clientY=" + Math.round(clientCoords.y));
     }
 
     const pageCoords = WT.pageCoordinates(e);

@@ -82,9 +82,17 @@ namespace {
       editor->clicked().connect([=] { ++counts_["click"]; });
       editor->doubleClicked().connect([=] { ++counts_["dblclick"]; });
       editor->mouseWheel().connect([=] { ++counts_["wheel"]; });
-      editor->mouseWentDown().connect([=] { ++counts_["mousedown"]; });
-      editor->mouseMoved().connect([=] { ++counts_["mousemove"]; });
-      editor->mouseWentUp().connect([=] { ++counts_["mouseup"]; });
+      auto recordMouse = [=](const std::string& type, const WMouseEvent& event) {
+        ++counts_[type];
+        coordinates_ += type;
+        for (const auto& point : {event.document(), event.window(), event.widget(), event.screen(), event.dragDelta()}) {
+          coordinates_ += "," + std::to_string(point.x) + "," + std::to_string(point.y);
+        }
+        coordinates_ += ";";
+      };
+      editor->mouseWentDown().connect([=](const WMouseEvent& event) { recordMouse("mousedown", event); });
+      editor->mouseMoved().connect([=](const WMouseEvent& event) { recordMouse("mousemove", event); });
+      editor->mouseWentUp().connect([=](const WMouseEvent& event) { recordMouse("mouseup", event); });
       auto recordTouch = [=](const std::string& type, const WTouchEvent& event) {
         ++counts_[type];
         int list = 0;
@@ -211,61 +219,7 @@ SELENIUM_TEST_WITH_CONFIG_FILE(wtextedit_handler_cancellation, WTextEditTestApp,
 
 END_SELENIUM_TEST
 
-SELENIUM_TEST_WITH_CONFIG_FILE(wtextedit_ancestor_capture, WTextEditTestApp, editorConfig)
-  EditorBrowser script(api, wait);
-  // An ancestor capturing an iframe event still needs explicit delivery:
-  // forwarding to the textarea does not bubble through its outer parents.
-  BOOST_TEST(script(R"JS(
-    const element = document.querySelector('textarea');
-    const win = element.ed.getWin();
-    const child = element.ed.getBody().querySelector('p');
-    const parent = element.parentElement;
-    const WT = window.currentApp.WT;
-    let calls = 0;
-    for (const [move, end, EventType] of [
-      ['mousemove', 'mouseup', win.MouseEvent], ['touchmove', 'touchend', win.TouchEvent]
-    ]) {
-      parent['on' + move] = () => { calls++; };
-      parent['on' + end] = () => { calls++; };
-      WT.capture(parent);
-      child.dispatchEvent(new EventType(move, {bubbles: true}));
-      child.dispatchEvent(new EventType(end, {bubbles: true}));
-      document.body.dispatchEvent(new EventType(move, {bubbles: true}));
-      delete parent['on' + move];
-      delete parent['on' + end];
-    }
-    return calls === 4 ? 'ok' : String(calls);
-  )JS") == "ok");
-
-END_SELENIUM_TEST
-
-SELENIUM_TEST_WITH_CONFIG_FILE(wtextedit_double_click, WTextEditTestApp, editorConfig)
-  EditorBrowser script(api, wait);
-  auto frame = api.getElement(SeleniumAPI::FindBy::CSS_SELECTOR, ".tox-edit-area iframe");
-  BOOST_REQUIRE(frame.has_value());
-  PyObject* switchTo = PythonInterpreter::getAttribute(api.driver(), "switch_to");
-  BOOST_REQUIRE(switchTo);
-  PyObject* result = PyObject_CallMethod(switchTo, "frame", "O", frame->pyObject());
-  BOOST_REQUIRE(result);
-  Py_DECREF(result);
-  auto body = api.getElement(SeleniumAPI::FindBy::TAG_NAME, "body");
-  BOOST_REQUIRE(body.has_value());
-  ActionChains(api).doubleClick(*body).perform();
-  result = PyObject_CallMethod(switchTo, "default_content", nullptr);
-  BOOST_REQUIRE(result);
-  Py_DECREF(result);
-  Py_DECREF(switchTo);
-
-  auto checkpoint = api.getElement(SeleniumAPI::FindBy::ID, "checkpoint");
-  BOOST_REQUIRE(checkpoint.has_value());
-  BOOST_REQUIRE(checkpoint->click());
-  auto report = api.getElement(SeleniumAPI::FindBy::ID, "report");
-  BOOST_REQUIRE(report.has_value());
-  BOOST_REQUIRE(wait.until([&] { return report->text().find("checkpoint:1;") == 0; }));
-  BOOST_TEST(report->text().find(";dblclick:1;") != std::string::npos);
-END_SELENIUM_TEST
-
-SELENIUM_TEST_WITH_CONFIG_FILE(wtextedit_capture_coordinates, WTextEditTestApp, editorConfig)
+SELENIUM_TEST_WITH_CONFIG_FILE(wtextedit_mouse_coordinates, WTextEditTestApp, editorConfig)
   EditorBrowser script(api, wait);
   auto report = api.getElement(SeleniumAPI::FindBy::ID, "report");
   BOOST_REQUIRE(report.has_value());
@@ -297,25 +251,45 @@ SELENIUM_TEST_WITH_CONFIG_FILE(wtextedit_capture_coordinates, WTextEditTestApp, 
   int checkpointNumber = 0;
   for (const std::string location : {"editor", "document", "iframe"}) {
     script("window.moveLocation = '" + location + "';");
-    script(R"JS(
-      const editor = document.querySelector('textarea').ed;
+    const std::string expectedMouseCoordinates = script(R"JS(
+      const element = document.querySelector('textarea');
+      const editor = element.ed;
       const child = editor.getBody().querySelector('p');
       const target = moveLocation === 'editor' ? child : moveLocation === 'document' ?
         document.body : document.getElementById('other-frame').contentDocument.body;
-      for (const type of ['mousedown', 'mousemove', 'mouseup']) {
+      const widget = element.getBoundingClientRect();
+      let expected = '';
+      let downX = 0, downY = 0;
+      for (const [i, type] of ['mousedown', 'mousemove', 'mouseup'].entries()) {
         const node = type === 'mousedown' ? child : target;
         const win = node.ownerDocument.defaultView;
-        node.dispatchEvent(new win.MouseEvent(type, {
-          bubbles: true, cancelable: true, clientX: 20, clientY: 30,
+        const frame = win.frameElement;
+        const rect = frame ? frame.getBoundingClientRect() : {left: 0, top: 0};
+        const event = new win.MouseEvent(type, {
+          bubbles: true, cancelable: true, clientX: 20 + i * 10, clientY: 30 + i * 5,
+          screenX: 320 + i * 10, screenY: 230 + i * 5,
           button: 0, buttons: type === 'mouseup' ? 0 : 1, view: win
-        }));
+        });
+        const x = event.clientX + rect.left + (frame ? frame.clientLeft : 0);
+        const y = event.clientY + rect.top + (frame ? frame.clientTop : 0);
+        if (type === 'mousedown') {
+          downX = x + scrollX;
+          downY = y + scrollY;
+        }
+        expected += type + ',' + [
+          x + scrollX, y + scrollY, x, y, x - widget.left, y - widget.top,
+          event.screenX, event.screenY, x + scrollX - downX, y + scrollY - downY
+        ].map(Math.round).join(',') + ';';
+        node.dispatchEvent(event);
       }
       document.getElementById('checkpoint').click();
+      return expected;
     )JS");
     const std::string mouseCheckpoint = "checkpoint:" + std::to_string(++checkpointNumber) + ";";
     BOOST_REQUIRE(wait.until([&] { return report->text().find(mouseCheckpoint) == 0; }));
     BOOST_TEST_CONTEXT("mouse capture moving in " << location) {
       BOOST_TEST(report->text() == mouseCheckpoint + "mousedown:1;mousemove:1;mouseup:1;");
+      BOOST_TEST(coordinates->text() == expectedMouseCoordinates);
     }
 
     // Release restores ordinary delivery: outside moves are ignored,
@@ -331,6 +305,71 @@ SELENIUM_TEST_WITH_CONFIG_FILE(wtextedit_capture_coordinates, WTextEditTestApp, 
     BOOST_REQUIRE(wait.until([&] { return report->text().find(moveCheckpoint) == 0; }));
     BOOST_TEST(report->text() == moveCheckpoint + "mousemove:1;");
 
+
+  }
+
+END_SELENIUM_TEST
+
+SELENIUM_TEST_WITH_CONFIG_FILE(wtextedit_ancestor_capture, WTextEditTestApp, editorConfig)
+  EditorBrowser script(api, wait);
+  // An ancestor capturing an iframe event still needs explicit delivery:
+  // forwarding to the textarea does not bubble through its outer parents.
+  BOOST_TEST(script(R"JS(
+    const element = document.querySelector('textarea');
+    const win = element.ed.getWin();
+    const child = element.ed.getBody().querySelector('p');
+    const parent = element.parentElement;
+    const WT = window.currentApp.WT;
+    let calls = 0;
+    for (const [move, end, EventType] of [
+      ['mousemove', 'mouseup', win.MouseEvent], ['touchmove', 'touchend', win.TouchEvent]
+    ]) {
+      parent['on' + move] = () => { calls++; };
+      parent['on' + end] = () => { calls++; };
+      WT.capture(parent);
+      child.dispatchEvent(new EventType(move, {bubbles: true}));
+      child.dispatchEvent(new EventType(end, {bubbles: true}));
+      document.body.dispatchEvent(new EventType(move, {bubbles: true}));
+      delete parent['on' + move];
+      delete parent['on' + end];
+    }
+    return calls === 4 ? 'ok' : String(calls);
+  )JS") == "ok");
+
+END_SELENIUM_TEST
+
+SELENIUM_TEST_WITH_CONFIG_FILE(wtextedit_touch_coordinates, WTextEditTestApp, editorConfig)
+  EditorBrowser script(api, wait);
+  auto report = api.getElement(SeleniumAPI::FindBy::ID, "report");
+  BOOST_REQUIRE(report.has_value());
+  // Capture must deliver each move once, both inside and outside the
+  // editor. Scroll both documents to distinguish all coordinate spaces.
+  script(R"JS(
+    const element = document.querySelector('textarea');
+    element.parentElement.style.margin = '120px 100px';
+    document.body.style.width = '1800px';
+    document.body.style.height = '1500px';
+    const child = element.ed.getBody().querySelector('p');
+    child.style.width = '1000px';
+    child.style.height = '1000px';
+    element.ed.getWin().scrollTo(7, 11);
+    window.scrollTo(31, 47);
+    const frame = document.createElement('iframe');
+    frame.id = 'other-frame';
+    frame.style.cssText = 'position:absolute;left:900px;top:120px;width:200px;height:200px';
+    document.body.appendChild(frame);
+  )JS");
+  BOOST_REQUIRE(script(R"JS(
+    const editor = document.querySelector('textarea').ed;
+    const rect = editor.getWin().frameElement.getBoundingClientRect();
+    return rect.left > 0 && rect.top > 0 && scrollX === 31 && scrollY === 47 &&
+      editor.getWin().scrollX === 7 && editor.getWin().scrollY === 11 ? 'ok' : 'failed';
+  )JS") == "ok");
+  auto coordinates = api.getElement(SeleniumAPI::FindBy::ID, "coordinates");
+  BOOST_REQUIRE(coordinates.has_value());
+  int checkpointNumber = 0;
+  for (const std::string location : {"editor", "document", "iframe"}) {
+    script("window.moveLocation = '" + location + "';");
     const std::string expectedCoordinates = script(R"JS(
       const element = document.querySelector('textarea');
       const editor = element.ed;
@@ -378,7 +417,32 @@ SELENIUM_TEST_WITH_CONFIG_FILE(wtextedit_capture_coordinates, WTextEditTestApp, 
       BOOST_TEST(coordinates->text() == expectedCoordinates);
     }
   }
+END_SELENIUM_TEST
 
+SELENIUM_TEST_WITH_CONFIG_FILE(wtextedit_double_click, WTextEditTestApp, editorConfig)
+  EditorBrowser script(api, wait);
+  auto frame = api.getElement(SeleniumAPI::FindBy::CSS_SELECTOR, ".tox-edit-area iframe");
+  BOOST_REQUIRE(frame.has_value());
+  PyObject* switchTo = PythonInterpreter::getAttribute(api.driver(), "switch_to");
+  BOOST_REQUIRE(switchTo);
+  PyObject* result = PyObject_CallMethod(switchTo, "frame", "O", frame->pyObject());
+  BOOST_REQUIRE(result);
+  Py_DECREF(result);
+  auto body = api.getElement(SeleniumAPI::FindBy::TAG_NAME, "body");
+  BOOST_REQUIRE(body.has_value());
+  ActionChains(api).doubleClick(*body).perform();
+  result = PyObject_CallMethod(switchTo, "default_content", nullptr);
+  BOOST_REQUIRE(result);
+  Py_DECREF(result);
+  Py_DECREF(switchTo);
+
+  auto checkpoint = api.getElement(SeleniumAPI::FindBy::ID, "checkpoint");
+  BOOST_REQUIRE(checkpoint.has_value());
+  BOOST_REQUIRE(checkpoint->click());
+  auto report = api.getElement(SeleniumAPI::FindBy::ID, "report");
+  BOOST_REQUIRE(report.has_value());
+  BOOST_REQUIRE(wait.until([&] { return report->text().find("checkpoint:1;") == 0; }));
+  BOOST_TEST(report->text().find(";dblclick:1;") != std::string::npos);
 END_SELENIUM_TEST
 
 BOOST_AUTO_TEST_SUITE_END()
