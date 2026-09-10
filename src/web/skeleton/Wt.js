@@ -3206,6 +3206,31 @@ window._$_APP_CLASS_$_ = new (function() {
   }
 
   let sentEvents = [], pendingEvents = [];
+  let encodingEvent = null;
+
+  function queueEvent(event) {
+    // Reserve space before encoding, which can synchronously emit events.
+    // Saving TinyMCE form data can emit changed() while encoding an
+    // outer action. Queue that change first so the server sees the new
+    // text before the action runs, especially if it removes the editor.
+    // Reserving the outer slot also prevents nested events from being
+    // overwritten or sent while that outer event is still incomplete.
+    const parent = encodingEvent;
+    const i = parent === null ? pendingEvents.length : pendingEvents.indexOf(parent);
+    pendingEvents.splice(i, 0, event);
+    encodingEvent = event;
+    try {
+      encodeEvent(event);
+    } catch (e) {
+      const index = pendingEvents.indexOf(event);
+      if (index !== -1) {
+        pendingEvents.splice(index, 1);
+      }
+      throw e;
+    } finally {
+      encodingEvent = parent;
+    }
+  }
 
   function encodePendingEvents(maxLength) {
     let se, result = "", feedback = false;
@@ -3718,14 +3743,14 @@ window._$_APP_CLASS_$_ = new (function() {
     if (!responsePending) {
       _$_$endif_$_();
 
-      const pendingEvent = {}, i = pendingEvents.length;
+      const pendingEvent = {};
       pendingEvent.object = el;
       pendingEvent.signal = signalName;
       pendingEvent.event = window.fakeEvent || e;
       pendingEvent.feedback = feedback;
       pendingEvent.evAckId = ackUpdateId;
 
-      pendingEvents[i] = encodeEvent(pendingEvent);
+      queueEvent(pendingEvent);
 
       scheduleUpdate();
 
@@ -3757,6 +3782,10 @@ window._$_APP_CLASS_$_ = new (function() {
   }
 
   function scheduleUpdate() {
+    if (encodingEvent !== null) {
+      return;
+    }
+
     if (hasQuit) {
       if (!quitStr) {
         return;
@@ -3992,6 +4021,10 @@ window._$_APP_CLASS_$_ = new (function() {
   }
 
   function sendUpdate() {
+    if (encodingEvent !== null) {
+      return;
+    }
+
     if (self !== window._$_APP_CLASS_$_) {
       quit(null);
       return;
@@ -4199,12 +4232,10 @@ window._$_APP_CLASS_$_ = new (function() {
   function makePending(userEvent) {
     checkEventOverflow();
 
-    const ei = pendingEvents.length;
-
     userEvent.feedback = true;
     userEvent.evAckId = ackUpdateId;
 
-    pendingEvents[ei] = encodeEvent(userEvent);
+    queueEvent(userEvent);
   }
 
   function emit(object, config) {

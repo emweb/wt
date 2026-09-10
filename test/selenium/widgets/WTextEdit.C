@@ -63,7 +63,8 @@ namespace {
   {
   public:
     WTextEditTestApp(const WEnvironment& env)
-      : WApplication(env)
+      : WApplication(env),
+        serialize_(this, "serialize")
     {
       // Make the script probes independent of debug-only JS globals.
       doJavaScript("window.currentApp = " + javaScriptClass() + ";");
@@ -112,8 +113,27 @@ namespace {
       editor->touchEnded().connect([=](const WTouchEvent& event) { recordTouch("touchend", event); });
       auto changes = root()->addNew<WText>("0");
       changes->setId("changes");
+      auto order = root()->addNew<WText>("", TextFormat::Plain);
+      order->setId("order");
       editor->changed().connect([=] {
         changes->setText(std::to_string(++changes_));
+        order_ += "change:" + editor->text().toUTF8() + ";";
+        order->setText(order_);
+      });
+
+      auto recordOuter = [=](const std::string& type) {
+        order_ += type + ":" + editor->text().toUTF8() + ";";
+        order->setText(order_);
+      };
+      auto serialize = root()->addNew<WPushButton>("Serialize");
+      serialize->setId("serialize");
+      serialize->clicked().connect([=] { recordOuter("click"); });
+      serialize_.connect([=] { recordOuter("user"); });
+      auto remove = root()->addNew<WPushButton>("Remove editor");
+      remove->setId("remove");
+      remove->clicked().connect([=] {
+        recordOuter("remove");
+        container->removeWidget(editor);
       });
 
       auto report = root()->addNew<WText>();
@@ -131,12 +151,15 @@ namespace {
         counts_.clear();
         coordinates->setText(coordinates_);
         coordinates_.clear();
+        order_.clear();
       });
     }
 
   private:
     std::map<std::string, int> counts_;
+    JSignal<> serialize_;
     std::string coordinates_;
+    std::string order_;
     int checkpoint_ = 0;
     int changes_ = 0;
   };
@@ -417,6 +440,60 @@ SELENIUM_TEST_WITH_CONFIG_FILE(wtextedit_touch_coordinates, WTextEditTestApp, ed
       BOOST_TEST(coordinates->text() == expectedCoordinates);
     }
   }
+END_SELENIUM_TEST
+
+SELENIUM_TEST_WITH_CONFIG_FILE(wtextedit_change_ordering, WTextEditTestApp, editorConfig)
+  EditorBrowser script(api, wait);
+  // Editing the DOM emits no input or blur event. Serializing the outer
+  // event saves TinyMCE and synchronously emits change.
+  auto order = api.getElement(SeleniumAPI::FindBy::ID, "order");
+  BOOST_REQUIRE(order.has_value());
+  std::string expectedOrder;
+  for (const std::string mode : {"click", "user", "waiting", "remove"}) {
+    script("window.serializeMode = '" + mode + "';");
+    BOOST_TEST(script(R"JS(
+      const editor = document.querySelector('textarea').ed;
+      let changes = 0;
+      function changed() { changes++; }
+      editor.on('change', changed);
+      const delay = window.currentApp.WT.updateDelay;
+      if (serializeMode === 'user') {
+        // Keep an earlier event pending with its send timer already due.
+        // A nested emit must wait until the outer event is encoded.
+        window.currentApp.WT.updateDelay = -1;
+        window.currentApp.emit(window.currentApp, 'serialize');
+      }
+      editor.getBody().innerHTML = '<p>' + serializeMode + '</p>';
+      editor.setDirty(true);
+      if (serializeMode === 'user') {
+        window.currentApp.emit(window.currentApp, 'serialize');
+      } else {
+        if (serializeMode === 'waiting') {
+          window.currentApp.emitOnUpdate(window.currentApp, 'serialize');
+        }
+        document.getElementById(serializeMode === 'remove' ? 'remove' : 'serialize').click();
+      }
+      window.currentApp.WT.updateDelay = delay;
+      editor.off('change', changed);
+      return String(changes);
+    )JS") == "1");
+    const std::string content = "<p>" + mode + "</p>;";
+    if (mode == "user") {
+      expectedOrder += "user:<p>click</p>;";
+    }
+    expectedOrder += "change:" + content;
+    if (mode == "waiting") {
+      expectedOrder += "user:" + content + "click:" + content;
+    } else {
+      expectedOrder += mode + ":" + content;
+    }
+    const std::string outer = (mode == "waiting" ? "click" : mode) + ":" + content;
+    BOOST_REQUIRE(wait.until([&] { return order->text().find(outer) != std::string::npos; }));
+    BOOST_TEST_CONTEXT("change during " << mode << " serialization") {
+      BOOST_TEST(order->text() == expectedOrder);
+    }
+  }
+  BOOST_REQUIRE(wait.until([&] { return script("return document.querySelector('textarea') ? '' : 'removed';") == "removed"; }));
 END_SELENIUM_TEST
 
 SELENIUM_TEST_WITH_CONFIG_FILE(wtextedit_double_click, WTextEditTestApp, editorConfig)

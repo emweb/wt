@@ -33,11 +33,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el, ex
   }
 
   function onChange() {
-    // Serializing a Wt event saves all editors and can emit change. Wait
-    // until that event is queued so it cannot overwrite the change event.
-    setTimeout(function() {
-      APP.emit(el, "change");
-    }, 0);
+    APP.emit(el, "change");
   }
 
   this.render = function(config, aCss, connectOnChange, connectOnRender) {
