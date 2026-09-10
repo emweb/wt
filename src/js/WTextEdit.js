@@ -24,19 +24,31 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el, ex
 
   tinyMCE.init({ mode: "none" });
 
+  // Keep the callback stable so repeated init calls do not add listeners.
+  function forwardEvent(event) {
+    const handler = el["on" + event.type];
+    if (typeof handler === "function" && handler.call(el, event) === false) {
+      event.preventDefault();
+    }
+  }
+
+  function onChange() {
+    // Serializing a Wt event saves all editors and can emit change. Wait
+    // until that event is queued so it cannot overwrite the change event.
+    setTimeout(function() {
+      APP.emit(el, "change");
+    }, 0);
+  }
+
   this.render = function(config, aCss, connectOnChange, connectOnRender) {
     css = aCss;
     el.ed = new tinymce.Editor(el.id, config, tinymce.EditorManager);
     el.ed.render();
     if (connectOnChange) {
       if (tinymce.EditorManager.majorVersion < 4) {
-        el.ed.onChange.add(function() {
-          APP.emit(el, "change");
-        });
+        el.ed.onChange.add(onChange);
       } else {
-        el.ed.on("change", function() {
-          APP.emit(el, "change");
-        });
+        el.ed.on("change", onChange);
       }
     }
     if (connectOnRender) {
@@ -84,6 +96,38 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WTextEdit", function(APP, el, ex
     }
 
     const doc = iframe.contentDocument;
+
+    for (
+      const type of [
+        "focus",
+        "blur",
+        "input",
+        "keydown",
+        "keypress",
+        "keyup",
+        "click",
+        "dblclick",
+        "mousedown",
+        "mouseup",
+        "mouseover",
+        "mouseout",
+        "mousemove",
+        "wheel",
+        "mousewheel",
+        "touchstart",
+        "touchmove",
+        "touchend",
+        "gesturestart",
+        "gesturechange",
+        "gestureend",
+        "dragstart",
+      ]
+    ) {
+      doc.addEventListener(type, forwardEvent, {
+        capture: type === "focus" || type === "blur",
+        passive: false,
+      });
+    }
 
     doc.body.addEventListener("paste", function(event) {
       const clipboardData = event.clipboardData || event.originalEvent.clipboardData;

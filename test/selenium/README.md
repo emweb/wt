@@ -95,6 +95,22 @@ The framework provides:
       can take a `std::chrono::seconds` argument, so that this default can be
       overridden.
 
+### Native action chains
+
+Include `framework/ActionChains.h` to queue native browser gestures. The
+wrapper owns its Python action queue and reports failures as `APIException`.
+Keep it within the test's browser lifetime. Actions run only on `perform()`;
+a successful call consumes the queue so the instance can be reused.
+
+```cpp
+ActionChains actions(api);
+actions.doubleClick(*element).scrollFromElement(*element, 0, 100).perform();
+```
+
+`doubleClick()` targets the element's center. `scrollFromElement()` uses the
+element's center as the wheel origin, with horizontal and vertical deltas in
+pixels. Both methods return the chain for combining actions.
+
 ### Python interpretation
 
 Inside the **`PythonInterpreter`** class, the actual translation to Python3
