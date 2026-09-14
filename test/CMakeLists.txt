@@ -8,6 +8,7 @@ IF(ENABLE_LIBWTTEST)
     auth/BCryptTest.C
     auth/SHA1Test.C
     auth/TotpTest.C
+    configuration/ConfigurationFileParsingTest.C
     configuration/DefaultConfigTest.C
     configuration/EntryPointTest.C
     core/BindTest.C

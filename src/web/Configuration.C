@@ -1062,7 +1062,7 @@ void Configuration::readApplicationSettings(xml_node<> *app)
   xml_node<> *trustedProxyCfg = singleChildElement(app, "trusted-proxy-config");
 
   if (trustedProxyCfg) {
-    originalIPHeader_ = singleChildElementValue(app, "original-ip-header", originalIPHeader_);
+    originalIPHeader_ = singleChildElementValue(trustedProxyCfg, "original-ip-header", originalIPHeader_);
 
     xml_node<> *trustedProxies = singleChildElement(trustedProxyCfg, "trusted-proxies");
 
