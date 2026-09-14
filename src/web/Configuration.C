@@ -1058,14 +1058,16 @@ void Configuration::readApplicationSettings(xml_node<> *app)
 
     xml_node<> *trustedProxies = singleChildElement(trustedProxyCfg, "trusted-proxies");
 
-    std::vector<xml_node<> *> proxies = childElements(trustedProxies, "proxy");
-    for (const auto *proxyNode : proxies) {
-      try {
-        std::string value = proxyNode->value();
-        boost::trim(value);
-        trustedProxies_.push_back(Network::fromString(value));
-      } catch (const std::invalid_argument &e) {
-        throw WServer::Exception("Invalid trusted <proxy>: " + std::string(e.what()));
+    if (trustedProxies) {
+      std::vector<xml_node<> *> proxies = childElements(trustedProxies, "proxy");
+      for (const auto *proxyNode : proxies) {
+        try {
+          std::string value = proxyNode->value();
+          boost::trim(value);
+          trustedProxies_.push_back(Network::fromString(value));
+        } catch (const std::invalid_argument &e) {
+          throw WServer::Exception("Invalid trusted <proxy>: " + std::string(e.what()));
+        }
       }
     }
   }
