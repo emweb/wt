@@ -22,6 +22,21 @@ behaviour.
 
 <h2>Release 4.15.0 (TBD)</h2>
 
+<p>Wt 4.15.0 also fixes the following bugs:</p>
+
+<ul>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14703" target="_blank">Issue #14703</a>:
+    fixed
+    <a href="classWt_1_1WLink.html" target="_blank">WLink</a> objects retaining
+    URLs with the old session ID for
+    private <a href="classWt_1_1WResource.html" target="_blank">WResource</a>
+    instances after calling
+    <a href="classWt_1_1WApplication.html" target="_blank">WApplication::changeSessionId()</a>.
+    Existing widgets using these links now refresh their resource URLs.
+  </li>
+</ul>
+
 <p>Wt 4.15.0 also comes with the following improvements:</p>
 
 <ul>
