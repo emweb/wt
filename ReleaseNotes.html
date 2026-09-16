@@ -123,6 +123,15 @@ behaviour.
     <a href="classWt_1_1WStackedWidget.html" target="_blank">WStackedWidget</a>.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/14701" target="_blank">Issue #14701</a>:
+    fixed
+    <a href="classWt_1_1WTextEdit.html" target="_blank">WTextEdit</a> not emitting
+    inherited focus, keyboard, mouse, touch, and input signals when interacting
+    with the editor. Mouse and touch event coordinates now account for the
+    editor iframe and scrolling. Content changes are delivered before actions
+    that serialize or remove the editor.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/14816" target="_blank">Issue #14816</a>
     fixed segfault that could happen when parsing a configuration file containing a <code>trusted-proxy-config</code> block
     that was missing the <code>trusted-proxies</code> element.
