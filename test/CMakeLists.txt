@@ -70,6 +70,7 @@ IF(ENABLE_LIBWTTEST)
     validators/WStackedValidator.C
     widgets/DisabledTest.C
     widgets/GlobalOptionTest.C
+    widgets/RtlSideTest.C
     widgets/StylingTest.C
     widgets/WAnchorTest.C
     widgets/WCompositeWidgetTest.C

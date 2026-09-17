@@ -428,9 +428,10 @@ enum class SelectionFlag {
 
 /*! \brief Enumeration that indicates a relative location.
  *
- * Values of Side::CenterX, Side::CenterY, and CenterXY are only valid for
- * WCssDecorationStyle::setBackgroundImage()
+ * Values of Side::CenterX and Side::CenterY, or their combination, are
+ * only valid for WCssDecorationStyle::setBackgroundImage().
  *
+ * \sa RtlSide
  * \sa WWidget::setMargin(const WLength& x, WFlags<Side> sides)
  * \sa WWidget::setOffsets(const WLength& x, WFlags<Side> sides)
  * \sa WWidget::setFloatSide(Side s)
@@ -448,6 +449,47 @@ enum class Side {
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(Side)
+
+/*! \class RtlSide Wt/WGlobal.h Wt/WGlobal.h
+ *  \brief Side constants named from the right-to-left perspective.
+ *
+ * These names express the RTL perspective for APIs that mirror sides
+ * according to the application's layout direction, such as
+ * WWidget::setFloatSide() and WWidget::setOffsets(). In these APIs,
+ * RtlSide::Left is left in RTL and right in LTR, while RtlSide::Right
+ * is right in RTL and left in LTR.
+ *
+ * The constants have type Side. RtlSide::Left equals Side::Right and
+ * RtlSide::Right equals Side::Left. The other constants retain their
+ * matching Side values. These values do not change dynamically with
+ * the application's layout direction and do not alter the behavior
+ * of the API that uses them.
+ *
+ * The constants can be passed directly to APIs taking Side or
+ * WFlags<Side>. Combine them with the bitwise OR operator, for example
+ * RtlSide::Left | RtlSide::Top, or mix them with Side values, for
+ * example RtlSide::Left | Side::Top. Both combinations have type
+ * WFlags<Side> and equal Side::Right | Side::Top.
+ *
+ * RtlSide::CenterX and RtlSide::CenterY, or their combination, are only
+ * valid for WCssDecorationStyle::setBackgroundImage(), just like the
+ * corresponding Side values.
+ *
+ * \sa Side, WApplication::setLayoutDirection()
+ * \sa WWidget::setMargin(), WWidget::setOffsets()
+ * \sa WWidget::setFloatSide(), WWidget::setClearSides()
+ * \sa WContainerWidget::setPadding()
+ * \sa WCssDecorationStyle::setBackgroundImage()
+ */
+class WT_API RtlSide {
+public:
+  static constexpr Side Left = Side::Right; //!< Left side in RTL
+  static constexpr Side Right = Side::Left; //!< Right side in RTL
+  static constexpr Side Top = Side::Top; //!< Top side
+  static constexpr Side Bottom = Side::Bottom; //!< Bottom side
+  static constexpr Side CenterX = Side::CenterX; //!< Horizontal center
+  static constexpr Side CenterY = Side::CenterY; //!< Vertical center
+};
 
 static const WFlags<Side> AllSides =
   Side::Left | Side::Right | Side::Top | Side::Bottom;
