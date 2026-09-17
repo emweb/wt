@@ -81,6 +81,19 @@ behaviour.
     The native HTML5 input type for this widget is also supported, this being <code><input type="datetime-local"></code>.
     You can enable it by setting <a href="classWt_1_1WDateTimeEdit.html#ab097f92c3594480d85318dad97fd1709" target="_blank">WDateTimeEdit::setNativeControl(true)</a>.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14727" target="_blank">Issue #14727</a>:
+    added <a href="classWt_1_1RtlSide.html" target="_blank">RtlSide</a> constants
+    and documentation for using side names from the right-to-left perspective.
+    <code>RtlSide::Left</code> aliases <code>Side::Right</code> and
+    <code>RtlSide::Right</code> aliases <code>Side::Left</code>; the other constants
+    retain their matching <code>Side</code> values. For APIs that mirror sides
+    with the layout direction, <code>RtlSide::Left</code> means left in RTL and
+    right in LTR. The constants work directly with existing <code>Side</code>
+    and <a href="classWt_1_1WFlags.html" target="_blank">WFlags&lt;Side&gt;</a> APIs,
+    including flag combinations with <code>Side</code> values. Existing
+    <code>Side</code> behavior is unchanged.
+  </li>
 </ul>
 
 <p>Wt 4.15.0 also fixes the following bugs:</p>
