@@ -75,6 +75,17 @@ behaviour.
 
 <ul>
   <li>
+    <a href="https://redmine.emweb.be/issues/14730" target="_blank">Issue #14730</a>:
+    fixed
+    <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> focus selection
+    skipping footer buttons and failing to provide a focus fallback. When no
+    other visible, enabled descendant accepts focus, the dialog now focuses
+    its close icon, which supports keyboard activation, or the dialog itself
+    if no close icon is available. Autofocus now also works when showing a
+    dialog that was rendered while hidden or is being reopened, while
+    preserving focus on a visible, enabled descendant.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/14703" target="_blank">Issue #14703</a>:
     fixed
     <a href="classWt_1_1WLink.html" target="_blank">WLink</a> objects retaining
