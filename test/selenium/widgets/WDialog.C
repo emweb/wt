@@ -7,8 +7,12 @@
 
 #include <Wt/WAnimation.h>
 #include <Wt/WApplication.h>
+#include <Wt/WBootstrap5Theme.h>
+#include <Wt/WContainerWidget.h>
 #include <Wt/WDialog.h>
+#include <Wt/WLineEdit.h>
 #include <Wt/WPushButton.h>
+#include <Wt/WText.h>
 
 #include <map>
 #include <vector>
@@ -17,10 +21,10 @@ using namespace Wt;
 using namespace Selenium;
 
 namespace {
-  class WDialogTestApp : public WApplication
+  class WDialogFocusRestoreTestApp : public WApplication
   {
   public:
-    WDialogTestApp(const WEnvironment& env)
+    WDialogFocusRestoreTestApp(const WEnvironment& env)
       : WApplication(env),
         testModalDialog_(nullptr),
         testNonModalDialog_(nullptr)
@@ -77,11 +81,152 @@ namespace {
     WDialog* testModalDialog_;
     WDialog* testNonModalDialog_;
   };
+
+enum class FocusContent { Title, Body, Footer, Unavailable, Empty, Explicit, Manual, NoAutoFocus };
+
+class WDialogTestApp : public WApplication
+{
+public:
+  WDialogTestApp(const WEnvironment& env)
+    : WApplication(env)
+  {
+    outside_ = root()->addNew<WLineEdit>();
+    outside_->setId("outside");
+    outside_->setFocus();
+  }
+
+  void showDialog(bool modal, FocusContent content, bool animated, bool hidden = false)
+  {
+    if (dialog_) {
+      dialog_->setAttributeValue("data-focus-test", "previous-dialog");
+    }
+    dialog_ = addChild(std::make_unique<WDialog>("Focus test"));
+    dialog_->setAttributeValue("data-focus-test", "dialog");
+    dialog_->setModal(modal);
+    dialog_->contents()->addNew<WText>("Dialog contents");
+    if (content == FocusContent::Title) {
+      dialog_->titleBar()->addNew<WLineEdit>()->setAttributeValue("data-focus-test", "title-input");
+    }
+    if (content == FocusContent::Unavailable) {
+      auto hidden = dialog_->contents()->addNew<WContainerWidget>();
+      hidden->addNew<WLineEdit>();
+      hidden->hide();
+      auto disabled = dialog_->contents()->addNew<WContainerWidget>();
+      disabled->addNew<WLineEdit>();
+      disabled->setDisabled(true);
+      dialog_->footer()->addNew<WPushButton>("Hidden")->hide();
+      dialog_->footer()->addNew<WPushButton>("Disabled")->setDisabled(true);
+    }
+    if (content == FocusContent::Title || content == FocusContent::Body
+        || content == FocusContent::Explicit || content == FocusContent::NoAutoFocus) {
+      dialog_->contents()->addNew<WLineEdit>()->setAttributeValue("data-focus-test", "body-input");
+    }
+    if (content != FocusContent::Empty) {
+      auto button = dialog_->footer()->addNew<WPushButton>("OK");
+      button->setAttributeValue("data-focus-test", "footer-button");
+      if (content == FocusContent::Explicit) {
+        button->setFocus();
+      }
+    }
+    dialog_->setAutoFocus(content != FocusContent::NoAutoFocus
+                          && content != FocusContent::Manual);
+    if (!hidden) {
+      showAgain(animated);
+    }
+    if (content == FocusContent::Manual) {
+      dialog_->setFirstFocus();
+    }
+  }
+
+  void hideDialog()
+  {
+    dialog_->hide();
+    outside_->setFocus();
+  }
+
+  void showAgain(bool animated)
+  {
+    dialog_->animateShow(animated
+      ? WAnimation(AnimationEffect::Fade, TimingFunction::Linear, 100)
+      : WAnimation());
+  }
+
+private:
+  WLineEdit *outside_;
+
+protected:
+  WDialog *dialog_ = nullptr;
+};
+
+class InitialDialogTestApp : public WDialogTestApp
+{
+public:
+  InitialDialogTestApp(const WEnvironment& env)
+    : WDialogTestApp(env)
+  {
+    showDialog(true, FocusContent::Body, false);
+  }
+};
+
+class HiddenDialogTestApp : public WDialogTestApp
+{
+public:
+  HiddenDialogTestApp(const WEnvironment& env)
+    : WDialogTestApp(env)
+  {
+    showDialog(true, FocusContent::Body, false, true);
+  }
+};
+
+class StatelessDialogTestApp : public WDialogTestApp
+{
+public:
+  StatelessDialogTestApp(const WEnvironment& env)
+    : WDialogTestApp(env)
+  {
+    showDialog(false, FocusContent::Body, false, true);
+    auto show = root()->addNew<WPushButton>("Show");
+    show->setId("show-dialog");
+    show->clicked().connect(dialog_, &WWidget::show);
+    auto hide = root()->addNew<WPushButton>("Hide");
+    hide->setId("hide-dialog");
+    hide->clicked().connect(dialog_, &WWidget::hide);
+  }
+};
+
+bool hasFocus(SeleniumAPI& api, const std::string& expected)
+{
+  std::string selector = "[data-focus-test=dialog] [data-focus-test='" + expected + "']";
+  if (expected == "dialog") {
+    selector = "[data-focus-test=dialog] .dialog-layout";
+  } else if (expected == "outside") {
+    selector = "#outside";
+  } else if (expected.empty()) {
+    selector = "body";
+  }
+  auto element = api.getElement(SeleniumAPI::FindBy::CSS_SELECTOR, selector);
+  auto active = api.getActiveElement();
+  return element && active && *element == *active;
+}
+
+bool dialogVisible(SeleniumAPI& api)
+{
+  auto dialog = api.getElement(SeleniumAPI::FindBy::CSS_SELECTOR,
+                               "[data-focus-test=dialog]");
+  return dialog && dialog->isVisible();
+}
+
+void checkFocus(SeleniumAPI& api, const std::string& expected)
+{
+  api.waitForAnimations();
+  BOOST_TEST(hasFocus(api, expected));
+}
+
 }
 
 BOOST_AUTO_TEST_SUITE(selenium_wdialog)
 
-SELENIUM_TEST(wdialog_modal_give_back_focus, WDialogTestApp)
+SELENIUM_TEST(wdialog_modal_give_back_focus, WDialogFocusRestoreTestApp)
   auto triggerModalButton = api.getElement(SeleniumAPI::FindBy::ID, "trigger-modal-button");
   BOOST_REQUIRE(triggerModalButton.has_value());
 
@@ -123,7 +268,7 @@ SELENIUM_TEST(wdialog_modal_give_back_focus, WDialogTestApp)
 
 END_SELENIUM_TEST
 
-SELENIUM_TEST(wdialog_non_modal_give_back_focus, WDialogTestApp)
+SELENIUM_TEST(wdialog_non_modal_give_back_focus, WDialogFocusRestoreTestApp)
   auto triggerNonModalButton = api.getElement(SeleniumAPI::FindBy::ID, "trigger-non-modal-button");
   BOOST_REQUIRE(triggerNonModalButton.has_value());
 
@@ -165,7 +310,7 @@ SELENIUM_TEST(wdialog_non_modal_give_back_focus, WDialogTestApp)
 
 END_SELENIUM_TEST
 
-SELENIUM_TEST(wdialog_non_modal_give_back_focus_to_last_focused, WDialogTestApp)
+SELENIUM_TEST(wdialog_non_modal_give_back_focus_to_last_focused, WDialogFocusRestoreTestApp)
   auto triggerNonModalButton = api.getElement(SeleniumAPI::FindBy::ID, "trigger-non-modal-button");
   BOOST_REQUIRE(triggerNonModalButton.has_value());
   auto uselessButton = api.getElement(SeleniumAPI::FindBy::ID, "useless-button");
@@ -212,6 +357,96 @@ SELENIUM_TEST(wdialog_non_modal_give_back_focus_to_last_focused, WDialogTestApp)
     }
   }
 
+END_SELENIUM_TEST
+
+SELENIUM_TEST(wdialog_focus, WDialogTestApp)
+  for (bool bootstrap : {false, true}) {
+    if (bootstrap) {
+      updateApplication([](WDialogTestApp *app) {
+        app->setTheme(std::make_shared<WBootstrap5Theme>());
+      });
+    }
+    for (bool modal : {true, false}) {
+      for (auto content : {FocusContent::Title, FocusContent::Body,
+                           FocusContent::Footer, FocusContent::Unavailable,
+                           FocusContent::Empty, FocusContent::Explicit,
+                           FocusContent::Manual, FocusContent::NoAutoFocus}) {
+        BOOST_TEST_CONTEXT("bootstrap = " << bootstrap << ", modal = " << modal
+                           << ", content = " << static_cast<int>(content)) {
+          updateApplication([=](WDialogTestApp *app) {
+            app->showDialog(modal, content, false);
+          });
+          BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
+          std::string expected = "footer-button";
+          if (content == FocusContent::Title) {
+            expected = "title-input";
+          } else if (content == FocusContent::Body) {
+            expected = "body-input";
+          } else if (content == FocusContent::Empty) {
+            expected = "dialog";
+          } else if (content == FocusContent::NoAutoFocus) {
+            expected = modal ? "" : "outside";
+          }
+          checkFocus(api, expected);
+          updateApplication([](WDialogTestApp *app) { app->hideDialog(); });
+          BOOST_REQUIRE(wait.until([&] { return !dialogVisible(api) && hasFocus(api, "outside"); }));
+        }
+      }
+    }
+  }
+END_SELENIUM_TEST
+
+SELENIUM_TEST(wdialog_focus_show_hide_show, WDialogTestApp)
+  for (bool modal : {true, false}) {
+    for (bool animated : {false, true}) {
+      BOOST_TEST_CONTEXT("modal = " << modal << ", animated = " << animated) {
+        updateApplication([=](WDialogTestApp *app) {
+          app->showDialog(modal, FocusContent::Body, animated);
+        });
+        BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
+        checkFocus(api, "body-input");
+
+        updateApplication([](WDialogTestApp *app) { app->hideDialog(); });
+        BOOST_REQUIRE(wait.until([&] { return !dialogVisible(api) && hasFocus(api, "outside"); }));
+        updateApplication([=](WDialogTestApp *app) { app->showAgain(animated); });
+        BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
+        checkFocus(api, "body-input");
+
+        updateApplication([](WDialogTestApp *app) { app->hideDialog(); });
+        BOOST_REQUIRE(wait.until([&] { return !dialogVisible(api) && hasFocus(api, "outside"); }));
+      }
+    }
+  }
+END_SELENIUM_TEST
+
+SELENIUM_TEST(wdialog_focus_initial, InitialDialogTestApp)
+  BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
+  checkFocus(api, "body-input");
+END_SELENIUM_TEST
+
+SELENIUM_TEST(wdialog_focus_after_hidden_render, HiddenDialogTestApp)
+  BOOST_REQUIRE(wait.until([&] {
+    return api.getElement(SeleniumAPI::FindBy::XPATH,
+      "//*[@data-focus-test='dialog']//*[@data-focus-test='body-input']").has_value();
+  }));
+  BOOST_TEST(!dialogVisible(api));
+  updateApplication([](HiddenDialogTestApp *app) { app->showAgain(false); });
+  BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
+  checkFocus(api, "body-input");
+END_SELENIUM_TEST
+
+SELENIUM_TEST(wdialog_focus_stateless_show_hide, StatelessDialogTestApp)
+  auto show = api.getElement(SeleniumAPI::FindBy::ID, "show-dialog");
+  auto hide = api.getElement(SeleniumAPI::FindBy::ID, "hide-dialog");
+  BOOST_REQUIRE(show.has_value());
+  BOOST_REQUIRE(hide.has_value());
+  for (int i = 0; i < 2; ++i) {
+    BOOST_REQUIRE(show->click());
+    BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
+    checkFocus(api, "body-input");
+    BOOST_REQUIRE(hide->click());
+    BOOST_REQUIRE(wait.until([&] { return !dialogVisible(api); }));
+  }
 END_SELENIUM_TEST
 
 BOOST_AUTO_TEST_SUITE_END()

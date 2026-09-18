@@ -176,4 +176,32 @@ SELENIUM_TEST(element_location, ElementTestApp)
   BOOST_TEST(textElement->y() >= inputElement->y());
 END_SELENIUM_TEST
 
+SELENIUM_TEST(element_focus_identity, ElementTestApp)
+  auto input = api.getElement(SeleniumAPI::FindBy::ID, "test-input");
+  auto text = api.getElement(SeleniumAPI::FindBy::ID, "test-text");
+  BOOST_REQUIRE(input.has_value());
+  BOOST_REQUIRE(text.has_value());
+  BOOST_REQUIRE(input->focus());
+  auto active = api.getActiveElement();
+  BOOST_REQUIRE(active.has_value());
+  BOOST_CHECK(*active == *input);
+  BOOST_CHECK(*active != *text);
+END_SELENIUM_TEST
+
+SELENIUM_TEST(script_execution_and_animation_wait, ElementTestApp)
+  BOOST_TEST(api.executeScript("return 'ready';") == "ready");
+  BOOST_TEST(api.executeScript("return null;").empty());
+  BOOST_TEST(api.executeScript(
+    "const done = arguments[arguments.length - 1];"
+    "setTimeout(() => done('async'), 10);", true) == "async");
+  api.executeScript(
+    "window.animationDone = false;"
+    "document.getElementById('test-text').animate("
+    "  [{opacity: 0}, {opacity: 1}], 200).finished.then(() => {"
+    "    window.animationDone = true;"
+    "  });");
+  api.waitForAnimations();
+  BOOST_TEST(api.executeScript("return String(window.animationDone);") == "true");
+END_SELENIUM_TEST
+
 BOOST_AUTO_TEST_SUITE_END()

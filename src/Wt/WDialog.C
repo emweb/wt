@@ -32,6 +32,32 @@ namespace Wt {
 
   LOGGER("WDialog");
 
+namespace {
+
+bool focusFirst(WWidget *widget)
+{
+  if (!widget->isVisible() || !widget->isEnabled()) {
+    return false;
+  }
+
+  // Buttons and anchors opt out of the generic setFirstFocus traversal,
+  // but are valid focus targets inside a dialog.
+  if (widget->canReceiveFocus()) {
+    widget->setFocus(true);
+    return true;
+  }
+
+  for (WWidget *child : widget->children()) {
+    if (focusFirst(child)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+}
+
 class DialogCover : public WContainerWidget
 {
 public:
@@ -226,6 +252,7 @@ void WDialog::create()
   recursiveEventLoop_ = false;
   escapeIsReject_ = false;
   autoFocus_ = true;
+  autoFocusPending_ = false;
   impl_ = dynamic_cast<WTemplate *>(implementation());
 
   impl_->addFunction("block", &WTemplate::Functions::block);
@@ -457,11 +484,17 @@ void WDialog::render(WFlags<RenderFlag> flags)
   if (!isModal())
     impl_->mouseWentDown().connect(this, &WDialog::bringToFront);
 
-  if ( flags.test(RenderFlag::Full) && autoFocus_) {
-    if (!impl_->findById(Wt::WApplication::instance()->focus())) {
+  if ((flags.test(RenderFlag::Full) || autoFocusPending_)
+      && autoFocus_ && isVisible()) {
+    WWidget *focused = impl_->findById(WApplication::instance()->focus());
+    if (focused && focused != impl_ && focused != layoutContainer_
+        && focused->isVisible() && focused->isEnabled()) {
+      focused->setFocus(true);
+    } else {
       setFirstFocus();
     }
   }
+  autoFocusPending_ = false;
 
   WPopupWidget::render(flags);
 }
@@ -528,23 +561,22 @@ void WDialog::setClosable(bool closable)
 
 bool WDialog::setFirstFocus()
 {
-  if (!isModal()) {
-    impl_->setCanReceiveFocus(false);
-    layoutContainer_->setCanReceiveFocus(false);
+  if (!isVisible() || !isEnabled()) {
+    return false;
   }
 
-  bool childFocused = impl_->setFirstFocus();
-
-  if (!isModal()) {
-    impl_->setCanReceiveFocus(true);
-    layoutContainer_->setCanReceiveFocus(true);
-    if (!childFocused) {
-      layoutContainer_->setFocus(true);
+  // Search the title bar, contents and footer before the dialog itself.
+  for (WWidget *child : layoutContainer_->children()) {
+    if (focusFirst(child)) {
+      return true;
     }
-    return true;
   }
 
-  return childFocused;
+  if (!layoutContainer_->canReceiveFocus()) {
+    layoutContainer_->setTabIndex(-1);
+  }
+  layoutContainer_->setFocus(true);
+  return true;
 }
 
 DialogCode WDialog::exec(const WAnimation& animation)
@@ -638,6 +670,8 @@ void WDialog::setHidden(bool hidden, const WAnimation& animation)
   /* For JWt: setHidden() is called from WPopupWidget constructor. */
   if (contents_ && isHidden() != hidden) {
     if (!hidden) {
+      autoFocusPending_ = true;
+      scheduleRender();
       if (footer_) {
         for (int i = 0; i < footer()->count(); ++i) {
           WPushButton *b = dynamic_cast<WPushButton *>(footer()->widget(i));

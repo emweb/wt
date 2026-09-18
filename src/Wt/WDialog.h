@@ -347,18 +347,23 @@ public:
    */
   bool closable() const { return closeIcon_.get(); }
 
-  /*! \brief Set focus on the first widget in the dialog.
+  /*! \brief Enables automatic focus when the dialog is shown.
    *
-   * Autofocus is enabled by default. If a widget inside of
-   * this dialog already has focus, the focus will not be changed.
+   * Autofocus is enabled by default. Each time the dialog is shown,
+   * setFirstFocus() selects a focus target. If a visible, enabled
+   * descendant already has focus, that widget keeps the focus instead.
    */
   void setAutoFocus(bool enable){ autoFocus_ = enable;}
 
   /*! \brief Set focus on the widget's first descendant.
    *
-   * This sets the focus on the first focusable widget in the dialog.
-   * If no focusable widget is found, it will try to focus itself
+   * This sets focus on the first visible, enabled, focusable widget in
+   * the title bar, contents or footer, in that order. This includes
+   * buttons. If no focusable widget is found, the dialog receives focus
    * instead.
+   *
+   * Returns whether focus could be set. A hidden or disabled dialog
+   * cannot receive focus.
    */
   bool setFirstFocus() override;
 
@@ -467,7 +472,7 @@ private:
   WContainerWidget *contents_;
   WContainerWidget *layoutContainer_;
   mutable WContainerWidget *footer_;
-  bool modal_, resizable_, movable_, escapeIsReject_, autoFocus_;
+  bool modal_, resizable_, movable_, escapeIsReject_, autoFocus_, autoFocusPending_;
   JSignal<int,int> moved_, resized_;
   JSignal<int> zIndexChanged_;
   std::vector<std::string> delayedJs_;

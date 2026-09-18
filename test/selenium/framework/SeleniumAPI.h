@@ -329,6 +329,46 @@ namespace Selenium {
       return elem;
     }
 
+    /*! Executes JavaScript and returns its string result.
+     * A null result is returned as an empty string. With asynchronous
+     * execution, the script must invoke its final callback argument.
+     */
+    std::string executeScript(const std::string& source, bool asynchronous = false)
+    {
+      if (!driver_) {
+        throw new APIException("Driver not initialized");
+      }
+      auto method = PythonInterpreter::getAttribute(driver_,
+        asynchronous ? "execute_async_script" : "execute_script");
+      if (!method) {
+        throw new APIException("Script execution is unavailable");
+      }
+      auto script = PythonInterpreter::fromUTF8(source);
+      auto result = PythonInterpreter::callFunction(method, script);
+      Py_DECREF(script);
+      Py_DECREF(method);
+      if (!result) {
+        throw new APIException("Script execution failed");
+      }
+      auto value = PythonInterpreter::asUTF8(result);
+      Py_DECREF(result);
+      return value.value_or("");
+    }
+
+    /*! Waits for pending layout, focus timers and document animations.
+     * The short settling interval allows Wt to start delayed work before
+     * collecting active animations. WebDriver's script timeout applies.
+     */
+    void waitForAnimations()
+    {
+      executeScript(
+        "const done = arguments[arguments.length - 1];"
+        "setTimeout(() => {"
+        "  Promise.all(document.getAnimations().map(a => a.finished.catch(() => {})))"
+        "    .then(() => requestAnimationFrame(() => done('')));"
+        "}, 50);", true);
+    }
+
     //! Removes the webdriver
     void cleanup()
     {
