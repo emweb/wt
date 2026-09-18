@@ -7,6 +7,7 @@
 
 #include <Wt/Test/WTestEnvironment.h>
 #include <Wt/WApplication.h>
+#include <Wt/WBootstrap5Theme.h>
 #include <Wt/WDialog.h>
 #include <Wt/WHBoxLayout.h>
 #include <Wt/WLineEdit.h>
@@ -18,6 +19,24 @@ class FocusDialog : public Wt::WDialog
 {
 public:
   using Wt::WDialog::render;
+};
+
+class SecondFieldFocusContainer : public Wt::WContainerWidget
+{
+public:
+  bool setFirstFocus() override
+  {
+    return widget(1)->setFirstFocus();
+  }
+};
+
+class SuppressFocusContainer : public Wt::WContainerWidget
+{
+public:
+  bool setFirstFocus() override
+  {
+    return false;
+  }
 };
 
 }
@@ -139,26 +158,97 @@ BOOST_AUTO_TEST_CASE(test_WDialog_focus_footer_skips_unavailable_children)
   }
 }
 
-BOOST_AUTO_TEST_CASE(test_WDialog_focus_button_order)
+BOOST_AUTO_TEST_CASE(test_WDialog_focus_virtual_selection_before_footer_buttons)
 {
   for (bool modal : {true, false}) {
     Wt::Test::WTestEnvironment testEnv;
     Wt::WApplication app(testEnv);
     Wt::WDialog dialog;
     dialog.setModal(modal);
-    auto title = dialog.titleBar()->addNew<Wt::WPushButton>("Close");
-    auto body = dialog.contents()->addNew<Wt::WLineEdit>();
+    dialog.titleBar()->addNew<Wt::WPushButton>("Close");
+    auto bodyContainer = dialog.contents()->addNew<Wt::WContainerWidget>();
+    auto body = bodyContainer->addNew<Wt::WLineEdit>();
+    auto button = dialog.footer()->addNew<Wt::WPushButton>("OK");
     auto nested = dialog.footer()->addNew<Wt::WContainerWidget>();
-    auto button = nested->addNew<Wt::WPushButton>("OK");
-    dialog.footer()->addNew<Wt::WLineEdit>();
+    nested->addNew<Wt::WPushButton>("Nested");
+    auto footerInput = nested->addNew<Wt::WLineEdit>();
+    dialog.footer()->addNew<Wt::WPushButton>("Cancel");
     dialog.show();
 
     BOOST_REQUIRE(dialog.setFirstFocus());
-    BOOST_TEST(title->hasFocus());
-    title->hide();
+    BOOST_TEST(body->hasFocus());
     body->hide();
     BOOST_REQUIRE(dialog.setFirstFocus());
+    BOOST_TEST(footerInput->hasFocus());
+    footerInput->hide();
+    BOOST_REQUIRE(dialog.setFirstFocus());
     BOOST_TEST(button->hasFocus());
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_WDialog_focus_custom_second_field)
+{
+  for (bool modal : {true, false}) {
+    for (bool automatic : {true, false}) {
+      BOOST_TEST_CONTEXT("modal = " << modal << ", automatic = " << automatic) {
+        Wt::Test::WTestEnvironment testEnv;
+        Wt::WApplication app(testEnv);
+        FocusDialog dialog;
+        dialog.setModal(modal);
+        auto body = dialog.contents()->addNew<SecondFieldFocusContainer>();
+        auto first = body->addNew<Wt::WLineEdit>();
+        auto second = body->addNew<Wt::WLineEdit>();
+        dialog.footer()->addNew<Wt::WPushButton>("OK");
+        dialog.show();
+
+        if (automatic) {
+          dialog.render(Wt::RenderFlag::Full);
+        } else {
+          BOOST_REQUIRE(dialog.setFirstFocus());
+        }
+        BOOST_TEST(second->hasFocus());
+        BOOST_TEST(!first->hasFocus());
+      }
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_WDialog_focus_custom_suppression)
+{
+  for (bool modal : {true, false}) {
+    for (bool automatic : {true, false}) {
+      for (bool withFooter : {true, false}) {
+        BOOST_TEST_CONTEXT("modal = " << modal << ", automatic = " << automatic
+                           << ", withFooter = " << withFooter) {
+          Wt::Test::WTestEnvironment testEnv;
+          Wt::WApplication app(testEnv);
+          FocusDialog dialog;
+          dialog.setModal(modal);
+          auto body = dialog.contents()->addNew<SuppressFocusContainer>();
+          auto input = body->addNew<Wt::WLineEdit>();
+          Wt::WPushButton *button = nullptr;
+          if (withFooter) {
+            button = dialog.footer()->addNew<Wt::WPushButton>("OK");
+          }
+          dialog.show();
+
+          if (automatic) {
+            dialog.render(Wt::RenderFlag::Full);
+          } else {
+            BOOST_REQUIRE(dialog.setFirstFocus());
+          }
+          BOOST_TEST(!input->hasFocus());
+          if (button) {
+            BOOST_TEST(button->hasFocus());
+          } else {
+            auto focused = dialog.findById(app.focus());
+            BOOST_REQUIRE(focused);
+            BOOST_TEST(focused->canReceiveFocus());
+            BOOST_TEST(focused->hasStyleClass("dialog-layout"));
+          }
+        }
+      }
+    }
   }
 }
 
@@ -305,5 +395,46 @@ BOOST_AUTO_TEST_CASE(test_WDialog_autofocus_prefers_new_descendant)
     dialog.render(Wt::RenderFlag::Update);
 
     BOOST_TEST(input->hasFocus());
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_WDialog_close_icon_fallback)
+{
+  for (bool bootstrap : {false, true}) {
+    for (bool modal : {false, true}) {
+      Wt::Test::WTestEnvironment testEnv;
+      Wt::WApplication app(testEnv);
+      if (bootstrap) {
+        app.setTheme(std::make_shared<Wt::WBootstrap5Theme>());
+      }
+      Wt::WDialog dialog;
+      dialog.setModal(modal);
+      dialog.setClosable(true);
+      auto children = dialog.titleBar()->children();
+      auto close = bootstrap ? children.back() : children.front();
+      auto body = dialog.contents()->addNew<Wt::WLineEdit>();
+      auto footer = dialog.footer()->addNew<Wt::WPushButton>("OK");
+      dialog.show();
+      BOOST_REQUIRE(dialog.setFirstFocus());
+      BOOST_TEST(body->hasFocus());
+      body->hide();
+      BOOST_REQUIRE(dialog.setFirstFocus());
+      BOOST_TEST(footer->hasFocus());
+      footer->hide();
+      BOOST_REQUIRE(dialog.setFirstFocus());
+      BOOST_TEST(close->hasFocus());
+      BOOST_TEST(close->canReceiveFocus());
+      body->show();
+      BOOST_REQUIRE(dialog.setFirstFocus());
+      BOOST_TEST(body->hasFocus());
+      body->hide();
+      close->setDisabled(true);
+      BOOST_REQUIRE(dialog.setFirstFocus());
+      BOOST_TEST(!close->hasFocus());
+      close->setDisabled(false);
+      dialog.setTitleBarEnabled(false);
+      BOOST_REQUIRE(dialog.setFirstFocus());
+      BOOST_TEST(!close->hasFocus());
+    }
   }
 }

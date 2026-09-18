@@ -32,31 +32,15 @@ namespace Wt {
 
   LOGGER("WDialog");
 
-namespace {
-
-bool focusFirst(WWidget *widget)
+class DialogCloseText : public WText
 {
-  if (!widget->isVisible() || !widget->isEnabled()) {
+public:
+  bool setFirstFocus() override
+  {
+    // The dialog selects its close icon after all other descendants.
     return false;
   }
-
-  // Buttons and anchors opt out of the generic setFirstFocus traversal,
-  // but are valid focus targets inside a dialog.
-  if (widget->canReceiveFocus()) {
-    widget->setFocus(true);
-    return true;
-  }
-
-  for (WWidget *child : widget->children()) {
-    if (focusFirst(child)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-}
+};
 
 class DialogCover : public WContainerWidget
 {
@@ -549,7 +533,17 @@ void WDialog::setClosable(bool closable)
     if (std::dynamic_pointer_cast<WBootstrap5Theme>(theme)) {
       closeIcon_ = titleBar_->addNew<WPushButton>();
     } else {
-      closeIcon_ = titleBar_->insertWidget(0, std::make_unique<WText>());
+      closeIcon_ = titleBar_->insertWidget(0, std::make_unique<DialogCloseText>());
+    }
+    closeIcon_->setTabIndex(0);
+    if (!std::dynamic_pointer_cast<WBootstrap5Theme>(theme)) {
+      closeIcon_->setAttributeValue("role", "button");
+      closeIcon_->enterPressed().connect(this, &WDialog::reject);
+      closeIcon_->keyWentDown().connect([this](const WKeyEvent& event) {
+        if (event.key() == Key::Space) {
+          reject();
+        }
+      });
     }
     theme->apply(this, closeIcon_.get(), DialogCloseIcon);
     closeIcon_->clicked().connect(this, &WDialog::reject);
@@ -567,9 +561,25 @@ bool WDialog::setFirstFocus()
 
   // Search the title bar, contents and footer before the dialog itself.
   for (WWidget *child : layoutContainer_->children()) {
-    if (focusFirst(child)) {
+    if (child->setFirstFocus()) {
       return true;
     }
+  }
+
+  // Direct footer buttons are a fallback despite their normal opt-out.
+  if (footer_) {
+    for (WWidget *child : footer_->children()) {
+      WPushButton *button = dynamic_cast<WPushButton *>(child);
+      if (button && button->isVisible() && button->isEnabled()) {
+        button->setFocus(true);
+        return true;
+      }
+    }
+  }
+
+  if (closeIcon_ && closeIcon_->isVisible() && closeIcon_->isEnabled()) {
+    closeIcon_->setFocus(true);
+    return true;
   }
 
   if (!layoutContainer_->canReceiveFocus()) {

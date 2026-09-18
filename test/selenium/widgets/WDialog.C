@@ -82,7 +82,28 @@ namespace {
     WDialog* testNonModalDialog_;
   };
 
-enum class FocusContent { Title, Body, Footer, Unavailable, Empty, Explicit, Manual, NoAutoFocus };
+enum class FocusContent {
+  Close, Title, Body, Footer, Unavailable, Empty, Explicit, Manual, NoAutoFocus,
+  CustomSelection, CustomSuppression, CustomSuppressionFallback
+};
+
+class SecondFieldFocusContainer : public WContainerWidget
+{
+public:
+  bool setFirstFocus() override
+  {
+    return widget(1)->setFirstFocus();
+  }
+};
+
+class SuppressFocusContainer : public WContainerWidget
+{
+public:
+  bool setFirstFocus() override
+  {
+    return false;
+  }
+};
 
 class WDialogTestApp : public WApplication
 {
@@ -103,6 +124,14 @@ public:
     dialog_ = addChild(std::make_unique<WDialog>("Focus test"));
     dialog_->setAttributeValue("data-focus-test", "dialog");
     dialog_->setModal(modal);
+    if (content == FocusContent::Close) {
+      dialog_->setClosable(true);
+      for (auto child : dialog_->titleBar()->children()) {
+        if (child->hasStyleClass("closeicon") || child->hasStyleClass("btn-close")) {
+          child->setAttributeValue("data-focus-test", "close-icon");
+        }
+      }
+    }
     dialog_->contents()->addNew<WText>("Dialog contents");
     if (content == FocusContent::Title) {
       dialog_->titleBar()->addNew<WLineEdit>()->setAttributeValue("data-focus-test", "title-input");
@@ -121,7 +150,18 @@ public:
         || content == FocusContent::Explicit || content == FocusContent::NoAutoFocus) {
       dialog_->contents()->addNew<WLineEdit>()->setAttributeValue("data-focus-test", "body-input");
     }
-    if (content != FocusContent::Empty) {
+    if (content == FocusContent::CustomSelection) {
+      auto body = dialog_->contents()->addNew<SecondFieldFocusContainer>();
+      body->addNew<WLineEdit>()->setAttributeValue("data-focus-test", "first-input");
+      body->addNew<WLineEdit>()->setAttributeValue("data-focus-test", "second-input");
+    }
+    if (content == FocusContent::CustomSuppression
+        || content == FocusContent::CustomSuppressionFallback) {
+      auto body = dialog_->contents()->addNew<SuppressFocusContainer>();
+      body->addNew<WLineEdit>()->setAttributeValue("data-focus-test", "suppressed-input");
+    }
+    if (content != FocusContent::Close && content != FocusContent::Empty
+        && content != FocusContent::CustomSuppressionFallback) {
       auto button = dialog_->footer()->addNew<WPushButton>("OK");
       button->setAttributeValue("data-focus-test", "footer-button");
       if (content == FocusContent::Explicit) {
@@ -367,7 +407,7 @@ SELENIUM_TEST(wdialog_focus, WDialogTestApp)
       });
     }
     for (bool modal : {true, false}) {
-      for (auto content : {FocusContent::Title, FocusContent::Body,
+      for (auto content : {FocusContent::Close, FocusContent::Title, FocusContent::Body,
                            FocusContent::Footer, FocusContent::Unavailable,
                            FocusContent::Empty, FocusContent::Explicit,
                            FocusContent::Manual, FocusContent::NoAutoFocus}) {
@@ -378,7 +418,9 @@ SELENIUM_TEST(wdialog_focus, WDialogTestApp)
           });
           BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
           std::string expected = "footer-button";
-          if (content == FocusContent::Title) {
+          if (content == FocusContent::Close) {
+            expected = "close-icon";
+          } else if (content == FocusContent::Title) {
             expected = "title-input";
           } else if (content == FocusContent::Body) {
             expected = "body-input";
@@ -415,6 +457,65 @@ SELENIUM_TEST(wdialog_focus_show_hide_show, WDialogTestApp)
         updateApplication([](WDialogTestApp *app) { app->hideDialog(); });
         BOOST_REQUIRE(wait.until([&] { return !dialogVisible(api) && hasFocus(api, "outside"); }));
       }
+    }
+  }
+END_SELENIUM_TEST
+
+SELENIUM_TEST(wdialog_focus_custom_selection, WDialogTestApp)
+  for (bool modal : {true, false}) {
+    for (auto content : {FocusContent::CustomSelection,
+                         FocusContent::CustomSuppression,
+                         FocusContent::CustomSuppressionFallback}) {
+      BOOST_TEST_CONTEXT("modal = " << modal
+                         << ", content = " << static_cast<int>(content)) {
+        updateApplication([=](WDialogTestApp *app) {
+          app->showDialog(modal, content, false);
+        });
+        BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
+        std::string expected = "footer-button";
+        if (content == FocusContent::CustomSelection) {
+          expected = "second-input";
+        } else if (content == FocusContent::CustomSuppressionFallback) {
+          expected = "dialog";
+        }
+        checkFocus(api, expected);
+
+        updateApplication([](WDialogTestApp *app) { app->hideDialog(); });
+        BOOST_REQUIRE(wait.until([&] { return !dialogVisible(api) && hasFocus(api, "outside"); }));
+        updateApplication([](WDialogTestApp *app) { app->showAgain(false); });
+        BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
+        checkFocus(api, expected);
+
+        updateApplication([](WDialogTestApp *app) { app->hideDialog(); });
+        BOOST_REQUIRE(wait.until([&] { return !dialogVisible(api) && hasFocus(api, "outside"); }));
+      }
+    }
+  }
+END_SELENIUM_TEST
+
+SELENIUM_TEST(wdialog_close_icon_keyboard, WDialogTestApp)
+  for (bool bootstrap : {false, true}) {
+    if (bootstrap) {
+      updateApplication([](WDialogTestApp *app) {
+        app->setTheme(std::make_shared<WBootstrap5Theme>());
+      });
+    }
+    for (bool modal : {false, true}) {
+      updateApplication([=](WDialogTestApp *app) {
+        app->showDialog(modal, FocusContent::Close, false);
+      });
+      for (const std::string key : {std::string("\xee\x80\x87"), std::string(" ")}) {
+        BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
+        checkFocus(api, "close-icon");
+        auto close = api.getElement(SeleniumAPI::FindBy::CSS_SELECTOR,
+                                    "[data-focus-test=dialog] [data-focus-test=close-icon]");
+        BOOST_REQUIRE(close.has_value());
+        BOOST_REQUIRE(close->sendKeys(key));
+        BOOST_REQUIRE(wait.until([&] { return !dialogVisible(api); }));
+        updateApplication([](WDialogTestApp *app) { app->showAgain(false); });
+      }
+      updateApplication([](WDialogTestApp *app) { app->hideDialog(); });
+      BOOST_REQUIRE(wait.until([&] { return !dialogVisible(api); }));
     }
   }
 END_SELENIUM_TEST

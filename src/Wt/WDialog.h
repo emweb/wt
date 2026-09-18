@@ -355,12 +355,16 @@ public:
    */
   void setAutoFocus(bool enable){ autoFocus_ = enable;}
 
-  /*! \brief Set focus on the widget's first descendant.
+  /*! \brief Selects a descendant or the dialog to receive focus.
    *
-   * This sets focus on the first visible, enabled, focusable widget in
-   * the title bar, contents or footer, in that order. This includes
-   * buttons. If no focusable widget is found, the dialog receives focus
-   * instead.
+   * This calls the virtual setFirstFocus() on the title bar, contents
+   * and footer, in that order, until one accepts focus. Descendant
+   * overrides determine the normal focus selection.
+   *
+   * If none accepts focus, the first visible, enabled WPushButton that
+   * is a direct child of the footer receives focus, despite its normal
+   * opt-out. Next, the visible, enabled close icon receives focus.
+   * If neither is available, the dialog receives focus.
    *
    * Returns whether focus could be set. A hidden or disabled dialog
    * cannot receive focus.
