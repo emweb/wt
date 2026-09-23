@@ -321,6 +321,7 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupMenu", function(APP, el, g
     }
 
     setOthersInactive(el, null);
+    APP._p_.scheduleFocusFallbackElement();
   };
 
   this.popupAt = function(widget) {

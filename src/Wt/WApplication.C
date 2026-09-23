@@ -2016,15 +2016,9 @@ bool WApplication::javaScriptLoaded(const char *jsFile) const
 void WApplication::setFocus(const std::string& id,
                             int selectionStart, int selectionEnd)
 {
-  const bool didFocusChange = focusId_ != id;
-
   focusId_ = id;
   selectionStart_ = selectionStart;
   selectionEnd_ = selectionEnd;
-
-  if (didFocusChange) {
-    focusChanged_.emit();
-  }
 }
 
 void WApplication::setFocus(WWidget* widget,

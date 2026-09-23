@@ -628,26 +628,4 @@ void WCompositeWidget::setParentWidget(WWidget* parent)
   WWidget::setParentWidget(parent);
 }
 
-void WCompositeWidget::handleFocusOnHide(bool hidden)
-{
-  WApplication *app = WApplication::instance();
-  if (hidden) {
-    focusChangedConnection_.disconnect();
-    app->setAsFocus(lastUnrelatedFocusId_);
-  } else {
-    lastUnrelatedFocusId_ = app->focus();
-    focusChangedConnection_ = app->focusChanged_.connect(this, &WCompositeWidget::onFocusChanged);
-  }
-}
-
-void WCompositeWidget::onFocusChanged()
-{
-  WApplication *app = WApplication::instance();
-  std::string newFocus = app->focus();
-  if (newFocus != lastUnrelatedFocusId_ && !findById(newFocus)) {
-    lastUnrelatedFocusId_ = newFocus;
-  }
-}
-
-
 }

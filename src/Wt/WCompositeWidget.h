@@ -286,9 +286,6 @@ private:
   std::string lastUnrelatedFocusId_;
   Signals::connection focusChangedConnection_;
 
-  void handleFocusOnHide(bool hidden);
-  void onFocusChanged();
-
   friend class WPopupWidget;
   friend class WPopupMenu;
 };

@@ -123,6 +123,10 @@ WT_DECLARE_WT_MEMBER(
           elStyle = {},
           elcStyle = {};
 
+        if (hide) {
+          el.classList.add("wt-animate-hide");
+        }
+
         const animationOptions = {
           duration,
           iterations: 1,
@@ -136,6 +140,7 @@ WT_DECLARE_WT_MEMBER(
 
           if (el.getAnimations().length === 0) {
             el.classList.remove("animating");
+            el.classList.remove("wt-animate-hide");
           }
 
           if (APP.layouts2) {

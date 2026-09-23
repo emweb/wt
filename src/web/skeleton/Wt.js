@@ -503,6 +503,34 @@ if (!window._$_WT_CLASS_$_) {
       return e.nodeType === 1 && e.tagName && e.tagName.toUpperCase() === s;
     };
 
+    /*
+     * Checks if the element is not invisible due to itself or one of
+     * its ancestors having display:none or visibility:hidden.
+     */
+    this.isVisible = function(element) {
+      return element &&
+        (element.offsetParent !== null ||
+          (element.style.position === "fixed" &&
+            element.style.display !== "none" &&
+            element.style.visibility !== "hidden"));
+    };
+
+    /**
+     * Checks if the element is in the process of an animation
+     * (from Wt) after wich it will be invisible.
+     */
+    this.isDisappearing = function(element) {
+      return element &&
+        (element.classList.contains("wt-animate-hide") ||
+          WT.isDisappearing(element.parentElement));
+    };
+
+    this.inDomTree = function(element) {
+      return typeof element.isConnected === "boolean" ?
+        element.isConnected :
+        document.documentElement.contains(element);
+    };
+
     this.insertAt = function(p, c, pos) {
       if (!p.childNodes.length) {
         p.appendChild(c);
@@ -3280,6 +3308,73 @@ window._$_APP_CLASS_$_ = new (function() {
     }
   }
 
+  let focusFallbacks = [];
+  let lastFocus = null;
+  let focusFallbackElementTimout = null;
+
+  const mutationObs = new MutationObserver(function(records) {
+    for (const record of records) {
+      for (const removed of record.removedNodes.values()) {
+        if (lastFocus === removed || removed.contains(lastFocus)) {
+          scheduleFocusFallbackElement();
+        }
+      }
+    }
+  });
+
+  // Returns the next element to focus in case the focus is lost.
+  function nextFocus() {
+    const next = focusFallbacks.findLast(function(entry) {
+      return WT.inDomTree(entry) &&
+        WT.isVisible(entry) &&
+        !WT.isDisappearing(entry);
+    });
+
+    return next ? next : null;
+  }
+
+  function prioritizeAsFocusFallback(element) {
+    if (
+      WT.hasTag(element, "BODY") ||
+      WT.hasTag(element, "HTML") ||
+      element === document
+    ) {
+      return;
+    }
+
+    lastFocus = element;
+    clearTimeout(focusFallbackElementTimout);
+    focusFallbackElementTimout = null;
+
+    // Remove the target and clean up the list from deleted elements
+    focusFallbacks = focusFallbacks.filter(function(entry) {
+      return entry !== element && WT.inDomTree(entry);
+    });
+
+    focusFallbacks.push(element);
+  }
+
+  function focusFallbackElement() {
+    const next = nextFocus();
+    if (next) {
+      next.focus();
+    }
+  }
+
+  function scheduleFocusFallbackElement() {
+    if (!focusFallbackElementTimout) {
+      focusFallbackElementTimout = setTimeout(function() {
+        clearTimeout(focusFallbackElementTimout);
+        focusFallbackElementTimout = null;
+        focusFallbackElement();
+      }, 0);
+    }
+  }
+
+  function onFocusChange(event) {
+    prioritizeAsFocusFallback(event.target);
+  }
+
   function load(fullapp) {
     if (loaded) {
       return;
@@ -3311,6 +3406,9 @@ window._$_APP_CLASS_$_ = new (function() {
     // this could be cancelled leading to havoc?
     document.addEventListener("mousedown", WT.mouseDown);
     document.addEventListener("mouseup", WT.mouseUp);
+
+    document.addEventListener("focus", onFocusChange, true);
+    mutationObs.observe(document.body, { childList: true, subtree: true });
 
     WT.history._initialize();
     initIdleTimeout();
@@ -4549,6 +4647,7 @@ window._$_APP_CLASS_$_ = new (function() {
     setConnectionMonitor,
     updateGlobal,
     bindGlobal,
+    scheduleFocusFallbackElement,
     refreshCookie,
 
     propagateSize,

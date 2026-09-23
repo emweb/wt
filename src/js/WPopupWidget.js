@@ -8,7 +8,6 @@
 
 WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupWidget", function(APP, el, tr, ahd, shown) {
   el.wtPopup = this;
-
   const self = this,
     WT = APP.WT;
   let hideTimeout = null,
@@ -141,6 +140,8 @@ WT_DECLARE_WT_MEMBER(1, JavaScriptConstructor, "WPopupWidget", function(APP, el,
     if (isTransient) {
       unbindDocumentClick();
     }
+
+    APP._p_.scheduleFocusFallbackElement();
   };
 
   this.hide = function() {
