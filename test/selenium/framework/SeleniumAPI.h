@@ -277,6 +277,31 @@ namespace Selenium {
       return elem;
     }
 
+    //! Retrieves the element which has the focus.
+    std::optional<Element> getActiveElement()
+    {
+      if (!driver_) {
+        throw new APIException("Driver not initialized");
+      }
+
+      PyObject* switchTo = PythonInterpreter::getAttribute(driver_, "switch_to");
+      if (!switchTo) {
+        return std::nullopt;
+      }
+
+      PyObject* element = PythonInterpreter::getAttribute(switchTo, "active_element");
+      Py_DECREF(switchTo);
+
+      if (!element) {
+        throw new APIException("Active element not found");
+      }
+
+      Element elem(element);
+      Py_DECREF(element);
+
+      return elem;
+    }
+
     //! Removes the webdriver
     void cleanup()
     {

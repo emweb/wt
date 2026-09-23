@@ -71,6 +71,26 @@ namespace Selenium {
       return *this;
     }
 
+    /*! \brief Compares two Elements for equality
+     *
+     * This compares the underlying Python objects for equality.
+     * If an error occurs during the comparison, it will return false.
+     */
+    bool operator==(const Element& other) const
+    {
+      return callMethod<bool>("__eq__", other.pyObject()).value_or(false);
+    }
+
+    /*! \brief Compares two Elements for inequality
+     *
+     * This compares the underlying Python objects for inequality.
+     * If an error occurs during the comparison, it will return false.
+     */
+    bool operator!=(const Element& other) const
+    {
+      return callMethod<bool>("__ne__", other.pyObject()).value_or(false);
+    }
+
     ~Element()
     {
       if (pyElement_) {
@@ -214,6 +234,12 @@ namespace Selenium {
       return true;
     }
 
+    //! Sets focus on the Element.
+    bool focus()
+    {
+      return sendKeys("");
+    }
+
   private:
     PyObject* pyElement_;
 
@@ -306,6 +332,30 @@ namespace Selenium {
     std::optional<Type> getAttributeValue(const std::string& name) const
     {
       return getNamedValue<Type>("get_attribute", name);
+    }
+
+    template<typename Type, typename... Args>
+    std::optional<Type> callMethod(const std::string& name, Args... args) const
+    {
+      PyObject* method = PythonInterpreter::getAttribute(pyElement_, name);
+      if (!method) {
+        return std::nullopt;
+      }
+
+      PyObject* result = PythonInterpreter::callFunction(method, args...);
+      Py_DECREF(method);
+      if (!result) {
+        return std::nullopt;
+      }
+
+      Type output;
+      if (convert(result, output)) {
+        Py_DECREF(result);
+        return std::make_optional(output);
+      } else {
+        Py_DECREF(result);
+        return std::nullopt;
+      }
     }
 
     bool convert(PyObject* obj, std::string& output) const
