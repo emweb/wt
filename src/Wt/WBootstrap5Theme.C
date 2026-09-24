@@ -347,7 +347,9 @@ void WBootstrap5Theme::apply(WWidget *widget, DomElement& element,
   case DomElementType::UL: {
     auto popupMenu = dynamic_cast<WPopupMenu *>(widget);
     if (popupMenu) {
-      element.addPropertyWord(Property::Class, "dropdown-menu");
+      // Bootstrap's dropdown keyboard handler expects a Bootstrap toggle.
+      // Wt handles popup menus itself, including detached submenus.
+      element.addPropertyWord(Property::Class, "Wt-dropdown-menu");
 
       if (popupMenu->parentItem() &&
           dynamic_cast<WPopupMenu *>(popupMenu->parentItem()->parentMenu()))

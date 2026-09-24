@@ -31,7 +31,8 @@ namespace Selenium {
       std::vector<std::string> args {
         "--http-address", ADDRESS,
         "--http-port", "0",
-        "--docroot", docroot.c_str()
+        "--docroot", docroot.c_str(),
+        "--resources-dir", WT_SELENIUM_RESOURCES_DIR
       };
 
       if (!configFile.empty()) {

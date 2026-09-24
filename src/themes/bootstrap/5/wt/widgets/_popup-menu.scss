@@ -1,3 +1,8 @@
+// Share Bootstrap's dropdown styling without its delegated key handler.
+.Wt-dropdown-menu {
+  @extend .dropdown-menu;
+}
+
 .dropdown-menu {
   .disabled {
     a, a:hover {

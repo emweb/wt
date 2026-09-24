@@ -44,6 +44,13 @@ namespace Selenium {
       Py_DECREF(actions_);
     }
 
+    //! Queues moving the pointer to the center of the element.
+    ActionChains& moveToElement(const Element& element)
+    {
+      checkResult(PyObject_CallMethod(actions_, "move_to_element", "O", element.pyObject()), "queue pointer move");
+      return *this;
+    }
+
     //! Queues a double click at the center of the element.
     ActionChains& doubleClick(const Element& element)
     {

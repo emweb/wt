@@ -61,6 +61,9 @@ if(ENABLE_LIBWTTEST AND ENABLE_SELENIUM_TESTS)
   # Select correct activation script
   target_compile_definitions(test.selenium PRIVATE -DPYTHON_VENV_PATH=${CMAKE_SOURCE_DIR}/test/selenium/python-env)
 
+  target_compile_definitions(test.selenium PRIVATE
+    WT_SELENIUM_RESOURCES_DIR="${CMAKE_SOURCE_DIR}/resources")
+
   message(STATUS "Selenium tests configured successfully")
 else()
   message(STATUS "Selenium tests disabled (set ENABLE_SELENIUM_TESTS=ON to enable)")
