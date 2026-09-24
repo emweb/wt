@@ -85,6 +85,14 @@ behaviour.
     Existing widgets using these links now refresh their resource URLs.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/14009" target="_blank">Issue #14009</a>
+    ensured that the
+    <a href="classWt_1_1Http_1_1Client.html" target="_blank">Http::Client</a> with
+    <a href="classWt_1_1Http_1_1Client.html#a34bc95c42292f3fd7d6e54f86b3781b6" target="_blank">Http::Client::followRedirect()</a>
+    set to true does follow redirects automatically in case of a truncation error, as long as all the headers are received and the
+    redirect was done over HTTPS.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/14816" target="_blank">Issue #14816</a>
     fixed segfault that could happen when parsing a configuration file containing a <code>trusted-proxy-config</code> block
     that was missing the <code>trusted-proxies</code> element.
