@@ -1112,10 +1112,16 @@ void Client::handleRedirect(Http::Method method,
 #endif
   impl_.reset();
   int status = response.status();
-  if (!err && (((status == STATUS_MOVED_PERMANENTLY ||
-                 status == STATUS_FOUND ||
-                 status == STATUS_TEMPORARY_REDIRECT) && method == Http::Method::Get) ||
-               status == STATUS_SEE_OTHER)) {
+  bool canReadHeaders = !err;
+#ifdef WT_WITH_SSL
+  canReadHeaders |= err == asio::ssl::error::stream_errors::stream_truncated;
+#endif // WT_WITH_SSL
+
+  if (canReadHeaders &&
+      (((status == STATUS_MOVED_PERMANENTLY ||
+         status == STATUS_FOUND ||
+         status == STATUS_TEMPORARY_REDIRECT) && method == Http::Method::Get) ||
+       status == STATUS_SEE_OTHER)) {
     const std::string *newUrl = response.getHeader("Location");
     ++ redirectCount_;
     if (newUrl) {
