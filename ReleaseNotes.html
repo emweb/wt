@@ -179,6 +179,14 @@ behaviour.
     style element in the document instead of Wt's own inline style sheet,
     potentially preventing the application from rendering.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14758" target="_blank">Issue #14758</a>:
+    fixed a JavaScript exception when using the keyboard in a
+    <a href="classWt_1_1WPopupMenu.html" target="_blank">WPopupMenu</a>
+    with the Bootstrap 5 theme, including pressing Escape in submenus.
+    Popup menus now use the <code>Wt-dropdown-menu</code> CSS class to keep
+    Wt keyboard handling independent of native Bootstrap dropdowns.
+  </li>
 </ul>
 
 <p>Wt 4.15.0 also comes with the following improvements:</p>
