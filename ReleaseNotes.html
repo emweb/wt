@@ -49,6 +49,15 @@ behaviour.
     reduced the impact of deadlocks by preventing session expiration from
     blocking indefinitely when an expired session's lock remains held.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14171" target="_blank">Issue #14171</a>:
+    Wt now keeps parsed file-backed message resources on
+    <a href="classWt_1_1WServer.html" target="_blank">WServer</a>, copies
+    unchanged data for new application consumers, and reloads changed source
+    files for later consumers using their last modification time. The source
+    modification time is checked for every new consumer. Changes that
+    preserve this timestamp do not invalidate the cache.
+  </li>
 </ul>
 
 <h2>Release 4.14.4 (October 1, 2026)</h2>
