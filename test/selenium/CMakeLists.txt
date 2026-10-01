@@ -37,6 +37,9 @@ if(ENABLE_LIBWTTEST AND ENABLE_SELENIUM_TESTS)
     LocatorTest.C
     SetupTest.C
     widgets/WCheckBox.C
+    widgets/WDialog.C
+    widgets/WMessageBox.C
+    widgets/WPopupMenu.C
     widgets/WStackedWidget.C
     widgets/WText.C
   )
