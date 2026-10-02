@@ -455,7 +455,7 @@ private:
   static const int BIT_TOOLTIP_CLEAN_FORCE_SHOW = 40;
   static const int BIT_TOOLTIP_SHOW_ON_HOVER = 41;
   static const int BIT_RESEND_FORM_DATA = 42;
-  static const int BIT_FOCUS_CONNECTED = 43;
+  static const int BIT_ON_FOCUS_CONNECTED = 43;
   static const int BIT_POSITION_ANCHOR_NAME_CHANGED = 44;
   static const int BIT_POSITION_ANCHOR_CHANGED = 45;
   static const int BIT_OFFSETS_CHANGED = 46;

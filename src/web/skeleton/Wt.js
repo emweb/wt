@@ -3373,6 +3373,11 @@ window._$_APP_CLASS_$_ = new (function() {
 
   function onFocusChange(event) {
     prioritizeAsFocusFallback(event.target);
+    self.emit(self, "Wt-focusChanged");
+  }
+
+  function onFocusLost(_event) {
+    self.emit(self, "Wt-focusChanged");
   }
 
   function load(fullapp) {
@@ -3408,6 +3413,7 @@ window._$_APP_CLASS_$_ = new (function() {
     document.addEventListener("mouseup", WT.mouseUp);
 
     document.addEventListener("focus", onFocusChange, true);
+    document.addEventListener("blur", onFocusLost, true);
     mutationObs.observe(document.body, { childList: true, subtree: true });
 
     WT.history._initialize();

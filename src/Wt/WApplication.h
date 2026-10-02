@@ -2536,6 +2536,7 @@ private:
   std::string focusId_;
   mutable observing_ptr<WWidget> focusedWidget_;
   int selectionStart_, selectionEnd_;
+  JSignal<> focusChanged_;
   LayoutDirection layoutDirection_;
   std::unordered_map<std::string, std::string> htmlAttributes_;
   std::unordered_map<std::string, std::string> bodyAttributes_;

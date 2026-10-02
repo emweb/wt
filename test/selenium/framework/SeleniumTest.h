@@ -13,6 +13,8 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <atomic>
+
 namespace Selenium {
   // Helper macros to define a Selenium test case with automatic setup
 
@@ -44,10 +46,19 @@ namespace Selenium {
       auto updateApplication = [&](const std::function<void(app_type*)>& fn) { \
         test.updateApplication(fn); \
       }; \
+      auto checkApplicationState = [&] (const std::function<bool(const app_type*)>& fn) -> bool { \
+        return test.checkApplicationState(fn); \
+      }; \
+      auto executeInApplication = [&](const std::function<void(const app_type*)>& fn) { \
+        return test.executeInApplication(fn); \
+      }; \
       \
       (void)api; \
       (void)wait; \
-      (void)updateApplication;
+      (void)updateApplication; \
+      (void)checkApplicationState; \
+      (void)executeInApplication; \
+      ;
 
 #define SELENIUM_TEST(test_name, app_type) SELENIUM_TEST_WITH_CONFIG_FILE(test_name, app_type, "")
 
@@ -128,6 +139,63 @@ namespace Selenium {
         }
       });
     }
+
+    /*! \brief Runs a function on the application instance and waits.
+     *
+     * This function runs the provided function in the application
+     * instance in the WServer, waits for it to be executed, and
+     * returns the result.
+     *
+     * Return false if the function could not be executed within the
+     * specified timeout.
+     */
+    bool checkApplicationState(const std::function<bool(const AppType*)>& function,
+                               std::chrono::seconds timeout = std::chrono::seconds(1))
+    {
+      std::shared_ptr<std::atomic<bool>> result = std::make_shared<std::atomic<bool>>(false);
+      std::shared_ptr<std::atomic<bool>> done = std::make_shared<std::atomic<bool>>(false);
+      fixture_.server().postAll([function, result, done]() {
+        auto app = dynamic_cast<AppType*>(Wt::WApplication::instance());
+        if (app) {
+          result->store(function(app));
+          done->store(true);
+        }
+      });
+      Selenium::SeleniumWait wait(api_->driver(), timeout);
+      try {
+        wait.until([&]() { return done->load(); });
+      } catch (...) {
+      }
+      return result->load();
+    }
+
+    /*! \brief Runs a function on the application instance and waits.
+     *
+     * This function runs the provided function in the application
+     * instance in the WServer and waits for it to be executed.
+     *
+     * Return false if the function could not be executed within the
+     * specified timeout. Otherwise, it returns true.
+     */
+    bool executeInApplication(const std::function<void(const AppType*)>& function,
+                               std::chrono::seconds timeout = std::chrono::seconds(1))
+    {
+      std::shared_ptr<std::atomic<bool>> done = std::make_shared<std::atomic<bool>>(false);
+      fixture_.server().postAll([function, done]() {
+        auto app = dynamic_cast<AppType*>(Wt::WApplication::instance());
+        if (app) {
+          function(app);
+          done->store(true);
+        }
+      });
+      Selenium::SeleniumWait wait(api_->driver(), timeout);
+      try {
+        wait.until([&]() { return done->load(); });
+      } catch (...) {
+      }
+      return done->load();
+    }
+
 
     //! Retrieves the configuration of the server in the SeleniumFixture.
     const Wt::Configuration& config()

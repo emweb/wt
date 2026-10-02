@@ -2754,9 +2754,11 @@ void WWebWidget::doLoad(WWidget *w)
 
 void WWebWidget::render(WFlags<RenderFlag> flags)
 {
-  if (!flags_.test(BIT_FOCUS_CONNECTED)) {
+  if (!flags_.test(BIT_ON_FOCUS_CONNECTED) && focussed().isConnected()) {
+    // Since the signal will be sent anyway, we might as well use it to
+    // update the focussed widget.
     focussed().connect(this, &WWebWidget::onFocus);
-    flags_.set(BIT_FOCUS_CONNECTED);
+    flags_.set(BIT_ON_FOCUS_CONNECTED);
   }
   WWidget::render(flags);
 }

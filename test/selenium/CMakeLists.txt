@@ -43,6 +43,7 @@ if(ENABLE_LIBWTTEST AND ENABLE_SELENIUM_TESTS)
     widgets/WPopupMenu.C
     widgets/WStackedWidget.C
     widgets/WText.C
+    widgets/WWebWidget.C
   )
 
   # Create test executable

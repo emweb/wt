@@ -136,6 +136,7 @@ WApplication::WApplication(const WEnvironment& env
     beingDeleted_(false),
     selectionStart_(-1),
     selectionEnd_(-1),
+    focusChanged_(this, "Wt-focusChanged"),
     layoutDirection_(LayoutDirection::LeftToRight),
     htmlAttributeChanged_(true),
     bodyAttributeChanged_(true),
@@ -314,6 +315,7 @@ WApplication::WApplication(const WEnvironment& env
   setLoadingIndicator
     (std::unique_ptr<WLoadingIndicator>(new WDefaultLoadingIndicator()));
 
+  addExposedSignal(&focusChanged_);
   visibilityChangedJs_.connect(this, &WApplication::onVisibilityChange);
   unloaded_.connect(this, &WApplication::doUnload);
   idleTimeout_.connect(this, &WApplication::doIdleTimeout);
