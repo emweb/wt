@@ -2143,7 +2143,8 @@ public:
   /*! \brief Enables or disables tracking of client-side focus.
    *
    * When enabled, the application will actively keep track of which
-   * widget has focus on the client side.
+   * widget has focus on the client side, and enables the
+   * elementFocused() and elementBlurred() signals.
    *
    * By default, tracking of client-side focus is disabled.
    *
@@ -2154,7 +2155,7 @@ public:
    * \warning Enabling tracking of client-side focus may considerably
    *          increase client-server communication.
    *
-   * \sa focus()
+   * \sa focus(), elementFocused(), elementBlurred()
    */
   void setTrackFocus(bool enable = true);
 
@@ -2163,6 +2164,45 @@ public:
    * \sa setTrackFocus()
    */
   bool trackFocus() const { return trackFocus_; }
+
+  /*! \brief Signal that is emitted when an element receives focus.
+   *
+   * This signal is emitted whenever an element in the application
+   * receives focus on the client side. This newly focused widget
+   * can be retrieved using focus() or focusedWidget().
+   *
+   * For this signal to be emitted, tracking of client-side focus must
+   * be enabled using setTrackFocus().
+   *
+   * \note If you need to react to a specific widget being focused,
+   *       consider connecting to WWebWidget::focused() signal instead.
+   *
+   * \sa setTrackFocus(),
+   *     elementBlurred(),
+   *     focus(),
+   *     focusedWidget(),
+   *     WWebWidget::focused()
+   */
+  Signal<>& elementFocused() { return elementFocused_; }
+
+  /*! \brief Signal that is emitted when an element loses focus.
+   *
+   * This signal is emitted whenever an element in the application
+   * loses focus on the client side.
+   *
+   * For this signal to be emitted, tracking of client-side focus must
+   * be enabled using setTrackFocus().
+   *
+   * \note If you need to react to a specific widget losing focus,
+   *       consider connecting to WWebWidget::blurred() signal instead.
+   *
+   * \sa setTrackFocus(),
+   *     elementFocused(),
+   *     focus(),
+   *     focusedWidget(),
+   *     WWebWidget::blurred()
+   */
+  Signal<>& elementBlurred() { return elementBlurred_; }
 
 #ifdef WT_DEBUG_JS
   void loadJavaScript(const char *jsFile);
@@ -2562,6 +2602,8 @@ private:
   int selectionStart_, selectionEnd_;
   bool trackFocus_;
   JSignal<> focusChanged_;
+  Signal<> elementFocused_;
+  Signal<> elementBlurred_;
   LayoutDirection layoutDirection_;
   std::unordered_map<std::string, std::string> htmlAttributes_;
   std::unordered_map<std::string, std::string> bodyAttributes_;
@@ -2694,6 +2736,7 @@ private:
   int selectionStart() const { return selectionStart_; }
   int selectionEnd() const { return selectionEnd_; }
   void setFocusedWidget(WWidget *widget);
+  void onFocusChange();
 
   WLocalizedStrings *localizedStringsPack();
 

@@ -3312,6 +3312,7 @@ window._$_APP_CLASS_$_ = new (function() {
   let focusFallbacks = [];
   let lastFocus = null;
   let focusFallbackElementTimout = null;
+  let focusIsOutsideDocument = false;
 
   const mutationObs = new MutationObserver(function(records) {
     for (const record of records) {
@@ -3380,11 +3381,19 @@ window._$_APP_CLASS_$_ = new (function() {
 
   function onFocusChange(event) {
     prioritizeAsFocusFallback(event.target);
-    communicateFocusChange();
+    if (event.target.id && !focusIsOutsideDocument) {
+      communicateFocusChange();
+    } else {
+      focusIsOutsideDocument = false;
+    }
   }
 
-  function onFocusLost(_event) {
-    communicateFocusChange();
+  function onFocusLost(event) {
+    if (event.target.id && document.activeElement !== event.target) {
+      communicateFocusChange();
+    } else if (document.activeElement === event.target) {
+      focusIsOutsideDocument = true;
+    }
   }
 
   function setTrackFocus(enable) {

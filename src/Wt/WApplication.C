@@ -316,7 +316,7 @@ WApplication::WApplication(const WEnvironment& env
   setLoadingIndicator
     (std::unique_ptr<WLoadingIndicator>(new WDefaultLoadingIndicator()));
 
-  addExposedSignal(&focusChanged_);
+  focusChanged_.connect(this, &WApplication::onFocusChange);
   visibilityChangedJs_.connect(this, &WApplication::onVisibilityChange);
   unloaded_.connect(this, &WApplication::doUnload);
   idleTimeout_.connect(this, &WApplication::doIdleTimeout);
@@ -2108,6 +2108,17 @@ void WApplication::setTrackFocus(bool enable)
 
   doJavaScript(javaScriptClass_
                + "._p_.setTrackFocus("+ (enable ? "true" : "false") + ");");
+}
+
+void WApplication::onFocusChange()
+{
+  if (trackFocus_) {
+    if (focus().empty()) {
+      elementBlurred_.emit();
+    } else {
+      elementFocused_.emit();
+    }
+  }
 }
 
 #ifndef WT_TARGET_JAVA
