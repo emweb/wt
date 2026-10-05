@@ -2568,6 +2568,7 @@ window._$_APP_CLASS_$_ = new (function() {
 
   let downX = 0;
   let downY = 0;
+  let trackFocus = false;
 
   const deployUrl = _$_DEPLOY_PATH_$_;
 
@@ -3371,13 +3372,23 @@ window._$_APP_CLASS_$_ = new (function() {
     }
   }
 
+  function communicateFocusChange() {
+    if (trackFocus) {
+      self.emit(self, "Wt-focusChanged");
+    }
+  }
+
   function onFocusChange(event) {
     prioritizeAsFocusFallback(event.target);
-    self.emit(self, "Wt-focusChanged");
+    communicateFocusChange();
   }
 
   function onFocusLost(_event) {
-    self.emit(self, "Wt-focusChanged");
+    communicateFocusChange();
+  }
+
+  function setTrackFocus(enable) {
+    trackFocus = enable;
   }
 
   function load(fullapp) {
@@ -4654,6 +4665,7 @@ window._$_APP_CLASS_$_ = new (function() {
     updateGlobal,
     bindGlobal,
     scheduleFocusFallbackElement,
+    setTrackFocus,
     refreshCookie,
 
     propagateSize,

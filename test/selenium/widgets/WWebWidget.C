@@ -24,7 +24,6 @@ namespace {
       text1_ = root()->addWidget(std::make_unique<WText>("Text 1"));
       text1_->setId("text-1");
       text1_->setCanReceiveFocus(true);
-      text1_->setFocus();
 
       text2_ = root()->addWidget(std::make_unique<WText>("Text 2"));
       text2_->setId("text-2");
@@ -42,12 +41,17 @@ namespace {
 
 BOOST_AUTO_TEST_SUITE(selenium_wwebwidget)
 
-SELENIUM_TEST(wwebwidget_focus_change_stay_syncronized, WWebWidgetTestApp)
+SELENIUM_TEST(wwebwidget_track_focus_keep_focus_synchronized, WWebWidgetTestApp)
   auto text1 = api.getElement(SeleniumAPI::FindBy::ID, "text-1");
   BOOST_REQUIRE(text1.has_value());
   auto text2 = api.getElement(SeleniumAPI::FindBy::ID, "text-2");
   BOOST_REQUIRE(text2.has_value());
   WWidget* text2Ptr = nullptr;
+
+  updateApplication([&](WWebWidgetTestApp* app) {
+    app->text1()->setFocus();
+    app->setTrackFocus(true);
+  });
 
   BOOST_REQUIRE(wait.until([&]() { return text1 == api.getActiveElement(); }));
 

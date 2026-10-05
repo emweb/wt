@@ -2140,6 +2140,30 @@ public:
    */
   WWidget* focusedWidget() const;
 
+  /*! \brief Enables or disables tracking of client-side focus.
+   *
+   * When enabled, the application will actively keep track of which
+   * widget has focus on the client side.
+   *
+   * By default, tracking of client-side focus is disabled.
+   *
+   * \note Even if tracking of client-side focus is disabled, the value
+   *       returned by focus() and focusedWidget() will still be
+   *       updated every time an event is received from the client.
+   *
+   * \warning Enabling tracking of client-side focus may considerably
+   *          increase client-server communication.
+   *
+   * \sa focus()
+   */
+  void setTrackFocus(bool enable = true);
+
+  /*! \brief Returns whether tracking of client-side focus is enabled.
+   *
+   * \sa setTrackFocus()
+   */
+  bool trackFocus() const { return trackFocus_; }
+
 #ifdef WT_DEBUG_JS
   void loadJavaScript(const char *jsFile);
 #else
@@ -2536,6 +2560,7 @@ private:
   std::string focusId_;
   mutable observing_ptr<WWidget> focusedWidget_;
   int selectionStart_, selectionEnd_;
+  bool trackFocus_;
   JSignal<> focusChanged_;
   LayoutDirection layoutDirection_;
   std::unordered_map<std::string, std::string> htmlAttributes_;

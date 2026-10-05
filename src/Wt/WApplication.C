@@ -136,6 +136,7 @@ WApplication::WApplication(const WEnvironment& env
     beingDeleted_(false),
     selectionStart_(-1),
     selectionEnd_(-1),
+    trackFocus_(false),
     focusChanged_(this, "Wt-focusChanged"),
     layoutDirection_(LayoutDirection::LeftToRight),
     htmlAttributeChanged_(true),
@@ -2095,6 +2096,18 @@ WWidget* WApplication::focusedWidget() const
   }
 
   return focusedWidget_.get();
+}
+
+void WApplication::setTrackFocus(bool enable)
+{
+  if (trackFocus_ == enable) {
+    return;
+  }
+
+  trackFocus_ = enable;
+
+  doJavaScript(javaScriptClass_
+               + "._p_.setTrackFocus("+ (enable ? "true" : "false") + ");");
 }
 
 #ifndef WT_TARGET_JAVA
