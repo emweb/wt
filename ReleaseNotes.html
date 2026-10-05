@@ -139,6 +139,18 @@ behaviour.
     replace them at link time with their own implementations, for example to control where temporary files are created
     or how their names are generated.
   </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14822" target="_blank">Issue #14822</a>:
+    Stop keeping track of focus changes on the server side by default as this was, most of the time,
+    unnecessary and did require additional client-server communication.
+
+    This can be re-enabled if needed with
+    <a href="classWt_1_1WApplication.html#ac0332f9482f4f3099eaddbc7af881ded" target="_blank">WApplication::setTrackFocus()</a>, which
+    also enables the use of the new
+    <a href="classWt_1_1WApplication.html#afd0127b3eba8d2b48b2618dcfb586804" target="_blank">WApplication::elementFocused()</a> and
+    <a href="classWt_1_1WApplication.html#a09023da626a52686c2ac80db7950a4b9" target="_blank">WApplication::elementBlurred()</a> signals.
+    Those 2 new signals are emitted when an element receives or loses focus on the client side, respectively.
+  </li>
 </ul>
 
 <h2>Release 4.14.4 (October 1, 2026)</h2>
