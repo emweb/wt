@@ -6,6 +6,7 @@
 
 #include "Wt/WLeafletMap.h"
 
+#include "Wt/ResizeSensor.h"
 #include "Wt/WApplication.h"
 #include "Wt/WBrush.h"
 #include "Wt/WColor.h"
@@ -46,6 +47,7 @@ public:
   Impl();
 
   virtual DomElementType domElementType() const override;
+  DomElement* createDomElement(WApplication* app) override;
 };
 
 WLeafletMap::Impl::Impl()
@@ -56,6 +58,13 @@ WLeafletMap::Impl::Impl()
 DomElementType WLeafletMap::Impl::domElementType() const
 {
   return DomElementType::DIV;
+}
+
+DomElement* WLeafletMap::Impl::createDomElement(WApplication* app)
+{
+  DomElement* element = WWebWidget::createDomElement(app);
+  ResizeSensor::applyIfNeeded(this);
+  return element;
 }
 
 WLeafletMap::Coordinate::Coordinate()
