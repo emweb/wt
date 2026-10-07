@@ -23,11 +23,11 @@
 namespace {
   const char* YMD_HMS_FORMAT = "yyyy-MM-dd'T'HH:mm";
 
-  inline WDate toDate(const WDateTime& dt) {
+  inline Wt::WDate toDate(const Wt::WDateTime& dt) {
 #ifndef WT_TARGET_JAVA
     return dt.date();
 #else
-    return dt.date().isNull() ? WDate() : WDate(dt.date().year(), dt.date().month(), dt.date().day());
+    return dt.date().isNull() ? Wt::WDate() : Wt::WDate(dt.date().year(), dt.date().month(), dt.date().day());
 #endif
   }
 }
