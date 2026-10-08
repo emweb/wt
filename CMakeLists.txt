@@ -51,6 +51,11 @@ OPTION(ENABLE_UNWIND "Build Wt with stacktrace support using libunwind" OFF)
 option(DEBUG_JS "Serve non-minified JavaScript from the filesystem instead of embedding it, for debugging." OFF)
 mark_as_advanced(DEBUG_JS)
 
+if(WIN32)
+  option(SUPPORT_WINDOWS_VISTA "Ensure Wt supports Windows Vista" ON)
+  mark_as_advanced(SUPPORT_WINDOWS_VISTA)
+endif(WIN32)
+
 IF(NOT CMAKE_CXX_STANDARD)
 IF(NOT CMAKE_CXX_STANDARD)
    SET(CMAKE_CXX_STANDARD 17)
@@ -79,7 +84,11 @@ ENDIF(NOT EXAMPLES_DESTINATION)
 
 IF(WIN32)
   # required for all that uses boost.asio
-  ADD_DEFINITIONS(-D_WIN32_WINNT=0x0600)
+  if(SUPPORT_WINDOWS_VISTA)
+    ADD_DEFINITIONS(-D_WIN32_WINNT=0x0600)
+  else()
+    ADD_DEFINITIONS(-D_WIN32_WINNT=0x0601)
+  endif(SUPPORT_WINDOWS_VISTA)
 
   IF(SHARED_LIBS)
     # See http://svn.boost.org/trac/boost/ticket/3465
