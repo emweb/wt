@@ -236,7 +236,6 @@ void WDialog::create()
   recursiveEventLoop_ = false;
   escapeIsReject_ = false;
   autoFocus_ = true;
-  autoFocusPending_ = false;
   impl_ = dynamic_cast<WTemplate *>(implementation());
 
   impl_->addFunction("block", &WTemplate::Functions::block);
@@ -468,8 +467,7 @@ void WDialog::render(WFlags<RenderFlag> flags)
   if (!isModal())
     impl_->mouseWentDown().connect(this, &WDialog::bringToFront);
 
-  if ((flags.test(RenderFlag::Full) || autoFocusPending_)
-      && autoFocus_ && isVisible()) {
+  if (flags.test(RenderFlag::Full) && autoFocus_ && isVisible()) {
     WWidget *focused = impl_->findById(WApplication::instance()->focus());
     if (focused && focused != impl_ && focused != layoutContainer_
         && focused->isVisible() && focused->isEnabled()) {
@@ -478,7 +476,6 @@ void WDialog::render(WFlags<RenderFlag> flags)
       setFirstFocus();
     }
   }
-  autoFocusPending_ = false;
 
   WPopupWidget::render(flags);
 }
@@ -680,8 +677,6 @@ void WDialog::setHidden(bool hidden, const WAnimation& animation)
   /* For JWt: setHidden() is called from WPopupWidget constructor. */
   if (contents_ && isHidden() != hidden) {
     if (!hidden) {
-      autoFocusPending_ = true;
-      scheduleRender();
       if (footer_) {
         for (int i = 0; i < footer()->count(); ++i) {
           WPushButton *b = dynamic_cast<WPushButton *>(footer()->widget(i));

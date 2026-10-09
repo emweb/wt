@@ -349,9 +349,10 @@ public:
 
   /*! \brief Enables automatic focus when the dialog is shown.
    *
-   * Autofocus is enabled by default. Each time the dialog is shown,
-   * setFirstFocus() selects a focus target. If a visible, enabled
-   * descendant already has focus, that widget keeps the focus instead.
+   * Autofocus is enabled by default. When the dialog is rendered for
+   * the first time, setFirstFocus() selects a focus target. If a
+   * visible, enabled descendant already has focus, that widget keeps
+   * the focus instead.
    */
   void setAutoFocus(bool enable){ autoFocus_ = enable;}
 
@@ -476,7 +477,7 @@ private:
   WContainerWidget *contents_;
   WContainerWidget *layoutContainer_;
   mutable WContainerWidget *footer_;
-  bool modal_, resizable_, movable_, escapeIsReject_, autoFocus_, autoFocusPending_;
+  bool modal_, resizable_, movable_, escapeIsReject_, autoFocus_;
   JSignal<int,int> moved_, resized_;
   JSignal<int> zIndexChanged_;
   std::vector<std::string> delayedJs_;

@@ -356,48 +356,6 @@ BOOST_AUTO_TEST_CASE(test_WDialog_focus_unavailable_dialog)
   }
 }
 
-BOOST_AUTO_TEST_CASE(test_WDialog_autofocus_when_shown)
-{
-  for (bool modal : {true, false}) {
-    Wt::Test::WTestEnvironment testEnv;
-    Wt::WApplication app(testEnv);
-    auto outside = app.root()->addNew<Wt::WLineEdit>();
-    outside->setFocus();
-    FocusDialog dialog;
-    dialog.setModal(modal);
-    auto input = dialog.contents()->addNew<Wt::WLineEdit>();
-    dialog.render(Wt::RenderFlag::Full);
-
-    dialog.show();
-    dialog.render(Wt::RenderFlag::Update);
-    BOOST_TEST(input->hasFocus());
-
-    dialog.hide();
-    outside->setFocus();
-    dialog.show();
-    dialog.render(Wt::RenderFlag::Update);
-    BOOST_TEST(input->hasFocus());
-  }
-}
-
-BOOST_AUTO_TEST_CASE(test_WDialog_autofocus_prefers_new_descendant)
-{
-  for (bool modal : {true, false}) {
-    Wt::Test::WTestEnvironment testEnv;
-    Wt::WApplication app(testEnv);
-    FocusDialog dialog;
-    dialog.setModal(modal);
-    dialog.show();
-    dialog.render(Wt::RenderFlag::Full);
-    dialog.hide();
-    auto input = dialog.contents()->addNew<Wt::WLineEdit>();
-    dialog.show();
-    dialog.render(Wt::RenderFlag::Update);
-
-    BOOST_TEST(input->hasFocus());
-  }
-}
-
 BOOST_AUTO_TEST_CASE(test_WDialog_close_icon_fallback)
 {
   for (bool bootstrap : {false, true}) {

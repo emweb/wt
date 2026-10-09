@@ -407,55 +407,35 @@ SELENIUM_TEST(wdialog_focus, WDialogTestApp)
       });
     }
     for (bool modal : {true, false}) {
-      for (auto content : {FocusContent::Close, FocusContent::Title, FocusContent::Body,
-                           FocusContent::Footer, FocusContent::Unavailable,
-                           FocusContent::Empty, FocusContent::Explicit,
-                           FocusContent::Manual, FocusContent::NoAutoFocus}) {
-        BOOST_TEST_CONTEXT("bootstrap = " << bootstrap << ", modal = " << modal
-                           << ", content = " << static_cast<int>(content)) {
-          updateApplication([=](WDialogTestApp *app) {
-            app->showDialog(modal, content, false);
-          });
-          BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
-          std::string expected = "footer-button";
-          if (content == FocusContent::Close) {
-            expected = "close-icon";
-          } else if (content == FocusContent::Title) {
-            expected = "title-input";
-          } else if (content == FocusContent::Body) {
-            expected = "body-input";
-          } else if (content == FocusContent::Empty) {
-            expected = "dialog";
-          } else if (content == FocusContent::NoAutoFocus) {
-            expected = modal ? "" : "outside";
+      for (bool animated : {false, true}) {
+        for (auto content : {FocusContent::Close, FocusContent::Title, FocusContent::Body,
+                            FocusContent::Footer, FocusContent::Unavailable,
+                            FocusContent::Empty, FocusContent::Explicit,
+                            FocusContent::Manual, FocusContent::NoAutoFocus}) {
+          BOOST_TEST_CONTEXT("bootstrap = " << bootstrap << ", modal = " << modal
+                            << ", animated = " << animated
+                            << ", content = " << static_cast<int>(content)) {
+            updateApplication([=](WDialogTestApp *app) {
+              app->showDialog(modal, content, animated);
+            });
+            BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
+            std::string expected = "footer-button";
+            if (content == FocusContent::Close) {
+              expected = "close-icon";
+            } else if (content == FocusContent::Title) {
+              expected = "title-input";
+            } else if (content == FocusContent::Body) {
+              expected = "body-input";
+            } else if (content == FocusContent::Empty) {
+              expected = "dialog";
+            } else if (content == FocusContent::NoAutoFocus) {
+              expected = modal ? "" : "outside";
+            }
+            checkFocus(api, expected);
+            updateApplication([](WDialogTestApp *app) { app->hideDialog(); });
+            BOOST_REQUIRE(wait.until([&] { return !dialogVisible(api) && hasFocus(api, "outside"); }));
           }
-          checkFocus(api, expected);
-          updateApplication([](WDialogTestApp *app) { app->hideDialog(); });
-          BOOST_REQUIRE(wait.until([&] { return !dialogVisible(api) && hasFocus(api, "outside"); }));
         }
-      }
-    }
-  }
-END_SELENIUM_TEST
-
-SELENIUM_TEST(wdialog_focus_show_hide_show, WDialogTestApp)
-  for (bool modal : {true, false}) {
-    for (bool animated : {false, true}) {
-      BOOST_TEST_CONTEXT("modal = " << modal << ", animated = " << animated) {
-        updateApplication([=](WDialogTestApp *app) {
-          app->showDialog(modal, FocusContent::Body, animated);
-        });
-        BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
-        checkFocus(api, "body-input");
-
-        updateApplication([](WDialogTestApp *app) { app->hideDialog(); });
-        BOOST_REQUIRE(wait.until([&] { return !dialogVisible(api) && hasFocus(api, "outside"); }));
-        updateApplication([=](WDialogTestApp *app) { app->showAgain(animated); });
-        BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
-        checkFocus(api, "body-input");
-
-        updateApplication([](WDialogTestApp *app) { app->hideDialog(); });
-        BOOST_REQUIRE(wait.until([&] { return !dialogVisible(api) && hasFocus(api, "outside"); }));
       }
     }
   }
@@ -479,15 +459,6 @@ SELENIUM_TEST(wdialog_focus_custom_selection, WDialogTestApp)
           expected = "dialog";
         }
         checkFocus(api, expected);
-
-        updateApplication([](WDialogTestApp *app) { app->hideDialog(); });
-        BOOST_REQUIRE(wait.until([&] { return !dialogVisible(api) && hasFocus(api, "outside"); }));
-        updateApplication([](WDialogTestApp *app) { app->showAgain(false); });
-        BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
-        checkFocus(api, expected);
-
-        updateApplication([](WDialogTestApp *app) { app->hideDialog(); });
-        BOOST_REQUIRE(wait.until([&] { return !dialogVisible(api) && hasFocus(api, "outside"); }));
       }
     }
   }
@@ -501,10 +472,10 @@ SELENIUM_TEST(wdialog_close_icon_keyboard, WDialogTestApp)
       });
     }
     for (bool modal : {false, true}) {
-      updateApplication([=](WDialogTestApp *app) {
-        app->showDialog(modal, FocusContent::Close, false);
-      });
       for (const std::string key : {std::string("\xee\x80\x87"), std::string(" ")}) {
+        updateApplication([=](WDialogTestApp *app) {
+          app->showDialog(modal, FocusContent::Close, false);
+        });
         BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
         checkFocus(api, "close-icon");
         auto close = api.getElement(SeleniumAPI::FindBy::CSS_SELECTOR,
@@ -512,7 +483,6 @@ SELENIUM_TEST(wdialog_close_icon_keyboard, WDialogTestApp)
         BOOST_REQUIRE(close.has_value());
         BOOST_REQUIRE(close->sendKeys(key));
         BOOST_REQUIRE(wait.until([&] { return !dialogVisible(api); }));
-        updateApplication([](WDialogTestApp *app) { app->showAgain(false); });
       }
       updateApplication([](WDialogTestApp *app) { app->hideDialog(); });
       BOOST_REQUIRE(wait.until([&] { return !dialogVisible(api); }));
@@ -523,31 +493,6 @@ END_SELENIUM_TEST
 SELENIUM_TEST(wdialog_focus_initial, InitialDialogTestApp)
   BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
   checkFocus(api, "body-input");
-END_SELENIUM_TEST
-
-SELENIUM_TEST(wdialog_focus_after_hidden_render, HiddenDialogTestApp)
-  BOOST_REQUIRE(wait.until([&] {
-    return api.getElement(SeleniumAPI::FindBy::XPATH,
-      "//*[@data-focus-test='dialog']//*[@data-focus-test='body-input']").has_value();
-  }));
-  BOOST_TEST(!dialogVisible(api));
-  updateApplication([](HiddenDialogTestApp *app) { app->showAgain(false); });
-  BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
-  checkFocus(api, "body-input");
-END_SELENIUM_TEST
-
-SELENIUM_TEST(wdialog_focus_stateless_show_hide, StatelessDialogTestApp)
-  auto show = api.getElement(SeleniumAPI::FindBy::ID, "show-dialog");
-  auto hide = api.getElement(SeleniumAPI::FindBy::ID, "hide-dialog");
-  BOOST_REQUIRE(show.has_value());
-  BOOST_REQUIRE(hide.has_value());
-  for (int i = 0; i < 2; ++i) {
-    BOOST_REQUIRE(show->click());
-    BOOST_REQUIRE(wait.until([&] { return dialogVisible(api); }));
-    checkFocus(api, "body-input");
-    BOOST_REQUIRE(hide->click());
-    BOOST_REQUIRE(wait.until([&] { return !dialogVisible(api); }));
-  }
 END_SELENIUM_TEST
 
 BOOST_AUTO_TEST_SUITE_END()
