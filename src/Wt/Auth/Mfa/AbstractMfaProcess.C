@@ -41,7 +41,8 @@ AbstractMfaProcess::AbstractMfaProcess(const AuthService& authService, AbstractU
   : throttlingDelay_(0),
     baseAuth_(authService),
     users_(users),
-    login_(login)
+    login_(login),
+    altLogin_(nullptr)
 {
 }
 
@@ -170,6 +171,11 @@ void AbstractMfaProcess::setMfaThrottle(std::unique_ptr<AuthThrottle> authThrott
   mfaThrottle_ = std::move(authThrottle);
 }
 
+void AbstractMfaProcess::setAlternativeLogin(Login* altLogin)
+{
+  altLogin_ = altLogin;
+}
+
 void AbstractMfaProcess::configureThrottling(WInteractWidget* button)
 {
   if (mfaThrottle()) {
@@ -203,7 +209,7 @@ Http::Cookie AbstractMfaProcess::createMfaCookie(const std::string& value,
   default:
     break;
   }
-  
+
   switch (prefix) {
   case AuthCookiePrefix::Empty:
     cookie.setSecure(app->environment().urlScheme() == "https");

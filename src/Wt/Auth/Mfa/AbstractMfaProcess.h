@@ -199,6 +199,23 @@ public:
    */
   void setMfaThrottle(std::unique_ptr<AuthThrottle> authThrottle);
 
+  /*! \brief Sets an alternative login instance.
+   *
+   * This changes the login instance used by the MFA process (the one
+   * returned by login()). Setting this to nullptr will revert to using
+   * the original login instance.
+   */
+  virtual void setAlternativeLogin(Login* altLogin);
+
+  /*! \brief Returns the alternative login instance.
+   *
+   * This returns the login instance that has been set as an alternative
+   * for the MFA process, or \c nullptr if none has been set.
+   *
+   * \sa setAlternativeLogin()
+   */
+  Login* alternativeLogin() const { return altLogin_; }
+
 protected:
   /*! \brief Retrieves the current User's identity for the provider.
    *
@@ -292,7 +309,7 @@ protected:
    */
   virtual Http::Cookie createMfaCookie(const std::string& value,
                                        int duration) const;
-  
+
   /*! \brief Returns the cookie prefix of the remember-me cookie.
    *
    * This returns the prefix that is used for the remember-me cookie.
@@ -305,7 +322,15 @@ protected:
 
   const AuthService& baseAuth() const { return baseAuth_; }
   AbstractUserDatabase& users() const { return users_; }
-  Login& login() const { return login_; }
+
+  /*! \brief Returns the login instance used by the MFA process.
+   *
+   * This returns the alternative login instance if one has been set,
+   * otherwise it returns the login instance set during construction.
+   *
+   * \sa setAlternativeLogin()
+   */
+  Login& login() const { return altLogin_ ? *altLogin_ : login_; }
 
   int throttlingDelay_;
   WT_NODISCARD AuthThrottle* mfaThrottle() const { return mfaThrottle_.get(); }
@@ -314,6 +339,7 @@ private:
   const AuthService& baseAuth_;
   AbstractUserDatabase& users_;
   Login& login_;
+  Login* altLogin_;
 
   std::unique_ptr<AuthThrottle> mfaThrottle_;
 };

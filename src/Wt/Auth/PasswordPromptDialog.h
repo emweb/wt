@@ -16,8 +16,12 @@ class WTemplateFormView;
 
   namespace Auth {
 
-class AuthModel;
-class Login;
+    class AuthModel;
+    class Login;
+
+    namespace Mfa {
+      class AbstractMfaProcess;
+    }
 
 /*! \class PasswordPromptDialog Wt/Auth/PasswordPromptDialog.h
  *  \brief A dialog that prompts for the user password.
@@ -46,6 +50,19 @@ public:
    */
   PasswordPromptDialog(Login& login, const std::shared_ptr<AuthModel>& model);
 
+  /*! \brief Sets the multi-factor authentication process.
+   *
+   * Adds a multi-factor authentication process that will be used
+   * after the correct password has been entered.
+   */
+  void setMfaProcess(std::unique_ptr<Mfa::AbstractMfaProcess> mfaProcess);
+
+  /*! \brief Returns the multi-factor authentication process.
+   *
+   * Returns the multi-factor authentication process that has been set,
+   * or \c nullptr if none has been set.
+   */
+  Mfa::AbstractMfaProcess* mfaProcess() const { return mfaProcess_.get(); }
 protected:
   Login& login_;
   std::shared_ptr<AuthModel> model_;
@@ -53,6 +70,10 @@ protected:
   WTemplateFormView *impl_;
 
   void check();
+  void showMfaProcess();
+
+private:
+  std::unique_ptr<Mfa::AbstractMfaProcess> mfaProcess_;
 };
 
   }

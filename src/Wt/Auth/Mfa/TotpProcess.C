@@ -22,7 +22,8 @@ namespace Wt {
   namespace Auth {
     namespace Mfa {
   TotpProcess::TotpProcess(const AuthService& authService, AbstractUserDatabase& users, Login& login)
-    : AbstractMfaProcess(authService, users, login)
+    : AbstractMfaProcess(authService, users, login),
+      authenticated_(new Signal<AuthenticationResult>())
   {
   }
 
@@ -34,8 +35,10 @@ namespace Wt {
   {
     User user = processMfaToken();
     if (user.isValid()) {
+      // Ensure we safely emit the signal, even after deletion.
+      std::shared_ptr<Signal<AuthenticationResult> > authenticated = authenticated_;
       login().login(user, LoginState::Weak);
-      authenticated_.emit(AuthenticationResult(AuthenticationStatus::Success));
+      authenticated->emit(AuthenticationResult(AuthenticationStatus::Success));
     }
   }
 
@@ -149,7 +152,7 @@ namespace Wt {
       throttlingDelay_ = mfaThrottle()->delayForNextAttempt(login().user());
       if (throttlingDelay_ > 0) {
         update(view, throttle);
-        authenticated_.emit(AuthenticationResult(AuthenticationStatus::Failure, WString::tr("Wt.Auth.totp-code-info-throttle")));
+        authenticated_->emit(AuthenticationResult(AuthenticationStatus::Failure, WString::tr("Wt.Auth.totp-code-info-throttle")));
         return;
       }
     }
@@ -167,7 +170,7 @@ namespace Wt {
       }
 
       update(view, throttle);
-      authenticated_.emit(AuthenticationResult(AuthenticationStatus::Failure, WString::tr("Wt.Auth.totp-code-info-invalid")));
+      authenticated_->emit(AuthenticationResult(AuthenticationStatus::Failure, WString::tr("Wt.Auth.totp-code-info-invalid")));
     } else {
       createUserIdentity(currentSecretKey());
 
@@ -175,8 +178,10 @@ namespace Wt {
         setRememberMeCookie(login().user());
       }
 
+      // Ensure we safely emit the signal, even after deletion.
+      std::shared_ptr<Signal<AuthenticationResult> > authenticated = authenticated_;
       login().login(login().user());
-      authenticated_.emit(AuthenticationResult(AuthenticationStatus::Success));
+      authenticated->emit(AuthenticationResult(AuthenticationStatus::Success));
     }
   }
 

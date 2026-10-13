@@ -103,7 +103,7 @@ namespace Wt {
      *
      * Side-effects to the login can then be attached to this signal.
      */
-    Signal<AuthenticationResult>& authenticated() { return authenticated_; }
+    Signal<AuthenticationResult>& authenticated() { return *authenticated_; }
 
   protected:
     /*! \brief Creates the base of the UI.
@@ -212,7 +212,7 @@ namespace Wt {
 
     std::string currentSecretKey_;
 
-    Signal<AuthenticationResult> authenticated_;
+    std::shared_ptr<Signal<AuthenticationResult> > authenticated_;
   };
     }
   }

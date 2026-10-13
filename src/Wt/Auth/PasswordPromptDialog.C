@@ -8,6 +8,7 @@
 #include "Wt/Auth/Login.h"
 #include "Wt/Auth/AuthModel.h"
 #include "Wt/Auth/PasswordPromptDialog.h"
+#include "Wt/Auth/Mfa/AbstractMfaProcess.h"
 
 #include "Wt/WApplication.h"
 #include "Wt/WEnvironment.h"
@@ -65,14 +66,39 @@ PasswordPromptDialog
   }
 }
 
+void PasswordPromptDialog::setMfaProcess(std::unique_ptr<Mfa::AbstractMfaProcess> mfaProcess)
+{
+  mfaProcess_ = std::move(mfaProcess);
+}
+
+void PasswordPromptDialog::showMfaProcess()
+{
+  if (mfaProcess_) {
+    contents()->removeWidget(impl_);
+    impl_= nullptr;
+
+    const User& user = login_.user();
+    const WString& mfaSecretKey = user.identity(mfaProcess_->provider());
+    if (mfaSecretKey.empty()) {
+      contents()->addWidget(mfaProcess_->createSetupView());
+    } else {
+      contents()->addWidget(mfaProcess_->createInputView());
+    }
+  }
+}
+
 void PasswordPromptDialog::check()
 {
   impl_->updateModelField(model_.get(), AuthModel::PasswordField);
 
   if (model_->validate()) {
     Login *login = &login_;
-    accept();
-    login->login(login->user(), LoginState::Strong);
+    if (mfaProcess_ && model_->hasMfaStep(login->user())) {
+      showMfaProcess();
+    } else {
+      accept();
+      login->login(login->user(), LoginState::Strong);
+    }
   } else {
     impl_->updateViewField(model_.get(), AuthModel::PasswordField);
     WPushButton *okButton = impl_->resolve<WPushButton *>("ok-button");

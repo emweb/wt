@@ -8,7 +8,10 @@
 #include "Wt/Auth/AuthWidget.h"
 #include "Wt/Auth/Login.h"
 #include "Wt/Auth/OAuthWidget.h"
+#include "Wt/Auth/PasswordPromptDialog.h"
 #include "Wt/Auth/RegistrationWidget.h"
+
+#include "Wt/Auth/Mfa/AbstractMfaProcess.h"
 
 #ifdef WT_HAS_SAML
 #include "Wt/Auth/Saml/Process.h"
@@ -312,6 +315,12 @@ void RegistrationWidget::confirmIsYou()
         ->changed().connect(this, &RegistrationWidget::confirmedIsYou);
 
       isYouDialog_ = authWidget_->createPasswordPromptDialog(*confirmPasswordLogin_);
+      PasswordPromptDialog* pwdPromptDialog = dynamic_cast<PasswordPromptDialog*>(isYouDialog_.get());
+      if (pwdPromptDialog) {
+        std::unique_ptr<Mfa::AbstractMfaProcess> mfaProcess = authWidget_->createMfaProcess();
+        mfaProcess->setAlternativeLogin(confirmPasswordLogin_.get());
+        pwdPromptDialog->setMfaProcess(std::move(mfaProcess));
+      }
       isYouDialog_->finished().connect
         ([this] {
 #ifdef WT_TARGET_JAVA
@@ -339,10 +348,14 @@ void RegistrationWidget::confirmIsYou()
 
 void RegistrationWidget::confirmedIsYou()
 {
-  if (confirmPasswordLogin_->state() == LoginState::Strong)
+  if (confirmPasswordLogin_->state() == LoginState::Strong) {
     model_->existingUserConfirmed();
-  else
+  } else if (confirmPasswordLogin_->state() != LoginState::RequiresMfa) {
+    if (isYouDialog_) {
+      isYouDialog_->reject();
+    }
     confirmPasswordLogin_.reset();
+  }
 }
 
   }
