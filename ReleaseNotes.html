@@ -22,6 +22,30 @@ behaviour.
 
 <h2>Release 4.15.0 (TBD)</h2>
 
+<dl class="section note">
+  <dt>Vulnerability</dt>
+  <dd>
+    Fixed the possibility to skip MFA when logging in via the register popup of the
+    <a href="classWt_1_1Auth_1_1AuthWidget.html" target="_blank">Auth::AuthWidget</a> when registration is enabled (this is not the default). See
+    <a href="https://redmine.emweb.be/issues/14874" target="_blank">Issue #14874</a> for more details.
+    <br/>
+    We recommend anyone relying on MFA in wt-auth to upgrade live deployments of his application to the latest version, or to disable
+    registration via the
+    <a href="classWt_1_1Auth_1_1AuthWidget.html#a3d690103201896f47d8e7467c64fb2ae" target="_blank">Auth::AuthWidget::setRegistrationEnabled()</a>.
+
+    Another option is to override the registration model in the
+    <a href="classWt_1_1Auth_1_1AuthWidget.html" target="_blank">Auth::AuthWidget</a> and
+    <a href="classWt_1_1Auth_1_1RegistrationModel.html" target="_blank">Auth::RegistrationModel</a> to ensure MFA cannot be bypassed.
+
+    For instance, this can be done by ensuring that
+    <a href="classWt_1_1Auth_1_1AuthWidget.html#a3d690103201896f47d8e7467c64fb2ae" target="_blank">Auth::AuthWidget::createRegistrationModel()</a> returns a
+    <a href="classWt_1_1Auth_1_1RegistrationModel.html" target="_blank">Auth::RegistrationModel</a> for which
+    <a href="classWt_1_1Auth_1_1RegistrationModel.html#a3840e1ef7a4d67104a27e1c722d45b0c" target="_blank">Auth::RegistrationModel::confirmIsExistingUser()</a>
+    never returns
+    <a href="namespaceWt_1_1Auth.html#a3e8db9f7b1ee55b3af10e8205c4dbf7d" target="_blank">Auth::IdentityConfirmationMethod::ConfirmWithPassword</a>.
+  </dd>
+</dl>
+
 <p>
   <strong>IMPORTANT:</strong> Windows binary builds now require Windows 7 or later. It is however still possible to build Wt
   on older versions of Windows by building from source.
