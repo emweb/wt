@@ -248,12 +248,15 @@ void StdGridLayoutImpl2::updateDom(DomElement& parent)
       for (unsigned col = 0; col < colCount; ++col)
         if (grid_.items_[row][col].update_) {
           grid_.items_[row][col].update_ = false;
-          if (!first)
-            js << ",";
-          first = false;
-          js << "[" << (int)row << "," << (int)col << ",";
-          streamContentSizing(js, grid_.items_[row][col].item_.get());
-          js << "]";
+          if (grid_.items_[row][col].item_) {
+            if (!first) {
+              js << ",";
+            }
+            first = false;
+            js << "[" << (int)row << "," << (int)col << ",";
+            streamContentSizing(js, grid_.items_[row][col].item_.get());
+            js << "]";
+          }
         }
 
     js << "]);";
