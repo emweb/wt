@@ -325,9 +325,10 @@ void WebSession::destruct()
     deferredResponse_ = nullptr;
   }
 
-  mutex_.lock();
-  updatesPendingEvent_.notify_one();
-  mutex_.unlock();
+  if (mutex_.try_lock()) {
+    updatesPendingEvent_.notify_one();
+    mutex_.unlock();
+  }
 
   flushBootStyleResponse();
 }
