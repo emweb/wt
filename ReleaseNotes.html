@@ -20,7 +20,7 @@ newer version of Wt. It lists changes in the library that may break
 the way you build Wt, the way you configure Wt or the Wt API and
 behaviour.
 
-<h2>Release 4.15.0 (TBD)</h2>
+<h2>Release 4.15.0 (October 28, 2026)</h2>
 
 <dl class="section note">
   <dt>Vulnerability</dt>
@@ -31,8 +31,8 @@ behaviour.
     <br/>
     We recommend anyone relying on MFA in wt-auth to upgrade live deployments of his application to the latest version, or to disable
     registration via the
-    <a href="classWt_1_1Auth_1_1AuthWidget.html#a3d690103201896f47d8e7467c64fb2ae" target="_blank">Auth::AuthWidget::setRegistrationEnabled()</a>.
-
+    <a href="classWt_1_1Auth_1_1AuthWidget.html#a155794d70cfd4c07c44b0efdd7dec341" target="_blank">Auth::AuthWidget::setRegistrationEnabled()</a>.
+    <br/>
     Another option is to override the registration model in the
     <a href="classWt_1_1Auth_1_1AuthWidget.html" target="_blank">Auth::AuthWidget</a> and
     <a href="classWt_1_1Auth_1_1RegistrationModel.html" target="_blank">Auth::RegistrationModel</a> to ensure MFA cannot be bypassed.
@@ -46,26 +46,48 @@ behaviour.
   </dd>
 </dl>
 
-<p>
-  <strong>IMPORTANT:</strong> Windows binary builds now require Windows 7 or later. It is however still possible to build Wt
-  on older versions of Windows by building from source.
-</p>
+<p>Notable changes:</p>
+<ul>
+  <li>
+    A new tutorial as well as an example on how to use external JavaScript libraries in Wt is now available.
+    You can find the tutorial <a href="../../tutorial/extjs.html" target="_blank">here</a>, and the example can be found in the
+    <code>examples/d3-selection</code> file.
+  </li>
+  <li>
+    A new simple example demonstrating how to use
+    <a href="classWt_1_1Form_1_1Dbo_1_1FormModel.html" target="_blank">Form::Dbo::FormModel</a>
+    and
+    <a href="classWt_1_1Form_1_1Dbo_1_1FormView.html" target="_blank">Form::Dbo::FormView</a>
+    with the default delegates to validate and save a
+    new object was added in <code>examples/dbo-form/simple</code>.
+  </li>
+  <li>
+    <strong>BREAKING:</strong> Windows binary builds now require Windows 7 or later. It is however still possible to build Wt
+    on older versions of Windows by building from source.
+  </li>
+</ul>
+
 
 
 <p>Wt 4.15.0 is a major release that introduces the following new features:</p>
 
 <ul>
   <li>
-    <a href="https://redmine.emweb.be/issues/14163" target="_blank">Issue #14163</a>:
-    <a href="classWt_1_1WBoxLayout.html" target="_blank">WBoxLayout</a>
-    (<a href="classWt_1_1WHBoxLayout.html" target="_blank">WHBoxLayout</a> and
-    <a href="classWt_1_1WVBoxLayout.html" target="_blank">WVBoxLayout</a>) now supports
-    resize handles through
-    <a href="classWt_1_1WBoxLayout.html" target="_blank">setResizable()</a> when using the
-    <a href="namespaceWt.html#aeb0e4f49ce4a28d8ce9b0c6005027876" target="_blank">LayoutImplementation::Flex</a>
-    implementation. Previously enabling a resize handle forced the layout to fall back to the
-    <a href="namespaceWt.html#aeb0e4f49ce4a28d8ce9b0c6005027876" target="_blank">LayoutImplementation::JavaScript</a>
-    implementation.
+    <a href="https://redmine.webtoolkit.eu/issues/8759" target="_blank">Issue #8759</a>:
+    added
+    <a href="classWt_1_1WDateTimeEdit.html" target="_blank">WDateTimeEdit</a>.
+    This combines functionality used by <a href="classWt_1_1WDateEdit.html" target="_blank">WDateEdit</a> and <a href="classWt_1_1WTimeEdit.html" target="_blank">WTimeEdit</a>.
+
+    The native HTML5 input type for this widget is also supported, this being <code>&lt;input type="datetime-local"&gt;</code>.
+    You can enable it by setting <a href="classWt_1_1WDateTimeEdit.html#ab097f92c3594480d85318dad97fd1709" target="_blank">WDateTimeEdit::setNativeControl(true)</a>.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14582" target="_blank">Issue #14582</a>:
+    added a way to reveal the password of a
+    <a href="classWt_1_1WPasswordEdit.html" target="_blank">WPasswordEdit</a>. The text can be shown or hidden with
+    <a href="classWt_1_1WPasswordEdit.html#a93629460f8be486561a614316c37d87c" target="_blank">WPasswordEdit::setTextVisible()</a>, and
+    <a href="classWt_1_1WPasswordEdit.html#ad8e97bd46650b63ab339ae6f870807ef" target="_blank">WPasswordEdit::setRevealButtonEnabled()</a> adds an optional
+    button inside the field that lets the user toggle the visibility.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14162" target="_blank">Issue #14162</a>:
@@ -79,19 +101,16 @@ behaviour.
     A <a href="classWt_1_1WLength.html" target="_blank">WLength</a> can also be constructed directly from such a keyword unit.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/14582" target="_blank">Issue #14582</a>:
-    added a way to reveal the password of a
-    <a href="classWt_1_1WPasswordEdit.html" target="_blank">WPasswordEdit</a>. The text can be shown or hidden with
-    <a href="classWt_1_1WPasswordEdit.html#a93629460f8be486561a614316c37d87c" target="_blank">WPasswordEdit::setTextVisible()</a>, and
-    <a href="classWt_1_1WPasswordEdit.html#ad8e97bd46650b63ab339ae6f870807ef" target="_blank">WPasswordEdit::setRevealButtonEnabled()</a> adds an optional
-    button inside the field that lets the user toggle the visibility.
-  </li>
-  <li>
-    <a href="https://redmine.webtoolkit.eu/issues/9745" target="_blank">Issue #9745</a>:
-    added the possibility to limit the size of
-    <a href="classWt_1_1Dbo_1_1SqlConnection.html">Dbo::SqlConnection</a>'s statement cache using
-    <a href="classWt_1_1Dbo_1_1SqlConnection.html#af59dd2d5874b658eb7d919fa88088085">setMaxSavedStatement()</a>.
-    In case the statement cache is full, statement that were not used for the longest time are removed.
+    <a href="https://redmine.emweb.be/issues/14163" target="_blank">Issue #14163</a>:
+    <a href="classWt_1_1WBoxLayout.html" target="_blank">WBoxLayout</a>
+    (<a href="classWt_1_1WHBoxLayout.html" target="_blank">WHBoxLayout</a> and
+    <a href="classWt_1_1WVBoxLayout.html" target="_blank">WVBoxLayout</a>) now supports
+    resize handles through
+    <a href="classWt_1_1WBoxLayout.html#ac2628c9ddfb9b6c079a8b5d5261b94c2" target="_blank">setResizable()</a> when using the
+    <a href="namespaceWt.html#aeb0e4f49ce4a28d8ce9b0c6005027876" target="_blank">LayoutImplementation::Flex</a>
+    implementation. Previously enabling a resize handle forced the layout to fall back to the
+    <a href="namespaceWt.html#aeb0e4f49ce4a28d8ce9b0c6005027876" target="_blank">LayoutImplementation::JavaScript</a>
+    implementation.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/7598" target="_blank">Issue #7598</a>:
@@ -104,66 +123,37 @@ behaviour.
     option to <code>false</code>.
   </li>
   <li>
-    <a href="https://redmine.webtoolkit.eu/issues/8759" target="_blank">Issue #8759</a>:
-    <a href="classWt_1_1WDateTimeEdit.html" target="_blank">WDateTimeEdit</a>.
-    This combines functionality used by <a href="classWt_1_1WDateEdit.html">WDateEdit</a> and <a href="classWt_1_1WTimeEdit.html">WTimeEdit</a>.
-
-    The native HTML5 input type for this widget is also supported, this being <code><input type="datetime-local"></code>.
-    You can enable it by setting <a href="classWt_1_1WDateTimeEdit.html#ab097f92c3594480d85318dad97fd1709" target="_blank">WDateTimeEdit::setNativeControl(true)</a>.
+    <a href="https://redmine.emweb.be/issues/11049" target="_blank">Issue #11049</a>:
+    added the
+    <a href="classWt_1_1SessionConstantId.html" target="_blank">SessionConstantId</a>, which is a session identifier that is unique to each
+    session, and that does never change. This session constant identifier can be obtained using
+    <a href="classWt_1_1WApplication.html#a5da537fe3008cee2d3c496fcec42c742" target="_blank">WApplication::sessionConstantId()</a>, and can be
+    given as parameter to
+    <a href="classWt_1_1WServer.html#ade44949c1c80a4e748f67e255496b29a" target="_blank">WServer::post()</a> or
+    <a href="classWt_1_1WServer.html#a99e63c1ade230d9f8f53c5c10ba45af1" target="_blank">WServer::schedule()</a>,
+    in place of the normal session identifier (obtained using
+    <a href="classWt_1_1WApplication.html#a314a5461dc410f4713ab1b1258fd8ced" target="_blank">WApplication::sessionId()</a>).
+    This allows to use those function without having to worry about the session changing id in another thread.
+  </li>
+  <li>
+    <a href="https://redmine.webtoolkit.eu/issues/9745" target="_blank">Issue #9745</a>:
+    added the possibility to limit the size of
+    <a href="classWt_1_1Dbo_1_1SqlConnection.html" target="_blank">Dbo::SqlConnection</a>'s statement cache using
+    <a href="classWt_1_1Dbo_1_1SqlConnection.html#af59dd2d5874b658eb7d919fa88088085" target="_blank">setMaxSavedStatement()</a>.
+    In case the statement cache is full, statement that were not used for the longest time are removed.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14727" target="_blank">Issue #14727</a>:
     added <a href="classWt_1_1RtlSide.html" target="_blank">RtlSide</a> constants
-    and documentation for using side names from the right-to-left perspective.
-    <code>RtlSide::Left</code> aliases <code>Side::Right</code> and
-    <code>RtlSide::Right</code> aliases <code>Side::Left</code>; the other constants
-    retain their matching <code>Side</code> values. For APIs that mirror sides
-    with the layout direction, <code>RtlSide::Left</code> means left in RTL and
-    right in LTR. The constants work directly with existing <code>Side</code>
-    and <a href="classWt_1_1WFlags.html" target="_blank">WFlags&lt;Side&gt;</a> APIs,
-    including flag combinations with <code>Side</code> values. Existing
-    <code>Side</code> behavior is unchanged.
+    for using side names from the right-to-left perspective. Those constants are only aliases and therefore work
+    directly with existing
+    <a href="namespaceWt.html#a5a6f4636bcc6ab3c075165d249b3a5a3" target="_blank">Side</a> and <a href="classWt_1_1WFlags.html" target="_blank">WFlags&lt;Side&gt;</a>.
   </li>
 </ul>
 
 <p>Wt 4.15.0 also fixes the following bugs:</p>
 
 <ul>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14730" target="_blank">Issue #14730</a>:
-    fixed
-    <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> focus selection
-    skipping footer buttons and failing to provide a focus fallback. When no
-    other visible, enabled descendant accepts focus, the dialog now focuses
-    its close icon, which supports keyboard activation, or the dialog itself
-    if no close icon is available.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14703" target="_blank">Issue #14703</a>:
-    fixed
-    <a href="classWt_1_1WLink.html" target="_blank">WLink</a> objects retaining
-    URLs with the old session ID for
-    private <a href="classWt_1_1WResource.html" target="_blank">WResource</a>
-    instances after calling
-    <a href="classWt_1_1WApplication.html" target="_blank">WApplication::changeSessionId()</a>.
-    Existing widgets using these links now refresh their resource URLs.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14009" target="_blank">Issue #14009</a>
-    ensured that the
-    <a href="classWt_1_1Http_1_1Client.html" target="_blank">Http::Client</a> with
-    <a href="classWt_1_1Http_1_1Client.html#a34bc95c42292f3fd7d6e54f86b3781b6" target="_blank">Http::Client::followRedirect()</a>
-    set to true does follow redirects automatically in case of a truncation error, as long as all the headers are received and the
-    redirect was done over HTTPS.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14594" target="_blank">Issue #14594</a>:
-    changing a
-    <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a> column's
-    alignment with
-    <a href="classWt_1_1WAbstractItemView.html#aafd2a6edd366b620c71d9b3a89ed6590" target="_blank">WAbstractItemView::setColumnAlignment()</a>
-    after the initial render now updates the displayed cells immediately.
-  </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14862" target="_blank">Issue #14862</a>:
     Fixed
@@ -176,14 +166,7 @@ behaviour.
     fixed
     <a href="classWt_1_1WTextEdit.html" target="_blank">WTextEdit</a> not emitting
     inherited focus, keyboard, mouse, touch, and input signals when interacting
-    with the editor. Mouse and touch event coordinates now account for the
-    editor iframe and scrolling. Content changes are delivered before actions
-    that serialize or remove the editor.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14816" target="_blank">Issue #14816</a>
-    fixed segfault that could happen when parsing a configuration file containing a <code>trusted-proxy-config</code> block
-    that was missing the <code>trusted-proxies</code> element.
+    with the editor.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14606" target="_blank">Issue #14606</a>:
@@ -193,9 +176,30 @@ behaviour.
     <a href="classWt_1_1WMenu.html" target="_blank">WMenu</a>.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/14815" target="_blank">Issue #14815</a>
-    fixed the configuration parsing looking for the <code>original-ip-header</code> element outside of the <code>trusted-proxy-config</code> block
-    instead of within it.
+    <a href="https://redmine.emweb.be/issues/14758" target="_blank">Issue #14758</a>:
+    fixed a JavaScript exception when using the keyboard in a
+    <a href="classWt_1_1WPopupMenu.html" target="_blank">WPopupMenu</a>
+    with the Bootstrap 5 theme, including pressing Escape in submenus.
+    Popup menus now use the <code>Wt-dropdown-menu</code> CSS class to keep
+    Wt keyboard handling independent of native Bootstrap dropdowns.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14703" target="_blank">Issue #14703</a>:
+    fixed
+    <a href="classWt_1_1WLink.html" target="_blank">WLink</a> objects retaining
+    URLs with the old session ID for
+    private <a href="classWt_1_1WResource.html" target="_blank">WResource</a>
+    instances after calling
+    <a href="classWt_1_1WApplication.html#a4b0bc73bab1132f17c13f5e731068446" target="_blank">WApplication::changeSessionId()</a>.
+    Existing widgets using these links now refresh their resource URLs.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14594" target="_blank">Issue #14594</a>:
+    changing a
+    <a href="classWt_1_1WTableView.html" target="_blank">WTableView</a> column's
+    alignment with
+    <a href="classWt_1_1WAbstractItemView.html#aafd2a6edd366b620c71d9b3a89ed6590" target="_blank">WAbstractItemView::setColumnAlignment()</a>
+    after the initial render now updates the displayed cells immediately.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14772" target="_blank">Issue #14772</a>:
@@ -204,12 +208,31 @@ behaviour.
     potentially preventing the application from rendering.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/14758" target="_blank">Issue #14758</a>:
-    fixed a JavaScript exception when using the keyboard in a
-    <a href="classWt_1_1WPopupMenu.html" target="_blank">WPopupMenu</a>
-    with the Bootstrap 5 theme, including pressing Escape in submenus.
-    Popup menus now use the <code>Wt-dropdown-menu</code> CSS class to keep
-    Wt keyboard handling independent of native Bootstrap dropdowns.
+    <a href="https://redmine.emweb.be/issues/14730" target="_blank">Issue #14730</a>:
+    fixed
+    <a href="classWt_1_1WDialog.html" target="_blank">WDialog</a> focus selection
+    skipping footer buttons and failing to provide a focus fallback. When no
+    other visible, enabled descendant accepts focus, the dialog now focuses
+    its close icon, which supports keyboard activation, or the dialog itself
+    if no close icon is available.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14009" target="_blank">Issue #14009</a>:
+    ensured that the
+    <a href="classWt_1_1Http_1_1Client.html" target="_blank">Http::Client</a> with
+    <a href="classWt_1_1Http_1_1Client.html#a34bc95c42292f3fd7d6e54f86b3781b6" target="_blank">Http::Client::followRedirect()</a>
+    set to true does follow redirects automatically in case of a truncation error, as long as all the headers are received and the
+    redirect was done over HTTPS.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14815" target="_blank">Issue #14815</a>:
+    fixed the configuration parsing looking for the <code>original-ip-header</code> element outside of the <code>trusted-proxy-config</code> block
+    instead of within it.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/14816" target="_blank">Issue #14816</a>:
+    fixed segfault that could happen when parsing a configuration file containing a <code>trusted-proxy-config</code> block
+    that was missing the <code>trusted-proxies</code> element.
   </li>
 </ul>
 
@@ -217,22 +240,12 @@ behaviour.
 
 <ul>
   <li>
-    <a href="https://redmine.emweb.be/issues/14729" target="_blank">Issue #14729</a>:
-    Move the handling of the focus change when hiding or removing popups to the client side.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/14697" target="_blank">Issue #14697</a>:
-    reduced the impact of deadlocks by preventing session expiration from
-    blocking indefinitely when an expired session's lock remains held.
-  </li>
-  <li>
     <a href="https://redmine.emweb.be/issues/14171" target="_blank">Issue #14171</a>:
-    Wt now keeps parsed file-backed message resources on
-    <a href="classWt_1_1WServer.html" target="_blank">WServer</a>, copies
-    unchanged data for new application consumers, and reloads changed source
-    files for later consumers using their last modification time. The source
-    modification time is checked for every new consumer. Changes that
-    preserve this timestamp do not invalidate the cache.
+    <a href="classWt_1_1WServer.html" target="_blank">WServer</a> now caches parsed message resources files from
+    <a href="classWt_1_1WMessageResourceBundle.html" target="_blank">WMessageResourceBundle</a> to avoid
+    reloading and reparsing unchanged message resource files every time a new session is created, greatly
+    improving performances. The cached version of a file is invalidated if the given file changed, or if it was removed,
+    so the cache remains consistent with the actual files.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/7417" target="_blank">Issue #7417</a>:
@@ -240,27 +253,6 @@ behaviour.
     <a href="classWt_1_1WPaintedWidget.html" target="_blank">WPaintedWidget</a>
     now takes the browser's device pixel ratio into account. This makes painted
     widgets, including charts, render more sharply on high-DPI displays.
-    Canvases are automatically repainted when the device pixel ratio changes.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/11049" target="_blank">Issue #11049</a>:
-    added the
-    <a href="classWt_1_1SessionConstantId.html" target="_blank">SessionConstantId</a>, which is a session identifier that is unique to each
-    session, and that does never change. This session constant identifier can be obtained using
-    <a href="classWt_1_1WApplication.html#a5da537fe3008cee2d3c496fcec42c742" target="_blank">WApplication::sessionConstantId()</a>, and can be
-    given as parameter to
-    <a href="classWt_1_1WServer.html#ade44949c1c80a4e748f67e255496b29a" target="_blank">WServer::post()</a> or
-    <a href="WServer.html#a99e63c1ade230d9f8f53c5c10ba45af1" target="_blank">WServer::schedule()</a>,
-    in place of the normal session identifier (obtained using
-    <a href="classWt_1_1WApplication.html#a314a5461dc410f4713ab1b1258fd8ced" target="_blank">WApplication::sessionId()</a>).
-    This allows to use those function without having to worry about the session changing id in another thread.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/12496" target="_blank">Issue #12496</a>:
-    made <code>Wt::FileUtils::getTempDir()</code> and <code>Wt::FileUtils::createTempFileName()</code> weak symbols on
-    non-Windows platforms when compiled with a GNU-compatible compiler like GCC or Clang, allowing applications to
-    replace them at link time with their own implementations, for example to control where temporary files are created
-    or how their names are generated.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14822" target="_blank">Issue #14822</a>:
@@ -275,22 +267,8 @@ behaviour.
     Those 2 new signals are emitted when an element receives or loses focus on the client side, respectively.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/14681" target="_blank">Issue #14681</a>:
-    added a simple example in <code>examples/dbo-form/simple</code> demonstrating
-    how to use
-    <a href="classWt_1_1Form_1_1Dbo_1_1FormModel.html" target="_blank">Form::Dbo::FormModel</a>
-    and
-    <a href="classWt_1_1Form_1_1Dbo_1_1FormView.html" target="_blank">Form::Dbo::FormView</a>
-    with the default delegates, including a date editor, to validate and save a
-    new object. The advanced example moved to
-    <code>examples/dbo-form/advanced</code>. The form headers include their
-    exception dependency explicitly so the example also compiles with Clang.
-  </li>
-  <li>
-    <a href="https://redmine.emweb.be/issues/12495" target="_blank">Issue #12495</a>:
-    added a new tutorial as well as an example on how to use external JavaScript libraries in Wt.
-    You can find the tutorial <a href="../../tutorial/extjs.html" target="_blank">here</a>, and the example can be found in the
-    <code>examples/d3-selection</code> file.
+    <a href="https://redmine.emweb.be/issues/14729" target="_blank">Issue #14729</a>:
+    moved the handling of the focus change when hiding or removing popups to the client side.
   </li>
   <li>
     <a href="https://redmine.emweb.be/issues/14709" target="_blank">Issue #14709</a>:
@@ -299,16 +277,28 @@ behaviour.
     mechanism when the Beacon API is unavailable.
   </li>
   <li>
+    <a href="https://redmine.emweb.be/issues/14697" target="_blank">Issue #14697</a>:
+    reduced the impact of deadlocks by preventing session expiration from
+    blocking indefinitely when an expired session's lock remains held.
+  </li>
+  <li>
+    <a href="https://redmine.emweb.be/issues/13294" target="_blank">Issue #13294</a>:
+    added optional parameters to
+    <a href="classWt_1_1WServer.html#a34d6049137075b3c8df89cc595d1c1aa" target="_blank">WServer::httpPort()</a>
+    which allows to specify if it should return the HTTP or HTTPS port.
+  </li>
+  <li>
     <a href="https://redmine.emweb.be/issues/13338" target="_blank">Issue #13338</a>:
     <a href="classWt_1_1Core_1_1observable.html#aaae8420328720c8b37c31613dda586ad" target="_blank">observable::bindSafe()</a>
     can now be considered thread safe as long as the observable is protected
     against deletion.
   </li>
   <li>
-    <a href="https://redmine.emweb.be/issues/13294" target="_blank">Issue #13294</a>:
-    added optional parameters to
-    <a href="classWt_1_1WServer.html#a34d6049137075b3c8df89cc595d1c1aa" target="_blank">WServer::httpPort()</a>
-    which allows to specify it should return the HTTP or HTTPS port.
+    <a href="https://redmine.emweb.be/issues/12496" target="_blank">Issue #12496</a>:
+    made <code>Wt::FileUtils::getTempDir()</code> and <code>Wt::FileUtils::createTempFileName()</code> weak symbols on
+    non-Windows platforms when compiled with a GNU-compatible compiler like GCC or Clang, allowing applications to
+    replace them at link time with their own implementations, for example to control where temporary files are created
+    or how their names are generated.
   </li>
 </ul>
 
