@@ -29,7 +29,9 @@ class WText;
  * waits for the messagebox to be processed. Instead, the usage is
  * similar to instantiating a WDialog (or any other widget). You need
  * to connect to the buttonClicked() signal to interpret the result and
- * delete the message box.
+ * delete the message box. None of the buttons created via addButton() will be
+ * initially set up to call WDialog::accept() or WDialog::reject(); if desired,
+ * this is the responsibility of the user.
  *
  * The synchronous use of a messagebox involves the use of the static
  * show() method, which blocks the current thread until the user has
@@ -249,7 +251,6 @@ private:
 
   void create();
 
-  void onFinished();
   void onButtonClick(StandardButton b);
   void mappedButtonClick(StandardButton b);
 

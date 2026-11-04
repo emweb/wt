@@ -64,8 +64,6 @@ void WMessageBox::create()
   contents()->addWidget(std::move(text));
 
   rejectWhenEscapePressed();
-
-  finished().connect(this, &WMessageBox::onFinished);
 }
 
 WPushButton *WMessageBox::addButton(StandardButton result)
@@ -218,38 +216,6 @@ void WMessageBox::onButtonClick(StandardButton b)
 {
   result_ = b;
   buttonClicked_.emit(b);
-}
-
-void WMessageBox::onFinished()
-{
-  if (result() == DialogCode::Rejected) {
-    if (escapeButton_) {
-      for (unsigned i = 0; i < buttons_.size(); ++i) {
-        if (buttons_[i].button == escapeButton_) {
-          onButtonClick(buttons_[i].result);
-          return;
-        }
-      }
-    } else {
-      if (buttons_.size() == 1) {
-        onButtonClick(buttons_[0].result);
-        return;
-      } else {
-        WPushButton *b = button(StandardButton::Cancel);
-        if (b) {
-          onButtonClick(StandardButton::Cancel);
-          return;
-        }
-        b = button(StandardButton::No);
-        if (b) {
-          onButtonClick(StandardButton::No);
-          return;
-        }
-
-        onButtonClick(StandardButton::None);
-      }
-    }
-  }
 }
 
 void WMessageBox::setHidden(bool hidden, const WAnimation& animation)
