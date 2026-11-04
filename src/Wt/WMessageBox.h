@@ -249,7 +249,6 @@ private:
 
   void create();
 
-  void onFinished();
   void onButtonClick(StandardButton b);
   void mappedButtonClick(StandardButton b);
 
