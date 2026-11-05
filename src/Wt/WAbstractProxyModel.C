@@ -17,6 +17,15 @@ WAbstractProxyModel::WAbstractProxyModel()
   : sourceModel_(nullptr)
 { }
 
+WModelIndex WAbstractProxyModel::mapToSource(const WModelIndex& proxyIndex) const
+{
+  if (!proxyIndex.isValid()) return {};
+  const WModelIndex proxyParent = proxyIndex.parent();
+  return sourceModel_->index(mapToSource(proxyIndex.row(), proxyParent, Orientation::Vertical),
+                             mapToSource(proxyIndex.column(), proxyParent, Orientation::Horizontal),
+                             mapToSource(proxyParent));
+}
+
 void WAbstractProxyModel
 ::setSourceModel(const std::shared_ptr<WAbstractItemModel>& sourceModel)
 {
@@ -100,22 +109,14 @@ WModelIndex WAbstractProxyModel::fromRawIndex(void *rawIndex) const
 WFlags<HeaderFlag> WAbstractProxyModel::headerFlags(int section,
                                                     Orientation orientation) const
 {
-  if (orientation == Wt::Orientation::Horizontal) {
-    section = mapToSource(index(0, section, Wt::WModelIndex())).column();
-  } else {
-    section = mapToSource(index(section, 0, Wt::WModelIndex())).row();
-  }
+  section = mapToSource(section, WModelIndex(), orientation);
   return sourceModel_->headerFlags(section, orientation);
 }
 
 cpp17::any WAbstractProxyModel::headerData(int section, Orientation orientation,
                                         ItemDataRole role) const
 {
-  if (orientation == Wt::Orientation::Horizontal) {
-    section = mapToSource(index(0, section, Wt::WModelIndex())).column();
-  } else {
-    section = mapToSource(index(section, 0, Wt::WModelIndex())).row();
-  }
+  section = mapToSource(section, WModelIndex(), orientation);
   return sourceModel_->headerData(section, orientation, role);
 }
 
