@@ -76,4 +76,10 @@ void WReadOnlyProxyModel::dropEvent(WT_MAYBE_UNUSED const WDropEvent& e, WT_MAYB
                                     WT_MAYBE_UNUSED int row, WT_MAYBE_UNUSED int column, WT_MAYBE_UNUSED const WModelIndex& parent)
 { }
 
+int WReadOnlyProxyModel::mapToSource(int section, WT_MAYBE_UNUSED const WModelIndex& proxyParent,
+                                     WT_MAYBE_UNUSED Orientation orientation)  const
+{
+  return section;
+}
+
 }
