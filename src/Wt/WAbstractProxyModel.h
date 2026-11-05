@@ -55,7 +55,7 @@ public:
    * \sa mapFromSource()
    * \sa mapToSource(int section, const WModelIndex& proxyParent, Orientation orientation)
    */
-  virtual WModelIndex mapToSource(const WModelIndex& proxyIndex) const;
+  virtual WModelIndex mapToSource(const WModelIndex& proxyIndex) const = 0;
 
   /*! \brief Sets the source model.
    *
@@ -218,7 +218,7 @@ protected:
    *
    * \sa mapToSource(const WModelIndex& proxyIndex)
    */
-  virtual int mapToSource(int section, const WModelIndex& proxyParent, Orientation orientation) const = 0;
+  virtual int mapToSource(int section, const WModelIndex& proxyParent, Orientation orientation) const;
 
   /*! \brief Create a source model index.
    *

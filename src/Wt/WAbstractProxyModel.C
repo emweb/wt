@@ -17,15 +17,6 @@ WAbstractProxyModel::WAbstractProxyModel()
   : sourceModel_(nullptr)
 { }
 
-WModelIndex WAbstractProxyModel::mapToSource(const WModelIndex& proxyIndex) const
-{
-  if (!proxyIndex.isValid()) return {};
-  const WModelIndex proxyParent = proxyIndex.parent();
-  return sourceModel_->index(mapToSource(proxyIndex.row(), proxyParent, Orientation::Vertical),
-                             mapToSource(proxyIndex.column(), proxyParent, Orientation::Horizontal),
-                             mapToSource(proxyParent));
-}
-
 void WAbstractProxyModel
 ::setSourceModel(const std::shared_ptr<WAbstractItemModel>& sourceModel)
 {
@@ -118,6 +109,14 @@ cpp17::any WAbstractProxyModel::headerData(int section, Orientation orientation,
 {
   section = mapToSource(section, WModelIndex(), orientation);
   return sourceModel_->headerData(section, orientation, role);
+}
+
+int WAbstractProxyModel::mapToSource(int section, const WModelIndex& proxyParent, Orientation orientation) const
+{
+  if (orientation == Orientation::Horizontal)
+    return mapToSource(index(0, section, proxyParent)).column();
+  else
+    return mapToSource(index(section, 0, proxyParent)).row();
 }
 
 WModelIndex WAbstractProxyModel::createSourceIndex(int row, int column,
