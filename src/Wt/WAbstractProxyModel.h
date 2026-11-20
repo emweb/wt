@@ -22,9 +22,9 @@ namespace Wt {
  *
  * This abstract proxy model may be used as a starting point for
  * implementing a custom proxy model, when WSortFilterProxyModel is
- * not adequate. It implements data access and manipulation using the
- * a virtual mapping method (mapToSource()) to access and manipulate
- * the underlying sourceModel().
+ * not adequate. It implements data access and manipulation using a
+ * virtual mapping method (mapToSource(int section, const WModelIndex& proxyParent, Orientation orientation))
+ * to access and manipulate the underlying sourceModel().
  *
  * \ingroup modelview
  */
@@ -40,9 +40,10 @@ public:
    * This method returns a model index in the proxy model that
    * corresponds to the model index \p sourceIndex in the source
    * model. This method must only be implemented for source model
-   * indexes that are mapped and thus are the result of mapToSource().
+   * indexes that are mapped and thus are the result of
+   * mapToSource(const WModelIndex& proxyIndex).
    *
-   * \sa mapToSource()
+   * \sa mapToSource(const WModelIndex& proxyIndex)
    */
   virtual WModelIndex mapFromSource(const WModelIndex& sourceIndex) const = 0;
 
@@ -52,6 +53,7 @@ public:
    * corresponds to the proxy model index \p proxyIndex.
    *
    * \sa mapFromSource()
+   * \sa mapToSource(int section, const WModelIndex& proxyParent, Orientation orientation)
    */
   virtual WModelIndex mapToSource(const WModelIndex& proxyIndex) const = 0;
 
@@ -100,7 +102,8 @@ public:
    * is Wt::Orientation::Vertical.
    *
    * The resulting section that is forwarded to sourceModel()->headerData()
-   * depends on how the WModelIndex is transformed with mapToSource().
+   * depends on how the WModelIndex is transformed with
+   * mapToSource(int section, const WModelIndex& proxyParent, Orientation orientation).
    */
   virtual cpp17::any headerData(int section,
                              Orientation orientation = Orientation::Horizontal,
@@ -136,7 +139,8 @@ public:
    * is Wt::Orientation::Vertical.
    *
    * The resulting section that is forwarded to sourceModel()->headerFlags()
-   * depends on how the WModelIndex is transformed with mapToSource().
+   * depends on how the WModelIndex is transformed with
+   * mapToSource(int section, const WModelIndex& proxyParent, Orientation orientation).
    */
   virtual WFlags<HeaderFlag> headerFlags
     (int section, Orientation orientation = Orientation::Horizontal)
@@ -203,6 +207,19 @@ public:
   virtual WModelIndex fromRawIndex(void *rawIndex) const override;
 
 protected:
+  /*! \brief Maps a proxy model row or column to the source model.
+   *
+   * This method maps rows and columns separately, to avoid having to create a
+   * valid intermediate WModelIndex, which would not be possible for an empty
+   * table.
+   * This method returns a model row (vertical orientation) or column
+   * (horizontal orientation) in the source model that corresponds to the proxy
+   * model row or column \p section.
+   *
+   * \sa mapToSource(const WModelIndex& proxyIndex)
+   */
+  virtual int mapToSource(int section, const WModelIndex& proxyParent, Orientation orientation) const;
+
   /*! \brief Create a source model index.
    *
    * This is a utility function that allows you to create indexes in

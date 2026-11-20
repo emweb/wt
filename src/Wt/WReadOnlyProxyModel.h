@@ -110,6 +110,13 @@ public:
   virtual void dropEvent(const WDropEvent& e, DropAction action,
                          int row, int column, const WModelIndex& parent)
     override;
+
+protected:
+  /*! \brief Maps a proxy model row or column to the source model.
+   *
+   * Returns the row or column unmodified.
+   */
+  virtual int mapToSource(int section, const WModelIndex& proxyParent, Orientation orientation) const override;
 };
 
 }
