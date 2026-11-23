@@ -220,3 +220,16 @@ BOOST_AUTO_TEST_CASE( sqlite3_test_unix_timestamp )
     BOOST_CHECK(a->timePoint == timePoint);
   }
 }
+
+BOOST_AUTO_TEST_CASE( sqlite3_test_open_failure_throws )
+{
+  // sqlite3_open() allocates a connection handle even when it fails, and
+  // that handle must still be closed. The constructor throws on failure, so
+  // its destructor never runs; this exercises that path. A leaked handle is
+  // only visible to a leak checker (e.g. building with
+  // -fsanitize=address), since sqlite3's own memory statistics are not
+  // exported from the backend library.
+  BOOST_CHECK_THROW(
+    dbo::backend::Sqlite3("/wt-nonexistent-directory/sqlite3_test_open_failure.db"),
+    dbo::Exception);
+}

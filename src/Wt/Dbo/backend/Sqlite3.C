@@ -502,6 +502,26 @@ private:
   }
 };
 
+namespace {
+  /*
+   * sqlite3_open() allocates a connection handle even when it fails, and
+   * that handle must still be released with sqlite3_close() (see the
+   * sqlite3_open() documentation). The constructor throws in that case, so
+   * the destructor never runs and the handle would otherwise leak.
+   */
+  void openDatabase(const std::string& conn, sqlite3*& db)
+  {
+    int err = sqlite3_open(conn.c_str(), &db);
+
+    if (err != SQLITE_OK) {
+      std::string msg = sqlite3_errmsg(db);
+      sqlite3_close(db);
+      db = nullptr;
+      throw Sqlite3Exception(msg);
+    }
+  }
+}
+
 Sqlite3::Sqlite3(const std::string& db)
   : conn_(db)
 {
@@ -510,10 +530,7 @@ Sqlite3::Sqlite3(const std::string& db)
   dateTimeStorage_[static_cast<unsigned>(SqlDateTimeType::DateTime)]
     = DateTimeStorage::ISO8601AsText;
 
-  int err = sqlite3_open(conn_.c_str(), &db_);
-
-  if (err != SQLITE_OK)
-    throw Sqlite3Exception(sqlite3_errmsg(db_));
+  openDatabase(conn_, db_);
 
   init();
 }
@@ -529,10 +546,7 @@ Sqlite3::Sqlite3(const Sqlite3& other)
     = other
     .dateTimeStorage_[static_cast<unsigned>(SqlDateTimeType::DateTime)];
 
-  int err = sqlite3_open(conn_.c_str(), &db_);
-
-  if (err != SQLITE_OK)
-    throw Sqlite3Exception(sqlite3_errmsg(db_));
+  openDatabase(conn_, db_);
 
   init();
 }
